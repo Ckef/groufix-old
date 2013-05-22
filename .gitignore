@@ -1,0 +1,8 @@
+# filetypes
+*.cbTemp
+*.depend
+*.layout
+*.o
+
+# directories
+bin/
