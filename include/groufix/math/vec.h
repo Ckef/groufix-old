@@ -9,7 +9,8 @@
 #define GFX_MATH_VEC_H
 
 #include <math.h>
-#include "Groufix/utils.h"
+#include <string.h>
+#include "groufix/utils.h"
 
 // One worded datatypes
 typedef unsigned char uchar;
@@ -18,6 +19,7 @@ typedef unsigned int uint;
 
 #endif // GFX_MATH_VEC_H
 
+
 /////////////////////////////////////////////////
 // Load all default sizes
 /////////////////////////////////////////////////
@@ -25,18 +27,19 @@ typedef unsigned int uint;
 
 	// Default 2D vector
 	#define VEC_SIZE 2
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_SIZE
 
 	// Default 3D vector
 	#define VEC_SIZE 3
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_SIZE
 
 	// Default 4D vector
 	#define VEC_SIZE 4
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_SIZE
+
 
 /////////////////////////////////////////////////
 // Load all default datatypes
@@ -44,36 +47,37 @@ typedef unsigned int uint;
 #elif !defined(VEC_TYPE)
 
 	#define VEC_TYPE char
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_TYPE
 
 	#define VEC_TYPE uchar
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_TYPE
 
 	#define VEC_TYPE short
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_TYPE
 
 	#define VEC_TYPE ushort
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_TYPE
 
 	#define VEC_TYPE int
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_TYPE
 
 	#define VEC_TYPE uint
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_TYPE
 
 	#define VEC_TYPE float
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_TYPE
 
 	#define VEC_TYPE double
-	#include "Groufix/Math/vec.h"
+	#include "groufix/math/vec.h"
 	#undef VEC_TYPE
+
 
 /////////////////////////////////////////////////
 // Vector Template definition
@@ -87,7 +91,12 @@ typedef unsigned int uint;
 	#define VEC_FUNC(postfix) NAME(VEC_NAME, postfix)
 
 /** \brief Vector defintion */
-typedef VEC_TYPE VEC_NAME[VEC_SIZE];
+typedef struct
+{
+	// Components
+	VEC_TYPE data[VEC_SIZE];
+}
+VEC_NAME;
 
 /**
  * \brief Add two vectors.
@@ -95,11 +104,11 @@ typedef VEC_TYPE VEC_NAME[VEC_SIZE];
  * \param dest Destination vector.
  *
  */
-inline VEC_TYPE *VEC_FUNC(add)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE *b)
+inline VEC_NAME *VEC_FUNC(add)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
 {
 	unsigned int i;
 	for(i = 0; i < VEC_SIZE; ++i)
-		dest[i] = a[i] + b[i];
+		dest->data[i] = a->data[i] + b->data[i];
 
 	return dest;
 }
@@ -110,11 +119,11 @@ inline VEC_TYPE *VEC_FUNC(add)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE *b)
  * \param dest Destination vector.
  *
  */
-inline VEC_TYPE *VEC_FUNC(sub)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE *b)
+inline VEC_NAME *VEC_FUNC(sub)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
 {
 	unsigned int i;
 	for(i = 0; i < VEC_SIZE; ++i)
-		dest[i] = a[i] - b[i];
+		dest->data[i] = a->data[i] - b->data[i];
 
 	return dest;
 }
@@ -125,11 +134,11 @@ inline VEC_TYPE *VEC_FUNC(sub)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE *b)
  * \param dest Destination vector.
  *
  */
-inline VEC_TYPE *VEC_FUNC(mult)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE *b)
+inline VEC_NAME *VEC_FUNC(mult)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
 {
 	unsigned int i;
 	for(i = 0; i < VEC_SIZE; ++i)
-		dest[i] = a[i] * b[i];
+		dest->data[i] = a->data[i] * b->data[i];
 
 	return dest;
 }
@@ -140,11 +149,11 @@ inline VEC_TYPE *VEC_FUNC(mult)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE *b)
  * \param dest Destination vector.
  *
  */
-inline VEC_TYPE *VEC_FUNC(scale)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE scalar)
+inline VEC_NAME *VEC_FUNC(scale)(VEC_NAME *dest, VEC_NAME *a, VEC_TYPE scalar)
 {
 	unsigned int i;
 	for(i = 0; i < VEC_SIZE; ++i)
-		dest[i] = a[i] * scalar;
+		dest->data[i] = a->data[i] * scalar;
 
 	return dest;
 }
@@ -153,12 +162,12 @@ inline VEC_TYPE *VEC_FUNC(scale)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE scalar)
  * \brief Take the dot product of two vectors.
  *
  */
-inline VEC_TYPE VEC_FUNC(dot)(VEC_TYPE *a, VEC_TYPE *b)
+inline VEC_TYPE VEC_FUNC(dot)(VEC_NAME *a, VEC_NAME *b)
 {
 	VEC_TYPE dot = 0;
 	unsigned int i;
 	for(i = 0; i < VEC_SIZE; ++i)
-		dot += a[i] * b[i];
+		dot += a->data[i] * b->data[i];
 
 	return dot;
 }
@@ -170,11 +179,11 @@ inline VEC_TYPE VEC_FUNC(dot)(VEC_TYPE *a, VEC_TYPE *b)
  * \param dest Destination vector.
  *
  */
-inline VEC_TYPE *VEC_FUNC(cross)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE *b)
+inline VEC_NAME *VEC_FUNC(cross)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
 {
-	dest[0] = a[1] * b[2] - a[2] * b[1];
-	dest[1] = a[2] * b[0] - a[0] * b[2];
-	dest[2] = a[0] * b[1] - a[1] * b[0];
+	dest->data[0] = a->data[1] * b->data[2] - a->data[2] * b->data[1];
+	dest->data[1] = a->data[2] * b->data[0] - a->data[0] * b->data[2];
+	dest->data[2] = a->data[0] * b->data[1] - a->data[1] * b->data[0];
 
 	return dest;
 }
@@ -183,29 +192,40 @@ inline VEC_TYPE *VEC_FUNC(cross)(VEC_TYPE *dest, VEC_TYPE *a, VEC_TYPE *b)
 /**
  * \brief Compares a vector against 0, component wise.
  *
- * \return If the vector is not zero, a non-zero value is returned.
+ * \return If the vector is zero, a non-zero value is returned.
  *
  */
-inline int VEC_FUNC(is_zero)(VEC_TYPE *a)
+inline int VEC_FUNC(is_zero)(VEC_NAME *a)
 {
 	unsigned int i;
 	for(i = 0; i < VEC_SIZE; ++i)
-		if(a[i]) return 0;
+		if(a->data[i]) return 0;
 
 	return 1;
+}
+
+/**
+ * \brief Sets the value of all a vector's components to 0.
+ *
+ * \return The given vector itself.
+ *
+ */
+inline VEC_NAME *VEC_FUNC(set_zero)(VEC_NAME *a)
+{
+	return (VEC_NAME*)memset(a, 0, sizeof(VEC_NAME));
 }
 
 /**
  * \brief Take the squared magnitude of a vector.
  *
  */
-inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_TYPE *a)
+inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_NAME *a)
 {
 	VEC_TYPE dot = 0;
 	unsigned int i;
 	for(i = 0; i < VEC_SIZE; ++i)
 	{
-		VEC_TYPE *val = a + i;
+		VEC_TYPE *val = a->data + i;
 		dot += (*val) * (*val);
 	}
 	return dot;
@@ -215,7 +235,7 @@ inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_TYPE *a)
  * \brief Take the magnitude of a vector.
  *
  */
-inline double VEC_FUNC(magnitude)(VEC_TYPE *a)
+inline double VEC_FUNC(magnitude)(VEC_NAME *a)
 {
 	return sqrt((double)VEC_FUNC(magnitude_squared)(a));
 }
@@ -226,7 +246,7 @@ inline double VEC_FUNC(magnitude)(VEC_TYPE *a)
  * \param dest Destination vector.
  *
  */
-inline VEC_TYPE *VEC_FUNC(normalize)(VEC_TYPE *dest, VEC_TYPE *a)
+inline VEC_NAME *VEC_FUNC(normalize)(VEC_NAME *dest, VEC_NAME *a)
 {
 	double mag = VEC_FUNC(magnitude)(a);
 	VEC_TYPE scale = (VEC_TYPE)(mag ? 1.0 / mag : 1.0);

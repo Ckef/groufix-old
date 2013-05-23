@@ -38,8 +38,8 @@
 		<Linker>
 			<Add option="-s" />
 		</Linker>
-		<Unit filename="include/Groufix/Math/vec.h" />
-		<Unit filename="include/Groufix/utils.h" />
+		<Unit filename="include/groufix/math/vec.h" />
+		<Unit filename="include/groufix/utils.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
