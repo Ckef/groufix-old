@@ -1,18 +1,27 @@
 #include <stdio.h>
 
-#include "groufix/math/vec.h"
+#define MAT_INCLUDE_VEC
+#include "groufix/math/mat.h"
 
 int main()
 {
-	vec3_float vec;
-	vec.data[0] = -5.0f;
-	vec.data[1] = 76.0f;
-	vec.data[2] = -4298.0f;
+	mat4_float mat;
+	mat4_float_set_zero(&mat);
+	*mat4_float_get(&mat,0,0) = 2.0f;
+	*mat4_float_get(&mat,1,1) = 3.0f;
+	*mat4_float_get(&mat,2,2) = 1.0f;
+	*mat4_float_get(&mat,3,3) = 1.0f;
+	*mat4_float_get(&mat,0,3) = 1.0f;
 
-	vec3_float_normalize(&vec, &vec);
-	vec3_float_scale(&vec, &vec, 5.0f);
+	mat4_float_mult(&mat, &mat, &mat);
+	mat4_float_transpose(&mat, &mat);
 
-	printf("%f %f %f : %f\n", vec.data[0], vec.data[1], vec.data[2], vec3_float_magnitude(&vec));
+	printf("[%f %f %f %f]\n[%f %f %f %f]\n[%f %f %f %f]\n[%f %f %f %f]\n",
+		*mat4_float_get(&mat,0,0), *mat4_float_get(&mat,0,1), *mat4_float_get(&mat,0,2), *mat4_float_get(&mat,0,3),
+		*mat4_float_get(&mat,1,0), *mat4_float_get(&mat,1,1), *mat4_float_get(&mat,1,2), *mat4_float_get(&mat,1,3),
+		*mat4_float_get(&mat,2,0), *mat4_float_get(&mat,2,1), *mat4_float_get(&mat,2,2), *mat4_float_get(&mat,2,3),
+		*mat4_float_get(&mat,3,0), *mat4_float_get(&mat,3,1), *mat4_float_get(&mat,3,2), *mat4_float_get(&mat,3,3)
+	);
 
 	return 0;
 }
