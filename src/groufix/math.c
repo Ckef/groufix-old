@@ -19,15 +19,11 @@
  *
  */
 
-#ifndef GFX_UTILS_H
-#define GFX_UTILS_H
+#include "groufix/math.h"
 
-/* Concatenation */
-#define CAT_BAD(x,y) x ## y
-#define CAT(x,y) CAT_BAD(x,y)
-
-/* Template naming */
-#define NAME_BAD(x,y) x ## _ ## y
-#define NAME(x,y) NAME_BAD(x,y)
-
-#endif // GFX_UTILS_H
+/* Mathematical constants */
+const double PI          = 3.1415926535897932384626433832795028841971693993751;
+const double PI_TWO      = 6.2831853071795864769252867665590057683943387987502;
+const double PI_HALF     = 1.5707963267948966192313216916397514420985846996876;
+const double RAD_TO_DEG  = 57.295779513082320876798154814105170332405472466564;
+const double DEG_TO_RAD  = 0.017453292519943295769236907684886127134428718885417;

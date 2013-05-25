@@ -1,40 +1,37 @@
-/*****************************************************
- * Groufix  :  Graphics Engine produced by Ckef Worx *
- * www      :  http://www.ejb.ckef-worx.com          *
- *                                                   *
- * Copyright (C) Stef Velzel :: All Rights Reserved  *
- *****************************************************/
+/**
+ * Groufix  :  Graphics Engine produced by Ckef Worx
+ * www      :  http://www.ejb.ckef-worx.com
+ *
+ * Copyright (C) Stef Velzel :: All Rights Reserved
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #ifndef GFX_MATH_QUAT_H
 #define GFX_MATH_QUAT_H
 
-// Include matrix or vector if asked
-#if defined(QUAT_INCLUDE_MAT)
-	#undef MAT_INCLUDE_VEC
-	#define MAT_INCLUDE_VEC
-	#undef QUAT_INCLUDE_VEC
-	#define QUAT_INCLUDE_VEC
-	#include "groufix/math/mat.h"
-#elif defined(QUAT_INCLUDE_VEC)
-	#include "groufix/math/vec.h"
-#else
+#include <math.h>
+#include <string.h>
+#include "groufix/utils.h"
 
-	// Includes
-	#include <math.h>
-	#include <string.h>
-	#include "groufix/utils.h"
-
-#endif
-
-// Create a quaternion type name
 #define QUAT_CREATE_NAME(type) NAME(quat, type)
 
 #endif // GFX_MATH_QUAT_H
 
 
-/////////////////////////////////////////////////
-// Load all default datatypes
-/////////////////////////////////////////////////
+/* Load all default datatypes */
 #if !defined(QUAT_TYPE)
 
 	#define QUAT_TYPE float
@@ -45,30 +42,32 @@
 	#include "groufix/math/quat.h"
 	#undef QUAT_TYPE
 
-
-/////////////////////////////////////////////////
-// Quaternion Template definition
-/////////////////////////////////////////////////
 #else
 
-// Name & Function
+/* Name & Function */
 #define QUAT_NAME QUAT_CREATE_NAME(QUAT_TYPE)
 #define QUAT_FUNC(postfix) NAME(QUAT_NAME, postfix)
 
-// Matrix specific
-#ifdef QUAT_INCLUDE_MAT
+/* Matrix specific */
+#ifdef QUAT_USE_MAT
+	#ifndef GFX_MATH_MAT_H
+		#error "Need to include groufix/math/mat.h to use QUAT_USE_MAT"
+	#endif
 	#define MAT_NAME MAT_CREATE_NAME(3, QUAT_TYPE)
 #endif
 
-// Vector specific
-#ifdef QUAT_INCLUDE_VEC
+/*  Vector specific */
+#ifdef QUAT_USE_VEC
+	#ifndef GFX_MATH_VEC_H
+		#error "Need to include groufix/math/vec.h to use QUAT_USE_VEC"
+	#endif
 	#define VEC_NAME VEC_CREATE_NAME(3, QUAT_TYPE)
 #endif
 
 /** \brief Quaternion defintion */
 typedef struct
 {
-	// Components
+	/** Components */
 	QUAT_TYPE data[4];
 }
 QUAT_NAME;
@@ -232,7 +231,7 @@ inline int QUAT_FUNC(is_zero)(QUAT_NAME *a)
 	return 1;
 }
 
-#ifdef QUAT_INCLUDE_VEC
+#ifdef QUAT_USE_VEC
 /**
  * \brief Computes a quaternion from an angle and an axis.
  *
@@ -288,26 +287,27 @@ inline void QUAT_FUNC(to_angle_axis)(QUAT_NAME *src, double *angle, VEC_NAME *ax
  */
 inline VEC_NAME *QUAT_FUNC(mult_vec)(VEC_NAME *dest, QUAT_NAME *a, VEC_NAME *b)
 {
-	// want = q * v * q^-1 (sandwich product)
-	// in which v = (0, bx, by, bz) and q^-1 = (aw, -ax, -ay, -az) (conjugate)
-	// because of the 0 we write it out to spare some calculations
-	// first we compute v * q^-1
+	/* want = q * v * q^-1 (sandwich product)
+	 * in which v = (0, bx, by, bz) and q^-1 = (aw, -ax, -ay, -az) (conjugate)
+	 * because of the 0 we write it out to spare some calculations
+	 * first we compute v * q^-1
+	 */
 	QUAT_NAME res;
 	res.data[0] = b->data[0] * a->data[1] + b->data[1] * a->data[2] + b->data[2] * a->data[3];
 	res.data[1] = b->data[0] * a->data[0] - b->data[1] * a->data[3] + b->data[2] * a->data[2];
 	res.data[2] = b->data[0] * a->data[3] + b->data[1] * a->data[0] - b->data[2] * a->data[1];
 	res.data[3] = b->data[1] * a->data[1] + b->data[2] * a->data[0] - b->data[0] * a->data[2];
 
-	// next we compute q * the above
+	/* next we compute q * the above */
 	dest->data[0] = a->data[0] * res.data[1] + a->data[1] * res.data[0] + a->data[2] * res.data[3] - a->data[3] * res.data[2];
 	dest->data[1] = a->data[0] * res.data[2] - a->data[1] * res.data[3] + a->data[2] * res.data[0] + a->data[3] * res.data[1];
 	dest->data[2] = a->data[0] * res.data[3] + a->data[1] * res.data[2] - a->data[2] * res.data[1] + a->data[3] * res.data[0];
 
 	return dest;
 }
-#endif
+#endif // QUAT_USE_VEC
 
-#ifdef QUAT_INCLUDE_MAT
+#ifdef QUAT_USE_MAT
 /**
  * \brief Computes the 3x3 rotation matrix equivalent to a quaternion.
  *
@@ -338,7 +338,7 @@ inline MAT_NAME *QUAT_FUNC(to_matrix)(MAT_NAME *dest, QUAT_NAME *a)
 
 	return dest;
 }
-#endif
+#endif // QUAT_USE_MAT
 
 #undef QUAT_NAME
 #undef QUAT_FUNC

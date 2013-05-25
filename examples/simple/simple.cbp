@@ -12,6 +12,9 @@
 				<Option object_output="obj/Release-x11/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Linker>
+					<Add library="../../bin/Release-x11/libGroufix.so" />
+				</Linker>
 			</Target>
 			<Target title="Release-win32">
 				<Option platforms="Windows;" />
@@ -19,6 +22,9 @@
 				<Option object_output="obj/Release-win32/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Linker>
+					<Add library="../../bin/Release-win32/libGroufix.a" />
+				</Linker>
 			</Target>
 		</Build>
 		<Compiler>

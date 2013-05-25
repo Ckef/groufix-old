@@ -1,7 +1,6 @@
 #include <stdio.h>
 
-#define QUAT_INCLUDE_MAT
-#include "groufix/math/quat.h"
+#include "groufix/math.h"
 
 int main()
 {
@@ -15,6 +14,8 @@ int main()
 
 	mat4_float_mult(&mat, &mat, &mat);
 	mat4_float_transpose(&mat, &mat);
+
+	printf("%f\n", PI);
 
 	printf("[%f %f %f %f]\n[%f %f %f %f]\n[%f %f %f %f]\n[%f %f %f %f]\n",
 		*mat4_float_get(&mat,0,0), *mat4_float_get(&mat,0,1), *mat4_float_get(&mat,0,2), *mat4_float_get(&mat,0,3),

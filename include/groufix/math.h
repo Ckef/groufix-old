@@ -19,15 +19,22 @@
  *
  */
 
-#ifndef GFX_UTILS_H
-#define GFX_UTILS_H
+#ifndef GFX_MATH_H
+#define GFX_MATH_H
 
-/* Concatenation */
-#define CAT_BAD(x,y) x ## y
-#define CAT(x,y) CAT_BAD(x,y)
+/* Mathematical structures */
+#define MAT_INCLUDE_VEC
+#define QUAT_INCLUDE_VEC
+#define QUAT_INCLUDE_MAT
+#include "groufix/math/vec.h"
+#include "groufix/math/mat.h"
+#include "groufix/math/quat.h"
 
-/* Template naming */
-#define NAME_BAD(x,y) x ## _ ## y
-#define NAME(x,y) NAME_BAD(x,y)
+/* Mathematical constants */
+extern const double PI;
+extern const double PI_TWO;
+extern const double PI_HALF;
+extern const double RAD_TO_DEG;
+extern const double DEG_TO_RAD;
 
-#endif // GFX_UTILS_H
+#endif // GFX_MATH_H

@@ -1,55 +1,53 @@
-/*****************************************************
- * Groufix  :  Graphics Engine produced by Ckef Worx *
- * www      :  http://www.ejb.ckef-worx.com          *
- *                                                   *
- * Copyright (C) Stef Velzel :: All Rights Reserved  *
- *****************************************************/
+/**
+ * Groufix  :  Graphics Engine produced by Ckef Worx
+ * www      :  http://www.ejb.ckef-worx.com
+ *
+ * Copyright (C) Stef Velzel :: All Rights Reserved
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #ifndef GFX_MATH_MAT_H
 #define GFX_MATH_MAT_H
 
-// Include vector if asked
-#ifdef MAT_INCLUDE_VEC
-	#include "groufix/math/vec.h"
-#else
+#include <math.h>
+#include <string.h>
+#include "groufix/utils.h"
 
-	// Includes
-	#include <math.h>
-	#include <string.h>
-	#include "groufix/utils.h"
-
-#endif
-
-// Create a matrix type name
 #define MAT_CREATE_NAME(size,type) NAME(CAT(mat, size), type)
 
 #endif // GFX_MATH_MAT_H
 
 
-/////////////////////////////////////////////////
-// Load all default sizes
-/////////////////////////////////////////////////
+/* Load all default sizes */
 #if !defined(MAT_SIZE)
 
-	// Default 2x2 matrix
 	#define MAT_SIZE 2
 	#include "groufix/math/mat.h"
 	#undef MAT_SIZE
 
-	// Default 3x3 matrix
 	#define MAT_SIZE 3
 	#include "groufix/math/mat.h"
 	#undef MAT_SIZE
 
-	// Default 4x4 matrix
 	#define MAT_SIZE 4
 	#include "groufix/math/mat.h"
 	#undef MAT_SIZE
 
 
-/////////////////////////////////////////////////
-// Load all default datatypes
-/////////////////////////////////////////////////
+/* Load all default datatypes */
 #elif !defined(MAT_TYPE)
 
 	#define MAT_TYPE float
@@ -60,19 +58,18 @@
 	#include "groufix/math/mat.h"
 	#undef MAT_TYPE
 
-
-/////////////////////////////////////////////////
-// Matrix Template definition
-/////////////////////////////////////////////////
 #else
 
-// Name & Function
+/* Name & Function */
 #define MAT_NAME MAT_CREATE_NAME(MAT_SIZE, MAT_TYPE)
 #define MAT_FUNC(postfix) NAME(MAT_NAME, postfix)
 #define MAT_STORE (MAT_SIZE * MAT_SIZE)
 
-// Vector specific
-#ifdef MAT_INCLUDE_VEC
+/* Vector specific */
+#ifdef MAT_USE_VEC
+	#ifndef GFX_MATH_VEC_H
+		#error "Need to include groufix/math/vec.h to use MAT_USE_VEC"
+	#endif
 	#define VEC_NAME VEC_CREATE_NAME(MAT_SIZE, MAT_TYPE)
 	#define VEC_FUNC(postfix) NAME(VEC_NAME, postfix)
 #endif
@@ -80,7 +77,7 @@
 /** \brief Matrix defintion */
 typedef struct
 {
-	// Components
+	/** Components */
 	MAT_TYPE data[MAT_STORE];
 }
 MAT_NAME;
@@ -209,7 +206,7 @@ inline int MAT_FUNC(is_zero)(MAT_NAME *a)
 	return 1;
 }
 
-#ifdef MAT_INCLUDE_VEC
+#ifdef MAT_USE_VEC
 /**
  * \brief Multiplies a matrix by a vector.
  *
@@ -231,7 +228,7 @@ inline VEC_NAME *MAT_FUNC(mult_vec)(VEC_NAME *dest, MAT_NAME *a, VEC_NAME *b)
 	*dest = res;
 	return dest;
 }
-#endif
+#endif // MAT_USE_VEC
 
 #undef MAT_NAME
 #undef MAT_FUNC

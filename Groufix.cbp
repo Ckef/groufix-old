@@ -32,16 +32,21 @@
 			<Add option="-Os" />
 			<Add option="-O3" />
 			<Add option="-pedantic-errors" />
+			<Add option="-std=c99" />
 			<Add option="-Wall" />
 			<Add directory="include" />
 		</Compiler>
 		<Linker>
 			<Add option="-s" />
 		</Linker>
+		<Unit filename="include/groufix/math.h" />
 		<Unit filename="include/groufix/math/mat.h" />
 		<Unit filename="include/groufix/math/quat.h" />
 		<Unit filename="include/groufix/math/vec.h" />
 		<Unit filename="include/groufix/utils.h" />
+		<Unit filename="src/groufix/math.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />

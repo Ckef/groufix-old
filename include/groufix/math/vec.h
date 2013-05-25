@@ -1,53 +1,57 @@
-/*****************************************************
- * Groufix  :  Graphics Engine produced by Ckef Worx *
- * www      :  http://www.ejb.ckef-worx.com          *
- *                                                   *
- * Copyright (C) Stef Velzel :: All Rights Reserved  *
- *****************************************************/
+/**
+ * Groufix  :  Graphics Engine produced by Ckef Worx
+ * www      :  http://www.ejb.ckef-worx.com
+ *
+ * Copyright (C) Stef Velzel :: All Rights Reserved
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 #ifndef GFX_MATH_VEC_H
 #define GFX_MATH_VEC_H
 
-// Includes
 #include <math.h>
 #include <string.h>
 #include "groufix/utils.h"
 
-// One worded datatypes
 typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 
-// Create a vector type name
 #define VEC_CREATE_NAME(size,type) NAME(CAT(vec, size), type)
 
 #endif // GFX_MATH_VEC_H
 
 
-/////////////////////////////////////////////////
-// Load all default sizes
-/////////////////////////////////////////////////
+/* Load all default sizes */
 #if !defined(VEC_SIZE)
 
-	// Default 2D vector
 	#define VEC_SIZE 2
 	#include "groufix/math/vec.h"
 	#undef VEC_SIZE
 
-	// Default 3D vector
 	#define VEC_SIZE 3
 	#include "groufix/math/vec.h"
 	#undef VEC_SIZE
 
-	// Default 4D vector
 	#define VEC_SIZE 4
 	#include "groufix/math/vec.h"
 	#undef VEC_SIZE
 
 
-/////////////////////////////////////////////////
-// Load all default datatypes
-/////////////////////////////////////////////////
+/* Load all default datatypes */
 #elif !defined(VEC_TYPE)
 
 	#define VEC_TYPE char
@@ -82,20 +86,16 @@ typedef unsigned int uint;
 	#include "groufix/math/vec.h"
 	#undef VEC_TYPE
 
-
-/////////////////////////////////////////////////
-// Vector Template definition
-/////////////////////////////////////////////////
 #else
 
-// Name & Function
+/* Name & Function */
 #define VEC_NAME VEC_CREATE_NAME(VEC_SIZE, VEC_TYPE)
 #define VEC_FUNC(postfix) NAME(VEC_NAME, postfix)
 
 /** \brief Vector defintion */
 typedef struct
 {
-	// Components
+	/** Components */
 	VEC_TYPE data[VEC_SIZE];
 }
 VEC_NAME;
