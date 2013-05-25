@@ -58,14 +58,11 @@
 // Matrix specific
 #ifdef QUAT_INCLUDE_MAT
 	#define MAT_NAME MAT_CREATE_NAME(3, QUAT_TYPE)
-	#define MAT_FUNC(postfix) NAME(MAT_NAME, postfix)
-	#define MAT_STORE 9
 #endif
 
 // Vector specific
 #ifdef QUAT_INCLUDE_VEC
 	#define VEC_NAME VEC_CREATE_NAME(3, QUAT_TYPE)
-	#define VEC_FUNC(postfix) NAME(VEC_NAME, postfix)
 #endif
 
 /** \brief Quaternion defintion */
@@ -160,7 +157,7 @@ inline QUAT_NAME *QUAT_FUNC(conjugate)(QUAT_NAME *dest, QUAT_NAME *a)
 {
 	dest->data[0] = a->data[0];
 	dest->data[1] = -a->data[1];
-	dest->data[2] = -a->data[1];
+	dest->data[2] = -a->data[2];
 	dest->data[3] = -a->data[3];
 
 	return dest;
@@ -235,13 +232,117 @@ inline int QUAT_FUNC(is_zero)(QUAT_NAME *a)
 	return 1;
 }
 
+#ifdef QUAT_INCLUDE_VEC
+/**
+ * \brief Computes a quaternion from an angle and an axis.
+ *
+ * \param dest  Destination quaternion.
+ * \param angle Angle in radians.
+ * \param axis  Axis to 'rotate' around.
+ *
+ * This method assumes the axis is of unit length (magnitude or magnitude_squared = 1).
+ *
+ */
+inline QUAT_NAME *QUAT_FUNC(from_angle_axis)(QUAT_NAME *dest, double angle, VEC_NAME *axis)
+{
+	double half = angle * 0.5;
+	double scale = sin(half);
+
+	dest->data[1] = axis->data[0] * scale;
+	dest->data[2] = axis->data[1] * scale;
+	dest->data[3] = axis->data[2] * scale;
+	dest->data[0] = cos(half);
+
+	return dest;
+}
+
+/**
+ * \brief Computes an angle and axis from a quaternion.
+ *
+ * \param src   Source quaternion.
+ * \param angle Angle in radians.
+ * \param axis  Axis to 'rotate' around.
+ *
+ * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
+ *
+ */
+inline void QUAT_FUNC(to_angle_axis)(QUAT_NAME *src, double *angle, VEC_NAME *axis)
+{
+	double half = acos(src->data[0]);
+	double scale = sin(half);
+	if(scale) scale = 1.0 / scale;
+
+	*angle = half * 2.0;
+	axis->data[0] = src->data[1] * scale;
+	axis->data[1] = src->data[2] * scale;
+	axis->data[2] = src->data[3] * scale;
+}
+
+/**
+ * \brief Multiplies a 'position' vector by a quaternion.
+ *
+ * \param dest Destination vector.
+ *
+ * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
+ *
+ */
+inline VEC_NAME *QUAT_FUNC(mult_vec)(VEC_NAME *dest, QUAT_NAME *a, VEC_NAME *b)
+{
+	// want = q * v * q^-1 (sandwich product)
+	// in which v = (0, bx, by, bz) and q^-1 = (aw, -ax, -ay, -az) (conjugate)
+	// because of the 0 we write it out to spare some calculations
+	// first we compute v * q^-1
+	QUAT_NAME res;
+	res.data[0] = b->data[0] * a->data[1] + b->data[1] * a->data[2] + b->data[2] * a->data[3];
+	res.data[1] = b->data[0] * a->data[0] - b->data[1] * a->data[3] + b->data[2] * a->data[2];
+	res.data[2] = b->data[0] * a->data[3] + b->data[1] * a->data[0] - b->data[2] * a->data[1];
+	res.data[3] = b->data[1] * a->data[1] + b->data[2] * a->data[0] - b->data[0] * a->data[2];
+
+	// next we compute q * the above
+	dest->data[0] = a->data[0] * res.data[1] + a->data[1] * res.data[0] + a->data[2] * res.data[3] - a->data[3] * res.data[2];
+	dest->data[1] = a->data[0] * res.data[2] - a->data[1] * res.data[3] + a->data[2] * res.data[0] + a->data[3] * res.data[1];
+	dest->data[2] = a->data[0] * res.data[3] + a->data[1] * res.data[2] - a->data[2] * res.data[1] + a->data[3] * res.data[0];
+
+	return dest;
+}
+#endif
+
+#ifdef QUAT_INCLUDE_MAT
+/**
+ * \brief Computes the 3x3 rotation matrix equivalent to a quaternion.
+ *
+ * \param dest Destination matrix.
+ *
+ * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
+ *
+ */
+inline MAT_NAME *QUAT_FUNC(to_matrix)(MAT_NAME *dest, QUAT_NAME *a)
+{
+	QUAT_TYPE x2 = a->data[1] + a->data[1];
+	QUAT_TYPE y2 = a->data[2] + a->data[2];
+	QUAT_TYPE z2 = a->data[3] + a->data[3];
+
+	QUAT_TYPE wx = x2 * a->data[0];
+	QUAT_TYPE wy = y2 * a->data[0];
+	QUAT_TYPE wz = z2 * a->data[0];
+	QUAT_TYPE xx = x2 * a->data[1];
+	QUAT_TYPE xy = y2 * a->data[1];
+	QUAT_TYPE xz = z2 * a->data[1];
+	QUAT_TYPE yy = y2 * a->data[2];
+	QUAT_TYPE yz = z2 * a->data[2];
+	QUAT_TYPE zz = z2 * a->data[3];
+
+	dest->data[0] = 1 - yy - zz; dest->data[3] = xy - wz; dest->data[6] = xz + wy;
+	dest->data[1] = xy + wz; dest->data[4] = 1 - xx - zz; dest->data[7] = yz - wx;
+	dest->data[2] = xz - wy; dest->data[5] = yz + wx; dest->data[8] = 1 - xx - yy;
+
+	return dest;
+}
+#endif
+
 #undef QUAT_NAME
 #undef QUAT_FUNC
 
 #undef MAT_NAME
-#undef MAT_FUNC
-#undef MAT_STORE
-
 #undef VEC_NAME
-#undef VEC_FUNC
 #endif // TEMPLATE

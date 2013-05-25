@@ -174,30 +174,6 @@ inline MAT_NAME *MAT_FUNC(mult_scalar)(MAT_NAME *dest, MAT_NAME *a, MAT_TYPE sca
 	return dest;
 }
 
-#ifdef MAT_INCLUDE_VEC
-/**
- * \brief Multiplies a matrix by a vector.
- *
- * \param dest Destination vector.
- *
- */
-inline VEC_NAME *MAT_FUNC(mult_vec)(VEC_NAME *dest, MAT_NAME *a, VEC_NAME *b)
-{
-	VEC_NAME res;
-	VEC_FUNC(set_zero)(&res);
-
-	size_t r, c;
-	for(r = 0; r < MAT_SIZE; ++r)
-	{
-		MAT_TYPE *val = res.data + r;
-		for(c = 0; c < MAT_SIZE; ++c)
-			*val += a->data[r + c * MAT_SIZE] * b->data[c];
-	}
-	*dest = res;
-	return dest;
-}
-#endif
-
 /**
  * \brief Take the transpose of a matrix.
  *
@@ -232,6 +208,30 @@ inline int MAT_FUNC(is_zero)(MAT_NAME *a)
 
 	return 1;
 }
+
+#ifdef MAT_INCLUDE_VEC
+/**
+ * \brief Multiplies a matrix by a vector.
+ *
+ * \param dest Destination vector.
+ *
+ */
+inline VEC_NAME *MAT_FUNC(mult_vec)(VEC_NAME *dest, MAT_NAME *a, VEC_NAME *b)
+{
+	VEC_NAME res;
+	VEC_FUNC(set_zero)(&res);
+
+	size_t r, c;
+	for(r = 0; r < MAT_SIZE; ++r)
+	{
+		MAT_TYPE *val = res.data + r;
+		for(c = 0; c < MAT_SIZE; ++c)
+			*val += a->data[r + c * MAT_SIZE] * b->data[c];
+	}
+	*dest = res;
+	return dest;
+}
+#endif
 
 #undef MAT_NAME
 #undef MAT_FUNC
