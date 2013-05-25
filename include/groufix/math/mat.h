@@ -18,11 +18,6 @@
 	#include <string.h>
 	#include "groufix/utils.h"
 
-	// One worded datatypes
-	typedef unsigned char uchar;
-	typedef unsigned short ushort;
-	typedef unsigned int uint;
-
 #endif
 
 // Create a matrix type name
@@ -151,13 +146,13 @@ inline MAT_NAME *MAT_FUNC(mult)(MAT_NAME *dest, MAT_NAME *a, MAT_NAME *b)
 	MAT_NAME res;
 	MAT_FUNC(set_zero)(&res);
 
-	size_t r, c, c2, k;
-	for(c = 0, c2 = 0; c < MAT_SIZE; ++c, c2 += MAT_SIZE)
+	size_t r, c, k;
+	for(c = 0; c < MAT_STORE; c += MAT_SIZE)
 		for(r = 0; r < MAT_SIZE; ++r)
 		{
-			MAT_TYPE *val = res.data + (r + c2);
+			MAT_TYPE *val = res.data + (r + c);
 			for(k = 0; k < MAT_SIZE; ++k)
-				*val += a->data[r + k * MAT_SIZE] * b->data[k + c2];
+				*val += a->data[r + k * MAT_SIZE] * b->data[k + c];
 		}
 
 	*dest = res;

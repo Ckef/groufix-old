@@ -39,6 +39,7 @@
 			<Add option="-s" />
 		</Linker>
 		<Unit filename="include/groufix/math/mat.h" />
+		<Unit filename="include/groufix/math/quat.h" />
 		<Unit filename="include/groufix/math/vec.h" />
 		<Unit filename="include/groufix/utils.h" />
 		<Extensions>

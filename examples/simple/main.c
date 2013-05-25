@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#define MAT_INCLUDE_VEC
-#include "groufix/math/mat.h"
+#define QUAT_INCLUDE_MAT
+#include "groufix/math/quat.h"
 
 int main()
 {

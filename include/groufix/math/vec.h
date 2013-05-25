@@ -238,7 +238,7 @@ inline double VEC_FUNC(magnitude)(VEC_NAME *a)
 inline VEC_NAME *VEC_FUNC(normalize)(VEC_NAME *dest, VEC_NAME *a)
 {
 	double mag = VEC_FUNC(magnitude)(a);
-	VEC_TYPE scale = (VEC_TYPE)(mag ? 1.0 / mag : 1.0);
+	VEC_TYPE scale = (VEC_TYPE)(mag ? 1.0 / mag : 0.0);
 
 	return VEC_FUNC(scale)(dest, a, scale);
 }
