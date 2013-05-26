@@ -73,6 +73,15 @@ typedef struct
 QUAT_NAME;
 
 /**
+ * \brief Returns a value of the quaternion.
+ *
+ */
+inline QUAT_TYPE *QUAT_FUNC(get)(QUAT_NAME *a, size_t component)
+{
+	return a->data + component;
+}
+
+/**
  * \brief Sets the value of all a quaternion's components to 0.
  *
  * \return The given quaternion itself.
@@ -154,7 +163,7 @@ inline QUAT_NAME *QUAT_FUNC(scale)(QUAT_NAME *dest, QUAT_NAME *a, QUAT_TYPE scal
  */
 inline QUAT_NAME *QUAT_FUNC(conjugate)(QUAT_NAME *dest, QUAT_NAME *a)
 {
-	dest->data[0] = a->data[0];
+	dest->data[0] = +a->data[0];
 	dest->data[1] = -a->data[1];
 	dest->data[2] = -a->data[2];
 	dest->data[3] = -a->data[3];

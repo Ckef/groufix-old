@@ -23,9 +23,9 @@
 #define GFX_MATH_H
 
 /* Mathematical structures */
-#define MAT_INCLUDE_VEC
-#define QUAT_INCLUDE_VEC
-#define QUAT_INCLUDE_MAT
+#define MAT_USE_VEC
+#define QUAT_USE_VEC
+#define QUAT_USE_MAT
 #include "groufix/math/vec.h"
 #include "groufix/math/mat.h"
 #include "groufix/math/quat.h"

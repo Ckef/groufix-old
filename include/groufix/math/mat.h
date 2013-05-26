@@ -172,7 +172,7 @@ inline MAT_NAME *MAT_FUNC(mult_scalar)(MAT_NAME *dest, MAT_NAME *a, MAT_TYPE sca
 }
 
 /**
- * \brief Take the transpose of a matrix.
+ * \brief Takes the transpose of a matrix.
  *
  * \param dest Destination matrix.
  *
@@ -180,8 +180,6 @@ inline MAT_NAME *MAT_FUNC(mult_scalar)(MAT_NAME *dest, MAT_NAME *a, MAT_TYPE sca
 inline MAT_NAME *MAT_FUNC(transpose)(MAT_NAME *dest, MAT_NAME *a)
 {
 	MAT_NAME res;
-	MAT_FUNC(set_zero)(&res);
-
 	size_t r, c, c2;
 	for(c = 0, c2 = 0; c < MAT_SIZE; ++c, c2 += MAT_SIZE)
 		for(r = 0; r < MAT_SIZE; ++r)
@@ -206,7 +204,178 @@ inline int MAT_FUNC(is_zero)(MAT_NAME *a)
 	return 1;
 }
 
+#if MAT_SIZE == 2
+/**
+ * \brief Computes the determinant of a matrix.
+ *
+ */
+inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME *a)
+{
+	return a->data[0] * a->data[3] - a->data[2] * a->data[1];
+}
+
+/**
+ * \brief Takes the inverse of a matrix.
+ *
+ * \param dest Destination matrix.
+ * \return Non-zero if it could take the inverse, otherwise zero.
+ *
+ */
+inline int MAT_FUNC(inverse)(MAT_NAME *dest, MAT_NAME *a)
+{
+	/* Check if determinant is non-zero */
+	double det = MAT_FUNC(determinant)(a);
+	if(!det) return 0;
+
+	MAT_NAME res;
+	det = 1.0 / det;
+	res.data[0] = det * +a->data[3];
+	res.data[1] = det * -a->data[1];
+	res.data[2] = det * -a->data[2];
+	res.data[3] = det * +a->data[0];
+
+	*dest = res;
+	return 1;
+}
+
+#elif MAT_SIZE == 3
+/**
+ * \brief Computes the determinant of a matrix.
+ *
+ */
+inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME *a)
+{
+	return
+		a->data[0] * a->data[4] * a->data[8] +
+		a->data[3] * a->data[7] * a->data[2] +
+		a->data[6] * a->data[1] * a->data[5] -
+		a->data[0] * a->data[7] * a->data[5] -
+		a->data[3] * a->data[1] * a->data[8] -
+		a->data[6] * a->data[4] * a->data[2];
+}
+
+/**
+ * \brief Takes the inverse of a matrix.
+ *
+ * \param dest Destination matrix.
+ * \return Non-zero if it could take the inverse, otherwise zero.
+ *
+ */
+inline int MAT_FUNC(inverse)(MAT_NAME *dest, MAT_NAME *a)
+{
+	/* Compute adjugate matrix */
+	MAT_NAME adj;
+	adj.data[0] = +(a->data[4] * a->data[8] - a->data[7] * a->data[5]);
+	adj.data[1] = -(a->data[1] * a->data[8] - a->data[7] * a->data[2]);
+	adj.data[2] = +(a->data[1] * a->data[5] - a->data[4] * a->data[2]);
+	adj.data[3] = -(a->data[3] * a->data[8] - a->data[6] * a->data[5]);
+	adj.data[4] = +(a->data[0] * a->data[8] - a->data[6] * a->data[2]);
+	adj.data[5] = -(a->data[0] * a->data[5] - a->data[3] * a->data[2]);
+	adj.data[6] = +(a->data[3] * a->data[7] - a->data[6] * a->data[4]);
+	adj.data[7] = -(a->data[0] * a->data[7] - a->data[6] * a->data[1]);
+	adj.data[8] = +(a->data[0] * a->data[4] - a->data[3] * a->data[1]);
+
+	/* Check if determinant is non-zero */
+	double det =
+		a->data[0] * adj.data[0] +
+		a->data[3] * adj.data[1] +
+		a->data[6] * adj.data[2];
+
+	if(!det) return 0;
+
+	/* Write 1/det * adjugate to destination */
+	MAT_FUNC(mult_scalar)(dest, &adj, 1.0 / det);
+
+	return 1;
+}
+
+#elif MAT_SIZE == 4
+/**
+ * \brief Computes the determinant of a matrix.
+ *
+ */
+inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME *a)
+{
+	/* Determinants of 2x2 submatrices */
+	MAT_TYPE S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
+	MAT_TYPE S1 = a->data[0] * a->data[9]  - a->data[8]  * a->data[1];
+	MAT_TYPE S2 = a->data[0] * a->data[13] - a->data[12] * a->data[1];
+	MAT_TYPE S3 = a->data[4] * a->data[9]  - a->data[8]  * a->data[5];
+	MAT_TYPE S4 = a->data[4] * a->data[13] - a->data[12] * a->data[5];
+	MAT_TYPE S5 = a->data[8] * a->data[13] - a->data[12] * a->data[9];
+
+	MAT_TYPE C5 = a->data[10] * a->data[15] - a->data[14] * a->data[11];
+	MAT_TYPE C4 = a->data[6]  * a->data[15] - a->data[14] * a->data[7];
+	MAT_TYPE C3 = a->data[6]  * a->data[11] - a->data[10] * a->data[7];
+	MAT_TYPE C2 = a->data[2]  * a->data[15] - a->data[14] * a->data[3];
+	MAT_TYPE C1 = a->data[2]  * a->data[11] - a->data[10] * a->data[3];
+	MAT_TYPE C0 = a->data[2]  * a->data[7]  - a->data[6]  * a->data[3];
+
+	return S0 * C5 - S1 * C4 + S2 * C3 + S3 * C2 - S4 * C1 + S5 * C0;
+}
+
+/**
+ * \brief Takes the inverse of a matrix.
+ *
+ * \param dest Destination matrix.
+ * \return Non-zero if it could take the inverse, otherwise zero.
+ *
+ */
+inline int MAT_FUNC(inverse)(MAT_NAME *dest, MAT_NAME *a)
+{
+	/* Determinants of 2x2 submatrices */
+	MAT_TYPE S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
+	MAT_TYPE S1 = a->data[0] * a->data[9]  - a->data[8]  * a->data[1];
+	MAT_TYPE S2 = a->data[0] * a->data[13] - a->data[12] * a->data[1];
+	MAT_TYPE S3 = a->data[4] * a->data[9]  - a->data[8]  * a->data[5];
+	MAT_TYPE S4 = a->data[4] * a->data[13] - a->data[12] * a->data[5];
+	MAT_TYPE S5 = a->data[8] * a->data[13] - a->data[12] * a->data[9];
+
+	MAT_TYPE C5 = a->data[10] * a->data[15] - a->data[14] * a->data[11];
+	MAT_TYPE C4 = a->data[6]  * a->data[15] - a->data[14] * a->data[7];
+	MAT_TYPE C3 = a->data[6]  * a->data[11] - a->data[10] * a->data[7];
+	MAT_TYPE C2 = a->data[2]  * a->data[15] - a->data[14] * a->data[3];
+	MAT_TYPE C1 = a->data[2]  * a->data[11] - a->data[10] * a->data[3];
+	MAT_TYPE C0 = a->data[2]  * a->data[7]  - a->data[6]  * a->data[3];
+
+	/* Check if determinant is non-zero */
+	double det = S0 * C5 - S1 * C4 + S2 * C3 + S3 * C2 - S4 * C1 + S5 * C0;
+	if(!det) return 0;
+
+	MAT_NAME res;
+	det = 1.0 / det;
+	res.data[0]  = det * (a->data[5]  * C5 - a->data[9]  * C4 + a->data[14] * C3);
+	res.data[1]  = det * (a->data[9]  * C2 - a->data[1]  * C5 - a->data[13] * C1);
+	res.data[2]  = det * (a->data[1]  * C4 - a->data[5]  * C2 + a->data[13] * C0);
+	res.data[3]  = det * (a->data[5]  * C1 - a->data[1]  * C3 - a->data[9]  * C0);
+	res.data[4]  = det * (a->data[8]  * C4 - a->data[4]  * C5 - a->data[12] * C3);
+	res.data[5]  = det * (a->data[0]  * C5 - a->data[8]  * C2 + a->data[12] * C1);
+	res.data[6]  = det * (a->data[4]  * C2 - a->data[0]  * C4 - a->data[12] * C0);
+	res.data[7]  = det * (a->data[0]  * C3 - a->data[4]  * C1 + a->data[8]  * C0);
+	res.data[8]  = det * (a->data[7]  * S5 - a->data[11] * S4 + a->data[15] * S3);
+	res.data[9]  = det * (a->data[11] * S2 - a->data[3]  * S5 - a->data[15] * S1);
+	res.data[10] = det * (a->data[3]  * S4 - a->data[7]  * S2 + a->data[15] * S0);
+	res.data[11] = det * (a->data[7]  * S1 - a->data[3]  * S3 - a->data[11] * S0);
+	res.data[12] = det * (a->data[10] * S4 - a->data[6]  * S5 - a->data[14] * S3);
+	res.data[13] = det * (a->data[2]  * S5 - a->data[10] * S2 + a->data[14] * S1);
+	res.data[14] = det * (a->data[6]  * S2 - a->data[2]  * S4 - a->data[14] * S0);
+	res.data[15] = det * (a->data[2]  * S3 - a->data[6]  * S1 + a->data[10] * S0);
+
+	*dest = res;
+	return 1;
+}
+#endif
+
 #ifdef MAT_USE_VEC
+/**
+ * \brief Returns a column of a matrix as vector.
+ *
+ */
+inline VEC_NAME *MAT_FUNC(get_column)(MAT_NAME *a, size_t column)
+{
+	return (VEC_NAME*)(a->data + (column * MAT_SIZE));
+}
+
 /**
  * \brief Multiplies a matrix by a vector.
  *

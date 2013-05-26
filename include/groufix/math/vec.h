@@ -101,6 +101,15 @@ typedef struct
 VEC_NAME;
 
 /**
+ * \brief Returns a value of the vector.
+ *
+ */
+inline VEC_TYPE *VEC_FUNC(get)(VEC_NAME *a, size_t component)
+{
+	return a->data + component;
+}
+
+/**
  * \brief Sets the value of all a vector's components to 0.
  *
  * \return The given vector itself.
