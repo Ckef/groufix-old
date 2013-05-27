@@ -73,14 +73,14 @@ typedef struct
 {
 	/** Components */
 	QUAT_TYPE data[4];
-}
-QUAT_NAME;
+
+} QUAT_NAME;
 
 /**
  * \brief Returns a value of the quaternion.
  *
  */
-inline QUAT_TYPE *QUAT_FUNC(get)(QUAT_NAME *a, size_t component)
+inline QUAT_TYPE* QUAT_FUNC(get)(QUAT_NAME* a, size_t component)
 {
 	return a->data + component;
 }
@@ -91,7 +91,7 @@ inline QUAT_TYPE *QUAT_FUNC(get)(QUAT_NAME *a, size_t component)
  * \return The given quaternion itself.
  *
  */
-inline QUAT_NAME *QUAT_FUNC(set_zero)(QUAT_NAME *a)
+inline QUAT_NAME* QUAT_FUNC(set_zero)(QUAT_NAME* a)
 {
 	return (QUAT_NAME*)memset(a, 0, sizeof(QUAT_NAME));
 }
@@ -102,7 +102,7 @@ inline QUAT_NAME *QUAT_FUNC(set_zero)(QUAT_NAME *a)
  * \param dest Destination quaternion.
  *
  */
-inline QUAT_NAME *QUAT_FUNC(add)(QUAT_NAME *dest, QUAT_NAME *a, QUAT_NAME *b)
+inline QUAT_NAME* QUAT_FUNC(add)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -117,7 +117,7 @@ inline QUAT_NAME *QUAT_FUNC(add)(QUAT_NAME *dest, QUAT_NAME *a, QUAT_NAME *b)
  * \param dest Destination quaternion.
  *
  */
-inline QUAT_NAME *QUAT_FUNC(sub)(QUAT_NAME *dest, QUAT_NAME *a, QUAT_NAME *b)
+inline QUAT_NAME* QUAT_FUNC(sub)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -132,7 +132,7 @@ inline QUAT_NAME *QUAT_FUNC(sub)(QUAT_NAME *dest, QUAT_NAME *a, QUAT_NAME *b)
  * \param dest Destination quaternion.
  *
  */
-inline QUAT_NAME *QUAT_FUNC(mult)(QUAT_NAME *dest, QUAT_NAME *a, QUAT_NAME *b)
+inline QUAT_NAME* QUAT_FUNC(mult)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
 {
 	QUAT_NAME res;
 	res.data[0] = a->data[0] * b->data[0] - a->data[1] * b->data[1] - a->data[2] * b->data[2] - a->data[3] * b->data[3];
@@ -150,7 +150,7 @@ inline QUAT_NAME *QUAT_FUNC(mult)(QUAT_NAME *dest, QUAT_NAME *a, QUAT_NAME *b)
  * \param dest Destination quaternion.
  *
  */
-inline QUAT_NAME *QUAT_FUNC(scale)(QUAT_NAME *dest, QUAT_NAME *a, QUAT_TYPE scalar)
+inline QUAT_NAME* QUAT_FUNC(scale)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_TYPE scalar)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -165,7 +165,7 @@ inline QUAT_NAME *QUAT_FUNC(scale)(QUAT_NAME *dest, QUAT_NAME *a, QUAT_TYPE scal
  * \param dest Destination quaternion.
  *
  */
-inline QUAT_NAME *QUAT_FUNC(conjugate)(QUAT_NAME *dest, QUAT_NAME *a)
+inline QUAT_NAME* QUAT_FUNC(conjugate)(QUAT_NAME* dest, QUAT_NAME* a)
 {
 	dest->data[0] = +a->data[0];
 	dest->data[1] = -a->data[1];
@@ -179,7 +179,7 @@ inline QUAT_NAME *QUAT_FUNC(conjugate)(QUAT_NAME *dest, QUAT_NAME *a)
  * \brief Take the squared norm of a quaternion.
  *
  */
-inline QUAT_TYPE QUAT_FUNC(norm_squared)(QUAT_NAME *a)
+inline QUAT_TYPE QUAT_FUNC(norm_squared)(QUAT_NAME* a)
 {
 	QUAT_TYPE norm = 0;
 	size_t i;
@@ -195,7 +195,7 @@ inline QUAT_TYPE QUAT_FUNC(norm_squared)(QUAT_NAME *a)
  * \brief Take the norm of a quaternion.
  *
  */
-inline double QUAT_FUNC(norm)(QUAT_NAME *a)
+inline double QUAT_FUNC(norm)(QUAT_NAME* a)
 {
 	return sqrt((double)QUAT_FUNC(norm_squared)(a));
 }
@@ -206,7 +206,7 @@ inline double QUAT_FUNC(norm)(QUAT_NAME *a)
  * \param dest Destination quaternion.
  *
  */
-inline QUAT_NAME *QUAT_FUNC(normalize)(QUAT_NAME *dest, QUAT_NAME *a)
+inline QUAT_NAME* QUAT_FUNC(normalize)(QUAT_NAME* dest, QUAT_NAME* a)
 {
 	double norm = QUAT_FUNC(norm)(a);
 	QUAT_TYPE scale = (QUAT_TYPE)(norm ? 1.0 / norm : 0.0);
@@ -220,7 +220,7 @@ inline QUAT_NAME *QUAT_FUNC(normalize)(QUAT_NAME *dest, QUAT_NAME *a)
  * \param dest Destination quaternion.
  *
  */
-inline QUAT_NAME *QUAT_FUNC(inverse)(QUAT_NAME *dest, QUAT_NAME *a)
+inline QUAT_NAME* QUAT_FUNC(inverse)(QUAT_NAME* dest, QUAT_NAME* a)
 {
 	double normSq = QUAT_FUNC(norm_squared)(a);
 	QUAT_TYPE scale = (QUAT_TYPE)(normSq ? 1.0f / normSq : 0.0);
@@ -235,7 +235,7 @@ inline QUAT_NAME *QUAT_FUNC(inverse)(QUAT_NAME *dest, QUAT_NAME *a)
  * \return If the quaternion is zero, a non-zero value is returned.
  *
  */
-inline int QUAT_FUNC(is_zero)(QUAT_NAME *a)
+inline int QUAT_FUNC(is_zero)(QUAT_NAME* a)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -255,7 +255,7 @@ inline int QUAT_FUNC(is_zero)(QUAT_NAME *a)
  * This method assumes the axis is of unit length (magnitude or magnitude_squared = 1).
  *
  */
-inline QUAT_NAME *QUAT_FUNC(from_angle_axis)(QUAT_NAME *dest, double angle, VEC_NAME *axis)
+inline QUAT_NAME* QUAT_FUNC(from_angle_axis)(QUAT_NAME* dest, double angle, VEC_NAME* axis)
 {
 	double half = angle * 0.5;
 	double scale = sin(half);
@@ -278,7 +278,7 @@ inline QUAT_NAME *QUAT_FUNC(from_angle_axis)(QUAT_NAME *dest, double angle, VEC_
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-inline void QUAT_FUNC(to_angle_axis)(QUAT_NAME *src, double *angle, VEC_NAME *axis)
+inline void QUAT_FUNC(to_angle_axis)(QUAT_NAME* src, double* angle, VEC_NAME* axis)
 {
 	double half = acos(src->data[0]);
 	double scale = sin(half);
@@ -298,7 +298,7 @@ inline void QUAT_FUNC(to_angle_axis)(QUAT_NAME *src, double *angle, VEC_NAME *ax
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-inline VEC_NAME *QUAT_FUNC(mult_vec)(VEC_NAME *dest, QUAT_NAME *a, VEC_NAME *b)
+inline VEC_NAME* QUAT_FUNC(mult_vec)(VEC_NAME* dest, QUAT_NAME* a, VEC_NAME* b)
 {
 	/* want = q * v * q^-1 (sandwich product)
 	 * in which v = (0, bx, by, bz) and q^-1 = (aw, -ax, -ay, -az) (conjugate)
@@ -329,7 +329,7 @@ inline VEC_NAME *QUAT_FUNC(mult_vec)(VEC_NAME *dest, QUAT_NAME *a, VEC_NAME *b)
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-inline MAT_NAME *QUAT_FUNC(to_matrix)(MAT_NAME *dest, QUAT_NAME *a)
+inline MAT_NAME* QUAT_FUNC(to_matrix)(MAT_NAME* dest, QUAT_NAME* a)
 {
 	QUAT_TYPE x2 = a->data[1] + a->data[1];
 	QUAT_TYPE y2 = a->data[2] + a->data[2];

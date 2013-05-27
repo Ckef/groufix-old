@@ -101,14 +101,14 @@ typedef struct
 {
 	/** Components */
 	VEC_TYPE data[VEC_SIZE];
-}
-VEC_NAME;
+
+} VEC_NAME;
 
 /**
  * \brief Returns a value of the vector.
  *
  */
-inline VEC_TYPE *VEC_FUNC(get)(VEC_NAME *a, size_t component)
+inline VEC_TYPE* VEC_FUNC(get)(VEC_NAME* a, size_t component)
 {
 	return a->data + component;
 }
@@ -119,7 +119,7 @@ inline VEC_TYPE *VEC_FUNC(get)(VEC_NAME *a, size_t component)
  * \return The given vector itself.
  *
  */
-inline VEC_NAME *VEC_FUNC(set_zero)(VEC_NAME *a)
+inline VEC_NAME* VEC_FUNC(set_zero)(VEC_NAME* a)
 {
 	return (VEC_NAME*)memset(a, 0, sizeof(VEC_NAME));
 }
@@ -130,7 +130,7 @@ inline VEC_NAME *VEC_FUNC(set_zero)(VEC_NAME *a)
  * \param dest Destination vector.
  *
  */
-inline VEC_NAME *VEC_FUNC(add)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
+inline VEC_NAME* VEC_FUNC(add)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
 {
 	size_t i;
 	for(i = 0; i < VEC_SIZE; ++i)
@@ -145,7 +145,7 @@ inline VEC_NAME *VEC_FUNC(add)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
  * \param dest Destination vector.
  *
  */
-inline VEC_NAME *VEC_FUNC(sub)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
+inline VEC_NAME* VEC_FUNC(sub)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
 {
 	size_t i;
 	for(i = 0; i < VEC_SIZE; ++i)
@@ -160,7 +160,7 @@ inline VEC_NAME *VEC_FUNC(sub)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
  * \param dest Destination vector.
  *
  */
-inline VEC_NAME *VEC_FUNC(mult)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
+inline VEC_NAME* VEC_FUNC(mult)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
 {
 	size_t i;
 	for(i = 0; i < VEC_SIZE; ++i)
@@ -175,7 +175,7 @@ inline VEC_NAME *VEC_FUNC(mult)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
  * \param dest Destination vector.
  *
  */
-inline VEC_NAME *VEC_FUNC(scale)(VEC_NAME *dest, VEC_NAME *a, VEC_TYPE scalar)
+inline VEC_NAME* VEC_FUNC(scale)(VEC_NAME* dest, VEC_NAME* a, VEC_TYPE scalar)
 {
 	size_t i;
 	for(i = 0; i < VEC_SIZE; ++i)
@@ -188,7 +188,7 @@ inline VEC_NAME *VEC_FUNC(scale)(VEC_NAME *dest, VEC_NAME *a, VEC_TYPE scalar)
  * \brief Take the dot product of two vectors.
  *
  */
-inline VEC_TYPE VEC_FUNC(dot)(VEC_NAME *a, VEC_NAME *b)
+inline VEC_TYPE VEC_FUNC(dot)(VEC_NAME* a, VEC_NAME* b)
 {
 	VEC_TYPE dot = 0;
 	size_t i;
@@ -205,7 +205,7 @@ inline VEC_TYPE VEC_FUNC(dot)(VEC_NAME *a, VEC_NAME *b)
  * \param dest Destination vector.
  *
  */
-inline VEC_NAME *VEC_FUNC(cross)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
+inline VEC_NAME* VEC_FUNC(cross)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
 {
 	VEC_NAME res;
 	res.data[0] = a->data[1] * b->data[2] - a->data[2] * b->data[1];
@@ -221,7 +221,7 @@ inline VEC_NAME *VEC_FUNC(cross)(VEC_NAME *dest, VEC_NAME *a, VEC_NAME *b)
  * \brief Take the squared magnitude of a vector.
  *
  */
-inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_NAME *a)
+inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_NAME* a)
 {
 	VEC_TYPE dot = 0;
 	size_t i;
@@ -237,7 +237,7 @@ inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_NAME *a)
  * \brief Take the magnitude of a vector.
  *
  */
-inline double VEC_FUNC(magnitude)(VEC_NAME *a)
+inline double VEC_FUNC(magnitude)(VEC_NAME* a)
 {
 	return sqrt((double)VEC_FUNC(magnitude_squared)(a));
 }
@@ -248,7 +248,7 @@ inline double VEC_FUNC(magnitude)(VEC_NAME *a)
  * \param dest Destination vector.
  *
  */
-inline VEC_NAME *VEC_FUNC(normalize)(VEC_NAME *dest, VEC_NAME *a)
+inline VEC_NAME* VEC_FUNC(normalize)(VEC_NAME* dest, VEC_NAME* a)
 {
 	double mag = VEC_FUNC(magnitude)(a);
 	VEC_TYPE scale = (VEC_TYPE)(mag ? 1.0 / mag : 0.0);
@@ -262,7 +262,7 @@ inline VEC_NAME *VEC_FUNC(normalize)(VEC_NAME *dest, VEC_NAME *a)
  * \return If the vector is zero, a non-zero value is returned.
  *
  */
-inline int VEC_FUNC(is_zero)(VEC_NAME *a)
+inline int VEC_FUNC(is_zero)(VEC_NAME* a)
 {
 	size_t i;
 	for(i = 0; i < VEC_SIZE; ++i)

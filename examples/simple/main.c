@@ -15,7 +15,7 @@ int main()
 	*mat4_float_get(&mat,0,3) = 1.0f;
 
 	// Cast column to vector
-	vec4_float *col = mat4_float_get_column(&mat, 3);
+	vec4_float* col = mat4_float_get_column(&mat, 3);
 	*vec4_float_get(col, 0) = 2.0f;
 	printf("(%f %f %f %f)\n",
 		*vec4_float_get(col, 0),

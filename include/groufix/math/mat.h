@@ -83,14 +83,14 @@ typedef struct
 {
 	/** Components */
 	MAT_TYPE data[MAT_STORE];
-}
-MAT_NAME;
+
+} MAT_NAME;
 
 /**
  * \brief Returns a value of the matrix.
  *
  */
-inline MAT_TYPE *MAT_FUNC(get)(MAT_NAME *a, size_t row, size_t column)
+inline MAT_TYPE* MAT_FUNC(get)(MAT_NAME* a, size_t row, size_t column)
 {
 	return a->data + (row + MAT_SIZE * column);
 }
@@ -101,7 +101,7 @@ inline MAT_TYPE *MAT_FUNC(get)(MAT_NAME *a, size_t row, size_t column)
  * \return The given matrix itself.
  *
  */
-inline MAT_NAME *MAT_FUNC(set_zero)(MAT_NAME *a)
+inline MAT_NAME* MAT_FUNC(set_zero)(MAT_NAME* a)
 {
 	return (MAT_NAME*)memset(a, 0, sizeof(MAT_NAME));
 }
@@ -112,7 +112,7 @@ inline MAT_NAME *MAT_FUNC(set_zero)(MAT_NAME *a)
  * \param dest Destination matrix.
  *
  */
-inline MAT_NAME *MAT_FUNC(add)(MAT_NAME *dest, MAT_NAME *a, MAT_NAME *b)
+inline MAT_NAME* MAT_FUNC(add)(MAT_NAME* dest, MAT_NAME* a, MAT_NAME* b)
 {
 	size_t i;
 	for(i = 0; i < MAT_STORE; ++i)
@@ -127,7 +127,7 @@ inline MAT_NAME *MAT_FUNC(add)(MAT_NAME *dest, MAT_NAME *a, MAT_NAME *b)
  * \param dest Destination matrix.
  *
  */
-inline MAT_NAME *MAT_FUNC(sub)(MAT_NAME *dest, MAT_NAME *a, MAT_NAME *b)
+inline MAT_NAME* MAT_FUNC(sub)(MAT_NAME* dest, MAT_NAME* a, MAT_NAME* b)
 {
 	size_t i;
 	for(i = 0; i < MAT_STORE; ++i)
@@ -142,7 +142,7 @@ inline MAT_NAME *MAT_FUNC(sub)(MAT_NAME *dest, MAT_NAME *a, MAT_NAME *b)
  * \param dest Destination matrix.
  *
  */
-inline MAT_NAME *MAT_FUNC(mult)(MAT_NAME *dest, MAT_NAME *a, MAT_NAME *b)
+inline MAT_NAME* MAT_FUNC(mult)(MAT_NAME* dest, MAT_NAME* a, MAT_NAME* b)
 {
 	MAT_NAME res;
 	MAT_FUNC(set_zero)(&res);
@@ -166,7 +166,7 @@ inline MAT_NAME *MAT_FUNC(mult)(MAT_NAME *dest, MAT_NAME *a, MAT_NAME *b)
  * \param dest Destination matrix.
  *
  */
-inline MAT_NAME *MAT_FUNC(mult_scalar)(MAT_NAME *dest, MAT_NAME *a, MAT_TYPE scalar)
+inline MAT_NAME* MAT_FUNC(mult_scalar)(MAT_NAME* dest, MAT_NAME* a, MAT_TYPE scalar)
 {
 	size_t i;
 	for(i = 0; i < MAT_STORE; ++i)
@@ -181,7 +181,7 @@ inline MAT_NAME *MAT_FUNC(mult_scalar)(MAT_NAME *dest, MAT_NAME *a, MAT_TYPE sca
  * \param dest Destination matrix.
  *
  */
-inline MAT_NAME *MAT_FUNC(transpose)(MAT_NAME *dest, MAT_NAME *a)
+inline MAT_NAME* MAT_FUNC(transpose)(MAT_NAME* dest, MAT_NAME* a)
 {
 	MAT_NAME res;
 	size_t r, c, c2;
@@ -199,7 +199,7 @@ inline MAT_NAME *MAT_FUNC(transpose)(MAT_NAME *dest, MAT_NAME *a)
  * \return If the matrix is zero, a non-zero value is returned.
  *
  */
-inline int MAT_FUNC(is_zero)(MAT_NAME *a)
+inline int MAT_FUNC(is_zero)(MAT_NAME* a)
 {
 	size_t i;
 	for(i = 0; i < MAT_STORE; ++i)
@@ -213,7 +213,7 @@ inline int MAT_FUNC(is_zero)(MAT_NAME *a)
  * \brief Computes the determinant of a matrix.
  *
  */
-inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME *a)
+inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME* a)
 {
 	return a->data[0] * a->data[3] - a->data[2] * a->data[1];
 }
@@ -225,7 +225,7 @@ inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME *a)
  * \return Non-zero if it could take the inverse, otherwise zero.
  *
  */
-inline int MAT_FUNC(inverse)(MAT_NAME *dest, MAT_NAME *a)
+inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
 {
 	/* Check if determinant is non-zero */
 	double det = MAT_FUNC(determinant)(a);
@@ -247,7 +247,7 @@ inline int MAT_FUNC(inverse)(MAT_NAME *dest, MAT_NAME *a)
  * \brief Computes the determinant of a matrix.
  *
  */
-inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME *a)
+inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME* a)
 {
 	return
 		a->data[0] * a->data[4] * a->data[8] +
@@ -265,7 +265,7 @@ inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME *a)
  * \return Non-zero if it could take the inverse, otherwise zero.
  *
  */
-inline int MAT_FUNC(inverse)(MAT_NAME *dest, MAT_NAME *a)
+inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
 {
 	/* Compute adjugate matrix */
 	MAT_NAME adj;
@@ -298,7 +298,7 @@ inline int MAT_FUNC(inverse)(MAT_NAME *dest, MAT_NAME *a)
  * \brief Computes the determinant of a matrix.
  *
  */
-inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME *a)
+inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME* a)
 {
 	/* Determinants of 2x2 submatrices */
 	MAT_TYPE S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
@@ -325,7 +325,7 @@ inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME *a)
  * \return Non-zero if it could take the inverse, otherwise zero.
  *
  */
-inline int MAT_FUNC(inverse)(MAT_NAME *dest, MAT_NAME *a)
+inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
 {
 	/* Determinants of 2x2 submatrices */
 	MAT_TYPE S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
@@ -375,7 +375,7 @@ inline int MAT_FUNC(inverse)(MAT_NAME *dest, MAT_NAME *a)
  * \brief Returns a column of a matrix as vector.
  *
  */
-inline VEC_NAME *MAT_FUNC(get_column)(MAT_NAME *a, size_t column)
+inline VEC_NAME* MAT_FUNC(get_column)(MAT_NAME* a, size_t column)
 {
 	return (VEC_NAME*)(a->data + (column * MAT_SIZE));
 }
@@ -386,7 +386,7 @@ inline VEC_NAME *MAT_FUNC(get_column)(MAT_NAME *a, size_t column)
  * \param dest Destination vector.
  *
  */
-inline VEC_NAME *MAT_FUNC(mult_vec)(VEC_NAME *dest, MAT_NAME *a, VEC_NAME *b)
+inline VEC_NAME* MAT_FUNC(mult_vec)(VEC_NAME* dest, MAT_NAME* a, VEC_NAME* b)
 {
 	VEC_NAME res;
 	VEC_FUNC(set_zero)(&res);

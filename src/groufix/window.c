@@ -23,10 +23,10 @@
 
 #include <stdlib.h>
 
-GFXWindow *gfx_create_window(unsigned int width, unsigned int height)
+GFXWindow* gfx_create_window(unsigned int width, unsigned int height)
 {
 	/* Open actual window */
-	GFXWindow *window = (GFXWindow*)calloc(1, sizeof(GFXWindow));
+	GFXWindow* window = (GFXWindow*)calloc(1, sizeof(GFXWindow));
 
 	window->handle = _gfx_platform_create_window();
 	_gfx_platform_create_context(window->handle);
@@ -38,7 +38,7 @@ GFXWindow *gfx_create_window(unsigned int width, unsigned int height)
 	return window;
 }
 
-void gfx_destroy_window(GFXWindow *window)
+void gfx_destroy_window(GFXWindow* window)
 {
 	_gfx_platform_destroy_context(window->handle);
 	_gfx_platform_destroy_window(window->handle);

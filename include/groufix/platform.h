@@ -48,25 +48,25 @@ extern "C" {
  * \return A handle to the window.
  *
  */
-void *_gfx_platform_create_window();
+void* _gfx_platform_create_window(void);
 
 /**
  * \brief Destroys a window, freeing the memory.
  *
  */
-void _gfx_platform_destroy_window(void *handle);
+void _gfx_platform_destroy_window(void* handle);
 
 /**
  * \brief Creates a context for a window handle.
  *
  */
-void _gfx_platform_create_context(void *handle);
+void _gfx_platform_create_context(void* handle);
 
 /**
  * \brief Destroys a context of a window handle.
  *
  */
-void _gfx_platform_destroy_context(void *handle);
+void _gfx_platform_destroy_context(void* handle);
 
 #ifdef __cplusplus
 }

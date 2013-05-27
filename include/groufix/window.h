@@ -36,7 +36,7 @@ typedef struct GFXWindow
 	unsigned int height;
 
 	/* Platform specific */
-	void *handle;
+	void* handle;
 
 } GFXWindow;
 
@@ -47,13 +47,13 @@ typedef struct GFXWindow
  * \param height Desired height, must be greater than 0.
  *
  */
-GFXWindow *gfx_create_window(unsigned int width, unsigned int height);
+GFXWindow* gfx_create_window(unsigned int width, unsigned int height);
 
 /**
  * \brief Destroys a window, freeing the memory.
  *
  */
-void gfx_destroy_window(GFXWindow *window);
+void gfx_destroy_window(GFXWindow* window);
 
 #ifdef __cplusplus
 }
