@@ -19,21 +19,23 @@
  *
  */
 
-#ifndef GFX_PLATFORM_INIT_H
-#define GFX_PLATFORM_INIT_H
+#ifndef GFX_PLATFORM_CONFIG_H
+#define GFX_PLATFORM_CONFIG_H
 
 /* Get platform */
 #if defined(_WIN32) || defined(__WIN32__)
 	#define GFX_WIN32
-#elif defined(__unix) || defined(__unix__)
-	#define GFX_UNIX
+#elif defined(__unix) || defined(__unix__) || defined(__linux__)
+	#define GFX_X11
+#else
+	#error "Platform not supported"
 #endif
 
-/* Platform headers */
+/* Platform file */
 #if defined(GFX_WIN32)
-	#include <windows.h>
-#elif defined(GFX_UNIX)
-	#include <X11/Xlib.h>
+	#include "groufix/platform/win32.h"
+#elif defined(GFX_X11)
+	#include "groufix/platform/x11.h"
 #endif
 
 #ifdef __cplusplus
@@ -43,8 +45,16 @@ extern "C" {
 /**
  * \brief Initializes the platform server.
  *
+ * \return If succesfully initialized, a non-zero value is returned.
+ *
  */
-void _gfx_platform_init(void);
+int _gfx_platform_init(void);
+
+/**
+ * \brief Returns a non-zero value if the platform is initialized correctly.
+ *
+ */
+int _gfx_platform_is_initialized(void);
 
 /**
  * \brief Terminates the platform server.
@@ -57,4 +67,4 @@ void _gfx_platform_terminate(void);
 }
 #endif
 
-#endif // GFX_PLATFORM_INIT_H
+#endif // GFX_PLATFORM_CONFIG_H

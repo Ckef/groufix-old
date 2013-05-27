@@ -27,6 +27,7 @@
 #include "groufix/utils.h"
 
 #define QUAT_CREATE_NAME(type) NAME(quat, type)
+#define QUAT_CREATE_FUNC(type,postfix) NAME(QUAT_CREATE_NAME(type), postfix)
 
 #endif // GFX_MATH_QUAT_H
 
@@ -50,7 +51,7 @@ extern "C" {
 
 /* Name & Function */
 #define QUAT_NAME QUAT_CREATE_NAME(QUAT_TYPE)
-#define QUAT_FUNC(postfix) NAME(QUAT_NAME, postfix)
+#define QUAT_FUNC(postfix) QUAT_CREATE_FUNC(QUAT_TYPE, postfix)
 
 /* Matrix specific */
 #ifdef QUAT_USE_MAT

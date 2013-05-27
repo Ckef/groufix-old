@@ -27,6 +27,7 @@
 #include "groufix/utils.h"
 
 #define MAT_CREATE_NAME(size,type) NAME(CAT(mat, size), type)
+#define MAT_CREATE_FUNC(size,type,postfix) NAME(MAT_CREATE_NAME(size, type), postfix)
 
 #endif // GFX_MATH_MAT_H
 
@@ -66,7 +67,7 @@ extern "C" {
 
 /* Name & Function */
 #define MAT_NAME MAT_CREATE_NAME(MAT_SIZE, MAT_TYPE)
-#define MAT_FUNC(postfix) NAME(MAT_NAME, postfix)
+#define MAT_FUNC(postfix) MAT_CREATE_FUNC(MAT_SIZE, MAT_TYPE, postfix)
 #define MAT_STORE (MAT_SIZE * MAT_SIZE)
 
 /* Vector specific */
@@ -75,7 +76,7 @@ extern "C" {
 		#error "Need to include groufix/math/vec.h to use MAT_USE_VEC"
 	#endif
 	#define VEC_NAME VEC_CREATE_NAME(MAT_SIZE, MAT_TYPE)
-	#define VEC_FUNC(postfix) NAME(VEC_NAME, postfix)
+	#define VEC_FUNC(postfix) VEC_CREATE_FUNC(MAT_SIZE, MAT_TYPE, postfix)
 #endif
 
 /** \brief Matrix defintion */

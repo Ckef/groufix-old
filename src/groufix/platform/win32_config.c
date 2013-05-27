@@ -19,10 +19,18 @@
  *
  */
 
-#include "groufix/platform/init.h"
+#include "groufix/platform/config.h"
 
-void _gfx_platform_init(void)
+#include <windows.h>
+
+int _gfx_platform_init(void)
 {
+	return 0;
+}
+
+int _gfx_platform_is_initialized(void)
+{
+	return 0;
 }
 
 void _gfx_platform_terminate(void)

@@ -21,6 +21,8 @@
 
 #include "groufix/platform/window.h"
 
+#include <X11/Xlib.h>
+
 void* _gfx_platform_create_window(void)
 {
 	return 0;

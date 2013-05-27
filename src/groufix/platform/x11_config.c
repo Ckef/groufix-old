@@ -19,44 +19,45 @@
  *
  */
 
-#ifndef GFX_PLATFORM_WINDOW_H
-#define GFX_PLATFORM_WINDOW_H
-
 #include "groufix/platform/config.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <X11/Xlib.h>
+#include <stdlib.h>
 
-/**
- * \brief Creates a new window, allocating the memory.
- *
- * \return A handle to the window.
- *
- */
-void* _gfx_platform_create_window(void);
+/* X Display */
+GFX_X11_Server* _gfx_server = NULL;
 
-/**
- * \brief Destroys a window, freeing the memory.
- *
- */
-void _gfx_platform_destroy_window(void* handle);
+int _gfx_platform_init(void)
+{
+	/* Allocate the server */
+	if(!_gfx_server)
+	{
+		_gfx_server = (GFX_X11_Server*)calloc(1, sizeof(GFX_X11_Server));
 
-/**
- * \brief Creates a context for a window handle.
- *
- */
-void _gfx_platform_create_context(void* handle);
+		/* Connect to X Server */
+		_gfx_server->display = (void*)XOpenDisplay(NULL);
+		if(!_gfx_server->display) return 0;
 
-/**
- * \brief Destroys a context of a window handle.
- *
- */
-void _gfx_platform_destroy_context(void* handle);
-
-
-#ifdef __cplusplus
+		/* Gather information */
+		_gfx_server->numScreens = XScreenCount((Display*)_gfx_server->display);
+	}
+	return (size_t)_gfx_server->display;
 }
-#endif
 
-#endif // GFX_PLATFORM_WINDOW_H
+int _gfx_platform_is_initialized(void)
+{
+	if(_gfx_server) return (size_t)_gfx_server->display;
+	return 0;
+}
+
+void _gfx_platform_terminate(void)
+{
+	/* Deallocate server */
+	if(_gfx_server)
+	{
+		if(_gfx_server->display) XCloseDisplay((Display*)_gfx_server->display);
+
+		free(_gfx_server);
+		_gfx_server = NULL;
+	}
+}

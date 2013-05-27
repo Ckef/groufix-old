@@ -31,10 +31,6 @@ extern "C" {
 /** \brief Window Definition */
 typedef struct GFXWindow
 {
-	/* Properties */
-	unsigned int width;
-	unsigned int height;
-
 	/* Platform specific */
 	void* handle;
 
@@ -43,11 +39,8 @@ typedef struct GFXWindow
 /**
  * \brief Creates a new window, allocating the memory.
  *
- * \param width  Desired width, must be greater than 0.
- * \param height Desired height, must be greater than 0.
- *
  */
-GFXWindow* gfx_create_window(unsigned int width, unsigned int height);
+GFXWindow* gfx_create_window();
 
 /**
  * \brief Destroys a window, freeing the memory.

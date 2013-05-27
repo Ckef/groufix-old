@@ -31,6 +31,7 @@ typedef unsigned short ushort;
 typedef unsigned int uint;
 
 #define VEC_CREATE_NAME(size,type) NAME(CAT(vec, size), type)
+#define VEC_CREATE_FUNC(size,type,postfix) NAME(VEC_CREATE_NAME(size, type), postfix)
 
 #endif // GFX_MATH_VEC_H
 
@@ -94,7 +95,7 @@ extern "C" {
 
 /* Name & Function */
 #define VEC_NAME VEC_CREATE_NAME(VEC_SIZE, VEC_TYPE)
-#define VEC_FUNC(postfix) NAME(VEC_NAME, postfix)
+#define VEC_FUNC(postfix) VEC_CREATE_FUNC(VEC_SIZE, VEC_TYPE, postfix)
 
 /** \brief Vector defintion */
 typedef struct

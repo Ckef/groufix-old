@@ -19,12 +19,27 @@
  *
  */
 
-#include "groufix/platform/init.h"
+#ifndef GFX_PLATFORM_X11_H
+#define GFX_PLATFORM_X11_H
 
-void _gfx_platform_init(void)
-{
-}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void _gfx_platform_terminate(void)
+/** \brief X11 Server */
+typedef struct GFX_X11_Server
 {
+	void*  display;
+	int    numScreens;
+
+} GFX_X11_Server;
+
+/** Server pointer */
+extern GFX_X11_Server *_gfx_server;
+
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif // GFX_PLATFORM_X11_H
