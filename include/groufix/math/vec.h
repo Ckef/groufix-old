@@ -88,6 +88,10 @@ typedef unsigned int uint;
 
 #else
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Name & Function */
 #define VEC_NAME VEC_CREATE_NAME(VEC_SIZE, VEC_TYPE)
 #define VEC_FUNC(postfix) NAME(VEC_NAME, postfix)
@@ -269,4 +273,9 @@ inline int VEC_FUNC(is_zero)(VEC_NAME *a)
 
 #undef VEC_NAME
 #undef VEC_FUNC
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // TEMPLATE

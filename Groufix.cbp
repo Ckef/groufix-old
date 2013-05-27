@@ -17,6 +17,10 @@
 				<Compiler>
 					<Add option="-fPIC" />
 				</Compiler>
+				<Linker>
+					<Add library="X11" />
+					<Add library="GL" />
+				</Linker>
 			</Target>
 			<Target title="Release-win32">
 				<Option platforms="Windows;" />
@@ -26,6 +30,9 @@
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
+				<Linker>
+					<Add library="opengl32" />
+				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
@@ -39,12 +46,26 @@
 		<Linker>
 			<Add option="-s" />
 		</Linker>
+		<Unit filename="include/GL/glcorearb.h" />
 		<Unit filename="include/groufix/math.h" />
 		<Unit filename="include/groufix/math/mat.h" />
 		<Unit filename="include/groufix/math/quat.h" />
 		<Unit filename="include/groufix/math/vec.h" />
+		<Unit filename="include/groufix/platform.h" />
 		<Unit filename="include/groufix/utils.h" />
+		<Unit filename="include/groufix/window.h" />
 		<Unit filename="src/groufix/math.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/groufix/platform_win32.c">
+			<Option compilerVar="CC" />
+			<Option target="Release-win32" />
+		</Unit>
+		<Unit filename="src/groufix/platform_x11.c">
+			<Option compilerVar="CC" />
+			<Option target="Release-x11" />
+		</Unit>
+		<Unit filename="src/groufix/window.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>

@@ -19,30 +19,44 @@
  *
  */
 
-#ifndef GFX_MATH_H
-#define GFX_MATH_H
+#ifndef GFX_WINDOW_H
+#define GFX_WINDOW_H
 
-/* Mathematical structures */
-#define MAT_USE_VEC
-#define QUAT_USE_VEC
-#define QUAT_USE_MAT
-#include "groufix/math/vec.h"
-#include "groufix/math/mat.h"
-#include "groufix/math/quat.h"
+#include "groufix/platform.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Mathematical constants */
-extern const double MATH_PI;
-extern const double MATH_PI_TWO;
-extern const double MATH_PI_HALF;
-extern const double MATH_RAD_TO_DEG;
-extern const double MATH_DEG_TO_RAD;
+/** \brief Window Definition */
+typedef struct GFXWindow
+{
+	/* Properties */
+	unsigned int width;
+	unsigned int height;
+
+	/* Platform specific */
+	void *handle;
+
+} GFXWindow;
+
+/**
+ * \brief Creates a new window, allocating the memory.
+ *
+ * \param width  Desired width, must be greater than 0.
+ * \param height Desired height, must be greater than 0.
+ *
+ */
+GFXWindow *gfx_create_window(unsigned int width, unsigned int height);
+
+/**
+ * \brief Destroys a window, freeing the memory.
+ *
+ */
+void gfx_destroy_window(GFXWindow *window);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // GFX_MATH_H
+#endif // GFX_WINDOW_H

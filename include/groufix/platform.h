@@ -19,30 +19,57 @@
  *
  */
 
-#ifndef GFX_MATH_H
-#define GFX_MATH_H
+#ifndef GFX_PLATFORM_H
+#define GFX_PLATFORM_H
 
-/* Mathematical structures */
-#define MAT_USE_VEC
-#define QUAT_USE_VEC
-#define QUAT_USE_MAT
-#include "groufix/math/vec.h"
-#include "groufix/math/mat.h"
-#include "groufix/math/quat.h"
+#include "GL/glcorearb.h"
+
+/* Get platform */
+#if defined(_WIN32) || defined(__WIN32__)
+	#define GFX_WIN32
+#elif defined(__unix) || defined(__unix__)
+	#define GFX_UNIX
+#endif
+
+/* Platform headers */
+#if defined(GFX_WIN32)
+	#include <windows.h>
+#elif defined(GFX_UNIX)
+	#include <X11/Xlib.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Mathematical constants */
-extern const double MATH_PI;
-extern const double MATH_PI_TWO;
-extern const double MATH_PI_HALF;
-extern const double MATH_RAD_TO_DEG;
-extern const double MATH_DEG_TO_RAD;
+/**
+ * \brief Creates a new window, allocating the memory.
+ *
+ * \return A handle to the window.
+ *
+ */
+void *_gfx_platform_create_window();
+
+/**
+ * \brief Destroys a window, freeing the memory.
+ *
+ */
+void _gfx_platform_destroy_window(void *handle);
+
+/**
+ * \brief Creates a context for a window handle.
+ *
+ */
+void _gfx_platform_create_context(void *handle);
+
+/**
+ * \brief Destroys a context of a window handle.
+ *
+ */
+void _gfx_platform_destroy_context(void *handle);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // GFX_MATH_H
+#endif // GFX_PLATFORM_H

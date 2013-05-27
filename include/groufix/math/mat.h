@@ -60,6 +60,10 @@
 
 #else
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Name & Function */
 #define MAT_NAME MAT_CREATE_NAME(MAT_SIZE, MAT_TYPE)
 #define MAT_FUNC(postfix) NAME(MAT_NAME, postfix)
@@ -405,4 +409,9 @@ inline VEC_NAME *MAT_FUNC(mult_vec)(VEC_NAME *dest, MAT_NAME *a, VEC_NAME *b)
 
 #undef VEC_NAME
 #undef VEC_FUNC
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // TEMPLATE

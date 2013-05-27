@@ -44,6 +44,10 @@
 
 #else
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Name & Function */
 #define QUAT_NAME QUAT_CREATE_NAME(QUAT_TYPE)
 #define QUAT_FUNC(postfix) NAME(QUAT_NAME, postfix)
@@ -354,4 +358,9 @@ inline MAT_NAME *QUAT_FUNC(to_matrix)(MAT_NAME *dest, QUAT_NAME *a)
 
 #undef MAT_NAME
 #undef VEC_NAME
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // TEMPLATE

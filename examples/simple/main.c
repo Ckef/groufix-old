@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "groufix/math.h"
+#include "groufix/window.h"
 
 int main()
 {
@@ -29,7 +30,7 @@ int main()
 	mat4_float_inverse(&mat, &mat);
 
 	// Constant
-	printf("%.16f\n", PI);
+	printf("%.16f\n", MATH_PI);
 
 	// Print matrix
 	printf("[%+f %+f %+f %+f]\n[%+f %+f %+f %+f]\n[%+f %+f %+f %+f]\n[%+f %+f %+f %+f]\n",
