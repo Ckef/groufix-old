@@ -19,24 +19,10 @@
  *
  */
 
-#ifndef GFX_PLATFORM_H
-#define GFX_PLATFORM_H
+#ifndef GFX_PLATFORM_WINDOW_H
+#define GFX_PLATFORM_WINDOW_H
 
-#include "GL/glcorearb.h"
-
-/* Get platform */
-#if defined(_WIN32) || defined(__WIN32__)
-	#define GFX_WIN32
-#elif defined(__unix) || defined(__unix__)
-	#define GFX_UNIX
-#endif
-
-/* Platform headers */
-#if defined(GFX_WIN32)
-	#include <windows.h>
-#elif defined(GFX_UNIX)
-	#include <X11/Xlib.h>
-#endif
+#include "groufix/platform/init.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,8 +54,9 @@ void _gfx_platform_create_context(void* handle);
  */
 void _gfx_platform_destroy_context(void* handle);
 
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif // GFX_PLATFORM_H
+#endif // GFX_PLATFORM_WINDOW_H

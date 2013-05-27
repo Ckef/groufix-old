@@ -22,7 +22,7 @@
 #ifndef GFX_WINDOW_H
 #define GFX_WINDOW_H
 
-#include "groufix/platform.h"
+#include "groufix/platform/window.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +54,7 @@ GFXWindow* gfx_create_window(unsigned int width, unsigned int height);
  *
  */
 void gfx_destroy_window(GFXWindow* window);
+
 
 #ifdef __cplusplus
 }

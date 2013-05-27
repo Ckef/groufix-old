@@ -19,31 +19,21 @@
  *
  */
 
-#ifndef GFX_MATH_H
-#define GFX_MATH_H
+#include "groufix/platform/window.h"
 
-/* Mathematical structures */
-#define MAT_USE_VEC
-#define QUAT_USE_VEC
-#define QUAT_USE_MAT
-#include "groufix/math/vec.h"
-#include "groufix/math/mat.h"
-#include "groufix/math/quat.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Mathematical constants */
-extern const double MATH_PI;
-extern const double MATH_PI_TWO;
-extern const double MATH_PI_HALF;
-extern const double MATH_RAD_TO_DEG;
-extern const double MATH_DEG_TO_RAD;
-
-
-#ifdef __cplusplus
+void* _gfx_platform_create_window(void)
+{
+	return 0;
 }
-#endif
 
-#endif // GFX_MATH_H
+void _gfx_platform_destroy_window(void* handle)
+{
+}
+
+void _gfx_platform_create_context(void* handle)
+{
+}
+
+void _gfx_platform_destroy_context(void* handle)
+{
+}

@@ -19,21 +19,12 @@
  *
  */
 
-#include "groufix/platform.h"
+#include "groufix/platform/init.h"
 
-void* _gfx_platform_create_window(void)
-{
-	return 0;
-}
-
-void _gfx_platform_destroy_window(void* handle)
+void _gfx_platform_init(void)
 {
 }
 
-void _gfx_platform_create_context(void* handle)
-{
-}
-
-void _gfx_platform_destroy_context(void* handle)
+void _gfx_platform_terminate(void)
 {
 }
