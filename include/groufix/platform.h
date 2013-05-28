@@ -42,7 +42,6 @@
 extern "C" {
 #endif
 
-
 /********************************************************
  * Initialization
  *******************************************************/
@@ -50,7 +49,7 @@ extern "C" {
 /**
  * \brief Initializes the platform.
  *
- * \return If succesfully initialized, a non-zero value is returned.
+ * \return If successfully initialized, a non-zero value is returned.
  *
  */
 int _gfx_platform_init(void);
@@ -66,7 +65,6 @@ int _gfx_platform_is_initialized(void);
  *
  */
 void _gfx_platform_terminate(void);
-
 
 
 /********************************************************

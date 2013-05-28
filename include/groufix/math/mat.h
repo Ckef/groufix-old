@@ -61,6 +61,10 @@
 
 #else
 
+
+/********************************************************
+ * Template definition
+ *******************************************************/
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -79,7 +83,10 @@ extern "C" {
 	#define VEC_FUNC(postfix) VEC_CREATE_FUNC(MAT_SIZE, MAT_TYPE, postfix)
 #endif
 
-/** \brief Matrix defintion */
+
+/********************************************************
+ * \brief Matrix Template
+ *******************************************************/
 typedef struct
 {
 	/** Components */

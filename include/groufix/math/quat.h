@@ -45,6 +45,10 @@
 
 #else
 
+
+/********************************************************
+ * Template definition
+ *******************************************************/
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -69,7 +73,10 @@ extern "C" {
 	#define VEC_NAME VEC_CREATE_NAME(3, QUAT_TYPE)
 #endif
 
-/** \brief Quaternion defintion */
+
+/********************************************************
+ * \brief Quaternion Template
+ *******************************************************/
 typedef struct
 {
 	/** Components */

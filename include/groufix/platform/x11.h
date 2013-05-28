@@ -26,16 +26,18 @@
 extern "C" {
 #endif
 
-/** \brief X11 Server */
+/********************************************************
+ * \brief X11 Server
+ *******************************************************/
 typedef struct GFX_X11_Server
 {
-	void*  display;
-	int    numScreens;
+	void*  handle; /* X Display */
+	int    monitors;
 
 } GFX_X11_Server;
 
 /** Server pointer */
-extern GFX_X11_Server *_gfx_server;
+extern GFX_X11_Server* _gfx_server;
 
 
 #ifdef __cplusplus

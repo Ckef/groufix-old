@@ -22,6 +22,25 @@
 #ifndef GFX_PLATFORM_WIN32_H
 #define GFX_PLATFORM_WIN32_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+/********************************************************
+ * \brief Win32 Instance
+ *******************************************************/
+typedef struct GFX_Win32_Instance
+{
+	void* handle; /* Win32 Module Handle */
+
+} GFX_Win32_Instance;
+
+/** Instance pointer */
+extern GFX_Win32_Instance* _gfx_instance;
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GFX_PLATFORM_WIN32_H

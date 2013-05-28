@@ -19,23 +19,27 @@
  *
  */
 
-#include "groufix/platform/window.h"
+#include "groufix/platform.h"
 
 #include <X11/Xlib.h>
 
+/*/*****************************************************/
 void* _gfx_platform_create_window(void)
 {
 	return 0;
 }
 
+/*/*****************************************************/
 void _gfx_platform_destroy_window(void* handle)
 {
 }
 
+/*/*****************************************************/
 void _gfx_platform_create_context(void* handle)
 {
 }
 
+/*/*****************************************************/
 void _gfx_platform_destroy_context(void* handle)
 {
 }

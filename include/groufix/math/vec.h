@@ -89,6 +89,10 @@ typedef unsigned int uint;
 
 #else
 
+
+/********************************************************
+ * Template definition
+ *******************************************************/
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -97,7 +101,10 @@ extern "C" {
 #define VEC_NAME VEC_CREATE_NAME(VEC_SIZE, VEC_TYPE)
 #define VEC_FUNC(postfix) VEC_CREATE_FUNC(VEC_SIZE, VEC_TYPE, postfix)
 
-/** \brief Vector defintion */
+
+/********************************************************
+ * \brief Vector Template
+ *******************************************************/
 typedef struct
 {
 	/** Components */

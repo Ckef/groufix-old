@@ -28,13 +28,20 @@
 extern "C" {
 #endif
 
-/** \brief Window Definition */
+/********************************************************
+ * \brief Window Definition
+ *******************************************************/
 typedef struct GFXWindow
 {
 	/* Platform specific */
 	void* handle;
 
 } GFXWindow;
+
+
+/********************************************************
+ * Window Initialization
+ *******************************************************/
 
 /**
  * \brief Creates a new window, allocating the memory.

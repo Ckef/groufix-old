@@ -22,17 +22,40 @@
 #include "groufix/platform.h"
 
 #include <windows.h>
+#include <stdlib.h>
 
+/*/*****************************************************/
+GFX_Win32_Instance* _gfx_instance = NULL;
+
+/*/*****************************************************/
 int _gfx_platform_init(void)
 {
-	return 0;
+	if(!_gfx_instance)
+	{
+		/* Get module handle */
+		HINSTANCE hInst = GetModuleHandle(NULL);
+		if(!hInst) return 0;
+
+		/* Allocate */
+		_gfx_instance = (GFX_Win32_Instance*)calloc(1, sizeof(GFX_Win32_Instance));
+		_gfx_instance->handle = (void*)hInst;
+	}
+	return 1;
 }
 
+/*/*****************************************************/
 int _gfx_platform_is_initialized(void)
 {
-	return 0;
+	return (size_t)_gfx_instance;
 }
 
+/*/*****************************************************/
 void _gfx_platform_terminate(void)
 {
+	if(_gfx_instance)
+	{
+		/* Deallocate server */
+		free(_gfx_instance);
+		_gfx_instance = NULL;
+	}
 }

@@ -24,39 +24,43 @@
 #include <X11/Xlib.h>
 #include <stdlib.h>
 
-/* X Display */
+/*/*****************************************************/
 GFX_X11_Server* _gfx_server = NULL;
 
+/*/*****************************************************/
 int _gfx_platform_init(void)
 {
-	/* Allocate the server */
 	if(!_gfx_server)
 	{
-		_gfx_server = (GFX_X11_Server*)calloc(1, sizeof(GFX_X11_Server));
-
 		/* Connect to X Server */
-		_gfx_server->display = (void*)XOpenDisplay(NULL);
-		if(!_gfx_server->display) return 0;
+		Display* display = XOpenDisplay(NULL);
+		if(!display) return 0;
+
+		/* Allocate */
+		_gfx_server = (GFX_X11_Server*)calloc(1, sizeof(GFX_X11_Server));
+		_gfx_server->handle = (void*)display;
 
 		/* Gather information */
-		_gfx_server->numScreens = XScreenCount((Display*)_gfx_server->display);
+		_gfx_server->monitors = XScreenCount(display);
 	}
-	return (size_t)_gfx_server->display;
+	return 1;
 }
 
+/*/*****************************************************/
 int _gfx_platform_is_initialized(void)
 {
-	if(_gfx_server) return (size_t)_gfx_server->display;
-	return 0;
+	return (size_t)_gfx_server;
 }
 
+/*/*****************************************************/
 void _gfx_platform_terminate(void)
 {
-	/* Deallocate server */
 	if(_gfx_server)
 	{
-		if(_gfx_server->display) XCloseDisplay((Display*)_gfx_server->display);
+		/* Close onnection */
+		XCloseDisplay((Display*)_gfx_server->handle);
 
+		/* Deallocate server */
 		free(_gfx_server);
 		_gfx_server = NULL;
 	}
