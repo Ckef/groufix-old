@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef GFX_PLATFORM_CONFIG_H
-#define GFX_PLATFORM_CONFIG_H
+#ifndef GFX_PLATFORM_H
+#define GFX_PLATFORM_H
 
 /* Get platform */
 #if defined(_WIN32) || defined(__WIN32__)
@@ -42,8 +42,13 @@
 extern "C" {
 #endif
 
+
+/********************************************************
+ * Initialization
+ *******************************************************/
+
 /**
- * \brief Initializes the platform server.
+ * \brief Initializes the platform.
  *
  * \return If succesfully initialized, a non-zero value is returned.
  *
@@ -57,14 +62,46 @@ int _gfx_platform_init(void);
 int _gfx_platform_is_initialized(void);
 
 /**
- * \brief Terminates the platform server.
+ * \brief Terminates the platform.
  *
  */
 void _gfx_platform_terminate(void);
+
+
+
+/********************************************************
+ * Window & Context
+ *******************************************************/
+
+/**
+ * \brief Creates a new window, allocating the memory.
+ *
+ * \return A handle to the window.
+ *
+ */
+void* _gfx_platform_create_window(void);
+
+/**
+ * \brief Destroys a window, freeing the memory.
+ *
+ */
+void _gfx_platform_destroy_window(void* handle);
+
+/**
+ * \brief Creates a context for a window handle.
+ *
+ */
+void _gfx_platform_create_context(void* handle);
+
+/**
+ * \brief Destroys a context of a window handle.
+ *
+ */
+void _gfx_platform_destroy_context(void* handle);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // GFX_PLATFORM_CONFIG_H
+#endif // GFX_PLATFORM_H

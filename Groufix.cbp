@@ -51,16 +51,15 @@
 		<Unit filename="include/groufix/math/mat.h" />
 		<Unit filename="include/groufix/math/quat.h" />
 		<Unit filename="include/groufix/math/vec.h" />
-		<Unit filename="include/groufix/platform/config.h" />
+		<Unit filename="include/groufix/platform.h" />
 		<Unit filename="include/groufix/platform/win32.h" />
-		<Unit filename="include/groufix/platform/window.h" />
 		<Unit filename="include/groufix/platform/x11.h" />
 		<Unit filename="include/groufix/utils.h" />
 		<Unit filename="include/groufix/window.h" />
 		<Unit filename="src/groufix/math.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/groufix/platform/win32_config.c">
+		<Unit filename="src/groufix/platform/win32_init.c">
 			<Option compilerVar="CC" />
 			<Option target="Release-win32" />
 		</Unit>
@@ -68,7 +67,7 @@
 			<Option compilerVar="CC" />
 			<Option target="Release-win32" />
 		</Unit>
-		<Unit filename="src/groufix/platform/x11_config.c">
+		<Unit filename="src/groufix/platform/x11_init.c">
 			<Option compilerVar="CC" />
 			<Option target="Release-x11" />
 		</Unit>

@@ -22,7 +22,7 @@
 #ifndef GFX_WINDOW_H
 #define GFX_WINDOW_H
 
-#include "groufix/platform/window.h"
+#include "groufix/platform.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -19,44 +19,20 @@
  *
  */
 
-#ifndef GFX_PLATFORM_WINDOW_H
-#define GFX_PLATFORM_WINDOW_H
+#include "groufix/platform.h"
 
-#include "groufix/platform/config.h"
+#include <windows.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * \brief Creates a new window, allocating the memory.
- *
- * \return A handle to the window.
- *
- */
-void* _gfx_platform_create_window(void);
-
-/**
- * \brief Destroys a window, freeing the memory.
- *
- */
-void _gfx_platform_destroy_window(void* handle);
-
-/**
- * \brief Creates a context for a window handle.
- *
- */
-void _gfx_platform_create_context(void* handle);
-
-/**
- * \brief Destroys a context of a window handle.
- *
- */
-void _gfx_platform_destroy_context(void* handle);
-
-
-#ifdef __cplusplus
+int _gfx_platform_init(void)
+{
+	return 0;
 }
-#endif
 
-#endif // GFX_PLATFORM_WINDOW_H
+int _gfx_platform_is_initialized(void)
+{
+	return 0;
+}
+
+void _gfx_platform_terminate(void)
+{
+}
