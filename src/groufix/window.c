@@ -29,8 +29,8 @@ GFXWindow* gfx_create_window()
 	/* Open actual window */
 	GFXWindow* window = (GFXWindow*)calloc(1, sizeof(GFXWindow));
 
-	window->handle = _gfx_platform_create_window();
-	_gfx_platform_create_context(window->handle);
+	//window->handle = _gfx_platform_create_window();
+	//_gfx_platform_create_context(window->handle);
 
 	return window;
 }

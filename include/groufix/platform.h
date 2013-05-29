@@ -68,16 +68,49 @@ void _gfx_platform_terminate(void);
 
 
 /********************************************************
+ * \brief Monitors
+ *******************************************************/
+
+/**
+ * \brief Returns a monitor.
+ *
+ * \param num The number of the monitor (0 <= num < num_monitors).
+ * \return A handle to the monitor, NULL if not found.
+ *
+ */
+void* _gfx_platform_get_monitor(int num);
+
+/**
+ * \brief Returns the number of visible monitors.
+ *
+ */
+int _gfx_platform_get_num_monitors(void);
+
+/**
+ * \brief Returns the width of a monitor in pixels.
+ *
+ */
+int _gfx_platform_monitor_get_width(void* handle);
+
+/**
+ * \brief Returns the height of a monitor in pixels.
+ *
+ */
+int _gfx_platform_monitor_get_height(void* handle);
+
+
+/********************************************************
  * Window & Context
  *******************************************************/
 
 /**
  * \brief Creates a new window, allocating the memory.
  *
+ * \brief monitor A handle to the monitor to create the window on.
  * \return A handle to the window.
  *
  */
-void* _gfx_platform_create_window(void);
+void* _gfx_platform_create_window(void* monitor);
 
 /**
  * \brief Destroys a window, freeing the memory.
@@ -88,11 +121,15 @@ void _gfx_platform_destroy_window(void* handle);
 /**
  * \brief Creates a context for a window handle.
  *
+ * \brief handle A handle to the window to create the context for.
+ *
  */
 void _gfx_platform_create_context(void* handle);
 
 /**
  * \brief Destroys a context of a window handle.
+ *
+ * \brief handle A handle to the window to destroy the context for.
  *
  */
 void _gfx_platform_destroy_context(void* handle);

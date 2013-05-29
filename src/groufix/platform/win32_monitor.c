@@ -21,25 +21,29 @@
 
 #include "groufix/platform.h"
 
-#include <X11/Xlib.h>
+#include <windows.h>
 
 /*/*****************************************************/
-void* _gfx_platform_create_window(void* monitor)
+void* _gfx_platform_get_monitor(int num)
+{
+	return NULL;
+}
+
+/*/*****************************************************/
+int _gfx_platform_get_num_monitors(void)
+{
+	if(!_gfx_server) return 0;
+	return _gfx_server->monitors;
+}
+
+/*/*****************************************************/
+int _gfx_platform_monitor_get_width(void* handle)
 {
 	return 0;
 }
 
 /*/*****************************************************/
-void _gfx_platform_destroy_window(void* handle)
+int _gfx_platform_monitor_get_height(void* handle)
 {
-}
-
-/*/*****************************************************/
-void _gfx_platform_create_context(void* handle)
-{
-}
-
-/*/*****************************************************/
-void _gfx_platform_destroy_context(void* handle)
-{
+	return 0;
 }

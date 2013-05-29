@@ -41,7 +41,7 @@ int _gfx_platform_init(void)
 		_gfx_server->handle = (void*)display;
 
 		/* Gather information */
-		_gfx_server->monitors = XScreenCount(display);
+		_gfx_server->monitors = ScreenCount(display);
 	}
 	return 1;
 }

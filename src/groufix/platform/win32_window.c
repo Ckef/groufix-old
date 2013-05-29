@@ -24,7 +24,7 @@
 #include <windows.h>
 
 /*/*****************************************************/
-void* _gfx_platform_create_window(void)
+void* _gfx_platform_create_window(void* monitor)
 {
 	return 0;
 }

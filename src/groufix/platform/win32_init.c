@@ -54,7 +54,7 @@ void _gfx_platform_terminate(void)
 {
 	if(_gfx_instance)
 	{
-		/* Deallocate server */
+		/* Deallocate instance */
 		free(_gfx_instance);
 		_gfx_instance = NULL;
 	}

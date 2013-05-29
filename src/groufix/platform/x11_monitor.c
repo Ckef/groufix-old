@@ -24,22 +24,30 @@
 #include <X11/Xlib.h>
 
 /*/*****************************************************/
-void* _gfx_platform_create_window(void* monitor)
+void* _gfx_platform_get_monitor(int num)
 {
-	return 0;
+	if(!_gfx_server) return NULL;
+
+	/* Validate the number first */
+	if(num < 0 || num >= _gfx_server->monitors) return NULL;
+	return (void*)ScreenOfDisplay((Display*)_gfx_server->handle, num);
 }
 
 /*/*****************************************************/
-void _gfx_platform_destroy_window(void* handle)
+int _gfx_platform_get_num_monitors(void)
 {
+	if(!_gfx_server) return 0;
+	return _gfx_server->monitors;
 }
 
 /*/*****************************************************/
-void _gfx_platform_create_context(void* handle)
+int _gfx_platform_monitor_get_width(void* handle)
 {
+	return WidthOfScreen((Screen*)handle);
 }
 
 /*/*****************************************************/
-void _gfx_platform_destroy_context(void* handle)
+int _gfx_platform_monitor_get_height(void* handle)
 {
+	return HeightOfScreen((Screen*)handle);
 }

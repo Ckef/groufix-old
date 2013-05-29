@@ -63,11 +63,19 @@
 			<Option compilerVar="CC" />
 			<Option target="Release-win32" />
 		</Unit>
+		<Unit filename="src/groufix/platform/win32_monitor.c">
+			<Option compilerVar="CC" />
+			<Option target="Release-win32" />
+		</Unit>
 		<Unit filename="src/groufix/platform/win32_window.c">
 			<Option compilerVar="CC" />
 			<Option target="Release-win32" />
 		</Unit>
 		<Unit filename="src/groufix/platform/x11_init.c">
+			<Option compilerVar="CC" />
+			<Option target="Release-x11" />
+		</Unit>
+		<Unit filename="src/groufix/platform/x11_monitor.c">
 			<Option compilerVar="CC" />
 			<Option target="Release-x11" />
 		</Unit>

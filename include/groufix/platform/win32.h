@@ -31,7 +31,8 @@ extern "C" {
  *******************************************************/
 typedef struct GFX_Win32_Instance
 {
-	void* handle; /* Win32 Module Handle */
+	void*  handle; /* Win32 Module Handle */
+	int    monitors;
 
 } GFX_Win32_Instance;
 
