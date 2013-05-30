@@ -22,6 +22,14 @@
 #ifndef GFX_PLATFORM_WIN32_H
 #define GFX_PLATFORM_WIN32_H
 
+/* Unicode */
+#ifndef UNICODE
+#define UNICODE
+#endif
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,8 +39,10 @@ extern "C" {
  *******************************************************/
 typedef struct GFX_Win32_Instance
 {
-	void*  handle; /* Win32 Module Handle */
-	int    monitors;
+	/* Display Devices */
+	unsigned int  numDisplays;
+	int*          displayNumbers; /* Mapped display numbers */
+	void*         lastDisplay; /* Last retrieved display (DISPLAY_DEVICE*) */
 
 } GFX_Win32_Instance;
 

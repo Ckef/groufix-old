@@ -31,6 +31,7 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Linker>
+					<Add library="gdi32" />
 					<Add library="opengl32" />
 				</Linker>
 			</Target>
@@ -47,6 +48,7 @@
 			<Add option="-s" />
 		</Linker>
 		<Unit filename="include/GL/glcorearb.h" />
+		<Unit filename="include/groufix.h" />
 		<Unit filename="include/groufix/math.h" />
 		<Unit filename="include/groufix/math/mat.h" />
 		<Unit filename="include/groufix/math/quat.h" />
@@ -56,6 +58,9 @@
 		<Unit filename="include/groufix/platform/x11.h" />
 		<Unit filename="include/groufix/utils.h" />
 		<Unit filename="include/groufix/window.h" />
+		<Unit filename="src/groufix.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/groufix/math.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -63,7 +68,7 @@
 			<Option compilerVar="CC" />
 			<Option target="Release-win32" />
 		</Unit>
-		<Unit filename="src/groufix/platform/win32_monitor.c">
+		<Unit filename="src/groufix/platform/win32_screen.c">
 			<Option compilerVar="CC" />
 			<Option target="Release-win32" />
 		</Unit>
@@ -75,7 +80,7 @@
 			<Option compilerVar="CC" />
 			<Option target="Release-x11" />
 		</Unit>
-		<Unit filename="src/groufix/platform/x11_monitor.c">
+		<Unit filename="src/groufix/platform/x11_screen.c">
 			<Option compilerVar="CC" />
 			<Option target="Release-x11" />
 		</Unit>

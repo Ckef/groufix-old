@@ -22,43 +22,32 @@
 #include "groufix/platform.h"
 
 #include <X11/Xlib.h>
-#include <stdlib.h>
 
 /*/*****************************************************/
-GFX_X11_Server* _gfx_server = NULL;
-
-/*/*****************************************************/
-int _gfx_platform_init(void)
+void* _gfx_platform_get_screen(int num)
 {
-	if(!_gfx_server)
-	{
-		/* Connect to X Server */
-		Display* display = XOpenDisplay(NULL);
-		if(!display) return 0;
+	if(!_gfx_server) return NULL;
 
-		/* Allocate */
-		_gfx_server = (GFX_X11_Server*)calloc(1, sizeof(GFX_X11_Server));
-		_gfx_server->display = (void*)display;
-	}
-	return 1;
+	/* Validate the number first */
+	if(num < 0 || num >= ScreenCount((Display*)_gfx_server->display)) return NULL;
+	return (void*)ScreenOfDisplay((Display*)_gfx_server->display, num);
 }
 
 /*/*****************************************************/
-int _gfx_platform_is_initialized(void)
+int _gfx_platform_get_num_screens(void)
 {
-	return (size_t)_gfx_server;
+	if(!_gfx_server) return 0;
+	return ScreenCount((Display*)_gfx_server->display);
 }
 
 /*/*****************************************************/
-void _gfx_platform_terminate(void)
+int _gfx_platform_screen_get_width(void* handle)
 {
-	if(_gfx_server)
-	{
-		/* Close onnection */
-		XCloseDisplay((Display*)_gfx_server->display);
+	return WidthOfScreen((Screen*)handle);
+}
 
-		/* Deallocate server */
-		free(_gfx_server);
-		_gfx_server = NULL;
-	}
+/*/*****************************************************/
+int _gfx_platform_screen_get_height(void* handle)
+{
+	return HeightOfScreen((Screen*)handle);
 }

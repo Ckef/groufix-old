@@ -19,35 +19,16 @@
  *
  */
 
-#include "groufix/platform.h"
-
-#include <X11/Xlib.h>
+#include "groufix.h"
 
 /*/*****************************************************/
-void* _gfx_platform_get_monitor(int num)
+int gfx_init(void)
 {
-	if(!_gfx_server) return NULL;
-
-	/* Validate the number first */
-	if(num < 0 || num >= _gfx_server->monitors) return NULL;
-	return (void*)ScreenOfDisplay((Display*)_gfx_server->handle, num);
+	return _gfx_platform_init();
 }
 
 /*/*****************************************************/
-int _gfx_platform_get_num_monitors(void)
+void gfx_terminate(void)
 {
-	if(!_gfx_server) return 0;
-	return _gfx_server->monitors;
-}
-
-/*/*****************************************************/
-int _gfx_platform_monitor_get_width(void* handle)
-{
-	return WidthOfScreen((Screen*)handle);
-}
-
-/*/*****************************************************/
-int _gfx_platform_monitor_get_height(void* handle)
-{
-	return HeightOfScreen((Screen*)handle);
+	_gfx_platform_terminate();
 }

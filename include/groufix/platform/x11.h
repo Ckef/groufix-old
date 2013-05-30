@@ -31,8 +31,8 @@ extern "C" {
  *******************************************************/
 typedef struct GFX_X11_Server
 {
-	void*  handle; /* X Display */
-	int    monitors;
+	/* X Display */
+	void*  display;
 
 } GFX_X11_Server;
 

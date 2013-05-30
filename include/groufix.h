@@ -19,31 +19,33 @@
  *
  */
 
-#include "groufix/platform.h"
+#ifndef GROUFIX_H
+#define GROUFIX_H
 
-#include <windows.h>
+#include "groufix/math.h"
+#include "groufix/window.h"
 
-/*/*****************************************************/
-void* _gfx_platform_get_monitor(int num)
-{
-	return NULL;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * \brief Initializes the Groufix engine.
+ *
+ * \return non-zero if initialization was successful.
+ *
+ */
+int gfx_init(void);
+
+/**
+ * \brief Terminates the Groufix engine.
+ *
+ */
+void gfx_terminate(void);
+
+
+#ifdef __cplusplus
 }
+#endif
 
-/*/*****************************************************/
-int _gfx_platform_get_num_monitors(void)
-{
-	if(!_gfx_server) return 0;
-	return _gfx_server->monitors;
-}
-
-/*/*****************************************************/
-int _gfx_platform_monitor_get_width(void* handle)
-{
-	return 0;
-}
-
-/*/*****************************************************/
-int _gfx_platform_monitor_get_height(void* handle)
-{
-	return 0;
-}
+#endif // GROUFIX_H

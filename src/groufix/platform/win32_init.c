@@ -32,13 +32,25 @@ int _gfx_platform_init(void)
 {
 	if(!_gfx_instance)
 	{
-		/* Get module handle */
-		HINSTANCE hInst = GetModuleHandle(NULL);
-		if(!hInst) return 0;
-
 		/* Allocate */
 		_gfx_instance = (GFX_Win32_Instance*)calloc(1, sizeof(GFX_Win32_Instance));
-		_gfx_instance->handle = (void*)hInst;
+
+		/* Get number of display devices */
+		DISPLAY_DEVICE adapter;
+		DWORD i = 0;
+		while(1)
+		{
+			ZeroMemory(&adapter, sizeof(DISPLAY_DEVICE));
+			adapter.cb = sizeof(DISPLAY_DEVICE);
+
+			/* Validate and map display number */
+			if(!EnumDisplayDevices(NULL, i++, &adapter, 0)) break;
+			if(adapter.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
+
+			++_gfx_instance->numDisplays;
+			_gfx_instance->displayNumbers = (int*)realloc(_gfx_instance->displayNumbers, sizeof(int) * _gfx_instance->numDisplays);
+			_gfx_instance->displayNumbers[_gfx_instance->numDisplays - 1] = i - 1;
+		}
 	}
 	return 1;
 }
@@ -55,6 +67,9 @@ void _gfx_platform_terminate(void)
 	if(_gfx_instance)
 	{
 		/* Deallocate instance */
+		free(_gfx_instance->displayNumbers);
+		free(_gfx_instance->lastDisplay);
+
 		free(_gfx_instance);
 		_gfx_instance = NULL;
 	}

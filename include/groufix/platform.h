@@ -68,35 +68,35 @@ void _gfx_platform_terminate(void);
 
 
 /********************************************************
- * \brief Monitors
+ * \brief Screens
  *******************************************************/
 
 /**
- * \brief Returns a monitor.
+ * \brief Returns a screen.
  *
- * \param num The number of the monitor (0 <= num < num_monitors).
- * \return A handle to the monitor, NULL if not found.
+ * \param num The number of the screens (0 <= num < num_screens).
+ * \return A handle to the screen, NULL if not found.
  *
  */
-void* _gfx_platform_get_monitor(int num);
+void* _gfx_platform_get_screen(int num);
 
 /**
- * \brief Returns the number of visible monitors.
+ * \brief Returns the number of visible screens.
  *
  */
-int _gfx_platform_get_num_monitors(void);
+int _gfx_platform_get_num_screens(void);
 
 /**
- * \brief Returns the width of a monitor in pixels.
+ * \brief Returns the width of a screen in pixels.
  *
  */
-int _gfx_platform_monitor_get_width(void* handle);
+int _gfx_platform_screen_get_width(void* handle);
 
 /**
- * \brief Returns the height of a monitor in pixels.
+ * \brief Returns the height of a screen in pixels.
  *
  */
-int _gfx_platform_monitor_get_height(void* handle);
+int _gfx_platform_screen_get_height(void* handle);
 
 
 /********************************************************
@@ -106,11 +106,11 @@ int _gfx_platform_monitor_get_height(void* handle);
 /**
  * \brief Creates a new window, allocating the memory.
  *
- * \brief monitor A handle to the monitor to create the window on.
+ * \brief screen A handle to the screen to create the window on.
  * \return A handle to the window.
  *
  */
-void* _gfx_platform_create_window(void* monitor);
+void* _gfx_platform_create_window(void* screen);
 
 /**
  * \brief Destroys a window, freeing the memory.
