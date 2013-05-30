@@ -28,27 +28,14 @@ void* _gfx_platform_get_screen(int num)
 {
 	if(!_gfx_instance) return NULL;
 
-	if(num < 0 || num >= _gfx_instance->numDisplays) return NULL;
-
-	/* Get display device */
-	DISPLAY_DEVICE display;
-	ZeroMemory(&display, sizeof(DISPLAY_DEVICE));
-	display.cb = sizeof(DISPLAY_DEVICE);
-
-	EnumDisplayDevices(NULL, _gfx_instance->displayNumbers[num], &display, 0);
-	EnumDisplayDevices(display.DeviceName, 0, &display, 0);
-
-	/* Allocate the device context */
-	DeleteDC((HDC)_gfx_instance->lastContext);
-	_gfx_instance->lastContext = (void*)CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
-
-	return _gfx_instance->lastContext;
+	/* Validate the number first */
+	if(num < 0 || num >= _gfx_instance->numDevices) return NULL;
+	return _gfx_instance->deviceContexts[num];
 }
 
 //******************************************************/
 void* _gfx_platform_get_default_screen()
 {
-	/* Don't save it as last context as it is not created by the application */
 	return (void*)GetDC(NULL);
 }
 
@@ -56,7 +43,7 @@ void* _gfx_platform_get_default_screen()
 int _gfx_platform_get_num_screens(void)
 {
 	if(!_gfx_instance) return 0;
-	return _gfx_instance->numDisplays;
+	return _gfx_instance->numDevices;
 }
 
 //******************************************************/

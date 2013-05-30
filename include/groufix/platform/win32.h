@@ -41,9 +41,8 @@ extern "C" {
 typedef struct GFX_Win32_Instance
 {
 	/* Display Devices */
-	unsigned int  numDisplays;
-	int*          displayNumbers; /* Mapped display numbers */
-	void*         lastContext;    /* Last created device context (HDC) */
+	unsigned int  numDevices;
+	void**        deviceContexts; /* Mapped contexts (of type HDC*) */
 
 } GFX_Win32_Instance;
 

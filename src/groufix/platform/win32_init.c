@@ -36,20 +36,27 @@ int _gfx_platform_init(void)
 		_gfx_instance = (GFX_Win32_Instance*)calloc(1, sizeof(GFX_Win32_Instance));
 
 		/* Get number of display devices */
-		DISPLAY_DEVICE adapter;
+		DISPLAY_DEVICE display;
 		DWORD i = 0;
 		while(1)
 		{
-			ZeroMemory(&adapter, sizeof(DISPLAY_DEVICE));
-			adapter.cb = sizeof(DISPLAY_DEVICE);
+			ZeroMemory(&display, sizeof(DISPLAY_DEVICE));
+			display.cb = sizeof(DISPLAY_DEVICE);
 
-			/* Validate and map display number */
-			if(!EnumDisplayDevices(NULL, i++, &adapter, 0)) break;
-			if(adapter.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
+			/* Validate adapter and increase */
+			if(!EnumDisplayDevices(NULL, i++, &display, 0)) break;
+			if(display.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
+			++_gfx_instance->numDevices;
 
-			++_gfx_instance->numDisplays;
-			_gfx_instance->displayNumbers = (int*)realloc(_gfx_instance->displayNumbers, sizeof(int) * _gfx_instance->numDisplays);
-			_gfx_instance->displayNumbers[_gfx_instance->numDisplays - 1] = i - 1;
+			/* Create the device context pointer */
+			EnumDisplayDevices(display.DeviceName, 0, &display, 0);
+			_gfx_instance->deviceContexts = (void**)realloc(
+				_gfx_instance->deviceContexts,
+				sizeof(void*) * _gfx_instance->numDevices);
+
+			/* Create a context for the adapter/display */
+			HDC context = CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
+			_gfx_instance->deviceContexts[_gfx_instance->numDevices - 1] = (void*)context;
 		}
 	}
 	return 1;
@@ -66,11 +73,13 @@ void _gfx_platform_terminate(void)
 {
 	if(_gfx_instance)
 	{
-		/* Destroy everything */
-		free(_gfx_instance->displayNumbers);
-		DeleteDC((HDC)_gfx_instance->lastContext);
+		/* Destroy all device contexts */
+		unsigned int i;
+		for(i = 0; i < _gfx_instance->numDevices; ++i)
+			DeleteDC((HDC)_gfx_instance->deviceContexts[i]);
 
 		/* Deallocate instance */
+		free(_gfx_instance->deviceContexts);
 		free(_gfx_instance);
 		_gfx_instance = NULL;
 	}
