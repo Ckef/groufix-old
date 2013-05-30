@@ -36,8 +36,8 @@ extern "C" {
 
 /* Mathematical constants */
 extern const double MATH_PI;
-extern const double MATH_PI_TWO;
-extern const double MATH_PI_HALF;
+extern const double MATH_TWO_PI;
+extern const double MATH_HALF_PI;
 extern const double MATH_RAD_TO_DEG;
 extern const double MATH_DEG_TO_RAD;
 

@@ -26,6 +26,7 @@
 #ifndef UNICODE
 #define UNICODE
 #endif
+
 #ifndef _UNICODE
 #define _UNICODE
 #endif
@@ -42,11 +43,11 @@ typedef struct GFX_Win32_Instance
 	/* Display Devices */
 	unsigned int  numDisplays;
 	int*          displayNumbers; /* Mapped display numbers */
-	void*         lastDisplay; /* Last retrieved display (DISPLAY_DEVICE*) */
+	void*         lastContext;    /* Last created device context (HDC) */
 
 } GFX_Win32_Instance;
 
-/** Instance pointer */
+/** \brief Instance pointer */
 extern GFX_Win32_Instance* _gfx_instance;
 
 

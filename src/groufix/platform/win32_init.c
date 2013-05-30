@@ -24,10 +24,10 @@
 #include <windows.h>
 #include <stdlib.h>
 
-/*/*****************************************************/
+//******************************************************/
 GFX_Win32_Instance* _gfx_instance = NULL;
 
-/*/*****************************************************/
+//******************************************************/
 int _gfx_platform_init(void)
 {
 	if(!_gfx_instance)
@@ -55,21 +55,22 @@ int _gfx_platform_init(void)
 	return 1;
 }
 
-/*/*****************************************************/
+//******************************************************/
 int _gfx_platform_is_initialized(void)
 {
 	return (size_t)_gfx_instance;
 }
 
-/*/*****************************************************/
+//******************************************************/
 void _gfx_platform_terminate(void)
 {
 	if(_gfx_instance)
 	{
-		/* Deallocate instance */
+		/* Destroy everything */
 		free(_gfx_instance->displayNumbers);
-		free(_gfx_instance->lastDisplay);
+		DeleteDC((HDC)_gfx_instance->lastContext);
 
+		/* Deallocate instance */
 		free(_gfx_instance);
 		_gfx_instance = NULL;
 	}

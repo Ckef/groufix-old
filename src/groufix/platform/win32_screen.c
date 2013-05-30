@@ -22,55 +22,51 @@
 #include "groufix/platform.h"
 
 #include <windows.h>
-#include <stdlib.h>
 
-/*/*****************************************************/
+//******************************************************/
 void* _gfx_platform_get_screen(int num)
 {
 	if(!_gfx_instance) return NULL;
 
-	/* Allocate new display device */
-	if(!_gfx_instance->lastDisplay) _gfx_instance->lastDisplay = malloc(sizeof(DISPLAY_DEVICE));
-	DISPLAY_DEVICE* disp = (DISPLAY_DEVICE*)_gfx_instance->lastDisplay;
+	if(num < 0 || num >= _gfx_instance->numDisplays) return NULL;
 
-	/* Fetch its actual display device */
-	ZeroMemory(disp, sizeof(DISPLAY_DEVICE));
-	disp->cb = sizeof(DISPLAY_DEVICE);
-	if(!EnumDisplayDevices(NULL, _gfx_instance->displayNumbers[num], disp, 0)) return NULL;
-	EnumDisplayDevices(disp->DeviceName, 0, disp, 0);
+	/* Get display device */
+	DISPLAY_DEVICE display;
+	ZeroMemory(&display, sizeof(DISPLAY_DEVICE));
+	display.cb = sizeof(DISPLAY_DEVICE);
 
-	return (void*)disp;
+	EnumDisplayDevices(NULL, _gfx_instance->displayNumbers[num], &display, 0);
+	EnumDisplayDevices(display.DeviceName, 0, &display, 0);
+
+	/* Allocate the device context */
+	DeleteDC((HDC)_gfx_instance->lastContext);
+	_gfx_instance->lastContext = (void*)CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
+
+	return _gfx_instance->lastContext;
 }
 
-/*/*****************************************************/
+//******************************************************/
+void* _gfx_platform_get_default_screen()
+{
+	/* Don't save it as last context as it is not created by the application */
+	return (void*)GetDC(NULL);
+}
+
+//******************************************************/
 int _gfx_platform_get_num_screens(void)
 {
 	if(!_gfx_instance) return 0;
 	return _gfx_instance->numDisplays;
 }
 
-/*/*****************************************************/
+//******************************************************/
 int _gfx_platform_screen_get_width(void* handle)
 {
-	/* Create Device Context */
-	DISPLAY_DEVICE* disp = (DISPLAY_DEVICE*)handle;
-	HDC dc = CreateDC(L"DISPLAY", disp->DeviceString, NULL, NULL);
-
-	int width = GetDeviceCaps(dc, HORZRES);
-	DeleteDC(dc);
-
-	return width;
+	return GetDeviceCaps((HDC)handle, HORZRES);
 }
 
-/*/*****************************************************/
+//******************************************************/
 int _gfx_platform_screen_get_height(void* handle)
 {
-	/* Create Device Context */
-	DISPLAY_DEVICE* disp = (DISPLAY_DEVICE*)handle;
-	HDC dc = CreateDC(L"DISPLAY", disp->DeviceString, NULL, NULL);
-
-	int height = GetDeviceCaps(dc, VERTRES);
-	DeleteDC(dc);
-
-	return height;
+	return GetDeviceCaps((HDC)handle, VERTRES);
 }

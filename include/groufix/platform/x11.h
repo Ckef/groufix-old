@@ -36,7 +36,7 @@ typedef struct GFX_X11_Server
 
 } GFX_X11_Server;
 
-/** Server pointer */
+/** \brief Server pointer */
 extern GFX_X11_Server* _gfx_server;
 
 

@@ -81,6 +81,12 @@ void _gfx_platform_terminate(void);
 void* _gfx_platform_get_screen(int num);
 
 /**
+ * \brief Returns the default screen.
+ *
+ */
+void* _gfx_platform_get_default_screen();
+
+/**
  * \brief Returns the number of visible screens.
  *
  */

@@ -24,10 +24,10 @@
 #include <X11/Xlib.h>
 #include <stdlib.h>
 
-/*/*****************************************************/
+//******************************************************/
 GFX_X11_Server* _gfx_server = NULL;
 
-/*/*****************************************************/
+//******************************************************/
 int _gfx_platform_init(void)
 {
 	if(!_gfx_server)
@@ -43,18 +43,18 @@ int _gfx_platform_init(void)
 	return 1;
 }
 
-/*/*****************************************************/
+//******************************************************/
 int _gfx_platform_is_initialized(void)
 {
 	return (size_t)_gfx_server;
 }
 
-/*/*****************************************************/
+//******************************************************/
 void _gfx_platform_terminate(void)
 {
 	if(_gfx_server)
 	{
-		/* Close onnection */
+		/* Close connection */
 		XCloseDisplay((Display*)_gfx_server->display);
 
 		/* Deallocate server */

@@ -23,7 +23,7 @@
 
 #include <stdlib.h>
 
-/*/*****************************************************/
+//******************************************************/
 GFXWindow* gfx_create_window()
 {
 	/* Open actual window */
@@ -35,7 +35,7 @@ GFXWindow* gfx_create_window()
 	return window;
 }
 
-/*/*****************************************************/
+//******************************************************/
 void gfx_destroy_window(GFXWindow* window)
 {
 	_gfx_platform_destroy_context(window->handle);
