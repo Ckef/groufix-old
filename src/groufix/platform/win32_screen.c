@@ -29,31 +29,40 @@ void* _gfx_platform_get_screen(int num)
 	if(!_gfx_instance) return NULL;
 
 	/* Validate the number first */
-	if(num < 0 || num >= _gfx_instance->numDevices) return NULL;
-	return _gfx_instance->deviceContexts[num];
+	if(num < 0 || num >= _gfx_instance->numMonitors) return NULL;
+	return _gfx_instance->monitors[num];
 }
 
 //******************************************************/
 void* _gfx_platform_get_default_screen()
 {
-	return (void*)GetDC(NULL);
+	POINT zero = { 0,0 };
+	return (void*)MonitorFromPoint(zero, MONITOR_DEFAULTTOPRIMARY);
 }
 
 //******************************************************/
 int _gfx_platform_get_num_screens(void)
 {
 	if(!_gfx_instance) return 0;
-	return _gfx_instance->numDevices;
+	return _gfx_instance->numMonitors;
 }
 
 //******************************************************/
 int _gfx_platform_screen_get_width(void* handle)
 {
-	return GetDeviceCaps((HDC)handle, HORZRES);
+	MONITORINFO info;
+	info.cbSize = sizeof(MONITORINFO);
+
+	if(!GetMonitorInfo((HMONITOR)handle, &info)) return 0;
+	return info.rcMonitor.right - info.rcMonitor.left;
 }
 
 //******************************************************/
 int _gfx_platform_screen_get_height(void* handle)
 {
-	return GetDeviceCaps((HDC)handle, VERTRES);
+	MONITORINFO info;
+	info.cbSize = sizeof(MONITORINFO);
+
+	if(!GetMonitorInfo((HMONITOR)handle, &info)) return 0;
+	return info.rcMonitor.bottom - info.rcMonitor.top;
 }

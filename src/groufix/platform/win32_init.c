@@ -28,6 +28,17 @@
 GFX_Win32_Instance* _gfx_instance = NULL;
 
 //******************************************************/
+static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data)
+{
+	/* Simply store the monitor handle */
+	++_gfx_instance->numMonitors;
+	_gfx_instance->monitors = (void**)realloc(_gfx_instance->monitors, sizeof(void*) * _gfx_instance->numMonitors);
+	_gfx_instance->monitors[_gfx_instance->numMonitors - 1] = (void*)handle;
+
+	return 1;
+}
+
+//******************************************************/
 int _gfx_platform_init(void)
 {
 	if(!_gfx_instance)
@@ -35,28 +46,11 @@ int _gfx_platform_init(void)
 		/* Allocate */
 		_gfx_instance = (GFX_Win32_Instance*)calloc(1, sizeof(GFX_Win32_Instance));
 
-		/* Get number of display devices */
-		DISPLAY_DEVICE display;
-		DWORD i = 0;
-		while(1)
+		/* Enumerate all monitors */
+		if(!EnumDisplayMonitors(NULL, NULL, _gfx_win32_monitor_proc, 0))
 		{
-			ZeroMemory(&display, sizeof(DISPLAY_DEVICE));
-			display.cb = sizeof(DISPLAY_DEVICE);
-
-			/* Validate adapter and increase */
-			if(!EnumDisplayDevices(NULL, i++, &display, 0)) break;
-			if(display.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
-			++_gfx_instance->numDevices;
-
-			/* Create the device context pointer */
-			EnumDisplayDevices(display.DeviceName, 0, &display, 0);
-			_gfx_instance->deviceContexts = (void**)realloc(
-				_gfx_instance->deviceContexts,
-				sizeof(void*) * _gfx_instance->numDevices);
-
-			/* Create a context for the adapter/display */
-			HDC context = CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
-			_gfx_instance->deviceContexts[_gfx_instance->numDevices - 1] = (void*)context;
+			_gfx_platform_terminate();
+			return 0;
 		}
 	}
 	return 1;
@@ -73,13 +67,8 @@ void _gfx_platform_terminate(void)
 {
 	if(_gfx_instance)
 	{
-		/* Destroy all device contexts */
-		unsigned int i;
-		for(i = 0; i < _gfx_instance->numDevices; ++i)
-			DeleteDC((HDC)_gfx_instance->deviceContexts[i]);
-
 		/* Deallocate instance */
-		free(_gfx_instance->deviceContexts);
+		free(_gfx_instance->monitors);
 		free(_gfx_instance);
 		_gfx_instance = NULL;
 	}

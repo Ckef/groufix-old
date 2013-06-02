@@ -31,7 +31,7 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Linker>
-					<Add library="gdi32" />
+					<Add library="user32" />
 					<Add library="opengl32" />
 				</Linker>
 			</Target>
@@ -57,7 +57,6 @@
 		<Unit filename="include/groufix/platform/win32.h" />
 		<Unit filename="include/groufix/platform/x11.h" />
 		<Unit filename="include/groufix/utils.h" />
-		<Unit filename="include/groufix/window.h" />
 		<Unit filename="src/groufix.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -87,9 +86,6 @@
 		<Unit filename="src/groufix/platform/x11_window.c">
 			<Option compilerVar="CC" />
 			<Option target="Release-x11" />
-		</Unit>
-		<Unit filename="src/groufix/window.c">
-			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>
 			<code_completion />

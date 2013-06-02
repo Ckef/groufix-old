@@ -116,7 +116,7 @@ int _gfx_platform_screen_get_height(void* handle);
  * \return A handle to the window.
  *
  */
-void* _gfx_platform_create_window(void* screen);
+void* _gfx_platform_create_window(void* screen, unsigned int width, unsigned int height, int x, int y);
 
 /**
  * \brief Destroys a window, freeing the memory.
@@ -128,9 +128,10 @@ void _gfx_platform_destroy_window(void* handle);
  * \brief Creates a context for a window handle.
  *
  * \brief handle A handle to the window to create the context for.
+ * \return non-zero if the context was successfully created.
  *
  */
-void _gfx_platform_create_context(void* handle);
+int _gfx_platform_create_context(void* handle);
 
 /**
  * \brief Destroys a context of a window handle.

@@ -8,7 +8,7 @@ int main()
 	else puts("yeeeeeh!");
 
 	void* scr = _gfx_platform_get_default_screen();
-	printf("%p\n%i monitor(s)\n%i x %i\n", scr,
+	printf("%p\n%i screen(s)\n%i x %i\n", scr,
 		_gfx_platform_get_num_screens(),
 		_gfx_platform_screen_get_width(scr),
 		_gfx_platform_screen_get_height(scr)

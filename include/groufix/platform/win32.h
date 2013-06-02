@@ -22,6 +22,9 @@
 #ifndef GFX_PLATFORM_WIN32_H
 #define GFX_PLATFORM_WIN32_H
 
+/* Windows 2000 */
+#define WINVER 0x0500
+
 /* Unicode */
 #ifndef UNICODE
 #define UNICODE
@@ -40,9 +43,9 @@ extern "C" {
  *******************************************************/
 typedef struct GFX_Win32_Instance
 {
-	/* Display Devices */
-	unsigned int  numDevices;
-	void**        deviceContexts; /* Mapped contexts (of type HDC*) */
+	/* Monitors */
+	unsigned int  numMonitors;
+	void**        monitors; /* Mapped contexts (of type HMONITOR*) */
 
 } GFX_Win32_Instance;
 

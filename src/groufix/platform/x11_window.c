@@ -24,7 +24,7 @@
 #include <X11/Xlib.h>
 
 //******************************************************/
-void* _gfx_platform_create_window(void* screen)
+void* _gfx_platform_create_window(void* screen, unsigned int width, unsigned int height, int x, int y)
 {
 	return 0;
 }
@@ -35,8 +35,9 @@ void _gfx_platform_destroy_window(void* handle)
 }
 
 //******************************************************/
-void _gfx_platform_create_context(void* handle)
+int _gfx_platform_create_context(void* handle)
 {
+	return 0;
 }
 
 //******************************************************/

@@ -50,11 +50,13 @@ int _gfx_platform_get_num_screens(void)
 //******************************************************/
 int _gfx_platform_screen_get_width(void* handle)
 {
+	if(!_gfx_server) return 0;
 	return WidthOfScreen((Screen*)handle);
 }
 
 //******************************************************/
 int _gfx_platform_screen_get_height(void* handle)
 {
+	if(!_gfx_server) return 0;
 	return HeightOfScreen((Screen*)handle);
 }

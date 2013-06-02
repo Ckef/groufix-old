@@ -23,7 +23,7 @@
 #define GROUFIX_H
 
 #include "groufix/math.h"
-#include "groufix/window.h"
+#include "groufix/platform.h"
 
 #ifdef __cplusplus
 extern "C" {
