@@ -16,6 +16,8 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-fPIC" />
+					<Add directory="/opt/X11/include" />
+					<Add directory="/usr/local/include" />
 				</Compiler>
 				<Linker>
 					<Add library="X11" />
