@@ -27,6 +27,8 @@
 	#define GFX_WIN32
 #elif defined(__unix) || defined(__unix__) || defined(__linux__)
 	#define GFX_X11
+#elif defined(__APPLE__) || defined(__MACH__)
+	#define GFX_X11
 #else
 	#error "Platform not supported"
 #endif
