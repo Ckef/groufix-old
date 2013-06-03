@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-//******************************************************/
+/******************************************************/
 static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg)
@@ -35,7 +35,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 	return DefWindowProc(handle, msg, wParam, lParam);
 }
 
-//******************************************************/
+/******************************************************/
 static int _gfx_win32_register_window_class(void)
 {
 	if(!_gfx_win32) return 0;
@@ -70,7 +70,7 @@ static int _gfx_win32_register_window_class(void)
 	return 1;
 }
 
-//******************************************************/
+/******************************************************/
 static void _gfx_win32_add_window(void* handle)
 {
 	if(_gfx_win32)
@@ -81,7 +81,7 @@ static void _gfx_win32_add_window(void* handle)
 	}
 }
 
-//******************************************************/
+/******************************************************/
 static void _gfx_win32_remove_window(void* handle)
 {
 	/* Remove the handle from the array */
@@ -110,7 +110,7 @@ static void _gfx_win32_remove_window(void* handle)
 	}
 }
 
-//******************************************************/
+/******************************************************/
 void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
 	/* Make sure to register the window class */
@@ -146,7 +146,7 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 	return (void*)window;
 }
 
-//******************************************************/
+/******************************************************/
 void _gfx_platform_destroy_window(void* handle)
 {
 	/* First destroy its context */
@@ -156,7 +156,7 @@ void _gfx_platform_destroy_window(void* handle)
 	_gfx_win32_remove_window(handle);
 }
 
-//******************************************************/
+/******************************************************/
 int _gfx_platform_create_context(void* handle)
 {
 	return 0;

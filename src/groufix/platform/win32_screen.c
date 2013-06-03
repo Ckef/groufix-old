@@ -23,7 +23,7 @@
 
 #include <windows.h>
 
-//******************************************************/
+/******************************************************/
 void* _gfx_platform_get_screen(int num)
 {
 	if(!_gfx_win32) return NULL;
@@ -33,21 +33,21 @@ void* _gfx_platform_get_screen(int num)
 	return _gfx_win32->monitors[num];
 }
 
-//******************************************************/
-void* _gfx_platform_get_default_screen()
+/******************************************************/
+void* _gfx_platform_get_default_screen(void)
 {
 	POINT zero = { 0,0 };
 	return (void*)MonitorFromPoint(zero, MONITOR_DEFAULTTOPRIMARY);
 }
 
-//******************************************************/
+/******************************************************/
 int _gfx_platform_get_num_screens(void)
 {
 	if(!_gfx_win32) return 0;
 	return _gfx_win32->numMonitors;
 }
 
-//******************************************************/
+/******************************************************/
 int _gfx_platform_screen_get_width(void* handle)
 {
 	MONITORINFO info;
@@ -57,7 +57,7 @@ int _gfx_platform_screen_get_width(void* handle)
 	return info.rcMonitor.right - info.rcMonitor.left;
 }
 
-//******************************************************/
+/******************************************************/
 int _gfx_platform_screen_get_height(void* handle)
 {
 	MONITORINFO info;

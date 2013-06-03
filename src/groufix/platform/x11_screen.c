@@ -23,7 +23,7 @@
 
 #include <X11/Xlib.h>
 
-//******************************************************/
+/******************************************************/
 void* _gfx_platform_get_screen(int num)
 {
 	if(!_gfx_x11) return NULL;
@@ -33,28 +33,28 @@ void* _gfx_platform_get_screen(int num)
 	return (void*)ScreenOfDisplay((Display*)_gfx_x11->display, num);
 }
 
-//******************************************************/
-void* _gfx_platform_get_default_screen()
+/******************************************************/
+void* _gfx_platform_get_default_screen(void)
 {
 	if(!_gfx_x11) return NULL;
 	return (void*)DefaultScreenOfDisplay((Display*)_gfx_x11->display);
 }
 
-//******************************************************/
+/******************************************************/
 int _gfx_platform_get_num_screens(void)
 {
 	if(!_gfx_x11) return 0;
 	return ScreenCount((Display*)_gfx_x11->display);
 }
 
-//******************************************************/
+/******************************************************/
 int _gfx_platform_screen_get_width(void* handle)
 {
 	if(!_gfx_x11) return 0;
 	return WidthOfScreen((Screen*)handle);
 }
 
-//******************************************************/
+/******************************************************/
 int _gfx_platform_screen_get_height(void* handle)
 {
 	if(!_gfx_x11) return 0;

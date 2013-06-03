@@ -53,7 +53,7 @@ typedef struct GFX_Win32_Instance
 	/* Windows */
 	void*         windowClass;
 	unsigned int  numWindows;
-	void**        windows      /* (of type HWND*) */;
+	void**        windows;     /* (of type HWND*) */;
 
 } GFX_Win32_Instance;
 

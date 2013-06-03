@@ -24,10 +24,10 @@
 #include <windows.h>
 #include <stdlib.h>
 
-//******************************************************/
+/******************************************************/
 GFX_Win32_Instance* _gfx_win32 = NULL;
 
-//******************************************************/
+/******************************************************/
 static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data)
 {
 	/* Simply store the monitor handle */
@@ -38,7 +38,7 @@ static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT re
 	return 1;
 }
 
-//******************************************************/
+/******************************************************/
 int _gfx_platform_init(void)
 {
 	if(!_gfx_win32)
@@ -56,13 +56,13 @@ int _gfx_platform_init(void)
 	return 1;
 }
 
-//******************************************************/
+/******************************************************/
 int _gfx_platform_is_initialized(void)
 {
 	return (size_t)_gfx_win32;
 }
 
-//******************************************************/
+/******************************************************/
 void _gfx_platform_terminate(void)
 {
 	if(_gfx_win32)
