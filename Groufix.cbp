@@ -17,7 +17,6 @@
 				<Compiler>
 					<Add option="-fPIC" />
 					<Add directory="/opt/X11/include" />
-					<Add directory="/usr/local/include" />
 				</Compiler>
 				<Linker>
 					<Add library="X11" />
@@ -32,16 +31,19 @@
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-fPIC" />
+					<Add directory="/opt/X11/include" />
+				</Compiler>
 				<Linker>
-					<Add library="user32" />
-					<Add library="opengl32" />
+					<Add library="X11" />
+					<Add library="GL" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Os" />
 			<Add option="-O3" />
-			<Add option="-pedantic-errors" />
 			<Add option="-Wall" />
 			<Add option="-std=c99" />
 			<Add directory="include" />

@@ -71,6 +71,17 @@ static int _gfx_win32_register_window_class(void)
 }
 
 //******************************************************/
+static void _gfx_win32_add_window(void* handle)
+{
+	if(_gfx_win32)
+	{
+		++_gfx_win32->numWindows;
+		_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, sizeof(void*) * _gfx_win32->numWindows);
+		_gfx_win32->windows[_gfx_win32->numWindows - 1] = (void*)handle;
+	}
+}
+
+//******************************************************/
 static void _gfx_win32_remove_window(void* handle)
 {
 	/* Remove the handle from the array */
@@ -130,9 +141,7 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 	ShowWindow(window, SW_SHOWDEFAULT);
 
 	/* Add window to array */
-	++_gfx_win32->numWindows;
-	_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, sizeof(void*) * _gfx_win32->numWindows);
-	_gfx_win32->windows[_gfx_win32->numWindows - 1] = (void*)window;
+	_gfx_win32_add_window(window);
 
 	return (void*)window;
 }
