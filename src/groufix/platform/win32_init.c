@@ -25,15 +25,15 @@
 #include <stdlib.h>
 
 //******************************************************/
-GFX_Win32_Instance* _gfx_instance = NULL;
+GFX_Win32_Instance* _gfx_win32 = NULL;
 
 //******************************************************/
 static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data)
 {
 	/* Simply store the monitor handle */
-	++_gfx_instance->numMonitors;
-	_gfx_instance->monitors = (void**)realloc(_gfx_instance->monitors, sizeof(void*) * _gfx_instance->numMonitors);
-	_gfx_instance->monitors[_gfx_instance->numMonitors - 1] = (void*)handle;
+	++_gfx_win32->numMonitors;
+	_gfx_win32->monitors = (void**)realloc(_gfx_win32->monitors, sizeof(void*) * _gfx_win32->numMonitors);
+	_gfx_win32->monitors[_gfx_win32->numMonitors - 1] = (void*)handle;
 
 	return 1;
 }
@@ -41,10 +41,10 @@ static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT re
 //******************************************************/
 int _gfx_platform_init(void)
 {
-	if(!_gfx_instance)
+	if(!_gfx_win32)
 	{
 		/* Allocate */
-		_gfx_instance = (GFX_Win32_Instance*)calloc(1, sizeof(GFX_Win32_Instance));
+		_gfx_win32 = (GFX_Win32_Instance*)calloc(1, sizeof(GFX_Win32_Instance));
 
 		/* Enumerate all monitors */
 		if(!EnumDisplayMonitors(NULL, NULL, _gfx_win32_monitor_proc, 0))
@@ -59,17 +59,20 @@ int _gfx_platform_init(void)
 //******************************************************/
 int _gfx_platform_is_initialized(void)
 {
-	return (size_t)_gfx_instance;
+	return (size_t)_gfx_win32;
 }
 
 //******************************************************/
 void _gfx_platform_terminate(void)
 {
-	if(_gfx_instance)
+	if(_gfx_win32)
 	{
+		/* Destroy all windows */
+		while(_gfx_win32->numWindows) _gfx_platform_destroy_window(_gfx_win32->windows[0]);
+
 		/* Deallocate instance */
-		free(_gfx_instance->monitors);
-		free(_gfx_instance);
-		_gfx_instance = NULL;
+		free(_gfx_win32->monitors);
+		free(_gfx_win32);
+		_gfx_win32 = NULL;
 	}
 }

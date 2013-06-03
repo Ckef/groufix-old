@@ -25,20 +25,20 @@
 #include <stdlib.h>
 
 //******************************************************/
-GFX_X11_Server* _gfx_server = NULL;
+GFX_X11_Server* _gfx_x11 = NULL;
 
 //******************************************************/
 int _gfx_platform_init(void)
 {
-	if(!_gfx_server)
+	if(!_gfx_x11)
 	{
 		/* Connect to X Server */
 		Display* display = XOpenDisplay(NULL);
 		if(!display) return 0;
 
 		/* Allocate */
-		_gfx_server = (GFX_X11_Server*)calloc(1, sizeof(GFX_X11_Server));
-		_gfx_server->display = (void*)display;
+		_gfx_x11 = (GFX_X11_Server*)calloc(1, sizeof(GFX_X11_Server));
+		_gfx_x11->display = (void*)display;
 	}
 	return 1;
 }
@@ -46,19 +46,19 @@ int _gfx_platform_init(void)
 //******************************************************/
 int _gfx_platform_is_initialized(void)
 {
-	return (size_t)_gfx_server;
+	return (size_t)_gfx_x11;
 }
 
 //******************************************************/
 void _gfx_platform_terminate(void)
 {
-	if(_gfx_server)
+	if(_gfx_x11)
 	{
 		/* Close connection */
-		XCloseDisplay((Display*)_gfx_server->display);
+		XCloseDisplay((Display*)_gfx_x11->display);
 
 		/* Deallocate server */
-		free(_gfx_server);
-		_gfx_server = NULL;
+		free(_gfx_x11);
+		_gfx_x11 = NULL;
 	}
 }

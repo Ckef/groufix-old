@@ -36,8 +36,10 @@ typedef struct GFX_X11_Server
 
 } GFX_X11_Server;
 
-/** \brief Server pointer */
-extern GFX_X11_Server* _gfx_server;
+/**
+ * \brief Server pointer
+ */
+extern GFX_X11_Server* _gfx_x11;
 
 
 #ifdef __cplusplus

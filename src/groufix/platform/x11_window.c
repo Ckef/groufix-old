@@ -22,16 +22,19 @@
 #include "groufix/platform.h"
 
 #include <X11/Xlib.h>
+#include <stdlib.h>
 
 //******************************************************/
-void* _gfx_platform_create_window(void* screen, unsigned int width, unsigned int height, int x, int y)
+void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
-	return 0;
+	return NULL;
 }
 
 //******************************************************/
 void _gfx_platform_destroy_window(void* handle)
 {
+	/* First destroy its context */
+	_gfx_platform_destroy_context(handle);
 }
 
 //******************************************************/

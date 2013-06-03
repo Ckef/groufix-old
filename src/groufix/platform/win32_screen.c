@@ -26,11 +26,11 @@
 //******************************************************/
 void* _gfx_platform_get_screen(int num)
 {
-	if(!_gfx_instance) return NULL;
+	if(!_gfx_win32) return NULL;
 
 	/* Validate the number first */
-	if(num < 0 || num >= _gfx_instance->numMonitors) return NULL;
-	return _gfx_instance->monitors[num];
+	if(num < 0 || num >= _gfx_win32->numMonitors) return NULL;
+	return _gfx_win32->monitors[num];
 }
 
 //******************************************************/
@@ -43,8 +43,8 @@ void* _gfx_platform_get_default_screen()
 //******************************************************/
 int _gfx_platform_get_num_screens(void)
 {
-	if(!_gfx_instance) return 0;
-	return _gfx_instance->numMonitors;
+	if(!_gfx_win32) return 0;
+	return _gfx_win32->numMonitors;
 }
 
 //******************************************************/

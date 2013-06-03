@@ -34,6 +34,9 @@
 #define _UNICODE
 #endif
 
+/* Groufix window class */
+#define GFX_WIN32_WND_CLASS L"GROUFIX"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -45,12 +48,19 @@ typedef struct GFX_Win32_Instance
 {
 	/* Monitors */
 	unsigned int  numMonitors;
-	void**        monitors; /* Mapped contexts (of type HMONITOR*) */
+	void**        monitors;    /* Mapped contexts (of type HMONITOR*) */
+
+	/* Windows */
+	void*         windowClass;
+	unsigned int  numWindows;
+	void**        windows      /* (of type HWND*) */;
 
 } GFX_Win32_Instance;
 
-/** \brief Instance pointer */
-extern GFX_Win32_Instance* _gfx_instance;
+/**
+ * \brief Instance pointer
+ */
+extern GFX_Win32_Instance* _gfx_win32;
 
 
 #ifdef __cplusplus

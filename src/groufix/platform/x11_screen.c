@@ -26,37 +26,37 @@
 //******************************************************/
 void* _gfx_platform_get_screen(int num)
 {
-	if(!_gfx_server) return NULL;
+	if(!_gfx_x11) return NULL;
 
 	/* Validate the number first */
-	if(num < 0 || num >= ScreenCount((Display*)_gfx_server->display)) return NULL;
-	return (void*)ScreenOfDisplay((Display*)_gfx_server->display, num);
+	if(num < 0 || num >= ScreenCount((Display*)_gfx_x11->display)) return NULL;
+	return (void*)ScreenOfDisplay((Display*)_gfx_x11->display, num);
 }
 
 //******************************************************/
 void* _gfx_platform_get_default_screen()
 {
-	if(!_gfx_server) return NULL;
-	return (void*)DefaultScreenOfDisplay((Display*)_gfx_server->display);
+	if(!_gfx_x11) return NULL;
+	return (void*)DefaultScreenOfDisplay((Display*)_gfx_x11->display);
 }
 
 //******************************************************/
 int _gfx_platform_get_num_screens(void)
 {
-	if(!_gfx_server) return 0;
-	return ScreenCount((Display*)_gfx_server->display);
+	if(!_gfx_x11) return 0;
+	return ScreenCount((Display*)_gfx_x11->display);
 }
 
 //******************************************************/
 int _gfx_platform_screen_get_width(void* handle)
 {
-	if(!_gfx_server) return 0;
+	if(!_gfx_x11) return 0;
 	return WidthOfScreen((Screen*)handle);
 }
 
 //******************************************************/
 int _gfx_platform_screen_get_height(void* handle)
 {
-	if(!_gfx_server) return 0;
+	if(!_gfx_x11) return 0;
 	return HeightOfScreen((Screen*)handle);
 }

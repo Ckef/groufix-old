@@ -43,6 +43,22 @@ extern "C" {
 #endif
 
 /********************************************************
+ * \brief Window init attributes
+ *******************************************************/
+typedef struct GFX_Platform_Attributes
+{
+	void*         screen;
+	const char*   name;
+
+	unsigned int  width;
+	unsigned int  height;
+	int           x;
+	int           y;
+
+} GFX_Platform_Attributes;
+
+
+/********************************************************
  * Initialization
  *******************************************************/
 
@@ -112,11 +128,11 @@ int _gfx_platform_screen_get_height(void* handle);
 /**
  * \brief Creates a new window, allocating the memory.
  *
- * \brief screen A handle to the screen to create the window on.
+ * \brief attributes The attributes to initialize the window with (cannot be NULL).
  * \return A handle to the window.
  *
  */
-void* _gfx_platform_create_window(void* screen, unsigned int width, unsigned int height, int x, int y);
+void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
 
 /**
  * \brief Destroys a window, freeing the memory.
