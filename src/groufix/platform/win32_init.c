@@ -28,6 +28,38 @@
 GFX_Win32_Instance* _gfx_win32 = NULL;
 
 /******************************************************/
+wchar_t* utf8_to_wchar(const char* str)
+{
+	/* First get the required length in characters */
+	int length = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+	if(!length) return NULL;
+
+	wchar_t* out = (wchar_t*)malloc(sizeof(wchar_t) * length);
+	if(!MultiByteToWideChar(CP_UTF8, 0, str, -1, out, length))
+	{
+		free(out);
+		return NULL;
+	}
+	return out;
+}
+
+/******************************************************/
+char* wchar_to_utf8(const wchar_t* str)
+{
+	/* First get the required length in bytes */
+	int length = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
+	if(!length) return NULL;
+
+	char* out = (char*)malloc(length);
+	if(!WideCharToMultiByte(CP_UTF8, 0, str, -1, out, length, NULL, NULL))
+	{
+		free(out);
+		return NULL;
+	}
+	return out;
+}
+
+/******************************************************/
 static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data)
 {
 	/* Simply store the monitor handle */

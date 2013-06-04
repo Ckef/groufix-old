@@ -24,12 +24,19 @@
 #include <windows.h>
 
 /******************************************************/
-void* _gfx_platform_get_screen(int num)
+unsigned int _gfx_platform_get_num_screens(void)
+{
+	if(!_gfx_win32) return 0;
+	return _gfx_win32->numMonitors;
+}
+
+/******************************************************/
+void* _gfx_platform_get_screen(unsigned int num)
 {
 	if(!_gfx_win32) return NULL;
 
 	/* Validate the number first */
-	if(num < 0 || num >= _gfx_win32->numMonitors) return NULL;
+	if(num >= _gfx_win32->numMonitors) return NULL;
 	return _gfx_win32->monitors[num];
 }
 
@@ -41,28 +48,21 @@ void* _gfx_platform_get_default_screen(void)
 }
 
 /******************************************************/
-int _gfx_platform_get_num_screens(void)
-{
-	if(!_gfx_win32) return 0;
-	return _gfx_win32->numMonitors;
-}
-
-/******************************************************/
-int _gfx_platform_screen_get_width(void* handle)
+unsigned int _gfx_platform_screen_get_width(void* handle)
 {
 	MONITORINFO info;
 	info.cbSize = sizeof(MONITORINFO);
 
-	if(!GetMonitorInfo((HMONITOR)handle, &info)) return 0;
+	if(!GetMonitorInfo(handle, &info)) return 0;
 	return info.rcMonitor.right - info.rcMonitor.left;
 }
 
 /******************************************************/
-int _gfx_platform_screen_get_height(void* handle)
+unsigned int _gfx_platform_screen_get_height(void* handle)
 {
 	MONITORINFO info;
 	info.cbSize = sizeof(MONITORINFO);
 
-	if(!GetMonitorInfo((HMONITOR)handle, &info)) return 0;
+	if(!GetMonitorInfo(handle, &info)) return 0;
 	return info.rcMonitor.bottom - info.rcMonitor.top;
 }

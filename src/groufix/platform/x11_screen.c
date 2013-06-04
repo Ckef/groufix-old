@@ -24,39 +24,37 @@
 #include <X11/Xlib.h>
 
 /******************************************************/
-void* _gfx_platform_get_screen(int num)
+unsigned int _gfx_platform_get_num_screens(void)
+{
+	if(!_gfx_x11) return 0;
+	return ScreenCount(_gfx_x11->display);
+}
+
+/******************************************************/
+void* _gfx_platform_get_screen(unsigned int num)
 {
 	if(!_gfx_x11) return NULL;
 
 	/* Validate the number first */
-	if(num < 0 || num >= ScreenCount((Display*)_gfx_x11->display)) return NULL;
-	return (void*)ScreenOfDisplay((Display*)_gfx_x11->display, num);
+	if(num >= ScreenCount(_gfx_x11->display)) return NULL;
+	return (void*)ScreenOfDisplay(_gfx_x11->display, num);
 }
 
 /******************************************************/
 void* _gfx_platform_get_default_screen(void)
 {
 	if(!_gfx_x11) return NULL;
-	return (void*)DefaultScreenOfDisplay((Display*)_gfx_x11->display);
+	return (void*)DefaultScreenOfDisplay(_gfx_x11->display);
 }
 
 /******************************************************/
-int _gfx_platform_get_num_screens(void)
+unsigned int _gfx_platform_screen_get_width(void* handle)
 {
-	if(!_gfx_x11) return 0;
-	return ScreenCount((Display*)_gfx_x11->display);
-}
-
-/******************************************************/
-int _gfx_platform_screen_get_width(void* handle)
-{
-	if(!_gfx_x11) return 0;
 	return WidthOfScreen((Screen*)handle);
 }
 
 /******************************************************/
-int _gfx_platform_screen_get_height(void* handle)
+unsigned int _gfx_platform_screen_get_height(void* handle)
 {
-	if(!_gfx_x11) return 0;
 	return HeightOfScreen((Screen*)handle);
 }

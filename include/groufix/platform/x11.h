@@ -32,7 +32,11 @@ extern "C" {
 typedef struct GFX_X11_Server
 {
 	/* X Display */
-	void*  display;
+	void*         display;    /* (of type Display*) */
+
+	/* Windows */
+	unsigned int  numWindows;
+	void**        windows;    /* (of type Window**) */;
 
 } GFX_X11_Server;
 

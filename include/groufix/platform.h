@@ -50,7 +50,7 @@ extern "C" {
 typedef struct GFX_Platform_Attributes
 {
 	void*         screen;
-	const char*   name;
+	char*         name;
 
 	unsigned int  width;
 	unsigned int  height;
@@ -90,13 +90,19 @@ void _gfx_platform_terminate(void);
  *******************************************************/
 
 /**
+ * \brief Returns the number of visible screens.
+ *
+ */
+unsigned int _gfx_platform_get_num_screens(void);
+
+/**
  * \brief Returns a screen.
  *
- * \param num The number of the screens (0 <= num < num_screens).
+ * \param num The number of the screens (num < num_screens).
  * \return A handle to the screen, NULL if not found.
  *
  */
-void* _gfx_platform_get_screen(int num);
+void* _gfx_platform_get_screen(unsigned int num);
 
 /**
  * \brief Returns the default screen.
@@ -105,22 +111,16 @@ void* _gfx_platform_get_screen(int num);
 void* _gfx_platform_get_default_screen(void);
 
 /**
- * \brief Returns the number of visible screens.
- *
- */
-int _gfx_platform_get_num_screens(void);
-
-/**
  * \brief Returns the width of a screen in pixels.
  *
  */
-int _gfx_platform_screen_get_width(void* handle);
+unsigned int _gfx_platform_screen_get_width(void* handle);
 
 /**
  * \brief Returns the height of a screen in pixels.
  *
  */
-int _gfx_platform_screen_get_height(void* handle);
+unsigned int _gfx_platform_screen_get_height(void* handle);
 
 
 /********************************************************
@@ -133,6 +133,8 @@ int _gfx_platform_screen_get_height(void* handle);
  * \brief attributes The attributes to initialize the window with (cannot be NULL).
  * \return A handle to the window.
  *
+ * Expected behavior is for the window to be hidden by default.
+ *
  */
 void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
 
@@ -143,21 +145,48 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
 void _gfx_platform_destroy_window(void* handle);
 
 /**
- * \brief Creates a context for a window handle.
+ * \brief Returns the number of windows.
  *
- * \brief handle A handle to the window to create the context for.
+ */
+unsigned int _gfx_platform_get_num_windows(void);
+
+/**
+ * \brief Returns a previously created window.
+ *
+ * \param num The number of the window (num < num_windows).
+ * \return A handle to the window, NULL if not found.
+ *
+ * The number of a window is not constant over the duration of the program.
+ * This method is only meant for iterating over existing windows.
+ *
+ */
+void* _gfx_platform_get_window(unsigned int num);
+
+/**
+ * \brief Makes a window visible.
+ *
+ */
+void _gfx_platform_window_show(void* handle);
+
+/**
+ * \brief Hides a window, making it invisible.
+ *
+ */
+void _gfx_platform_window_hide(void* handle);
+
+/**
+ * \brief Creates a context for a window.
+ *
  * \return non-zero if the context was successfully created.
  *
  */
-int _gfx_platform_create_context(void* handle);
+int _gfx_platform_window_create_context(void* handle);
 
 /**
- * \brief Destroys a context of a window handle.
- *
- * \brief handle A handle to the window to destroy the context for.
+ * \brief Destroys a context of a window.
  *
  */
-void _gfx_platform_destroy_context(void* handle);
+void _gfx_platform_window_destroy_context(void* handle);
 
 
 #ifdef __cplusplus

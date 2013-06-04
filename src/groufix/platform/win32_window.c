@@ -77,7 +77,7 @@ static void _gfx_win32_add_window(void* handle)
 	{
 		++_gfx_win32->numWindows;
 		_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, sizeof(void*) * _gfx_win32->numWindows);
-		_gfx_win32->windows[_gfx_win32->numWindows - 1] = (void*)handle;
+		_gfx_win32->windows[_gfx_win32->numWindows - 1] = handle;
 	}
 }
 
@@ -120,13 +120,15 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 	MONITORINFO info;
 	ZeroMemory(&info, sizeof(MONITORINFO));
 	info.cbSize = sizeof(MONITORINFO);
-	GetMonitorInfo((HMONITOR)attributes->screen, &info);
+	GetMonitorInfo(attributes->screen, &info);
 
+	/* Make sure to convert to wide character */
+	wchar_t* name = utf8_to_wchar(attributes->name);
 	HWND window = CreateWindowEx(
 		0,
 		GFX_WIN32_WND_CLASS,
-		attributes->name,
-		0,
+		name,
+		WS_OVERLAPPEDWINDOW,
 		attributes->x + info.rcMonitor.left,
 		attributes->y + info.rcMonitor.top,
 		attributes->width,
@@ -137,11 +139,12 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 		NULL
 	);
 
+	free(name);
 	if(!window) return NULL;
-	ShowWindow(window, SW_SHOWDEFAULT);
 
 	/* Add window to array */
 	_gfx_win32_add_window(window);
+	_gfx_platform_window_hide(window);
 
 	return (void*)window;
 }
@@ -150,19 +153,49 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 void _gfx_platform_destroy_window(void* handle)
 {
 	/* First destroy its context */
-	_gfx_platform_destroy_context(handle);
+	_gfx_platform_window_destroy_context(handle);
 
-	DestroyWindow((HWND)handle);
+	/* Destroy and remove the handle */
+	DestroyWindow(handle);
 	_gfx_win32_remove_window(handle);
 }
 
 /******************************************************/
-int _gfx_platform_create_context(void* handle)
+unsigned int _gfx_platform_get_num_windows(void)
+{
+	if(!_gfx_win32) return 0;
+	return _gfx_win32->numWindows;
+}
+
+/******************************************************/
+void* _gfx_platform_get_window(unsigned int num)
+{
+	if(!_gfx_win32) return NULL;
+
+	/* Validate the number first */
+	if(num >= _gfx_win32->numWindows) return NULL;
+	return _gfx_win32->windows[num];
+}
+
+/******************************************************/
+void _gfx_platform_window_show(void* handle)
+{
+	ShowWindow(handle, SW_SHOW);
+}
+
+/******************************************************/
+void _gfx_platform_window_hide(void* handle)
+{
+	ShowWindow(handle, SW_HIDE);
+}
+
+/******************************************************/
+int _gfx_platform_window_create_context(void* handle)
 {
 	return 0;
 }
 
-//******************************************************/
-void _gfx_platform_destroy_context(void* handle)
+/******************************************************/
+void _gfx_platform_window_destroy_context(void* handle)
 {
 }

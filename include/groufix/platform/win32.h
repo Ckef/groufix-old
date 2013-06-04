@@ -22,6 +22,8 @@
 #ifndef GFX_PLATFORM_WIN32_H
 #define GFX_PLATFORM_WIN32_H
 
+#include <wchar.h>
+
 /* Windows 2000 */
 #define WINVER 0x0500
 
@@ -48,10 +50,10 @@ typedef struct GFX_Win32_Instance
 {
 	/* Monitors */
 	unsigned int  numMonitors;
-	void**        monitors;    /* Mapped contexts (of type HMONITOR*) */
+	void**        monitors;    /* (of type HMONITOR*) */
 
 	/* Windows */
-	void*         windowClass;
+	void*         windowClass; /* (of type WNDCLASSEX*) */
 	unsigned int  numWindows;
 	void**        windows;     /* (of type HWND*) */;
 
@@ -61,6 +63,22 @@ typedef struct GFX_Win32_Instance
  * \brief Instance pointer
  */
 extern GFX_Win32_Instance* _gfx_win32;
+
+/**
+ * \brief Converts an UTF-8 string to a wide string.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ */
+wchar_t* utf8_to_wchar(const char* str);
+
+/**
+ * \brief Converts a wide string to an UTF-8 string.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ */
+char* wchar_to_utf8(const wchar_t* str);
 
 
 #ifdef __cplusplus

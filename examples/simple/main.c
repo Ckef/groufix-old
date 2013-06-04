@@ -14,6 +14,23 @@ int main()
 		_gfx_platform_screen_get_height(scr)
 	);
 
+	GFX_Platform_Attributes attr;
+	attr.name   = "HEIRO";
+	attr.screen = scr;
+	attr.width  = 800;
+	attr.height = 600;
+	attr.x      = 100;
+	attr.y      = 100;
+
+	void* window = _gfx_platform_create_window(&attr);
+	_gfx_platform_window_show(window);
+	puts("Created a window");
+
+	getchar();
+
+	_gfx_platform_window_hide(window);
+	puts("Window is hidden");
+
 	getchar();
 
 	gfx_terminate();
