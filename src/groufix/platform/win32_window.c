@@ -30,6 +30,11 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 {
 	switch(msg)
 	{
+		case WM_CLOSE :
+		{
+			_gfx_platform_destroy_window(handle);
+			return 0;
+		}
 	}
 
 	return DefWindowProc(handle, msg, wParam, lParam);
@@ -71,13 +76,20 @@ static int _gfx_win32_register_window_class(void)
 }
 
 /******************************************************/
-static void _gfx_win32_add_window(void* handle)
+static void _gfx_win32_add_window(void* handle, void* monitor)
 {
 	if(_gfx_win32)
 	{
-		++_gfx_win32->numWindows;
-		_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, sizeof(void*) * _gfx_win32->numWindows);
-		_gfx_win32->windows[_gfx_win32->numWindows - 1] = handle;
+		unsigned int index = _gfx_win32->numWindows++;
+		size_t siz = sizeof(void*) * _gfx_win32->numWindows;
+
+		/* Add window pointer */
+		_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, siz);
+		_gfx_win32->windows[index] = handle;
+
+		/* Add window monitor */
+		_gfx_win32->windowMonitors = (void**)realloc(_gfx_win32->windowMonitors, siz);
+		_gfx_win32->windowMonitors[index] = monitor;
 	}
 }
 
@@ -96,18 +108,56 @@ static void _gfx_win32_remove_window(void* handle)
 			UnregisterClass(GFX_WIN32_WND_CLASS, GetModuleHandle(NULL));
 			free(_gfx_win32->windowClass);
 			free(_gfx_win32->windows);
+			free(_gfx_win32->windowMonitors);
 			_gfx_win32->windowClass = NULL;
 			_gfx_win32->windows = NULL;
+			_gfx_win32->windowMonitors = NULL;
 		}
 		else
 		{
 			/* Move elements and resize array */
+			size_t mov = sizeof(void*) * (_gfx_win32->numWindows - i);
+			size_t siz = sizeof(void*) * _gfx_win32->numWindows;
+
+			/* Move window pointers */
 			void** dest = _gfx_win32->windows + i;
-			memmove(dest, dest + 1, sizeof(void*) * (_gfx_win32->numWindows - i));
-			_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, sizeof(void*) * _gfx_win32->numWindows);
+			memmove(dest, dest + 1, mov);
+			_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, siz);
+
+			/* Move window monitors */
+			dest = _gfx_win32->windowMonitors + i;
+			memmove(dest, dest + 1, mov);
+			_gfx_win32->windowMonitors = (void**)realloc(_gfx_win32->windowMonitors, siz);
 		}
 		break;
 	}
+}
+
+/******************************************************/
+static void* _gfx_win32_window_get_monitor(void* handle)
+{
+	unsigned int i;
+	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
+		if(_gfx_win32->windows[i] == handle) return _gfx_win32->windowMonitors[i];
+
+	return NULL;
+}
+
+/******************************************************/
+unsigned int _gfx_platform_get_num_windows(void)
+{
+	if(!_gfx_win32) return 0;
+	return _gfx_win32->numWindows;
+}
+
+/******************************************************/
+void* _gfx_platform_get_window(unsigned int num)
+{
+	if(!_gfx_win32) return NULL;
+
+	/* Validate the number first */
+	if(num >= _gfx_win32->numWindows) return NULL;
+	return _gfx_win32->windows[num];
 }
 
 /******************************************************/
@@ -116,9 +166,8 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 	/* Make sure to register the window class */
 	if(!_gfx_win32_register_window_class()) return NULL;
 
-	/* Get screen position */
+	/* Get monitor information */
 	MONITORINFO info;
-	ZeroMemory(&info, sizeof(MONITORINFO));
 	info.cbSize = sizeof(MONITORINFO);
 	GetMonitorInfo(attributes->screen, &info);
 
@@ -143,8 +192,7 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 	if(!window) return NULL;
 
 	/* Add window to array */
-	_gfx_win32_add_window(window);
-	_gfx_platform_window_hide(window);
+	_gfx_win32_add_window(window, attributes->screen);
 
 	return (void*)window;
 }
@@ -161,20 +209,25 @@ void _gfx_platform_destroy_window(void* handle)
 }
 
 /******************************************************/
-unsigned int _gfx_platform_get_num_windows(void)
+void _gfx_platform_window_set_size(void* handle, unsigned int width, unsigned int height)
 {
-	if(!_gfx_win32) return 0;
-	return _gfx_win32->numWindows;
+	SetWindowPos(handle, NULL, 0, 0, width, height, SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOZORDER);
 }
 
 /******************************************************/
-void* _gfx_platform_get_window(unsigned int num)
+void _gfx_platform_window_set_position(void* handle, int x, int y)
 {
-	if(!_gfx_win32) return NULL;
-
-	/* Validate the number first */
-	if(num >= _gfx_win32->numWindows) return NULL;
-	return _gfx_win32->windows[num];
+	/* Get window's monitor position */
+	HMONITOR monitor = (HMONITOR)_gfx_win32_window_get_monitor(handle);
+	if(monitor)
+	{
+		MONITORINFO info;
+		info.cbSize = sizeof(MONITORINFO);
+		GetMonitorInfo(monitor, &info);
+		x += info.rcMonitor.left;
+		y += info.rcMonitor.top;
+	}
+	SetWindowPos(handle, NULL, x, y, 0, 0, SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOZORDER);
 }
 
 /******************************************************/
@@ -187,15 +240,4 @@ void _gfx_platform_window_show(void* handle)
 void _gfx_platform_window_hide(void* handle)
 {
 	ShowWindow(handle, SW_HIDE);
-}
-
-/******************************************************/
-int _gfx_platform_window_create_context(void* handle)
-{
-	return 0;
-}
-
-/******************************************************/
-void _gfx_platform_window_destroy_context(void* handle)
-{
 }

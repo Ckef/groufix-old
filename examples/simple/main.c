@@ -28,8 +28,8 @@ int main()
 
 	getchar();
 
-	_gfx_platform_window_hide(window);
-	puts("Window is hidden");
+	_gfx_platform_window_set_size(window, 200, 200);
+	puts("Window is resized");
 
 	getchar();
 

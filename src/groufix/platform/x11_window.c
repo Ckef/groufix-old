@@ -63,11 +63,34 @@ static void _gfx_x11_remove_window(void* handle)
 }
 
 /******************************************************/
+unsigned int _gfx_platform_get_num_windows(void)
+{
+	if(!_gfx_x11) return 0;
+	return _gfx_x11->numWindows;
+}
+
+/******************************************************/
+void* _gfx_platform_get_window(unsigned int num)
+{
+	if(!_gfx_x11) return NULL;
+
+	/* Validate the number first */
+	if(num >= _gfx_x11->numWindows) return NULL;
+	return _gfx_x11->windows[num];
+}
+
+/******************************************************/
 void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
 	if(!_gfx_x11) return NULL;
 
-	Window window = XCreateWindow(
+	/* Create the window's attributes */
+	XSetWindowAttributes attr;
+	attr.event_mask = NoEventMask;
+
+	/* Create the actual window */
+	Window* window = (Window*)malloc(sizeof(Window));
+	*window = XCreateWindow(
 		_gfx_x11->display,
 		RootWindowOfScreen((Screen*)attributes->screen),
 		attributes->x,
@@ -78,22 +101,15 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 		CopyFromParent,
 		InputOutput,
 		CopyFromParent,
-		0,
-		NULL
+		CWEventMask,
+		&attr
 	);
-
-	if(!window) return NULL;
-	XStoreName(_gfx_x11->display, window, attributes->name);
-
-	/* Allocate the handle */
-	Window* handle = (Window*)malloc(sizeof(Window));
-	*handle = window;
+	XStoreName(_gfx_x11->display, *window, attributes->name);
 
 	/* Add window to array */
-	_gfx_x11_add_window(handle);
-	_gfx_platform_window_hide(handle);
+	_gfx_x11_add_window(window);
 
-	return handle;
+	return window;
 }
 
 /******************************************************/
@@ -114,20 +130,23 @@ void _gfx_platform_destroy_window(void* handle)
 }
 
 /******************************************************/
-unsigned int _gfx_platform_get_num_windows(void)
+void _gfx_platform_window_set_size(void* handle, unsigned int width, unsigned int height)
 {
-	if(!_gfx_x11) return 0;
-	return _gfx_x11->numWindows;
+	if(_gfx_x11)
+	{
+		XResizeWindow(_gfx_x11->display, *((Window*)handle), width, height);
+		XFlush(_gfx_x11->display);
+	}
 }
 
 /******************************************************/
-void* _gfx_platform_get_window(unsigned int num)
+void _gfx_platform_window_set_position(void* handle, int x, int y)
 {
-	if(!_gfx_x11) return NULL;
-
-	/* Validate the number first */
-	if(num >= _gfx_x11->numWindows) return NULL;
-	return _gfx_x11->windows[num];
+	if(_gfx_x11)
+	{
+		XMoveWindow(_gfx_x11->display, *((Window*)handle), x, y);
+		XFlush(_gfx_x11->display);
+	}
 }
 
 /******************************************************/
@@ -148,15 +167,4 @@ void _gfx_platform_window_hide(void* handle)
 		XUnmapWindow(_gfx_x11->display, *((Window*)handle));
 		XFlush(_gfx_x11->display);
 	}
-}
-
-/******************************************************/
-int _gfx_platform_window_create_context(void* handle)
-{
-	return 0;
-}
-
-/******************************************************/
-void _gfx_platform_window_destroy_context(void* handle)
-{
 }

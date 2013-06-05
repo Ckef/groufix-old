@@ -45,7 +45,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Window init attributes
+ * \brief Window initialization attributes
  *******************************************************/
 typedef struct GFX_Platform_Attributes
 {
@@ -124,25 +124,8 @@ unsigned int _gfx_platform_screen_get_height(void* handle);
 
 
 /********************************************************
- * Window & Context
+ * Windows
  *******************************************************/
-
-/**
- * \brief Creates a new window, allocating the memory.
- *
- * \brief attributes The attributes to initialize the window with (cannot be NULL).
- * \return A handle to the window.
- *
- * Expected behavior is for the window to be hidden by default.
- *
- */
-void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
-
-/**
- * \brief Destroys a window, freeing the memory.
- *
- */
-void _gfx_platform_destroy_window(void* handle);
 
 /**
  * \brief Returns the number of windows.
@@ -163,6 +146,33 @@ unsigned int _gfx_platform_get_num_windows(void);
 void* _gfx_platform_get_window(unsigned int num);
 
 /**
+ * \brief Creates a new window, allocating the memory.
+ *
+ * \brief attributes The attributes to initialize the window with (cannot be NULL).
+ * \return A handle to the window.
+ *
+ */
+void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
+
+/**
+ * \brief Destroys a window, freeing the memory.
+ *
+ */
+void _gfx_platform_destroy_window(void* handle);
+
+/**
+ * \brief Sets the width and height of the window in pixels.
+ *
+ */
+void _gfx_platform_window_set_size(void* handle, unsigned int width, unsigned int height);
+
+/**
+ * \brief Sets the position of the window.
+ *
+ */
+void _gfx_platform_window_set_position(void* handle, int x, int y);
+
+/**
  * \brief Makes a window visible.
  *
  */
@@ -173,6 +183,11 @@ void _gfx_platform_window_show(void* handle);
  *
  */
 void _gfx_platform_window_hide(void* handle);
+
+
+/********************************************************
+ * Contexts
+ *******************************************************/
 
 /**
  * \brief Creates a context for a window.

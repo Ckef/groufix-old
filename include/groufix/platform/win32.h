@@ -50,12 +50,13 @@ typedef struct GFX_Win32_Instance
 {
 	/* Monitors */
 	unsigned int  numMonitors;
-	void**        monitors;    /* (of type HMONITOR*) */
+	void**        monitors;       /* (of type HMONITOR*) */
 
 	/* Windows */
-	void*         windowClass; /* (of type WNDCLASSEX*) */
+	void*         windowClass;    /* (of type WNDCLASSEX*) */
 	unsigned int  numWindows;
-	void**        windows;     /* (of type HWND*) */;
+	void**        windows;        /* (of type HWND*) */
+	void**        windowMonitors; /* Monitors assigned to the windows (of type HMONITOR*) */
 
 } GFX_Win32_Instance;
 
@@ -65,7 +66,7 @@ typedef struct GFX_Win32_Instance
 extern GFX_Win32_Instance* _gfx_win32;
 
 /**
- * \brief Converts an UTF-8 string to a wide string.
+ * \brief Converts a UTF-8 string to a wide string.
  *
  * If the returned pointer is not NULL, it should be freed manually.
  *
@@ -73,7 +74,7 @@ extern GFX_Win32_Instance* _gfx_win32;
 wchar_t* utf8_to_wchar(const char* str);
 
 /**
- * \brief Converts a wide string to an UTF-8 string.
+ * \brief Converts a wide string to a UTF-8 string.
  *
  * If the returned pointer is not NULL, it should be freed manually.
  *
