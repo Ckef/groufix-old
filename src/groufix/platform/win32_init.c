@@ -71,6 +71,25 @@ static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT re
 }
 
 /******************************************************/
+static int _gfx_win32_get_key(int symbol)
+{
+	switch(symbol)
+	{
+		case VK_BACK : return GFX_KEY_BACKSPACE;
+	}
+
+	return GFX_KEY_UNKNOWN;
+}
+
+/******************************************************/
+static void _gfx_win32_create_key_table(void)
+{
+	unsigned int i;
+	for(i = 0; i <= GFX_WIN32_MAX_KEYCODE; ++i)
+		_gfx_win32->keys[i] = _gfx_win32_get_key(i);
+}
+
+/******************************************************/
 int _gfx_platform_init(void)
 {
 	if(!_gfx_win32)
@@ -84,6 +103,9 @@ int _gfx_platform_init(void)
 			_gfx_platform_terminate();
 			return 0;
 		}
+
+		/* Construct a keycode lookup */
+		_gfx_win32_create_key_table();
 	}
 	return 1;
 }
@@ -101,6 +123,9 @@ void _gfx_platform_terminate(void)
 	{
 		/* Destroy all windows */
 		while(_gfx_win32->numWindows) _gfx_platform_destroy_window(_gfx_win32->windows[0]);
+
+		/* Unregister window class */
+		UnregisterClass(GFX_WIN32_WND_CLASS, GetModuleHandle(NULL));
 
 		/* Deallocate instance */
 		free(_gfx_win32->monitors);

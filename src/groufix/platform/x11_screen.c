@@ -37,14 +37,14 @@ void* _gfx_platform_get_screen(unsigned int num)
 
 	/* Validate the number first */
 	if(num >= ScreenCount(_gfx_x11->display)) return NULL;
-	return (void*)ScreenOfDisplay(_gfx_x11->display, num);
+	return ScreenOfDisplay(_gfx_x11->display, num);
 }
 
 /******************************************************/
 void* _gfx_platform_get_default_screen(void)
 {
 	if(!_gfx_x11) return NULL;
-	return (void*)DefaultScreenOfDisplay(_gfx_x11->display);
+	return DefaultScreenOfDisplay(_gfx_x11->display);
 }
 
 /******************************************************/

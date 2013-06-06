@@ -22,6 +22,8 @@
 #ifndef GFX_PLATFORM_H
 #define GFX_PLATFORM_H
 
+#include "groufix/events.h"
+
 /* Get platform */
 #if defined(_WIN32) || defined(__WIN32__)
 	#define GFX_WIN32
@@ -128,6 +130,12 @@ unsigned int _gfx_platform_screen_get_height(void* handle);
  *******************************************************/
 
 /**
+ * \brief Polls events of all windows.
+ *
+ */
+void _gfx_platform_poll_events(void);
+
+/**
  * \brief Returns the number of windows.
  *
  */
@@ -159,6 +167,21 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
  *
  */
 void _gfx_platform_destroy_window(void* handle);
+
+/**
+ * \brief Returns the screen assigned to a window.
+ *
+ * \brief handle A handle to the window.
+ * \return NULL if the handle was not a previously created window.
+ *
+ */
+void* _gfx_platform_window_get_screen(void* handle);
+
+/**
+ * \brief Sets the title of a window.
+ *
+ */
+void _gfx_platform_window_set_name(void* handle, const char* name);
 
 /**
  * \brief Sets the width and height of the window in pixels.

@@ -48,6 +48,8 @@
 		</Linker>
 		<Unit filename="include/GL/glcorearb.h" />
 		<Unit filename="include/groufix.h" />
+		<Unit filename="include/groufix/events.h" />
+		<Unit filename="include/groufix/keys.h" />
 		<Unit filename="include/groufix/math.h" />
 		<Unit filename="include/groufix/math/mat.h" />
 		<Unit filename="include/groufix/math/quat.h" />
@@ -57,6 +59,9 @@
 		<Unit filename="include/groufix/platform/x11.h" />
 		<Unit filename="include/groufix/utils.h" />
 		<Unit filename="src/groufix.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/groufix/events.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/groufix/math.c">

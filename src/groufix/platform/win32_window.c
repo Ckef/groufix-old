@@ -28,11 +28,37 @@
 /******************************************************/
 static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch(msg)
+	/* Get window, check if the window is still managed */
+	void* window = NULL;
+
+	unsigned int i;
+	for(i = 0; i < _gfx_win32->numWindows; ++i)
+		if(_gfx_win32->windows[i] == handle) window = handle;
+
+	/* Validate window */
+	if(window) switch(msg)
 	{
 		case WM_CLOSE :
 		{
-			_gfx_platform_destroy_window(handle);
+			_gfx_platform_destroy_window(window);
+			return 0;
+		}
+
+		case WM_KEYDOWN :
+		case WM_SYSKEYDOWN :
+		{
+			if(wParam <= GFX_WIN32_MAX_KEYCODE)
+				_gfx_event_key_press(window, _gfx_win32->keys[wParam]);
+
+			return 0;
+		}
+
+		case WM_KEYUP :
+		case WM_SYSKEYUP :
+		{
+			if(wParam <= GFX_WIN32_MAX_KEYCODE)
+				_gfx_event_key_release(window, _gfx_win32->keys[wParam]);
+
 			return 0;
 		}
 	}
@@ -46,33 +72,24 @@ static int _gfx_win32_register_window_class(void)
 	if(!_gfx_win32) return 0;
 
 	/* Check if it is already registered */
-	if(!_gfx_win32->windowClass)
-	{
-		_gfx_win32->windowClass = malloc(sizeof(WNDCLASSEX));
-		WNDCLASSEX* wc = (WNDCLASSEX*)_gfx_win32->windowClass;
+	if(_gfx_win32->classRegistered) return 1;
 
-		wc->cbSize        = sizeof(WNDCLASSEX);
-		wc->style         = 0;
-		wc->lpfnWndProc   = _gfx_win32_window_proc;
-		wc->cbClsExtra    = 0;
-		wc->cbWndExtra    = 0;
-		wc->hInstance     = GetModuleHandle(NULL);
-		wc->hIcon         = NULL;
-		wc->hCursor       = LoadCursor(NULL, IDC_ARROW);
-		wc->hbrBackground = NULL;
-		wc->lpszMenuName  = NULL;
-		wc->lpszClassName = GFX_WIN32_WND_CLASS;
-		wc->hIconSm       = NULL;
+	WNDCLASSEX wc;
+	wc.cbSize        = sizeof(WNDCLASSEX);
+	wc.style         = 0;
+	wc.lpfnWndProc   = _gfx_win32_window_proc;
+	wc.cbClsExtra    = 0;
+	wc.cbWndExtra    = 0;
+	wc.hInstance     = GetModuleHandle(NULL);
+	wc.hIcon         = NULL;
+	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = NULL;
+	wc.lpszMenuName  = NULL;
+	wc.lpszClassName = GFX_WIN32_WND_CLASS;
+	wc.hIconSm       = NULL;
 
-		if(!RegisterClassEx(wc))
-		{
-			free(_gfx_win32->windowClass);
-			_gfx_win32->windowClass = NULL;
-
-			return 0;
-		}
-	}
-	return 1;
+	_gfx_win32->classRegistered = RegisterClassEx(&wc);
+	return _gfx_win32->classRegistered;
 }
 
 /******************************************************/
@@ -104,12 +121,9 @@ static void _gfx_win32_remove_window(void* handle)
 		--_gfx_win32->numWindows;
 		if(!_gfx_win32->numWindows)
 		{
-			/* Also unregister the window class */
-			UnregisterClass(GFX_WIN32_WND_CLASS, GetModuleHandle(NULL));
-			free(_gfx_win32->windowClass);
+			/* Free the array */
 			free(_gfx_win32->windows);
 			free(_gfx_win32->windowMonitors);
-			_gfx_win32->windowClass = NULL;
 			_gfx_win32->windows = NULL;
 			_gfx_win32->windowMonitors = NULL;
 		}
@@ -134,13 +148,21 @@ static void _gfx_win32_remove_window(void* handle)
 }
 
 /******************************************************/
-static void* _gfx_win32_window_get_monitor(void* handle)
+void _gfx_platform_poll_events(void)
 {
-	unsigned int i;
-	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
-		if(_gfx_win32->windows[i] == handle) return _gfx_win32->windowMonitors[i];
+	MSG msg;
+	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		/* Dispatch any regular message */
+		if(msg.message != WM_QUIT)
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 
-	return NULL;
+		/* Terminate properly on WM_QUIT */
+		else _gfx_platform_terminate();
+	}
 }
 
 /******************************************************/
@@ -209,6 +231,25 @@ void _gfx_platform_destroy_window(void* handle)
 }
 
 /******************************************************/
+void* _gfx_platform_window_get_screen(void* handle)
+{
+	unsigned int i;
+	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
+		if(_gfx_win32->windows[i] == handle) return _gfx_win32->windowMonitors[i];
+
+	return NULL;
+}
+
+/******************************************************/
+void _gfx_platform_window_set_name(void* handle, const char* name)
+{
+	/* Make sure to convert to wide character */
+	wchar_t* wchar = utf8_to_wchar(name);
+	SetWindowText(handle, wchar);
+	free(wchar);
+}
+
+/******************************************************/
 void _gfx_platform_window_set_size(void* handle, unsigned int width, unsigned int height)
 {
 	SetWindowPos(handle, NULL, 0, 0, width, height, SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOZORDER);
@@ -218,7 +259,7 @@ void _gfx_platform_window_set_size(void* handle, unsigned int width, unsigned in
 void _gfx_platform_window_set_position(void* handle, int x, int y)
 {
 	/* Get window's monitor position */
-	HMONITOR monitor = (HMONITOR)_gfx_win32_window_get_monitor(handle);
+	HMONITOR monitor = (HMONITOR)_gfx_platform_window_get_screen(handle);
 	if(monitor)
 	{
 		MONITORINFO info;

@@ -22,10 +22,45 @@
 #include "groufix/platform.h"
 
 #include <X11/Xlib.h>
+#include <X11/keysym.h>
 #include <stdlib.h>
 
 /******************************************************/
-GFX_X11_Server* _gfx_x11 = NULL;
+GFX_X11_Connection* _gfx_x11 = NULL;
+
+/******************************************************/
+static int _gfx_x11_get_key(KeySym symbol)
+{
+	/* Validate symbol */
+	if(symbol == NoSymbol) return GFX_KEY_UNKNOWN;
+
+	switch(symbol)
+	{
+		case XK_BackSpace : return GFX_KEY_BACKSPACE;
+	}
+
+	return GFX_KEY_UNKNOWN;
+}
+
+/******************************************************/
+static void _gfx_x11_create_key_table(void)
+{
+	/* Get permitted keycodes and their symbols */
+	int minKey, maxKey;
+	XDisplayKeycodes(_gfx_x11->display, &minKey, &maxKey);
+	if(maxKey > GFX_X11_MAX_KEYCODE) maxKey = GFX_X11_MAX_KEYCODE;
+	int numKeys = maxKey - minKey + 1;
+
+	int symbolsPerKey;
+	KeySym* symbols = XGetKeyboardMapping(_gfx_x11->display, minKey, numKeys, &symbolsPerKey);
+
+	/* Use the first symbol of all keycodes */
+	unsigned int i;
+	for(i = minKey; i <= maxKey; ++i)
+		_gfx_x11->keys[i] = _gfx_x11_get_key(symbols[(i - minKey) * symbolsPerKey]);
+
+	XFree(symbols);
+}
 
 /******************************************************/
 int _gfx_platform_init(void)
@@ -37,8 +72,11 @@ int _gfx_platform_init(void)
 		if(!display) return 0;
 
 		/* Allocate */
-		_gfx_x11 = (GFX_X11_Server*)calloc(1, sizeof(GFX_X11_Server));
+		_gfx_x11 = (GFX_X11_Connection*)calloc(1, sizeof(GFX_X11_Connection));
 		_gfx_x11->display = (void*)display;
+
+		/* Construct a keycode lookup */
+		_gfx_x11_create_key_table();
 	}
 	return 1;
 }

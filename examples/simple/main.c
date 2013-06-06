@@ -8,7 +8,7 @@ int main()
 	else puts("yeeeeeh!");
 
 	void* scr = _gfx_platform_get_default_screen();
-	printf("%p\n%i screen(s)\n%i x %i\n", scr,
+	printf("%i screen(s)\n%i x %i\n",
 		_gfx_platform_get_num_screens(),
 		_gfx_platform_screen_get_width(scr),
 		_gfx_platform_screen_get_height(scr)
@@ -24,14 +24,11 @@ int main()
 
 	void* window = _gfx_platform_create_window(&attr);
 	_gfx_platform_window_show(window);
-	puts("Created a window");
 
-	getchar();
-
-	_gfx_platform_window_set_size(window, 200, 200);
-	puts("Window is resized");
-
-	getchar();
+	while(_gfx_platform_is_initialized())
+	{
+		_gfx_platform_poll_events();
+	}
 
 	gfx_terminate();
 

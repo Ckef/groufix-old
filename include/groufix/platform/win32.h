@@ -24,6 +24,13 @@
 
 #include <wchar.h>
 
+/* Maximum key code lookup */
+#define GFX_WIN32_MAX_KEYCODE 0xff
+#define GFX_WIN32_NUM_KEYCODES 0x100
+
+/* Groufix window class */
+#define GFX_WIN32_WND_CLASS L"GROUFIX"
+
 /* Windows 2000 */
 #define WINVER 0x0500
 
@@ -36,9 +43,6 @@
 #define _UNICODE
 #endif
 
-/* Groufix window class */
-#define GFX_WIN32_WND_CLASS L"GROUFIX"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,13 +54,16 @@ typedef struct GFX_Win32_Instance
 {
 	/* Monitors */
 	unsigned int  numMonitors;
-	void**        monitors;       /* (of type HMONITOR*) */
+	void**        monitors;        /* (of type HMONITOR*) */
 
 	/* Windows */
-	void*         windowClass;    /* (of type WNDCLASSEX*) */
+	char          classRegistered; /* Whether or not the window class is registered */
 	unsigned int  numWindows;
-	void**        windows;        /* (of type HWND*) */
-	void**        windowMonitors; /* Monitors assigned to the windows (of type HMONITOR*) */
+	void**        windows;         /* (of type HWND*) */
+	void**        windowMonitors;  /* Monitors assigned to the windows (of type HMONITOR*) */
+
+	/* Key table */
+	int           keys[GFX_WIN32_NUM_KEYCODES];
 
 } GFX_Win32_Instance;
 

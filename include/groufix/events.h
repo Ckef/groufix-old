@@ -19,42 +19,34 @@
  *
  */
 
-#ifndef GFX_PLATFORM_X11_H
-#define GFX_PLATFORM_X11_H
+#ifndef GFX_EVENTS_H
+#define GFX_EVENTS_H
 
-/* Maximum key code lookup */
-#define GFX_X11_MAX_KEYCODE 0xff
-#define GFX_X11_NUM_KEYCODES 0x100
+#include "groufix/keys.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /********************************************************
- * \brief X11 Connection
+ * Internal Callbacks
  *******************************************************/
-typedef struct GFX_X11_Connection
-{
-	/* X Display */
-	void*         display;    /* (of type Display*) */
-
-	/* Windows */
-	unsigned int  numWindows;
-	void**        windows;    /* (of type Window**) */;
-
-	/* Key table */
-	int           keys[GFX_X11_NUM_KEYCODES];
-
-} GFX_X11_Connection;
 
 /**
- * \brief Server pointer
+ * \brief Handles a key press event.
+ *
  */
-extern GFX_X11_Connection* _gfx_x11;
+void _gfx_event_key_press(void* window, int key);
+
+/**
+ * \brief Handles a key release event.
+ *
+ */
+void _gfx_event_key_release(void* window, int key);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // GFX_PLATFORM_X11_H
+#endif // GFX_EVENTS_H

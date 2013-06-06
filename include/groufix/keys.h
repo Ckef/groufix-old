@@ -19,42 +19,14 @@
  *
  */
 
-#ifndef GFX_PLATFORM_X11_H
-#define GFX_PLATFORM_X11_H
-
-/* Maximum key code lookup */
-#define GFX_X11_MAX_KEYCODE 0xff
-#define GFX_X11_NUM_KEYCODES 0x100
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef GFX_KEYS_H
+#define GFX_KEYS_H
 
 /********************************************************
- * \brief X11 Connection
+ * Platform independent key codes
  *******************************************************/
-typedef struct GFX_X11_Connection
-{
-	/* X Display */
-	void*         display;    /* (of type Display*) */
 
-	/* Windows */
-	unsigned int  numWindows;
-	void**        windows;    /* (of type Window**) */;
+#define GFX_KEY_UNKNOWN    0x0000 /* Must be zero to initialize to unknown */
+#define GFX_KEY_BACKSPACE  0x0001
 
-	/* Key table */
-	int           keys[GFX_X11_NUM_KEYCODES];
-
-} GFX_X11_Connection;
-
-/**
- * \brief Server pointer
- */
-extern GFX_X11_Connection* _gfx_x11;
-
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // GFX_PLATFORM_X11_H
+#endif // GFX_KEYS_H

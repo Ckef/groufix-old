@@ -26,6 +26,38 @@
 #include <string.h>
 
 /******************************************************/
+static void _gfx_x11_event_proc(XEvent* event)
+{
+	/* Get window */
+	void* window = NULL;
+
+	unsigned int i;
+	for(i = 0; i < _gfx_x11->numWindows; ++i)
+		if(*((Window*)_gfx_x11->windows[i]) == event->xany.window)
+			window = _gfx_x11->windows[i];
+
+	/* Validate window */
+	if(window) switch(event->type)
+	{
+		case KeyPress :
+		{
+			if(event->xkey.keycode <= GFX_X11_MAX_KEYCODE)
+				_gfx_event_key_press(window, _gfx_x11->keys[event->xkey.keycode]);
+
+			break;
+		}
+
+		case KeyRelease :
+		{
+			if(event->xkey.keycode <= GFX_X11_MAX_KEYCODE)
+				_gfx_event_key_release(window, _gfx_x11->keys[event->xkey.keycode]);
+
+			break;
+		}
+	}
+}
+
+/******************************************************/
 static void _gfx_x11_add_window(void* handle)
 {
 	if(_gfx_x11)
@@ -63,6 +95,22 @@ static void _gfx_x11_remove_window(void* handle)
 }
 
 /******************************************************/
+void _gfx_platform_poll_events(void)
+{
+	if(_gfx_x11)
+	{
+		XEvent event;
+
+		int cnt = XPending(_gfx_x11->display);
+		while(cnt--)
+		{
+			XNextEvent(_gfx_x11->display, &event);
+			_gfx_x11_event_proc(&event);
+		}
+	}
+}
+
+/******************************************************/
 unsigned int _gfx_platform_get_num_windows(void)
 {
 	if(!_gfx_x11) return 0;
@@ -86,7 +134,9 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 
 	/* Create the window's attributes */
 	XSetWindowAttributes attr;
-	attr.event_mask = NoEventMask;
+	attr.event_mask =
+		KeyPressMask |
+		KeyReleaseMask;
 
 	/* Create the actual window */
 	Window* window = (Window*)malloc(sizeof(Window));
@@ -104,7 +154,7 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 		CWEventMask,
 		&attr
 	);
-	XStoreName(_gfx_x11->display, *window, attributes->name);
+	_gfx_platform_window_set_name(window, attributes->name);
 
 	/* Add window to array */
 	_gfx_x11_add_window(window);
@@ -119,9 +169,7 @@ void _gfx_platform_destroy_window(void* handle)
 	{
 		/* First destroy its context */
 		_gfx_platform_window_destroy_context(handle);
-
 		XDestroyWindow(_gfx_x11->display, *((Window*)handle));
-		XFlush(_gfx_x11->display);
 
 		/* Remove and free the handle */
 		_gfx_x11_remove_window(handle);
@@ -130,41 +178,43 @@ void _gfx_platform_destroy_window(void* handle)
 }
 
 /******************************************************/
+void* _gfx_platform_window_get_screen(void* handle)
+{
+	if(!_gfx_x11) return NULL;
+
+	XWindowAttributes attr;
+	attr.screen = NULL;
+	XGetWindowAttributes(_gfx_x11->display, *((Window*)handle), &attr);
+
+	return attr.screen;
+}
+
+/******************************************************/
+void _gfx_platform_window_set_name(void* handle, const char* name)
+{
+	if(_gfx_x11) XStoreName(_gfx_x11->display, *((Window*)handle), name);
+}
+
+/******************************************************/
 void _gfx_platform_window_set_size(void* handle, unsigned int width, unsigned int height)
 {
-	if(_gfx_x11)
-	{
-		XResizeWindow(_gfx_x11->display, *((Window*)handle), width, height);
-		XFlush(_gfx_x11->display);
-	}
+	if(_gfx_x11) XResizeWindow(_gfx_x11->display, *((Window*)handle), width, height);
 }
 
 /******************************************************/
 void _gfx_platform_window_set_position(void* handle, int x, int y)
 {
-	if(_gfx_x11)
-	{
-		XMoveWindow(_gfx_x11->display, *((Window*)handle), x, y);
-		XFlush(_gfx_x11->display);
-	}
+	if(_gfx_x11) XMoveWindow(_gfx_x11->display, *((Window*)handle), x, y);
 }
 
 /******************************************************/
 void _gfx_platform_window_show(void* handle)
 {
-	if(_gfx_x11)
-	{
-		XMapWindow(_gfx_x11->display, *((Window*)handle));
-		XFlush(_gfx_x11->display);
-	}
+	if(_gfx_x11) XMapWindow(_gfx_x11->display, *((Window*)handle));
 }
 
 /******************************************************/
 void _gfx_platform_window_hide(void* handle)
 {
-	if(_gfx_x11)
-	{
-		XUnmapWindow(_gfx_x11->display, *((Window*)handle));
-		XFlush(_gfx_x11->display);
-	}
+	if(_gfx_x11) XUnmapWindow(_gfx_x11->display, *((Window*)handle));
 }

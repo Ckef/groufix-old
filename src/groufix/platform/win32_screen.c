@@ -44,7 +44,7 @@ void* _gfx_platform_get_screen(unsigned int num)
 void* _gfx_platform_get_default_screen(void)
 {
 	POINT zero = { 0,0 };
-	return (void*)MonitorFromPoint(zero, MONITOR_DEFAULTTOPRIMARY);
+	return MonitorFromPoint(zero, MONITOR_DEFAULTTOPRIMARY);
 }
 
 /******************************************************/
