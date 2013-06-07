@@ -41,16 +41,22 @@ static void _gfx_x11_event_proc(XEvent* event)
 	{
 		case KeyPress :
 		{
-			if(event->xkey.keycode <= GFX_X11_MAX_KEYCODE)
-				_gfx_event_key_press(window, _gfx_x11->keys[event->xkey.keycode]);
+			GFXKey key;
+			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
+			else key = _gfx_x11->keys[event->xkey.keycode];
+
+			_gfx_event_key_press(window, key);
 
 			break;
 		}
 
 		case KeyRelease :
 		{
-			if(event->xkey.keycode <= GFX_X11_MAX_KEYCODE)
-				_gfx_event_key_release(window, _gfx_x11->keys[event->xkey.keycode]);
+			GFXKey key;
+			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
+			else key = _gfx_x11->keys[event->xkey.keycode];
+
+			_gfx_event_key_release(window, key);
 
 			break;
 		}

@@ -27,7 +27,7 @@
 void _gfx_event_key_press(void* window, GFXKey key)
 {
 	/* TEMPORARY TO NOT HAVE TO CRASH THE APPLICATION!!!!!!!!!!!!! */
-	if(key == GFX_KEY_BACKSPACE) _gfx_platform_terminate();
+	if(key == GFX_KEY_RETURN) _gfx_platform_terminate();
 }
 
 /******************************************************/

@@ -26,6 +26,19 @@
 #include <string.h>
 
 /******************************************************/
+static GFXKey _gfx_win32_get_extended_key(GFXkey key, LPARAM lParam)
+{
+	/* Get extended key (probaby right key) */
+	if((lParam >> 24) & 1) switch(key)
+	{
+		case GFX_KEY_SHIFT_LEFT   : return GFX_KEY_SHIFT_RIGHT;
+		case GFX_KEY_CONTROL_LEFT : return GFX_KEY_CONTROL_RIGHT;
+		case GFX_KEY_ALT_LEFT     : return GFX_KEY_ALT_RIGHT;
+	}
+	return key;
+}
+
+/******************************************************/
 static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	/* Get window, check if the window is still managed */
@@ -38,26 +51,35 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 	/* Validate window */
 	if(window) switch(msg)
 	{
+		/* Close button */
 		case WM_CLOSE :
 		{
 			_gfx_platform_destroy_window(window);
 			return 0;
 		}
 
+		/* Key press */
 		case WM_KEYDOWN :
 		case WM_SYSKEYDOWN :
 		{
-			if(wParam <= GFX_WIN32_MAX_KEYCODE)
-				_gfx_event_key_press(window, _gfx_win32->keys[wParam]);
+			GFXKey key;
+			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
+			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
+
+			_gfx_event_key_press(window, key);
 
 			return 0;
 		}
 
+		/* Key release */
 		case WM_KEYUP :
 		case WM_SYSKEYUP :
 		{
-			if(wParam <= GFX_WIN32_MAX_KEYCODE)
-				_gfx_event_key_release(window, _gfx_win32->keys[wParam]);
+			GFXKey key;
+			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
+			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
+
+			_gfx_event_key_release(window, key);
 
 			return 0;
 		}
