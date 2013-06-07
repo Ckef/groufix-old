@@ -34,7 +34,7 @@ static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
 		st |= GFX_KEY_STATE_SHIFT;
 	if(state & ControlMask)
 		st |= GFX_KEY_STATE_CONTROL;
-	if(state & Mod1Mask)
+	if(state & (Mod1Mask | Mod5Mask))
 		st |= GFX_KEY_STATE_ALT;
 	if(state & Mod4Mask)
 		st |= GFX_KEY_STATE_SUPER;
@@ -42,8 +42,6 @@ static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
 		st |= GFX_KEY_STATE_CAPS_LOCK;
 	if(state & Mod2Mask)
 		st |= GFX_KEY_STATE_NUM_LOCK;
-	if(state & Mod5Mask)
-		st |= GFX_KEY_STATE_SCROLL_LOCK;
 
 	return st;
 }
