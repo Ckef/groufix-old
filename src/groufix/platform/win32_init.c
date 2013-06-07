@@ -111,16 +111,16 @@ static GFXKey _gfx_win32_get_key(int symbol)
 		case VK_NUMLOCK   : return GFX_KEY_NUM_LOCK;
 		case VK_SPACE     : return GFX_KEY_SPACE;
 
-		case VK_NUMPAD_0  : return GFX_KEY_KP_0;
-		case VK_NUMPAD_1  : return GFX_KEY_KP_1;
-		case VK_NUMPAD_2  : return GFX_KEY_KP_2;
-		case VK_NUMPAD_3  : return GFX_KEY_KP_3;
-		case VK_NUMPAD_4  : return GFX_KEY_KP_4;
-		case VK_NUMPAD_5  : return GFX_KEY_KP_5;
-		case VK_NUMPAD_6  : return GFX_KEY_KP_6;
-		case VK_NUMPAD_7  : return GFX_KEY_KP_7;
-		case VK_NUMPAD_8  : return GFX_KEY_KP_8;
-		case VK_NUMPAD_9  : return GFX_KEY_KP_9;
+		case VK_NUMPAD0   : return GFX_KEY_KP_0;
+		case VK_NUMPAD1   : return GFX_KEY_KP_1;
+		case VK_NUMPAD2   : return GFX_KEY_KP_2;
+		case VK_NUMPAD3   : return GFX_KEY_KP_3;
+		case VK_NUMPAD4   : return GFX_KEY_KP_4;
+		case VK_NUMPAD5   : return GFX_KEY_KP_5;
+		case VK_NUMPAD6   : return GFX_KEY_KP_6;
+		case VK_NUMPAD7   : return GFX_KEY_KP_7;
+		case VK_NUMPAD8   : return GFX_KEY_KP_8;
+		case VK_NUMPAD9   : return GFX_KEY_KP_9;
 		case VK_MULTIPLY  : return GFX_KEY_KP_MULTIPLY;
 		case VK_ADD       : return GFX_KEY_KP_ADD;
 		case VK_SEPARATOR : return GFX_KEY_KP_SEPARATOR;
@@ -160,6 +160,8 @@ static GFXKey _gfx_win32_get_key(int symbol)
 		case VK_LCONTROL  : return GFX_KEY_CONTROL_LEFT;
 		case VK_RCONTROL  : return GFX_KEY_CONTROL_RIGHT;
 		case VK_MENU      : return GFX_KEY_ALT_LEFT;
+		case VK_LWIN      : return GFX_KEY_SUPER_LEFT;
+		case VK_RWIN      : return GFX_KEY_SUPER_RIGHT;
 	}
 
 	return GFX_KEY_UNKNOWN;

@@ -22,10 +22,13 @@
 #ifndef GFX_KEYS_H
 #define GFX_KEYS_H
 
-/********************************************************
- * Platform independent key codes
- *******************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+/********************************************************
+ * \brief Platform independent key code
+ *******************************************************/
 typedef int GFXKey;
 
 #define GFX_KEY_UNKNOWN        0x0000 /* Must be zero to initialize to unknown */
@@ -45,9 +48,9 @@ typedef int GFXKey;
 #define GFX_KEY_UP             0x0012
 #define GFX_KEY_RIGHT          0x0013
 #define GFX_KEY_DOWN           0x0014
-#define GFX_KEY_PAGE_DOWN      0x0015 /* Next */
+#define GFX_KEY_PAGE_DOWN      0x0015 /* NEXT */
 #define GFX_KEY_NEXT           0x0015
-#define GFX_KEY_PAGE_UP        0x0016 /* Prior */
+#define GFX_KEY_PAGE_UP        0x0016 /* PRIOR */
 #define GFX_KEY_PRIOR          0x0016
 #define GFX_KEY_END            0x0017
 
@@ -61,24 +64,26 @@ typedef int GFXKey;
 #define GFX_KEY_NUM_LOCK       0x001f
 #define GFX_KEY_SPACE          0x0020
 
-#define GFX_KEY_KP_0           0x0021
-#define GFX_KEY_KP_1           0x0022
-#define GFX_KEY_KP_2           0x0023
-#define GFX_KEY_KP_3           0x0024
-#define GFX_KEY_KP_4           0x0025
-#define GFX_KEY_KP_5           0x0026
-#define GFX_KEY_KP_6           0x0027
-#define GFX_KEY_KP_7           0x0028
-#define GFX_KEY_KP_8           0x0029
-#define GFX_KEY_KP_9           0x002a
-#define GFX_KEY_KP_MULTIPLY    0x002b
-#define GFX_KEY_KP_ADD         0x002c
-#define GFX_KEY_KP_SEPARATOR   0x002d
-#define GFX_KEY_KP_SUBTRACT    0x002e
-#define GFX_KEY_KP_DECIMAL     0x002f
-#define GFX_KEY_KP_DIVIDE      0x003a
+#define GFX_KEY_KP_RETURN      0x0021 /* KP Enter */
+#define GFX_KEY_KP_ENTER       0x0021
+#define GFX_KEY_KP_0           0x0022
+#define GFX_KEY_KP_1           0x0023
+#define GFX_KEY_KP_2           0x0024
+#define GFX_KEY_KP_3           0x0025
+#define GFX_KEY_KP_4           0x0026
+#define GFX_KEY_KP_5           0x0027
+#define GFX_KEY_KP_6           0x0028
+#define GFX_KEY_KP_7           0x0029
+#define GFX_KEY_KP_8           0x002a
+#define GFX_KEY_KP_9           0x002b
+#define GFX_KEY_KP_MULTIPLY    0x002c
+#define GFX_KEY_KP_ADD         0x002d
+#define GFX_KEY_KP_SEPARATOR   0x002e
+#define GFX_KEY_KP_SUBTRACT    0x002f
+#define GFX_KEY_KP_DECIMAL     0x003a /* Continue from after Unicode numbers */
+#define GFX_KEY_KP_DIVIDE      0x003b
 
-#define GFX_KEY_F1             0x005b
+#define GFX_KEY_F1             0x005b /* Continue from after Unicode alphabet */
 #define GFX_KEY_F2             0x005c
 #define GFX_KEY_F3             0x005d
 #define GFX_KEY_F4             0x005e
@@ -103,14 +108,17 @@ typedef int GFXKey;
 #define GFX_KEY_F23            0x0071
 #define GFX_KEY_F24            0x0072
 
-#define GFX_KEY_SHIFT_LEFT     0x003b
-#define GFX_KEY_SHIFT_RIGHT    0x003c
-#define GFX_KEY_CONTROL_LEFT   0x003d
-#define GFX_KEY_CONTROL_RIGHT  0x003e
-#define GFX_KEY_ALT_LEFT       0x003f
-#define GFX_KEY_ALT_RIGHT      0x0040
+#define GFX_KEY_SHIFT_LEFT     0x0073
+#define GFX_KEY_SHIFT_RIGHT    0x0074
+#define GFX_KEY_CONTROL_LEFT   0x0075
+#define GFX_KEY_CONTROL_RIGHT  0x0076
+#define GFX_KEY_ALT_LEFT       0x0077
+#define GFX_KEY_ALT_RIGHT      0x0078
+#define GFX_KEY_SUPER_LEFT     0x0079 /* Left windows key */
+#define GFX_KEY_SUPER_RIGHT    0x007a /* Right windows key */
 
-/* Convertable to unicode (char) from here */
+
+/* Convertible to Unicode (char) from here */
 #define GFX_KEY_0              0x0030
 #define GFX_KEY_1              0x0031
 #define GFX_KEY_2              0x0032
@@ -148,5 +156,28 @@ typedef int GFXKey;
 #define GFX_KEY_X              0x0058
 #define GFX_KEY_Y              0x0059
 #define GFX_KEY_Z              0x005a
+
+
+/********************************************************
+ * \brief Platform independent key state
+ *******************************************************/
+typedef int GFXKeyState;
+
+#define GFX_KEY_STATE_SHIFT        0x01
+#define GFX_KEY_STATE_CONTROL      0x02
+#define GFX_KEY_STATE_ALT          0x04
+#define GFX_KEY_STATE_SUPER        0x08
+#define GFX_KEY_STATE_CAPS_LOCK    0x10
+#define GFX_KEY_STATE_NUM_LOCK     0x20
+#define GFX_KEY_STATE_SCROLL_LOCK  0x40
+
+#define GFX_KEY_STATE_NONE         0x00
+#define GFX_KEY_STATE_CAPITALS     0x11 /* Either shift or caps lock is active */
+#define GFX_KEY_STATE_LOCK_ALL     0x70 /* All toggle keys are toggled active */
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GFX_KEYS_H

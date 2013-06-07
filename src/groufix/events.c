@@ -22,15 +22,23 @@
 #include "groufix/events.h"
 
 #include "groufix/platform.h"
+#include <stdio.h>
 
 /******************************************************/
-void _gfx_event_key_press(void* window, GFXKey key)
+void _gfx_event_key_press(void* window, GFXKey key, GFXKeyState state)
 {
 	/* TEMPORARY TO NOT HAVE TO CRASH THE APPLICATION!!!!!!!!!!!!! */
 	if(key == GFX_KEY_RETURN) _gfx_platform_terminate();
+	if(state & GFX_KEY_STATE_SHIFT) puts("SHIFT");
+	if(state & GFX_KEY_STATE_CONTROL) puts("CONTROL");
+	if(state & GFX_KEY_STATE_ALT) puts("ALT");
+	if(state & GFX_KEY_STATE_SUPER) puts("SUPER");
+	if(state & GFX_KEY_STATE_CAPS_LOCK) puts("CAPS");
+	if(state & GFX_KEY_STATE_NUM_LOCK) puts("NUM");
+	if(state & GFX_KEY_STATE_SCROLL_LOCK) puts("SCROLL");
 }
 
 /******************************************************/
-void _gfx_event_key_release(void* window, GFXKey key)
+void _gfx_event_key_release(void* window, GFXKey key, GFXKeyState state)
 {
 }

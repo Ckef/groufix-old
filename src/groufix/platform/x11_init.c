@@ -50,7 +50,6 @@ static GFXKey _gfx_x11_get_key(KeySym symbol)
 		case XK_KP_Tab       : return GFX_KEY_TAB;
 		case XK_Clear        : return GFX_KEY_CLEAR;
 		case XK_Return       : return GFX_KEY_RETURN;
-		case XK_KP_Enter     : return GFX_KEY_RETURN;
 		case XK_Pause        : return GFX_KEY_PAUSE;
 		case XK_Scroll_Lock  : return GFX_KEY_SCROLL_LOCK;
 		case XK_Escape       : return GFX_KEY_ESCAPE;
@@ -86,6 +85,7 @@ static GFXKey _gfx_x11_get_key(KeySym symbol)
 		case XK_KP_Space     : return GFX_KEY_SPACE;
 		case XK_space        : return GFX_KEY_SPACE;
 
+		case XK_KP_Enter     : return GFX_KEY_KP_RETURN;
 		case XK_KP_0         : return GFX_KEY_KP_0;
 		case XK_KP_1         : return GFX_KEY_KP_1;
 		case XK_KP_2         : return GFX_KEY_KP_2;
@@ -134,6 +134,8 @@ static GFXKey _gfx_x11_get_key(KeySym symbol)
 		case XK_Control_R    : return GFX_KEY_CONTROL_RIGHT;
 		case XK_Alt_L        : return GFX_KEY_ALT_LEFT;
 		case XK_Alt_R        : return GFX_KEY_ALT_RIGHT;
+		case XK_Super_L      : return GFX_KEY_SUPER_LEFT;
+		case XK_Super_R      : return GFX_KEY_SUPER_RIGHT;
 	}
 
 	return GFX_KEY_UNKNOWN;

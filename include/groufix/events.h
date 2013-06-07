@@ -35,14 +35,20 @@ extern "C" {
 /**
  * \brief Handles a key press event.
  *
+ * \param key   What key is pressed.
+ * \param state State of some special keys.
+ *
  */
-void _gfx_event_key_press(void* window, GFXKey key);
+void _gfx_event_key_press(void* window, GFXKey key, GFXKeyState state);
 
 /**
  * \brief Handles a key release event.
  *
+ * \param key   What key is released.
+ * \param state State of some special keys.
+ *
  */
-void _gfx_event_key_release(void* window, GFXKey key);
+void _gfx_event_key_release(void* window, GFXKey key, GFXKeyState state);
 
 
 #ifdef __cplusplus

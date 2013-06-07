@@ -26,6 +26,29 @@
 #include <string.h>
 
 /******************************************************/
+static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
+{
+	GFXKeyState st = GFX_KEY_STATE_NONE;
+
+	if(state & ShiftMask)
+		st |= GFX_KEY_STATE_SHIFT;
+	if(state & ControlMask)
+		st |= GFX_KEY_STATE_CONTROL;
+	if(state & Mod1Mask)
+		st |= GFX_KEY_STATE_ALT;
+	if(state & Mod4Mask)
+		st |= GFX_KEY_STATE_SUPER;
+	if(state & LockMask)
+		st |= GFX_KEY_STATE_CAPS_LOCK;
+	if(state & Mod2Mask)
+		st |= GFX_KEY_STATE_NUM_LOCK;
+	if(state & Mod5Mask)
+		st |= GFX_KEY_STATE_SCROLL_LOCK;
+
+	return st;
+}
+
+/******************************************************/
 static void _gfx_x11_event_proc(XEvent* event)
 {
 	/* Get window */
@@ -39,24 +62,26 @@ static void _gfx_x11_event_proc(XEvent* event)
 	/* Validate window */
 	if(window) switch(event->type)
 	{
+		/* Key press */
 		case KeyPress :
 		{
 			GFXKey key;
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_x11->keys[event->xkey.keycode];
 
-			_gfx_event_key_press(window, key);
+			_gfx_event_key_press(window, key, _gfx_x11_get_key_state(event->xkey.state));
 
 			break;
 		}
 
+		/* Key release */
 		case KeyRelease :
 		{
 			GFXKey key;
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_x11->keys[event->xkey.keycode];
 
-			_gfx_event_key_release(window, key);
+			_gfx_event_key_release(window, key, _gfx_x11_get_key_state(event->xkey.state));
 
 			break;
 		}

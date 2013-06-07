@@ -26,16 +26,40 @@
 #include <string.h>
 
 /******************************************************/
-static GFXKey _gfx_win32_get_extended_key(GFXkey key, LPARAM lParam)
+static GFXKey _gfx_win32_get_extended_key(GFXKey key, LPARAM lParam)
 {
 	/* Get extended key (probaby right key) */
-	if((lParam >> 24) & 1) switch(key)
+	if(lParam & 0x1000000) switch(key)
 	{
+		case GFX_KEY_RETURN       : return GFX_KEY_KP_RETURN;
 		case GFX_KEY_SHIFT_LEFT   : return GFX_KEY_SHIFT_RIGHT;
 		case GFX_KEY_CONTROL_LEFT : return GFX_KEY_CONTROL_RIGHT;
 		case GFX_KEY_ALT_LEFT     : return GFX_KEY_ALT_RIGHT;
 	}
 	return key;
+}
+
+/******************************************************/
+static GFXKeyState _gfx_win32_get_key_state(void)
+{
+	GFXKeyState state = GFX_KEY_STATE_NONE;
+
+	if(0xff00 & GetKeyState(VK_SHIFT))
+		state |= GFX_KEY_STATE_SHIFT;
+	if(0xff00 & GetKeyState(VK_CONTROL))
+		state |= GFX_KEY_STATE_CONTROL;
+	if(0xff00 & GetKeyState(VK_MENU))
+		state |= GFX_KEY_STATE_ALT;
+	if(0xff00 & (GetKeyState(VK_LWIN) | GetKeyState(VK_RWIN)))
+		state |= GFX_KEY_STATE_SUPER;
+	if(0x00ff & GetKeyState(VK_CAPITAL))
+		state |= GFX_KEY_STATE_CAPS_LOCK;
+	if(0x00ff & GetKeyState(VK_NUMLOCK))
+		state |= GFX_KEY_STATE_NUM_LOCK;
+	if(0x00ff & GetKeyState(VK_SCROLL))
+		state |= GFX_KEY_STATE_SCROLL_LOCK;
+
+	return state;
 }
 
 /******************************************************/
@@ -66,7 +90,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
 
-			_gfx_event_key_press(window, key);
+			_gfx_event_key_press(window, key, _gfx_win32_get_key_state());
 
 			return 0;
 		}
@@ -79,7 +103,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
 
-			_gfx_event_key_release(window, key);
+			_gfx_event_key_release(window, key, _gfx_win32_get_key_state());
 
 			return 0;
 		}
