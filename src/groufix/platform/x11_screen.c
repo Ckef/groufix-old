@@ -48,13 +48,8 @@ void* _gfx_platform_get_default_screen(void)
 }
 
 /******************************************************/
-unsigned int _gfx_platform_screen_get_width(void* handle)
+void _gfx_platform_screen_get_size(void* handle, unsigned int* width, unsigned int* height)
 {
-	return WidthOfScreen((Screen*)handle);
-}
-
-/******************************************************/
-unsigned int _gfx_platform_screen_get_height(void* handle)
-{
-	return HeightOfScreen((Screen*)handle);
+	*width = WidthOfScreen((Screen*)handle);
+	*height = HeightOfScreen((Screen*)handle);
 }

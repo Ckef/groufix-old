@@ -43,7 +43,7 @@ typedef struct GFX_X11_Connection
 	void**        windows;    /* (of type Window**) */;
 
 	/* Key table */
-	int           keys[GFX_X11_NUM_KEYCODES];
+	GFXKey        keys[GFX_X11_NUM_KEYCODES];
 
 } GFX_X11_Connection;
 

@@ -113,16 +113,10 @@ void* _gfx_platform_get_screen(unsigned int num);
 void* _gfx_platform_get_default_screen(void);
 
 /**
- * \brief Returns the width of a screen in pixels.
+ * \brief Gets the resolution of a screen in pixels.
  *
  */
-unsigned int _gfx_platform_screen_get_width(void* handle);
-
-/**
- * \brief Returns the height of a screen in pixels.
- *
- */
-unsigned int _gfx_platform_screen_get_height(void* handle);
+void _gfx_platform_screen_get_size(void* handle, unsigned int* width, unsigned int* height);
 
 
 /********************************************************
@@ -171,11 +165,30 @@ void _gfx_platform_destroy_window(void* handle);
 /**
  * \brief Returns the screen assigned to a window.
  *
- * \brief handle A handle to the window.
  * \return NULL if the handle was not a previously created window.
  *
  */
 void* _gfx_platform_window_get_screen(void* handle);
+
+/**
+ * \brief Returns the name of a window.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ */
+char* _gfx_platform_window_get_name(void* handle);
+
+/**
+ * \brief Gets the resolution of a window in pixels.
+ *
+ */
+void _gfx_platform_window_get_size(void* handle, unsigned int* width, unsigned int* height);
+
+/**
+ * \brief Gets the position of the window.
+ *
+ */
+void _gfx_platform_window_get_position(void* handle, int* x, int* y);
 
 /**
  * \brief Sets the title of a window.
@@ -184,7 +197,7 @@ void* _gfx_platform_window_get_screen(void* handle);
 void _gfx_platform_window_set_name(void* handle, const char* name);
 
 /**
- * \brief Sets the width and height of the window in pixels.
+ * \brief Sets the resolution of the window in pixels.
  *
  */
 void _gfx_platform_window_set_size(void* handle, unsigned int width, unsigned int height);

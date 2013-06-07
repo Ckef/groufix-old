@@ -48,21 +48,13 @@ void* _gfx_platform_get_default_screen(void)
 }
 
 /******************************************************/
-unsigned int _gfx_platform_screen_get_width(void* handle)
+void _gfx_platform_screen_get_size(void* handle, unsigned int* width, unsigned int* height)
 {
 	MONITORINFO info;
+	ZeroMemory(&info, sizeof(MONITORINFO));
 	info.cbSize = sizeof(MONITORINFO);
 
-	if(!GetMonitorInfo(handle, &info)) return 0;
-	return info.rcMonitor.right - info.rcMonitor.left;
-}
-
-/******************************************************/
-unsigned int _gfx_platform_screen_get_height(void* handle)
-{
-	MONITORINFO info;
-	info.cbSize = sizeof(MONITORINFO);
-
-	if(!GetMonitorInfo(handle, &info)) return 0;
-	return info.rcMonitor.bottom - info.rcMonitor.top;
+	GetMonitorInfo(handle, &info);
+	*width = info.rcMonitor.right - info.rcMonitor.left;
+	*height = info.rcMonitor.bottom - info.rcMonitor.top;
 }

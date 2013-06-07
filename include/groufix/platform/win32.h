@@ -63,7 +63,7 @@ typedef struct GFX_Win32_Instance
 	void**        windowMonitors;  /* Monitors assigned to the windows (of type HMONITOR*) */
 
 	/* Key table */
-	int           keys[GFX_WIN32_NUM_KEYCODES];
+	GFXKey        keys[GFX_WIN32_NUM_KEYCODES];
 
 } GFX_Win32_Instance;
 

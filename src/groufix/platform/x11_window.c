@@ -154,6 +154,7 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 		CWEventMask,
 		&attr
 	);
+
 	_gfx_platform_window_set_name(window, attributes->name);
 
 	/* Add window to array */
@@ -187,6 +188,65 @@ void* _gfx_platform_window_get_screen(void* handle)
 	XGetWindowAttributes(_gfx_x11->display, *((Window*)handle), &attr);
 
 	return attr.screen;
+}
+
+/******************************************************/
+char* _gfx_platform_window_get_name(void* handle)
+{
+	if(!_gfx_x11) return NULL;
+
+	/* Check if it has a name */
+	char* buff;
+	XFetchName(_gfx_x11->display, *((Window*)handle), &buff);
+	if(!buff) return NULL;
+
+	/* Copy to client side memory */
+	char* name = (char*)malloc(sizeof(buff));
+	strcpy(name, buff);
+
+	XFree(buff);
+
+	return name;
+}
+
+/******************************************************/
+void _gfx_platform_window_get_size(void* handle, unsigned int* width, unsigned int* height)
+{
+	if(!_gfx_x11)
+	{
+		*width = 0;
+		*height = 0;
+	}
+	else
+	{
+		XWindowAttributes attr;
+		attr.width = 0;
+		attr.height = 0;
+		XGetWindowAttributes(_gfx_x11->display, *((Window*)handle), &attr);
+
+		*width = attr.width;
+		*height = attr.height;
+	}
+}
+
+/******************************************************/
+void _gfx_platform_window_get_position(void* handle, int* x, int* y)
+{
+	if(!_gfx_x11)
+	{
+		*x = 0;
+		*y = 0;
+	}
+	else
+	{
+		XWindowAttributes attr;
+		attr.x = 0;
+		attr.y = 0;
+		XGetWindowAttributes(_gfx_x11->display, *((Window*)handle), &attr);
+
+		*x = attr.x;
+		*y = attr.y;
+	}
 }
 
 /******************************************************/

@@ -24,13 +24,13 @@
 #include "groufix/platform.h"
 
 /******************************************************/
-void _gfx_event_key_press(void* window, int key)
+void _gfx_event_key_press(void* window, GFXKey key)
 {
 	/* TEMPORARY TO NOT HAVE TO CRASH THE APPLICATION!!!!!!!!!!!!! */
 	if(key == GFX_KEY_BACKSPACE) _gfx_platform_terminate();
 }
 
 /******************************************************/
-void _gfx_event_key_release(void* window, int key)
+void _gfx_event_key_release(void* window, GFXKey key)
 {
 }

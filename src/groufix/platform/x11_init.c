@@ -29,7 +29,7 @@
 GFX_X11_Connection* _gfx_x11 = NULL;
 
 /******************************************************/
-static int _gfx_x11_get_key(KeySym symbol)
+static GFXKey _gfx_x11_get_key(KeySym symbol)
 {
 	/* Validate symbol */
 	if(symbol == NoSymbol) return GFX_KEY_UNKNOWN;
@@ -55,7 +55,7 @@ static void _gfx_x11_create_key_table(void)
 	KeySym* symbols = XGetKeyboardMapping(_gfx_x11->display, minKey, numKeys, &symbolsPerKey);
 
 	/* Use the first symbol of all keycodes */
-	unsigned int i;
+	size_t i;
 	for(i = minKey; i <= maxKey; ++i)
 		_gfx_x11->keys[i] = _gfx_x11_get_key(symbols[(i - minKey) * symbolsPerKey]);
 

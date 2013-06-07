@@ -71,7 +71,7 @@ static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT re
 }
 
 /******************************************************/
-static int _gfx_win32_get_key(int symbol)
+static GFXKey _gfx_win32_get_key(int symbol)
 {
 	switch(symbol)
 	{
@@ -84,7 +84,7 @@ static int _gfx_win32_get_key(int symbol)
 /******************************************************/
 static void _gfx_win32_create_key_table(void)
 {
-	unsigned int i;
+	size_t i;
 	for(i = 0; i <= GFX_WIN32_MAX_KEYCODE; ++i)
 		_gfx_win32->keys[i] = _gfx_win32_get_key(i);
 }

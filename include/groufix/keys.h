@@ -26,6 +26,8 @@
  * Platform independent key codes
  *******************************************************/
 
+typedef int GFXKey;
+
 #define GFX_KEY_UNKNOWN    0x0000 /* Must be zero to initialize to unknown */
 #define GFX_KEY_BACKSPACE  0x0001
 

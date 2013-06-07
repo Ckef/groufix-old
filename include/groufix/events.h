@@ -36,13 +36,13 @@ extern "C" {
  * \brief Handles a key press event.
  *
  */
-void _gfx_event_key_press(void* window, int key);
+void _gfx_event_key_press(void* window, GFXKey key);
 
 /**
  * \brief Handles a key release event.
  *
  */
-void _gfx_event_key_release(void* window, int key);
+void _gfx_event_key_release(void* window, GFXKey key);
 
 
 #ifdef __cplusplus

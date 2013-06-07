@@ -1,17 +1,20 @@
 
 #include <groufix.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int main()
 {
 	if(!gfx_init()) puts("nuuuuuh!");
 	else puts("yeeeeeh!");
 
+	unsigned int width, height;
 	void* scr = _gfx_platform_get_default_screen();
+	_gfx_platform_screen_get_size(scr, &width, &height);
 	printf("%i screen(s)\n%i x %i\n",
 		_gfx_platform_get_num_screens(),
-		_gfx_platform_screen_get_width(scr),
-		_gfx_platform_screen_get_height(scr)
+		width,
+		height
 	);
 
 	GFX_Platform_Attributes attr;

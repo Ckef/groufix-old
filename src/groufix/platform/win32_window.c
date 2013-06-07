@@ -195,6 +195,7 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 
 	/* Make sure to convert to wide character */
 	wchar_t* name = utf8_to_wchar(attributes->name);
+
 	HWND window = CreateWindowEx(
 		0,
 		GFX_WIN32_WND_CLASS,
@@ -238,6 +239,56 @@ void* _gfx_platform_window_get_screen(void* handle)
 		if(_gfx_win32->windows[i] == handle) return _gfx_win32->windowMonitors[i];
 
 	return NULL;
+}
+
+/******************************************************/
+char* _gfx_platform_window_get_name(void* handle)
+{
+	/* Check if it has a name */
+	int len = GetWindowTextLength(handle);
+	if(!len++) return NULL;
+
+	wchar_t* buff = (wchar_t*)malloc(sizeof(wchar_t) * len);
+	if(!GetWindowText(handle, buff, len)) return NULL;
+
+	/* Make sure to convert to utf-8 */
+	char* utf8 = wchar_to_utf8(buff);
+	free(buff);
+
+	return utf8;
+}
+
+/******************************************************/
+void _gfx_platform_window_get_size(void* handle, unsigned int* width, unsigned int* height)
+{
+	RECT rect;
+	ZeroMemory(&rect, sizeof(RECT));
+
+	GetWindowRect(handle, &rect);
+	*width = rect.right - rect.left;
+	*height = rect.bottom - rect.top;
+}
+
+/******************************************************/
+void _gfx_platform_window_get_position(void* handle, int* x, int* y)
+{
+	RECT rect;
+	ZeroMemory(&rect, sizeof(RECT));
+
+	GetWindowRect(handle, &rect);
+	*x = rect.left;
+	*y = rect.top;
+
+	/* Get window's monitor position */
+	HMONITOR monitor = (HMONITOR)_gfx_platform_window_get_screen(handle);
+	if(monitor)
+	{
+		MONITORINFO info;
+		info.cbSize = sizeof(MONITORINFO);
+		GetMonitorInfo(monitor, &info);
+		*x -= info.rcMonitor.left;
+		*y -= info.rcMonitor.top;
+	}
 }
 
 /******************************************************/
