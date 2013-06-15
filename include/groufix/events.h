@@ -33,6 +33,14 @@ extern "C" {
  *******************************************************/
 
 /**
+ * \brief Called when a window is requested to close.
+ *
+ * Used to intercept a user requested window termination.
+ *
+ */
+void _gfx_event_window_close(void* window);
+
+/**
  * \brief Handles a key press event.
  *
  * \param key   What key is pressed.

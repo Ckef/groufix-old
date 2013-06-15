@@ -78,7 +78,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Close button */
 		case WM_CLOSE :
 		{
-			_gfx_platform_destroy_window(window);
+			_gfx_event_window_close(window);
 			return 0;
 		}
 
@@ -115,8 +115,6 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 /******************************************************/
 static int _gfx_win32_register_window_class(void)
 {
-	if(!_gfx_win32) return 0;
-
 	/* Check if it is already registered */
 	if(_gfx_win32->classRegistered) return 1;
 
@@ -141,19 +139,16 @@ static int _gfx_win32_register_window_class(void)
 /******************************************************/
 static void _gfx_win32_add_window(void* handle, void* monitor)
 {
-	if(_gfx_win32)
-	{
-		unsigned int index = _gfx_win32->numWindows++;
-		size_t siz = sizeof(void*) * _gfx_win32->numWindows;
+	unsigned int index = _gfx_win32->numWindows++;
+	size_t siz = sizeof(void*) * _gfx_win32->numWindows;
 
-		/* Add window pointer */
-		_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, siz);
-		_gfx_win32->windows[index] = handle;
+	/* Add window pointer */
+	_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, siz);
+	_gfx_win32->windows[index] = handle;
 
-		/* Add window monitor */
-		_gfx_win32->windowMonitors = (void**)realloc(_gfx_win32->windowMonitors, siz);
-		_gfx_win32->windowMonitors[index] = monitor;
-	}
+	/* Add window monitor */
+	_gfx_win32->windowMonitors = (void**)realloc(_gfx_win32->windowMonitors, siz);
+	_gfx_win32->windowMonitors[index] = monitor;
 }
 
 /******************************************************/
@@ -161,7 +156,7 @@ static void _gfx_win32_remove_window(void* handle)
 {
 	/* Remove the handle from the array */
 	unsigned int i;
-	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
+	for(i = 0; i < _gfx_win32->numWindows; ++i)
 		if(_gfx_win32->windows[i] == handle)
 	{
 		--_gfx_win32->numWindows;

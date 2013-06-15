@@ -74,10 +74,13 @@ static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT re
 static GFXKey _gfx_win32_get_key(int symbol)
 {
 	/* Unicode numbers */
-	if(symbol >= GFX_KEY_0 && symbol <= GFX_KEY_9) return (GFXKey)symbol;
+	if(symbol >= 0x30 && symbol <= 0x39) return (GFXKey)(symbol - 0x30 + GFX_KEY_0);
 
 	/* Unicode capitals */
-	if(symbol >= GFX_KEY_A && symbol <= GFX_KEY_Z) return (GFXKey)symbol;
+	if(symbol >= 0x41 && symbol <= 0x5a) return (GFXKey)(symbol - 0x41 + GFX_KEY_A);
+
+	/* Function keys */
+	if(symbol >= VK_F1 && symbol <= VK_F24) return (GFXKey)(symbol - VK_F1 + GFX_KEY_F1);
 
 	/* Non-unicode */
 	switch(symbol)
@@ -127,31 +130,6 @@ static GFXKey _gfx_win32_get_key(int symbol)
 		case VK_SUBTRACT  : return GFX_KEY_KP_SUBTRACT;
 		case VK_DECIMAL   : return GFX_KEY_KP_DECIMAL;
 		case VK_DIVIDE    : return GFX_KEY_KP_DIVIDE;
-
-		case VK_F1        : return GFX_KEY_F1;
-		case VK_F2        : return GFX_KEY_F2;
-		case VK_F3        : return GFX_KEY_F3;
-		case VK_F4        : return GFX_KEY_F4;
-		case VK_F5        : return GFX_KEY_F5;
-		case VK_F6        : return GFX_KEY_F6;
-		case VK_F7        : return GFX_KEY_F7;
-		case VK_F8        : return GFX_KEY_F8;
-		case VK_F9        : return GFX_KEY_F9;
-		case VK_F10       : return GFX_KEY_F10;
-		case VK_F11       : return GFX_KEY_F11;
-		case VK_F12       : return GFX_KEY_F12;
-		case VK_F13       : return GFX_KEY_F13;
-		case VK_F14       : return GFX_KEY_F14;
-		case VK_F15       : return GFX_KEY_F15;
-		case VK_F16       : return GFX_KEY_F16;
-		case VK_F17       : return GFX_KEY_F17;
-		case VK_F18       : return GFX_KEY_F18;
-		case VK_F19       : return GFX_KEY_F19;
-		case VK_F20       : return GFX_KEY_F20;
-		case VK_F21       : return GFX_KEY_F21;
-		case VK_F22       : return GFX_KEY_F22;
-		case VK_F23       : return GFX_KEY_F23;
-		case VK_F24       : return GFX_KEY_F24;
 
 		case VK_SHIFT     : return GFX_KEY_SHIFT_LEFT;
 		case VK_LSHIFT    : return GFX_KEY_SHIFT_LEFT;

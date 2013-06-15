@@ -26,13 +26,27 @@
 #include <string.h>
 
 /******************************************************/
+static void _gfx_x11_set_atoms(void* handle)
+{
+	/* Create atom array */
+	unsigned int cnt = 0;
+	Atom atoms[GFX_X11_NUM_ATOMS];
+
+	if(_gfx_x11->wmDeleteWindow)
+		atoms[cnt++] = _gfx_x11->wmDeleteWindow;
+
+	/* Set atom protocols */
+	if(cnt) XSetWMProtocols(_gfx_x11->display, *((Window*)handle), atoms, cnt);
+}
+
+/******************************************************/
 static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
 {
 	GFXKeyState st = GFX_KEY_STATE_NONE;
 
 	if(state & ShiftMask)
 		st |= GFX_KEY_STATE_SHIFT;
-	if(state & ControlMask)
+	if(state & (ControlMask | Mod5Mask))
 		st |= GFX_KEY_STATE_CONTROL;
 	if(state & (Mod1Mask | Mod5Mask))
 		st |= GFX_KEY_STATE_ALT;
@@ -60,6 +74,15 @@ static void _gfx_x11_event_proc(XEvent* event)
 	/* Validate window */
 	if(window) switch(event->type)
 	{
+		/* Protocol messages */
+		case ClientMessage :
+		{
+			if(event->xclient.data.l[0] == _gfx_x11->wmDeleteWindow)
+				_gfx_event_window_close(window);
+
+			break;
+		}
+
 		/* Key press */
 		case KeyPress :
 		{
@@ -89,12 +112,9 @@ static void _gfx_x11_event_proc(XEvent* event)
 /******************************************************/
 static void _gfx_x11_add_window(void* handle)
 {
-	if(_gfx_x11)
-	{
-		++_gfx_x11->numWindows;
-		_gfx_x11->windows = (void**)realloc(_gfx_x11->windows, sizeof(void*) * _gfx_x11->numWindows);
-		_gfx_x11->windows[_gfx_x11->numWindows - 1] = handle;
-	}
+	++_gfx_x11->numWindows;
+	_gfx_x11->windows = (void**)realloc(_gfx_x11->windows, sizeof(void*) * _gfx_x11->numWindows);
+	_gfx_x11->windows[_gfx_x11->numWindows - 1] = handle;
 }
 
 /******************************************************/
@@ -102,7 +122,7 @@ static void _gfx_x11_remove_window(void* handle)
 {
 	/* Remove the handle from the array */
 	unsigned int i;
-	if(_gfx_x11) for(i = 0; i < _gfx_x11->numWindows; ++i)
+	for(i = 0; i < _gfx_x11->numWindows; ++i)
 		if(_gfx_x11->windows[i] == handle)
 	{
 		--_gfx_x11->numWindows;
@@ -184,7 +204,9 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 		&attr
 	);
 
+	/* Set protocols */
 	_gfx_platform_window_set_name(window, attributes->name);
+	_gfx_x11_set_atoms(window);
 
 	/* Add window to array */
 	_gfx_x11_add_window(window);

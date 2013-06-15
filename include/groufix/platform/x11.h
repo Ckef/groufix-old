@@ -26,6 +26,9 @@
 #define GFX_X11_MAX_KEYCODE 0xff
 #define GFX_X11_NUM_KEYCODES 0x100
 
+/* Number of atoms */
+#define GFX_X11_NUM_ATOMS 0x1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,14 +39,15 @@ extern "C" {
 typedef struct GFX_X11_Connection
 {
 	/* X Display */
-	void*         display;    /* (of type Display*) */
+	void*          display;        /* (of type Display*) */
 
 	/* Windows */
-	unsigned int  numWindows;
-	void**        windows;    /* (of type Window**) */;
+	unsigned int   numWindows;
+	void**         windows;        /* (of type Window**) */
+	unsigned long  wmDeleteWindow; /* WM_DELETE_WINDOW */
 
 	/* Key table */
-	GFXKey        keys[GFX_X11_NUM_KEYCODES];
+	GFXKey         keys[GFX_X11_NUM_KEYCODES];
 
 } GFX_X11_Connection;
 

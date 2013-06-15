@@ -3,6 +3,7 @@
 *.depend
 *.layout
 *.o
+*.swp
 
 # directories
 bin/

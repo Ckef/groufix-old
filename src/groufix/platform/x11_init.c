@@ -32,13 +32,16 @@ GFX_X11_Connection* _gfx_x11 = NULL;
 static GFXKey _gfx_x11_get_key(KeySym symbol)
 {
 	/* Unicode numbers */
-	if(symbol >= GFX_KEY_0 && symbol <= GFX_KEY_9) return (GFXKey)symbol;
+	if(symbol >= XK_0 && symbol <= XK_9) return (GFXKey)(symbol - XK_0 + GFX_KEY_0);
 
 	/* Unicode capitals */
-	if(symbol >= GFX_KEY_A && symbol <= GFX_KEY_Z) return (GFXKey)symbol;
+	if(symbol >= XK_A && symbol <= XK_Z) return (GFXKey)(symbol - XK_A + GFX_KEY_A);
 
 	/* Unicode lowercase */
-	if(symbol >= XK_a && symbol <= XK_z) return (GFXKey)(symbol - XK_a + XK_A);
+	if(symbol >= XK_a && symbol <= XK_z) return (GFXKey)(symbol - XK_a + GFX_KEY_A);
+
+	/* Function keys */
+	if(symbol >= XK_F1 && symbol <= XK_F24) return (GFXKey)(symbol - XK_F1 + GFX_KEY_F1);
 
 	/* Non-unicode */
 	switch(symbol)
@@ -103,31 +106,6 @@ static GFXKey _gfx_x11_get_key(KeySym symbol)
 		case XK_KP_Decimal   : return GFX_KEY_KP_DECIMAL;
 		case XK_KP_Divide    : return GFX_KEY_KP_DIVIDE;
 
-		case XK_F1           : return GFX_KEY_F1;
-		case XK_F2           : return GFX_KEY_F2;
-		case XK_F3           : return GFX_KEY_F3;
-		case XK_F4           : return GFX_KEY_F4;
-		case XK_F5           : return GFX_KEY_F5;
-		case XK_F6           : return GFX_KEY_F6;
-		case XK_F7           : return GFX_KEY_F7;
-		case XK_F8           : return GFX_KEY_F8;
-		case XK_F9           : return GFX_KEY_F9;
-		case XK_F10          : return GFX_KEY_F10;
-		case XK_F11          : return GFX_KEY_F11;
-		case XK_F12          : return GFX_KEY_F12;
-		case XK_F13          : return GFX_KEY_F13;
-		case XK_F14          : return GFX_KEY_F14;
-		case XK_F15          : return GFX_KEY_F15;
-		case XK_F16          : return GFX_KEY_F16;
-		case XK_F17          : return GFX_KEY_F17;
-		case XK_F18          : return GFX_KEY_F18;
-		case XK_F19          : return GFX_KEY_F19;
-		case XK_F20          : return GFX_KEY_F20;
-		case XK_F21          : return GFX_KEY_F21;
-		case XK_F22          : return GFX_KEY_F22;
-		case XK_F23          : return GFX_KEY_F23;
-		case XK_F24          : return GFX_KEY_F24;
-
 		case XK_Shift_L      : return GFX_KEY_SHIFT_LEFT;
 		case XK_Shift_R      : return GFX_KEY_SHIFT_RIGHT;
 		case XK_Control_L    : return GFX_KEY_CONTROL_LEFT;
@@ -176,6 +154,9 @@ int _gfx_platform_init(void)
 
 		/* Construct a keycode lookup */
 		_gfx_x11_create_key_table();
+
+		/* Get atoms */
+		_gfx_x11->wmDeleteWindow = XInternAtom(display, "WM_DELETE_WINDOW", False);
 	}
 	return 1;
 }
