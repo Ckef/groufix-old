@@ -58,6 +58,50 @@ void _gfx_event_key_press(void* window, GFXKey key, GFXKeyState state);
  */
 void _gfx_event_key_release(void* window, GFXKey key, GFXKeyState state);
 
+/**
+ * \brief Called when the cursor moves in a window.
+ *
+ * \param x     X coordinate of the cursor relative to the window.
+ * \param y     Y coordinate of the cursor relative to the window.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_mouse_move(void* window, int x, int y, GFXKeyState state);
+
+/**
+ * \brief Handles a mouse key press event.
+ *
+ * \param key   What key is pressed.
+ * \param x     X coordinate of the cursor relative to the window.
+ * \param y     Y coordinate of the cursor relative to the window.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_mouse_press(void* window, GFXMouseKey key, int x, int y, GFXKeyState state);
+
+/**
+ * \brief Handles a mouse key release event.
+ *
+ * \param key   What key is pressed.
+ * \param x     X coordinate of the cursor relative to the window.
+ * \param y     Y coordinate of the cursor relative to the window.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_mouse_release(void* window, GFXMouseKey key, int x, int y, GFXKeyState state);
+
+/**
+ * \brief Handles a mouse wheel event.
+ *
+ * \param xoffset Mouse wheel tilt (negative = left, positive = right).
+ * \param yoffset Mouse wheel rotate (negative = down, positive = up).
+ * \param x       X coordinate of the cursor relative to the window.
+ * \param y       Y coordinate of the cursor relative to the window.
+ * \param state   State of some special keys.
+ *
+ */
+void _gfx_event_mouse_wheel(void* window, int xoffset, int yoffset, int x, int y, GFXKeyState state);
+
 
 #ifdef __cplusplus
 }

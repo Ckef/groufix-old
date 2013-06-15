@@ -159,6 +159,16 @@ typedef int GFXKey;
 
 
 /********************************************************
+ * \brief Platform independent mouse state
+ *******************************************************/
+typedef int GFXMouseKey;
+
+#define GFX_MOUSE_KEY_LEFT    0x01
+#define GFX_MOUSE_KEY_RIGHT   0x02
+#define GFX_MOUSE_KEY_MIDDLE  0x03
+
+
+/********************************************************
  * \brief Platform independent key state
  *******************************************************/
 typedef int GFXKeyState;

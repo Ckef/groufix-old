@@ -25,12 +25,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* More of them buttons! */
+#define Button6  6
+#define Button7  7
+
 /******************************************************/
 static void _gfx_x11_set_atoms(void* handle)
 {
 	/* Create atom array */
 	unsigned int cnt = 0;
-	Atom atoms[GFX_X11_NUM_ATOMS];
+	Atom atoms[1];
 
 	if(_gfx_x11->wmDeleteWindow)
 		atoms[cnt++] = _gfx_x11->wmDeleteWindow;
@@ -103,6 +107,61 @@ static void _gfx_x11_event_proc(XEvent* event)
 			else key = _gfx_x11->keys[event->xkey.keycode];
 
 			_gfx_event_key_release(window, key, _gfx_x11_get_key_state(event->xkey.state));
+
+			break;
+		}
+
+		/* Pointer motion */
+		case MotionNotify :
+		{
+			_gfx_event_mouse_move(window,
+				event->xmotion.x,
+				event->xmotion.y,
+				_gfx_x11_get_key_state(event->xmotion.state)
+			);
+
+			break;
+		}
+
+		/* Mouse key press */
+		case ButtonPress :
+		{
+			GFXKeyState state = _gfx_x11_get_key_state(event->xbutton.state);
+			int x = event->xbutton.x;
+			int y = event->xbutton.y;
+
+			if(event->xbutton.button == Button1)
+				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_LEFT, x, y, state);
+			else if(event->xbutton.button == Button2)
+				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
+			else if(event->xbutton.button == Button3)
+				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
+
+			else if(event->xbutton.button == Button4)
+				_gfx_event_mouse_wheel(window, 0, 1, x, y, state);
+			else if(event->xbutton.button == Button5)
+				_gfx_event_mouse_wheel(window, 0, -1, x, y, state);
+			else if(event->xbutton.button == Button6)
+				_gfx_event_mouse_wheel(window, -1, 0, x, y, state);
+			else if(event->xbutton.button == Button7)
+				_gfx_event_mouse_wheel(window, 1, 0, x, y, state);
+
+			break;
+		}
+
+		/* Mouse key release */
+		case ButtonRelease :
+		{
+			GFXKeyState state = _gfx_x11_get_key_state(event->xbutton.state);
+			int x = event->xbutton.x;
+			int y = event->xbutton.y;
+
+			if(event->xbutton.button == Button1)
+				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_LEFT, x, y, state);
+			else if(event->xbutton.button == Button2)
+				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
+			else if(event->xbutton.button == Button3)
+				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
 
 			break;
 		}
@@ -185,7 +244,10 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 	XSetWindowAttributes attr;
 	attr.event_mask =
 		KeyPressMask |
-		KeyReleaseMask;
+		KeyReleaseMask |
+		PointerMotionMask |
+		ButtonPressMask |
+		ButtonReleaseMask;
 
 	/* Create the actual window */
 	Window* window = (Window*)malloc(sizeof(Window));

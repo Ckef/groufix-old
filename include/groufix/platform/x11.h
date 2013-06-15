@@ -26,9 +26,6 @@
 #define GFX_X11_MAX_KEYCODE 0xff
 #define GFX_X11_NUM_KEYCODES 0x100
 
-/* Number of atoms */
-#define GFX_X11_NUM_ATOMS 0x1
-
 #ifdef __cplusplus
 extern "C" {
 #endif
