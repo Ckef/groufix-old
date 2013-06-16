@@ -172,13 +172,11 @@ void _gfx_platform_terminate(void)
 {
 	if(_gfx_x11)
 	{
-		/* Destroy all windows (to deallocate the pointers) */
-		while(_gfx_x11->numWindows) _gfx_platform_destroy_window(_gfx_x11->windows[0]);
-
-		/* Close connection */
+		/* Close connection (destroys all resources) */
 		XCloseDisplay(_gfx_x11->display);
 
 		/* Deallocate server */
+		free(_gfx_x11->windows);
 		free(_gfx_x11);
 		_gfx_x11 = NULL;
 	}

@@ -71,12 +71,8 @@ static GFXKeyState _gfx_win32_get_key_state(void)
 /******************************************************/
 static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	/* Get window, check if the window is still managed */
-	void* window = NULL;
-
-	unsigned int i;
-	for(i = 0; i < _gfx_win32->numWindows; ++i)
-		if(_gfx_win32->windows[i] == handle) window = handle;
+	/* Get window */
+	void* window = (void*)handle;
 
 	/* Validate window */
 	if(window) switch(msg)
@@ -169,7 +165,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			return 0;
 		}
 
-		/* Left mouse button */
+		/* Middle mouse button */
 		case WM_MBUTTONDOWN :
 		{
 			_gfx_event_mouse_press(window,
