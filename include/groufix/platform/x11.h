@@ -22,8 +22,6 @@
 #ifndef GFX_PLATFORM_X11_H
 #define GFX_PLATFORM_X11_H
 
-#include "groufix/utils.h"
-
 /* Maximum key code lookup */
 #define GFX_X11_MAX_KEYCODE 0xff
 #define GFX_X11_NUM_KEYCODES 0x100

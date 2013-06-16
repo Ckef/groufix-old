@@ -22,24 +22,16 @@
 #ifndef GFX_PLATFORM_H
 #define GFX_PLATFORM_H
 
+#include "groufix/utils.h"
 #include "groufix/events.h"
-
-/* Get platform */
-#if defined(_WIN32) || defined(__WIN32__)
-	#define GFX_WIN32
-#elif defined(__APPLE__) || defined(__MACH__)
-	#define GFX_X11
-#elif defined(__unix) || defined(__unix__) || defined(__linux__)
-	#define GFX_X11
-#else
-	#error "Platform not supported"
-#endif
 
 /* Platform file */
 #if defined(GFX_WIN32)
 	#include "groufix/platform/win32.h"
-#elif defined(GFX_X11)
+#elif defined(GFX_OSX) || defined(GFX_UNIX)
 	#include "groufix/platform/x11.h"
+#else
+	#error "Platform configuration not supported"
 #endif
 
 #ifdef __cplusplus
