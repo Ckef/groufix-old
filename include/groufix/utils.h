@@ -22,6 +22,8 @@
 #ifndef GFX_UTILS_H
 #define GFX_UTILS_H
 
+#include <stdint.h>
+
 /* Concatenation */
 #define CAT_BAD(x,y) x ## y
 #define CAT(x,y) CAT_BAD(x,y)
@@ -29,5 +31,9 @@
 /* Template naming */
 #define NAME_BAD(x,y) x ## _ ## y
 #define NAME(x,y) NAME_BAD(x,y)
+
+/* Void and uint conversion */
+#define UINT_TO_VOID(x) ((void*)(uintptr_t)x)
+#define VOID_TO_UINT(x) ((uintptr_t)x)
 
 #endif // GFX_UTILS_H

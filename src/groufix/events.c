@@ -22,50 +22,42 @@
 #include "groufix/events.h"
 
 #include "groufix/platform.h"
-#include <stdio.h>
 
 /******************************************************/
-void _gfx_event_window_close(void* window)
+void gfx_event_window_close(void* window)
 {
 	/* TEMPORARY TO NOT HAVE TO CRASH THE APPLICATION!!!!!!!!!!!!! */
 	_gfx_platform_terminate();
 }
 
 /******************************************************/
-void _gfx_event_key_press(void* window, GFXKey key, GFXKeyState state)
+void gfx_event_key_press(void* window, GFXKey key, GFXKeyState state)
 {
-	printf("%i <- KEY PRESS\n", key);
-
 	/* TEMPORARY TO NOT HAVE TO CRASH THE APPLICATION!!!!!!!!!!!!! */
 	if(key == GFX_KEY_RETURN) _gfx_platform_terminate();
 }
 
 /******************************************************/
-void _gfx_event_key_release(void* window, GFXKey key, GFXKeyState state)
+void gfx_event_key_release(void* window, GFXKey key, GFXKeyState state)
 {
-	printf("%i <- KEY RELEASE\n", key);
 }
 
 /******************************************************/
-void _gfx_event_mouse_move(void* window, int x, int y, GFXKeyState state)
+void gfx_event_mouse_move(void* window, int x, int y, GFXKeyState state)
 {
-	printf("%i, %i\n%i <- MOUSE MOVE\n", x, y, state);
 }
 
 /******************************************************/
-void _gfx_event_mouse_press(void* window, GFXMouseKey key, int x, int y, GFXKeyState state)
+void gfx_event_mouse_press(void* window, GFXMouseKey key, int x, int y, GFXKeyState state)
 {
-	printf("%i, %i\n%i <- MOUSE PRESS\n", x, y, key);
 }
 
 /******************************************************/
-void _gfx_event_mouse_release(void* window, GFXMouseKey key, int x, int y, GFXKeyState state)
+void gfx_event_mouse_release(void* window, GFXMouseKey key, int x, int y, GFXKeyState state)
 {
-	printf("%i, %i\n%i <- MOUSE RELEASE\n", x, y, key);
 }
 
 /******************************************************/
-void _gfx_event_mouse_wheel(void* window, int xoffset, int yoffset, int x, int y, GFXKeyState state)
+void gfx_event_mouse_wheel(void* window, int xoffset, int yoffset, int x, int y, GFXKeyState state)
 {
-	printf("%i, %i\n%i, %i <- MOUSE WHEEL\n", x, y, xoffset, yoffset);
 }

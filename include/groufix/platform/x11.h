@@ -22,11 +22,7 @@
 #ifndef GFX_PLATFORM_X11_H
 #define GFX_PLATFORM_X11_H
 
-#include <stdint.h>
-
-/* X11 window conversion */
-#define GFX_X11_WND_TO_PTR(x) ((void*)(uintptr_t)x)
-#define GFX_X11_PTR_TO_WND(x) ((uintptr_t)x)
+#include "groufix/utils.h"
 
 /* Maximum key code lookup */
 #define GFX_X11_MAX_KEYCODE 0xff

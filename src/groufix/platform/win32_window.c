@@ -69,18 +69,14 @@ static GFXKeyState _gfx_win32_get_key_state(void)
 }
 
 /******************************************************/
-static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK _gfx_win32_window_proc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	/* Get window */
-	void* window = (void*)handle;
-
-	/* Validate window */
-	if(window) switch(msg)
+	switch(msg)
 	{
 		/* Close button */
 		case WM_CLOSE :
 		{
-			_gfx_event_window_close(window);
+			gfx_event_window_close(window);
 			return 0;
 		}
 
@@ -92,7 +88,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
 
-			_gfx_event_key_press(window, key, _gfx_win32_get_key_state());
+			gfx_event_key_press(window, key, _gfx_win32_get_key_state());
 
 			return 0;
 		}
@@ -105,7 +101,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
 
-			_gfx_event_key_release(window, key, _gfx_win32_get_key_state());
+			gfx_event_key_release(window, key, _gfx_win32_get_key_state());
 
 			return 0;
 		}
@@ -113,7 +109,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Mouse move */
 		case WM_MOUSEMOVE :
 		{
-			_gfx_event_mouse_move(window,
+			gfx_event_mouse_move(window,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
 				_gfx_win32_get_key_state()
@@ -124,7 +120,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Left mouse button */
 		case WM_LBUTTONDOWN :
 		{
-			_gfx_event_mouse_press(window,
+			gfx_event_mouse_press(window,
 				GFX_MOUSE_KEY_LEFT,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -134,7 +130,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		}
 		case WM_LBUTTONUP :
 		{
-			_gfx_event_mouse_release(window,
+			gfx_event_mouse_release(window,
 				GFX_MOUSE_KEY_LEFT,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -146,7 +142,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Right mouse button */
 		case WM_RBUTTONDOWN :
 		{
-			_gfx_event_mouse_press(window,
+			gfx_event_mouse_press(window,
 				GFX_MOUSE_KEY_RIGHT,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -156,7 +152,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		}
 		case WM_RBUTTONUP :
 		{
-			_gfx_event_mouse_release(window,
+			gfx_event_mouse_release(window,
 				GFX_MOUSE_KEY_RIGHT,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -168,7 +164,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Middle mouse button */
 		case WM_MBUTTONDOWN :
 		{
-			_gfx_event_mouse_press(window,
+			gfx_event_mouse_press(window,
 				GFX_MOUSE_KEY_MIDDLE,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -178,7 +174,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		}
 		case WM_MBUTTONUP :
 		{
-			_gfx_event_mouse_release(window,
+			gfx_event_mouse_release(window,
 				GFX_MOUSE_KEY_MIDDLE,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -190,7 +186,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Vertical mouse wheel */
 		case WM_MOUSEWHEEL :
 		{
-			_gfx_event_mouse_wheel(window,
+			gfx_event_mouse_wheel(window,
 				0, GET_WHEEL_DELTA_WPARAM(wParam),
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -203,7 +199,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Horizontal mouse wheel */
 		case WM_MOUSEHWHEEL :
 		{
-			_gfx_event_mouse_wheel(window,
+			gfx_event_mouse_wheel(window,
 				GET_WHEEL_DELTA_WPARAM(wParam), 0,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -214,7 +210,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		}
 	}
 
-	return DefWindowProc(handle, msg, wParam, lParam);
+	return DefWindowProc(window, msg, wParam, lParam);
 }
 
 /******************************************************/
