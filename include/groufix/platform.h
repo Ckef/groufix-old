@@ -25,7 +25,7 @@
 #include "groufix/utils.h"
 #include "groufix/events.h"
 
-/* Platform file */
+/* Window API file (platform) from build target */
 #if defined(GFX_WIN32)
 	#include "groufix/platform/win32.h"
 #elif defined(GFX_OSX) || defined(GFX_UNIX)

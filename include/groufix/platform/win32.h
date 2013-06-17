@@ -31,8 +31,8 @@
 /* Groufix window class */
 #define GFX_WIN32_WND_CLASS L"GROUFIX"
 
-/* Windows 2000 */
-#define WINVER 0x0500
+/* Windows XP */
+#define WINVER 0x0501
 
 /* Unicode */
 #ifndef UNICODE

@@ -1,4 +1,5 @@
 # filetypes
+*.cbp
 *.cbTemp
 *.depend
 *.layout

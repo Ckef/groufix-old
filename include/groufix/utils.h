@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 
-/* Get platform */
+/* Get build target */
 #if defined(_WIN32) || defined(__WIN32__)
 	#define GFX_WIN32
 #elif defined(__APPLE__) || defined(__MACH__)
