@@ -25,19 +25,19 @@
 default:
 	@echo ""
 	@echo "Use one of the following commands to build Groufix:"
-	@echo "----------------------------------------------------------------------------"
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo "  $(MAKE) clean            Clean temporary files."
-	@echo "  $(MAKE) clean-all        Clean all files make produced."
-	@echo "----------------------------------------------------------------------------"
+	@echo "  $(MAKE) clean-all        Clean all files $(MAKE) produced."
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo "  $(MAKE) unix-x11         Build the Groufix Unix target using X11."
 	@echo "  $(MAKE) unix-x11-simple  Build the simple example Unix target using X11."
-	@echo "----------------------------------------------------------------------------"
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo "  $(MAKE) osx-x11          Build the Groufix OS X target using X11."
 	@echo "  $(MAKE) osx-x11-simple   Build the simple example OS X target using X11."
-	@echo "----------------------------------------------------------------------------"
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo "  $(MAKE) win32            Build the Groufix Windows target."
 	@echo "  $(MAKE) win32-simple     Build the simple example Windows target."
-	@echo "----------------------------------------------------------------------------"
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo ""
 
 
@@ -53,12 +53,12 @@ INCLUDE = include
 SRC     = src
 
 # Executables as well
-CFLAGS = -Os -O2 -Wall -std=c99 -I$(INCLUDE) -s
+CFLAGS = -Os -O2 -Wall -std=c99 -I$(INCLUDE)
 
 # Object files only
-CFLAGS_UNIX  = $(CFLAGS) -fPIC -c
-CFLAGS_OSX   = $(CFLAGS) -fPIC -c
-CFLAGS_WIN32 = $(CFLAGS) -c
+CFLAGS_UNIX  = $(CFLAGS) -c -fPIC -s
+CFLAGS_OSX   = $(CFLAGS) -c -fPIC
+CFLAGS_WIN32 = $(CFLAGS) -c -s
 
 
 #################################################################
@@ -118,7 +118,7 @@ OBJS_UNIX = \
 unix-x11: before-unix-x11 $(OBJS_UNIX)
 	$(CC) -shared $(OBJS_UNIX) -o $(BIN)/unix-x11/libGroufix.so -lX11 -lGL
 
-unix-x11-simple: examples/simple/main.c unix-x11 
+unix-x11-simple: examples/simple.c unix-x11 
 	$(CC) $(CFLAGS) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 before-unix-x11:
@@ -162,9 +162,9 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/math.o \
  $(OUT)/osx-x11/groufix.o
 
-osx-x11: before-osx-x11
+osx-x11: before-osx-x11 $(OBJS_OSX_X11)
 
-osx-x11-simple: osx-x11
+osx-x11-simple: examples/simple.c osx-x11
 
 before-osx-x11:
 	mkdir -p $(BIN)/osx-x11
@@ -210,7 +210,7 @@ OBJS_WIN32 = \
 win32: before-win32 $(OBJS_WIN32)
 	$(CC) -shared $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll -luser32 -lopengl32
 
-win32-simple: examples/simple/main.c win32
+win32-simple: examples/simple.c win32
 	$(CC) $(CFLAGS) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
 
 before-win32:

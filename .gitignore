@@ -3,8 +3,8 @@
 *.cbTemp
 *.depend
 *.layout
-*.o
 *.swp
 
 # directories
 bin/
+obj/
