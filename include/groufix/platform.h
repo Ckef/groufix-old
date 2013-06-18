@@ -28,7 +28,9 @@
 /* Window API file (platform) from build target */
 #if defined(GFX_WIN32)
 	#include "groufix/platform/win32.h"
-#elif defined(GFX_OSX) || defined(GFX_UNIX)
+#elif defined(GFX_OSX) && defined(GFX_OSX_X11)
+	#include "groufix/platform/x11.h"
+#elif defined(GFX_UNIX)
 	#include "groufix/platform/x11.h"
 #else
 	#error "Platform configuration not supported"

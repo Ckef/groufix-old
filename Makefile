@@ -92,14 +92,14 @@ clean:
 ifeq ($(OS),Windows_NT)
 	if exist $(OUT)\nul rmdir /s /q $(OUT)
 else
-	rm -rf $(OUT)
+	rm -Rf $(OUT)
 endif
 
 clean-all: clean
 ifeq ($(OS),Windows_NT)
 	if exist $(BIN)\nul rmdir /s /q $(BIN)
 else
-	rm -rf $(BIN)
+	rm -Rf $(BIN)
 endif
 
 
@@ -163,8 +163,10 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix.o
 
 osx-x11: before-osx-x11 $(OBJS_OSX_X11)
+	$(CC) -dynamiclib $(OBJS_OSX_X11) -o $(BIN)/osx-x11/libGroufix.dylib -DGFX_OSX_X11 -lX11 -lGL
 
 osx-x11-simple: examples/simple.c osx-x11
+	$(CC) $(CFLAGS) $< -o $(BIN)/osx-x11/simple -L$(BIN)/osx-x11/ -lGroufix
 
 before-osx-x11:
 	mkdir -p $(BIN)/osx-x11
