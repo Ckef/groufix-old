@@ -56,9 +56,9 @@ SRC     = src
 CFLAGS = -Os -O2 -Wall -std=c99 -I$(INCLUDE)
 
 # Object files only
-CFLAGS_UNIX  = $(CFLAGS) -c -fPIC -s
-CFLAGS_OSX   = $(CFLAGS) -c -fPIC
-CFLAGS_WIN32 = $(CFLAGS) -c -s
+CFLAGS_UNIX_X11 = $(CFLAGS) -c -fPIC -s
+CFLAGS_OSX_X11  = $(CFLAGS) -c -fPIC -DGFX_OSX_X11
+CFLAGS_WIN32    = $(CFLAGS) -c -s
 
 
 #################################################################
@@ -106,7 +106,7 @@ endif
 #################################################################
 # Unix X11 builds
 #################################################################
-OBJS_UNIX = \
+OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/platform/x11_screen.o \
@@ -115,8 +115,8 @@ OBJS_UNIX = \
  $(OUT)/unix-x11/groufix/math.o \
  $(OUT)/unix-x11/groufix.o
 
-unix-x11: before-unix-x11 $(OBJS_UNIX)
-	$(CC) -shared $(OBJS_UNIX) -o $(BIN)/unix-x11/libGroufix.so -lX11 -lGL
+unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
+	$(CC) -shared $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so -lX11 -lGL
 
 unix-x11-simple: examples/simple.c unix-x11 
 	$(CC) $(CFLAGS) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
@@ -129,25 +129,25 @@ before-unix-x11:
 # All the object files
 
 $(OUT)/unix-x11/groufix/platform/x11_context.o: $(SRC)/groufix/platform/x11_context.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_screen.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $@
 
 
 #################################################################
@@ -163,7 +163,7 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix.o
 
 osx-x11: before-osx-x11 $(OBJS_OSX_X11)
-	$(CC) -dynamiclib $(OBJS_OSX_X11) -o $(BIN)/osx-x11/libGroufix.dylib -DGFX_OSX_X11 -lX11 -lGL
+	$(CC) -dynamiclib $(OBJS_OSX_X11) -o $(BIN)/osx-x11/libGroufix.dylib -lX11 -lGL
 
 osx-x11-simple: examples/simple.c osx-x11
 	$(CC) $(CFLAGS) $< -o $(BIN)/osx-x11/simple -L$(BIN)/osx-x11/ -lGroufix
@@ -176,25 +176,25 @@ before-osx-x11:
 # All the object files
 
 $(OUT)/osx-x11/groufix/platform/x11_context.o: $(SRC)/groufix/platform/x11_context.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(CFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(CFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_screen.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(CFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(CFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(CFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(CFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(CFLAGS_OSX_X11) $< -o $@
 
 
 #################################################################
