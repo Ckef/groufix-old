@@ -106,7 +106,7 @@ typedef void* GFX_Platform_Window;
 
 
 /** \brief Window initialization attributes */
-typedef struct GFX_Platform_Attributes
+typedef struct GFX_Platform_WindowAttributes
 {
 	GFX_Platform_Screen  screen;
 	char*                name;
@@ -116,7 +116,7 @@ typedef struct GFX_Platform_Attributes
 	int                  x;
 	int                  y;
 
-} GFX_Platform_Attributes;
+} GFX_Platform_WindowAttributes;
 
 
 /**
@@ -150,7 +150,7 @@ GFX_Platform_Window _gfx_platform_get_window(unsigned int num);
  * \return A handle to the window.
  *
  */
-GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
+GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_WindowAttributes* attributes);
 
 /**
  * \brief Destroys a window, freeing the memory.
@@ -218,22 +218,42 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle);
 
 
 /********************************************************
- * Contexts
+ * \brief A Context
  *******************************************************/
+typedef void* GFX_Platform_Context;
+
+
+/** \brief Context initialization attributes */
+typedef struct GFX_Platform_ContextAttributes
+{
+	unsigned short redBits;
+	unsigned short blueBits;
+	unsigned short greenBits;
+
+} GFX_Platform_ContextAttributes;
+
 
 /**
  * \brief Creates a context for a window.
  *
- * \return non-zero if the context was successfully created.
+ * \param handle     Window to attach the context to.
+ * \param attributes The attributes to initialize the context with (cannot be NULL).
+ * \return A handle to the context.
  *
  */
-int _gfx_platform_window_create_context(GFX_Platform_Window handle);
+GFX_Platform_Context _gfx_platform_create_context(GFX_Platform_Window handle, const GFX_Platform_ContextAttributes* attributes);
 
 /**
- * \brief Destroys a context of a window.
+ * \brief Destroys a context.
  *
  */
-void _gfx_platform_window_destroy_context(GFX_Platform_Window handle);
+void _gfx_platform_destroy_context(GFX_Platform_Context handle);
+
+/** 
+ * \brief Swaps the internal buffers of a context.
+ *
+ */
+void _gfx_platform_context_swap_buffers(GFX_Platform_Context handle);
 
 
 #ifdef __cplusplus

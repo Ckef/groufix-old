@@ -17,4 +17,4 @@ The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 
 ## Acknowledgements
 
-* [Martin Dørum Nygaard](http://mortie.tk/)
+* Martin Dørum Nygaard

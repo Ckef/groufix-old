@@ -22,12 +22,17 @@
 #include "groufix/platform/win32.h"
 
 /******************************************************/
-int _gfx_platform_window_create_context(GFX_Platform_Window handle)
+GFX_Platform_Context _gfx_platform_create_context(GFX_Platform_Window handle, const GFX_Platform_ContextAttributes* attributes)
 {
-	return 0;
+	return NULL;
 }
 
 /******************************************************/
-void _gfx_platform_window_destroy_context(GFX_Platform_Window handle)
+void _gfx_platform_destroy_context(GFX_Platform_Context handle)
+{
+}
+
+/******************************************************/
+void _gfx_platform_context_swap_buffers(GFX_Platform_Context handle)
 {
 }

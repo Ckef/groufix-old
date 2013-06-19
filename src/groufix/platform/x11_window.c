@@ -28,7 +28,7 @@
 static void _gfx_x11_set_atoms(Window window)
 {
 	/* Create atom array */
-	Atom atoms[1] = {
+	Atom atoms[] = {
 		_gfx_x11->wmDeleteWindow
 	};
 
@@ -158,12 +158,12 @@ static void _gfx_x11_event_proc(XEvent* event)
 /******************************************************/
 static void _gfx_x11_add_window(GFX_Platform_Window window)
 {
-	++_gfx_x11->numWindows;
+	unsigned int index = _gfx_x11->numWindows++;
 	_gfx_x11->windows = (GFX_Platform_Window*)realloc(
 		_gfx_x11->windows,
 		sizeof(GFX_Platform_Window) * _gfx_x11->numWindows);
 
-	_gfx_x11->windows[_gfx_x11->numWindows - 1] = window;
+	_gfx_x11->windows[index] = window;
 }
 
 /******************************************************/
@@ -228,7 +228,7 @@ GFX_Platform_Window _gfx_platform_get_window(unsigned int num)
 }
 
 /******************************************************/
-GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
+GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_WindowAttributes* attributes)
 {
 	if(!_gfx_x11) return NULL;
 
@@ -274,9 +274,6 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 {
 	if(_gfx_x11)
 	{
-		/* First destroy its context */
-		_gfx_platform_window_destroy_context(handle);
-
 		/* Destroy and remove the handle */
 		XDestroyWindow(_gfx_x11->display, VOID_TO_UINT(handle));
 		_gfx_x11_remove_window(handle);

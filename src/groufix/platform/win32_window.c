@@ -334,7 +334,7 @@ GFX_Platform_Window _gfx_platform_get_window(unsigned int num)
 }
 
 /******************************************************/
-GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
+GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_WindowAttributes* attributes)
 {
 	/* Make sure to register the window class */
 	if(!_gfx_win32_register_window_class()) return NULL;
@@ -375,9 +375,6 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 /******************************************************/
 void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 {
-	/* First destroy its context */
-	_gfx_platform_window_destroy_context(handle);
-
 	/* Destroy and remove the handle */
 	DestroyWindow(handle);
 	_gfx_win32_remove_window(handle);

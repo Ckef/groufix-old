@@ -22,12 +22,46 @@
 #include "groufix/platform/x11.h"
 
 /******************************************************/
-int _gfx_platform_window_create_context(GFX_Platform_Window handle)
+GFX_Platform_Context _gfx_platform_create_context(GFX_Platform_Window handle, const GFX_Platform_ContextAttributes* attributes)
 {
-	return 0;
+	/* Get the screen associated with the window */
+	Screen* screen = _gfx_platform_window_get_screen(handle);
+	if(!screen) return NULL;
+
+	/* Create buffer attribute array */
+	int bufferAttr[] = {
+		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+		GLX_DOUBLEBUFFER,  True,
+		GLX_RED_SIZE,      attributes->redBits,
+		GLX_BLUE_SIZE,     attributes->blueBits,
+		GLX_GREEN_SIZE,    attributes->greenBits,
+		None
+	};
+
+	/* Get visual info of screen */
+	int nelements;
+	GLXFBConfig* config = glXChooseFBConfig(_gfx_x11->display, XScreenNumberOfScreen(screen), bufferAttr, &nelements);
+	XVisualInfo* visual = glXGetVisualFromFBConfig(_gfx_x11->display, *config);
+	if(!visual)
+	{
+		XFree(config);
+		return NULL;
+	}
+
+	XFree(config);
+	XFree(visual);
+
+	return NULL;
 }
 
 /******************************************************/
-void _gfx_platform_window_destroy_context(GFX_Platform_Window handle)
+void _gfx_platform_destroy_context(GFX_Platform_Context handle)
+{
+	if(_gfx_x11) glXDestroyContext(_gfx_x11->display, handle);
+}
+
+/******************************************************/
+void _gfx_platform_context_swap_buffers(GFX_Platform_Context handle)
 {
 }

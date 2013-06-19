@@ -5,6 +5,8 @@
 
 int main()
 {
+	/* Really this is for testing purposes, in no way will this be the final usage */
+
 	if(!gfx_init()) puts("nuuuuuh!");
 	else puts("yeeeeeh!");
 
@@ -17,7 +19,7 @@ int main()
 		height
 	);
 
-	GFX_Platform_Attributes attr;
+	GFX_Platform_WindowAttributes attr;
 	attr.name   = "HEIRO";
 	attr.screen = scr;
 	attr.width  = 800;
@@ -28,9 +30,17 @@ int main()
 	GFX_Platform_Window window = _gfx_platform_create_window(&attr);
 	_gfx_platform_window_show(window);
 
+	GFX_Platform_ContextAttributes attr2;
+	attr2.redBits   = 4;
+	attr2.blueBits  = 4;
+	attr2.greenBits = 4;
+
+	GFX_Platform_Context context = _gfx_platform_create_context(window, &attr2);
+
 	while(_gfx_platform_is_initialized())
 	{
 		_gfx_platform_poll_events();
+		_gfx_platform_context_swap_buffers(context);
 	}
 
 	gfx_terminate();

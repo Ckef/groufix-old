@@ -25,6 +25,7 @@
 /* Includes */
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+#include <GL/glx.h>
 
 #include "groufix/platform.h"
 
@@ -60,7 +61,7 @@ typedef struct GFX_X11_Connection
 } GFX_X11_Connection;
 
 /**
- * \brief Server pointer
+ * \brief Connection pointer
  */
 extern GFX_X11_Connection* _gfx_x11;
 
