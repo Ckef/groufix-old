@@ -84,6 +84,7 @@ typedef struct
 
 } QUAT_NAME;
 
+
 /**
  * \brief Returns a value of the quaternion.
  *

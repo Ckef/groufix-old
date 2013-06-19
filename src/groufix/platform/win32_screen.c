@@ -19,9 +19,7 @@
  *
  */
 
-#include "groufix/platform.h"
-
-#include <windows.h>
+#include "groufix/platform/win32.h"
 
 /******************************************************/
 unsigned int _gfx_platform_get_num_screens(void)
@@ -31,7 +29,7 @@ unsigned int _gfx_platform_get_num_screens(void)
 }
 
 /******************************************************/
-void* _gfx_platform_get_screen(unsigned int num)
+GFX_Platform_Screen _gfx_platform_get_screen(unsigned int num)
 {
 	if(!_gfx_win32) return NULL;
 
@@ -41,14 +39,14 @@ void* _gfx_platform_get_screen(unsigned int num)
 }
 
 /******************************************************/
-void* _gfx_platform_get_default_screen(void)
+GFX_Platform_Screen _gfx_platform_get_default_screen(void)
 {
 	POINT zero = { 0,0 };
 	return MonitorFromPoint(zero, MONITOR_DEFAULTTOPRIMARY);
 }
 
 /******************************************************/
-void _gfx_platform_screen_get_size(void* handle, unsigned int* width, unsigned int* height)
+void _gfx_platform_screen_get_size(GFX_Platform_Screen handle, unsigned int* width, unsigned int* height)
 {
 	MONITORINFO info;
 	ZeroMemory(&info, sizeof(MONITORINFO));

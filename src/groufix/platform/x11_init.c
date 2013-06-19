@@ -19,10 +19,8 @@
  *
  */
 
-#include "groufix/platform.h"
+#include "groufix/platform/x11.h"
 
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
 #include <stdlib.h>
 
 /******************************************************/
@@ -150,7 +148,7 @@ int _gfx_platform_init(void)
 
 		/* Allocate */
 		_gfx_x11 = (GFX_X11_Connection*)calloc(1, sizeof(GFX_X11_Connection));
-		_gfx_x11->display = (void*)display;
+		_gfx_x11->display = display;
 
 		/* Construct a keycode lookup */
 		_gfx_x11_create_key_table();

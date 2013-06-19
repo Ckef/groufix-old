@@ -24,17 +24,6 @@
 
 #include <stdint.h>
 
-/* Get build target */
-#if defined(_WIN32) || defined(__WIN32__)
-	#define GFX_WIN32
-#elif defined(__APPLE__) || defined(__MACH__)
-	#define GFX_OSX
-#elif defined(__unix) || defined(__unix__) || defined(__linux__)
-	#define GFX_UNIX
-#else
-	#error "Platform not supported"
-#endif
-
 /* Concatenation */
 #define CAT_BAD(x,y) x ## y
 #define CAT(x,y) CAT_BAD(x,y)

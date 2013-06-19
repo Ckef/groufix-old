@@ -9,7 +9,7 @@ int main()
 	else puts("yeeeeeh!");
 
 	unsigned int width, height;
-	void* scr = _gfx_platform_get_default_screen();
+	GFX_Platform_Screen scr = _gfx_platform_get_default_screen();
 	_gfx_platform_screen_get_size(scr, &width, &height);
 	printf("%i screen(s)\n%i x %i\n",
 		_gfx_platform_get_num_screens(),
@@ -25,7 +25,7 @@ int main()
 	attr.x      = 100;
 	attr.y      = 100;
 
-	void* window = _gfx_platform_create_window(&attr);
+	GFX_Platform_Window window = _gfx_platform_create_window(&attr);
 	_gfx_platform_window_show(window);
 
 	while(_gfx_platform_is_initialized())

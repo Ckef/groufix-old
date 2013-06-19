@@ -94,6 +94,7 @@ typedef struct
 
 } MAT_NAME;
 
+
 /**
  * \brief Returns a value of the matrix.
  *

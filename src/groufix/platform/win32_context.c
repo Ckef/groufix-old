@@ -19,17 +19,15 @@
  *
  */
 
-#include "groufix/platform.h"
-
-#include <windows.h>
+#include "groufix/platform/win32.h"
 
 /******************************************************/
-int _gfx_platform_window_create_context(void* handle)
+int _gfx_platform_window_create_context(GFX_Platform_Window handle)
 {
 	return 0;
 }
 
 /******************************************************/
-void _gfx_platform_window_destroy_context(void* handle)
+void _gfx_platform_window_destroy_context(GFX_Platform_Window handle)
 {
 }

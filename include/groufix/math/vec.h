@@ -112,6 +112,7 @@ typedef struct
 
 } VEC_NAME;
 
+
 /**
  * \brief Returns a value of the vector.
  *

@@ -22,15 +22,6 @@
 #ifndef GFX_PLATFORM_WIN32_H
 #define GFX_PLATFORM_WIN32_H
 
-#include <wchar.h>
-
-/* Maximum key code lookup */
-#define GFX_WIN32_MAX_KEYCODE 0xff
-#define GFX_WIN32_NUM_KEYCODES 0x100
-
-/* Groufix window class */
-#define GFX_WIN32_WND_CLASS L"GROUFIX"
-
 /* Windows XP */
 #define WINVER 0x0501
 
@@ -43,6 +34,21 @@
 #define _UNICODE
 #endif
 
+/* Includes */
+#include <windows.h>
+#include <windowsx.h>
+#include <wchar.h>
+
+#include "groufix/platform.h"
+
+
+/* Maximum key code lookup */
+#define GFX_WIN32_MAX_KEYCODE 0xff
+#define GFX_WIN32_NUM_KEYCODES 0x100
+
+/* Groufix window class */
+#define GFX_WIN32_WND_CLASS L"GROUFIX"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,17 +59,17 @@ extern "C" {
 typedef struct GFX_Win32_Instance
 {
 	/* Monitors */
-	unsigned int  numMonitors;
-	void**        monitors;        /* (of type HMONITOR*) */
+	unsigned int          numMonitors;
+	GFX_Platform_Screen*  monitors;        /* (of type HMONITOR*) */
 
 	/* Windows */
-	char          classRegistered; /* Whether or not the window class is registered */
-	unsigned int  numWindows;
-	void**        windows;         /* (of type HWND*) */
-	void**        windowMonitors;  /* Monitors assigned to the windows (of type HMONITOR*) */
+	char                  classRegistered; /* Whether or not the window class is registered */
+	unsigned int          numWindows;
+	GFX_Platform_Window*  windows;         /* (of type HWND*) */
+	GFX_Platform_Screen*  windowMonitors;  /* Monitors assigned to the windows (of type HMONITOR*) */
 
 	/* Key table */
-	GFXKey        keys[GFX_WIN32_NUM_KEYCODES];
+	GFXKey                keys[GFX_WIN32_NUM_KEYCODES];
 
 } GFX_Win32_Instance;
 

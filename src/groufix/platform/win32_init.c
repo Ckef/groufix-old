@@ -19,9 +19,8 @@
  *
  */
 
-#include "groufix/platform.h"
+#include "groufix/platform/win32.h"
 
-#include <windows.h>
 #include <stdlib.h>
 
 /******************************************************/
@@ -64,8 +63,11 @@ static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT re
 {
 	/* Simply store the monitor handle */
 	++_gfx_win32->numMonitors;
-	_gfx_win32->monitors = (void**)realloc(_gfx_win32->monitors, sizeof(void*) * _gfx_win32->numMonitors);
-	_gfx_win32->monitors[_gfx_win32->numMonitors - 1] = (void*)handle;
+	_gfx_win32->monitors = (GFX_Platform_Screen*)realloc(
+		_gfx_win32->monitors,
+		sizeof(GFX_Platform_Screen) * _gfx_win32->numMonitors);
+
+	_gfx_win32->monitors[_gfx_win32->numMonitors - 1] = (GFX_Platform_Screen)handle;
 
 	return 1;
 }

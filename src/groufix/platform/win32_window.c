@@ -19,10 +19,8 @@
  *
  */
 
-#include "groufix/platform.h"
+#include "groufix/platform/win32.h"
 
-#include <windows.h>
-#include <windowsx.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -69,8 +67,11 @@ static GFXKeyState _gfx_win32_get_key_state(void)
 }
 
 /******************************************************/
-static LRESULT CALLBACK _gfx_win32_window_proc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	/* Get window */
+	GFX_Platform_Window window = (GFX_Platform_Window)handle;
+
 	switch(msg)
 	{
 		/* Close button */
@@ -210,7 +211,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND window, UINT msg, WPARAM wPa
 		}
 	}
 
-	return DefWindowProc(window, msg, wParam, lParam);
+	return DefWindowProc(handle, msg, wParam, lParam);
 }
 
 /******************************************************/
@@ -238,22 +239,27 @@ static int _gfx_win32_register_window_class(void)
 }
 
 /******************************************************/
-static void _gfx_win32_add_window(void* handle, void* monitor)
+static void _gfx_win32_add_window(GFX_Platform_Window handle, GFX_Platform_Screen monitor)
 {
 	unsigned int index = _gfx_win32->numWindows++;
-	size_t siz = sizeof(void*) * _gfx_win32->numWindows;
 
 	/* Add window pointer */
-	_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, siz);
+	_gfx_win32->windows = (GFX_Platform_Window*)realloc(
+		_gfx_win32->windows,
+		sizeof(GFX_Platform_Window) * _gfx_win32->numWindows);
+
 	_gfx_win32->windows[index] = handle;
 
 	/* Add window monitor */
-	_gfx_win32->windowMonitors = (void**)realloc(_gfx_win32->windowMonitors, siz);
+	_gfx_win32->windowMonitors = (GFX_Platform_Screen*)realloc(
+		_gfx_win32->windowMonitors,
+		sizeof(GFX_Platform_Screen) * _gfx_win32->numWindows);
+
 	_gfx_win32->windowMonitors[index] = monitor;
 }
 
 /******************************************************/
-static void _gfx_win32_remove_window(void* handle)
+static void _gfx_win32_remove_window(GFX_Platform_Window handle)
 {
 	/* Remove the handle from the array */
 	unsigned int i;
@@ -272,18 +278,21 @@ static void _gfx_win32_remove_window(void* handle)
 		else
 		{
 			/* Move elements and resize array */
-			size_t mov = sizeof(void*) * (_gfx_win32->numWindows - i);
-			size_t siz = sizeof(void*) * _gfx_win32->numWindows;
+			unsigned int mov = _gfx_win32->numWindows - i;
 
 			/* Move window pointers */
-			void** dest = _gfx_win32->windows + i;
-			memmove(dest, dest + 1, mov);
-			_gfx_win32->windows = (void**)realloc(_gfx_win32->windows, siz);
+			GFX_Platform_Window* wind = _gfx_win32->windows + i;
+			memmove(wind, wind + 1, sizeof(GFX_Platform_Window) * mov);
+			_gfx_win32->windows = (GFX_Platform_Window*)realloc(
+				_gfx_win32->windows,
+				sizeof(GFX_Platform_Window) * _gfx_win32->numWindows);
 
 			/* Move window monitors */
-			dest = _gfx_win32->windowMonitors + i;
-			memmove(dest, dest + 1, mov);
-			_gfx_win32->windowMonitors = (void**)realloc(_gfx_win32->windowMonitors, siz);
+			GFX_Platform_Screen* scr = _gfx_win32->windowMonitors + i;
+			memmove(scr, scr + 1, sizeof(GFX_Platform_Screen) * mov);
+			_gfx_win32->windowMonitors = (GFX_Platform_Screen*)realloc(
+				_gfx_win32->windowMonitors,
+				sizeof(GFX_Platform_Screen) * _gfx_win32->numWindows);
 		}
 		break;
 	}
@@ -315,7 +324,7 @@ unsigned int _gfx_platform_get_num_windows(void)
 }
 
 /******************************************************/
-void* _gfx_platform_get_window(unsigned int num)
+GFX_Platform_Window _gfx_platform_get_window(unsigned int num)
 {
 	if(!_gfx_win32) return NULL;
 
@@ -325,7 +334,7 @@ void* _gfx_platform_get_window(unsigned int num)
 }
 
 /******************************************************/
-void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
+GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
 	/* Make sure to register the window class */
 	if(!_gfx_win32_register_window_class()) return NULL;
@@ -357,13 +366,14 @@ void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 	if(!window) return NULL;
 
 	/* Add window to array */
-	_gfx_win32_add_window(window, attributes->screen);
+	GFX_Platform_Window ptr = (GFX_Platform_Window)window;
+	_gfx_win32_add_window(ptr, attributes->screen);
 
-	return (void*)window;
+	return ptr;
 }
 
 /******************************************************/
-void _gfx_platform_destroy_window(void* handle)
+void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 {
 	/* First destroy its context */
 	_gfx_platform_window_destroy_context(handle);
@@ -374,7 +384,7 @@ void _gfx_platform_destroy_window(void* handle)
 }
 
 /******************************************************/
-void* _gfx_platform_window_get_screen(void* handle)
+GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle)
 {
 	unsigned int i;
 	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
@@ -384,7 +394,7 @@ void* _gfx_platform_window_get_screen(void* handle)
 }
 
 /******************************************************/
-char* _gfx_platform_window_get_name(void* handle)
+char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
 {
 	/* Check if it has a name */
 	int len = GetWindowTextLength(handle);
@@ -401,7 +411,7 @@ char* _gfx_platform_window_get_name(void* handle)
 }
 
 /******************************************************/
-void _gfx_platform_window_get_size(void* handle, unsigned int* width, unsigned int* height)
+void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* width, unsigned int* height)
 {
 	RECT rect;
 	ZeroMemory(&rect, sizeof(RECT));
@@ -412,7 +422,7 @@ void _gfx_platform_window_get_size(void* handle, unsigned int* width, unsigned i
 }
 
 /******************************************************/
-void _gfx_platform_window_get_position(void* handle, int* x, int* y)
+void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* y)
 {
 	RECT rect;
 	ZeroMemory(&rect, sizeof(RECT));
@@ -422,7 +432,7 @@ void _gfx_platform_window_get_position(void* handle, int* x, int* y)
 	*y = rect.top;
 
 	/* Get window's monitor position */
-	HMONITOR monitor = (HMONITOR)_gfx_platform_window_get_screen(handle);
+	HMONITOR monitor = _gfx_platform_window_get_screen(handle);
 	if(monitor)
 	{
 		MONITORINFO info;
@@ -434,7 +444,7 @@ void _gfx_platform_window_get_position(void* handle, int* x, int* y)
 }
 
 /******************************************************/
-void _gfx_platform_window_set_name(void* handle, const char* name)
+void _gfx_platform_window_set_name(GFX_Platform_Window handle, const char* name)
 {
 	/* Make sure to convert to wide character */
 	wchar_t* wchar = utf8_to_wchar(name);
@@ -443,16 +453,16 @@ void _gfx_platform_window_set_name(void* handle, const char* name)
 }
 
 /******************************************************/
-void _gfx_platform_window_set_size(void* handle, unsigned int width, unsigned int height)
+void _gfx_platform_window_set_size(GFX_Platform_Window handle, unsigned int width, unsigned int height)
 {
 	SetWindowPos(handle, NULL, 0, 0, width, height, SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOZORDER);
 }
 
 /******************************************************/
-void _gfx_platform_window_set_position(void* handle, int x, int y)
+void _gfx_platform_window_set_position(GFX_Platform_Window handle, int x, int y)
 {
 	/* Get window's monitor position */
-	HMONITOR monitor = (HMONITOR)_gfx_platform_window_get_screen(handle);
+	HMONITOR monitor = _gfx_platform_window_get_screen(handle);
 	if(monitor)
 	{
 		MONITORINFO info;
@@ -465,13 +475,13 @@ void _gfx_platform_window_set_position(void* handle, int x, int y)
 }
 
 /******************************************************/
-void _gfx_platform_window_show(void* handle)
+void _gfx_platform_window_show(GFX_Platform_Window handle)
 {
 	ShowWindow(handle, SW_SHOW);
 }
 
 /******************************************************/
-void _gfx_platform_window_hide(void* handle)
+void _gfx_platform_window_hide(GFX_Platform_Window handle)
 {
 	ShowWindow(handle, SW_HIDE);
 }

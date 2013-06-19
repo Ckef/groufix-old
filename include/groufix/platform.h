@@ -22,39 +22,23 @@
 #ifndef GFX_PLATFORM_H
 #define GFX_PLATFORM_H
 
-#include "groufix/utils.h"
 #include "groufix/events.h"
+#include "groufix/utils.h"
 
-/* Window API file (platform) from build target */
-#if defined(GFX_WIN32)
-	#include "groufix/platform/win32.h"
-#elif defined(GFX_OSX) && defined(GFX_OSX_X11)
-	#include "groufix/platform/x11.h"
-#elif defined(GFX_UNIX)
-	#include "groufix/platform/x11.h"
+/* Get build target */
+#if defined(_WIN32) || defined(__WIN32__)
+	#define GFX_WIN32
+#elif defined(__APPLE__) || defined(__MACH__)
+	#define GFX_OSX
+#elif defined(__unix) || defined(__unix__) || defined(__linux__)
+	#define GFX_UNIX
 #else
-	#error "Platform configuration not supported"
+	#error "Platform not supported"
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/********************************************************
- * \brief Window initialization attributes
- *******************************************************/
-typedef struct GFX_Platform_Attributes
-{
-	void*         screen;
-	char*         name;
-
-	unsigned int  width;
-	unsigned int  height;
-	int           x;
-	int           y;
-
-} GFX_Platform_Attributes;
-
 
 /********************************************************
  * Initialization
@@ -82,8 +66,10 @@ void _gfx_platform_terminate(void);
 
 
 /********************************************************
- * \brief Screens
+ * \brief Single Screen of the display
  *******************************************************/
+typedef void* GFX_Platform_Screen;
+
 
 /**
  * \brief Returns the number of visible screens.
@@ -98,24 +84,40 @@ unsigned int _gfx_platform_get_num_screens(void);
  * \return A handle to the screen, NULL if not found.
  *
  */
-void* _gfx_platform_get_screen(unsigned int num);
+GFX_Platform_Screen _gfx_platform_get_screen(unsigned int num);
 
 /**
  * \brief Returns the default screen.
  *
  */
-void* _gfx_platform_get_default_screen(void);
+GFX_Platform_Screen _gfx_platform_get_default_screen(void);
 
 /**
  * \brief Gets the resolution of a screen in pixels.
  *
  */
-void _gfx_platform_screen_get_size(void* handle, unsigned int* width, unsigned int* height);
+void _gfx_platform_screen_get_size(GFX_Platform_Screen handle, unsigned int* width, unsigned int* height);
 
 
 /********************************************************
- * Windows
+ * \brief A Window
  *******************************************************/
+typedef void* GFX_Platform_Window;
+
+
+/** \brief Window initialization attributes */
+typedef struct GFX_Platform_Attributes
+{
+	GFX_Platform_Screen  screen;
+	char*                name;
+
+	unsigned int         width;
+	unsigned int         height;
+	int                  x;
+	int                  y;
+
+} GFX_Platform_Attributes;
+
 
 /**
  * \brief Polls events of all windows.
@@ -139,7 +141,7 @@ unsigned int _gfx_platform_get_num_windows(void);
  * This method is only meant for iterating over existing windows.
  *
  */
-void* _gfx_platform_get_window(unsigned int num);
+GFX_Platform_Window _gfx_platform_get_window(unsigned int num);
 
 /**
  * \brief Creates a new window, allocating the memory.
@@ -148,13 +150,13 @@ void* _gfx_platform_get_window(unsigned int num);
  * \return A handle to the window.
  *
  */
-void* _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
+GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
 
 /**
  * \brief Destroys a window, freeing the memory.
  *
  */
-void _gfx_platform_destroy_window(void* handle);
+void _gfx_platform_destroy_window(GFX_Platform_Window handle);
 
 /**
  * \brief Returns the screen assigned to a window.
@@ -162,7 +164,7 @@ void _gfx_platform_destroy_window(void* handle);
  * \return NULL if the handle was not a previously created window.
  *
  */
-void* _gfx_platform_window_get_screen(void* handle);
+GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle);
 
 /**
  * \brief Returns the name of a window.
@@ -170,49 +172,49 @@ void* _gfx_platform_window_get_screen(void* handle);
  * If the returned pointer is not NULL, it should be freed manually.
  *
  */
-char* _gfx_platform_window_get_name(void* handle);
+char* _gfx_platform_window_get_name(GFX_Platform_Window handle);
 
 /**
  * \brief Gets the resolution of a window in pixels.
  *
  */
-void _gfx_platform_window_get_size(void* handle, unsigned int* width, unsigned int* height);
+void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* width, unsigned int* height);
 
 /**
  * \brief Gets the position of the window.
  *
  */
-void _gfx_platform_window_get_position(void* handle, int* x, int* y);
+void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* y);
 
 /**
  * \brief Sets the title of a window.
  *
  */
-void _gfx_platform_window_set_name(void* handle, const char* name);
+void _gfx_platform_window_set_name(GFX_Platform_Window handle, const char* name);
 
 /**
  * \brief Sets the resolution of the window in pixels.
  *
  */
-void _gfx_platform_window_set_size(void* handle, unsigned int width, unsigned int height);
+void _gfx_platform_window_set_size(GFX_Platform_Window handle, unsigned int width, unsigned int height);
 
 /**
  * \brief Sets the position of the window.
  *
  */
-void _gfx_platform_window_set_position(void* handle, int x, int y);
+void _gfx_platform_window_set_position(GFX_Platform_Window handle, int x, int y);
 
 /**
  * \brief Makes a window visible.
  *
  */
-void _gfx_platform_window_show(void* handle);
+void _gfx_platform_window_show(GFX_Platform_Window handle);
 
 /**
  * \brief Hides a window, making it invisible.
  *
  */
-void _gfx_platform_window_hide(void* handle);
+void _gfx_platform_window_hide(GFX_Platform_Window handle);
 
 
 /********************************************************
@@ -225,13 +227,13 @@ void _gfx_platform_window_hide(void* handle);
  * \return non-zero if the context was successfully created.
  *
  */
-int _gfx_platform_window_create_context(void* handle);
+int _gfx_platform_window_create_context(GFX_Platform_Window handle);
 
 /**
  * \brief Destroys a context of a window.
  *
  */
-void _gfx_platform_window_destroy_context(void* handle);
+void _gfx_platform_window_destroy_context(GFX_Platform_Window handle);
 
 
 #ifdef __cplusplus

@@ -19,9 +19,7 @@
  *
  */
 
-#include "groufix/platform.h"
-
-#include <X11/Xlib.h>
+#include "groufix/platform/x11.h"
 
 /******************************************************/
 unsigned int _gfx_platform_get_num_screens(void)
@@ -31,7 +29,7 @@ unsigned int _gfx_platform_get_num_screens(void)
 }
 
 /******************************************************/
-void* _gfx_platform_get_screen(unsigned int num)
+GFX_Platform_Screen _gfx_platform_get_screen(unsigned int num)
 {
 	if(!_gfx_x11) return NULL;
 
@@ -41,14 +39,14 @@ void* _gfx_platform_get_screen(unsigned int num)
 }
 
 /******************************************************/
-void* _gfx_platform_get_default_screen(void)
+GFX_Platform_Screen _gfx_platform_get_default_screen(void)
 {
 	if(!_gfx_x11) return NULL;
 	return DefaultScreenOfDisplay(_gfx_x11->display);
 }
 
 /******************************************************/
-void _gfx_platform_screen_get_size(void* handle, unsigned int* width, unsigned int* height)
+void _gfx_platform_screen_get_size(GFX_Platform_Screen handle, unsigned int* width, unsigned int* height)
 {
 	*width = WidthOfScreen((Screen*)handle);
 	*height = HeightOfScreen((Screen*)handle);

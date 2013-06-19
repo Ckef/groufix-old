@@ -22,6 +22,17 @@
 #ifndef GFX_PLATFORM_X11_H
 #define GFX_PLATFORM_X11_H
 
+/* Includes */
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
+
+#include "groufix/platform.h"
+
+
+/* More of them buttons! */
+#define Button6  6
+#define Button7  7
+
 /* Maximum key code lookup */
 #define GFX_X11_MAX_KEYCODE 0xff
 #define GFX_X11_NUM_KEYCODES 0x100
@@ -36,15 +47,15 @@ extern "C" {
 typedef struct GFX_X11_Connection
 {
 	/* X Display */
-	void*          display;        /* (of type Display*) */
+	Display*              display;
 
 	/* Windows */
-	unsigned int   numWindows;
-	uintptr_t*     windows;        /* (of type Window*) */
-	unsigned long  wmDeleteWindow; /* WM_DELETE_WINDOW */
+	unsigned int          numWindows;
+	GFX_Platform_Window*  windows;        /* (of type Window*) */
+	Atom                  wmDeleteWindow; /* WM_DELETE_WINDOW */
 
 	/* Key table */
-	GFXKey         keys[GFX_X11_NUM_KEYCODES];
+	GFXKey                keys[GFX_X11_NUM_KEYCODES];
 
 } GFX_X11_Connection;
 
