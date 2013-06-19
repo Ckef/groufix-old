@@ -8,7 +8,7 @@ Supported targets and their windowing APIs:
 
 * __Unix__,    X11 (Xlib), OGL _(working)_
 * __Windows__, Win32 (Windows XP and up), OGL _(working)_
-* __OS X__,    X11 (Xlib), OGL _(beta)_
+* __OS X__,    X11 (Xlib), OGL _(working)_
 * __OS X__,    Cocoa, OGL _(planned)_
 * __Android__, NDK, OGL ES _(considered)_
 * __Web__,     emscripten, OGL ES _(considered)_

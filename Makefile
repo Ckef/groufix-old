@@ -52,13 +52,21 @@ OUT     = obj
 INCLUDE = include
 SRC     = src
 
-# Executables as well
-CFLAGS = -Os -O2 -Wall -std=c99 -I$(INCLUDE)
+# Flags for all compiler calls
+CFLAGS          = -Os -O2 -Wall -std=c99 -I$(INCLUDE)
+CFLAGS_UNIX_X11 = $(CFLAGS)
+CFLAGS_OSX_X11  = $(CFLAGS) -I/usr/X11/include
+CFLAGS_WIN32    = $(CFLAGS)
 
 # Object files only
-CFLAGS_UNIX  = $(CFLAGS) -c -fPIC -s
-CFLAGS_OSX   = $(CFLAGS) -c -fPIC
-CFLAGS_WIN32 = $(CFLAGS) -c -s
+OBJFLAGS_UNIX_X11 = $(CFLAGS_UNIX_X11) -c -fPIC -s
+OBJFLAGS_OSX_X11  = $(CFLAGS_OSX_X11) -c -fPIC
+OBJFLAGS_WIN32    = $(CFLAGS_WIN32) -c -s
+
+# Libraries to link to
+LIBS_UNIX_X11 = -lX11 -lGL
+LIBS_OSX_X11  = -L/usr/X11/lib -lX11 -lGL
+LIBS_WIN32    = -luser32 -lopengl32
 
 
 #################################################################
@@ -116,10 +124,10 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix.o
 
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
-	$(CC) -shared $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so -lX11 -lGL
+	$(CC) -shared $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LIBS_UNIX_X11)
 
 unix-x11-simple: examples/simple.c unix-x11 
-	$(CC) $(CFLAGS) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 before-unix-x11:
 	mkdir -p $(BIN)/unix-x11
@@ -129,25 +137,25 @@ before-unix-x11:
 # All the object files
 
 $(OUT)/unix-x11/groufix/platform/x11_context.o: $(SRC)/groufix/platform/x11_context.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_screen.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_UNIX) $< -o $@
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 
 #################################################################
@@ -163,10 +171,10 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix.o
 
 osx-x11: before-osx-x11 $(OBJS_OSX_X11)
-	$(CC) -dynamiclib $(OBJS_OSX_X11) -o $(BIN)/osx-x11/libGroufix.dylib -lX11 -lGL
+	$(CC) -dynamiclib -install_name 'libGroufix.dylib' $(OBJS_OSX_X11) -o $(BIN)/osx-x11/libGroufix.dylib $(LIBS_OSX_X11)
 
 osx-x11-simple: examples/simple.c osx-x11
-	$(CC) $(CFLAGS) $< -o $(BIN)/osx-x11/simple -L$(BIN)/osx-x11/ -lGroufix
+	$(CC) $(CFLAGS_OSX_X11) $< -o $(BIN)/osx-x11/simple -L$(BIN)/osx-x11/ -lGroufix
 
 before-osx-x11:
 	mkdir -p $(BIN)/osx-x11
@@ -176,25 +184,25 @@ before-osx-x11:
 # All the object files
 
 $(OUT)/osx-x11/groufix/platform/x11_context.o: $(SRC)/groufix/platform/x11_context.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_screen.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
-	$(CC) $(CFLAGS_OSX) $< -o $@
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 
 #################################################################
@@ -210,10 +218,10 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix.o
 
 win32: before-win32 $(OBJS_WIN32)
-	$(CC) -shared $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll -luser32 -lopengl32
+	$(CC) -shared $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LIBS_WIN32)
 
 win32-simple: examples/simple.c win32
-	$(CC) $(CFLAGS) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
+	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
 
 before-win32:
 	if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
@@ -223,23 +231,23 @@ before-win32:
 # All the object files
 
 $(OUT)/win32/groufix/platform/win32_context.o: $(SRC)/groufix/platform/win32_context.c $(HEADERS_WIN32)
-	$(CC) $(CFLAGS_WIN32) $< -o $@
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_init.o: $(SRC)/groufix/platform/win32_init.c $(HEADERS_WIN32)
-	$(CC) $(CFLAGS_WIN32) $< -o $@
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_screen.o: $(SRC)/groufix/platform/win32_screen.c $(HEADERS_WIN32)
-	$(CC) $(CFLAGS_WIN32) $< -o $@
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_window.o: $(SRC)/groufix/platform/win32_window.c $(HEADERS_WIN32)
-	$(CC) $(CFLAGS_WIN32) $< -o $@
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_WIN32)
-	$(CC) $(CFLAGS_WIN32) $< -o $@
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_WIN32)
-	$(CC) $(CFLAGS_WIN32) $< -o $@
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix.o: $(SRC)/groufix.c $(HEADERS_WIN32)
-	$(CC) $(CFLAGS_WIN32) $< -o $@
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
