@@ -27,8 +27,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 
-#include "groufix/platform.h"
-
+#include "groufix/events.h"
 
 /* More of them buttons! */
 #define Button6  6
@@ -43,20 +42,31 @@ extern "C" {
 #endif
 
 /********************************************************
+ * \brief X11 Window
+ *******************************************************/
+typedef struct GFX_X11_Window
+{
+	Window handle; /* Given to the outside world */
+	GLXContext context;
+
+} GFX_X11_Window;
+
+
+/********************************************************
  * \brief X11 Connection
  *******************************************************/
 typedef struct GFX_X11_Connection
 {
 	/* X Display */
-	Display*              display;
+	Display*         display;
 
 	/* Windows */
-	unsigned int          numWindows;
-	GFX_Platform_Window*  windows;        /* (of type Window*) */
-	Atom                  wmDeleteWindow; /* WM_DELETE_WINDOW */
+	unsigned int     numWindows;
+	GFX_X11_Window*  windows;
+	Atom             wmDeleteWindow;
 
 	/* Key table */
-	GFXKey                keys[GFX_X11_NUM_KEYCODES];
+	GFXKey           keys[GFX_X11_NUM_KEYCODES];
 
 } GFX_X11_Connection;
 

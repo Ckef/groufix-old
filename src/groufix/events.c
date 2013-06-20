@@ -21,43 +21,41 @@
 
 #include "groufix/events.h"
 
-#include "groufix/platform.h"
-
 /******************************************************/
-void gfx_event_window_close(void* window)
+void gfx_event_window_close(GFX_Platform_Window window)
 {
 	/* TEMPORARY TO NOT HAVE TO CRASH THE APPLICATION!!!!!!!!!!!!! */
 	_gfx_platform_terminate();
 }
 
 /******************************************************/
-void gfx_event_key_press(void* window, GFXKey key, GFXKeyState state)
+void gfx_event_key_press(GFX_Platform_Window window, GFXKey key, GFXKeyState state)
 {
 	/* TEMPORARY TO NOT HAVE TO CRASH THE APPLICATION!!!!!!!!!!!!! */
 	if(key == GFX_KEY_RETURN) _gfx_platform_terminate();
 }
 
 /******************************************************/
-void gfx_event_key_release(void* window, GFXKey key, GFXKeyState state)
+void gfx_event_key_release(GFX_Platform_Window window, GFXKey key, GFXKeyState state)
 {
 }
 
 /******************************************************/
-void gfx_event_mouse_move(void* window, int x, int y, GFXKeyState state)
+void gfx_event_mouse_move(GFX_Platform_Window window, int x, int y, GFXKeyState state)
 {
 }
 
 /******************************************************/
-void gfx_event_mouse_press(void* window, GFXMouseKey key, int x, int y, GFXKeyState state)
+void gfx_event_mouse_press(GFX_Platform_Window window, GFXMouseKey key, int x, int y, GFXKeyState state)
 {
 }
 
 /******************************************************/
-void gfx_event_mouse_release(void* window, GFXMouseKey key, int x, int y, GFXKeyState state)
+void gfx_event_mouse_release(GFX_Platform_Window window, GFXMouseKey key, int x, int y, GFXKeyState state)
 {
 }
 
 /******************************************************/
-void gfx_event_mouse_wheel(void* window, int xoffset, int yoffset, int x, int y, GFXKeyState state)
+void gfx_event_mouse_wheel(GFX_Platform_Window window, int xoffset, int yoffset, int x, int y, GFXKeyState state)
 {
 }

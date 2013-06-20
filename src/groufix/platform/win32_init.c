@@ -62,12 +62,12 @@ char* wchar_to_utf8(const wchar_t* str)
 static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data)
 {
 	/* Simply store the monitor handle */
-	++_gfx_win32->numMonitors;
-	_gfx_win32->monitors = (GFX_Platform_Screen*)realloc(
+	unsigned int index = _gfx_win32->numMonitors++;
+	_gfx_win32->monitors = (HMONITOR*)realloc(
 		_gfx_win32->monitors,
-		sizeof(GFX_Platform_Screen) * _gfx_win32->numMonitors);
+		sizeof(HMONITOR) * _gfx_win32->numMonitors);
 
-	_gfx_win32->monitors[_gfx_win32->numMonitors - 1] = (GFX_Platform_Screen)handle;
+	_gfx_win32->monitors[index] = handle;
 
 	return 1;
 }

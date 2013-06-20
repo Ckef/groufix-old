@@ -3,7 +3,9 @@
 *.cbTemp
 *.depend
 *.layout
+*.swo
 *.swp
+*.fuse_hidden*
 
 # directories
 bin/

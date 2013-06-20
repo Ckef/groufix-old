@@ -239,80 +239,41 @@ static int _gfx_win32_register_window_class(void)
 }
 
 /******************************************************/
-static void _gfx_win32_add_window(GFX_Platform_Window handle, GFX_Platform_Screen monitor)
+static void _gfx_win32_add_window(GFX_Win32_Window window)
 {
 	unsigned int index = _gfx_win32->numWindows++;
-
-	/* Add window pointer */
-	_gfx_win32->windows = (GFX_Platform_Window*)realloc(
+	_gfx_win32->windows = (GFX_Win32_Window*)realloc(
 		_gfx_win32->windows,
-		sizeof(GFX_Platform_Window) * _gfx_win32->numWindows);
+		sizeof(GFX_Win32_Window) * _gfx_win32->numWindows);
 
-	_gfx_win32->windows[index] = handle;
-
-	/* Add window monitor */
-	_gfx_win32->windowMonitors = (GFX_Platform_Screen*)realloc(
-		_gfx_win32->windowMonitors,
-		sizeof(GFX_Platform_Screen) * _gfx_win32->numWindows);
-
-	_gfx_win32->windowMonitors[index] = monitor;
+	_gfx_win32->windows[index] = window;
 }
 
 /******************************************************/
-static void _gfx_win32_remove_window(GFX_Platform_Window handle)
+static void _gfx_win32_remove_window(HWND handle)
 {
 	/* Remove the handle from the array */
 	unsigned int i;
 	for(i = 0; i < _gfx_win32->numWindows; ++i)
-		if(_gfx_win32->windows[i] == handle)
+		if(_gfx_win32->windows[i].handle == handle)
 	{
 		--_gfx_win32->numWindows;
 		if(!_gfx_win32->numWindows)
 		{
 			/* Free the array */
 			free(_gfx_win32->windows);
-			free(_gfx_win32->windowMonitors);
 			_gfx_win32->windows = NULL;
-			_gfx_win32->windowMonitors = NULL;
 		}
 		else
 		{
 			/* Move elements and resize array */
-			unsigned int mov = _gfx_win32->numWindows - i;
-
-			/* Move window pointers */
-			GFX_Platform_Window* wind = _gfx_win32->windows + i;
-			memmove(wind, wind + 1, sizeof(GFX_Platform_Window) * mov);
-			_gfx_win32->windows = (GFX_Platform_Window*)realloc(
+			GFX_Win32_Window* dest = _gfx_win32->windows + i;
+			memmove(dest, dest + 1, sizeof(GFX_Win32_Window) * (_gfx_win32->numWindows - i));
+			_gfx_win32->windows = (GFX_Win32_Window*)realloc(
 				_gfx_win32->windows,
-				sizeof(GFX_Platform_Window) * _gfx_win32->numWindows);
-
-			/* Move window monitors */
-			GFX_Platform_Screen* scr = _gfx_win32->windowMonitors + i;
-			memmove(scr, scr + 1, sizeof(GFX_Platform_Screen) * mov);
-			_gfx_win32->windowMonitors = (GFX_Platform_Screen*)realloc(
-				_gfx_win32->windowMonitors,
-				sizeof(GFX_Platform_Screen) * _gfx_win32->numWindows);
+				sizeof(GFX_Win32_Window) * _gfx_win32->numWindows);
 		}
 		break;
-	}
-}
-
-/******************************************************/
-void _gfx_platform_poll_events(void)
-{
-	MSG msg;
-	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	{
-		/* Dispatch any regular message */
-		if(msg.message != WM_QUIT)
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		/* Terminate properly on WM_QUIT */
-		else _gfx_platform_terminate();
 	}
 }
 
@@ -330,14 +291,17 @@ GFX_Platform_Window _gfx_platform_get_window(unsigned int num)
 
 	/* Validate the number first */
 	if(num >= _gfx_win32->numWindows) return NULL;
-	return _gfx_win32->windows[num];
+	return _gfx_win32->windows[num].handle;
 }
 
 /******************************************************/
-GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_WindowAttributes* attributes)
+GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
 	/* Make sure to register the window class */
 	if(!_gfx_win32_register_window_class()) return NULL;
+
+	GFX_Win32_Window window;
+	window.monitor = attributes->screen;
 
 	/* Get monitor information */
 	MONITORINFO info;
@@ -347,7 +311,7 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_WindowAttribu
 	/* Make sure to convert to wide character */
 	wchar_t* name = utf8_to_wchar(attributes->name);
 
-	HWND window = CreateWindowEx(
+	window.handle = CreateWindowEx(
 		0,
 		GFX_WIN32_WND_CLASS,
 		name,
@@ -363,13 +327,12 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_WindowAttribu
 	);
 
 	free(name);
-	if(!window) return NULL;
+	if(!window.handle) return NULL;
 
 	/* Add window to array */
-	GFX_Platform_Window ptr = (GFX_Platform_Window)window;
-	_gfx_win32_add_window(ptr, attributes->screen);
+	_gfx_win32_add_window(window);
 
-	return ptr;
+	return window.handle;
 }
 
 /******************************************************/
@@ -385,7 +348,7 @@ GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle)
 {
 	unsigned int i;
 	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
-		if(_gfx_win32->windows[i] == handle) return _gfx_win32->windowMonitors[i];
+		if(_gfx_win32->windows[i].handle == handle) return _gfx_win32->windows[i].monitor;
 
 	return NULL;
 }
@@ -481,4 +444,32 @@ void _gfx_platform_window_show(GFX_Platform_Window handle)
 void _gfx_platform_window_hide(GFX_Platform_Window handle)
 {
 	ShowWindow(handle, SW_HIDE);
+}
+
+/******************************************************/
+void _gfx_platform_window_make_current(GFX_Platform_Window handle)
+{
+}
+
+/******************************************************/
+void _gfx_platform_window_swap_buffers(GFX_Platform_Window handle)
+{
+}
+
+/******************************************************/
+void _gfx_platform_poll_events(void)
+{
+	MSG msg;
+	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		/* Dispatch any regular message */
+		if(msg.message != WM_QUIT)
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		/* Terminate properly on WM_QUIT */
+		else _gfx_platform_terminate();
+	}
 }

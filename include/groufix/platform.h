@@ -22,7 +22,6 @@
 #ifndef GFX_PLATFORM_H
 #define GFX_PLATFORM_H
 
-#include "groufix/events.h"
 #include "groufix/utils.h"
 
 /* Get build target */
@@ -106,7 +105,7 @@ typedef void* GFX_Platform_Window;
 
 
 /** \brief Window initialization attributes */
-typedef struct GFX_Platform_WindowAttributes
+typedef struct GFX_Platform_Attributes
 {
 	GFX_Platform_Screen  screen;
 	char*                name;
@@ -116,14 +115,12 @@ typedef struct GFX_Platform_WindowAttributes
 	int                  x;
 	int                  y;
 
-} GFX_Platform_WindowAttributes;
+	unsigned short       redBits;
+	unsigned short       blueBits;
+	unsigned short       greenBits;
 
+} GFX_Platform_Attributes;
 
-/**
- * \brief Polls events of all windows.
- *
- */
-void _gfx_platform_poll_events(void);
 
 /**
  * \brief Returns the number of windows.
@@ -144,13 +141,15 @@ unsigned int _gfx_platform_get_num_windows(void);
 GFX_Platform_Window _gfx_platform_get_window(unsigned int num);
 
 /**
- * \brief Creates a new window, allocating the memory.
+ * \brief Creates a new window and OpenGL context, allocating the memory.
  *
  * \brief attributes The attributes to initialize the window with (cannot be NULL).
  * \return A handle to the window.
  *
+ * The created context will be made current as well.
+ *
  */
-GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_WindowAttributes* attributes);
+GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
 
 /**
  * \brief Destroys a window, freeing the memory.
@@ -218,42 +217,31 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle);
 
 
 /********************************************************
- * \brief A Context
+ * \brief Window context handling
  *******************************************************/
-typedef void* GFX_Platform_Context;
-
-
-/** \brief Context initialization attributes */
-typedef struct GFX_Platform_ContextAttributes
-{
-	unsigned short redBits;
-	unsigned short blueBits;
-	unsigned short greenBits;
-
-} GFX_Platform_ContextAttributes;
-
 
 /**
- * \brief Creates a context for a window.
- *
- * \param handle     Window to attach the context to.
- * \param attributes The attributes to initialize the context with (cannot be NULL).
- * \return A handle to the context.
+ * \brief Makes the current window the active render target.
  *
  */
-GFX_Platform_Context _gfx_platform_create_context(GFX_Platform_Window handle, const GFX_Platform_ContextAttributes* attributes);
-
-/**
- * \brief Destroys a context.
- *
- */
-void _gfx_platform_destroy_context(GFX_Platform_Context handle);
+void _gfx_platform_window_make_current(GFX_Platform_Window handle);
 
 /** 
- * \brief Swaps the internal buffers of a context.
+ * \brief Swaps the internal buffers of a window.
  *
  */
-void _gfx_platform_context_swap_buffers(GFX_Platform_Context handle);
+void _gfx_platform_window_swap_buffers(GFX_Platform_Window handle);
+
+
+/********************************************************
+ * \brief Event polling
+ *******************************************************/
+
+/**
+ * \brief Polls events of all windows.
+ *
+ */
+void _gfx_platform_poll_events(void);
 
 
 #ifdef __cplusplus
