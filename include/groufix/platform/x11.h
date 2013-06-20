@@ -46,8 +46,8 @@ extern "C" {
  *******************************************************/
 typedef struct GFX_X11_Window
 {
-	Window handle; /* Given to the outside world */
-	GLXContext context;
+	Window      handle;  /* Given to the outside world */
+	GLXContext  context;
 
 } GFX_X11_Window;
 
@@ -70,10 +70,18 @@ typedef struct GFX_X11_Connection
 
 } GFX_X11_Connection;
 
+
 /**
  * \brief Connection pointer
  */
 extern GFX_X11_Connection* _gfx_x11;
+
+
+/**
+ * \brief Xlib error handler.
+ *
+ */
+int gfx_x11_error_handler(Display* display, XErrorEvent* evt);
 
 
 #ifdef __cplusplus

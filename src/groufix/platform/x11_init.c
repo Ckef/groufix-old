@@ -27,6 +27,12 @@
 GFX_X11_Connection* _gfx_x11 = NULL;
 
 /******************************************************/
+int gfx_x11_error_handler(Display* display, XErrorEvent* evt)
+{
+	return 0;
+}
+
+/******************************************************/
 static GFXKey _gfx_x11_get_key(KeySym symbol)
 {
 	/* Unicode numbers */
@@ -149,6 +155,9 @@ int _gfx_platform_init(void)
 		/* Allocate */
 		_gfx_x11 = (GFX_X11_Connection*)calloc(1, sizeof(GFX_X11_Connection));
 		_gfx_x11->display = display;
+
+		/* Set error handler */
+		XSetErrorHandler(gfx_x11_error_handler);
 
 		/* Construct a keycode lookup */
 		_gfx_x11_create_key_table();

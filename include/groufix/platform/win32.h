@@ -58,10 +58,11 @@ extern "C" {
  *******************************************************/
 typedef struct GFX_Win32_Window
 {
-	HWND handle; /* Given to the outside world */
-	HMONITOR monitor;
+	HWND      handle;  /* Given to the outside world */
+	HMONITOR  monitor;
+	HGLRC     context;
 
-} GFX_Win32_Window
+} GFX_Win32_Window;
 
 
 /********************************************************
@@ -83,10 +84,12 @@ typedef struct GFX_Win32_Instance
 
 } GFX_Win32_Instance;
 
+
 /**
  * \brief Instance pointer
  */
 extern GFX_Win32_Instance* _gfx_win32;
+
 
 /**
  * \brief Converts a UTF-8 string to a wide string.

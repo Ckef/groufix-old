@@ -66,7 +66,7 @@ OBJFLAGS_WIN32    = $(CFLAGS_WIN32) -c -s
 # Libraries to link to
 LIBS_UNIX_X11 = -lX11 -lGL
 LIBS_OSX_X11  = -L/usr/X11/lib -lX11 -lGL
-LIBS_WIN32    = -luser32 -lopengl32
+LIBS_WIN32    = -lopengl32 -lgdi32
 
 
 #################################################################

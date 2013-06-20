@@ -262,14 +262,15 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 		&attr
 	);
 
+	/* Set protocols */
+	_gfx_x11_set_atoms(window.handle);
+	XStoreName(_gfx_x11->display, window.handle, attributes->name);
+
+	/* Create OpenGL Context */
 	window.context = glXCreateContext(_gfx_x11->display, visual, NULL, True);
 	glXMakeCurrent(_gfx_x11->display, window.handle, window.context);
 
 	XFree(visual);
-
-	/* Set protocols */
-	_gfx_x11_set_atoms(window.handle);
-	XStoreName(_gfx_x11->display, window.handle, attributes->name);
 
 	/* Add window to array */
 	_gfx_x11_add_window(window);
@@ -282,13 +283,6 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 {
 	if(_gfx_x11)
 	{
-		/* Destroy the window and its colormap */
-		XWindowAttributes attr;
-		XGetWindowAttributes(_gfx_x11->display, VOID_TO_UINT(handle), &attr);
-
-		XFreeColormap(_gfx_x11->display, attr.colormap);
-		XDestroyWindow(_gfx_x11->display, VOID_TO_UINT(handle));
-
 		/* Remove the handle from the array */
 		unsigned int i;
 		for(i = 0; i < _gfx_x11->numWindows; ++i)
@@ -315,6 +309,13 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 			}
 			break;
 		}
+
+		/* Destroy the window and its colormap */
+		XWindowAttributes attr;
+		XGetWindowAttributes(_gfx_x11->display, VOID_TO_UINT(handle), &attr);
+
+		XDestroyWindow(_gfx_x11->display, VOID_TO_UINT(handle));
+		XFreeColormap(_gfx_x11->display, attr.colormap);
 	}
 }
 

@@ -188,7 +188,7 @@ void _gfx_platform_terminate(void)
 	if(_gfx_win32)
 	{
 		/* Destroy all windows */
-		while(_gfx_win32->numWindows) _gfx_platform_destroy_window(_gfx_win32->windows[0]);
+		while(_gfx_win32->numWindows) _gfx_platform_destroy_window(_gfx_win32->windows[0].handle);
 
 		/* Unregister window class */
 		UnregisterClass(GFX_WIN32_WND_CLASS, GetModuleHandle(NULL));

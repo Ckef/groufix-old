@@ -30,6 +30,32 @@
 #endif
 
 /******************************************************/
+static void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short blue, unsigned short green)
+{
+	PIXELFORMATDESCRIPTOR format;
+	format.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+	format.nVersion     = 1;
+	format.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	format.iPixelType   = PFD_TYPE_RGBA;
+	format.cColorBits   = red + blue + green;
+	format.cRedBits     = red;
+	format.cBlueBits    = blue;
+	format.cGreenBits   = green;
+	format.cAlphaBits   = 0;
+	format.cAccumBits   = 0;
+	format.cDepthBits   = 0;
+	format.cStencilBits = 0;
+	format.cAuxBuffers  = 0;
+	format.iLayerType   = PFD_MAIN_PLANE;
+
+	HDC context = GetDC(handle);
+
+	/* Get format compatible with the window */
+	int index = ChoosePixelFormat(context, &format);
+	SetPixelFormat(context, index, &format);
+}
+
+/******************************************************/
 static GFXKey _gfx_win32_get_extended_key(GFXKey key, LPARAM lParam)
 {
 	/* Get extended key (probaby right key) */
@@ -250,34 +276,6 @@ static void _gfx_win32_add_window(GFX_Win32_Window window)
 }
 
 /******************************************************/
-static void _gfx_win32_remove_window(HWND handle)
-{
-	/* Remove the handle from the array */
-	unsigned int i;
-	for(i = 0; i < _gfx_win32->numWindows; ++i)
-		if(_gfx_win32->windows[i].handle == handle)
-	{
-		--_gfx_win32->numWindows;
-		if(!_gfx_win32->numWindows)
-		{
-			/* Free the array */
-			free(_gfx_win32->windows);
-			_gfx_win32->windows = NULL;
-		}
-		else
-		{
-			/* Move elements and resize array */
-			GFX_Win32_Window* dest = _gfx_win32->windows + i;
-			memmove(dest, dest + 1, sizeof(GFX_Win32_Window) * (_gfx_win32->numWindows - i));
-			_gfx_win32->windows = (GFX_Win32_Window*)realloc(
-				_gfx_win32->windows,
-				sizeof(GFX_Win32_Window) * _gfx_win32->numWindows);
-		}
-		break;
-	}
-}
-
-/******************************************************/
 unsigned int _gfx_platform_get_num_windows(void)
 {
 	if(!_gfx_win32) return 0;
@@ -315,7 +313,7 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 		0,
 		GFX_WIN32_WND_CLASS,
 		name,
-		WS_OVERLAPPEDWINDOW,
+		WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 		attributes->x + info.rcMonitor.left,
 		attributes->y + info.rcMonitor.top,
 		attributes->width,
@@ -329,6 +327,18 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	free(name);
 	if(!window.handle) return NULL;
 
+	/* Set pixel format */
+	_gfx_win32_set_pixel_format(
+		window.handle,
+		attributes->redBits,
+		attributes->blueBits,
+		attributes->greenBits
+	);
+
+	/* Create OpenGL Context */
+	window.context = wglCreateContext(GetDC(window.handle));
+	wglMakeCurrent(GetDC(window.handle), window.context);
+
 	/* Add window to array */
 	_gfx_win32_add_window(window);
 
@@ -338,9 +348,36 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 /******************************************************/
 void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 {
+	/* Remove the handle from the array */
+	unsigned int i;
+	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
+		if(_gfx_win32->windows[i].handle == handle)
+	{
+		/* But first destroy context */
+		wglDeleteContext(_gfx_win32->windows[i].context);
+
+		--_gfx_win32->numWindows;
+		if(!_gfx_win32->numWindows)
+		{
+			/* Free the array */
+			free(_gfx_win32->windows);
+			_gfx_win32->windows = NULL;
+		}
+		else
+		{
+			/* Move elements and resize array */
+			GFX_Win32_Window* dest = _gfx_win32->windows + i;
+			memmove(dest, dest + 1, sizeof(GFX_Win32_Window) * (_gfx_win32->numWindows - i));
+			_gfx_win32->windows = (GFX_Win32_Window*)realloc(
+				_gfx_win32->windows,
+				sizeof(GFX_Win32_Window) * _gfx_win32->numWindows);
+		}
+		break;
+	}
+
 	/* Destroy and remove the handle */
+	ReleaseDC(handle, GetDC(handle));
 	DestroyWindow(handle);
-	_gfx_win32_remove_window(handle);
 }
 
 /******************************************************/
@@ -449,11 +486,16 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_platform_window_make_current(GFX_Platform_Window handle)
 {
+	unsigned int i;
+	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
+		if(_gfx_win32->windows[i].handle == handle)
+			wglMakeCurrent(GetDC(handle), _gfx_win32->windows[i].context);
 }
 
 /******************************************************/
 void _gfx_platform_window_swap_buffers(GFX_Platform_Window handle)
 {
+	SwapBuffers(GetDC(handle));
 }
 
 /******************************************************/
