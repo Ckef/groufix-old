@@ -27,7 +27,7 @@
 GFX_X11_Connection* _gfx_x11 = NULL;
 
 /******************************************************/
-int gfx_x11_error_handler(Display* display, XErrorEvent* evt)
+int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 {
 	return 0;
 }
@@ -157,7 +157,7 @@ int _gfx_platform_init(void)
 		_gfx_x11->display = display;
 
 		/* Set error handler */
-		XSetErrorHandler(gfx_x11_error_handler);
+		XSetErrorHandler(_gfx_x11_error_handler);
 
 		/* Construct a keycode lookup */
 		_gfx_x11_create_key_table();
@@ -187,4 +187,34 @@ void _gfx_platform_terminate(void)
 		free(_gfx_x11);
 		_gfx_x11 = NULL;
 	}
+}
+
+/******************************************************/
+Display* gfx_x11_get_display(void)
+{
+	if(!_gfx_x11) return NULL;
+	return _gfx_x11->display;
+}
+
+/******************************************************/
+Screen* gfx_x11_get_screen(GFX_Platform_Screen screen)
+{
+	return (Screen*)screen;
+}
+
+/******************************************************/
+Window gfx_x11_get_window(GFX_Platform_Window window)
+{
+	return (Window)VOID_TO_UINT(window);
+}
+
+/******************************************************/
+GLXContext gfx_x11_get_context(GFX_Platform_Window window)
+{
+	unsigned int i;
+	if(_gfx_x11) for(i = 0; i < _gfx_x11->numWindows; ++i)
+		if(_gfx_x11->windows[i].handle == VOID_TO_UINT(window))
+			return _gfx_x11->windows[i].context;
+
+	return NULL;
 }

@@ -24,23 +24,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Windows apparently does not define this everywhere... */
-#ifndef WM_MOUSEHWHEEL
-#define WM_MOUSEHWHEEL 0x020e
-#endif
-
 /******************************************************/
-static void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short blue, unsigned short green)
+static void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short green, unsigned short blue)
 {
 	PIXELFORMATDESCRIPTOR format;
 	format.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
 	format.nVersion     = 1;
 	format.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 	format.iPixelType   = PFD_TYPE_RGBA;
-	format.cColorBits   = red + blue + green;
+	format.cColorBits   = red + green + blue;
 	format.cRedBits     = red;
-	format.cBlueBits    = blue;
 	format.cGreenBits   = green;
+	format.cBlueBits    = blue;
 	format.cAlphaBits   = 0;
 	format.cAccumBits   = 0;
 	format.cDepthBits   = 0;
@@ -331,8 +326,8 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	_gfx_win32_set_pixel_format(
 		window.handle,
 		attributes->redBits,
-		attributes->blueBits,
-		attributes->greenBits
+		attributes->greenBits,
+		attributes->blueBits
 	);
 
 	/* Create OpenGL Context */

@@ -42,6 +42,11 @@
 #include "groufix/events.h"
 
 
+/* Windows apparently does not define this everywhere... */
+#ifndef WM_MOUSEHWHEEL
+#define WM_MOUSEHWHEEL 0x020e
+#endif
+
 /* Maximum key code lookup */
 #define GFX_WIN32_MAX_KEYCODE 0xff
 #define GFX_WIN32_NUM_KEYCODES 0x100
@@ -106,6 +111,29 @@ wchar_t* utf8_to_wchar(const char* str);
  *
  */
 char* wchar_to_utf8(const wchar_t* str);
+
+
+/********************************************************
+ * \brief Win32 Native Access
+ *******************************************************/
+
+/**
+ * \brief Returns a HMONITOR.
+ *
+ */
+HMONITOR gfx_win32_get_screen(GFX_Platform_Screen screen);
+
+/**
+ * \brief Returns a HWND.
+ *
+ */
+HWND gfx_win32_get_window(GFX_Platform_Window window);
+
+/**
+ * \brief Returns a HGLRC.
+ *
+ */
+HGLRC gfx_win32_get_context(GFX_Platform_Window window);
 
 
 #ifdef __cplusplus

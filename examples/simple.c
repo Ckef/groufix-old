@@ -19,8 +19,8 @@ int main()
 	attr.x         = 100;
 	attr.y         = 100;
 	attr.redBits   = 4;
-	attr.blueBits  = 4;
 	attr.greenBits = 4;
+	attr.blueBits  = 4;
 
 	GFX_Platform_Window window = _gfx_platform_create_window(&attr);
 	_gfx_platform_window_show(window);

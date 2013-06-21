@@ -116,8 +116,8 @@ typedef struct GFX_Platform_Attributes
 	int                  y;
 
 	unsigned short       redBits;
-	unsigned short       blueBits;
 	unsigned short       greenBits;
+	unsigned short       blueBits;
 
 } GFX_Platform_Attributes;
 

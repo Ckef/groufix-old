@@ -25,7 +25,7 @@
 #include <string.h>
 
 /******************************************************/
-static XVisualInfo* _gfx_x11_get_visual(Screen* screen, unsigned short red, unsigned short blue, unsigned short green)
+static XVisualInfo* _gfx_x11_get_visual(Screen* screen, unsigned short red, unsigned short green, unsigned short blue)
 {
 	if(!_gfx_x11) return NULL;
 
@@ -35,8 +35,8 @@ static XVisualInfo* _gfx_x11_get_visual(Screen* screen, unsigned short red, unsi
 		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
 		GLX_DOUBLEBUFFER,  True,
 		GLX_RED_SIZE,      red,
-		GLX_BLUE_SIZE,     blue,
 		GLX_GREEN_SIZE,    green,
+		GLX_BLUE_SIZE,     blue,
 		None
 	};
 
@@ -222,8 +222,8 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	XVisualInfo* visual = _gfx_x11_get_visual(
 		attributes->screen,
 		attributes->redBits,
-		attributes->blueBits,
-		attributes->greenBits
+		attributes->greenBits,
+		attributes->blueBits
 	);
 
 	if(!visual) return NULL;

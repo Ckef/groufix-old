@@ -199,3 +199,26 @@ void _gfx_platform_terminate(void)
 		_gfx_win32 = NULL;
 	}
 }
+
+/******************************************************/
+HMONITOR gfx_win32_get_screen(GFX_Platform_Screen screen)
+{
+	return (HMONITOR)screen;
+}
+
+/******************************************************/
+HWND gfx_win32_get_window(GFX_Platform_Window window)
+{
+	return (HWND)window;
+}
+
+/******************************************************/
+HGLRC gfx_win32_get_context(GFX_Platform_Window window)
+{
+	unsigned int i;
+	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
+		if(_gfx_win32->windows[i].handle == window)
+			return _gfx_win32->windows[i].context;
+
+	return NULL;
+}
