@@ -27,6 +27,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 
+#include "groufix/utils.h"
 #include "groufix/events.h"
 
 /* More of them buttons! */

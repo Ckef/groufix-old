@@ -25,9 +25,8 @@ int main()
 	GFX_Platform_Window window = _gfx_platform_create_window(&attr);
 	_gfx_platform_window_show(window);
 
-	while(_gfx_platform_is_initialized())
+	while(gfx_poll_events())
 	{
-		_gfx_platform_poll_events();
 		_gfx_platform_window_swap_buffers(window);
 	}
 

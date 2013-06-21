@@ -22,8 +22,6 @@
 #ifndef GFX_PLATFORM_H
 #define GFX_PLATFORM_H
 
-#include "groufix/utils.h"
-
 /* Get build target */
 #if defined(_WIN32) || defined(__WIN32__)
 	#define GFX_WIN32
@@ -121,24 +119,6 @@ typedef struct GFX_Platform_Attributes
 
 } GFX_Platform_Attributes;
 
-
-/**
- * \brief Returns the number of windows.
- *
- */
-unsigned int _gfx_platform_get_num_windows(void);
-
-/**
- * \brief Returns a previously created window.
- *
- * \param num The number of the window (num < num_windows).
- * \return A handle to the window, NULL if not found.
- *
- * The number of a window is not constant over the duration of the program.
- * This method is only meant for iterating over existing windows.
- *
- */
-GFX_Platform_Window _gfx_platform_get_window(unsigned int num);
 
 /**
  * \brief Creates a new window and OpenGL context, allocating the memory.

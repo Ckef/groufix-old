@@ -19,41 +19,4 @@
  *
  */
 
-#ifndef GROUFIX_H
-#define GROUFIX_H
-
-#include "groufix/math.h"
 #include "groufix/window.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * \brief Initializes the Groufix engine.
- *
- * \return non-zero if initialization was successful.
- *
- */
-int gfx_init(void);
-
-/**
- * \brief Polls events of all windows.
- *
- * \return Whether or not the engine is still active.
- *
- */
-int gfx_poll_events(void);
-
-/**
- * \brief Terminates the Groufix engine.
- *
- */
-void gfx_terminate(void);
-
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // GROUFIX_H

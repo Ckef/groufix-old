@@ -199,23 +199,6 @@ static void _gfx_x11_add_window(GFX_X11_Window window)
 }
 
 /******************************************************/
-unsigned int _gfx_platform_get_num_windows(void)
-{
-	if(!_gfx_x11) return 0;
-	return _gfx_x11->numWindows;
-}
-
-/******************************************************/
-GFX_Platform_Window _gfx_platform_get_window(unsigned int num)
-{
-	if(!_gfx_x11) return NULL;
-
-	/* Validate the number first */
-	if(num >= _gfx_x11->numWindows) return NULL;
-	return UINT_TO_VOID(_gfx_x11->windows[num].handle);
-}
-
-/******************************************************/
 GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
 	/* Get visual info */

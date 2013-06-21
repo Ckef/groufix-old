@@ -28,6 +28,16 @@ int gfx_init(void)
 }
 
 /******************************************************/
+int gfx_poll_events(void)
+{
+	if(!_gfx_platform_is_initialized()) return 0;
+
+	_gfx_platform_poll_events();
+
+	return 1;
+}
+
+/******************************************************/
 void gfx_terminate(void)
 {
 	_gfx_platform_terminate();

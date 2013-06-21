@@ -19,41 +19,41 @@
  *
  */
 
-#ifndef GROUFIX_H
-#define GROUFIX_H
+#ifndef GFX_WINDOW_H
+#define GFX_WINDOW_H
 
-#include "groufix/math.h"
-#include "groufix/window.h"
+#include "groufix/events.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * \brief Initializes the Groufix engine.
- *
- * \return non-zero if initialization was successful.
- *
- */
-int gfx_init(void);
+/********************************************************
+ * \brief A Window
+ *******************************************************/
+typedef struct GFXWindow
+{
+	/* Platform */
+	GFX_Platform_Window handle;
 
-/**
- * \brief Polls events of all windows.
- *
- * \return Whether or not the engine is still active.
- *
- */
-int gfx_poll_events(void);
+	/* Callbacks */
+	struct
+	{
+		GFXWindowCloseFun   windowClose;
+		GFXKeyPressFun      keyPress;
+		GFXKeyReleaseFun    keyRelease;
+		GFXMouseMoveFun     mouseMove;
+		GFXMousePressFun    mousePress;
+		GFXMouseReleaseFun  mouseRelease;
+		GFXMouseWheelFun    mouseWheel;
 
-/**
- * \brief Terminates the Groufix engine.
- *
- */
-void gfx_terminate(void);
+	} callbacks;
+
+} GFXWindow;
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // GROUFIX_H
+#endif // GFX_WINDOW_H

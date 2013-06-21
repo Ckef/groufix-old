@@ -271,23 +271,6 @@ static void _gfx_win32_add_window(GFX_Win32_Window window)
 }
 
 /******************************************************/
-unsigned int _gfx_platform_get_num_windows(void)
-{
-	if(!_gfx_win32) return 0;
-	return _gfx_win32->numWindows;
-}
-
-/******************************************************/
-GFX_Platform_Window _gfx_platform_get_window(unsigned int num)
-{
-	if(!_gfx_win32) return NULL;
-
-	/* Validate the number first */
-	if(num >= _gfx_win32->numWindows) return NULL;
-	return _gfx_win32->windows[num].handle;
-}
-
-/******************************************************/
 GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
 	/* Make sure to register the window class */
