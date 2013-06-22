@@ -30,7 +30,7 @@ GFX_X11_Connection* _gfx_x11 = NULL;
 VectorIterator _gfx_x11_get_window_from_handle(Window handle)
 {
 	VectorIterator it;
-	if(_gfx_x11) for(it = _gfx_x11->windows->begin; it != _gfx_x11->windows->end; vector_next(_gfx_x11->windows, it))
+	if(_gfx_x11) for(it = _gfx_x11->windows->begin; it != _gfx_x11->windows->end; it = vector_next(_gfx_x11->windows, it))
 		if(((GFX_X11_Window*)it)->handle == handle) return it;
 
 	return NULL;

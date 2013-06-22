@@ -30,7 +30,7 @@ GFX_Win32_Instance* _gfx_win32 = NULL;
 VectorIterator _gfx_win32_get_window_from_handle(HWND handle)
 {
 	VectorIterator it;
-	if(_gfx_win32) for(it = _gfx_win32->windows->begin; it != _gfx_win32->windows->end; vector_next(_gfx_win32->windows, it))
+	if(_gfx_win32) for(it = _gfx_win32->windows->begin; it != _gfx_win32->windows->end; it = vector_next(_gfx_win32->windows, it))
 		if(((GFX_Win32_Window*)it)->handle == handle) return it;
 
 	return NULL;
