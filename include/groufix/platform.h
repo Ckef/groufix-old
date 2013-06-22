@@ -132,7 +132,7 @@ typedef struct GFX_Platform_Attributes
 GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
 
 /**
- * \brief Destroys a window, freeing the memory.
+ * \brief Destroys a window, freeing all its memory.
  *
  */
 void _gfx_platform_destroy_window(GFX_Platform_Window handle);

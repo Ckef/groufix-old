@@ -25,9 +25,13 @@ int main()
 	GFX_Platform_Window window = _gfx_platform_create_window(&attr);
 	_gfx_platform_window_show(window);
 
+	GFX_Platform_Window window2 = _gfx_platform_create_window(&attr);
+	_gfx_platform_window_show(window2);
+
 	while(gfx_poll_events())
 	{
 		_gfx_platform_window_swap_buffers(window);
+		_gfx_platform_window_swap_buffers(window2);
 	}
 
 	gfx_terminate();

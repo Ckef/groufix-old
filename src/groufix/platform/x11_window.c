@@ -188,17 +188,6 @@ static void _gfx_x11_event_proc(XEvent* event)
 }
 
 /******************************************************/
-static void _gfx_x11_add_window(GFX_X11_Window window)
-{
-	unsigned int index = _gfx_x11->numWindows++;
-	_gfx_x11->windows = (GFX_X11_Window*)realloc(
-		_gfx_x11->windows,
-		sizeof(GFX_X11_Window) * _gfx_x11->numWindows);
-
-	_gfx_x11->windows[index] = window;
-}
-
-/******************************************************/
 GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
 	/* Get visual info */
@@ -245,6 +234,14 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 		&attr
 	);
 
+	/* Add window to vector */
+	if(!vector_insert(_gfx_x11->windows, &window, _gfx_x11->windows->end))
+	{
+		XDestroyWindow(_gfx_x11->display, window.handle);
+		XFreeColormap(_gfx_x11->display, attr.colormap);
+		return NULL;
+	}
+
 	/* Set protocols */
 	_gfx_x11_set_atoms(window.handle);
 	XStoreName(_gfx_x11->display, window.handle, attributes->name);
@@ -255,9 +252,6 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 
 	XFree(visual);
 
-	/* Add window to array */
-	_gfx_x11_add_window(window);
-
 	return UINT_TO_VOID(window.handle);
 }
 
@@ -266,31 +260,12 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 {
 	if(_gfx_x11)
 	{
-		/* Remove the handle from the array */
-		unsigned int i;
-		for(i = 0; i < _gfx_x11->numWindows; ++i)
-			if(_gfx_x11->windows[i].handle == VOID_TO_UINT(handle))
+		/* Destroy the context */
+		GFX_X11_Window* it = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+		if(it)
 		{
-			/* But first destroy context */
-			glXDestroyContext(_gfx_x11->display, _gfx_x11->windows[i].context);
-
-			--_gfx_x11->numWindows;
-			if(!_gfx_x11->numWindows)
-			{
-				/* Free the array */
-				free(_gfx_x11->windows);
-				_gfx_x11->windows = NULL;
-			}
-			else
-			{
-				/* Move elements and resize array */
-				GFX_X11_Window* dest = _gfx_x11->windows + i;
-				memmove(dest, dest + 1, sizeof(GFX_X11_Window) * (_gfx_x11->numWindows - i));
-				_gfx_x11->windows = (GFX_X11_Window*)realloc(
-					_gfx_x11->windows,
-					sizeof(GFX_X11_Window) * _gfx_x11->numWindows);
-			}
-			break;
+			glXDestroyContext(_gfx_x11->display, it->context);
+			vector_erase(_gfx_x11->windows, it);
 		}
 
 		/* Destroy the window and its colormap */
@@ -407,10 +382,8 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle)
 void _gfx_platform_window_make_current(GFX_Platform_Window handle)
 {
 	/* Get context and make it current */
-	unsigned int i;
-	if(_gfx_x11) for(i = 0; i < _gfx_x11->numWindows; ++i)
-		if(_gfx_x11->windows[i].handle == VOID_TO_UINT(handle))
-			glXMakeCurrent(_gfx_x11->display, (Window)VOID_TO_UINT(handle), _gfx_x11->windows[i].context);
+	GLXContext cont = gfx_x11_get_context(handle);
+	if(cont) glXMakeCurrent(_gfx_x11->display, VOID_TO_UINT(handle), cont);
 }
 
 /******************************************************/

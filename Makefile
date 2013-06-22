@@ -74,6 +74,7 @@ LIBS_WIN32    = -lopengl32 -lgdi32
 #################################################################
 HEADERS = \
  $(INCLUDE)/GL/glcorearb.h \
+ $(INCLUDE)/groufix/containers/vector.h \
  $(INCLUDE)/groufix/math/mat.h \
  $(INCLUDE)/groufix/math/quat.h \
  $(INCLUDE)/groufix/math/vec.h \
@@ -116,6 +117,7 @@ endif
 # Unix X11 builds
 #################################################################
 OBJS_UNIX_X11 = \
+ $(OUT)/unix-x11/groufix/containers/vector.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/platform/x11_screen.o \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
@@ -132,10 +134,14 @@ unix-x11-simple: examples/simple.c unix-x11
 
 before-unix-x11:
 	mkdir -p $(BIN)/unix-x11
+	mkdir -p $(OUT)/unix-x11/groufix/containers
 	mkdir -p $(OUT)/unix-x11/groufix/platform
 
 
 # All the object files
+#
+$(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
@@ -163,6 +169,7 @@ $(OUT)/unix-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
 # OS X X11 builds
 #################################################################
 OBJS_OSX_X11 = \
+ $(OUT)/osx-x11/groufix/containers/vector.o \
  $(OUT)/osx-x11/groufix/platform/x11_init.o \
  $(OUT)/osx-x11/groufix/platform/x11_screen.o \
  $(OUT)/osx-x11/groufix/platform/x11_window.o \
@@ -179,10 +186,14 @@ osx-x11-simple: examples/simple.c osx-x11
 
 before-osx-x11:
 	mkdir -p $(BIN)/osx-x11
+	mkdir -p $(OUT)/osx-x11/groufix/containers
 	mkdir -p $(OUT)/osx-x11/groufix/platform
 
 
 # All the object files
+
+$(OUT)/osx-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
@@ -210,6 +221,7 @@ $(OUT)/osx-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
 # Windows builds
 #################################################################
 OBJS_WIN32 = \
+ $(OUT)/win32/groufix/containers/vector.o \
  $(OUT)/win32/groufix/platform/win32_init.o \
  $(OUT)/win32/groufix/platform/win32_screen.o \
  $(OUT)/win32/groufix/platform/win32_window.o \
@@ -226,10 +238,14 @@ win32-simple: examples/simple.c win32
 
 before-win32:
 	if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
+	if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
 	if not exist $(OUT)\win32\groufix\platform\nul mkdir $(OUT)\win32\groufix\platform
 
 
 # All the object files
+
+$(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_init.o: $(SRC)/groufix/platform/win32_init.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@

@@ -25,7 +25,7 @@
 void gfx_event_window_close(GFX_Platform_Window window)
 {
 	/* TEMPORARY TO NOT HAVE TO CRASH THE APPLICATION!!!!!!!!!!!!! */
-	_gfx_platform_terminate();
+	_gfx_platform_destroy_window(window);
 }
 
 /******************************************************/

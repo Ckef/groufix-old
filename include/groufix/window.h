@@ -29,6 +29,22 @@ extern "C" {
 #endif
 
 /********************************************************
+ * Event Callbacks
+ *******************************************************/
+
+/* Forward declerate */
+struct GFXWindow;
+
+typedef void (*GFXWindowCloseFun)  (struct GFXWindow*);
+typedef void (*GFXKeyPressFun)     (struct GFXWindow*, GFXKey, GFXKeyState);
+typedef void (*GFXKeyReleaseFun)   (struct GFXWindow*, GFXKey, GFXKeyState);
+typedef void (*GFXMouseMoveFun)    (struct GFXWindow*, int, int, GFXKeyState);
+typedef void (*GFXMousePressFun)   (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
+typedef void (*GFXMouseReleaseFun) (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
+typedef void (*GFXMouseWheelFun)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
+
+
+/********************************************************
  * \brief A Window
  *******************************************************/
 typedef struct GFXWindow

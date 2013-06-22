@@ -27,6 +27,16 @@
 GFX_X11_Connection* _gfx_x11 = NULL;
 
 /******************************************************/
+VectorIterator _gfx_x11_get_window_from_handle(Window handle)
+{
+	VectorIterator it;
+	if(_gfx_x11) for(it = _gfx_x11->windows->begin; it != _gfx_x11->windows->end; vector_next(_gfx_x11->windows, it))
+		if(((GFX_X11_Window*)it)->handle == handle) return it;
+
+	return NULL;
+}
+
+/******************************************************/
 int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 {
 	return 0;
@@ -148,22 +158,25 @@ int _gfx_platform_init(void)
 {
 	if(!_gfx_x11)
 	{
-		/* Connect to X Server */
-		Display* display = XOpenDisplay(NULL);
-		if(!display) return 0;
-
 		/* Allocate */
 		_gfx_x11 = (GFX_X11_Connection*)calloc(1, sizeof(GFX_X11_Connection));
-		_gfx_x11->display = display;
+		if(!_gfx_x11) return 0;
 
-		/* Set error handler */
-		XSetErrorHandler(_gfx_x11_error_handler);
-
-		/* Construct a keycode lookup */
+		/* Connect to X Server */
+		_gfx_x11->display = XOpenDisplay(NULL);
+		
+		/* Setup memory */
+		_gfx_x11->windows = vector_create(sizeof(GFX_X11_Window));
+		if(!_gfx_x11->display || !_gfx_x11->windows)
+		{
+			_gfx_platform_terminate();
+			return 0;
+		}
 		_gfx_x11_create_key_table();
 
-		/* Get atoms */
-		_gfx_x11->wmDeleteWindow = XInternAtom(display, "WM_DELETE_WINDOW", False);
+		/* Setup Xlib */
+		XSetErrorHandler(_gfx_x11_error_handler);
+		_gfx_x11->wmDeleteWindow = XInternAtom(_gfx_x11->display, "WM_DELETE_WINDOW", False);
 	}
 	return 1;
 }
@@ -181,9 +194,9 @@ void _gfx_platform_terminate(void)
 	{
 		/* Close connection (destroys all resources) */
 		XCloseDisplay(_gfx_x11->display);
+		vector_free(_gfx_x11->windows);
 
-		/* Deallocate server */
-		free(_gfx_x11->windows);
+		/* Deallocate */
 		free(_gfx_x11);
 		_gfx_x11 = NULL;
 	}
@@ -211,10 +224,8 @@ Window gfx_x11_get_window(GFX_Platform_Window window)
 /******************************************************/
 GLXContext gfx_x11_get_context(GFX_Platform_Window window)
 {
-	unsigned int i;
-	if(_gfx_x11) for(i = 0; i < _gfx_x11->numWindows; ++i)
-		if(_gfx_x11->windows[i].handle == VOID_TO_UINT(window))
-			return _gfx_x11->windows[i].context;
+	GFX_X11_Window* it = _gfx_x11_get_window_from_handle(VOID_TO_UINT(window));
+	if(it) return it->context;
 
 	return NULL;
 }

@@ -27,8 +27,9 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 
-#include "groufix/utils.h"
+#include "groufix/containers/vector.h"
 #include "groufix/events.h"
+#include "groufix/utils.h"
 
 /* More of them buttons! */
 #define Button6  6
@@ -59,15 +60,14 @@ typedef struct GFX_X11_Window
 typedef struct GFX_X11_Connection
 {
 	/* X Display */
-	Display*         display;
+	Display*  display;
 
 	/* Windows */
-	unsigned int     numWindows;
-	GFX_X11_Window*  windows;
-	Atom             wmDeleteWindow;
+	Vector*   windows;        /* Stores GFX_X11_Window */
+	Atom      wmDeleteWindow; /* WM_DELETE_WINDOW */
 
 	/* Key table */
-	GFXKey           keys[GFX_X11_NUM_KEYCODES];
+	GFXKey    keys[GFX_X11_NUM_KEYCODES];
 
 } GFX_X11_Connection;
 
@@ -77,6 +77,12 @@ typedef struct GFX_X11_Connection
  */
 extern GFX_X11_Connection* _gfx_x11;
 
+
+/**
+ * \brief Returns an X11 window from its handle.
+ *
+ */
+VectorIterator _gfx_x11_get_window_from_handle(Window handle);
 
 /**
  * \brief Xlib error handler.

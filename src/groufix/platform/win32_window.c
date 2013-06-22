@@ -260,17 +260,6 @@ static int _gfx_win32_register_window_class(void)
 }
 
 /******************************************************/
-static void _gfx_win32_add_window(GFX_Win32_Window window)
-{
-	unsigned int index = _gfx_win32->numWindows++;
-	_gfx_win32->windows = (GFX_Win32_Window*)realloc(
-		_gfx_win32->windows,
-		sizeof(GFX_Win32_Window) * _gfx_win32->numWindows);
-
-	_gfx_win32->windows[index] = window;
-}
-
-/******************************************************/
 GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
 	/* Make sure to register the window class */
@@ -305,6 +294,13 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	free(name);
 	if(!window.handle) return NULL;
 
+	/* Add window to vector */
+	if(!vector_insert(_gfx_win32->windows, &window, _gfx_win32->windows->end))
+	{
+		DestroyWindow(window.handle);
+		return NULL;
+	}
+
 	/* Set pixel format */
 	_gfx_win32_set_pixel_format(
 		window.handle,
@@ -317,40 +313,18 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	window.context = wglCreateContext(GetDC(window.handle));
 	wglMakeCurrent(GetDC(window.handle), window.context);
 
-	/* Add window to array */
-	_gfx_win32_add_window(window);
-
 	return window.handle;
 }
 
 /******************************************************/
 void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 {
-	/* Remove the handle from the array */
-	unsigned int i;
-	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
-		if(_gfx_win32->windows[i].handle == handle)
+	/* Destroy the context */
+	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+	if(it)
 	{
-		/* But first destroy context */
-		wglDeleteContext(_gfx_win32->windows[i].context);
-
-		--_gfx_win32->numWindows;
-		if(!_gfx_win32->numWindows)
-		{
-			/* Free the array */
-			free(_gfx_win32->windows);
-			_gfx_win32->windows = NULL;
-		}
-		else
-		{
-			/* Move elements and resize array */
-			GFX_Win32_Window* dest = _gfx_win32->windows + i;
-			memmove(dest, dest + 1, sizeof(GFX_Win32_Window) * (_gfx_win32->numWindows - i));
-			_gfx_win32->windows = (GFX_Win32_Window*)realloc(
-				_gfx_win32->windows,
-				sizeof(GFX_Win32_Window) * _gfx_win32->numWindows);
-		}
-		break;
+		wglDeleteContext(it->context);
+		vector_erase(_gfx_win32->windows, it);
 	}
 
 	/* Destroy and remove the handle */
@@ -361,9 +335,8 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 /******************************************************/
 GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle)
 {
-	unsigned int i;
-	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
-		if(_gfx_win32->windows[i].handle == handle) return _gfx_win32->windows[i].monitor;
+	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+	if(it) return it->monitor;
 
 	return NULL;
 }
@@ -464,10 +437,8 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_platform_window_make_current(GFX_Platform_Window handle)
 {
-	unsigned int i;
-	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
-		if(_gfx_win32->windows[i].handle == handle)
-			wglMakeCurrent(GetDC(handle), _gfx_win32->windows[i].context);
+	HGLRC cont = gfx_win32_get_context(handle);
+	if(cont) wglMakeCurrent(GetDC(handle), cont);
 }
 
 /******************************************************/

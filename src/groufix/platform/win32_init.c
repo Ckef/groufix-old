@@ -27,6 +27,16 @@
 GFX_Win32_Instance* _gfx_win32 = NULL;
 
 /******************************************************/
+VectorIterator _gfx_win32_get_window_from_handle(HWND handle)
+{
+	VectorIterator it;
+	if(_gfx_win32) for(it = _gfx_win32->windows->begin; it != _gfx_win32->windows->end; vector_next(_gfx_win32->windows, it))
+		if(((GFX_Win32_Window*)it)->handle == handle) return it;
+
+	return NULL;
+}
+
+/******************************************************/
 wchar_t* utf8_to_wchar(const char* str)
 {
 	/* First get the required length in characters */
@@ -56,20 +66,6 @@ char* wchar_to_utf8(const wchar_t* str)
 		return NULL;
 	}
 	return out;
-}
-
-/******************************************************/
-static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data)
-{
-	/* Simply store the monitor handle */
-	unsigned int index = _gfx_win32->numMonitors++;
-	_gfx_win32->monitors = (HMONITOR*)realloc(
-		_gfx_win32->monitors,
-		sizeof(HMONITOR) * _gfx_win32->numMonitors);
-
-	_gfx_win32->monitors[index] = handle;
-
-	return 1;
 }
 
 /******************************************************/
@@ -156,12 +152,29 @@ static void _gfx_win32_create_key_table(void)
 }
 
 /******************************************************/
+static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data)
+{
+	/* Simply store the monitor handle */
+	return vector_insert(_gfx_win32->monitors, &handle, _gfx_win32->monitors->end) != _gfx_win32->monitors->end;
+}
+
+/******************************************************/
 int _gfx_platform_init(void)
 {
 	if(!_gfx_win32)
 	{
 		/* Allocate */
 		_gfx_win32 = (GFX_Win32_Instance*)calloc(1, sizeof(GFX_Win32_Instance));
+		if(!_gfx_win32) return 0;
+
+		/* Setup memory */
+		_gfx_win32->monitors = vector_create(sizeof(HMONITOR));
+		_gfx_win32->windows = vector_create(sizeof(GFX_Win32_Window));
+		if(!_gfx_win32->monitors || !_gfx_win32->windows)
+		{
+			_gfx_platform_terminate();
+			return 0;
+		}
 
 		/* Enumerate all monitors */
 		if(!EnumDisplayMonitors(NULL, NULL, _gfx_win32_monitor_proc, 0))
@@ -188,13 +201,16 @@ void _gfx_platform_terminate(void)
 	if(_gfx_win32)
 	{
 		/* Destroy all windows */
-		while(_gfx_win32->numWindows) _gfx_platform_destroy_window(_gfx_win32->windows[0].handle);
+		while(vector_get_size(_gfx_win32->windows))
+			_gfx_platform_destroy_window(((GFX_Win32_Window*)vector_previous(_gfx_win32->windows, _gfx_win32->windows->end))->handle);
+
+		vector_free(_gfx_win32->monitors);
+		vector_free(_gfx_win32->windows);
 
 		/* Unregister window class */
 		UnregisterClass(GFX_WIN32_WND_CLASS, GetModuleHandle(NULL));
 
 		/* Deallocate instance */
-		free(_gfx_win32->monitors);
 		free(_gfx_win32);
 		_gfx_win32 = NULL;
 	}
@@ -215,10 +231,8 @@ HWND gfx_win32_get_window(GFX_Platform_Window window)
 /******************************************************/
 HGLRC gfx_win32_get_context(GFX_Platform_Window window)
 {
-	unsigned int i;
-	if(_gfx_win32) for(i = 0; i < _gfx_win32->numWindows; ++i)
-		if(_gfx_win32->windows[i].handle == window)
-			return _gfx_win32->windows[i].context;
+	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(window);
+	if(it) return it->context;
 
 	return NULL;
 }

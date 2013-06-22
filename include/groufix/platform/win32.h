@@ -39,6 +39,7 @@
 #include <windowsx.h>
 #include <wchar.h>
 
+#include "groufix/containers/vector.h"
 #include "groufix/events.h"
 
 
@@ -76,16 +77,14 @@ typedef struct GFX_Win32_Window
 typedef struct GFX_Win32_Instance
 {
 	/* Monitors */
-	unsigned int       numMonitors;
-	HMONITOR*          monitors;
+	Vector*   monitors;        /* Stores HMONITOR */
 
 	/* Windows */
-	char               classRegistered; /* Whether or not the window class is registered */
-	unsigned int       numWindows;
-	GFX_Win32_Window*  windows;
+	char      classRegistered; /* Whether or not the window class is registered */
+	Vector*   windows;         /* Stores GFX_Win32_Window */
 
 	/* Key table */
-	GFXKey             keys[GFX_WIN32_NUM_KEYCODES];
+	GFXKey    keys[GFX_WIN32_NUM_KEYCODES];
 
 } GFX_Win32_Instance;
 
@@ -95,6 +94,12 @@ typedef struct GFX_Win32_Instance
  */
 extern GFX_Win32_Instance* _gfx_win32;
 
+
+/**
+ * \brief Returns an Win32 window from its handle.
+ *
+ */
+VectorIterator _gfx_win32_get_window_from_handle(HWND handle);
 
 /**
  * \brief Converts a UTF-8 string to a wide string.
