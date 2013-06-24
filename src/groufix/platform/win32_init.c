@@ -201,8 +201,8 @@ void _gfx_platform_terminate(void)
 	if(_gfx_win32)
 	{
 		/* Destroy all windows */
-		while(vector_get_size(_gfx_win32->windows))
-			_gfx_platform_destroy_window(((GFX_Win32_Window*)vector_previous(_gfx_win32->windows, _gfx_win32->windows->end))->handle);
+		unsigned int i = vector_get_size(_gfx_win32->windows);
+		while(i--) _gfx_platform_destroy_window(((GFX_Win32_Window*)vector_previous(_gfx_win32->windows, _gfx_win32->windows->end))->handle);
 
 		vector_free(_gfx_win32->monitors);
 		vector_free(_gfx_win32->windows);

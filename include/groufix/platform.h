@@ -121,12 +121,10 @@ typedef struct GFX_Platform_Attributes
 
 
 /**
- * \brief Creates a new window and OpenGL context, allocating the memory.
+ * \brief Creates a new window.
  *
  * \brief attributes The attributes to initialize the window with (cannot be NULL).
  * \return A handle to the window.
- *
- * The created context will be made current as well.
  *
  */
 GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
@@ -201,16 +199,32 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle);
  *******************************************************/
 
 /**
+ * \brief Creates the OpenGL context of a window.
+ *
+ * Creates the context and makes it the current context to render to.
+ *
+ */
+int _gfx_platform_create_context(GFX_Platform_Window handle);
+
+/**
+ * \brief Destroys the context of a window.
+ *
+ * This method is allowed to make all contexts inactive.
+ *
+ */
+void _gfx_platform_destroy_context(GFX_Platform_Window handle);
+
+/**
  * \brief Makes the current window the active render target.
  *
  */
-void _gfx_platform_window_make_current(GFX_Platform_Window handle);
+void _gfx_platform_context_make_current(GFX_Platform_Window handle);
 
 /** 
  * \brief Swaps the internal buffers of a window.
  *
  */
-void _gfx_platform_window_swap_buffers(GFX_Platform_Window handle);
+void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle);
 
 
 /********************************************************

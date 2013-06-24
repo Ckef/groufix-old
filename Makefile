@@ -118,6 +118,7 @@ endif
 #################################################################
 OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/vector.o \
+ $(OUT)/unix-x11/groufix/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/platform/x11_screen.o \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
@@ -139,8 +140,11 @@ before-unix-x11:
 
 
 # All the object files
-#
+
 $(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
+$(OUT)/unix-x11/groufix/platform/x11_context.o: $(SRC)/groufix/platform/x11_context.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c $(HEADERS_X11)
@@ -170,6 +174,7 @@ $(OUT)/unix-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
 #################################################################
 OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/containers/vector.o \
+ $(OUT)/osx-x11/groufix/platform/x11_context.o \
  $(OUT)/osx-x11/groufix/platform/x11_init.o \
  $(OUT)/osx-x11/groufix/platform/x11_screen.o \
  $(OUT)/osx-x11/groufix/platform/x11_window.o \
@@ -193,6 +198,9 @@ before-osx-x11:
 # All the object files
 
 $(OUT)/osx-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
+
+$(OUT)/osx-x11/groufix/platform/x11_context.o: $(SRC)/groufix/platform/x11_context.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c $(HEADERS_X11)
@@ -222,6 +230,7 @@ $(OUT)/osx-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
 #################################################################
 OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/vector.o \
+ $(OUT)/win32/groufix/platform/win32_context.o \
  $(OUT)/win32/groufix/platform/win32_init.o \
  $(OUT)/win32/groufix/platform/win32_screen.o \
  $(OUT)/win32/groufix/platform/win32_window.o \
@@ -245,6 +254,9 @@ before-win32:
 # All the object files
 
 $(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/platform/win32_context.o: $(SRC)/groufix/platform/win32_context.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_init.o: $(SRC)/groufix/platform/win32_init.c $(HEADERS_WIN32)

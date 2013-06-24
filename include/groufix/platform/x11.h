@@ -48,8 +48,9 @@ extern "C" {
  *******************************************************/
 typedef struct GFX_X11_Window
 {
-	Window      handle;  /* Given to the outside world */
-	GLXContext  context;
+	Window       handle;  /* Given to the outside world */
+	XVisualInfo  info;
+	GLXContext   context;
 
 } GFX_X11_Window;
 

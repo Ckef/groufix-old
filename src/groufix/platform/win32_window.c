@@ -21,9 +21,6 @@
 
 #include "groufix/platform/win32.h"
 
-#include <stdlib.h>
-#include <string.h>
-
 /******************************************************/
 static void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short green, unsigned short blue)
 {
@@ -239,6 +236,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 static int _gfx_win32_register_window_class(void)
 {
 	/* Check if it is already registered */
+	if(!_gfx_win32) return 0;
 	if(_gfx_win32->classRegistered) return 1;
 
 	WNDCLASSEX wc;
@@ -265,8 +263,10 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	/* Make sure to register the window class */
 	if(!_gfx_win32_register_window_class()) return NULL;
 
+	/* Setup the win32 window */
 	GFX_Win32_Window window;
 	window.monitor = attributes->screen;
+	window.context = NULL;
 
 	/* Get monitor information */
 	MONITORINFO info;
@@ -309,27 +309,22 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 		attributes->blueBits
 	);
 
-	/* Create OpenGL Context */
-	window.context = wglCreateContext(GetDC(window.handle));
-	wglMakeCurrent(GetDC(window.handle), window.context);
-
 	return window.handle;
 }
 
 /******************************************************/
 void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 {
-	/* Destroy the context */
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
-	if(it)
+	if(_gfx_win32)
 	{
-		wglDeleteContext(it->context);
+		/* Destroy the context and window */
+		_gfx_platform_destroy_context(handle);
+		DestroyWindow(handle);
+
+		/* Remove from vector */
+		VectorIterator it = _gfx_win32_get_window_from_handle(handle);
 		vector_erase(_gfx_win32->windows, it);
 	}
-
-	/* Destroy and remove the handle */
-	ReleaseDC(handle, GetDC(handle));
-	DestroyWindow(handle);
 }
 
 /******************************************************/
@@ -432,19 +427,6 @@ void _gfx_platform_window_show(GFX_Platform_Window handle)
 void _gfx_platform_window_hide(GFX_Platform_Window handle)
 {
 	ShowWindow(handle, SW_HIDE);
-}
-
-/******************************************************/
-void _gfx_platform_window_make_current(GFX_Platform_Window handle)
-{
-	HGLRC cont = gfx_win32_get_context(handle);
-	if(cont) wglMakeCurrent(GetDC(handle), cont);
-}
-
-/******************************************************/
-void _gfx_platform_window_swap_buffers(GFX_Platform_Window handle)
-{
-	SwapBuffers(GetDC(handle));
 }
 
 /******************************************************/

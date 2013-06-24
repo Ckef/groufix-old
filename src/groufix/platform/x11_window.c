@@ -200,7 +200,10 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 
 	if(!visual) return NULL;
 
+	/* Setup the x11 window */
 	GFX_X11_Window window;
+	window.info = *visual;
+	window.context = NULL;
 
 	/* Create the window attributes */
 	XSetWindowAttributes attr;
@@ -234,23 +237,20 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 		&attr
 	);
 
+	XFree(visual);
+
 	/* Add window to vector */
 	if(!vector_insert(_gfx_x11->windows, &window, _gfx_x11->windows->end))
 	{
 		XDestroyWindow(_gfx_x11->display, window.handle);
 		XFreeColormap(_gfx_x11->display, attr.colormap);
+
 		return NULL;
 	}
 
 	/* Set protocols */
 	_gfx_x11_set_atoms(window.handle);
 	XStoreName(_gfx_x11->display, window.handle, attributes->name);
-
-	/* Create OpenGL Context */
-	window.context = glXCreateContext(_gfx_x11->display, visual, NULL, True);
-	glXMakeCurrent(_gfx_x11->display, window.handle, window.context);
-
-	XFree(visual);
 
 	return UINT_TO_VOID(window.handle);
 }
@@ -261,12 +261,7 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 	if(_gfx_x11)
 	{
 		/* Destroy the context */
-		GFX_X11_Window* it = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
-		if(it)
-		{
-			glXDestroyContext(_gfx_x11->display, it->context);
-			vector_erase(_gfx_x11->windows, it);
-		}
+		_gfx_platform_destroy_context(handle);
 
 		/* Destroy the window and its colormap */
 		XWindowAttributes attr;
@@ -274,6 +269,10 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 
 		XDestroyWindow(_gfx_x11->display, VOID_TO_UINT(handle));
 		XFreeColormap(_gfx_x11->display, attr.colormap);
+
+		/* Remove from vector */
+		VectorIterator it = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+		vector_erase(_gfx_x11->windows, it);
 	}
 }
 
@@ -376,20 +375,6 @@ void _gfx_platform_window_show(GFX_Platform_Window handle)
 void _gfx_platform_window_hide(GFX_Platform_Window handle)
 {
 	if(_gfx_x11) XUnmapWindow(_gfx_x11->display, VOID_TO_UINT(handle));
-}
-
-/******************************************************/
-void _gfx_platform_window_make_current(GFX_Platform_Window handle)
-{
-	/* Get context and make it current */
-	GLXContext cont = gfx_x11_get_context(handle);
-	if(cont) glXMakeCurrent(_gfx_x11->display, VOID_TO_UINT(handle), cont);
-}
-
-/******************************************************/
-void _gfx_platform_window_swap_buffers(GFX_Platform_Window handle)
-{
-	if(_gfx_x11) glXSwapBuffers(_gfx_x11->display, (Window)VOID_TO_UINT(handle));
 }
 
 /******************************************************/
