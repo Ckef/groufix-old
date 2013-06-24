@@ -53,15 +53,13 @@ INCLUDE = include
 SRC     = src
 
 # Flags for all compiler calls
-CFLAGS          = -Os -O2 -Wall -std=c99 -I$(INCLUDE)
-CFLAGS_UNIX_X11 = $(CFLAGS)
-CFLAGS_OSX_X11  = $(CFLAGS) -I/usr/X11/include
-CFLAGS_WIN32    = $(CFLAGS)
+CFLAGS = -Os -O2 -Wall -std=c99 -I$(INCLUDE)
 
 # Object files only
-OBJFLAGS_UNIX_X11 = $(CFLAGS_UNIX_X11) -c -fPIC -s
-OBJFLAGS_OSX_X11  = $(CFLAGS_OSX_X11) -c -fPIC
-OBJFLAGS_WIN32    = $(CFLAGS_WIN32) -c -s
+OBJFLAGS          = $(CFLAGS) -c -I$(SRC)
+OBJFLAGS_UNIX_X11 = $(OBJFLAGS) -fPIC -s
+OBJFLAGS_OSX_X11  = $(OBJFLAGS) -fPIC -I/usr/X11/include
+OBJFLAGS_WIN32    = $(OBJFLAGS) -s
 
 # Libraries to link to
 LIBS_UNIX_X11 = -lX11 -lGL
@@ -88,11 +86,11 @@ HEADERS = \
 
 HEADERS_WIN32 = \
  $(HEADERS) \
- $(INCLUDE)/groufix/platform/win32.h
+ $(SRC)/groufix/platform/win32.h
 
 HEADERS_X11 = \
  $(HEADERS) \
- $(INCLUDE)/groufix/platform/x11.h
+ $(SRC)/groufix/platform/x11.h
 
 
 #################################################################
@@ -131,7 +129,7 @@ unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
 	$(CC) -shared $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LIBS_UNIX_X11)
 
 unix-x11-simple: examples/simple.c unix-x11 
-	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+	$(CC) $(CFLAGS) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 before-unix-x11:
 	mkdir -p $(BIN)/unix-x11
@@ -187,7 +185,7 @@ osx-x11: before-osx-x11 $(OBJS_OSX_X11)
 	$(CC) -dynamiclib -install_name 'libGroufix.dylib' $(OBJS_OSX_X11) -o $(BIN)/osx-x11/libGroufix.dylib $(LIBS_OSX_X11)
 
 osx-x11-simple: examples/simple.c osx-x11
-	$(CC) $(CFLAGS_OSX_X11) $< -o $(BIN)/osx-x11/simple -L$(BIN)/osx-x11/ -lGroufix
+	$(CC) $(CFLAGS) $< -o $(BIN)/osx-x11/simple -L$(BIN)/osx-x11/ -lGroufix
 
 before-osx-x11:
 	mkdir -p $(BIN)/osx-x11
@@ -243,7 +241,7 @@ win32: before-win32 $(OBJS_WIN32)
 	$(CC) -shared $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LIBS_WIN32)
 
 win32-simple: examples/simple.c win32
-	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
+	$(CC) $(CFLAGS) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
 
 before-win32:
 	if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
