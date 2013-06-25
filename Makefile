@@ -80,6 +80,7 @@ HEADERS = \
  $(INCLUDE)/groufix/keys.h \
  $(INCLUDE)/groufix/math.h \
  $(INCLUDE)/groufix/platform.h \
+ $(INCLUDE)/groufix/screen.h \
  $(INCLUDE)/groufix/utils.h \
  $(INCLUDE)/groufix/window.h \
  $(INCLUDE)/groufix.h
@@ -122,6 +123,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
  $(OUT)/unix-x11/groufix/events.o \
  $(OUT)/unix-x11/groufix/math.o \
+ $(OUT)/unix-x11/groufix/screen.o \
  $(OUT)/unix-x11/groufix/window.o \
  $(OUT)/unix-x11/groufix.o
 
@@ -160,6 +162,9 @@ $(OUT)/unix-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
 $(OUT)/unix-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -178,6 +183,7 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/platform/x11_window.o \
  $(OUT)/osx-x11/groufix/events.o \
  $(OUT)/osx-x11/groufix/math.o \
+ $(OUT)/osx-x11/groufix/screen.o \
  $(OUT)/osx-x11/groufix/window.o \
  $(OUT)/osx-x11/groufix.o
 
@@ -216,6 +222,9 @@ $(OUT)/osx-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
 $(OUT)/osx-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
+$(OUT)/osx-x11/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
+
 $(OUT)/osx-x11/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
@@ -234,6 +243,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/platform/win32_window.o \
  $(OUT)/win32/groufix/events.o \
  $(OUT)/win32/groufix/math.o \
+ $(OUT)/win32/groufix/screen.o \
  $(OUT)/win32/groufix/window.o \
  $(OUT)/win32/groufix.o
 
@@ -270,6 +280,9 @@ $(OUT)/win32/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_X11)

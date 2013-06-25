@@ -19,42 +19,47 @@
  *
  */
 
-#ifndef GROUFIX_H
-#define GROUFIX_H
+#ifndef GFX_SCREEN_H
+#define GFX_SCREEN_H
 
-#include "groufix/math.h"
-#include "groufix/events.h"
-#include "groufix/window.h"
+#include "groufix/platform.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/********************************************************
+ * \brief Top level screen
+ *******************************************************/
+typedef struct GFXScreen
+{
+	/* Platform */
+	GFX_Platform_Screen handle;
+
+} GFXScreen;
+
 
 /**
- * \brief Initializes the Groufix engine.
- *
- * \return non-zero if initialization was successful.
+ * \brief Returns the number of visible screens.
  *
  */
-int gfx_init(void);
+unsigned int gfx_get_num_screens(void);
 
 /**
- * \brief Polls events of all windows.
+ * \brief Returns a screen.
  *
- * \return Whether or not the engine is still active.
+ * \param num The number of the screens (num < num_screens).
  *
  */
-int gfx_poll_events(void);
+GFXScreen gfx_get_screen(unsigned int num);
 
 /**
- * \brief Terminates the Groufix engine.
+ * \brief Returns the default screen.
  *
  */
-void gfx_terminate(void);
+GFXScreen gfx_get_default_screen(void);
+
+/**
+ * \brief Gets the resolution of a screen in pixels.
+ *
+ */
+void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height);
 
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif // GROUFIX_H
+#endif // GFX_SCREEN_H

@@ -106,7 +106,7 @@ typedef void* GFX_Platform_Window;
 typedef struct GFX_Platform_Attributes
 {
 	GFX_Platform_Screen  screen;
-	char*                name;
+	const char*          name;
 
 	unsigned int         width;
 	unsigned int         height;
@@ -124,7 +124,7 @@ typedef struct GFX_Platform_Attributes
  * \brief Creates a new window.
  *
  * \brief attributes The attributes to initialize the window with (cannot be NULL).
- * \return A handle to the window.
+ * \return A handle to the window (NULL on failure).
  *
  */
 GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
@@ -164,7 +164,7 @@ void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* wid
 void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* y);
 
 /**
- * \brief Sets the title of a window.
+ * \brief Sets the name of the window.
  *
  */
 void _gfx_platform_window_set_name(GFX_Platform_Window handle, const char* name);

@@ -19,52 +19,34 @@
  *
  */
 
-#include "groufix/platform/win32.h"
+#include "groufix/screen.h"
 
 /******************************************************/
-int _gfx_platform_create_context(GFX_Platform_Window handle)
+unsigned int gfx_get_num_screens(void)
 {
-	HDC dc = GetDC(handle);
-
-	/* Get the window */
-	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
-	if(!window) return 0;
-
-	/* Create the context */
-	window->context = wglCreateContext(dc);
-	if(!window->context) return 0;
-
-	wglMakeCurrent(dc, window->context);
-
-	return 1;
+	return _gfx_platform_get_num_screens();
 }
 
 /******************************************************/
-void _gfx_platform_destroy_context(GFX_Platform_Window handle)
+GFXScreen gfx_get_screen(unsigned int num)
 {
-	HDC dc = GetDC(handle);
+	GFXScreen scr;
+	scr.handle = _gfx_platform_get_screen(num);
 
-	/* Get the window and destroy its context */
-	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
-	if(window)
-	{
-		wglMakeCurrent(dc, NULL);
-		wglDeleteContext(window->context);
-
-		window->context = NULL;
-	}
-	ReleaseDC(handle, dc);
+	return scr;
 }
 
 /******************************************************/
-void _gfx_platform_context_make_current(GFX_Platform_Window handle)
+GFXScreen gfx_get_default_screen(void)
 {
-	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
-	if(window) wglMakeCurrent(GetDC(handle), window->context);
+	GFXScreen scr;
+	scr.handle =  _gfx_platform_get_default_screen();
+
+	return scr;
 }
 
 /******************************************************/
-void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle)
+void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height)
 {
-	SwapBuffers(GetDC(handle));
+	_gfx_platform_screen_get_size(screen.handle, width, height);
 }

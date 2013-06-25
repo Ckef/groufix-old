@@ -3,42 +3,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void windowClose(GFXWindow* window)
+{
+	gfx_window_free(window);
+	printf("%i window(s) open\n", (unsigned int)gfx_get_num_windows());
+}
+
 int main()
 {
 	/* Really this is for testing purposes, in no way will this be the final usage */
 
 	if(!gfx_init()) return 0;
 
-	GFX_Platform_Screen scr = _gfx_platform_get_default_screen();
+	GFXWindowDepth depth;
+	depth.redBits   = 4;
+	depth.greenBits = 4;
+	depth.blueBits  = 4;
 
-	GFX_Platform_Attributes attr;
-	attr.name      = "HEIRO";
-	attr.screen    = scr;
-	attr.width     = 800;
-	attr.height    = 600;
-	attr.x         = 100;
-	attr.y         = 100;
-	attr.redBits   = 4;
-	attr.greenBits = 4;
-	attr.blueBits  = 4;
+	GFXWindow* window1 = gfx_window_create(NULL, &depth, "Window Unos", 800, 600, 100, 100);
+	GFXWindow* window2 = gfx_window_create(NULL, &depth, "Window Deux", 800, 600, 300, 300);
+	window1->callbacks.windowClose = windowClose;
+	window2->callbacks.windowClose = windowClose;
 
-	GFX_Platform_Window window = _gfx_platform_create_window(&attr);
-	_gfx_platform_create_context(window);
-	_gfx_platform_window_show(window);
-
-	GFX_Platform_Window window2 = _gfx_platform_create_window(&attr);
-	_gfx_platform_create_context(window2);
-	_gfx_platform_window_show(window2);
-
-	while(gfx_poll_events())
+	while(gfx_poll_events() && gfx_get_num_windows())
 	{
-		_gfx_platform_context_swap_buffers(window);
-		_gfx_platform_context_swap_buffers(window2);
+		_gfx_platform_context_swap_buffers(window1->handle);
+		_gfx_platform_context_swap_buffers(window2->handle);
 	}
 
 	gfx_terminate();
-	
-	getchar();
 
 	return 0;
 }

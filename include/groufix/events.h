@@ -39,7 +39,7 @@ extern "C" {
  * Used to intercept a user requested window termination.
  *
  */
-void gfx_event_window_close(GFX_Platform_Window window);
+void gfx_event_window_close(GFX_Platform_Window handle);
 
 /**
  * \brief Handles a key press event.
@@ -48,7 +48,7 @@ void gfx_event_window_close(GFX_Platform_Window window);
  * \param state State of some special keys.
  *
  */
-void gfx_event_key_press(GFX_Platform_Window window, GFXKey key, GFXKeyState state);
+void gfx_event_key_press(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
 
 /**
  * \brief Handles a key release event.
@@ -57,7 +57,7 @@ void gfx_event_key_press(GFX_Platform_Window window, GFXKey key, GFXKeyState sta
  * \param state State of some special keys.
  *
  */
-void gfx_event_key_release(GFX_Platform_Window window, GFXKey key, GFXKeyState state);
+void gfx_event_key_release(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
 
 /**
  * \brief Called when the cursor moves in a window.
@@ -67,7 +67,7 @@ void gfx_event_key_release(GFX_Platform_Window window, GFXKey key, GFXKeyState s
  * \param state State of some special keys.
  *
  */
-void gfx_event_mouse_move(GFX_Platform_Window window, int x, int y, GFXKeyState state);
+void gfx_event_mouse_move(GFX_Platform_Window handle, int x, int y, GFXKeyState state);
 
 /**
  * \brief Handles a mouse key press event.
@@ -78,7 +78,7 @@ void gfx_event_mouse_move(GFX_Platform_Window window, int x, int y, GFXKeyState 
  * \param state State of some special keys.
  *
  */
-void gfx_event_mouse_press(GFX_Platform_Window window, GFXMouseKey key, int x, int y, GFXKeyState state);
+void gfx_event_mouse_press(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
 
 /**
  * \brief Handles a mouse key release event.
@@ -89,7 +89,7 @@ void gfx_event_mouse_press(GFX_Platform_Window window, GFXMouseKey key, int x, i
  * \param state State of some special keys.
  *
  */
-void gfx_event_mouse_release(GFX_Platform_Window window, GFXMouseKey key, int x, int y, GFXKeyState state);
+void gfx_event_mouse_release(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
 
 /**
  * \brief Handles a mouse wheel event.
@@ -101,7 +101,7 @@ void gfx_event_mouse_release(GFX_Platform_Window window, GFXMouseKey key, int x,
  * \param state   State of some special keys.
  *
  */
-void gfx_event_mouse_wheel(GFX_Platform_Window window, int xoffset, int yoffset, int x, int y, GFXKeyState state);
+void gfx_event_mouse_wheel(GFX_Platform_Window handle, int xoffset, int yoffset, int x, int y, GFXKeyState state);
 
 
 #ifdef __cplusplus

@@ -24,14 +24,17 @@
 /******************************************************/
 int gfx_init(void)
 {
+	/* Initialize platform */
 	return _gfx_platform_init();
 }
 
 /******************************************************/
 int gfx_poll_events(void)
 {
+	/* Check if platform is initialized */
 	if(!_gfx_platform_is_initialized()) return 0;
 
+	/* If so, poll events! */
 	_gfx_platform_poll_events();
 
 	return 1;
@@ -40,5 +43,12 @@ int gfx_poll_events(void)
 /******************************************************/
 void gfx_terminate(void)
 {
+	/* Destroy all windows */
+	unsigned int i = gfx_get_num_windows();
+	GFXWindow* wind;
+	if(i) for(wind = gfx_get_window(--i); wind; wind = gfx_get_window(--i))
+		gfx_window_free(wind);
+
+	/* Terminate platform */
 	_gfx_platform_terminate();
 }

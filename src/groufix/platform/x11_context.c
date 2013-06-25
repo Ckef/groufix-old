@@ -54,9 +54,8 @@ void _gfx_platform_destroy_context(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 {
-	/* Get context and make it current */
-	GLXContext cont = gfx_x11_get_context(handle);
-	if(cont) glXMakeCurrent(_gfx_x11->display, VOID_TO_UINT(handle), cont);
+	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+	if(window) glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
 }
 
 /******************************************************/

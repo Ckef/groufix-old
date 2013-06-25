@@ -92,35 +92,6 @@ VectorIterator _gfx_x11_get_window_from_handle(Window handle);
 int _gfx_x11_error_handler(Display* display, XErrorEvent* evt);
 
 
-/********************************************************
- * \brief X11 Native Access
- *******************************************************/
-
-/**
- * \brief Returns the X11 display.
- *
- */
-Display* gfx_x11_get_display(void);
-
-/**
- * \brief Returns an X11 screen.
- *
- */
-Screen* gfx_x11_get_screen(GFX_Platform_Screen screen);
-
-/**
- * \brief Returns an X11 window.
- *
- */
-Window gfx_x11_get_window(GFX_Platform_Window window);
-
-/**
- * \brief Returns an GLX context.
- *
- */
-GLXContext gfx_x11_get_context(GFX_Platform_Window window);
-
-
 #ifdef __cplusplus
 }
 #endif
