@@ -69,6 +69,61 @@ char* wchar_to_utf8(const wchar_t* str)
 }
 
 /******************************************************/
+static int _gfx_win32_load_extensions(void)
+{
+	int success = 1;
+
+	/* Create a dummy window */
+	WNDCLASS wc;
+	ZeroMemory(&wc, sizeof(WNDCLASS));
+	wc.lpfnWndProc   = DefWindowProc;
+	wc.hInstance     = GetModuleHandle(NULL);
+	wc.lpszClassName = GFX_WIN32_WND_CLASS;
+
+	if(!RegisterClass(&wc)) return 0;
+	HWND window = CreateWindow(
+		GFX_WIN32_WND_CLASS, L"", 0, 0, 0, 0, 0, NULL, NULL, GetModuleHandle(NULL), NULL);
+
+	_gfx_win32_set_pixel_format(window, 0, 0, 0);
+	HDC dc = GetDC(window);
+
+	/* Create a dummy render context */
+	HGLRC context = wglCreateContext(dc);
+	if(!context) success = 0;
+
+	wglMakeCurrent(dc, context);
+
+	/* Get extension string extension.. */
+	_gfx_win32->extensions.GetExtensionsStringARB =
+		_gfx_platform_get_proc_address("wglGetExtensionsStringARB");
+
+	if(_gfx_win32->extensions.GetExtensionsStringARB)
+	{
+		/* Check all vital extensions */
+		if(
+			!_gfx_platform_is_extension_supported(NULL, "WGL_ARB_create_context") ||
+			!_gfx_platform_is_extension_supported(NULL, "WGL_ARB_create_context_profile")
+		) success = 0;
+
+		/* Load all functions */
+		_gfx_win32->extensions.CreateContextAttribsARB =
+			_gfx_platform_get_proc_address("wglCreateContextAttribsARB");
+
+		/* Check all functions */
+		if(!_gfx_win32->extensions.CreateContextAttribsARB)
+			success = 0;
+	}
+	else success = 0;
+
+	/* Destroy dummy context and window */
+	wglDeleteContext(context);
+	DestroyWindow(window);
+	UnregisterClass(GFX_WIN32_WND_CLASS, GetModuleHandle(NULL));
+
+	return success;
+}
+
+/******************************************************/
 static GFXKey _gfx_win32_get_key(int symbol)
 {
 	/* Unicode numbers */
@@ -167,10 +222,10 @@ int _gfx_platform_init(void)
 		_gfx_win32 = (GFX_Win32_Instance*)calloc(1, sizeof(GFX_Win32_Instance));
 		if(!_gfx_win32) return 0;
 
-		/* Setup memory */
+		/* Setup memory and load extensions */
 		_gfx_win32->monitors = vector_create(sizeof(HMONITOR));
 		_gfx_win32->windows = vector_create(sizeof(GFX_Win32_Window));
-		if(!_gfx_win32->monitors || !_gfx_win32->windows)
+		if(!_gfx_win32->monitors || !_gfx_win32->windows || !_gfx_win32_load_extensions())
 		{
 			_gfx_platform_terminate();
 			return 0;
@@ -214,25 +269,4 @@ void _gfx_platform_terminate(void)
 		free(_gfx_win32);
 		_gfx_win32 = NULL;
 	}
-}
-
-/******************************************************/
-HMONITOR gfx_win32_get_screen(GFX_Platform_Screen screen)
-{
-	return (HMONITOR)screen;
-}
-
-/******************************************************/
-HWND gfx_win32_get_window(GFX_Platform_Window window)
-{
-	return (HWND)window;
-}
-
-/******************************************************/
-HGLRC gfx_win32_get_context(GFX_Platform_Window window)
-{
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(window);
-	if(it) return it->context;
-
-	return NULL;
 }

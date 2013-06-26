@@ -23,7 +23,9 @@
 #define GFX_PLATFORM_WIN32_H
 
 /* Windows XP */
+#ifndef WINVER
 #define WINVER 0x0501
+#endif
 
 /* Unicode */
 #ifndef UNICODE
@@ -34,18 +36,24 @@
 #define _UNICODE
 #endif
 
-/* Includes */
-#include <wglext.h>
-
-/* Windows, no extras */
+/* Nothing extra */
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#ifndef VC_EXTRALEAN
+#define VC_EXTRALEAN
+#endif
+
+/* Includes */
 #include <windows.h>
 #include <windowsx.h>
 #include <wchar.h>
 
+#include <GL/gl.h>
+#include <GL/wglext.h>
+
+#include "groufix/context.h"
 #include "groufix/containers/vector.h"
 #include "groufix/events.h"
 
@@ -67,6 +75,17 @@ extern "C" {
 #endif
 
 /********************************************************
+ * \brief Vital Win32 Extensions
+ *******************************************************/
+typedef struct GFX_Win32_Extensions
+{
+	PFNWGLCREATECONTEXTATTRIBSARBPROC  CreateContextAttribsARB;
+	PFNWGLGETEXTENSIONSSTRINGARBPROC   GetExtensionsStringARB;
+
+} GFX_Win32_Extensions;
+
+
+/********************************************************
  * \brief Win32 Window
  *******************************************************/
 typedef struct GFX_Win32_Window
@@ -78,20 +97,28 @@ typedef struct GFX_Win32_Window
 } GFX_Win32_Window;
 
 
+/**
+ * \brief Sets the pixel format for a window.
+ *
+ */
+void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short green, unsigned short blue);
+
+
 /********************************************************
  * \brief Win32 Instance
  *******************************************************/
 typedef struct GFX_Win32_Instance
 {
-	/* Monitors */
+	/* Monitors and Windows */
 	Vector*   monitors;        /* Stores HMONITOR */
-
-	/* Windows */
 	char      classRegistered; /* Whether or not the window class is registered */
 	Vector*   windows;         /* Stores GFX_Win32_Window */
 
 	/* Key table */
 	GFXKey    keys[GFX_WIN32_NUM_KEYCODES];
+
+	/* Extensions */
+	GFX_Win32_Extensions extensions;
 
 } GFX_Win32_Instance;
 

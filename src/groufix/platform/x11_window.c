@@ -25,7 +25,7 @@
 #include <string.h>
 
 /******************************************************/
-static XVisualInfo* _gfx_x11_get_visual(Screen* screen, unsigned short red, unsigned short green, unsigned short blue)
+static GLXFBConfig* _gfx_x11_get_config(Screen* screen, unsigned short red, unsigned short green, unsigned short blue)
 {
 	if(!_gfx_x11) return NULL;
 
@@ -40,20 +40,14 @@ static XVisualInfo* _gfx_x11_get_visual(Screen* screen, unsigned short red, unsi
 		None
 	};
 
-	/* Get visual info of screen */
+	/* Get config from screen */
 	int buffElements;
-	GLXFBConfig* config = glXChooseFBConfig(
+	return glXChooseFBConfig(
 		_gfx_x11->display,
 		XScreenNumberOfScreen(screen),
 		bufferAttr,
 		&buffElements
 	);
-
-	if(!config) return NULL;
-	XVisualInfo* visual = glXGetVisualFromFBConfig(_gfx_x11->display, *config);
-	XFree(config);
-
-	return visual;
 }
 
 /******************************************************/
@@ -190,20 +184,24 @@ static void _gfx_x11_event_proc(XEvent* event)
 /******************************************************/
 GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
-	/* Get visual info */
-	XVisualInfo* visual = _gfx_x11_get_visual(
+	/* Get FB Config */
+	GLXFBConfig* config = _gfx_x11_get_config(
 		attributes->screen,
 		attributes->redBits,
 		attributes->greenBits,
 		attributes->blueBits
 	);
 
-	if(!visual) return NULL;
+	if(!config) return NULL;
 
 	/* Setup the x11 window */
 	GFX_X11_Window window;
-	window.info = *visual;
+	window.config = *config;
 	window.context = NULL;
+
+	/* Get visual from config */
+	XVisualInfo* visual = glXGetVisualFromFBConfig(_gfx_x11->display, *config);
+	XFree(config);
 
 	/* Create the window attributes */
 	XSetWindowAttributes attr;

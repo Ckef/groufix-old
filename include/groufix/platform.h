@@ -201,10 +201,14 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle);
 /**
  * \brief Creates the OpenGL context of a window.
  *
+ * \param major Major OpenGL version.
+ * \param minor Minor OpenGL version.
+ *
  * Creates the context and makes it the current context to render to.
+ * Both forward compatibility and the core profile should be used (a.k.a only 3.2 will produce something useful).
  *
  */
-int _gfx_platform_create_context(GFX_Platform_Window handle);
+int _gfx_platform_create_context(GFX_Platform_Window handle, unsigned short major, unsigned short minor);
 
 /**
  * \brief Destroys the context of a window.
@@ -225,6 +229,18 @@ void _gfx_platform_context_make_current(GFX_Platform_Window handle);
  *
  */
 void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle);
+
+/**
+ * \brief Returns whether an extension is supported for a given window.
+ *
+ */
+int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char* ext);
+
+/**
+ * \brief Returns the address to a process.
+ *
+ */
+void* _gfx_platform_get_proc_address(const char* proc);
 
 
 /********************************************************

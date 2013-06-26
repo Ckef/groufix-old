@@ -21,8 +21,10 @@
 
 #include "groufix/platform/win32.h"
 
+#include <stdlib.h>
+
 /******************************************************/
-static void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short green, unsigned short blue)
+void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short green, unsigned short blue)
 {
 	PIXELFORMATDESCRIPTOR format;
 	format.nSize        = sizeof(PIXELFORMATDESCRIPTOR);

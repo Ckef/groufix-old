@@ -22,16 +22,31 @@
 #include "groufix/platform/x11.h"
 
 /******************************************************/
-int _gfx_platform_create_context(GFX_Platform_Window handle)
+int _gfx_platform_create_context(GFX_Platform_Window handle, unsigned short major, unsigned short minor)
 {
 	/* Get the window */
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
 	if(!window) return 0;
 
-	/* Create the context */
-	window->context = glXCreateContext(_gfx_x11->display, &window->info, NULL, True);
-	if(!window->context) return 0;
+	/* Create buffer attribute array */
+	int bufferAttr[] = {
+		GLX_CONTEXT_MAJOR_VERSION_ARB, major,
+		GLX_CONTEXT_MINOR_VERSION_ARB, minor,
+		GLX_CONTEXT_FLAGS_ARB,         GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+		GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+		None
+	};
 
+	/* Create the context */
+	window->context = _gfx_x11->extensions.CreateContextAttribsARB(
+		_gfx_x11->display,
+		window->config,
+		NULL,
+		True,
+		bufferAttr
+	);
+
+	if(!window->context) return 0;
 	glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
 
 	return 1;
@@ -62,4 +77,20 @@ void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle)
 {
 	if(_gfx_x11) glXSwapBuffers(_gfx_x11->display, (Window)VOID_TO_UINT(handle));
+}
+
+/******************************************************/
+int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char* ext)
+{
+	/* Get screen */
+	Screen* screen = (Screen*)_gfx_platform_window_get_screen(handle);
+	if(!screen) return 0;
+
+	return _gfx_x11_is_extension_supported(XScreenNumberOfScreen(screen), ext);
+}
+
+/******************************************************/
+void* _gfx_platform_get_proc_address(const char* proc)
+{
+	return (void*)glXGetProcAddressARB((const GLubyte*)proc);
 }

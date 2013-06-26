@@ -22,9 +22,22 @@
 #include "groufix/platform/x11.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
 GFX_X11_Connection* _gfx_x11 = NULL;
+
+/******************************************************/
+int _gfx_x11_is_extension_supported(int screenNumber, const char* ext)
+{
+	if(!_gfx_x11) return 0;
+
+	/* Get extensions */
+	const char* extensions = glXQueryExtensionsString(_gfx_x11->display, screenNumber);
+	if(!extensions) return 0;
+
+	return _gfx_context_is_extension_in_string(extensions, ext);
+}
 
 /******************************************************/
 VectorIterator _gfx_x11_get_window_from_handle(Window handle)
@@ -37,7 +50,33 @@ VectorIterator _gfx_x11_get_window_from_handle(Window handle)
 }
 
 /******************************************************/
-int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
+static int _gfx_x11_load_extensions(void)
+{
+	Screen* screen = _gfx_platform_get_default_screen();
+	if(!screen) return 0;
+
+	int num = XScreenNumberOfScreen(screen);
+
+	/* Check all vital extensions */
+	if(
+		!_gfx_x11_is_extension_supported(num, "GLX_ARB_get_proc_address") ||
+		!_gfx_x11_is_extension_supported(num, "GLX_ARB_create_context") ||
+		!_gfx_x11_is_extension_supported(num, "GLX_ARB_create_context_profile")
+	) return 0;
+
+	/* Load all functions */
+	_gfx_x11->extensions.CreateContextAttribsARB =
+		_gfx_platform_get_proc_address("glXCreateContextAttribsARB");
+
+	/* Check all functions */
+	if(!_gfx_x11->extensions.CreateContextAttribsARB)
+		return 0;
+
+	return 1;
+}
+
+/******************************************************/
+static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 {
 	return 0;
 }
@@ -164,10 +203,10 @@ int _gfx_platform_init(void)
 
 		/* Connect to X Server */
 		_gfx_x11->display = XOpenDisplay(NULL);
-		
-		/* Setup memory */
+
+		/* Setup memory and load extensions */
 		_gfx_x11->windows = vector_create(sizeof(GFX_X11_Window));
-		if(!_gfx_x11->display || !_gfx_x11->windows)
+		if(!_gfx_x11->display || !_gfx_x11->windows || !_gfx_x11_load_extensions())
 		{
 			_gfx_platform_terminate();
 			return 0;
@@ -200,32 +239,4 @@ void _gfx_platform_terminate(void)
 		free(_gfx_x11);
 		_gfx_x11 = NULL;
 	}
-}
-
-/******************************************************/
-Display* gfx_x11_get_display(void)
-{
-	if(!_gfx_x11) return NULL;
-	return _gfx_x11->display;
-}
-
-/******************************************************/
-Screen* gfx_x11_get_screen(GFX_Platform_Screen screen)
-{
-	return (Screen*)screen;
-}
-
-/******************************************************/
-Window gfx_x11_get_window(GFX_Platform_Window window)
-{
-	return (Window)VOID_TO_UINT(window);
-}
-
-/******************************************************/
-GLXContext gfx_x11_get_context(GFX_Platform_Window window)
-{
-	GFX_X11_Window* it = _gfx_x11_get_window_from_handle(VOID_TO_UINT(window));
-	if(it) return it->context;
-
-	return NULL;
 }

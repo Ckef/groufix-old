@@ -81,7 +81,7 @@ GFXWindow* gfx_window_create(GFXScreen* screen, GFXWindowDepth* depth, const cha
 	window->handle = handle;
 
 	/* Create context and insert in the vector */
-	if(!_gfx_platform_create_context(handle) || !_gfx_insert_window(window))
+	if(!_gfx_platform_create_context(handle, 3, 2) || !_gfx_insert_window(window))
 	{
 		_gfx_platform_destroy_window(handle);
 		free(window);

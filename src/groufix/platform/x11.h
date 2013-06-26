@@ -26,12 +26,15 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
+#include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
 
+#include "groufix/context.h"
 #include "groufix/containers/vector.h"
 #include "groufix/events.h"
 #include "groufix/utils.h"
+
 
 /* More of them buttons! */
 #define Button6  6
@@ -46,12 +49,29 @@ extern "C" {
 #endif
 
 /********************************************************
+ * \brief Vital X11 Extensions
+ *******************************************************/
+typedef struct GFX_X11_Extensions
+{
+	PFNGLXCREATECONTEXTATTRIBSARBPROC  CreateContextAttribsARB;
+
+} GFX_X11_Extensions;
+
+
+/**
+ * \brief Returns whether an extension is supported for a given screen.
+ *
+ */
+int _gfx_x11_is_extension_supported(int screenNumber, const char* ext);
+
+
+/********************************************************
  * \brief X11 Window
  *******************************************************/
 typedef struct GFX_X11_Window
 {
 	Window       handle;  /* Given to the outside world */
-	XVisualInfo  info;
+	GLXFBConfig  config;
 	GLXContext   context;
 
 } GFX_X11_Window;
@@ -62,15 +82,16 @@ typedef struct GFX_X11_Window
  *******************************************************/
 typedef struct GFX_X11_Connection
 {
-	/* X Display */
+	/* X Display and Windows */
 	Display*  display;
-
-	/* Windows */
 	Vector*   windows;        /* Stores GFX_X11_Window */
 	Atom      wmDeleteWindow; /* WM_DELETE_WINDOW */
 
 	/* Key table */
 	GFXKey    keys[GFX_X11_NUM_KEYCODES];
+
+	/* Extensions */
+	GFX_X11_Extensions extensions;
 
 } GFX_X11_Connection;
 
@@ -86,12 +107,6 @@ extern GFX_X11_Connection* _gfx_x11;
  *
  */
 VectorIterator _gfx_x11_get_window_from_handle(Window handle);
-
-/**
- * \brief Xlib error handler.
- *
- */
-int _gfx_x11_error_handler(Display* display, XErrorEvent* evt);
 
 
 #ifdef __cplusplus
