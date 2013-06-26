@@ -25,7 +25,9 @@
 /* Includes */
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+
 #include <GL/glx.h>
+#include <GL/glxext.h>
 
 #include "groufix/containers/vector.h"
 #include "groufix/events.h"

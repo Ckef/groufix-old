@@ -49,6 +49,7 @@ default:
 CC      = gcc
 BIN     = bin
 OUT     = obj
+DEPEND  = depend
 INCLUDE = include
 SRC     = src
 
@@ -56,7 +57,7 @@ SRC     = src
 CFLAGS = -Os -O2 -Wall -std=c99 -I$(INCLUDE)
 
 # Object files only
-OBJFLAGS          = $(CFLAGS) -c -I$(SRC)
+OBJFLAGS          = $(CFLAGS) -c -I$(DEPEND) -I$(SRC)
 OBJFLAGS_UNIX_X11 = $(OBJFLAGS) -fPIC -s
 OBJFLAGS_OSX_X11  = $(OBJFLAGS) -fPIC -I/usr/X11/include
 OBJFLAGS_WIN32    = $(OBJFLAGS) -s
@@ -71,7 +72,7 @@ LIBS_WIN32    = -lopengl32 -lgdi32
 # Header files for all window APIs (platforms)
 #################################################################
 HEADERS = \
- $(INCLUDE)/GL/glcorearb.h \
+ $(DEPEND)/GL/glcorearb.h \
  $(INCLUDE)/groufix/containers/vector.h \
  $(INCLUDE)/groufix/math/mat.h \
  $(INCLUDE)/groufix/math/quat.h \
@@ -87,10 +88,12 @@ HEADERS = \
 
 HEADERS_WIN32 = \
  $(HEADERS) \
+ $(DEPEND)/GL/wglext.h \
  $(SRC)/groufix/platform/win32.h
 
 HEADERS_X11 = \
  $(HEADERS) \
+ $(DEPEND)/GL/glxext.h \
  $(SRC)/groufix/platform/x11.h
 
 

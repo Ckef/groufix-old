@@ -24,6 +24,10 @@
 
 #include "groufix/platform.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /********************************************************
  * \brief Top level screen
  *******************************************************/
@@ -61,5 +65,9 @@ GFXScreen gfx_get_default_screen(void);
  */
 void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GFX_SCREEN_H
