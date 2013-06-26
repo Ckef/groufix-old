@@ -214,6 +214,12 @@ static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT re
 }
 
 /******************************************************/
+GFX_Platform_Context _gfx_platform_get_context_type(void)
+{
+	return GFX_CONTEXT_OPENGL;
+}
+
+/******************************************************/
 int _gfx_platform_init(void)
 {
 	if(!_gfx_win32)

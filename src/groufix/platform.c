@@ -19,24 +19,27 @@
  *
  */
 
-#ifndef GFX_PLATFORM_CONTEXT_H
-#define GFX_PLATFORM_CONTEXT_H
+#include "groufix/platform.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <string.h>
 
-/**
- * \brief Returns whether the extension can be found in the space seperated string.
- *
- * Helper function for platforms.
- *
- */
-int _gfx_context_is_extension_in_string(const char* str, const char* ext);
+/******************************************************/
+int _gfx_platform_is_extension_in_string(const char* str, const char* ext)
+{
+	/* Get extension length */
+	size_t len = strlen(ext);
+	if(!len) return 0;
 
+	/* Try to find a complete match */
+	char* found = strstr(str, ext);
+	while(found)
+	{
+		char* end = found + len;
+		if((found == str || *(found - 1) == ' ') && (*end == ' ' || *end == '\0'))
+			return 1;
 
-#ifdef __cplusplus
+		found = strstr(end, ext);
+	}
+
+	return 0;
 }
-#endif
-
-#endif // GFX_PLATFORM_CONTEXT_H

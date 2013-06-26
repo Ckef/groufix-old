@@ -36,7 +36,7 @@ int _gfx_x11_is_extension_supported(int screenNumber, const char* ext)
 	const char* extensions = glXQueryExtensionsString(_gfx_x11->display, screenNumber);
 	if(!extensions) return 0;
 
-	return _gfx_context_is_extension_in_string(extensions, ext);
+	return _gfx_platform_is_extension_in_string(extensions, ext);
 }
 
 /******************************************************/
@@ -190,6 +190,12 @@ static void _gfx_x11_create_key_table(void)
 		_gfx_x11->keys[i] = _gfx_x11_get_key(symbols[(i - minKey) * symbolsPerKey]);
 
 	XFree(symbols);
+}
+
+/******************************************************/
+GFX_Platform_Context _gfx_platform_get_context_type(void)
+{
+	return GFX_CONTEXT_OPENGL;
 }
 
 /******************************************************/

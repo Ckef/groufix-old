@@ -53,7 +53,6 @@
 #include <GL/gl.h>
 #include <GL/wglext.h>
 
-#include "groufix/context.h"
 #include "groufix/containers/vector.h"
 #include "groufix/events.h"
 

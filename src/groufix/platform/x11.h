@@ -30,7 +30,6 @@
 #include <GL/glx.h>
 #include <GL/glxext.h>
 
-#include "groufix/context.h"
 #include "groufix/containers/vector.h"
 #include "groufix/events.h"
 #include "groufix/utils.h"

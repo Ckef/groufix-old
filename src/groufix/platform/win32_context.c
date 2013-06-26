@@ -72,10 +72,27 @@ void _gfx_platform_destroy_context(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_make_current(GFX_Platform_Window handle)
+void _gfx_platform_context_get(GFX_Platform_Window handle, unsigned short* major, unsigned short* minor)
+{
+	if(!_gfx_platform_context_make_current(handle)) return 0;
+
+	int ma, mi;
+	glGetIntegerv(GL_MAJOR_VERSION, &ma);
+	glGetIntegerv(GL_MINOR_VERSION, &mi);
+
+	*major = ma;
+	*minor = mi;
+
+	return 1;
+}
+
+/******************************************************/
+int _gfx_platform_context_make_current(GFX_Platform_Window handle)
 {
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
-	if(window) wglMakeCurrent(GetDC(handle), window->context);
+	if(window) return wglMakeCurrent(GetDC(handle), window->context);
+
+	return 0;
 }
 
 /******************************************************/
@@ -93,7 +110,7 @@ int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char*
 	const char* extensions = _gfx_win32->extensions.GetExtensionsStringARB(GetDC(handle));
 	if(!extensions) return 0;
 
-	return _gfx_context_is_extension_in_string(extensions, ext);
+	return _gfx_platform_is_extension_in_string(extensions, ext);
 }
 
 /******************************************************/

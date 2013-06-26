@@ -38,6 +38,30 @@ extern "C" {
 #endif
 
 /********************************************************
+ * \brief OpenGL Context type
+ *******************************************************/
+typedef int GFX_Platform_Context;
+
+#define GFX_CONTEXT_OPENGL     0x01
+#define GFX_CONTEXT_OPENGL_ES  0x02
+
+
+/**
+ * \brief Retrieves the context type created by this platform.
+ *
+ */
+GFX_Platform_Context _gfx_platform_get_context_type(void);
+
+/**
+ * \brief Returns whether the extension can be found in the space seperated string.
+ *
+ * Helper function for platforms, NOT implemented by platforms themselves!
+ *
+ */
+int _gfx_platform_is_extension_in_string(const char* str, const char* ext);
+
+
+/********************************************************
  * Initialization
  *******************************************************/
 
@@ -219,10 +243,20 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, unsigned short majo
 void _gfx_platform_destroy_context(GFX_Platform_Window handle);
 
 /**
- * \brief Makes the current window the active render target.
+ * \brief Retrieves the version of a context.
+ *
+ * \return Whether it could retrieve the information or not.
  *
  */
-void _gfx_platform_context_make_current(GFX_Platform_Window handle);
+int _gfx_platform_context_get(GFX_Platform_Window handle, unsigned short* major, unsigned short* minor);
+
+/**
+ * \brief Makes the current window the active render target.
+ *
+ * \return Whether it could make the context current or not.
+ *
+ */
+int _gfx_platform_context_make_current(GFX_Platform_Window handle);
 
 /** 
  * \brief Swaps the internal buffers of a window.
