@@ -8,22 +8,13 @@ int main()
 
 	if(!gfx_init()) return 0;
 
-	GFXWindowDepth depth;
+	GFXDepth depth;
 	depth.redBits   = 8;
 	depth.greenBits = 8;
 	depth.blueBits  = 8;
 
 	GFXWindow* window1 = gfx_window_create(NULL, &depth, "Window Unos", 800, 600, 100, 100);
 	GFXWindow* window2 = gfx_window_create(NULL, &depth, "Window Deux", 800, 600, 300, 300);
-
-	GFX_Platform_Context cont;
-	unsigned short major, minor;
-
-	if(_gfx_platform_context_get(window1->handle, &cont, &major, &minor))
-		printf("%i.%i\n", major, minor);
-
-	if(_gfx_platform_context_get(window2->handle, &cont, &major, &minor))
-		printf("%i.%i\n", major, minor);
 
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{

@@ -24,7 +24,7 @@
 #include <string.h>
 
 /******************************************************/
-int _gfx_platform_create_context(GFX_Platform_Window handle, unsigned short major, unsigned short minor)
+int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor)
 {
 	HDC dc = GetDC(handle);
 
@@ -72,19 +72,13 @@ void _gfx_platform_destroy_context(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-int _gfx_platform_context_get(GFX_Platform_Window handle, GFX_Platform_Context* type, unsigned short* major, unsigned short* minor)
+void _gfx_platform_context_get(GFX_Platform_Window handle, int* major, int* minor)
 {
-	if(!_gfx_platform_context_make_current(handle)) return 0;
-
-	int ma, mi;
-	glGetIntegerv(GL_MAJOR_VERSION, &ma);
-	glGetIntegerv(GL_MINOR_VERSION, &mi);
-
-	*type = GFX_CONTEXT_OPENGL;
-	*major = ma;
-	*minor = mi;
-
-	return 1;
+	if(_gfx_platform_context_make_current(handle))
+	{
+		glGetIntegerv(GL_MAJOR_VERSION, major);
+		glGetIntegerv(GL_MINOR_VERSION, minor);
+	}
 }
 
 /******************************************************/

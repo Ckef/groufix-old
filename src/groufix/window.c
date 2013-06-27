@@ -25,10 +25,17 @@
 #include <stdlib.h>
 
 /******************************************************/
+/* Created windows */
 static Vector* _gfx_windows = NULL;
 
+/* OpenGL context request */
+static GFXContext _gfx_context = {
+	GFX_CONTEXT_MAJOR_MIN,
+	GFX_CONTEXT_MINOR_MIN
+};
+
 /******************************************************/
-static int _gfx_insert_window(GFXWindow* window)
+static int _gfx_window_insert(GFXWindow* window)
 {
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_windows)
@@ -37,6 +44,55 @@ static int _gfx_insert_window(GFXWindow* window)
 		if(!_gfx_windows) return 0;
 	}
 	return vector_insert(_gfx_windows, &window, _gfx_windows->end) != _gfx_windows->end;
+}
+
+/******************************************************/
+static int _gfx_window_create_context(GFXWindow* window)
+{
+	/* Get maximum context */
+	GFXContext max = {
+		GFX_CONTEXT_MAJOR_MAX,
+		GFX_CONTEXT_MINOR_MAX
+	};
+
+	/* Iterate from max to min untill a valid context was created */
+	while(
+		max.major > _gfx_context.major ||
+		(max.major == _gfx_context.major &&
+		 max.minor >= _gfx_context.minor))
+	{
+		/* Try to create it */
+		if(_gfx_platform_create_context(window->handle, max.major, max.minor)) return 1;
+
+		/* Previous version */
+		if(!max.minor)
+		{
+			--max.major;
+			max.minor = GFX_CONTEXT_ALL_MINORS_MAX;
+		}
+		else --max.minor;
+	}
+
+	return 0;
+}
+
+/******************************************************/
+void gfx_request_context(GFXContext context)
+{
+	/* Get minimal context */
+	if(context.major < GFX_CONTEXT_MAJOR_MIN)
+	{
+		context.major = GFX_CONTEXT_MAJOR_MIN;
+		context.minor = GFX_CONTEXT_MINOR_MIN;
+	}
+	else if(
+		context.minor < GFX_CONTEXT_MINOR_MIN &&
+		context.major == GFX_CONTEXT_MAJOR_MIN)
+	{
+		context.minor = GFX_CONTEXT_MINOR_MIN;
+	}
+
+	_gfx_context = context;
 }
 
 /******************************************************/
@@ -54,7 +110,7 @@ GFXWindow* gfx_get_window(unsigned int num)
 }
 
 /******************************************************/
-GFXWindow* gfx_window_create(GFXScreen* screen, GFXWindowDepth* depth, const char* name, unsigned int width, unsigned int height, int x, int y)
+GFXWindow* gfx_window_create(GFXScreen* screen, const GFXDepth* depth, const char* name, unsigned int width, unsigned int height, int x, int y)
 {
 	/* Get screen */
 	GFX_Platform_Screen scr;
@@ -81,7 +137,7 @@ GFXWindow* gfx_window_create(GFXScreen* screen, GFXWindowDepth* depth, const cha
 	window->handle = handle;
 
 	/* Create context and insert in the vector */
-	if(!_gfx_platform_create_context(handle, 3, 2) || !_gfx_insert_window(window))
+	if(!_gfx_window_create_context(window) || !_gfx_window_insert(window))
 	{
 		_gfx_platform_destroy_window(handle);
 		free(window);
@@ -118,6 +174,17 @@ GFXScreen gfx_window_get_screen(GFXWindow* window)
 	scr.handle = _gfx_platform_window_get_screen(window->handle);
 
 	return scr;
+}
+
+/******************************************************/
+GFXContext gfx_window_get_context(GFXWindow* window)
+{
+	GFXContext context;
+	context.major = 0;
+	context.minor = 0;
+	_gfx_platform_context_get(window->handle, &context.major, &context.minor);
+
+	return context;
 }
 
 /******************************************************/

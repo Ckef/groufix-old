@@ -25,12 +25,21 @@
 #include "groufix/keys.h"
 #include "groufix/screen.h"
 
+/* Context helpers */
+#define GFX_CONTEXT_MAJOR_MIN  3
+#define GFX_CONTEXT_MINOR_MIN  2
+
+#define GFX_CONTEXT_MAJOR_MAX  4
+#define GFX_CONTEXT_MINOR_MAX  3
+
+#define GFX_CONTEXT_ALL_MINORS_MAX 3;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /********************************************************
- * Window Events
+ * Window Attributes
  *******************************************************/
 
 /* Forward declerate */
@@ -44,6 +53,32 @@ typedef void (*GFXMouseMoveFun)    (struct GFXWindow*, int, int, GFXKeyState);
 typedef void (*GFXMousePressFun)   (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
 typedef void (*GFXMouseReleaseFun) (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
 typedef void (*GFXMouseWheelFun)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
+
+
+/** \brief Window color depth */
+typedef struct GFXDepth
+{
+	unsigned short redBits;
+	unsigned short greenBits;
+	unsigned short blueBits;
+
+} GFXDepth;
+
+
+/* OpenGL Context */
+typedef struct GFXContext
+{
+	int major;
+	int minor;
+
+} GFXContext;
+
+
+/**
+ * \brief Requests a minimal OpenGL Context for new windows.
+ *
+ */
+void gfx_request_context(GFXContext context);
 
 
 /********************************************************
@@ -70,16 +105,6 @@ typedef struct GFXWindow
 } GFXWindow;
 
 
-/** \brief Window color depth */
-typedef struct GFXWindowDepth
-{
-	unsigned short redBits;
-	unsigned short greenBits;
-	unsigned short blueBits;
-
-} GFXWindowDepth;
-
-
 /**
  * \brief Returns the number of windows.
  *
@@ -101,9 +126,10 @@ GFXWindow* gfx_get_window(unsigned int num);
  * \brief Creates a new window.
  *
  * \param screen Screen to use, NULL for default screen.
+ * \param depth  Color depth of the window, must be set.
  * 
  */
-GFXWindow* gfx_window_create(GFXScreen* screen, GFXWindowDepth* depth, const char* name, unsigned int width, unsigned int height, int x, int y);
+GFXWindow* gfx_window_create(GFXScreen* screen, const GFXDepth* depth, const char* name, unsigned int width, unsigned int height, int x, int y);
 
 /**
  * \brief Destroys and frees the window.
@@ -116,6 +142,12 @@ void gfx_window_free(GFXWindow* window);
  *
  */
 GFXScreen gfx_window_get_screen(GFXWindow* window);
+
+/**
+ * \brief Returns the context of the window.
+ *
+ */
+GFXContext gfx_window_get_context(GFXWindow* window);
 
 /**
  * \brief Gets the name of the window.
