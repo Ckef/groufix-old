@@ -95,7 +95,7 @@ static int _gfx_win32_load_extensions(void)
 
 	/* Get extension string extension.. */
 	_gfx_win32->extensions.GetExtensionsStringARB =
-		_gfx_platform_get_proc_address("wglGetExtensionsStringARB");
+		(PFNWGLGETEXTENSIONSSTRINGARBPROC)_gfx_platform_get_proc_address("wglGetExtensionsStringARB");
 
 	if(_gfx_win32->extensions.GetExtensionsStringARB)
 	{
@@ -107,7 +107,7 @@ static int _gfx_win32_load_extensions(void)
 
 		/* Load all functions */
 		_gfx_win32->extensions.CreateContextAttribsARB =
-			_gfx_platform_get_proc_address("wglCreateContextAttribsARB");
+			(PFNWGLCREATECONTEXTATTRIBSARBPROC)_gfx_platform_get_proc_address("wglCreateContextAttribsARB");
 
 		/* Check all functions */
 		if(!_gfx_win32->extensions.CreateContextAttribsARB)

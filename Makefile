@@ -54,7 +54,7 @@ INCLUDE = include
 SRC     = src
 
 # Flags for all compiler calls
-CFLAGS = -Os -O2 -Wall -std=c99 -I$(INCLUDE)
+CFLAGS = -Os -O2 -Wall -std=c99 -pedantic -I$(INCLUDE)
 
 # Object files only
 OBJFLAGS          = $(CFLAGS) -c -I$(DEPEND) -I$(SRC)

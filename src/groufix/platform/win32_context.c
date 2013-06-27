@@ -109,7 +109,7 @@ int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char*
 }
 
 /******************************************************/
-void* _gfx_platform_get_proc_address(const char* proc)
+GFXProcAddress _gfx_platform_get_proc_address(const char* proc)
 {
-	return (void*)wglGetProcAddress(proc);
+	return (GFXProcAddress)wglGetProcAddress(proc);
 }

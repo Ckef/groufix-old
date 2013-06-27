@@ -33,6 +33,15 @@
 	#error "Platform not supported"
 #endif
 
+/* Unicode */
+#ifndef UNICODE
+#define UNICODE
+#endif
+
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,6 +49,10 @@ extern "C" {
 /********************************************************
  * \brief Helper methods (not implemented by platform)
  *******************************************************/
+
+/** \brief Proc Address */
+typedef void (*GFXProcAddress)(void);
+
 
 /**
  * \brief Returns whether the extension can be found in the space seperated string.
@@ -259,7 +272,7 @@ int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char*
  * \brief Returns the address to a process.
  *
  */
-void* _gfx_platform_get_proc_address(const char* proc);
+GFXProcAddress _gfx_platform_get_proc_address(const char* proc);
 
 
 /********************************************************
