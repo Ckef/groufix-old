@@ -38,24 +38,11 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief OpenGL Context type
+ * \brief Helper methods (not implemented by platform)
  *******************************************************/
-typedef int GFX_Platform_Context;
-
-#define GFX_CONTEXT_OPENGL     0x01
-#define GFX_CONTEXT_OPENGL_ES  0x02
-
-
-/**
- * \brief Retrieves the context type created by this platform.
- *
- */
-GFX_Platform_Context _gfx_platform_get_context_type(void);
 
 /**
  * \brief Returns whether the extension can be found in the space seperated string.
- *
- * Helper function for platforms, NOT implemented by platforms themselves!
  *
  */
 int _gfx_platform_is_extension_in_string(const char* str, const char* ext);
@@ -219,8 +206,13 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle);
 
 
 /********************************************************
- * \brief Window context handling
+ * \brief OpenGL Context of window
  *******************************************************/
+typedef int GFX_Platform_Context;
+
+#define GFX_CONTEXT_OPENGL     0x01
+#define GFX_CONTEXT_OPENGL_ES  0x02
+
 
 /**
  * \brief Creates the OpenGL context of a window.
@@ -229,7 +221,8 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle);
  * \param minor Minor OpenGL version.
  *
  * Creates the context and makes it the current context to render to.
- * Both forward compatibility and the core profile should be used (a.k.a only 3.2 will produce something useful).
+ * Both forward compatibility and the core profile should be used for desktop systems (only 3.2 or above).
+ * Only version 2.0 or above should be used for embedded systems.
  *
  */
 int _gfx_platform_create_context(GFX_Platform_Window handle, unsigned short major, unsigned short minor);
@@ -243,12 +236,12 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, unsigned short majo
 void _gfx_platform_destroy_context(GFX_Platform_Window handle);
 
 /**
- * \brief Retrieves the version of a context.
+ * \brief Retrieves the type and version of a context.
  *
  * \return Whether it could retrieve the information or not.
  *
  */
-int _gfx_platform_context_get(GFX_Platform_Window handle, unsigned short* major, unsigned short* minor);
+int _gfx_platform_context_get(GFX_Platform_Window handle, GFX_Platform_Context* type, unsigned short* major, unsigned short* minor);
 
 /**
  * \brief Makes the current window the active render target.

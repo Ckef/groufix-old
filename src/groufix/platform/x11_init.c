@@ -193,12 +193,6 @@ static void _gfx_x11_create_key_table(void)
 }
 
 /******************************************************/
-GFX_Platform_Context _gfx_platform_get_context_type(void)
-{
-	return GFX_CONTEXT_OPENGL;
-}
-
-/******************************************************/
 int _gfx_platform_init(void)
 {
 	if(!_gfx_x11)
