@@ -70,7 +70,7 @@ Vector* vector_create_from_buffer(size_t elementSize, size_t numElements, const 
 Vector* vector_create_copy(Vector* src);
 
 /**
- * \brief Makes sure the vector is freed properly before destruction.
+ * \brief Makes sure the vector is freed properly.
  *
  */
 void vector_free(Vector* vector);
@@ -92,6 +92,14 @@ size_t vector_get_byte_size(Vector* vector);
  *
  */
 size_t vector_get_size(Vector* vector);
+
+/**
+ * \brief Requests a minimum capacity, which will hold as long as nothing is erased.
+ *
+ * \return If zero, out of memory.
+ *
+ */
+int vector_reserve(Vector* vector, size_t numElements);
 
 /**
  * \brief Returns an iterator of the element at a given index.

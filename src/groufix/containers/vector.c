@@ -118,6 +118,16 @@ size_t vector_get_size(Vector* vector)
 }
 
 /******************************************************/
+int vector_reserve(Vector* vector, size_t numElements)
+{
+	size_t newSize = vector->elementSize * numElements;
+	if(newSize > vector->capacity)
+		return _vector_realloc(vector, newSize, _vector_get_max_capacity(newSize));
+
+	return 1;
+}
+
+/******************************************************/
 VectorIterator vector_at(Vector* vector, size_t index)
 {
 	return PTR_ADD_BYTES(vector->begin, index * vector->elementSize);
@@ -215,37 +225,8 @@ VectorIterator vector_insert_range_at(Vector* vector, size_t num, VectorIterator
 /******************************************************/
 VectorIterator vector_erase(Vector* vector, VectorIterator pos)
 {
-	/* Nothing to erase */
-	if(pos == vector->end) return pos;
-
-	/* Get new properties */
-	size_t oldSize = PTR_DIFF(vector->begin, vector->end);
-	size_t newSize = oldSize - vector->elementSize;
-	size_t toEnd = PTR_DIFF(pos, vector->end);
-
-	/* Deallocate if necessary */
-	if(!newSize)
-	{
-		vector_clear(vector);
-		return NULL;
-	}
-
-	/* Move elements if necessary */
-	size_t mov = toEnd - vector->elementSize;
-	if(mov) memmove(pos, PTR_ADD_BYTES(pos, vector->elementSize), mov);
-
-	/* De/Reallocate if necessary */
-	size_t cap = vector->capacity >> 1;
-	if(newSize < cap)
-	{
-		if(!_vector_realloc(vector, newSize, cap)) return NULL;
-		pos = PTR_ADD_BYTES(vector->begin, oldSize - toEnd);
-	}
-
-	/* Set new end */
-	else vector->end = PTR_ADD_BYTES(vector->begin, newSize);
-
-	return pos;
+	/* Call erase range to make sure a minimum capacity is reallocated */
+	return vector_erase_range(vector, 1, pos);
 }
 
 /******************************************************/

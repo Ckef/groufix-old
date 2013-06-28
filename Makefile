@@ -73,6 +73,7 @@ LIBS_WIN32    = -lopengl32 -lgdi32
 #################################################################
 HEADERS = \
  $(DEPEND)/GL/glcorearb.h \
+ $(INCLUDE)/groufix/containers/deque.h \
  $(INCLUDE)/groufix/containers/vector.h \
  $(INCLUDE)/groufix/math/mat.h \
  $(INCLUDE)/groufix/math/quat.h \
@@ -119,6 +120,7 @@ endif
 # Unix X11 builds
 #################################################################
 OBJS_UNIX_X11 = \
+ $(OUT)/unix-x11/groufix/containers/deque.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
  $(OUT)/unix-x11/groufix/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
@@ -144,6 +146,9 @@ before-unix-x11:
 
 
 # All the object files
+
+$(OUT)/unix-x11/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
@@ -183,6 +188,7 @@ $(OUT)/unix-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
 # OS X X11 builds
 #################################################################
 OBJS_OSX_X11 = \
+ $(OUT)/osx-x11/groufix/containers/deque.o \
  $(OUT)/osx-x11/groufix/containers/vector.o \
  $(OUT)/osx-x11/groufix/platform/x11_context.o \
  $(OUT)/osx-x11/groufix/platform/x11_init.o \
@@ -208,6 +214,9 @@ before-osx-x11:
 
 
 # All the object files
+
+$(OUT)/osx-x11/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
@@ -247,6 +256,7 @@ $(OUT)/osx-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
 # Windows builds
 #################################################################
 OBJS_WIN32 = \
+ $(OUT)/win32/groufix/containers/deque.o \
  $(OUT)/win32/groufix/containers/vector.o \
  $(OUT)/win32/groufix/platform/win32_context.o \
  $(OUT)/win32/groufix/platform/win32_init.o \
@@ -272,6 +282,9 @@ before-win32:
 
 
 # All the object files
+
+$(OUT)/win32/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
