@@ -51,4 +51,7 @@ void gfx_terminate(void)
 
 	/* Terminate platform */
 	_gfx_platform_terminate();
+
+	/* Empty error queue */
+	gfx_errors_empty();
 }

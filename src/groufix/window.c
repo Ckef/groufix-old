@@ -154,16 +154,19 @@ GFXWindow* gfx_window_create(GFXScreen* screen, const GFXDepth* depth, const cha
 /******************************************************/
 void gfx_window_free(GFXWindow* window)
 {
-	/* Destroy window */
-	_gfx_platform_destroy_window(window->handle);
-	free(window);
-
-	/* Remove the window from storage */
-	vector_erase(_gfx_windows, vector_find(_gfx_windows, &window));
-	if(!vector_get_size(_gfx_windows))
+	if(window)
 	{
-		vector_free(_gfx_windows);
-		_gfx_windows = NULL;
+		/* Destroy window */
+		_gfx_platform_destroy_window(window->handle);
+		free(window);
+
+		/* Remove the window from storage */
+		vector_erase(_gfx_windows, vector_find(_gfx_windows, &window));
+		if(!vector_get_size(_gfx_windows))
+		{
+			vector_free(_gfx_windows);
+			_gfx_windows = NULL;
+		}
 	}
 }
 

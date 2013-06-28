@@ -39,7 +39,7 @@ static int _deque_realloc(Deque* deque, size_t capacity)
 {
 	size_t begin = PTR_DIFF(deque->data, deque->begin);
 	size_t end = PTR_DIFF(deque->data, deque->end);
-	unsigned int diff = capacity - deque->capacity;
+	long int diff = capacity - deque->capacity;
 
 	/* Move if necessary */
 	if(diff < 0 && begin > end) deque->begin = memmove(
@@ -75,11 +75,11 @@ static int _deque_realloc(Deque* deque, size_t capacity)
 }
 
 /******************************************************/
-static DequeIterator _deque_advance(Deque* deque, DequeIterator it, size_t bytes)
+static DequeIterator _deque_advance(Deque* deque, DequeIterator it, long int bytes)
 {
 	/* Get sequential iterator */
 	DequeIterator new = PTR_ADD_BYTES(it, bytes);
-	unsigned int diff = PTR_DIFF(deque->data, new);
+	long int diff = PTR_DIFF(deque->data, new);
 
 	/* Get actual pointer */
 	if(diff < 0) return PTR_ADD_BYTES(deque->data, deque->capacity + diff);
@@ -149,8 +149,11 @@ Deque* deque_create_copy(Deque* src)
 /******************************************************/
 void deque_free(Deque* deque)
 {
-	free(deque->data);
-	free(deque);
+	if(deque)
+	{
+		free(deque->data);
+		free(deque);
+	}
 }
 
 /******************************************************/
@@ -168,7 +171,7 @@ void deque_clear(Deque* deque)
 size_t deque_get_byte_size(Deque* deque)
 {
 	/* Get pointer difference */
-	size_t begToEnd = PTR_DIFF(deque->begin, deque->end);
+	long int begToEnd = PTR_DIFF(deque->begin, deque->end);
 
 	/* Get actual storage used */
 	if(begToEnd < 0) return deque->capacity + begToEnd;
@@ -279,7 +282,7 @@ DequeIterator deque_push_back(Deque* deque, const void* element)
 /******************************************************/
 DequeIterator deque_pop_front(Deque* deque)
 {
-	/* Just set a new iterator */
+	/* Just set a new begin iterator */
 	deque->begin = _deque_advance(deque, deque->begin, deque->elementSize);
 	if(deque->begin == deque->end)
 	{
@@ -294,7 +297,7 @@ DequeIterator deque_pop_front(Deque* deque)
 /******************************************************/
 DequeIterator deque_pop_back(Deque* deque)
 {
-	/* Just set a new iterator */
+	/* Just set a new end iterator */
 	deque->end = _deque_advance(deque, deque->end, -deque->elementSize);
 	if(deque->end == deque->data) deque->end = PTR_ADD_BYTES(deque->data, deque->capacity);
 

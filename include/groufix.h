@@ -23,6 +23,7 @@
 #define GROUFIX_H
 
 #include "groufix/math.h"
+#include "groufix/errors.h"
 #include "groufix/events.h"
 #include "groufix/window.h"
 

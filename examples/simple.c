@@ -20,6 +20,12 @@ int main()
 	{
 		_gfx_platform_context_swap_buffers(window1->handle);
 		_gfx_platform_context_swap_buffers(window2->handle);
+
+		GFXError error;
+		while(gfx_errors_pop(&error))
+		{
+			puts(error.message);
+		}
 	}
 
 	gfx_terminate();

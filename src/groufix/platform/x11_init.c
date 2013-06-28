@@ -20,6 +20,7 @@
  */
 
 #include "groufix/platform/x11.h"
+#include "groufix/errors.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -78,6 +79,38 @@ static int _gfx_x11_load_extensions(void)
 /******************************************************/
 static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 {
+	switch(evt->error_code)
+	{
+		case BadAccess :
+			gfx_errors_push(GFX_ERROR_ACCESS_DENIED);
+			break;
+
+		case BadAlloc :
+			gfx_errors_push(GFX_ERROR_OUT_OF_MEMORY);
+			break;
+
+		case BadAtom :
+		case BadColor :
+		case BadCursor :
+		case BadDrawable :
+		case BadFont :
+		case BadGC :
+		case BadIDChoice :
+		case BadName :
+		case BadPixmap :
+		case BadRequest :
+		case BadValue :
+		case BadWindow :
+			gfx_errors_push(GFX_ERROR_INVALID_VALUE);
+			break;
+
+		case BadImplementation :
+		case BadLength :
+		case BadMatch :
+			gfx_errors_push(GFX_ERROR_INVALID_OPERATION);
+			break;
+	}
+
 	return 0;
 }
 

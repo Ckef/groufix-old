@@ -91,8 +91,11 @@ Vector* vector_create_copy(Vector* src)
 /******************************************************/
 void vector_free(Vector* vector)
 {
-	free(vector->begin);
-	free(vector);
+	if(vector)
+	{
+		free(vector->begin);
+		free(vector);
+	}
 }
 
 /******************************************************/
