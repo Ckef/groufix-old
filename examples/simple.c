@@ -21,10 +21,15 @@ int main()
 		_gfx_platform_context_swap_buffers(window1->handle);
 		_gfx_platform_context_swap_buffers(window2->handle);
 
-		GFXError error;
-		while(gfx_errors_pop(&error))
+		/* Print all the errors! */
+		const GFXError* error;
+		while((error = gfx_errors_peek()) != NULL)
 		{
-			puts(error.message);
+			puts(error->message);
+			puts(error->description);
+			puts("");
+
+			gfx_errors_pop();
 		}
 	}
 

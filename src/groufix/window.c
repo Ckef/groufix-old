@@ -49,6 +49,10 @@ static int _gfx_window_insert(GFXWindow* window)
 /******************************************************/
 static int _gfx_window_create_context(GFXWindow* window)
 {
+	/* Get a window to share with (any, as all windows will share everything) */
+	GFX_Platform_Window* share = NULL;
+	if(_gfx_windows) share = (*(GFXWindow**)_gfx_windows->begin)->handle;
+
 	/* Get maximum context */
 	GFXContext max = {
 		GFX_CONTEXT_MAJOR_MAX,
@@ -62,7 +66,7 @@ static int _gfx_window_create_context(GFXWindow* window)
 		 max.minor >= _gfx_context.minor))
 	{
 		/* Try to create it */
-		if(_gfx_platform_create_context(window->handle, max.major, max.minor)) return 1;
+		if(_gfx_platform_create_context(window->handle, max.major, max.minor, share)) return 1;
 
 		/* Previous version */
 		if(!max.minor)

@@ -24,13 +24,14 @@
 #include <string.h>
 
 /******************************************************/
-int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor)
+int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
 {
-	HDC dc = GetDC(handle);
-
-	/* Get the window */
+	/* Get the windows */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
 	if(!window) return 0;
+
+	GFX_Win32_Window* shareWind = NULL;
+	if(share) _gfx_win32_get_window_from_handle(share);
 
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
@@ -42,11 +43,11 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int mino
 	};
 
 	/* Create the context */
-	window->context = _gfx_win32->extensions.CreateContextAttribsARB(
-		dc,
-		NULL,
-		bufferAttr
-	);
+	HGLRC shareCont = NULL;
+	if(shareWind) shareCont = shareWind->context;
+
+	HDC dc = GetDC(handle);
+	window->context = _gfx_win32->extensions.CreateContextAttribsARB(dc, shareCont, bufferAttr);
 
 	if(!window->context) return 0;
 	wglMakeCurrent(dc, window->context);
@@ -63,9 +64,7 @@ void _gfx_platform_destroy_context(GFX_Platform_Window handle)
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
 	if(window)
 	{
-		wglMakeCurrent(dc, NULL);
 		wglDeleteContext(window->context);
-
 		window->context = NULL;
 	}
 	ReleaseDC(handle, dc);

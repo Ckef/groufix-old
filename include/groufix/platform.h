@@ -156,6 +156,8 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 /**
  * \brief Destroys a window, freeing all its memory.
  *
+ * This method should also destroy the context if it has one.
+ *
  */
 void _gfx_platform_destroy_window(GFX_Platform_Window handle);
 
@@ -217,6 +219,12 @@ void _gfx_platform_window_show(GFX_Platform_Window handle);
  */
 void _gfx_platform_window_hide(GFX_Platform_Window handle);
 
+/**
+ * \brief Polls events of all windows.
+ *
+ */
+void _gfx_platform_poll_events(void);
+
 
 /********************************************************
  * OpenGL Context of window
@@ -227,12 +235,13 @@ void _gfx_platform_window_hide(GFX_Platform_Window handle);
  *
  * \param major Major OpenGL version.
  * \param minor Minor OpenGL version.
+ * \param share Window to share OpenGL resources with (can be NULL to not share).
  *
  * Creates the context and makes it the current context to render to.
  * Both forward compatibility and the core profile should be used for desktop systems (only 3.2 or above).
  *
  */
-int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor);
+int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share);
 
 /**
  * \brief Destroys the context of a window.
@@ -273,17 +282,6 @@ int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char*
  *
  */
 GFXProcAddress _gfx_platform_get_proc_address(const char* proc);
-
-
-/********************************************************
- * \brief Event polling
- *******************************************************/
-
-/**
- * \brief Polls events of all windows.
- *
- */
-void _gfx_platform_poll_events(void);
 
 
 #ifdef __cplusplus

@@ -22,11 +22,14 @@
 #include "groufix/platform/x11.h"
 
 /******************************************************/
-int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor)
+int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
 {
-	/* Get the window */
+	/* Get the windows */
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
 	if(!window) return 0;
+
+	GFX_X11_Window* shareWind = NULL;
+	if(share) shareWind = _gfx_x11_get_window_from_handle(VOID_TO_UINT(share));
 
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
@@ -38,10 +41,13 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int mino
 	};
 
 	/* Create the context */
+	GLXContext shareCont = NULL;
+	if(shareWind) shareCont = shareWind->context;
+
 	window->context = _gfx_x11->extensions.CreateContextAttribsARB(
 		_gfx_x11->display,
 		window->config,
-		NULL,
+		shareCont,
 		True,
 		bufferAttr
 	);

@@ -82,11 +82,11 @@ static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 	switch(evt->error_code)
 	{
 		case BadAccess :
-			gfx_errors_push(GFX_ERROR_ACCESS_DENIED);
+			gfx_errors_push(GFX_ERROR_ACCESS_DENIED, NULL);
 			break;
 
 		case BadAlloc :
-			gfx_errors_push(GFX_ERROR_OUT_OF_MEMORY);
+			gfx_errors_push(GFX_ERROR_OUT_OF_MEMORY, NULL);
 			break;
 
 		case BadAtom :
@@ -101,13 +101,17 @@ static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 		case BadRequest :
 		case BadValue :
 		case BadWindow :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE);
+			gfx_errors_push(GFX_ERROR_INVALID_VALUE, NULL);
 			break;
 
 		case BadImplementation :
 		case BadLength :
 		case BadMatch :
-			gfx_errors_push(GFX_ERROR_INVALID_OPERATION);
+			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, NULL);
+			break;
+
+		default :
+			gfx_errors_push(GFX_ERROR_UNKNOWN, NULL);
 			break;
 	}
 

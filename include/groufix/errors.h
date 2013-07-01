@@ -53,7 +53,8 @@ typedef int GFXErrorCode;
 typedef struct GFXError
 {
 	GFXErrorCode  code;
-	const char*   message;
+	const char*   message;     /* Cannot be NULL */
+	char*         description; /* Can be NULL */
 
 } GFXError;
 
@@ -61,28 +62,25 @@ typedef struct GFXError
 /**
  * \brief Returns the last error without removing it.
  *
- * \param error The error structure to fill.
- * \return Whether an error was present or not.
- *
  */
-int gfx_errors_peek(GFXError* error);
+const GFXError* gfx_errors_peek(void);
 
 /**
- * \brief Returns the last error and removes it.
+ * \brief Removes the last error.
  *
- * \param error The error structure to fill.
- * \return Whether an error was present or not.
+ * \return Whether there are still errors in the queue.
  *
  */
-int gfx_errors_pop(GFXError* error);
+int gfx_errors_pop(void);
 
 /**
  * \brief Adds an error to the internal queue.
  *
- * \param error The error code to add, GFX_NO_ERROR will be ignored.
+ * \param error       The error code to add, GFX_NO_ERROR will be ignored.
+ * \param description Extra description describing the error (can be NULL).
  *
  */
-void gfx_errors_push(GFXErrorCode error);
+void gfx_errors_push(GFXErrorCode error, const char* description);
 
 /**
  * \brief Empty the internal error queue.

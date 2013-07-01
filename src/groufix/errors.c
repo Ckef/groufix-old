@@ -22,6 +22,9 @@
 #include "groufix/errors.h"
 #include "groufix/containers/deque.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 /******************************************************/
 /* Maximum number of errors stored */
 static size_t _gfx_errors_maximum = 3; /* feels about right */
@@ -46,27 +49,29 @@ static const char* _gfx_error_messages[] = {
 };
 
 /******************************************************/
-int gfx_errors_peek(GFXError* error)
+const GFXError* gfx_errors_peek(void)
 {
-	if(!_gfx_errors) return 0;
+	if(!_gfx_errors) return NULL;
 
-	if(_gfx_errors->begin == _gfx_errors->end) return 0;
-	*error = *(GFXError*)_gfx_errors->begin;
-
-	return 1;
+	if(_gfx_errors->begin == _gfx_errors->end) return NULL;
+	return (GFXError*)_gfx_errors->begin;
 }
 
 /******************************************************/
-int gfx_errors_pop(GFXError* error)
+int gfx_errors_pop(void)
 {
-	if(!gfx_errors_peek(error)) return 0;
+	const GFXError* error = gfx_errors_peek();
+	if(!error) return 0;
+
+	/* Make sure to free it properly */
+	free(error->description);
 	deque_pop_front(_gfx_errors);
 
 	return 1;
 }
 
 /******************************************************/
-void gfx_errors_push(GFXErrorCode error)
+void gfx_errors_push(GFXErrorCode error, const char* description)
 {
 	if(_gfx_errors_maximum && error > GFX_NO_ERROR && error < GFX_NUM_ERRORS)
 	{
@@ -88,6 +93,14 @@ void gfx_errors_push(GFXErrorCode error)
 		GFXError err;
 		err.code = error;
 		err.message = _gfx_error_messages[error];
+		err.description = NULL;
+
+		/* Copy the description */
+		if(description)
+		{
+			err.description = (char*)malloc(strlen(description) + 1);
+			strcpy(err.description, description);
+		}
 
 		deque_push_front(_gfx_errors, &err);
 	}
@@ -96,8 +109,16 @@ void gfx_errors_push(GFXErrorCode error)
 /******************************************************/
 void gfx_errors_empty(void)
 {
-	deque_free(_gfx_errors);
-	_gfx_errors = NULL;
+	if(_gfx_errors)
+	{
+		/* Free all descriptions */
+		DequeIterator it;
+		for(it = _gfx_errors->begin; it != _gfx_errors->end; it = deque_next(_gfx_errors, it))
+			free(((GFXError*)it)->description);
+
+		deque_free(_gfx_errors);
+		_gfx_errors = NULL;
+	}
 }
 
 /******************************************************/
@@ -109,6 +130,10 @@ void gfx_errors_set_maximum(size_t max)
 	if(!max) gfx_errors_empty();
 	else if(_gfx_errors)
 	{
+		/* Remove errors */
+		while(deque_get_size(_gfx_errors) > max) deque_pop_back(_gfx_errors);
+
+		/* Reallocate the memory used */
 		deque_shrink(_gfx_errors);
 		deque_reserve(_gfx_errors, max);
 	}
