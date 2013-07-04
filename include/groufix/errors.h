@@ -35,16 +35,18 @@ typedef int GFXErrorCode;
 
 #define GFX_NO_ERROR                             0x0000
 #define GFX_ERROR_UNKNOWN                        0x0001
-#define GFX_ERROR_INVALID_ENUM                   0x0002
-#define GFX_ERROR_INVALID_VALUE                  0x0003
-#define GFX_ERROR_INVALID_OPERATION              0x0004
-#define GFX_ERROR_INVALID_FRAMEBUFFER_OPERATION  0x0005
-#define GFX_ERROR_OUT_OF_MEMORY                  0x0006
-#define GFX_ERROR_UNDERFLOW                      0x0007
-#define GFX_ERROR_OVERFLOW                       0x0008
-#define GFX_ERROR_ACCESS_DENIED                  0x0009
+#define GFX_ERROR_INCOMPATIBLE_CONTEXT           0x0002
+#define GFX_ERROR_INCOMPATIBLE_PLATFORM          0x0003
+#define GFX_ERROR_INVALID_ENUM                   0x0004
+#define GFX_ERROR_INVALID_VALUE                  0x0005
+#define GFX_ERROR_INVALID_OPERATION              0x0006
+#define GFX_ERROR_INVALID_FRAMEBUFFER_OPERATION  0x0007
+#define GFX_ERROR_OUT_OF_MEMORY                  0x0008
+#define GFX_ERROR_UNDERFLOW                      0x0009
+#define GFX_ERROR_OVERFLOW                       0x000a
+#define GFX_ERROR_ACCESS_DENIED                  0x000b
 
-#define GFX_NUM_ERRORS                           0x000a
+#define GFX_NUM_ERRORS                           0x000c
 
 
 /********************************************************

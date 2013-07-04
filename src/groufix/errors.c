@@ -38,6 +38,8 @@ static const char* _gfx_error_messages[] = {
 	"", /* No error has been recorded. */
 
 	"An unknown error has been recorded.",
+	"The created OpenGL context is incompatible with the Groufix engine.",
+	"The executing platform is incompatible with the Groufix engine.",
 	"An unacceptable value is specified for an enumerated argument.",
 	"A numeric argument is out of range.",
 	"The specified operation is not allowed in the current state.",

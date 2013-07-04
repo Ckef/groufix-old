@@ -21,6 +21,7 @@
 
 #include "groufix/window.h"
 #include "groufix/containers/vector.h"
+#include "groufix/errors.h"
 
 #include <stdlib.h>
 
@@ -44,6 +45,12 @@ static int _gfx_window_insert(GFXWindow* window)
 		if(!_gfx_windows) return 0;
 	}
 	return vector_insert(_gfx_windows, &window, _gfx_windows->end) != _gfx_windows->end;
+}
+
+/******************************************************/
+static int _gfx_window_compare(const VectorIterator it, const void* value)
+{
+	return *(GFXWindow**)it == *(GFXWindow**)value;
 }
 
 /******************************************************/
@@ -76,6 +83,9 @@ static int _gfx_window_create_context(GFXWindow* window)
 		}
 		else --max.minor;
 	}
+
+	/* Nope. */
+	gfx_errors_push(GFX_ERROR_INCOMPATIBLE_CONTEXT, NULL);
 
 	return 0;
 }
@@ -110,7 +120,7 @@ unsigned int gfx_get_num_windows(void)
 GFXWindow* gfx_get_window(unsigned int num)
 {
 	if(num >= gfx_get_num_windows()) return NULL;
-	return *((GFXWindow**)vector_at(_gfx_windows, num));
+	return *(GFXWindow**)vector_at(_gfx_windows, num);
 }
 
 /******************************************************/
@@ -165,7 +175,7 @@ void gfx_window_free(GFXWindow* window)
 		free(window);
 
 		/* Remove the window from storage */
-		vector_erase(_gfx_windows, vector_find(_gfx_windows, &window));
+		vector_erase(_gfx_windows, vector_find(_gfx_windows, &window, _gfx_window_compare));
 		if(!vector_get_size(_gfx_windows))
 		{
 			vector_free(_gfx_windows);

@@ -41,13 +41,19 @@ int _gfx_x11_is_extension_supported(int screenNumber, const char* ext)
 }
 
 /******************************************************/
+static int _gfx_x11_window_compare_handle(const VectorIterator it, const void* value)
+{
+	return ((GFX_X11_Window*)it)->handle == (Window)VOID_TO_UINT(value);
+}
+
+/******************************************************/
 VectorIterator _gfx_x11_get_window_from_handle(Window handle)
 {
-	VectorIterator it;
-	if(_gfx_x11) for(it = _gfx_x11->windows->begin; it != _gfx_x11->windows->end; it = vector_next(_gfx_x11->windows, it))
-		if(((GFX_X11_Window*)it)->handle == handle) return it;
+	if(!_gfx_x11) return NULL;
 
-	return NULL;
+	VectorIterator found = vector_find(_gfx_x11->windows, UINT_TO_VOID(handle), _gfx_x11_window_compare_handle);
+
+	return found != _gfx_x11->windows->end ? found : NULL;
 }
 
 /******************************************************/
@@ -99,13 +105,15 @@ static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 		case BadName :
 		case BadPixmap :
 		case BadRequest :
-		case BadValue :
 		case BadWindow :
+			gfx_errors_push(GFX_ERROR_INVALID_ENUM, NULL);
+
+		case BadValue :
+		case BadLength :
 			gfx_errors_push(GFX_ERROR_INVALID_VALUE, NULL);
 			break;
 
 		case BadImplementation :
-		case BadLength :
 		case BadMatch :
 			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, NULL);
 			break;

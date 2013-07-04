@@ -284,11 +284,11 @@ VectorIterator vector_erase_range_at(Vector* vector, size_t num, size_t index)
 }
 
 /******************************************************/
-VectorIterator vector_find(Vector* vector, const void* equal)
+VectorIterator vector_find(Vector* vector, const void* value, VectorComparison fun)
 {
 	VectorIterator it;
 	for(it = vector->begin; it != vector->end; it = vector_next(vector, it))
-		if(!memcmp(it, equal, vector->elementSize)) break;
+		if(fun(it, value)) break;
 
 	return it;
 }

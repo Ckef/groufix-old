@@ -47,7 +47,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Helper methods (not implemented by platform)
+ * Helper methods (not implemented by platform)
  *******************************************************/
 
 /** \brief Proc Address */
