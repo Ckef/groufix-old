@@ -49,7 +49,7 @@ static const char* _gfx_error_messages[] = {
 };
 
 /******************************************************/
-const GFXError* gfx_errors_peek(void)
+static GFXError* _gfx_errors_last(void)
 {
 	if(!_gfx_errors) return NULL;
 
@@ -58,16 +58,26 @@ const GFXError* gfx_errors_peek(void)
 }
 
 /******************************************************/
-int gfx_errors_pop(void)
+int gfx_errors_peek(GFXError* error)
 {
-	const GFXError* error = gfx_errors_peek();
-	if(!error) return 0;
+	GFXError* err = _gfx_errors_last();
+	if(!err) return 0;
 
-	/* Make sure to free it properly */
-	free(error->description);
-	deque_pop_front(_gfx_errors);
+	*error = *err;
 
 	return 1;
+}
+
+/******************************************************/
+void gfx_errors_pop(void)
+{
+	GFXError* err = _gfx_errors_last();
+	if(err)
+	{
+		/* Make sure to free it properly */
+		free(err->description);
+		deque_pop_front(_gfx_errors);
+	}
 }
 
 /******************************************************/

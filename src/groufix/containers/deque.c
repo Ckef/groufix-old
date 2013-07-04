@@ -282,13 +282,17 @@ DequeIterator deque_push_back(Deque* deque, const void* element)
 /******************************************************/
 DequeIterator deque_pop_front(Deque* deque)
 {
-	/* Just set a new begin iterator */
-	deque->begin = _deque_advance(deque, deque->begin, deque->elementSize);
-	if(deque->begin == deque->end)
+	/* Nothing to pop */
+	if(deque->begin != deque->end)
 	{
-		/* Make sure to reset so begin cannot be at the end */
-		deque->begin = deque->data;
-		deque->end = deque->data;
+		/* Just set a new begin iterator */
+		deque->begin = _deque_advance(deque, deque->begin, deque->elementSize);
+		if(deque->begin == deque->end)
+		{
+			/* Make sure to reset so begin cannot be at the end */
+			deque->begin = deque->data;
+			deque->end = deque->data;
+		}
 	}
 
 	return deque->begin;
@@ -297,9 +301,13 @@ DequeIterator deque_pop_front(Deque* deque)
 /******************************************************/
 DequeIterator deque_pop_back(Deque* deque)
 {
-	/* Just set a new end iterator */
-	deque->end = _deque_advance(deque, deque->end, -deque->elementSize);
-	if(deque->end == deque->data) deque->end = PTR_ADD_BYTES(deque->data, deque->capacity);
+	/* Nothing to pop */
+	if(deque->begin != deque->end)
+	{
+		/* Just set a new end iterator */
+		deque->end = _deque_advance(deque, deque->end, -deque->elementSize);
+		if(deque->end == deque->data) deque->end = PTR_ADD_BYTES(deque->data, deque->capacity);
+	}
 
 	return deque->end == deque->begin ? deque->end : PTR_SUB_BYTES(deque->end, deque->elementSize);
 }

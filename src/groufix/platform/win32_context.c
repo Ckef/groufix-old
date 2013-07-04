@@ -21,8 +21,6 @@
 
 #include "groufix/platform/win32.h"
 
-#include <string.h>
-
 /******************************************************/
 int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
 {

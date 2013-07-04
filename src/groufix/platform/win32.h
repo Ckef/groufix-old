@@ -48,14 +48,13 @@
 /* Includes */
 #include <windows.h>
 #include <windowsx.h>
-#include <wchar.h>
 
-#include <GL/gl.h>
-#include <GL/wglext.h>
-
+#include "groufix/ogl.h"
 #include "groufix/containers/vector.h"
 #include "groufix/events.h"
 
+#include <GL/wglext.h>
+#include <wchar.h>
 
 /* Windows apparently does not define this everywhere... */
 #ifndef WM_MOUSEHWHEEL

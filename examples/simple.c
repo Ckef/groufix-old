@@ -22,11 +22,11 @@ int main()
 		_gfx_platform_context_swap_buffers(window2->handle);
 
 		/* Print all the errors! */
-		const GFXError* error;
-		while((error = gfx_errors_peek()) != NULL)
+		GFXError error;
+		while(gfx_errors_peek(&error))
 		{
-			puts(error->message);
-			puts(error->description);
+			puts(error.message);
+			puts(error.description);
 			puts("");
 
 			gfx_errors_pop();

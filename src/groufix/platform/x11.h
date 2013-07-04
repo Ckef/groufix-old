@@ -26,14 +26,13 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glxext.h>
-
+#include "groufix/ogl.h"
 #include "groufix/containers/vector.h"
 #include "groufix/events.h"
 #include "groufix/utils.h"
 
+#include <GL/glx.h>
+#include <GL/glxext.h>
 
 /* More of them buttons! */
 #define Button6  6

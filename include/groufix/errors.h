@@ -62,16 +62,17 @@ typedef struct GFXError
 /**
  * \brief Returns the last error without removing it.
  *
+ * \param error Error structure to copy to.
+ * \return Whether or not an error was present.
+ *
  */
-const GFXError* gfx_errors_peek(void);
+int gfx_errors_peek(GFXError* error);
 
 /**
  * \brief Removes the last error.
  *
- * \return Whether there are still errors in the queue.
- *
  */
-int gfx_errors_pop(void);
+void gfx_errors_pop(void);
 
 /**
  * \brief Adds an error to the internal queue.
