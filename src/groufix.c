@@ -20,6 +20,7 @@
  */
 
 #include "groufix.h"
+#include "groufix/platform.h"
 
 /******************************************************/
 int gfx_init(void)

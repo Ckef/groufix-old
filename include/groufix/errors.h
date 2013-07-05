@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Platform independent key code
+ * \brief Platform independent error code
  *******************************************************/
 typedef int GFXErrorCode;
 

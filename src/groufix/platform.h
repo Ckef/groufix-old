@@ -22,44 +22,11 @@
 #ifndef GFX_PLATFORM_H
 #define GFX_PLATFORM_H
 
-/* Get build target */
-#if defined(_WIN32) || defined(__WIN32__)
-	#define GFX_WIN32
-#elif defined(__APPLE__) || defined(__MACH__)
-	#define GFX_OSX
-#elif defined(__unix) || defined(__unix__) || defined(__linux__)
-	#define GFX_UNIX
-#else
-	#error "Platform not supported"
-#endif
-
-/* Unicode */
-#ifndef UNICODE
-#define UNICODE
-#endif
-
-#ifndef _UNICODE
-#define _UNICODE
-#endif
+#include "groufix/internal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/********************************************************
- * Helper methods (not implemented by platform)
- *******************************************************/
-
-/** \brief Proc Address */
-typedef void (*GFXProcAddress)(void);
-
-
-/**
- * \brief Returns whether the extension can be found in the space seperated string.
- *
- */
-int _gfx_platform_is_extension_in_string(const char* str, const char* ext);
-
 
 /********************************************************
  * Initialization
@@ -87,10 +54,8 @@ void _gfx_platform_terminate(void);
 
 
 /********************************************************
- * \brief Single Screen of the display
+ * Screen retrieval
  *******************************************************/
-typedef void* GFX_Platform_Screen;
-
 
 /**
  * \brief Returns the number of visible screens.
@@ -121,28 +86,8 @@ void _gfx_platform_screen_get_size(GFX_Platform_Screen handle, unsigned int* wid
 
 
 /********************************************************
- * \brief A Window
+ * Window creation
  *******************************************************/
-typedef void* GFX_Platform_Window;
-
-
-/** \brief Window initialization attributes */
-typedef struct GFX_Platform_Attributes
-{
-	GFX_Platform_Screen  screen;
-	const char*          name;
-
-	unsigned int         width;
-	unsigned int         height;
-	int                  x;
-	int                  y;
-
-	unsigned short       redBits;
-	unsigned short       greenBits;
-	unsigned short       blueBits;
-
-} GFX_Platform_Attributes;
-
 
 /**
  * \brief Creates a new window.

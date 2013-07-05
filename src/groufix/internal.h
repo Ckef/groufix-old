@@ -19,15 +19,64 @@
  *
  */
 
-#ifndef GFX_EVENTS_H
-#define GFX_EVENTS_H
+#ifndef GFX_INTERNAL_H
+#define GFX_INTERNAL_H
 
-#include "groufix/keys.h"
-#include "groufix/platform.h"
+#include "groufix/utils.h"
+#include "groufix/window.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/********************************************************
+ * Platform definitions
+ *******************************************************/
+
+/** \brief Proc Address */
+typedef void (*GFXProcAddress)(void);
+
+
+/** \brief A Screen */
+typedef void* GFX_Platform_Screen;
+
+
+/** \brief A Window */
+typedef void* GFX_Platform_Window;
+
+
+/** \brief Window initialization attributes */
+typedef struct GFX_Platform_Attributes
+{
+	GFX_Platform_Screen  screen;
+	const char*          name;
+
+	unsigned int         width;
+	unsigned int         height;
+	int                  x;
+	int                  y;
+
+	GFXColorDepth        depth;
+
+} GFX_Platform_Attributes;
+
+
+/********************************************************
+ * Helper methods for the platform
+ *******************************************************/
+
+/**
+ * \brief Returns the top level window associated with a platform window.
+ *
+ */
+GFXWindow* _gfx_platform_get_window_from_handle(GFX_Platform_Window handle);
+
+/**
+ * \brief Returns whether the extension can be found in the space seperated string.
+ *
+ */
+int _gfx_platform_is_extension_in_string(const char* str, const char* ext);
+
 
 /********************************************************
  * Event triggers (can be called manually)
@@ -39,7 +88,7 @@ extern "C" {
  * Used to intercept a user requested window termination.
  *
  */
-void gfx_event_window_close(GFX_Platform_Window handle);
+void _gfx_event_window_close(GFX_Platform_Window handle);
 
 /**
  * \brief Handles a key press event.
@@ -48,7 +97,7 @@ void gfx_event_window_close(GFX_Platform_Window handle);
  * \param state State of some special keys.
  *
  */
-void gfx_event_key_press(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
+void _gfx_event_key_press(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
 
 /**
  * \brief Handles a key release event.
@@ -57,7 +106,7 @@ void gfx_event_key_press(GFX_Platform_Window handle, GFXKey key, GFXKeyState sta
  * \param state State of some special keys.
  *
  */
-void gfx_event_key_release(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
+void _gfx_event_key_release(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
 
 /**
  * \brief Called when the cursor moves in a window.
@@ -67,7 +116,7 @@ void gfx_event_key_release(GFX_Platform_Window handle, GFXKey key, GFXKeyState s
  * \param state State of some special keys.
  *
  */
-void gfx_event_mouse_move(GFX_Platform_Window handle, int x, int y, GFXKeyState state);
+void _gfx_event_mouse_move(GFX_Platform_Window handle, int x, int y, GFXKeyState state);
 
 /**
  * \brief Handles a mouse key press event.
@@ -78,7 +127,7 @@ void gfx_event_mouse_move(GFX_Platform_Window handle, int x, int y, GFXKeyState 
  * \param state State of some special keys.
  *
  */
-void gfx_event_mouse_press(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
+void _gfx_event_mouse_press(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
 
 /**
  * \brief Handles a mouse key release event.
@@ -89,7 +138,7 @@ void gfx_event_mouse_press(GFX_Platform_Window handle, GFXMouseKey key, int x, i
  * \param state State of some special keys.
  *
  */
-void gfx_event_mouse_release(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
+void _gfx_event_mouse_release(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
 
 /**
  * \brief Handles a mouse wheel event.
@@ -101,11 +150,11 @@ void gfx_event_mouse_release(GFX_Platform_Window handle, GFXMouseKey key, int x,
  * \param state   State of some special keys.
  *
  */
-void gfx_event_mouse_wheel(GFX_Platform_Window handle, int xoffset, int yoffset, int x, int y, GFXKeyState state);
+void _gfx_event_mouse_wheel(GFX_Platform_Window handle, int xoffset, int yoffset, int x, int y, GFXKeyState state);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // GFX_EVENTS_H
+#endif // GFX_INTERNAL_H

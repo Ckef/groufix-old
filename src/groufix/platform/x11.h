@@ -22,15 +22,15 @@
 #ifndef GFX_PLATFORM_X11_H
 #define GFX_PLATFORM_X11_H
 
+/* Before anything else */
+#include "groufix/platform.h"
+#include "groufix/containers/vector.h"
+
 /* Includes */
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
-#include "groufix/ogl.h"
-#include "groufix/containers/vector.h"
-#include "groufix/events.h"
-#include "groufix/utils.h"
-
+#include "groufix/opengl.h"
 #include <GL/glx.h>
 #include <GL/glxext.h>
 
@@ -54,13 +54,6 @@ typedef struct GFX_X11_Extensions
 	PFNGLXCREATECONTEXTATTRIBSARBPROC  CreateContextAttribsARB;
 
 } GFX_X11_Extensions;
-
-
-/**
- * \brief Returns whether an extension is supported for a given screen.
- *
- */
-int _gfx_x11_is_extension_supported(int screenNumber, const char* ext);
 
 
 /********************************************************
@@ -99,6 +92,12 @@ typedef struct GFX_X11_Connection
  */
 extern GFX_X11_Connection* _gfx_x11;
 
+
+/**
+ * \brief Returns whether an extension is supported for a given screen.
+ *
+ */
+int _gfx_x11_is_extension_supported(int screenNumber, const char* ext);
 
 /**
  * \brief Returns an X11 window from its handle.

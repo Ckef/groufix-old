@@ -22,8 +22,6 @@
 #ifndef GFX_SCREEN_H
 #define GFX_SCREEN_H
 
-#include "groufix/platform.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,12 +29,7 @@ extern "C" {
 /********************************************************
  * \brief Top level screen
  *******************************************************/
-typedef struct GFXScreen
-{
-	/* Platform */
-	GFX_Platform_Screen handle;
-
-} GFXScreen;
+typedef void* GFXScreen;
 
 
 /**

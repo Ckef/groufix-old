@@ -8,7 +8,7 @@ int main()
 
 	if(!gfx_init()) return 0;
 
-	GFXDepth depth;
+	GFXColorDepth depth;
 	depth.redBits   = 8;
 	depth.greenBits = 8;
 	depth.blueBits  = 8;
@@ -18,8 +18,8 @@ int main()
 
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{
-		_gfx_platform_context_swap_buffers(window1->handle);
-		_gfx_platform_context_swap_buffers(window2->handle);
+		gfx_window_swap_buffers(window1);
+		gfx_window_swap_buffers(window2);
 
 		/* Print all the errors! */
 		GFXError error;

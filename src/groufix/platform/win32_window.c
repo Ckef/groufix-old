@@ -24,22 +24,19 @@
 #include <stdlib.h>
 
 /******************************************************/
-void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short green, unsigned short blue)
+void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth)
 {
 	PIXELFORMATDESCRIPTOR format;
+	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
+
 	format.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
 	format.nVersion     = 1;
 	format.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 	format.iPixelType   = PFD_TYPE_RGBA;
-	format.cColorBits   = red + green + blue;
-	format.cRedBits     = red;
-	format.cGreenBits   = green;
-	format.cBlueBits    = blue;
-	format.cAlphaBits   = 0;
-	format.cAccumBits   = 0;
-	format.cDepthBits   = 0;
-	format.cStencilBits = 0;
-	format.cAuxBuffers  = 0;
+	format.cColorBits   = depth->redBits + depth->greenBits + depth->blueBits;
+	format.cRedBits     = depth->redBits;
+	format.cGreenBits   = depth->greenBits;
+	format.cBlueBits    = depth->blueBits;
 	format.iLayerType   = PFD_MAIN_PLANE;
 
 	HDC context = GetDC(handle);
@@ -97,7 +94,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Close button */
 		case WM_CLOSE :
 		{
-			gfx_event_window_close(window);
+			_gfx_event_window_close(window);
 			return 0;
 		}
 
@@ -109,7 +106,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
 
-			gfx_event_key_press(window, key, _gfx_win32_get_key_state());
+			_gfx_event_key_press(window, key, _gfx_win32_get_key_state());
 
 			return 0;
 		}
@@ -122,7 +119,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
 
-			gfx_event_key_release(window, key, _gfx_win32_get_key_state());
+			_gfx_event_key_release(window, key, _gfx_win32_get_key_state());
 
 			return 0;
 		}
@@ -130,7 +127,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Mouse move */
 		case WM_MOUSEMOVE :
 		{
-			gfx_event_mouse_move(window,
+			_gfx_event_mouse_move(window,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
 				_gfx_win32_get_key_state()
@@ -141,7 +138,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Left mouse button */
 		case WM_LBUTTONDOWN :
 		{
-			gfx_event_mouse_press(window,
+			_gfx_event_mouse_press(window,
 				GFX_MOUSE_KEY_LEFT,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -151,7 +148,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		}
 		case WM_LBUTTONUP :
 		{
-			gfx_event_mouse_release(window,
+			_gfx_event_mouse_release(window,
 				GFX_MOUSE_KEY_LEFT,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -163,7 +160,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Right mouse button */
 		case WM_RBUTTONDOWN :
 		{
-			gfx_event_mouse_press(window,
+			_gfx_event_mouse_press(window,
 				GFX_MOUSE_KEY_RIGHT,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -173,7 +170,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		}
 		case WM_RBUTTONUP :
 		{
-			gfx_event_mouse_release(window,
+			_gfx_event_mouse_release(window,
 				GFX_MOUSE_KEY_RIGHT,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -185,7 +182,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Middle mouse button */
 		case WM_MBUTTONDOWN :
 		{
-			gfx_event_mouse_press(window,
+			_gfx_event_mouse_press(window,
 				GFX_MOUSE_KEY_MIDDLE,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -195,7 +192,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		}
 		case WM_MBUTTONUP :
 		{
-			gfx_event_mouse_release(window,
+			_gfx_event_mouse_release(window,
 				GFX_MOUSE_KEY_MIDDLE,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -207,7 +204,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Vertical mouse wheel */
 		case WM_MOUSEWHEEL :
 		{
-			gfx_event_mouse_wheel(window,
+			_gfx_event_mouse_wheel(window,
 				0, GET_WHEEL_DELTA_WPARAM(wParam),
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -220,7 +217,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Horizontal mouse wheel */
 		case WM_MOUSEHWHEEL :
 		{
-			gfx_event_mouse_wheel(window,
+			_gfx_event_mouse_wheel(window,
 				GET_WHEEL_DELTA_WPARAM(wParam), 0,
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam),
@@ -304,12 +301,7 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	}
 
 	/* Set pixel format */
-	_gfx_win32_set_pixel_format(
-		window.handle,
-		attributes->redBits,
-		attributes->greenBits,
-		attributes->blueBits
-	);
+	_gfx_win32_set_pixel_format(window.handle, &attributes->depth);
 
 	return window.handle;
 }

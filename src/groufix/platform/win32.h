@@ -22,18 +22,13 @@
 #ifndef GFX_PLATFORM_WIN32_H
 #define GFX_PLATFORM_WIN32_H
 
+/* Before anything else */
+#include "groufix/platform.h"
+#include "groufix/containers/vector.h"
+
 /* Windows XP */
 #ifndef WINVER
 #define WINVER 0x0501
-#endif
-
-/* Unicode */
-#ifndef UNICODE
-#define UNICODE
-#endif
-
-#ifndef _UNICODE
-#define _UNICODE
 #endif
 
 /* Nothing extra */
@@ -49,10 +44,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#include "groufix/ogl.h"
-#include "groufix/containers/vector.h"
-#include "groufix/events.h"
-
+#include "groufix/opengl.h"
 #include <GL/wglext.h>
 #include <wchar.h>
 
@@ -95,13 +87,6 @@ typedef struct GFX_Win32_Window
 } GFX_Win32_Window;
 
 
-/**
- * \brief Sets the pixel format for a window.
- *
- */
-void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short green, unsigned short blue);
-
-
 /********************************************************
  * \brief Win32 Instance
  *******************************************************/
@@ -126,6 +111,12 @@ typedef struct GFX_Win32_Instance
  */
 extern GFX_Win32_Instance* _gfx_win32;
 
+
+/**
+ * \brief Sets the pixel format for a window.
+ *
+ */
+void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short green, unsigned short blue);
 
 /**
  * \brief Returns an Win32 window from its handle.

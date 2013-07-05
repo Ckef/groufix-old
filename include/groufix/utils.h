@@ -24,6 +24,26 @@
 
 #include <stdint.h>
 
+/* Get build target */
+#if defined(_WIN32) || defined(__WIN32__)
+	#define GFX_WIN32
+#elif defined(__APPLE__) || defined(__MACH__)
+	#define GFX_OSX
+#elif defined(__unix) || defined(__unix__) || defined(__linux__)
+	#define GFX_UNIX
+#else
+	#error "Platform not supported"
+#endif
+
+/* Unicode */
+#ifndef UNICODE
+#define UNICODE
+#endif
+
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+
 /* Concatenation */
 #define CAT_BAD(x,y) x ## y
 #define CAT(x,y) CAT_BAD(x,y)
@@ -40,6 +60,5 @@
 /* Void and uint conversion */
 #define UINT_TO_VOID(x) ((void*)(uintptr_t)(x))
 #define VOID_TO_UINT(x) ((uintptr_t)(x))
-
 
 #endif // GFX_UTILS_H

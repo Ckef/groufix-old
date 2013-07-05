@@ -72,29 +72,32 @@ LIBS_WIN32    = -lopengl32 -lgdi32
 # Header files for all window APIs (platforms)
 #################################################################
 HEADERS = \
- $(DEPEND)/GL/glcorearb.h \
  $(INCLUDE)/groufix/containers/deque.h \
  $(INCLUDE)/groufix/containers/vector.h \
  $(INCLUDE)/groufix/math/mat.h \
  $(INCLUDE)/groufix/math/quat.h \
  $(INCLUDE)/groufix/math/vec.h \
  $(INCLUDE)/groufix/errors.h \
- $(INCLUDE)/groufix/events.h \
  $(INCLUDE)/groufix/keys.h \
  $(INCLUDE)/groufix/math.h \
- $(INCLUDE)/groufix/platform.h \
  $(INCLUDE)/groufix/screen.h \
  $(INCLUDE)/groufix/utils.h \
  $(INCLUDE)/groufix/window.h \
  $(INCLUDE)/groufix.h
 
-HEADERS_WIN32 = \
+HEADERS_LIB = \
  $(HEADERS) \
+ $(DEPEND)/GL/glcorearb.h \
+ $(SRC)/groufix/internal.h \
+ $(SRC)/groufix/platform.h
+
+HEADERS_WIN32 = \
+ $(HEADERS_LIB) \
  $(DEPEND)/GL/wglext.h \
  $(SRC)/groufix/platform/win32.h
 
 HEADERS_X11 = \
- $(HEADERS) \
+ $(HEADERS_LIB) \
  $(DEPEND)/GL/glxext.h \
  $(SRC)/groufix/platform/x11.h
 
@@ -130,7 +133,6 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/errors.o \
  $(OUT)/unix-x11/groufix/events.o \
  $(OUT)/unix-x11/groufix/math.o \
- $(OUT)/unix-x11/groufix/platform.o \
  $(OUT)/unix-x11/groufix/screen.o \
  $(OUT)/unix-x11/groufix/window.o \
  $(OUT)/unix-x11/groufix.o
@@ -176,9 +178,6 @@ $(OUT)/unix-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
 $(OUT)/unix-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-$(OUT)/unix-x11/groufix/platform.o: $(SRC)/groufix/platform.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
 $(OUT)/unix-x11/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -202,7 +201,6 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/errors.o \
  $(OUT)/osx-x11/groufix/events.o \
  $(OUT)/osx-x11/groufix/math.o \
- $(OUT)/osx-x11/groufix/platform.o \
  $(OUT)/osx-x11/groufix/screen.o \
  $(OUT)/osx-x11/groufix/window.o \
  $(OUT)/osx-x11/groufix.o
@@ -248,9 +246,6 @@ $(OUT)/osx-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
 $(OUT)/osx-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
-$(OUT)/osx-x11/groufix/platform.o: $(SRC)/groufix/platform.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
 $(OUT)/osx-x11/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
@@ -274,7 +269,6 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/errors.o \
  $(OUT)/win32/groufix/events.o \
  $(OUT)/win32/groufix/math.o \
- $(OUT)/win32/groufix/platform.o \
  $(OUT)/win32/groufix/screen.o \
  $(OUT)/win32/groufix/window.o \
  $(OUT)/win32/groufix.o
@@ -318,9 +312,6 @@ $(OUT)/win32/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/platform.o: $(SRC)/groufix/platform.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)

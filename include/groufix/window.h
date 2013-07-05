@@ -57,14 +57,35 @@ typedef void (*GFXMouseReleaseFun) (struct GFXWindow*, GFXMouseKey, int, int, GF
 typedef void (*GFXMouseWheelFun)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
 
 
-/** \brief Window color depth */
-typedef struct GFXDepth
+/** \brief Color depth */
+typedef struct GFXColorDepth
 {
 	unsigned short redBits;
 	unsigned short greenBits;
 	unsigned short blueBits;
 
-} GFXDepth;
+} GFXColorDepth;
+
+
+/********************************************************
+ * \brief A top level window
+ *******************************************************/
+typedef struct GFXWindow
+{
+	/* Callbacks */
+	struct
+	{
+		GFXWindowCloseFun   windowClose;
+		GFXKeyPressFun      keyPress;
+		GFXKeyReleaseFun    keyRelease;
+		GFXMouseMoveFun     mouseMove;
+		GFXMousePressFun    mousePress;
+		GFXMouseReleaseFun  mouseRelease;
+		GFXMouseWheelFun    mouseWheel;
+
+	} callbacks;
+
+} GFXWindow;
 
 
 /* OpenGL Context */
@@ -81,30 +102,6 @@ typedef struct GFXContext
  *
  */
 void gfx_request_context(GFXContext context);
-
-
-/********************************************************
- * \brief A top level window
- *******************************************************/
-typedef struct GFXWindow
-{
-	/* Platform */
-	GFX_Platform_Window handle;
-
-	/* Callbacks */
-	struct
-	{
-		GFXWindowCloseFun   windowClose;
-		GFXKeyPressFun      keyPress;
-		GFXKeyReleaseFun    keyRelease;
-		GFXMouseMoveFun     mouseMove;
-		GFXMousePressFun    mousePress;
-		GFXMouseReleaseFun  mouseRelease;
-		GFXMouseWheelFun    mouseWheel;
-
-	} callbacks;
-
-} GFXWindow;
 
 
 /**
@@ -131,7 +128,7 @@ GFXWindow* gfx_get_window(unsigned int num);
  * \param depth  Color depth of the window, must be set.
  * 
  */
-GFXWindow* gfx_window_create(GFXScreen* screen, const GFXDepth* depth, const char* name, unsigned int width, unsigned int height, int x, int y);
+GFXWindow* gfx_window_create(GFXScreen* screen, const GFXColorDepth* depth, const char* name, unsigned int width, unsigned int height, int x, int y);
 
 /**
  * \brief Destroys and frees the window.
@@ -200,6 +197,12 @@ void gfx_window_show(GFXWindow* window);
  *
  */
 void gfx_window_hide(GFXWindow* window);
+
+/** 
+ * \brief Swaps the internal buffers of a window.
+ *
+ */
+void gfx_window_swap_buffers(GFXWindow* window);
 
 
 #ifdef __cplusplus

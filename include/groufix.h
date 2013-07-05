@@ -22,9 +22,10 @@
 #ifndef GROUFIX_H
 #define GROUFIX_H
 
+/* All includes */
 #include "groufix/errors.h"
-#include "groufix/events.h"
 #include "groufix/math.h"
+#include "groufix/utils.h"
 #include "groufix/window.h"
 
 #ifdef __cplusplus

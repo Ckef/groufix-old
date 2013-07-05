@@ -25,7 +25,7 @@
 #include <string.h>
 
 /******************************************************/
-static GLXFBConfig* _gfx_x11_get_config(Screen* screen, unsigned short red, unsigned short green, unsigned short blue)
+static GLXFBConfig* _gfx_x11_get_config(Screen* screen, const GFXColorDepth* depth)
 {
 	if(!_gfx_x11) return NULL;
 
@@ -34,9 +34,9 @@ static GLXFBConfig* _gfx_x11_get_config(Screen* screen, unsigned short red, unsi
 		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
 		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
 		GLX_DOUBLEBUFFER,  True,
-		GLX_RED_SIZE,      red,
-		GLX_GREEN_SIZE,    green,
-		GLX_BLUE_SIZE,     blue,
+		GLX_RED_SIZE,      depth->redBits,
+		GLX_GREEN_SIZE,    depth->greenBits,
+		GLX_BLUE_SIZE,     depth->blueBits,
 		None
 	};
 
@@ -95,7 +95,7 @@ static void _gfx_x11_event_proc(XEvent* event)
 		case ClientMessage :
 		{
 			if(event->xclient.data.l[0] == _gfx_x11->wmDeleteWindow)
-				gfx_event_window_close(window);
+				_gfx_event_window_close(window);
 
 			break;
 		}
@@ -107,7 +107,7 @@ static void _gfx_x11_event_proc(XEvent* event)
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_x11->keys[event->xkey.keycode];
 
-			gfx_event_key_press(window, key, _gfx_x11_get_key_state(event->xkey.state));
+			_gfx_event_key_press(window, key, _gfx_x11_get_key_state(event->xkey.state));
 
 			break;
 		}
@@ -119,7 +119,7 @@ static void _gfx_x11_event_proc(XEvent* event)
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_x11->keys[event->xkey.keycode];
 
-			gfx_event_key_release(window, key, _gfx_x11_get_key_state(event->xkey.state));
+			_gfx_event_key_release(window, key, _gfx_x11_get_key_state(event->xkey.state));
 
 			break;
 		}
@@ -127,7 +127,7 @@ static void _gfx_x11_event_proc(XEvent* event)
 		/* Pointer motion */
 		case MotionNotify :
 		{
-			gfx_event_mouse_move(window,
+			_gfx_event_mouse_move(window,
 				event->xmotion.x,
 				event->xmotion.y,
 				_gfx_x11_get_key_state(event->xmotion.state)
@@ -144,20 +144,20 @@ static void _gfx_x11_event_proc(XEvent* event)
 			int y = event->xbutton.y;
 
 			if(event->xbutton.button == Button1)
-				gfx_event_mouse_press(window, GFX_MOUSE_KEY_LEFT, x, y, state);
+				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_LEFT, x, y, state);
 			else if(event->xbutton.button == Button2)
-				gfx_event_mouse_press(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
+				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
 			else if(event->xbutton.button == Button3)
-				gfx_event_mouse_press(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
+				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
 
 			else if(event->xbutton.button == Button4)
-				gfx_event_mouse_wheel(window, 0, 1, x, y, state);
+				_gfx_event_mouse_wheel(window, 0, 1, x, y, state);
 			else if(event->xbutton.button == Button5)
-				gfx_event_mouse_wheel(window, 0, -1, x, y, state);
+				_gfx_event_mouse_wheel(window, 0, -1, x, y, state);
 			else if(event->xbutton.button == Button6)
-				gfx_event_mouse_wheel(window, -1, 0, x, y, state);
+				_gfx_event_mouse_wheel(window, -1, 0, x, y, state);
 			else if(event->xbutton.button == Button7)
-				gfx_event_mouse_wheel(window, 1, 0, x, y, state);
+				_gfx_event_mouse_wheel(window, 1, 0, x, y, state);
 
 			break;
 		}
@@ -170,11 +170,11 @@ static void _gfx_x11_event_proc(XEvent* event)
 			int y = event->xbutton.y;
 
 			if(event->xbutton.button == Button1)
-				gfx_event_mouse_release(window, GFX_MOUSE_KEY_LEFT, x, y, state);
+				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_LEFT, x, y, state);
 			else if(event->xbutton.button == Button2)
-				gfx_event_mouse_release(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
+				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
 			else if(event->xbutton.button == Button3)
-				gfx_event_mouse_release(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
+				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
 
 			break;
 		}
@@ -185,13 +185,7 @@ static void _gfx_x11_event_proc(XEvent* event)
 GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
 {
 	/* Get FB Config */
-	GLXFBConfig* config = _gfx_x11_get_config(
-		attributes->screen,
-		attributes->redBits,
-		attributes->greenBits,
-		attributes->blueBits
-	);
-
+	GLXFBConfig* config = _gfx_x11_get_config(attributes->screen, &attributes->depth);
 	if(!config) return NULL;
 
 	/* Setup the x11 window */

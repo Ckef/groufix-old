@@ -19,7 +19,7 @@
  *
  */
 
-#include "groufix/screen.h"
+#include "groufix/platform.h"
 
 /******************************************************/
 unsigned int gfx_get_num_screens(void)
@@ -30,23 +30,17 @@ unsigned int gfx_get_num_screens(void)
 /******************************************************/
 GFXScreen gfx_get_screen(unsigned int num)
 {
-	GFXScreen scr;
-	scr.handle = _gfx_platform_get_screen(num);
-
-	return scr;
+	return (GFXScreen)_gfx_platform_get_screen(num);
 }
 
 /******************************************************/
 GFXScreen gfx_get_default_screen(void)
 {
-	GFXScreen scr;
-	scr.handle =  _gfx_platform_get_default_screen();
-
-	return scr;
+	return (GFXScreen)_gfx_platform_get_default_screen();
 }
 
 /******************************************************/
 void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height)
 {
-	_gfx_platform_screen_get_size(screen.handle, width, height);
+	_gfx_platform_screen_get_size((GFX_Platform_Screen)screen, width, height);
 }

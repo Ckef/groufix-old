@@ -19,10 +19,10 @@
  *
  */
 
-#ifndef GFX_OGL_H
-#define GFX_OGL_H
+#ifndef GFX_OPENGL_H
+#define GFX_OPENGL_H
 
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glcorearb.h>
 
-#endif // GFX_OGL_H
+#endif // GFX_OPENGL_H
