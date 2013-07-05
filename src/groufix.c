@@ -51,9 +51,12 @@ void gfx_terminate(void)
 {
 	/* Destroy all windows */
 	unsigned int i = gfx_get_num_windows();
-	GFXWindow* wind;
-	if(i) for(wind = gfx_get_window(--i); wind; wind = gfx_get_window(--i))
+	GFXWindow* wind = gfx_get_window(--i);
+	if(i) while(wind)
+	{
 		gfx_window_free(wind);
+		wind = gfx_get_window(--i);
+	}
 
 	/* Terminate platform */
 	_gfx_platform_terminate();

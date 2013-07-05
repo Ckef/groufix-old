@@ -26,12 +26,12 @@
 #include "groufix/screen.h"
 
 /* Minimal supported context */
-#define GFX_CONTEXT_MAJOR_MIN  3
-#define GFX_CONTEXT_MINOR_MIN  2
+#define GFX_CONTEXT_MAJOR_MIN 3
+#define GFX_CONTEXT_MINOR_MIN 2
 
 /* Maximal supported context */
-#define GFX_CONTEXT_MAJOR_MAX  4
-#define GFX_CONTEXT_MINOR_MAX  3
+#define GFX_CONTEXT_MAJOR_MAX 4
+#define GFX_CONTEXT_MINOR_MAX 3
 
 /* Greatest minor version possible */
 #define GFX_CONTEXT_ALL_MINORS_MAX 3;
@@ -56,7 +56,6 @@ typedef void (*GFXMousePressFun)   (struct GFXWindow*, GFXMouseKey, int, int, GF
 typedef void (*GFXMouseReleaseFun) (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
 typedef void (*GFXMouseWheelFun)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
 
-
 /** \brief Color depth */
 typedef struct GFXColorDepth
 {
@@ -68,10 +67,18 @@ typedef struct GFXColorDepth
 
 
 /********************************************************
- * \brief A top level window
+ * Top level windowing
  *******************************************************/
+
+/** \brief A handle to the platform window */
+typedef void* GFXWindowHandle;
+
+/** \brief A top level window */
 typedef struct GFXWindow
 {
+	/* Internal handle */
+	GFXWindowHandle handle;
+
 	/* Callbacks */
 	struct
 	{
@@ -102,7 +109,6 @@ typedef struct GFXContext
  *
  */
 void gfx_request_context(GFXContext context);
-
 
 /**
  * \brief Returns the number of windows.

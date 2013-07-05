@@ -39,8 +39,8 @@
 #define Button7  7
 
 /* Maximum key code lookup */
-#define GFX_X11_MAX_KEYCODE 0xff
-#define GFX_X11_NUM_KEYCODES 0x100
+#define GFX_X11_MAX_KEYCODE   0x0ff
+#define GFX_X11_NUM_KEYCODES  0x100
 
 #ifdef __cplusplus
 extern "C" {

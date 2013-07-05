@@ -54,8 +54,8 @@
 #endif
 
 /* Maximum key code lookup */
-#define GFX_WIN32_MAX_KEYCODE 0xff
-#define GFX_WIN32_NUM_KEYCODES 0x100
+#define GFX_WIN32_MAX_KEYCODE   0x0ff
+#define GFX_WIN32_NUM_KEYCODES  0x100
 
 /* Groufix window class */
 #define GFX_WIN32_WND_CLASS L"GROUFIX"
@@ -116,7 +116,7 @@ extern GFX_Win32_Instance* _gfx_win32;
  * \brief Sets the pixel format for a window.
  *
  */
-void _gfx_win32_set_pixel_format(HWND handle, unsigned short red, unsigned short green, unsigned short blue);
+void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth);
 
 /**
  * \brief Returns an Win32 window from its handle.

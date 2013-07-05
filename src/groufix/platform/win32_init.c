@@ -90,7 +90,13 @@ static int _gfx_win32_load_extensions(void)
 	HWND window = CreateWindow(
 		GFX_WIN32_WND_CLASS, L"", 0, 0, 0, 0, 0, NULL, NULL, GetModuleHandle(NULL), NULL);
 
-	_gfx_win32_set_pixel_format(window, 0, 0, 0);
+	/* Setup context properties */
+	GFXColorDepth depth;
+	depth.redBits   = 0;
+	depth.greenBits = 0;
+	depth.blueBits  = 0;
+
+	_gfx_win32_set_pixel_format(window, &depth);
 	HDC dc = GetDC(window);
 
 	/* Create a dummy render context */

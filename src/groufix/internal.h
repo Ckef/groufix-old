@@ -36,14 +36,11 @@ extern "C" {
 /** \brief Proc Address */
 typedef void (*GFXProcAddress)(void);
 
-
 /** \brief A Screen */
 typedef void* GFX_Platform_Screen;
 
-
 /** \brief A Window */
-typedef void* GFX_Platform_Window;
-
+typedef GFXWindowHandle GFX_Platform_Window;
 
 /** \brief Window initialization attributes */
 typedef struct GFX_Platform_Attributes
