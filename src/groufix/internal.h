@@ -66,7 +66,7 @@ typedef struct GFX_Platform_Attributes
  * \brief Returns the top level window associated with a platform window.
  *
  */
-GFXWindow* _gfx_platform_get_window_from_handle(GFX_Platform_Window handle);
+GFXWindow* _gfx_get_window_from_handle(GFX_Platform_Window handle);
 
 /**
  * \brief Returns whether the extension can be found in the space seperated string.
@@ -76,7 +76,7 @@ int _gfx_platform_is_extension_in_string(const char* str, const char* ext);
 
 
 /********************************************************
- * Event triggers (can be called manually)
+ * Event triggers (must be called manually)
  *******************************************************/
 
 /**

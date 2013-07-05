@@ -24,7 +24,6 @@
 #include "groufix/errors.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 /******************************************************/
 /* Created windows */
@@ -55,7 +54,7 @@ static int _gfx_window_compare(const VectorIterator it, const void* value)
 }
 
 /******************************************************/
-GFXWindow* _gfx_platform_get_window_from_handle(GFX_Platform_Window handle)
+GFXWindow* _gfx_get_window_from_handle(GFX_Platform_Window handle)
 {
 	if(!_gfx_windows) return NULL;
 
@@ -267,25 +266,4 @@ void gfx_window_hide(GFXWindow* window)
 void gfx_window_swap_buffers(GFXWindow* window)
 {
 	_gfx_platform_context_swap_buffers(window->handle);
-}
-
-/******************************************************/
-int _gfx_platform_is_extension_in_string(const char* str, const char* ext)
-{
-	/* Get extension length */
-	size_t len = strlen(ext);
-	if(!len) return 0;
-
-	/* Try to find a complete match */
-	char* found = strstr(str, ext);
-	while(found)
-	{
-		char* end = found + len;
-		if((found == str || *(found - 1) == ' ') && (*end == ' ' || *end == '\0'))
-			return 1;
-
-		found = strstr(end, ext);
-	}
-
-	return 0;
 }
