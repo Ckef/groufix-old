@@ -40,12 +40,13 @@
 extern "C" {
 #endif
 
+/* Forward declerate */
+struct GFXWindow;
+
+
 /********************************************************
  * Window Attributes
  *******************************************************/
-
-/* Forward declerate */
-struct GFXWindow;
 
 /* Window event callbacks */
 typedef void (*GFXWindowCloseFun)  (struct GFXWindow*);
@@ -55,6 +56,7 @@ typedef void (*GFXMouseMoveFun)    (struct GFXWindow*, int, int, GFXKeyState);
 typedef void (*GFXMousePressFun)   (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
 typedef void (*GFXMouseReleaseFun) (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
 typedef void (*GFXMouseWheelFun)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
+
 
 /** \brief Color depth */
 typedef struct GFXColorDepth
@@ -70,15 +72,9 @@ typedef struct GFXColorDepth
  * Top level windowing
  *******************************************************/
 
-/** \brief A handle to the platform window */
-typedef void* GFXWindowHandle;
-
 /** \brief A top level window */
 typedef struct GFXWindow
 {
-	/* Internal handle */
-	GFXWindowHandle handle;
-
 	/* Callbacks */
 	struct
 	{

@@ -24,6 +24,10 @@
 
 #include <stdint.h>
 
+/********************************************************
+ * Platform specifics
+ *******************************************************/
+
 /* Get build target */
 #if defined(_WIN32) || defined(__WIN32__)
 	#define GFX_WIN32
@@ -35,14 +39,29 @@
 	#error "Platform not supported"
 #endif
 
-/* Unicode */
-#ifndef UNICODE
-#define UNICODE
+/* Windows */
+#ifdef GFX_WIN32
+
+	/* Unicode */
+	#ifndef UNICODE
+	#define UNICODE
+	#endif
+
+	#ifndef _UNICODE
+	#define _UNICODE
+	#endif
+
+	/* Windows XP */
+	#ifndef WINVER
+	#define WINVER 0x0501
+	#endif
+
 #endif
 
-#ifndef _UNICODE
-#define _UNICODE
-#endif
+
+/********************************************************
+ * Other unrelated platform stuff
+ *******************************************************/
 
 /* Concatenation */
 #define CAT_BAD(x,y) x ## y
@@ -60,5 +79,6 @@
 /* Void and uint conversion */
 #define UINT_TO_VOID(x) ((void*)(uintptr_t)(x))
 #define VOID_TO_UINT(x) ((uintptr_t)(x))
+
 
 #endif // GFX_UTILS_H

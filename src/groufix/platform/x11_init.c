@@ -37,7 +37,7 @@ int _gfx_x11_is_extension_supported(int screenNumber, const char* ext)
 	const char* extensions = glXQueryExtensionsString(_gfx_x11->display, screenNumber);
 	if(!extensions) return 0;
 
-	return _gfx_platform_is_extension_in_string(extensions, ext);
+	return _gfx_is_extension_in_string(extensions, ext);
 }
 
 /******************************************************/

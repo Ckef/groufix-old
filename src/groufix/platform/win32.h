@@ -23,13 +23,7 @@
 #define GFX_PLATFORM_WIN32_H
 
 /* Before anything else */
-#include "groufix/platform.h"
-#include "groufix/containers/vector.h"
-
-/* Windows XP */
-#ifndef WINVER
-#define WINVER 0x0501
-#endif
+#include "groufix/utils.h"
 
 /* Nothing extra */
 #ifndef WIN32_LEAN_AND_MEAN
@@ -41,12 +35,15 @@
 #endif
 
 /* Includes */
+#define GL_GLEXT_PROTOTYPES
 #include <windows.h>
 #include <windowsx.h>
-
-#include "groufix/opengl.h"
 #include <GL/wglext.h>
+#include <GL/glcorearb.h>
 #include <wchar.h>
+
+#include "groufix/platform.h"
+#include "groufix/containers/vector.h"
 
 /* Windows apparently does not define this everywhere... */
 #ifndef WM_MOUSEHWHEEL

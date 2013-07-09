@@ -178,12 +178,13 @@ void _gfx_platform_poll_events(void);
 /**
  * \brief Creates the OpenGL context of a window.
  *
- * \param major Major OpenGL version.
+ * \param major Major OpenGL (ES) version.
  * \param minor Minor OpenGL version.
  * \param share Window to share OpenGL resources with (can be NULL to not share).
  *
  * Creates the context and makes it the current context to render to.
  * Both forward compatibility and the core profile should be used for desktop systems (only 3.2 or above).
+ * If the platform uses OpenGL ES, round down to the nearest with an equal major version.
  *
  */
 int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share);

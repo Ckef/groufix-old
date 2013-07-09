@@ -24,7 +24,7 @@
 #include <string.h>
 
 /******************************************************/
-int _gfx_platform_is_extension_in_string(const char* str, const char* ext)
+int _gfx_is_extension_in_string(const char* str, const char* ext)
 {
 	/* Get extension length */
 	size_t len = strlen(ext);

@@ -22,7 +22,6 @@
 #ifndef GFX_INTERNAL_H
 #define GFX_INTERNAL_H
 
-#include "groufix/utils.h"
 #include "groufix/window.h"
 
 #ifdef __cplusplus
@@ -36,11 +35,14 @@ extern "C" {
 /** \brief Proc Address */
 typedef void (*GFXProcAddress)(void);
 
+
 /** \brief A Screen */
 typedef void* GFX_Platform_Screen;
 
+
 /** \brief A Window */
-typedef GFXWindowHandle GFX_Platform_Window;
+typedef void* GFX_Platform_Window;
+
 
 /** \brief Window initialization attributes */
 typedef struct GFX_Platform_Attributes
@@ -59,20 +61,34 @@ typedef struct GFX_Platform_Attributes
 
 
 /********************************************************
- * Helper methods for the platform
+ * Internal data & methods
  *******************************************************/
+
+/** \brief Internal window */
+typedef struct GFX_Internal_Window
+{
+	/* Super class */
+	GFXWindow window;
+
+	/* Hidden data */
+	GFX_Platform_Window handle;
+
+} GFX_Internal_Window;
+
 
 /**
  * \brief Returns the top level window associated with a platform window.
  *
  */
-GFXWindow* _gfx_get_window_from_handle(GFX_Platform_Window handle);
+GFX_Internal_Window* _gfx_get_window_from_handle(GFX_Platform_Window handle);
 
 /**
  * \brief Returns whether the extension can be found in the space seperated string.
  *
+ * This method is primarily used in the platform implementations.
+ *
  */
-int _gfx_platform_is_extension_in_string(const char* str, const char* ext);
+int _gfx_is_extension_in_string(const char* str, const char* ext);
 
 
 /********************************************************
