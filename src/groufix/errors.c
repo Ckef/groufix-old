@@ -32,24 +32,6 @@ static size_t _gfx_errors_maximum = 3; /* feels about right */
 /* Stored Errors */
 static Deque* _gfx_errors = NULL;
 
-/* All human readable error messages */
-static const char* _gfx_error_messages[] = {
-
-	"", /* No error has been recorded. */
-
-	"An unknown error has been recorded.",
-	"The created OpenGL context is incompatible with the Groufix engine.",
-	"The executing platform is incompatible with the Groufix engine.",
-	"An unacceptable value is specified for an enumerated argument.",
-	"A numeric argument is out of range.",
-	"The specified operation is not allowed in the current state.",
-	"The framebuffer object is not complete.",
-	"There is not enough memory left to execute the command.",
-	"An attempt has been made to perform an operation that would cause an internal stack to underflow.",
-	"An attempt has been made to perform an operation that would cause an internal stack to overflow.",
-	"An attempt to access inaccessible memory has been made."
-};
-
 /******************************************************/
 static GFXError* _gfx_errors_last(void)
 {
@@ -104,7 +86,6 @@ void gfx_errors_push(GFXErrorCode error, const char* description)
 		/* Construct an error */
 		GFXError err;
 		err.code = error;
-		err.message = _gfx_error_messages[error];
 		err.description = NULL;
 
 		/* Copy the description */

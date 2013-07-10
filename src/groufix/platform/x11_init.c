@@ -88,11 +88,11 @@ static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 	switch(evt->error_code)
 	{
 		case BadAccess :
-			gfx_errors_push(GFX_ERROR_ACCESS_DENIED, NULL);
+			gfx_errors_push(GFX_ERROR_ACCESS_DENIED, "X11 BadAccess.");
 			break;
 
 		case BadAlloc :
-			gfx_errors_push(GFX_ERROR_OUT_OF_MEMORY, NULL);
+			gfx_errors_push(GFX_ERROR_OUT_OF_MEMORY, "X11 BadAlloc.");
 			break;
 
 		case BadAtom :
@@ -106,20 +106,20 @@ static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 		case BadPixmap :
 		case BadRequest :
 		case BadWindow :
-			gfx_errors_push(GFX_ERROR_INVALID_ENUM, NULL);
+			gfx_errors_push(GFX_ERROR_INVALID_ENUM, "X11 Invalid Object.");
 
 		case BadValue :
 		case BadLength :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, NULL);
+			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 Invalid Value.");
 			break;
 
 		case BadImplementation :
 		case BadMatch :
-			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, NULL);
+			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, "X11 Invalid Operation.");
 			break;
 
 		default :
-			gfx_errors_push(GFX_ERROR_UNKNOWN, NULL);
+			gfx_errors_push(GFX_ERROR_UNKNOWN, "X11 Unknown Error.");
 			break;
 	}
 

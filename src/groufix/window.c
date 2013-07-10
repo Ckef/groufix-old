@@ -48,23 +48,6 @@ static int _gfx_window_insert(const GFX_Internal_Window* window)
 }
 
 /******************************************************/
-static int _gfx_window_compare(const VectorIterator it, const void* value)
-{
-	return (*(GFX_Internal_Window**)it)->handle == value;
-}
-
-/******************************************************/
-GFX_Internal_Window* _gfx_get_window_from_handle(GFX_Platform_Window handle)
-{
-	if(!_gfx_windows) return NULL;
-
-	VectorIterator found = vector_find(_gfx_windows, handle, _gfx_window_compare);
-	if(found != _gfx_windows->end) return *(GFX_Internal_Window**)found;
-
-	return NULL;
-}
-
-/******************************************************/
 static int _gfx_window_create_context(GFX_Platform_Window window)
 {
 	/* Get a window to share with (any, as all windows will share everything) */
@@ -96,9 +79,29 @@ static int _gfx_window_create_context(GFX_Platform_Window window)
 	}
 
 	/* Nope. */
-	gfx_errors_push(GFX_ERROR_INCOMPATIBLE_CONTEXT, NULL);
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"The requested OpenGL Context version could not be created."
+	);
 
 	return 0;
+}
+
+/******************************************************/
+static int _gfx_window_compare(const VectorIterator it, const void* value)
+{
+	return (*(GFX_Internal_Window**)it)->handle == value;
+}
+
+/******************************************************/
+GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
+{
+	if(!_gfx_windows) return NULL;
+
+	VectorIterator found = vector_find(_gfx_windows, handle, _gfx_window_compare);
+	if(found != _gfx_windows->end) return *(GFX_Internal_Window**)found;
+
+	return NULL;
 }
 
 /******************************************************/
@@ -175,6 +178,7 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	/* Load extensions of context */
 	_gfx_platform_context_make_current(window->handle);
 	_gfx_load_extensions(&window->extensions);
+	_gfx_platform_context_make_current((*(GFX_Internal_Window**)_gfx_windows->begin)->handle);
 
 	/* Make the window visible */
 	_gfx_platform_window_show(window->handle);
@@ -187,18 +191,31 @@ void gfx_window_free(GFXWindow* window)
 {
 	if(window)
 	{
-		/* Destroy window */
+		/* Check if it is not the main window */
 		GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
-		_gfx_platform_destroy_window(internal->handle);
 
-		/* Remove the window from storage */
-		vector_erase(_gfx_windows, vector_find(_gfx_windows, internal->handle, _gfx_window_compare));
-		if(!vector_get_size(_gfx_windows))
+		VectorIterator it = vector_find(_gfx_windows, internal->handle, _gfx_window_compare);
+		unsigned int num = vector_get_size(_gfx_windows);
+
+		if(it != _gfx_windows->begin || num == 1)
 		{
-			vector_free(_gfx_windows);
-			_gfx_windows = NULL;
+			/* Destroy window */
+			_gfx_platform_destroy_window(internal->handle);
+
+			/* Remove the window from storage */
+			vector_erase(_gfx_windows, it);
+			if(num == 1)
+			{
+				vector_free(_gfx_windows);
+				_gfx_windows = NULL;
+			}
+			free(internal);
 		}
-		free(internal);
+
+		else gfx_errors_push(
+			GFX_ERROR_INVALID_OPERATION,
+			"The first window to exist can only be freed once all other windows are freed as well."
+		);
 	}
 }
 

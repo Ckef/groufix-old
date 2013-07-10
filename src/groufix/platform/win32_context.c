@@ -70,7 +70,7 @@ void _gfx_platform_context_get(GFX_Platform_Window handle, int* major, int* mino
 {
 	_gfx_platform_context_make_current(handle);
 
-	GFX_Internal_Window* window = _gfx_get_window_from_handle(handle);
+	GFX_Internal_Window* window = _gfx_window_get_from_handle(handle);
 	if(window)
 	{
 		window->extensions.GetIntegerv(GL_MAJOR_VERSION, major);

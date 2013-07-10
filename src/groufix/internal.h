@@ -94,10 +94,10 @@ typedef struct GFX_Internal_Window
  * \brief Returns the top level window associated with a platform window.
  *
  */
-GFX_Internal_Window* _gfx_get_window_from_handle(GFX_Platform_Window handle);
+GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle);
 
 /**
- * \brief Loads all extensions for the currently bound context.
+ * \brief Loads all extensions for the current window's context.
  *
  */
 void _gfx_load_extensions(GFX_Extensions* ext);

@@ -55,7 +55,6 @@ typedef int GFXErrorCode;
 typedef struct GFXError
 {
 	GFXErrorCode  code;
-	const char*   message;     /* Cannot be NULL */
 	char*         description; /* Can be NULL */
 
 } GFXError;
@@ -80,7 +79,7 @@ void gfx_errors_pop(void);
  * \brief Adds an error to the internal queue.
  *
  * \param error       The error code to add, GFX_NO_ERROR will be ignored.
- * \param description Extra description describing the error (can be NULL).
+ * \param description Optional message to describe the error (can be NULL).
  *
  */
 void gfx_errors_push(GFXErrorCode error, const char* description);
