@@ -13,8 +13,11 @@ int main()
 	depth.greenBits = 8;
 	depth.blueBits  = 8;
 
-	GFXWindow* window1 = gfx_window_create(NULL, &depth, "Window Unos", 800, 600, 100, 100);
-	GFXWindow* window2 = gfx_window_create(NULL, &depth, "Window Deux", 800, 600, 300, 300);
+	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 800, 600, 100, 100);
+	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 800, 600, 300, 300);
+
+	GFXContext cont = gfx_window_get_context(window1);
+	printf("%i.%i\n", cont.major, cont.minor);
 
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{

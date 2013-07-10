@@ -22,19 +22,13 @@
 #ifndef GFX_PLATFORM_X11_H
 #define GFX_PLATFORM_X11_H
 
-/* Before anything else */
-#include "groufix/utils.h"
+#include "groufix/platform.h"
+#include "groufix/containers/vector.h"
 
-/* Includes */
-#define GL_GLEXT_PROTOTYPES
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
-#include <GL/glcorearb.h>
-
-#include "groufix/platform.h"
-#include "groufix/containers/vector.h"
 
 /* More of them buttons! */
 #define Button6  6

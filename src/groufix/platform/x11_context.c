@@ -52,10 +52,7 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int mino
 		bufferAttr
 	);
 
-	if(!window->context) return 0;
-	glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
-
-	return 1;
+	return window->context ? 1 : 0;
 }
 
 /******************************************************/
@@ -75,20 +72,21 @@ void _gfx_platform_destroy_context(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_platform_context_get(GFX_Platform_Window handle, int* major, int* minor)
 {
-	if(_gfx_platform_context_make_current(handle))
+	_gfx_platform_context_make_current(handle);
+
+	GFX_Internal_Window* window = _gfx_get_window_from_handle(handle);
+	if(window)
 	{
-		glGetIntegerv(GL_MAJOR_VERSION, major);
-		glGetIntegerv(GL_MINOR_VERSION, minor);
+		window->extensions.GetIntegerv(GL_MAJOR_VERSION, major);
+		window->extensions.GetIntegerv(GL_MINOR_VERSION, minor);
 	}
 }
 
 /******************************************************/
-int _gfx_platform_context_make_current(GFX_Platform_Window handle)
+void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 {
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
-	if(window) return glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
-
-	return 0;
+	if(window) glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
 }
 
 /******************************************************/

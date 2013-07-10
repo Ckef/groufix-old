@@ -135,7 +135,7 @@ GFXWindow* gfx_get_window(unsigned int num)
 }
 
 /******************************************************/
-GFXWindow* gfx_window_create(GFXScreen* screen, const GFXColorDepth* depth, const char* name, unsigned int width, unsigned int height, int x, int y)
+GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y)
 {
 	/* Setup top level window */
 	GFX_Internal_Window* window = (GFX_Internal_Window*)calloc(1, sizeof(GFX_Internal_Window));
@@ -143,7 +143,7 @@ GFXWindow* gfx_window_create(GFXScreen* screen, const GFXColorDepth* depth, cons
 
 	/* Get screen */
 	GFX_Platform_Screen scr;
-	if(screen) scr = (GFX_Platform_Screen)(*screen);
+	if(screen) scr = (GFX_Platform_Screen)screen;
 	else scr = _gfx_platform_get_default_screen();
 
 	/* Create platform window */
@@ -154,7 +154,7 @@ GFXWindow* gfx_window_create(GFXScreen* screen, const GFXColorDepth* depth, cons
 	attr.height    = height;
 	attr.x         = x;
 	attr.y         = y;
-	attr.depth     = *depth;
+	attr.depth     = depth;
 
 	window->handle = _gfx_platform_create_window(&attr);
 	if(!window->handle)
@@ -171,6 +171,10 @@ GFXWindow* gfx_window_create(GFXScreen* screen, const GFXColorDepth* depth, cons
 
 		return NULL;
 	}
+
+	/* Load extensions of context */
+	_gfx_platform_context_make_current(window->handle);
+	_gfx_load_extensions(&window->extensions);
 
 	/* Make the window visible */
 	_gfx_platform_window_show(window->handle);
@@ -199,13 +203,13 @@ void gfx_window_free(GFXWindow* window)
 }
 
 /******************************************************/
-GFXScreen gfx_window_get_screen(GFXWindow* window)
+GFXScreen gfx_window_get_screen(const GFXWindow* window)
 {
 	return (GFXScreen)_gfx_platform_window_get_screen(((GFX_Internal_Window*)window)->handle);
 }
 
 /******************************************************/
-GFXContext gfx_window_get_context(GFXWindow* window)
+GFXContext gfx_window_get_context(const GFXWindow* window)
 {
 	GFXContext context;
 	context.major = 0;
@@ -216,55 +220,55 @@ GFXContext gfx_window_get_context(GFXWindow* window)
 }
 
 /******************************************************/
-char* gfx_window_get_name(GFXWindow* window)
+char* gfx_window_get_name(const GFXWindow* window)
 {
 	return _gfx_platform_window_get_name(((GFX_Internal_Window*)window)->handle);
 }
 
 /******************************************************/
-void gfx_window_get_size(GFXWindow* window, unsigned int* width, unsigned int* height)
+void gfx_window_get_size(const GFXWindow* window, unsigned int* width, unsigned int* height)
 {
 	_gfx_platform_window_get_size(((GFX_Internal_Window*)window)->handle, width, height);
 }
 
 /******************************************************/
-void gfx_window_get_position(GFXWindow* window, int* x, int* y)
+void gfx_window_get_position(const GFXWindow* window, int* x, int* y)
 {
 	_gfx_platform_window_get_position(((GFX_Internal_Window*)window)->handle, x, y);
 }
 
 /******************************************************/
-void gfx_window_set_name(GFXWindow* window, const char* name)
+void gfx_window_set_name(const GFXWindow* window, const char* name)
 {
 	_gfx_platform_window_set_name(((GFX_Internal_Window*)window)->handle, name);
 }
 
 /******************************************************/
-void gfx_window_set_size(GFXWindow* window, unsigned int width, unsigned int height)
+void gfx_window_set_size(const GFXWindow* window, unsigned int width, unsigned int height)
 {
 	_gfx_platform_window_set_size(((GFX_Internal_Window*)window)->handle, width, height);
 }
 
 /******************************************************/
-void gfx_window_set_position(GFXWindow* window, int x, int y)
+void gfx_window_set_position(const GFXWindow* window, int x, int y)
 {
 	_gfx_platform_window_set_position(((GFX_Internal_Window*)window)->handle, x, y);
 }
 
 /******************************************************/
-void gfx_window_show(GFXWindow* window)
+void gfx_window_show(const GFXWindow* window)
 {
 	_gfx_platform_window_show(((GFX_Internal_Window*)window)->handle);
 }
 
 /******************************************************/
-void gfx_window_hide(GFXWindow* window)
+void gfx_window_hide(const GFXWindow* window)
 {
 	_gfx_platform_window_hide(((GFX_Internal_Window*)window)->handle);
 }
 
 /******************************************************/
-void gfx_window_swap_buffers(GFXWindow* window)
+void gfx_window_swap_buffers(const GFXWindow* window)
 {
 	_gfx_platform_context_swap_buffers(((GFX_Internal_Window*)window)->handle);
 }

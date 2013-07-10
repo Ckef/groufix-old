@@ -130,7 +130,7 @@ GFXWindow* gfx_get_window(unsigned int num);
  * \param depth  Color depth of the window, must be set.
  * 
  */
-GFXWindow* gfx_window_create(GFXScreen* screen, const GFXColorDepth* depth, const char* name, unsigned int width, unsigned int height, int x, int y);
+GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y);
 
 /**
  * \brief Destroys and frees the window.
@@ -142,13 +142,13 @@ void gfx_window_free(GFXWindow* window);
  * \brief Returns the screen associated with a window.
  *
  */
-GFXScreen gfx_window_get_screen(GFXWindow* window);
+GFXScreen gfx_window_get_screen(const GFXWindow* window);
 
 /**
  * \brief Returns the context of the window.
  *
  */
-GFXContext gfx_window_get_context(GFXWindow* window);
+GFXContext gfx_window_get_context(const GFXWindow* window);
 
 /**
  * \brief Gets the name of the window.
@@ -156,55 +156,55 @@ GFXContext gfx_window_get_context(GFXWindow* window);
  * If the returned pointer is not NULL, it should be freed manually.
  *
  */
-char* gfx_window_get_name(GFXWindow* window);
+char* gfx_window_get_name(const GFXWindow* window);
 
 /**
  * \brief Gets the size of the window.
  *
  */
-void gfx_window_get_size(GFXWindow* window, unsigned int* width, unsigned int* height);
+void gfx_window_get_size(const GFXWindow* window, unsigned int* width, unsigned int* height);
 
 /**
  * \brief Gets the position of the window.
  *
  */
-void gfx_window_get_position(GFXWindow* window, int* x, int* y);
+void gfx_window_get_position(const GFXWindow* window, int* x, int* y);
 
 /**
  * \brief Sets the name of the window.
  *
  */
-void gfx_window_set_name(GFXWindow* window, const char* name);
+void gfx_window_set_name(const GFXWindow* window, const char* name);
 
 /**
  * \brief Sets the size of the window.
  *
  */
-void gfx_window_set_size(GFXWindow* window, unsigned int width, unsigned int height);
+void gfx_window_set_size(const GFXWindow* window, unsigned int width, unsigned int height);
 
 /**
  * \brief Sets the position of the window.
  *
  */
-void gfx_window_set_position(GFXWindow* window, int x, int y);
+void gfx_window_set_position(const GFXWindow* window, int x, int y);
 
 /**
  * \brief Makes a window visible.
  *
  */
-void gfx_window_show(GFXWindow* window);
+void gfx_window_show(const GFXWindow* window);
 
 /**
  * \brief Makes a window invisible.
  *
  */
-void gfx_window_hide(GFXWindow* window);
+void gfx_window_hide(const GFXWindow* window);
 
 /** 
  * \brief Swaps the internal buffers of a window.
  *
  */
-void gfx_window_swap_buffers(GFXWindow* window);
+void gfx_window_swap_buffers(const GFXWindow* window);
 
 
 #ifdef __cplusplus

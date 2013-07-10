@@ -47,10 +47,7 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int mino
 	HDC dc = GetDC(handle);
 	window->context = _gfx_win32->extensions.CreateContextAttribsARB(dc, shareCont, bufferAttr);
 
-	if(!window->context) return 0;
-	wglMakeCurrent(dc, window->context);
-
-	return 1;
+	return window->context ? 1 : 0;
 }
 
 /******************************************************/
@@ -71,20 +68,21 @@ void _gfx_platform_destroy_context(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_platform_context_get(GFX_Platform_Window handle, int* major, int* minor)
 {
-	if(_gfx_platform_context_make_current(handle))
+	_gfx_platform_context_make_current(handle);
+
+	GFX_Internal_Window* window = _gfx_get_window_from_handle(handle);
+	if(window)
 	{
-		glGetIntegerv(GL_MAJOR_VERSION, major);
-		glGetIntegerv(GL_MINOR_VERSION, minor);
+		window->extensions.GetIntegerv(GL_MAJOR_VERSION, major);
+		window->extensions.GetIntegerv(GL_MINOR_VERSION, minor);
 	}
 }
 
 /******************************************************/
-int _gfx_platform_context_make_current(GFX_Platform_Window handle)
+void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 {
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
-	if(window) return wglMakeCurrent(GetDC(handle), window->context);
-
-	return 0;
+	if(window) wglMakeCurrent(GetDC(handle), window->context);
 }
 
 /******************************************************/

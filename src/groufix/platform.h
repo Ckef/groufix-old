@@ -182,7 +182,6 @@ void _gfx_platform_poll_events(void);
  * \param minor Minor OpenGL version.
  * \param share Window to share OpenGL resources with (can be NULL to not share).
  *
- * Creates the context and makes it the current context to render to.
  * Both forward compatibility and the core profile should be used for desktop systems (only 3.2 or above).
  * If the platform uses OpenGL ES, round down to the nearest with an equal major version.
  *
@@ -209,7 +208,7 @@ void _gfx_platform_context_get(GFX_Platform_Window handle, int* major, int* mino
  * \return Whether it could make the context current or not.
  *
  */
-int _gfx_platform_context_make_current(GFX_Platform_Window handle);
+void _gfx_platform_context_make_current(GFX_Platform_Window handle);
 
 /** 
  * \brief Swaps the internal buffers of a window.

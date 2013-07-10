@@ -22,28 +22,13 @@
 #ifndef GFX_PLATFORM_WIN32_H
 #define GFX_PLATFORM_WIN32_H
 
-/* Before anything else */
-#include "groufix/utils.h"
+#include "groufix/platform.h"
+#include "groufix/containers/vector.h"
 
-/* Nothing extra */
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN
-#endif
-
-/* Includes */
-#define GL_GLEXT_PROTOTYPES
+#include <wchar.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <GL/wglext.h>
-#include <GL/glcorearb.h>
-#include <wchar.h>
-
-#include "groufix/platform.h"
-#include "groufix/containers/vector.h"
 
 /* Windows apparently does not define this everywhere... */
 #ifndef WM_MOUSEHWHEEL

@@ -22,11 +22,24 @@
 #ifndef GFX_INTERNAL_H
 #define GFX_INTERNAL_H
 
+#include "groufix/utils.h"
 #include "groufix/window.h"
+
+#include <GL/glcorearb.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/********************************************************
+ * \brief OpenGL Extensions
+ *******************************************************/
+typedef struct GFX_Extensions
+{
+	PFNGLGETINTEGERVPROC GetIntegerv;
+
+} GFX_Extensions;
+
 
 /********************************************************
  * Platform definitions
@@ -71,7 +84,8 @@ typedef struct GFX_Internal_Window
 	GFXWindow window;
 
 	/* Hidden data */
-	GFX_Platform_Window handle;
+	GFX_Platform_Window  handle;
+	GFX_Extensions       extensions;
 
 } GFX_Internal_Window;
 
@@ -83,6 +97,12 @@ typedef struct GFX_Internal_Window
 GFX_Internal_Window* _gfx_get_window_from_handle(GFX_Platform_Window handle);
 
 /**
+ * \brief Loads all extensions for the currently bound context.
+ *
+ */
+void _gfx_load_extensions(GFX_Extensions* ext);
+
+/**
  * \brief Returns whether the extension can be found in the space seperated string.
  *
  * This method is primarily used in the platform implementations.
@@ -92,7 +112,7 @@ int _gfx_is_extension_in_string(const char* str, const char* ext);
 
 
 /********************************************************
- * Event triggers (must be called manually)
+ * Event triggers (must be called manually by platform)
  *******************************************************/
 
 /**

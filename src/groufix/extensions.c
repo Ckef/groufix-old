@@ -19,9 +19,16 @@
  *
  */
 
-#include "groufix/internal.h"
+#define GL_GLEXT_PROTOTYPES
+#include "groufix/platform.h"
 
 #include <string.h>
+
+/******************************************************/
+void _gfx_load_extensions(GFX_Extensions* ext)
+{
+	ext->GetIntegerv = glGetIntegerv;
+}
 
 /******************************************************/
 int _gfx_is_extension_in_string(const char* str, const char* ext)

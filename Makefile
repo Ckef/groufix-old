@@ -132,9 +132,9 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
  $(OUT)/unix-x11/groufix/errors.o \
  $(OUT)/unix-x11/groufix/events.o \
+ $(OUT)/unix-x11/groufix/extensions.o \
  $(OUT)/unix-x11/groufix/math.o \
  $(OUT)/unix-x11/groufix/screen.o \
- $(OUT)/unix-x11/groufix/utils.o \
  $(OUT)/unix-x11/groufix/window.o \
  $(OUT)/unix-x11/groufix.o
 
@@ -176,13 +176,13 @@ $(OUT)/unix-x11/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_X11)
 $(OUT)/unix-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/extensions.o: $(SRC)/groufix/extensions.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/utils.o: $(SRC)/groufix/utils.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_X11)
@@ -204,9 +204,9 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/platform/x11_window.o \
  $(OUT)/osx-x11/groufix/errors.o \
  $(OUT)/osx-x11/groufix/events.o \
+ $(OUT)/osx-x11/groufix/extensions.o \
  $(OUT)/osx-x11/groufix/math.o \
  $(OUT)/osx-x11/groufix/screen.o \
- $(OUT)/osx-x11/groufix/utils.o \
  $(OUT)/osx-x11/groufix/window.o \
  $(OUT)/osx-x11/groufix.o
 
@@ -248,13 +248,13 @@ $(OUT)/osx-x11/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_X11)
 $(OUT)/osx-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
+$(OUT)/osx-x11/groufix/extensions.o: $(SRC)/groufix/extensions.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
+
 $(OUT)/osx-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/utils.o: $(SRC)/groufix/utils.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_X11)
@@ -276,9 +276,9 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/platform/win32_window.o \
  $(OUT)/win32/groufix/errors.o \
  $(OUT)/win32/groufix/events.o \
+ $(OUT)/win32/groufix/extensions.o \
  $(OUT)/win32/groufix/math.o \
  $(OUT)/win32/groufix/screen.o \
- $(OUT)/win32/groufix/utils.o \
  $(OUT)/win32/groufix/window.o \
  $(OUT)/win32/groufix.o
 
@@ -296,10 +296,10 @@ before-win32:
 
 # All the object files
 
-$(OUT)/win32/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_X11)
+$(OUT)/win32/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
+$(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_context.o: $(SRC)/groufix/platform/win32_context.c $(HEADERS_WIN32)
@@ -320,16 +320,16 @@ $(OUT)/win32/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_WIN32)
 $(OUT)/win32/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
+$(OUT)/win32/groufix/extensions.o: $(SRC)/groufix/extensions.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
 $(OUT)/win32/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)
+$(OUT)/win32/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/utils.o: $(SRC)/groufix/utils.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_X11)
+$(OUT)/win32/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix.o: $(SRC)/groufix.c $(HEADERS_WIN32)
