@@ -21,11 +21,15 @@
 
 #include "groufix/platform.h"
 #include "groufix/containers/vector.h"
+#include "groufix/hardware.h"
 #include "groufix/errors.h"
 
 #include <stdlib.h>
 
 /******************************************************/
+/* Current window */
+static GFX_Internal_Window* _gfx_current_window = NULL;
+
 /* Created windows */
 static Vector* _gfx_windows = NULL;
 
@@ -34,18 +38,6 @@ static GFXContext _gfx_context = {
 	GFX_CONTEXT_MAJOR_MIN,
 	GFX_CONTEXT_MINOR_MIN
 };
-
-/******************************************************/
-static int _gfx_window_insert(const GFX_Internal_Window* window)
-{
-	/* Create vector if it doesn't exist yet */
-	if(!_gfx_windows)
-	{
-		_gfx_windows = vector_create(sizeof(GFX_Internal_Window*));
-		if(!_gfx_windows) return 0;
-	}
-	return vector_insert(_gfx_windows, &window, _gfx_windows->end) != _gfx_windows->end;
-}
 
 /******************************************************/
 static int _gfx_window_create_context(GFX_Platform_Window window)
@@ -88,6 +80,18 @@ static int _gfx_window_create_context(GFX_Platform_Window window)
 }
 
 /******************************************************/
+static int _gfx_window_insert(const GFX_Internal_Window* window)
+{
+	/* Create vector if it doesn't exist yet */
+	if(!_gfx_windows)
+	{
+		_gfx_windows = vector_create(sizeof(GFX_Internal_Window*));
+		if(!_gfx_windows) return 0;
+	}
+	return vector_insert(_gfx_windows, &window, _gfx_windows->end) != _gfx_windows->end;
+}
+
+/******************************************************/
 static int _gfx_window_compare(const VectorIterator it, const void* value)
 {
 	return (*(GFX_Internal_Window**)it)->handle == value;
@@ -102,6 +106,19 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
 	if(found != _gfx_windows->end) return *(GFX_Internal_Window**)found;
 
 	return NULL;
+}
+
+/******************************************************/
+void _gfx_window_make_current(GFX_Internal_Window* window)
+{
+	_gfx_platform_context_make_current(window->handle);
+	_gfx_current_window = window;
+}
+
+/******************************************************/
+GFX_Internal_Window* _gfx_window_get_current(void)
+{
+	return _gfx_current_window;
 }
 
 /******************************************************/
@@ -176,9 +193,8 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	}
 
 	/* Load extensions of context */
-	_gfx_platform_context_make_current(window->handle);
-	_gfx_load_extensions(&window->extensions);
-	_gfx_platform_context_make_current((*(GFX_Internal_Window**)_gfx_windows->begin)->handle);
+	_gfx_window_make_current(window);
+	_gfx_extensions_load(&window->extensions);
 
 	/* Make the window visible */
 	_gfx_platform_window_show(window->handle);
@@ -191,16 +207,19 @@ void gfx_window_free(GFXWindow* window)
 {
 	if(window)
 	{
-		/* Check if it is not the main window */
+		/* Get window properties */
 		GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
 
 		VectorIterator it = vector_find(_gfx_windows, internal->handle, _gfx_window_compare);
 		unsigned int num = vector_get_size(_gfx_windows);
 
+		/* Check if it is not the main window */
 		if(it != _gfx_windows->begin || num == 1)
 		{
-			/* Destroy window */
+			/* Destroy window and un-current it */
 			_gfx_platform_destroy_window(internal->handle);
+
+			if(_gfx_current_window == internal) _gfx_current_window = NULL;
 
 			/* Remove the window from storage */
 			vector_erase(_gfx_windows, it);

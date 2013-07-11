@@ -100,7 +100,7 @@ int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char*
 	const char* extensions = _gfx_win32->extensions.GetExtensionsStringARB(GetDC(handle));
 	if(!extensions) return 0;
 
-	return _gfx_is_extension_in_string(extensions, ext);
+	return _gfx_extensions_is_in_string(extensions, ext);
 }
 
 /******************************************************/

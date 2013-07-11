@@ -19,34 +19,30 @@
  *
  */
 
-#define GL_GLEXT_PROTOTYPES
-#include "groufix/internal.h"
+#ifndef GFX_HARDWARE_H
+#define GFX_HARDWARE_H
 
-#include <string.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/******************************************************/
-void _gfx_extensions_load(GFX_Extensions* ext)
-{
-	ext->GetIntegerv = glGetIntegerv;
+/********************************************************
+ * \brief Context handle
+ *******************************************************/
+typedef void* GFXHardwareContext;
+
+
+/**
+ * \brief Get the currently active context.
+ *
+ * May return NULL in case no window is internally current.
+ *
+ */
+const GFXHardwareContext gfx_hardware_get_context(void);
+
+
+#ifdef __cplusplus
 }
+#endif
 
-/******************************************************/
-int _gfx_extensions_is_in_string(const char* str, const char* ext)
-{
-	/* Get extension length */
-	size_t len = strlen(ext);
-	if(!len) return 0;
-
-	/* Try to find a complete match */
-	char* found = strstr(str, ext);
-	while(found)
-	{
-		char* end = found + len;
-		if((found == str || *(found - 1) == ' ') && (*end == ' ' || *end == '\0'))
-			return 1;
-
-		found = strstr(end, ext);
-	}
-
-	return 0;
-}
+#endif // GFX_HARDWARE_H

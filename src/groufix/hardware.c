@@ -19,34 +19,14 @@
  *
  */
 
-#define GL_GLEXT_PROTOTYPES
+#include "groufix/hardware.h"
 #include "groufix/internal.h"
 
-#include <string.h>
-
 /******************************************************/
-void _gfx_extensions_load(GFX_Extensions* ext)
+const GFXHardwareContext gfx_hardware_get_context(void)
 {
-	ext->GetIntegerv = glGetIntegerv;
-}
+	GFX_Internal_Window* wind = _gfx_window_get_current();
+	if(!wind) return NULL;
 
-/******************************************************/
-int _gfx_extensions_is_in_string(const char* str, const char* ext)
-{
-	/* Get extension length */
-	size_t len = strlen(ext);
-	if(!len) return 0;
-
-	/* Try to find a complete match */
-	char* found = strstr(str, ext);
-	while(found)
-	{
-		char* end = found + len;
-		if((found == str || *(found - 1) == ' ') && (*end == ' ' || *end == '\0'))
-			return 1;
-
-		found = strstr(end, ext);
-	}
-
-	return 0;
+	return EXT_TO_CONTEXT(&wind->extensions);
 }

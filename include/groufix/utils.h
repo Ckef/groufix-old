@@ -72,6 +72,10 @@
  * Other unrelated platform stuff
  *******************************************************/
 
+/** \brief Proc Address */
+typedef void (*GFXProcAddress)(void);
+
+
 /* Concatenation */
 #define CAT_BAD(x,y) x ## y
 #define CAT(x,y) CAT_BAD(x,y)

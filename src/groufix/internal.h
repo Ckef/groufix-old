@@ -27,27 +27,17 @@
 
 #include <GL/glcorearb.h>
 
+/* HardwareContext to Extensions */
+#define CONTEXT_TO_EXT(x) ((const GFX_Extensions*)x)
+#define EXT_TO_CONTEXT(x) ((const GFXHardwareContext)x)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /********************************************************
- * \brief OpenGL Extensions
- *******************************************************/
-typedef struct GFX_Extensions
-{
-	PFNGLGETINTEGERVPROC GetIntegerv;
-
-} GFX_Extensions;
-
-
-/********************************************************
  * Platform definitions
  *******************************************************/
-
-/** \brief Proc Address */
-typedef void (*GFXProcAddress)(void);
-
 
 /** \brief A Screen */
 typedef void* GFX_Platform_Screen;
@@ -74,6 +64,33 @@ typedef struct GFX_Platform_Attributes
 
 
 /********************************************************
+ * OpenGL Extensions
+ *******************************************************/
+
+/** \brief OpenGL extensions, a.k.a HardwareContext */
+typedef struct GFX_Extensions
+{
+	PFNGLGETINTEGERVPROC GetIntegerv;
+
+} GFX_Extensions;
+
+
+/**
+ * \brief Loads all extensions for the current window's context.
+ *
+ */
+void _gfx_extensions_load(GFX_Extensions* ext);
+
+/**
+ * \brief Returns whether the extension can be found in the space seperated string.
+ *
+ * This method is primarily used in the platform implementations.
+ *
+ */
+int _gfx_extensions_is_in_string(const char* str, const char* ext);
+
+
+/********************************************************
  * Internal data & methods
  *******************************************************/
 
@@ -97,18 +114,18 @@ typedef struct GFX_Internal_Window
 GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle);
 
 /**
- * \brief Loads all extensions for the current window's context.
+ * \brief Sets the window as the current render target.
  *
  */
-void _gfx_load_extensions(GFX_Extensions* ext);
+void _gfx_window_make_current(GFX_Internal_Window* window);
 
 /**
- * \brief Returns whether the extension can be found in the space seperated string.
+ * \brief Returns the current window.
  *
- * This method is primarily used in the platform implementations.
+ * Returns NULL if no window is active.
  *
  */
-int _gfx_is_extension_in_string(const char* str, const char* ext);
+GFX_Internal_Window* _gfx_window_get_current(void);
 
 
 /********************************************************

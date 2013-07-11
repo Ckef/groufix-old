@@ -128,6 +128,9 @@ GFXWindow* gfx_get_window(unsigned int num);
  *
  * \param screen Screen to use, NULL for default screen.
  * \param depth  Color depth of the window, must be set.
+ *
+ * The first window created is considered the main static OpenGL context,
+ * it cannot be freed untill all other windows have been freed.
  * 
  */
 GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y);
