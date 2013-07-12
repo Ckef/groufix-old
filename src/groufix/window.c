@@ -21,7 +21,6 @@
 
 #include "groufix/platform.h"
 #include "groufix/containers/vector.h"
-#include "groufix/hardware.h"
 #include "groufix/errors.h"
 
 #include <stdlib.h>

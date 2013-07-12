@@ -27,18 +27,36 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Context handle
+ * Hardware Context handling
  *******************************************************/
-typedef void* GFXHardwareContext;
+
+/** \brief Hardware handle */
+typedef void* GFXHardwareHandle;
+
+
+/** \brief OpenGL Context */
+typedef GFXHardwareHandle GFXHardwareContext;
 
 
 /**
  * \brief Get the currently active context.
  *
  * May return NULL in case no window is internally current.
+ * If it returned a non NULL pointer, it should be used as context to call other hardware methods.
  *
  */
 const GFXHardwareContext gfx_hardware_get_context(void);
+
+/**
+ * \brief Polls all OpenGL errors at any given time.
+ *
+ * \param description A description to attach to each error (can be NULL).
+ * \return The number of errors encountered.
+ * 
+ * This method is mostly used internally.
+ *
+ */
+unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardwareContext cnt);
 
 
 #ifdef __cplusplus

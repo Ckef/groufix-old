@@ -27,7 +27,7 @@
 
 #include <GL/glcorearb.h>
 
-/* HardwareContext to Extensions */
+/* HardwareContext to/from Extensions */
 #define CONTEXT_TO_EXT(x) ((const GFX_Extensions*)x)
 #define EXT_TO_CONTEXT(x) ((const GFXHardwareContext)x)
 
@@ -70,7 +70,8 @@ typedef struct GFX_Platform_Attributes
 /** \brief OpenGL extensions, a.k.a HardwareContext */
 typedef struct GFX_Extensions
 {
-	PFNGLGETINTEGERVPROC GetIntegerv;
+	PFNGLGETERRORPROC     GetError;
+	PFNGLGETINTEGERVPROC  GetIntegerv;
 
 } GFX_Extensions;
 

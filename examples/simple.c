@@ -25,7 +25,7 @@ int main()
 		GFXError error;
 		while(gfx_errors_peek(&error))
 		{
-			printf("[Error #%i]: %s\n", error.code, error.description);
+			printf("[Error #%x]: %s\n", error.code, error.description);
 			gfx_errors_pop();
 		}
 	}

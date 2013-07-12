@@ -27,7 +27,8 @@
 /******************************************************/
 void _gfx_extensions_load(GFX_Extensions* ext)
 {
-	ext->GetIntegerv = glGetIntegerv;
+	ext->GetError     = glGetError;
+	ext->GetIntegerv  = glGetIntegerv;
 }
 
 /******************************************************/

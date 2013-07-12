@@ -20,6 +20,7 @@
  */
 
 #include "groufix/hardware.h"
+#include "groufix/errors.h"
 #include "groufix/internal.h"
 
 /******************************************************/
@@ -29,4 +30,23 @@ const GFXHardwareContext gfx_hardware_get_context(void)
 	if(!wind) return NULL;
 
 	return EXT_TO_CONTEXT(&wind->extensions);
+}
+
+/******************************************************/
+unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	unsigned int count = 0;
+
+	/* Loop over all errors */
+	GLenum err = ext->GetError();
+	while(err != GL_NO_ERROR)
+	{
+		gfx_errors_push(err, description);
+		err = ext->GetError();
+
+		++count;
+	}
+
+	return count;
 }

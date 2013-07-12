@@ -67,36 +67,33 @@ void gfx_errors_pop(void)
 /******************************************************/
 void gfx_errors_push(GFXErrorCode error, const char* description)
 {
-	if(_gfx_errors_maximum && error > GFX_NO_ERROR && error < GFX_NUM_ERRORS)
+	/* Allocate */
+	if(!_gfx_errors)
 	{
-		/* Allocate */
-		if(!_gfx_errors)
-		{
-			_gfx_errors = deque_create(sizeof(GFXError));
-			if(!_gfx_errors) return;
+		_gfx_errors = deque_create(sizeof(GFXError));
+		if(!_gfx_errors) return;
 
-			/* Reserve right away */
-			deque_reserve(_gfx_errors, _gfx_errors_maximum);
-		}
-		else if(deque_get_size(_gfx_errors) == _gfx_errors_maximum)
-		{
-			deque_pop_back(_gfx_errors);
-		}
-
-		/* Construct an error */
-		GFXError err;
-		err.code = error;
-		err.description = NULL;
-
-		/* Copy the description */
-		if(description)
-		{
-			err.description = (char*)malloc(strlen(description) + 1);
-			strcpy(err.description, description);
-		}
-
-		deque_push_front(_gfx_errors, &err);
+		/* Reserve right away */
+		deque_reserve(_gfx_errors, _gfx_errors_maximum);
 	}
+	else if(deque_get_size(_gfx_errors) == _gfx_errors_maximum)
+	{
+		deque_pop_back(_gfx_errors);
+	}
+
+	/* Construct an error */
+	GFXError err;
+	err.code = error;
+	err.description = NULL;
+
+	/* Copy the description */
+	if(description)
+	{
+		err.description = (char*)malloc(strlen(description) + 1);
+		strcpy(err.description, description);
+	}
+
+	deque_push_front(_gfx_errors, &err);
 }
 
 /******************************************************/
