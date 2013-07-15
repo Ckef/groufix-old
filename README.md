@@ -21,7 +21,7 @@ A Makefile is shipped with the project, run make without a target to view all bu
 
 ### Dependencies
 
-To compile Groufix, you need the standard headers for your platform and OpenGL. These headers should come with the appropriate GPU drivers.
+To compile Groufix, you need the standard headers for your platform and OpenGL. These headers should come with the appropriate GPU drivers. When developing for OGL ES, the library should be built specifically for it. When building for OGL ES, `GFX_GLES` should be defined by the compiler to compile the correct extension loading mechanism (in most cases this is done automatically through the build target).
 
 ## Acknowledgements
 
