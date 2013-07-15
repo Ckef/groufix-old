@@ -22,9 +22,15 @@
 #ifndef GFX_PLATFORM_X11_H
 #define GFX_PLATFORM_X11_H
 
+/* Validate platform */
 #include "groufix/platform.h"
-#include "groufix/containers/vector.h"
 
+#ifdef GFX_GLES
+	#error "Cannot compile X11 platform using GL ES"
+#endif
+
+/* Includes */
+#include "groufix/containers/vector.h"
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>

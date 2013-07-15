@@ -36,6 +36,7 @@ const GFXHardwareContext gfx_hardware_get_context(void)
 unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+
 	unsigned int count = 0;
 
 	/* Loop over all errors */

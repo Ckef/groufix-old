@@ -110,8 +110,12 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_window_make_current(GFX_Internal_Window* window)
 {
-	_gfx_platform_context_make_current(window->handle);
-	_gfx_current_window = window;
+	/* Prevent possible overhead */
+	if(_gfx_current_window != window)
+	{
+		_gfx_platform_context_make_current(window->handle);
+		_gfx_current_window = window;
+	}
 }
 
 /******************************************************/
@@ -191,9 +195,10 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 		return NULL;
 	}
 
-	/* Load extensions of context */
+	/* Load extensions of context and make sure to set the main window as current */
 	_gfx_window_make_current(window);
 	_gfx_extensions_load(&window->extensions);
+	_gfx_window_make_current(*(GFX_Internal_Window**)_gfx_windows->begin);
 
 	/* Make the window visible */
 	_gfx_platform_window_show(window->handle);
@@ -232,7 +237,7 @@ void gfx_window_free(GFXWindow* window)
 
 		else gfx_errors_push(
 			GFX_ERROR_INVALID_OPERATION,
-			"The first window to exist can only be freed once all other windows are freed as well."
+			"The first window to exist can only be freed once all other windows are freed."
 		);
 	}
 }

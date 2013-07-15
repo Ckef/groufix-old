@@ -25,7 +25,11 @@
 #include "groufix/utils.h"
 #include "groufix/window.h"
 
-#include <GL/glcorearb.h>
+#ifdef GFX_GLES
+	#include <GLES3/gl3.h>
+#else
+	#include <GL/glcorearb.h>
+#endif
 
 /* HardwareContext to/from Extensions */
 #define CONTEXT_TO_EXT(x) ((const GFX_Extensions*)x)
@@ -67,11 +71,28 @@ typedef struct GFX_Platform_Attributes
  * OpenGL Extensions
  *******************************************************/
 
+/* Extension function pointers */
+typedef void (*GFX_BINDBUFFERPROC)           (GLenum, GLuint);
+typedef void (*GFX_BUFFERDATAPROC)           (GLenum, GLsizeiptr, const GLvoid*, GLenum);
+typedef void (*GFX_BUFFERSUBDATAPROC)        (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
+typedef void (*GFX_DELETEBUFFERSPROC)        (GLsizei, const GLuint*);
+typedef void (*GFX_GENBUFFERSPROC)           (GLsizei, GLuint*);
+typedef void (*GFX_GETBUFFERPARAMETERIVPROC) (GLenum, GLenum, GLint*);
+typedef GLenum (*GFX_GETERRORPROC)           (void);
+typedef void (*GFX_GETINTEGERVPROC)          (GLenum, GLint*);
+
+
 /** \brief OpenGL extensions, a.k.a HardwareContext */
 typedef struct GFX_Extensions
 {
-	PFNGLGETERRORPROC     GetError;
-	PFNGLGETINTEGERVPROC  GetIntegerv;
+	GFX_BINDBUFFERPROC            BindBuffer;
+	GFX_BUFFERDATAPROC            BufferData;
+	GFX_BUFFERSUBDATAPROC         BufferSubData;
+	GFX_DELETEBUFFERSPROC         DeleteBuffers;
+	GFX_GENBUFFERSPROC            GenBuffers;
+	GFX_GETBUFFERPARAMETERIVPROC  GetBufferParameteriv;
+	GFX_GETERRORPROC              GetError;
+	GFX_GETINTEGERVPROC           GetIntegerv;
 
 } GFX_Extensions;
 

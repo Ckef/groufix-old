@@ -22,11 +22,16 @@
 #ifndef GFX_PLATFORM_WIN32_H
 #define GFX_PLATFORM_WIN32_H
 
+/* Validate platform */
 #include "groufix/platform.h"
-#include "groufix/containers/vector.h"
 
+#ifdef GFX_GLES
+	#error "Cannot compile Win32 platform using GL ES"
+#endif
+
+/* Includes */
+#include "groufix/containers/vector.h"
 #include <wchar.h>
-#include <windows.h>
 #include <windowsx.h>
 #include <GL/wglext.h>
 

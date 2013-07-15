@@ -20,15 +20,38 @@
  */
 
 #define GL_GLEXT_PROTOTYPES
-#include "groufix/internal.h"
+#include "groufix/platform.h"
 
 #include <string.h>
 
 /******************************************************/
 void _gfx_extensions_load(GFX_Extensions* ext)
 {
-	ext->GetError     = glGetError;
-	ext->GetIntegerv  = glGetIntegerv;
+#ifdef GFX_GLES
+
+	/* GLES */
+	ext->BindBuffer           = glBindBuffer;
+	ext->BufferData           = glBufferData;
+	ext->BufferSubData        = glBufferSubData;
+	ext->DeleteBuffers        = glDeleteBuffers;
+	ext->GenBuffers           = glGenBuffers;
+	ext->GetBufferParameteriv = glGetBufferParameteriv;
+
+#else
+
+	/* Core */
+	ext->BindBuffer           = (GFX_BINDBUFFERPROC)_gfx_platform_get_proc_address("glBindBuffer");
+	ext->BufferData           = (GFX_BUFFERDATAPROC)_gfx_platform_get_proc_address("glBufferData");
+	ext->BufferSubData        = (GFX_BUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glBufferSubData");
+	ext->DeleteBuffers        = (GFX_DELETEBUFFERSPROC)_gfx_platform_get_proc_address("glDeleteBuffers");
+	ext->GenBuffers           = (GFX_GENBUFFERSPROC)_gfx_platform_get_proc_address("glGenBuffers");
+	ext->GetBufferParameteriv = (GFX_GETBUFFERPARAMETERIVPROC)_gfx_platform_get_proc_address("glGetBufferParameteriv");
+
+#endif
+
+	/* Same everywhere */
+	ext->GetError             = glGetError;
+	ext->GetIntegerv          = glGetIntegerv;
 }
 
 /******************************************************/

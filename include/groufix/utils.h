@@ -35,7 +35,9 @@
 	#define GFX_OSX
 #elif defined(__unix) || defined(__unix__) || defined(__linux__)
 	#define GFX_UNIX
-#else
+
+/* Maybe GLES? */
+#elif !defined(GFX_GLES)
 	#error "Platform not supported"
 #endif
 
@@ -64,6 +66,9 @@
 	#ifndef VC_EXTRALEAN
 	#define VC_EXTRALEAN
 	#endif
+	
+	/* To avoid redifinitions */
+	#include <windows.h>
 
 #endif
 

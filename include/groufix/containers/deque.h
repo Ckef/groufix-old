@@ -57,6 +57,8 @@ typedef struct Deque
 /**
  * \brief Creates a new deque.
  *
+ * \return NULL on failure.
+ *
  */
 Deque* deque_create(size_t elementSize);
 
@@ -65,12 +67,15 @@ Deque* deque_create(size_t elementSize);
  *
  * \param numElements The number of elements stored in the buffer (not byte size!).
  * \param buff        Memory to copy content from.
+ * \return NULL on failure.
  *
  */
 Deque* deque_create_from_buffer(size_t elementSize, size_t numElements, const void* buff);
 
 /**
  * \brief Creates a copy of a deque.
+ *
+ * \return NULL on failure.
  *
  */
 Deque* deque_create_copy(Deque* src);
