@@ -78,9 +78,12 @@ typedef void (*GFX_BUFFERSUBDATAPROC)        (GLenum, GLintptr, GLsizeiptr, cons
 typedef void (*GFX_DELETEBUFFERSPROC)        (GLsizei, const GLuint*);
 typedef void (*GFX_GENBUFFERSPROC)           (GLsizei, GLuint*);
 typedef void (*GFX_GETBUFFERPARAMETERIVPROC) (GLenum, GLenum, GLint*);
+typedef void (*GFX_GETBUFFERPOINTERVPROC)    (GLenum, GLenum, GLvoid**);
 typedef void (*GFX_GETBUFFERSUBDATAPROC)     (GLenum, GLintptr, GLsizeiptr, GLvoid*);
 typedef GLenum (*GFX_GETERRORPROC)           (void);
 typedef void (*GFX_GETINTEGERVPROC)          (GLenum, GLint*);
+typedef void* (*GFX_MAPBUFFERRANGEPROC)      (GLenum, GLintptr, GLsizeiptr, GLbitfield);
+typedef GLboolean (*GFX_UNMAPBUFFERPROC)     (GLenum);
 
 
 /** \brief OpenGL extensions, a.k.a HardwareContext */
@@ -92,9 +95,12 @@ typedef struct GFX_Extensions
 	GFX_DELETEBUFFERSPROC         DeleteBuffers;
 	GFX_GENBUFFERSPROC            GenBuffers;
 	GFX_GETBUFFERPARAMETERIVPROC  GetBufferParameteriv;
+	GFX_GETBUFFERPOINTERVPROC     GetBufferPointerv;
 	GFX_GETBUFFERSUBDATAPROC      GetBufferSubData;
 	GFX_GETERRORPROC              GetError;
 	GFX_GETINTEGERVPROC           GetIntegerv;
+	GFX_MAPBUFFERRANGEPROC        MapBufferRange;
+	GFX_UNMAPBUFFERPROC           UnmapBuffer;
 
 } GFX_Extensions;
 

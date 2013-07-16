@@ -70,22 +70,31 @@ typedef GFXHardwareHandle GFXHardwareBuffer;
 /** \brief Buffer types */
 typedef unsigned int GFXBufferTarget;
 
-#define GFX_BUFFER_TARGET_VERTEX_ARRAY   0x8892
-#define GFX_BUFFER_TARGET_INDEX_ARRAY    0x8893
+#define GFX_BUFFER_VERTEX_ARRAY    0x8892
+#define GFX_BUFFER_INDEX_ARRAY     0x8893
 
 
 /** \brief Buffer usage */
 typedef unsigned int GFXBufferUsage;
 
-#define GFX_BUFFER_USAGE_STATIC_WRITE    0x88e4
-#define GFX_BUFFER_USAGE_STATIC_READ     0x88e5
-#define GFX_BUFFER_USAGE_STATIC_COPY     0x88e6
-#define GFX_BUFFER_USAGE_DYNAMIC_WRITE   0x88e8
-#define GFX_BUFFER_USAGE_DYNAMIC_READ    0x88e9
-#define GFX_BUFFER_USAGE_DYNAMIC_COPY    0x88ea
-#define GFX_BUFFER_USAGE_STREAM_WRITE    0x88e0
-#define GFX_BUFFER_USAGE_STREAM_READ     0x88e1
-#define GFX_BUFFER_USAGE_STREAM_COPY     0x88e2
+#define GFX_BUFFER_STATIC_WRITE    0x88e4
+#define GFX_BUFFER_STATIC_READ     0x88e5
+#define GFX_BUFFER_STATIC_COPY     0x88e6
+#define GFX_BUFFER_DYNAMIC_WRITE   0x88e8
+#define GFX_BUFFER_DYNAMIC_READ    0x88e9
+#define GFX_BUFFER_DYNAMIC_COPY    0x88ea
+#define GFX_BUFFER_STREAM_WRITE    0x88e0
+#define GFX_BUFFER_STREAM_READ     0x88e1
+#define GFX_BUFFER_STREAM_COPY     0x88e2
+
+
+/** \brief Buffer access bitfield */
+typedef unsigned int GFXBufferAccess;
+
+#define GFX_BUFFER_READ            0x01
+#define GFX_BUFFER_WRITE           0x02
+#define GFX_BUFFER_INVALIDATE      0x06
+#define GFX_BUFFER_NO_SYNC         0x20
 
 
 /**
@@ -156,6 +165,34 @@ size_t gfx_hardware_buffer_write(GFXBufferTarget target, size_t offset, size_t s
  *
  */
 size_t gfx_hardware_buffer_read(GFXBufferTarget target, size_t offset, size_t size, void* data, const GFXHardwareContext cnt);
+
+/**
+ * \brief Maps the buffer bound to the given target, meaning it can be accessed as a regular array.
+ *
+ * \param access Bitfield specifying the permitted access methods.
+ * \param length Lenth to be mapped, the actual mapped length is written to it as well (cannot be NULL!).
+ * \return A pointer to the accessible data (NULL on errors).
+ *
+ * When accessing the buffer is done, it must be unmapped to allow it to be accessed regularly.
+ *
+ */
+void* gfx_hardware_buffer_map(GFXBufferTarget target, size_t offset, size_t* length, GFXBufferAccess access, const GFXHardwareContext cnt);
+
+/**
+ * \brief Returns the mapped pointer.
+ *
+ * \return NULL if it doesn't exist.
+ *
+ */
+void* gfx_hardware_buffer_get_map(GFXBufferTarget target, const GFXHardwareContext cnt);
+
+/**
+ * \brief Disables the mapped pointer, if any.
+ *
+ * This must be called when accessing the buffer is done.
+ *
+ */
+void gfx_hardware_buffer_unmap(GFXBufferTarget target, const GFXHardwareContext cnt);
 
 
 #ifdef __cplusplus

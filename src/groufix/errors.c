@@ -21,6 +21,7 @@
 
 #include "groufix/errors.h"
 #include "groufix/containers/deque.h"
+#include "groufix/utils.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -42,6 +43,12 @@ static GFXError* _gfx_errors_last(void)
 }
 
 /******************************************************/
+static int _gfx_errors_compare(const DequeIterator it, const void* value)
+{
+	return ((GFXError*)it)->code == (GFXErrorCode)VOID_TO_UINT(value);
+}
+
+/******************************************************/
 int gfx_errors_peek(GFXError* error)
 {
 	GFXError* err = _gfx_errors_last();
@@ -50,6 +57,14 @@ int gfx_errors_peek(GFXError* error)
 	*error = *err;
 
 	return 1;
+}
+
+/******************************************************/
+int gfx_errors_find(GFXErrorCode code)
+{
+	if(!_gfx_errors) return 0;
+
+	return deque_find(_gfx_errors, UINT_TO_VOID(code), _gfx_errors_compare) != _gfx_errors->end;
 }
 
 /******************************************************/
@@ -65,7 +80,7 @@ void gfx_errors_pop(void)
 }
 
 /******************************************************/
-void gfx_errors_push(GFXErrorCode error, const char* description)
+void gfx_errors_push(GFXErrorCode code, const char* description)
 {
 	/* Allocate */
 	if(!_gfx_errors)
@@ -82,18 +97,18 @@ void gfx_errors_push(GFXErrorCode error, const char* description)
 	}
 
 	/* Construct an error */
-	GFXError err;
-	err.code = error;
-	err.description = NULL;
+	GFXError error;
+	error.code = code;
+	error.description = NULL;
 
 	/* Copy the description */
 	if(description)
 	{
-		err.description = (char*)malloc(strlen(description) + 1);
-		strcpy(err.description, description);
+		error.description = (char*)malloc(strlen(description) + 1);
+		strcpy(error.description, description);
 	}
 
-	deque_push_front(_gfx_errors, &err);
+	deque_push_front(_gfx_errors, &error);
 }
 
 /******************************************************/

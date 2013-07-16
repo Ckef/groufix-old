@@ -31,7 +31,7 @@ extern "C" {
 /********************************************************
  * \brief Platform independent error code
  *******************************************************/
-typedef int GFXErrorCode;
+typedef unsigned int GFXErrorCode;
 
 #define GFX_ERROR_UNKNOWN                        0x0000
 #define GFX_ERROR_INCOMPATIBLE_CONTEXT           0x0001
@@ -68,6 +68,15 @@ typedef struct GFXError
 int gfx_errors_peek(GFXError* error);
 
 /**
+ * \brief Find a specific error code.
+ *
+ * \param code  The error code to search for.
+ * \return non-zero if any error with the given code was found.
+ *
+ */
+int gfx_errors_find(GFXErrorCode code);
+
+/**
  * \brief Removes the last error.
  *
  */
@@ -76,11 +85,11 @@ void gfx_errors_pop(void);
 /**
  * \brief Adds an error to the internal queue.
  *
- * \param error       The error code to add.
+ * \param code        The error code to add.
  * \param description Optional message to describe the error (can be NULL).
  *
  */
-void gfx_errors_push(GFXErrorCode error, const char* description);
+void gfx_errors_push(GFXErrorCode code, const char* description);
 
 /**
  * \brief Empty the internal error queue.

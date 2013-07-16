@@ -21,6 +21,7 @@
 
 #include "groufix/hardware.h"
 #include "groufix/internal.h"
+#include "groufix/errors.h"
 
 /******************************************************/
 GFXHardwareBuffer gfx_hardware_buffer_create(GFXBufferTarget target, const GFXHardwareContext cnt)
@@ -59,11 +60,11 @@ GFXHardwareBuffer gfx_hardware_buffer_get(GFXBufferTarget target, const GFXHardw
 	GLint buff = 0;
 	switch(target)
 	{
-		case GFX_BUFFER_TARGET_VERTEX_ARRAY :
+		case GFX_BUFFER_VERTEX_ARRAY :
 			ext->GetIntegerv(GL_ARRAY_BUFFER_BINDING, &buff);
 			break;
 
-		case GFX_BUFFER_TARGET_INDEX_ARRAY :
+		case GFX_BUFFER_INDEX_ARRAY :
 			ext->GetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &buff);
 			break;
 	}
@@ -104,8 +105,6 @@ void gfx_hardware_buffer_allocate(GFXBufferTarget target, size_t size, const voi
 /******************************************************/
 size_t gfx_hardware_buffer_write(GFXBufferTarget target, size_t offset, size_t size, const void* data, const GFXHardwareContext cnt)
 {
-	if(!size || !data) return 0;
-
 	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
 
 	/* Boundaries! */
@@ -135,4 +134,43 @@ size_t gfx_hardware_buffer_read(GFXBufferTarget target, size_t offset, size_t si
 	ext->GetBufferSubData(target, offset, readSize, data);
 
 	return readSize;
+}
+
+/******************************************************/
+void* gfx_hardware_buffer_map(GFXBufferTarget target, size_t offset, size_t* length, GFXBufferAccess access, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+
+	/* All the boundaries! */
+	size_t mapLen = gfx_hardware_buffer_get_size(target, cnt);
+	if(offset >= mapLen || !*length || !access) return NULL;
+
+	mapLen -= offset;
+	if(mapLen > *length) mapLen = *length;
+
+	/* Write actual length and map */
+	*length = mapLen;
+	return ext->MapBufferRange(target, offset, mapLen, access);
+}
+
+/******************************************************/
+void* gfx_hardware_buffer_get_map(GFXBufferTarget target, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+
+	GLvoid* ptr;
+	ext->GetBufferPointerv(target, GL_BUFFER_MAP_POINTER, &ptr);
+
+	return ptr;
+}
+
+/******************************************************/
+void gfx_hardware_buffer_unmap(GFXBufferTarget target, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+
+	if(!ext->UnmapBuffer(target)) gfx_errors_push(
+		GFX_ERROR_MEMORY_CORRUPTION,
+		"Mapping a buffer might have corrupted its memory."
+	);
 }
