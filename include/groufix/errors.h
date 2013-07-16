@@ -37,6 +37,7 @@ typedef int GFXErrorCode;
 #define GFX_ERROR_INCOMPATIBLE_CONTEXT           0x0001
 #define GFX_ERROR_INCOMPATIBLE_PLATFORM          0x0002
 #define GFX_ERROR_ACCESS_DENIED                  0x0003
+#define GFX_ERROR_MEMORY_CORRUPTION              0x0004
 #define GFX_ERROR_INVALID_ENUM                   0x0500
 #define GFX_ERROR_INVALID_VALUE                  0x0501
 #define GFX_ERROR_INVALID_OPERATION              0x0502

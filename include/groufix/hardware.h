@@ -71,7 +71,7 @@ typedef GFXHardwareHandle GFXHardwareBuffer;
 typedef unsigned int GFXBufferTarget;
 
 #define GFX_BUFFER_TARGET_VERTEX_ARRAY   0x8892
-#define GFX_BUFFER_TARGET_ELEMENT_ARRAY  0x8893
+#define GFX_BUFFER_TARGET_INDEX_ARRAY    0x8893
 
 
 /** \brief Buffer usage */
@@ -148,6 +148,14 @@ void gfx_hardware_buffer_allocate(GFXBufferTarget target, size_t size, const voi
  *
  */
 size_t gfx_hardware_buffer_write(GFXBufferTarget target, size_t offset, size_t size, const void* data, const GFXHardwareContext cnt);
+
+/**
+ * \brief Reads data from the buffer bound to the given target.
+ *
+ * \return Number of bytes read.
+ *
+ */
+size_t gfx_hardware_buffer_read(GFXBufferTarget target, size_t offset, size_t size, void* data, const GFXHardwareContext cnt);
 
 
 #ifdef __cplusplus
