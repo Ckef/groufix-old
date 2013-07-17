@@ -23,6 +23,7 @@
 #define GFX_PLATFORM_X11_H
 
 /* Validate platform */
+#define GFX_GL_LEGACY
 #include "groufix/platform.h"
 
 #ifdef GFX_GLES

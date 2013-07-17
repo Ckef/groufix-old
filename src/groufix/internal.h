@@ -25,7 +25,9 @@
 #include "groufix/utils.h"
 #include "groufix/window.h"
 
-#ifdef GFX_GLES
+#if defined(GFX_GL_LEGACY)
+	#include <GL/gl.h>
+#elif defined(GFX_GLES)
 	#include <GLES3/gl3.h>
 #else
 	#include <GL/glcorearb.h>

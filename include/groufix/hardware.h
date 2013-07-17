@@ -47,7 +47,7 @@ typedef unsigned int GFXHardwareHandle;
  * If it returned a non NULL pointer, it should be used as context to call other hardware methods.
  *
  */
-const GFXHardwareContext gfx_hardware_get_context(void);
+GFXHardwareContext gfx_hardware_get_context(void);
 
 /**
  * \brief Polls all OpenGL errors at any given time.

@@ -27,7 +27,7 @@
 #include <string.h>
 
 /******************************************************/
-const GFXHardwareContext gfx_hardware_get_context(void)
+GFXHardwareContext gfx_hardware_get_context(void)
 {
 	GFX_Internal_Window* wind = _gfx_window_get_current();
 	if(!wind) return NULL;
@@ -55,6 +55,7 @@ unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardware
 	return count;
 }
 
+
 #ifdef GFX_GLES
 
 /******************************************************/
@@ -74,6 +75,7 @@ static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsize
 }
 
 #endif
+
 
 /******************************************************/
 void _gfx_extensions_load(GFX_Extensions* ext)
