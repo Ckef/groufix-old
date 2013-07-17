@@ -26,36 +26,6 @@
 
 #include <string.h>
 
-/******************************************************/
-GFXHardwareContext gfx_hardware_get_context(void)
-{
-	GFX_Internal_Window* wind = _gfx_window_get_current();
-	if(!wind) return NULL;
-
-	return (GFXHardwareContext)&wind->extensions;
-}
-
-/******************************************************/
-unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardwareContext cnt)
-{
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	unsigned int count = 0;
-
-	/* Loop over all errors */
-	GLenum err = ext->GetError();
-	while(err != GL_NO_ERROR)
-	{
-		gfx_errors_push(err, description);
-		err = ext->GetError();
-
-		++count;
-	}
-
-	return count;
-}
-
-
 #ifdef GFX_GLES
 
 /******************************************************/
@@ -75,7 +45,6 @@ static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsize
 }
 
 #endif
-
 
 /******************************************************/
 void _gfx_extensions_load(GFX_Extensions* ext)
@@ -135,4 +104,33 @@ int _gfx_extensions_is_in_string(const char* str, const char* ext)
 	}
 
 	return 0;
+}
+
+/******************************************************/
+GFXHardwareContext gfx_hardware_get_context(void)
+{
+	GFX_Internal_Window* wind = _gfx_window_get_current();
+	if(!wind) return NULL;
+
+	return (GFXHardwareContext)&wind->extensions;
+}
+
+/******************************************************/
+unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	unsigned int count = 0;
+
+	/* Loop over all errors */
+	GLenum err = ext->GetError();
+	while(err != GL_NO_ERROR)
+	{
+		gfx_errors_push(err, description);
+		err = ext->GetError();
+
+		++count;
+	}
+
+	return count;
 }

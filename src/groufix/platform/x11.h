@@ -23,7 +23,7 @@
 #define GFX_PLATFORM_X11_H
 
 /* Validate platform */
-#define GFX_GL_LEGACY
+#define GFX_INTERNAL_GL_LEGACY
 #include "groufix/platform.h"
 
 #ifdef GFX_GLES
@@ -32,6 +32,8 @@
 
 /* Includes */
 #include "groufix/containers/vector.h"
+#include "groufix/utils.h"
+
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>

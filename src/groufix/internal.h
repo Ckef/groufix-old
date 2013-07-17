@@ -22,10 +22,54 @@
 #ifndef GFX_INTERNAL_H
 #define GFX_INTERNAL_H
 
-#include "groufix/utils.h"
 #include "groufix/window.h"
 
-#if defined(GFX_GL_LEGACY)
+/* Get build target */
+#if defined(_WIN32) || defined(__WIN32__)
+	#define GFX_WIN32
+#elif defined(__APPLE__) || defined(__MACH__)
+	#define GFX_OSX
+#elif defined(__unix) || defined(__unix__) || defined(__linux__)
+	#define GFX_UNIX
+
+/* Maybe GLES? */
+#elif !defined(GFX_GLES)
+	#error "Platform not supported"
+#endif
+
+/* Windows */
+#ifdef GFX_WIN32
+
+	/* Unicode */
+	#ifndef UNICODE
+	#define UNICODE
+	#endif
+
+	#ifndef _UNICODE
+	#define _UNICODE
+	#endif
+
+	/* Windows XP */
+	#ifndef WINVER
+	#define WINVER 0x0501
+	#endif
+
+	/* Nothing extra */
+	#ifndef WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN
+	#endif
+
+	#ifndef VC_EXTRALEAN
+	#define VC_EXTRALEAN
+	#endif
+	
+	/* To avoid redifinitions */
+	#include <windows.h>
+
+#endif
+
+/* Correct OGL header */
+#if defined(GFX_INTERNAL_GL_LEGACY)
 	#include <GL/gl.h>
 #elif defined(GFX_GLES)
 	#include <GLES3/gl3.h>

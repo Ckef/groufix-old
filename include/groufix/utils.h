@@ -24,59 +24,6 @@
 
 #include <stdint.h>
 
-/********************************************************
- * Platform specifics
- *******************************************************/
-
-/* Get build target */
-#if defined(_WIN32) || defined(__WIN32__)
-	#define GFX_WIN32
-#elif defined(__APPLE__) || defined(__MACH__)
-	#define GFX_OSX
-#elif defined(__unix) || defined(__unix__) || defined(__linux__)
-	#define GFX_UNIX
-
-/* Maybe GLES? */
-#elif !defined(GFX_GLES)
-	#error "Platform not supported"
-#endif
-
-/* Windows */
-#ifdef GFX_WIN32
-
-	/* Unicode */
-	#ifndef UNICODE
-	#define UNICODE
-	#endif
-
-	#ifndef _UNICODE
-	#define _UNICODE
-	#endif
-
-	/* Windows XP */
-	#ifndef WINVER
-	#define WINVER 0x0501
-	#endif
-
-	/* Nothing extra */
-	#ifndef WIN32_LEAN_AND_MEAN
-	#define WIN32_LEAN_AND_MEAN
-	#endif
-
-	#ifndef VC_EXTRALEAN
-	#define VC_EXTRALEAN
-	#endif
-	
-	/* To avoid redifinitions */
-	#include <windows.h>
-
-#endif
-
-
-/********************************************************
- * Other unrelated platform stuff
- *******************************************************/
-
 /* Concatenation */
 #define CAT_BAD(x,y) x ## y
 #define CAT(x,y) CAT_BAD(x,y)

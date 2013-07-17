@@ -23,7 +23,7 @@
 #define GFX_PLATFORM_WIN32_H
 
 /* Validate platform */
-#define GFX_GL_LEGACY
+#define GFX_INTERNAL_GL_LEGACY
 #include "groufix/platform.h"
 
 #ifdef GFX_GLES
@@ -32,6 +32,8 @@
 
 /* Includes */
 #include "groufix/containers/vector.h"
+#include "groufix/utils.h"
+
 #include <wchar.h>
 #include <windowsx.h>
 #include <GL/wglext.h>

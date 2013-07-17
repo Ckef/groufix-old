@@ -120,10 +120,6 @@ static int _gfx_win32_load_extensions(void)
 		/* Load all functions */
 		_gfx_win32->extensions.CreateContextAttribsARB =
 			(PFNWGLCREATECONTEXTATTRIBSARBPROC)_gfx_platform_get_proc_address("wglCreateContextAttribsARB");
-
-		/* Check all functions */
-		if(!_gfx_win32->extensions.CreateContextAttribsARB)
-			success = 0;
 	}
 	else success = 0;
 

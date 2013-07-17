@@ -16,7 +16,7 @@ The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 
 ## Building
 
-A Makefile is shipped with the project, run make without a target to view all build targets. All necessary OpenGL headers are shipped with the project as well. Platform files (such as windows.h or xlib.h) are not shipped as they should be made available by the platform itself. Once the library is built, link against it using `-lGroufix`. Use the library in your code by simply including `<groufix.h>`, all core functionality will be made available through that file. If you need to include other platform headers, make sure to include them before groufix.h in case you require a different setup.
+A Makefile is shipped with the project, run make without a target to view all build targets. All necessary OpenGL headers are shipped with the project as well. Platform files (such as windows.h or xlib.h) are not shipped as they should be made available by the platform itself. Once the library is built, link against it using `-lGroufix`. Use the library in your code by simply including `<groufix.h>`, all core functionality will be made available through that file.
 
 ### Dependencies
 

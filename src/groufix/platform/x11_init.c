@@ -75,10 +75,6 @@ static int _gfx_x11_load_extensions(void)
 	_gfx_x11->extensions.CreateContextAttribsARB =
 		(PFNGLXCREATECONTEXTATTRIBSARBPROC)_gfx_platform_get_proc_address("glXCreateContextAttribsARB");
 
-	/* Check all functions */
-	if(!_gfx_x11->extensions.CreateContextAttribsARB)
-		return 0;
-
 	return 1;
 }
 
