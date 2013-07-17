@@ -31,45 +31,20 @@
 	#include <GL/glcorearb.h>
 #endif
 
-/* HardwareContext to/from Extensions */
-#define CONTEXT_TO_EXT(x) ((const GFX_Extensions*)x)
-#define EXT_TO_CONTEXT(x) ((const GFXHardwareContext)x)
+/* Extensions from void */
+#define VOID_TO_EXT(x) ((const GFX_Extensions*)x)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /********************************************************
- * Platform definitions
- *******************************************************/
-
-/** \brief A Screen */
-typedef void* GFX_Platform_Screen;
-
-
-/** \brief A Window */
-typedef void* GFX_Platform_Window;
-
-
-/** \brief Window initialization attributes */
-typedef struct GFX_Platform_Attributes
-{
-	GFX_Platform_Screen  screen;
-	const char*          name;
-
-	unsigned int         width;
-	unsigned int         height;
-	int                  x;
-	int                  y;
-
-	GFXColorDepth        depth;
-
-} GFX_Platform_Attributes;
-
-
-/********************************************************
  * OpenGL Extensions
  *******************************************************/
+
+/** \brief Proc Address */
+typedef void (*GFXProcAddress)(void);
+
 
 /* Extension function pointers */
 typedef void (*GFX_BINDBUFFERPROC)           (GLenum, GLuint);
@@ -118,6 +93,34 @@ void _gfx_extensions_load(GFX_Extensions* ext);
  *
  */
 int _gfx_extensions_is_in_string(const char* str, const char* ext);
+
+
+/********************************************************
+ * Platform definitions
+ *******************************************************/
+
+/** \brief A Screen */
+typedef void* GFX_Platform_Screen;
+
+
+/** \brief A Window */
+typedef void* GFX_Platform_Window;
+
+
+/** \brief Window initialization attributes */
+typedef struct GFX_Platform_Attributes
+{
+	GFX_Platform_Screen  screen;
+	const char*          name;
+
+	unsigned int         width;
+	unsigned int         height;
+	int                  x;
+	int                  y;
+
+	GFXColorDepth        depth;
+
+} GFX_Platform_Attributes;
 
 
 /********************************************************

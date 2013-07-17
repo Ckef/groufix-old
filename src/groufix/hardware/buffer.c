@@ -26,7 +26,7 @@
 /******************************************************/
 GFXHardwareBuffer gfx_hardware_buffer_create(GFXBufferTarget target, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	GLuint buff;
 	ext->GenBuffers(1, &buff);
@@ -38,7 +38,7 @@ GFXHardwareBuffer gfx_hardware_buffer_create(GFXBufferTarget target, const GFXHa
 /******************************************************/
 void gfx_hardware_buffer_free(GFXHardwareBuffer buffer, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	GLuint buff = buffer;
 	ext->DeleteBuffers(1, &buff);
@@ -47,7 +47,7 @@ void gfx_hardware_buffer_free(GFXHardwareBuffer buffer, const GFXHardwareContext
 /******************************************************/
 void gfx_hardware_buffer_bind(GFXBufferTarget target, GFXHardwareBuffer buffer, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	ext->BindBuffer(target, buffer);
 }
@@ -55,7 +55,7 @@ void gfx_hardware_buffer_bind(GFXBufferTarget target, GFXHardwareBuffer buffer, 
 /******************************************************/
 GFXHardwareBuffer gfx_hardware_buffer_get(GFXBufferTarget target, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	GLint buff = 0;
 	switch(target)
@@ -75,7 +75,7 @@ GFXHardwareBuffer gfx_hardware_buffer_get(GFXBufferTarget target, const GFXHardw
 /******************************************************/
 size_t gfx_hardware_buffer_get_size(GFXBufferTarget target, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	GLint size;
 	ext->GetBufferParameteriv(target, GL_BUFFER_SIZE, &size);
@@ -86,7 +86,7 @@ size_t gfx_hardware_buffer_get_size(GFXBufferTarget target, const GFXHardwareCon
 /******************************************************/
 GFXBufferUsage gfx_hardware_buffer_get_usage(GFXBufferTarget target, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	GLint usage;
 	ext->GetBufferParameteriv(target, GL_BUFFER_USAGE, &usage);
@@ -97,7 +97,7 @@ GFXBufferUsage gfx_hardware_buffer_get_usage(GFXBufferTarget target, const GFXHa
 /******************************************************/
 void gfx_hardware_buffer_allocate(GFXBufferTarget target, size_t size, const void* data, GFXBufferUsage use, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	ext->BufferData(target, size, data, use);
 }
@@ -105,7 +105,7 @@ void gfx_hardware_buffer_allocate(GFXBufferTarget target, size_t size, const voi
 /******************************************************/
 size_t gfx_hardware_buffer_write(GFXBufferTarget target, size_t offset, size_t size, const void* data, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Boundaries! */
 	size_t writeSize = gfx_hardware_buffer_get_size(target, cnt);
@@ -122,7 +122,7 @@ size_t gfx_hardware_buffer_write(GFXBufferTarget target, size_t offset, size_t s
 /******************************************************/
 size_t gfx_hardware_buffer_read(GFXBufferTarget target, size_t offset, size_t size, void* data, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Moar boundaries! */
 	size_t readSize = gfx_hardware_buffer_get_size(target, cnt);
@@ -139,7 +139,7 @@ size_t gfx_hardware_buffer_read(GFXBufferTarget target, size_t offset, size_t si
 /******************************************************/
 void* gfx_hardware_buffer_map(GFXBufferTarget target, size_t offset, size_t* length, GFXBufferAccess access, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* All the boundaries! */
 	size_t mapLen = gfx_hardware_buffer_get_size(target, cnt);
@@ -156,7 +156,7 @@ void* gfx_hardware_buffer_map(GFXBufferTarget target, size_t offset, size_t* len
 /******************************************************/
 void* gfx_hardware_buffer_get_map(GFXBufferTarget target, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	GLvoid* ptr;
 	ext->GetBufferPointerv(target, GL_BUFFER_MAP_POINTER, &ptr);
@@ -167,7 +167,7 @@ void* gfx_hardware_buffer_get_map(GFXBufferTarget target, const GFXHardwareConte
 /******************************************************/
 void gfx_hardware_buffer_unmap(GFXBufferTarget target, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = CONTEXT_TO_EXT(cnt);
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	if(!ext->UnmapBuffer(target)) gfx_errors_push(
 		GFX_ERROR_MEMORY_CORRUPTION,

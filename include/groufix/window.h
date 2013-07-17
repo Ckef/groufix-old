@@ -23,7 +23,6 @@
 #define GFX_WINDOW_H
 
 #include "groufix/keys.h"
-#include "groufix/screen.h"
 
 /* Minimal supported context */
 #define GFX_CONTEXT_MAJOR_MIN 3
@@ -40,13 +39,12 @@
 extern "C" {
 #endif
 
-/* Forward declerate */
-struct GFXWindow;
-
-
 /********************************************************
  * Window Callbacks
  *******************************************************/
+
+/* Forward declerate */
+struct GFXWindow;
 
 typedef void (*GFXWindowCloseFun)  (struct GFXWindow*);
 typedef void (*GFXKeyPressFun)     (struct GFXWindow*, GFXKey, GFXKeyState);
@@ -55,6 +53,39 @@ typedef void (*GFXMouseMoveFun)    (struct GFXWindow*, int, int, GFXKeyState);
 typedef void (*GFXMousePressFun)   (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
 typedef void (*GFXMouseReleaseFun) (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
 typedef void (*GFXMouseWheelFun)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
+
+
+/********************************************************
+ * \brief Top level screen
+ *******************************************************/
+typedef void* GFXScreen;
+
+
+/**
+ * \brief Returns the number of visible screens.
+ *
+ */
+unsigned int gfx_get_num_screens(void);
+
+/**
+ * \brief Returns a screen.
+ *
+ * \param num The number of the screens (num < num_screens).
+ *
+ */
+GFXScreen gfx_get_screen(unsigned int num);
+
+/**
+ * \brief Returns the default screen.
+ *
+ */
+GFXScreen gfx_get_default_screen(void);
+
+/**
+ * \brief Gets the resolution of a screen in pixels.
+ *
+ */
+void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height);
 
 
 /********************************************************

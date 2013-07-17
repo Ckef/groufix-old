@@ -125,6 +125,30 @@ GFX_Internal_Window* _gfx_window_get_current(void)
 }
 
 /******************************************************/
+unsigned int gfx_get_num_screens(void)
+{
+	return _gfx_platform_get_num_screens();
+}
+
+/******************************************************/
+GFXScreen gfx_get_screen(unsigned int num)
+{
+	return (GFXScreen)_gfx_platform_get_screen(num);
+}
+
+/******************************************************/
+GFXScreen gfx_get_default_screen(void)
+{
+	return (GFXScreen)_gfx_platform_get_default_screen();
+}
+
+/******************************************************/
+void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height)
+{
+	_gfx_platform_screen_get_size((GFX_Platform_Screen)screen, width, height);
+}
+
+/******************************************************/
 void gfx_request_context(GFXContext context)
 {
 	/* Get minimal context */
