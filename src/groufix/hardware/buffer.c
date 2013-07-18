@@ -67,6 +67,10 @@ GFXHardwareBuffer gfx_hardware_buffer_get(GFXBufferTarget target, const GFXHardw
 		case GFX_BUFFER_INDEX_ARRAY :
 			ext->GetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &buff);
 			break;
+
+		case GFX_BUFFER_UNIFORM_BLOCK :
+			ext->GetIntegerv(GL_UNIFORM_BUFFER_BINDING, &buff);
+			break;
 	}
 
 	return buff;

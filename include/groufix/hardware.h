@@ -60,7 +60,7 @@ unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardware
 
 
 /********************************************************
- * Hardware Buffer (arbitrary array)
+ * Hardware Buffer (arbitrary storage)
  *******************************************************/
 
 /** \brief Buffer handle */
@@ -72,6 +72,7 @@ typedef unsigned int GFXBufferTarget;
 
 #define GFX_BUFFER_VERTEX_ARRAY    0x8892
 #define GFX_BUFFER_INDEX_ARRAY     0x8893
+#define GFX_BUFFER_UNIFORM_BLOCK   0x8a11
 
 
 /** \brief Buffer usage */
@@ -193,6 +194,58 @@ void* gfx_hardware_buffer_get_map(GFXBufferTarget target, const GFXHardwareConte
  *
  */
 void gfx_hardware_buffer_unmap(GFXBufferTarget target, const GFXHardwareContext cnt);
+
+
+/********************************************************
+ * Hardware Object (vertex data state)
+ *******************************************************/
+
+/** \brief Object handle */
+typedef GFXHardwareHandle GFXHardwareObject;
+
+
+/**
+ * \brief Creates a new hardware object.
+ *
+ * \return NULL on failure.
+ *
+ * Also binds the object.
+ *
+ */
+GFXHardwareObject gfx_hardware_object_create(const GFXHardwareContext cnt);
+
+/**
+ * \brief Makes sure the object is freed properly.
+ *
+ */
+void gfx_hardware_object_free(GFXHardwareObject object, const GFXHardwareContext cnt);
+
+/**
+ * \brief Binds the object as active render object.
+ *
+ * \param object The object to be bind, 0 to unbind the currently bound object.
+ *
+ */
+void gfx_hardware_object_bind(GFXHardwareObject object, const GFXHardwareContext cnt);
+
+/**
+ * \brief Enables a vertex attribute of the currently bound object.
+ *
+ * \return Non-zero if it could enable the attribute.
+ *
+ * When an attribute is enabled, it will read said attribute from a buffer.
+ * If not, it will read a constant value.
+ *
+ */
+int gfx_hardware_object_enable_attribute(unsigned int index, const GFXHardwareContext cnt);
+
+/**
+ * \brief Disables a vertex attribute of the currently bound object.
+ *
+ * \return Non-zero if it could disable the attribute.
+ *
+ */
+int gfx_hardware_object_disable_attribute(unsigned int index, const GFXHardwareContext cnt);
 
 
 #ifdef __cplusplus
