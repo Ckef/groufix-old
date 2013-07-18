@@ -53,16 +53,16 @@ void _gfx_extensions_load(GFX_Extensions* ext)
 #ifdef GFX_GLES
 
 	/* GLES */
-	ext->BindBuffer           = glBindBuffer;
-	ext->BufferData           = glBufferData;
-	ext->BufferSubData        = glBufferSubData;
-	ext->DeleteBuffers        = glDeleteBuffers;
-	ext->GenBuffers           = glGenBuffers;
-	ext->GetBufferParameteriv = glGetBufferParameteriv;
-	ext->GetBufferPointerv    = glGetBufferPointerv;
+	ext->BindBuffer           = (GFX_BINDBUFFERPROC)glBindBuffer;
+	ext->BufferData           = (GFX_BUFFERDATAPROC)glBufferData;
+	ext->BufferSubData        = (GFX_BUFFERSUBDATAPROC)glBufferSubData;
+	ext->DeleteBuffers        = (GFX_DELETEBUFFERSPROC)glDeleteBuffers;
+	ext->GenBuffers           = (GFX_GENBUFFERSPROC)glGenBuffers;
+	ext->GetBufferParameteriv = (GFX_GETBUFFERPARAMETERIVPROC)glGetBufferParameteriv;
+	ext->GetBufferPointerv    = (GFX_GETBUFFERPOINTERVPROC)glGetBufferPointerv;
 	ext->GetBufferSubData     = _gfx_gles_get_buffer_sub_data;
-	ext->MapBufferRange       = glMapBufferRange;
-	ext->UnmapBuffer          = glUnmapBuffer;
+	ext->MapBufferRange       = (GFX_MAPBUFFERRANGEPROC)glMapBufferRange;
+	ext->UnmapBuffer          = (GFX_UNMAPBUFFERPROC)glUnmapBuffer;
 
 #else
 
@@ -81,8 +81,8 @@ void _gfx_extensions_load(GFX_Extensions* ext)
 #endif
 
 	/* Same everywhere */
-	ext->GetError             = glGetError;
-	ext->GetIntegerv          = glGetIntegerv;
+	ext->GetError             = (GFX_GETERRORPROC)glGetError;
+	ext->GetIntegerv          = (GFX_GETINTEGERVPROC)glGetIntegerv;
 }
 
 /******************************************************/

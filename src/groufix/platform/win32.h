@@ -23,7 +23,6 @@
 #define GFX_PLATFORM_WIN32_H
 
 /* Validate platform */
-#define GFX_INTERNAL_GL_LEGACY
 #include "groufix/platform.h"
 
 #ifdef GFX_GLES
