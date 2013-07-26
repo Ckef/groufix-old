@@ -265,6 +265,14 @@ void gfx_hardware_object_free(GFXHardwareObject* object, const GFXHardwareContex
 void gfx_hardware_object_bind(GFXHardwareObject* object, const GFXHardwareContext cnt);
 
 /**
+ * \brief Returns the maximum number of attributes which can be used.
+ *
+ * Any index should be smaller than this value (index < maxAttributes).
+ *
+ */
+unsigned int gfx_hardware_object_get_max_attributes(const GFXHardwareContext cnt);
+
+/**
  * \brief Enables a vertex attribute of the currently bound object.
  *
  * \return Non-zero if it could enable the attribute.

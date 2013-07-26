@@ -66,15 +66,23 @@ void gfx_hardware_object_bind(GFXHardwareObject* object, const GFXHardwareContex
 }
 
 /******************************************************/
+unsigned int gfx_hardware_object_get_max_attributes(const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	GLint max;
+	ext->GetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max);
+
+	return max;
+}
+
+/******************************************************/
 int gfx_hardware_object_enable_attribute(unsigned int index, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Validate index */
-	GLint max;
-	ext->GetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max);
-
-	if(index >= max) return 0;
+	if(index >= gfx_hardware_object_get_max_attributes(cnt)) return 0;
 
 	ext->EnableVertexAttribArray(index);
 
@@ -87,10 +95,7 @@ int gfx_hardware_object_disable_attribute(unsigned int index, const GFXHardwareC
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Validate index */
-	GLint max;
-	ext->GetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max);
-
-	if(index >= max) return 0;
+	if(index >= gfx_hardware_object_get_max_attributes(cnt)) return 0;
 
 	ext->DisableVertexAttribArray(index);
 
@@ -103,10 +108,7 @@ int gfx_hardware_object_set_attribute(unsigned int index, const GFXHardwareAttri
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Validate all of it */
-	GLint max;
-	ext->GetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max);
-
-	if(index >= max || attr->size < 1 || attr->size > 4) return 0;
+	if(index >= gfx_hardware_object_get_max_attributes(cnt) || attr->size < 1 || attr->size > 4) return 0;
 
 	ext->BindBuffer(GL_ARRAY_BUFFER, src->handle);
 
@@ -134,10 +136,7 @@ int gfx_hardware_object_get_attribute(unsigned int index, GFXHardwareAttribute* 
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	GLint max;
-	ext->GetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max);
-
-	if(index >= max) return 0;
+	if(index >= gfx_hardware_object_get_max_attributes(cnt)) return 0;
 
 	GLint size;
 	GLuint type;
