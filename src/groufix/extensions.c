@@ -57,6 +57,7 @@ void _gfx_extensions_load(GFX_Extensions* ext)
 	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          glBindVertexArray;
 	ext->BufferData               = (GFX_BUFFERDATAPROC)               glBufferData;
 	ext->BufferSubData            = (GFX_BUFFERSUBDATAPROC)            glBufferSubData;
+	ext->CopyBufferSubData        = (GFX_COPYBUFFERSUBDATAPROC)        glCopyBufferSubData;
 	ext->DeleteBuffers            = (GFX_DELETEBUFFERSPROC)            glDeleteBuffers;
 	ext->DeleteVertexArrays       = (GFX_DELETEVERTEXARRAYSPROC)       glDeleteVertexArrays;
 	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) glDisableVertexAttribArray;
@@ -66,6 +67,9 @@ void _gfx_extensions_load(GFX_Extensions* ext)
 	ext->GetBufferParameteriv     = (GFX_GETBUFFERPARAMETERIVPROC)     glGetBufferParameteriv;
 	ext->GetBufferPointerv        = (GFX_GETBUFFERPOINTERVPROC)        glGetBufferPointerv;
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_gles_get_buffer_sub_data;
+	ext->GetVertexAttribIiv       = (GFX_GETVERTEXATTRIBIIVPROC)       glGetVertexAttribIiv;
+	ext->GetVertexAttribIuiv      = (GFX_GETVERTEXATTRIBIUIVPROC)      glGetVertexAttribIuiv;
+	ext->GetVertexAttribPointerv  = (GFX_GETVERTEXATTRIBPOINTERVPROC)  glGetVertexAttribPointerv;
 	ext->MapBufferRange           = (GFX_MAPBUFFERRANGEPROC)           glMapBufferRange;
 	ext->UnmapBuffer              = (GFX_UNMAPBUFFERPROC)              glUnmapBuffer;
 	ext->VertexAttribIPointer     = (GFX_VERTEXATTRIBIPOINTERPROC)     glVertexAttribIPointer;
@@ -73,11 +77,12 @@ void _gfx_extensions_load(GFX_Extensions* ext)
 
 #else
 
-	/* Core */
+	/* Core, assumes 3.2+ context */
 	ext->BindBuffer               = (GFX_BINDBUFFERPROC)               _gfx_platform_get_proc_address("glBindBuffer");
 	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          _gfx_platform_get_proc_address("glBindVertexArray");
 	ext->BufferData               = (GFX_BUFFERDATAPROC)               _gfx_platform_get_proc_address("glBufferData");
 	ext->BufferSubData            = (GFX_BUFFERSUBDATAPROC)            _gfx_platform_get_proc_address("glBufferSubData");
+	ext->CopyBufferSubData        = (GFX_COPYBUFFERSUBDATAPROC)        _gfx_platform_get_proc_address("glCopyBufferSubData");
 	ext->DeleteBuffers            = (GFX_DELETEBUFFERSPROC)            _gfx_platform_get_proc_address("glDeleteBuffers");
 	ext->DeleteVertexArrays       = (GFX_DELETEVERTEXARRAYSPROC)       _gfx_platform_get_proc_address("glDeleteVertexArrays");
 	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) _gfx_platform_get_proc_address("glDisableVertexAttribArrayProc");
@@ -87,6 +92,9 @@ void _gfx_extensions_load(GFX_Extensions* ext)
 	ext->GetBufferParameteriv     = (GFX_GETBUFFERPARAMETERIVPROC)     _gfx_platform_get_proc_address("glGetBufferParameteriv");
 	ext->GetBufferPointerv        = (GFX_GETBUFFERPOINTERVPROC)        _gfx_platform_get_proc_address("glGetBufferPointerv");
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");
+	ext->GetVertexAttribIiv       = (GFX_GETVERTEXATTRIBIIVPROC)       _gfx_platform_get_proc_address("glGetVertexAttribIiv");
+	ext->GetVertexAttribIuiv      = (GFX_GETVERTEXATTRIBIUIVPROC)      _gfx_platform_get_proc_address("glGetVertexAttribIuiv");
+	ext->GetVertexAttribPointerv  = (GFX_GETVERTEXATTRIBPOINTERVPROC)  _gfx_platform_get_proc_address("glGetVertexAttribPointerv");
 	ext->MapBufferRange           = (GFX_MAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
 	ext->UnmapBuffer              = (GFX_UNMAPBUFFERPROC)              _gfx_platform_get_proc_address("glUnmapBuffer");
 	ext->VertexAttribIPointer     = (GFX_VERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");

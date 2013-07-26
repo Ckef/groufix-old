@@ -97,6 +97,7 @@ typedef void (*GFX_BINDBUFFERPROC)               (GLenum, GLuint);
 typedef void (*GFX_BINDVERTEXARRAYPROC)          (GLuint);
 typedef void (*GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
 typedef void (*GFX_BUFFERSUBDATAPROC)            (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
+typedef void (*GFX_COPYBUFFERSUBDATAPROC)        (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr);
 typedef void (*GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint*);
 typedef void (*GFX_DELETEVERTEXARRAYSPROC)       (GLsizei, const GLuint*);
 typedef void (*GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
@@ -108,6 +109,9 @@ typedef void (*GFX_GETBUFFERPOINTERVPROC)        (GLenum, GLenum, GLvoid**);
 typedef void (*GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
 typedef GLenum (*GFX_GETERRORPROC)               (void);
 typedef void (*GFX_GETINTEGERVPROC)              (GLenum, GLint*);
+typedef void (*GFX_GETVERTEXATTRIBIIVPROC)       (GLuint, GLenum, GLint*);
+typedef void (*GFX_GETVERTEXATTRIBIUIVPROC)      (GLuint, GLenum, GLuint*);
+typedef void (*GFX_GETVERTEXATTRIBPOINTERVPROC)  (GLuint, GLenum, GLvoid**);
 typedef void* (*GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
 typedef GLboolean (*GFX_UNMAPBUFFERPROC)         (GLenum);
 typedef void (*GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum, GLsizei, const GLvoid*);
@@ -121,6 +125,7 @@ typedef struct GFX_Extensions
 	GFX_BINDVERTEXARRAYPROC           BindVertexArray;
 	GFX_BUFFERDATAPROC                BufferData;
 	GFX_BUFFERSUBDATAPROC             BufferSubData;
+	GFX_COPYBUFFERSUBDATAPROC         CopyBufferSubData;
 	GFX_DELETEBUFFERSPROC             DeleteBuffers;
 	GFX_DELETEVERTEXARRAYSPROC        DeleteVertexArrays;
 	GFX_DISABLEVERTEXATTRIBARRAYPROC  DisableVertexAttribArray;
@@ -132,6 +137,9 @@ typedef struct GFX_Extensions
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
 	GFX_GETERRORPROC                  GetError;
 	GFX_GETINTEGERVPROC               GetIntegerv;
+	GFX_GETVERTEXATTRIBIIVPROC        GetVertexAttribIiv;
+	GFX_GETVERTEXATTRIBIUIVPROC       GetVertexAttribIuiv;
+	GFX_GETVERTEXATTRIBPOINTERVPROC   GetVertexAttribPointerv;
 	GFX_MAPBUFFERRANGEPROC            MapBufferRange;
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
 	GFX_VERTEXATTRIBIPOINTERPROC      VertexAttribIPointer;
@@ -184,7 +192,7 @@ typedef struct GFX_Platform_Attributes
 
 
 /********************************************************
- * Internal data & methods
+ * Internal window data & methods
  *******************************************************/
 
 /** \brief Internal window */
