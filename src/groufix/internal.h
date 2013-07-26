@@ -110,6 +110,8 @@ typedef GLenum (*GFX_GETERRORPROC)               (void);
 typedef void (*GFX_GETINTEGERVPROC)              (GLenum, GLint*);
 typedef void* (*GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
 typedef GLboolean (*GFX_UNMAPBUFFERPROC)         (GLenum);
+typedef void (*GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum, GLsizei, const GLvoid*);
+typedef void (*GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
 
 
 /** \brief OpenGL extensions, a.k.a HardwareContext */
@@ -132,6 +134,8 @@ typedef struct GFX_Extensions
 	GFX_GETINTEGERVPROC               GetIntegerv;
 	GFX_MAPBUFFERRANGEPROC            MapBufferRange;
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
+	GFX_VERTEXATTRIBIPOINTERPROC      VertexAttribIPointer;
+	GFX_VERTEXATTRIBPOINTERPROC       VertexAttribPointer;
 
 } GFX_Extensions;
 

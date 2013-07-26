@@ -60,7 +60,7 @@ unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardware
 
 
 /********************************************************
- * Hardware Buffer (arbitrary storage)
+ * Buffer (arbitrary storage)
  *******************************************************/
 
 /** \brief Buffer handle */
@@ -70,32 +70,32 @@ typedef GFXHardwareHandle GFXHardwareBuffer;
 /** \brief Buffer types */
 typedef unsigned int GFXBufferTarget;
 
-#define GFX_BUFFER_VERTEX_ARRAY    0x8892
-#define GFX_BUFFER_INDEX_ARRAY     0x8893
-#define GFX_BUFFER_UNIFORM_BLOCK   0x8a11
+#define GFX_BUFFER_VERTEX_ARRAY   0x8892
+#define GFX_BUFFER_INDEX_ARRAY    0x8893
+#define GFX_BUFFER_UNIFORM_BLOCK  0x8a11
 
 
 /** \brief Buffer usage */
 typedef unsigned int GFXBufferUsage;
 
-#define GFX_BUFFER_STATIC_WRITE    0x88e4
-#define GFX_BUFFER_STATIC_READ     0x88e5
-#define GFX_BUFFER_STATIC_COPY     0x88e6
-#define GFX_BUFFER_DYNAMIC_WRITE   0x88e8
-#define GFX_BUFFER_DYNAMIC_READ    0x88e9
-#define GFX_BUFFER_DYNAMIC_COPY    0x88ea
-#define GFX_BUFFER_STREAM_WRITE    0x88e0
-#define GFX_BUFFER_STREAM_READ     0x88e1
-#define GFX_BUFFER_STREAM_COPY     0x88e2
+#define GFX_BUFFER_STATIC_WRITE   0x88e4
+#define GFX_BUFFER_STATIC_READ    0x88e5
+#define GFX_BUFFER_STATIC_COPY    0x88e6
+#define GFX_BUFFER_DYNAMIC_WRITE  0x88e8
+#define GFX_BUFFER_DYNAMIC_READ   0x88e9
+#define GFX_BUFFER_DYNAMIC_COPY   0x88ea
+#define GFX_BUFFER_STREAM_WRITE   0x88e0
+#define GFX_BUFFER_STREAM_READ    0x88e1
+#define GFX_BUFFER_STREAM_COPY    0x88e2
 
 
 /** \brief Buffer access bitfield */
 typedef unsigned int GFXBufferAccess;
 
-#define GFX_BUFFER_READ            0x01
-#define GFX_BUFFER_WRITE           0x02
-#define GFX_BUFFER_INVALIDATE      0x06
-#define GFX_BUFFER_NO_SYNC         0x20
+#define GFX_BUFFER_READ           0x01
+#define GFX_BUFFER_WRITE          0x02
+#define GFX_BUFFER_INVALIDATE     0x06
+#define GFX_BUFFER_NO_SYNC        0x20
 
 
 /**
@@ -197,11 +197,32 @@ void gfx_hardware_buffer_unmap(GFXBufferTarget target, const GFXHardwareContext 
 
 
 /********************************************************
- * Hardware Object (vertex data state)
+ * Object (vertex specification)
  *******************************************************/
 
 /** \brief Object handle */
 typedef GFXHardwareHandle GFXHardwareObject;
+
+
+/** \brief Storage types */
+typedef unsigned int GFXDataType;
+
+#define GFX_BYTE              0x1400
+#define GFX_UNSIGNED_BYTE     0x1401
+#define GFX_SHORT             0x1402
+#define GFX_UNSIGNED_SHORT    0x1403
+#define GFX_INT               0x1404
+#define GFX_UNSIGNED_INT      0x1405
+#define GFX_FLOAT             0x1406
+#define GFX_HALF_FLOAT        0x140b
+
+
+/** \brief Interpetred data type */
+typedef unsigned int GFXInterpretType;
+
+#define GFX_OBJECT_FLOAT      0x00
+#define GFX_OBJECT_NORMALIZE  0x01
+#define GFX_OBJECT_INTEGER    0x02
 
 
 /**
@@ -246,6 +267,21 @@ int gfx_hardware_object_enable_attribute(unsigned int index, const GFXHardwareCo
  *
  */
 int gfx_hardware_object_disable_attribute(unsigned int index, const GFXHardwareContext cnt);
+
+/**
+ * \brief Defines a vertex attribute.
+ *
+ * \param size   Number of components of the attribute (must be between 1 and 4).
+ * \param type   Data type of each stored component.
+ * \param intr   How the components should be interpreted.
+ * \param stride Byte offset between consecutive attributes.
+ * \param offset Byte offset of the first occurence of the attribute.
+ * \return Non-zero if it could define the attribute.
+ *
+ * The buffer currently bound to the VERTEX_ARRAY target will be used for this attribute.
+ *
+ */
+int gfx_hardware_object_set_attribute(unsigned int index, size_t size, GFXDataType type, GFXInterpretType intr, size_t stride, size_t offset, const GFXHardwareContext cnt);
 
 
 #ifdef __cplusplus

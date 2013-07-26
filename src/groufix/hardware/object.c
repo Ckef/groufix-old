@@ -82,3 +82,20 @@ int gfx_hardware_object_disable_attribute(unsigned int index, const GFXHardwareC
 
 	return 1;
 }
+
+/******************************************************/
+int gfx_hardware_object_set_attribute(unsigned int index, size_t size, GFXDataType type, GFXInterpretType intr, size_t stride, size_t offset, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	/* Validate all of it */
+	GLint max;
+	ext->GetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max);
+
+	if(index >= max || size < 1 || size > 4) return 0;
+
+	if(intr & GFX_OBJECT_INTEGER) ext->VertexAttribIPointer(index, size, type, stride, (GLvoid*)offset);
+	else ext->VertexAttribPointer(index, size, type, intr & GFX_OBJECT_NORMALIZE, stride, (GLvoid*)offset);
+
+	return 1;
+}
