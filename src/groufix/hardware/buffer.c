@@ -94,74 +94,40 @@ void gfx_hardware_buffer_realloc(GFXHardwareBuffer* buffer, GFXBufferUsage use, 
 }
 
 /******************************************************/
-size_t gfx_hardware_buffer_write(GFXHardwareBuffer* buffer, size_t offset, size_t size, const void* data, const GFXHardwareContext cnt)
+void gfx_hardware_buffer_write(GFXHardwareBuffer* buffer, size_t offset, size_t size, const void* data, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	/* Boundaries! */
-	if(offset >= buffer->size || !size || !data) return 0;
-
-	size_t writeSize = buffer->size - offset;
-	writeSize = writeSize > size ? size : writeSize;
-
 	ext->BindBuffer(GL_ARRAY_BUFFER, buffer->handle);
-	ext->BufferSubData(GL_ARRAY_BUFFER, offset, writeSize, data);
-
-	return writeSize;
+	ext->BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
 /******************************************************/
-size_t gfx_hardware_buffer_read(GFXHardwareBuffer* buffer, size_t offset, size_t size, void* data, const GFXHardwareContext cnt)
+void gfx_hardware_buffer_read(GFXHardwareBuffer* buffer, size_t offset, size_t size, void* data, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	/* Moar boundaries! */
-	if(offset >= buffer->size || !size || !data) return 0;
-
-	size_t readSize = buffer->size - offset;
-	readSize = readSize > size ? size : readSize;
-
 	ext->BindBuffer(GL_ARRAY_BUFFER, buffer->handle);
-	ext->GetBufferSubData(GL_ARRAY_BUFFER, offset, readSize, data);
-
-	return readSize;
+	ext->GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
 /******************************************************/
-size_t gfx_hardware_buffer_copy(GFXHardwareBuffer* dest, GFXHardwareBuffer* src, size_t destOffset, size_t srcOffset, size_t size, const GFXHardwareContext cnt)
+void gfx_hardware_buffer_copy(GFXHardwareBuffer* dest, GFXHardwareBuffer* src, size_t destOffset, size_t srcOffset, size_t size, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	/* This boundary, I like it, another! */
-	if(destOffset >= dest->size || srcOffset >= src->size || !size) return 0;
-
-	size_t destSize = dest->size - destOffset;
-	size_t srcSize = src->size - srcOffset;
-	size_t copySize = destSize > srcSize ? (srcSize > size ? size : srcSize) : (destSize > size ? size : destSize);
 
 	ext->BindBuffer(GL_COPY_READ_BUFFER, src->handle);
 	ext->BindBuffer(GL_COPY_WRITE_BUFFER, dest->handle);
-	ext->CopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, srcOffset, destOffset, copySize);
-
-	return copySize;
+	ext->CopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, srcOffset, destOffset, size);
 }
 
 /******************************************************/
-void* gfx_hardware_buffer_map(GFXHardwareBuffer* buffer, GFXBufferAccess access, size_t offset, size_t* length, const GFXHardwareContext cnt)
+void* gfx_hardware_buffer_map(GFXHardwareBuffer* buffer, GFXBufferAccess access, size_t offset, size_t length, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	/* All the boundaries! */
-	if(offset >= buffer->size || !*length || !access) return NULL;
-
-	size_t mapLen = buffer->size - offset;
-	mapLen = mapLen > *length ? *length : mapLen;
-
-	/* Write actual length and map */
-	*length = mapLen;
-
 	ext->BindBuffer(GL_ARRAY_BUFFER, buffer->handle);
-	GLvoid* ptr = ext->MapBufferRange(GL_ARRAY_BUFFER, offset, mapLen, access);
+	GLvoid* ptr = ext->MapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
 
 	return ptr;
 }

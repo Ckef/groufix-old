@@ -145,40 +145,33 @@ void gfx_hardware_buffer_realloc(GFXHardwareBuffer* buffer, GFXBufferUsage use, 
 /**
  * \brief Writes data to the buffer.
  *
- * \return Number of bytes written.
- *
  */
-size_t gfx_hardware_buffer_write(GFXHardwareBuffer* buffer, size_t offset, size_t size, const void* data, const GFXHardwareContext cnt);
+void gfx_hardware_buffer_write(GFXHardwareBuffer* buffer, size_t offset, size_t size, const void* data, const GFXHardwareContext cnt);
 
 /**
  * \brief Reads data from the buffer.
  *
- * \return Number of bytes read.
- *
  */
-size_t gfx_hardware_buffer_read(GFXHardwareBuffer* buffer, size_t offset, size_t size, void* data, const GFXHardwareContext cnt);
+void gfx_hardware_buffer_read(GFXHardwareBuffer* buffer, size_t offset, size_t size, void* data, const GFXHardwareContext cnt);
 
 /**
  * \brief Copies data from one buffer to another.
  *
- * \return Number of bytes copied.
- *
  * One buffer can be used for both the destination and source, as long as the two areas don't overlap.
  *
  */
-size_t gfx_hardware_buffer_copy(GFXHardwareBuffer* dest, GFXHardwareBuffer* src, size_t destOffset, size_t srcOffset, size_t size, const GFXHardwareContext cnt);
+void gfx_hardware_buffer_copy(GFXHardwareBuffer* dest, GFXHardwareBuffer* src, size_t destOffset, size_t srcOffset, size_t size, const GFXHardwareContext cnt);
 
 /**
  * \brief Maps the buffer, meaning it can be accessed as a regular array.
  *
  * \param access Bitfield specifying the permitted access methods.
- * \param length Lenth to be mapped, the actual mapped length is written to it as well (cannot be NULL!).
  * \return A pointer to the accessible data (NULL on errors).
  *
  * When accessing the buffer is done, it must be unmapped to allow it to be accessed regularly.
  *
  */
-void* gfx_hardware_buffer_map(GFXHardwareBuffer* buffer, GFXBufferAccess access, size_t offset, size_t* length, const GFXHardwareContext cnt);
+void* gfx_hardware_buffer_map(GFXHardwareBuffer* buffer, GFXBufferAccess access, size_t offset, size_t length, const GFXHardwareContext cnt);
 
 /**
  * \brief Returns the mapped pointer.
