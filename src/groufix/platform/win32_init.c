@@ -137,6 +137,9 @@ static GFXKey _gfx_win32_get_key(int symbol)
 	/* Unicode numbers */
 	if(symbol >= 0x30 && symbol <= 0x39) return (GFXKey)(symbol - 0x30 + GFX_KEY_0);
 
+	/* Keypad numbers */
+	if(symbol >= VK_NUMPAD0 && symbol <= VK_NUMPAD9) return (GFXKey)(symbol - VK_NUMPAD0 + GFX_KEY_KP_0);
+
 	/* Unicode capitals */
 	if(symbol >= 0x41 && symbol <= 0x5a) return (GFXKey)(symbol - 0x41 + GFX_KEY_A);
 
@@ -175,16 +178,6 @@ static GFXKey _gfx_win32_get_key(int symbol)
 		case VK_NUMLOCK   : return GFX_KEY_NUM_LOCK;
 		case VK_SPACE     : return GFX_KEY_SPACE;
 
-		case VK_NUMPAD0   : return GFX_KEY_KP_0;
-		case VK_NUMPAD1   : return GFX_KEY_KP_1;
-		case VK_NUMPAD2   : return GFX_KEY_KP_2;
-		case VK_NUMPAD3   : return GFX_KEY_KP_3;
-		case VK_NUMPAD4   : return GFX_KEY_KP_4;
-		case VK_NUMPAD5   : return GFX_KEY_KP_5;
-		case VK_NUMPAD6   : return GFX_KEY_KP_6;
-		case VK_NUMPAD7   : return GFX_KEY_KP_7;
-		case VK_NUMPAD8   : return GFX_KEY_KP_8;
-		case VK_NUMPAD9   : return GFX_KEY_KP_9;
 		case VK_MULTIPLY  : return GFX_KEY_KP_MULTIPLY;
 		case VK_ADD       : return GFX_KEY_KP_ADD;
 		case VK_SEPARATOR : return GFX_KEY_KP_SEPARATOR;

@@ -26,17 +26,20 @@ default:
 	@echo ""
 	@echo "Use one of the following commands to build Groufix:"
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  $(MAKE) clean            Clean temporary files."
-	@echo "  $(MAKE) clean-all        Clean all files $(MAKE) produced."
+	@echo " $(MAKE) clean             Clean temporary files."
+	@echo " $(MAKE) clean-all         Clean all files $(MAKE) produced."
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  $(MAKE) unix-x11         Build the Groufix Unix target using X11."
-	@echo "  $(MAKE) unix-x11-simple  Build the simple example Unix target using X11."
+	@echo " $(MAKE) unix-x11          Build the Groufix Unix target using X11."
+	@echo " $(MAKE) unix-x11-minimal  Build the minimal example Unix target using X11."
+	@echo " $(MAKE) unix-x11-simple   Build the simple example Unix target using X11."
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  $(MAKE) osx-x11          Build the Groufix OS X target using X11."
-	@echo "  $(MAKE) osx-x11-simple   Build the simple example OS X target using X11."
+	@echo " $(MAKE) osx-x11           Build the Groufix OS X target using X11."
+	@echo " $(MAKE) osx-x11-minimal   Build the minimal example OS X target using X11."
+	@echo " $(MAKE) osx-x11-simple    Build the simple example OS X target using X11."
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "  $(MAKE) win32            Build the Groufix Windows target."
-	@echo "  $(MAKE) win32-simple     Build the simple example Windows target."
+	@echo " $(MAKE) win32             Build the Groufix Windows target."
+	@echo " $(MAKE) win32-minimal     Build the minimal example Windows target."
+	@echo " $(MAKE) win32-simple      Build the simple example Windows target."
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo ""
 
@@ -144,6 +147,9 @@ OBJS_UNIX_X11 = \
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
 	$(CC) -shared $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LIBS_UNIX_X11)
 
+unix-x11-minimal: examples/minimal.c unix-x11 
+	$(CC) $(CFLAGS) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+
 unix-x11-simple: examples/simple.c unix-x11 
 	$(CC) $(CFLAGS) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
@@ -229,6 +235,9 @@ OBJS_OSX_X11 = \
 osx-x11: before-osx-x11 $(OBJS_OSX_X11)
 	$(CC) -dynamiclib -install_name 'libGroufix.dylib' $(OBJS_OSX_X11) -o $(BIN)/osx-x11/libGroufix.dylib $(LIBS_OSX_X11)
 
+osx-x11-minimal: examples/minimal.c osx-x11
+	$(CC) $(CFLAGS) $< -o $(BIN)/osx-x11/minimal -L$(BIN)/osx-x11/ -lGroufix
+
 osx-x11-simple: examples/simple.c osx-x11
 	$(CC) $(CFLAGS) $< -o $(BIN)/osx-x11/simple -L$(BIN)/osx-x11/ -lGroufix
 
@@ -313,6 +322,9 @@ OBJS_WIN32 = \
 
 win32: before-win32 $(OBJS_WIN32)
 	$(CC) -shared $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LIBS_WIN32)
+
+win32-minimal: examples/minimal.c win32
+	$(CC) $(CFLAGS) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
 
 win32-simple: examples/simple.c win32
 	$(CC) $(CFLAGS) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix

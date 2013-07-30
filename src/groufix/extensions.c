@@ -46,7 +46,7 @@ static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsize
 #else
 
 /******************************************************/
-static void _gfx_vertex_attrib_divisor(GLuint index, GLuint divisor)
+static void _gfx_gl_vertex_attrib_divisor(GLuint index, GLuint divisor)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -113,7 +113,7 @@ void _gfx_extensions_load(GFX_Extensions* ext, GFX_Platform_Window window)
 	else
 	{
 		ext->extensions ^= GFX_EXT_INSTANCED_ATTRIBUTES;
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_vertex_attrib_divisor;
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_gl_vertex_attrib_divisor;
 	}
 
 	/* Core, assumes 3.2+ context */

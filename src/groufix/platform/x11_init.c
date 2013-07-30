@@ -128,6 +128,9 @@ static GFXKey _gfx_x11_get_key(KeySym symbol)
 	/* Unicode numbers */
 	if(symbol >= XK_0 && symbol <= XK_9) return (GFXKey)(symbol - XK_0 + GFX_KEY_0);
 
+	/* Keypad numbers */
+	if(symbol >= XK_KP_0 && symbol <= XK_KP_9) return (GFXKey)(symbol - XK_KP_0 + GFX_KEY_KP_0);
+
 	/* Unicode capitals */
 	if(symbol >= XK_A && symbol <= XK_Z) return (GFXKey)(symbol - XK_A + GFX_KEY_A);
 
@@ -183,16 +186,6 @@ static GFXKey _gfx_x11_get_key(KeySym symbol)
 		case XK_space        : return GFX_KEY_SPACE;
 
 		case XK_KP_Enter     : return GFX_KEY_KP_RETURN;
-		case XK_KP_0         : return GFX_KEY_KP_0;
-		case XK_KP_1         : return GFX_KEY_KP_1;
-		case XK_KP_2         : return GFX_KEY_KP_2;
-		case XK_KP_3         : return GFX_KEY_KP_3;
-		case XK_KP_4         : return GFX_KEY_KP_4;
-		case XK_KP_5         : return GFX_KEY_KP_5;
-		case XK_KP_6         : return GFX_KEY_KP_6;
-		case XK_KP_7         : return GFX_KEY_KP_7;
-		case XK_KP_8         : return GFX_KEY_KP_8;
-		case XK_KP_9         : return GFX_KEY_KP_9;
 		case XK_KP_Multiply  : return GFX_KEY_KP_MULTIPLY;
 		case XK_KP_Add       : return GFX_KEY_KP_ADD;
 		case XK_KP_Separator : return GFX_KEY_KP_SEPARATOR;
