@@ -38,6 +38,7 @@ typedef unsigned int GFXErrorCode;
 #define GFX_ERROR_INCOMPATIBLE_PLATFORM          0x0002
 #define GFX_ERROR_ACCESS_DENIED                  0x0003
 #define GFX_ERROR_MEMORY_CORRUPTION              0x0004
+#define GFX_ERROR_COMPILE_FAILURE                0x0005
 #define GFX_ERROR_INVALID_ENUM                   0x0500
 #define GFX_ERROR_INVALID_VALUE                  0x0501
 #define GFX_ERROR_INVALID_OPERATION              0x0502
@@ -86,7 +87,7 @@ void gfx_errors_pop(void);
  * \brief Adds an error to the internal queue.
  *
  * \param code        The error code to add.
- * \param description Optional message to describe the error (can be NULL).
+ * \param description Optional null terminated message to describe the error (can be NULL).
  *
  */
 void gfx_errors_push(GFXErrorCode code, const char* description);

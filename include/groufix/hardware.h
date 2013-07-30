@@ -317,6 +317,8 @@ int gfx_hardware_object_set_attribute(unsigned int index, const GFXHardwareAttri
  * \param instances If zero, the attribute behaves regularly, if not, it will advance once per the number of instances.
  * \return Non-zero if it could set the divisor.
  *
+ * Note: this functionality needs GFX_EXT_INSTANCED_ATTRIBUTES.
+ *
  */
 int gfx_hardware_object_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt);
 
@@ -324,8 +326,6 @@ int gfx_hardware_object_set_attribute_divisor(unsigned int index, unsigned int i
  * \brief Returns the previously defined vertex attribute of the currently bound object.
  *
  * \return Non-zero if it could get the attribute definition.
- *
- * Note: this functionality needs GFX_EXT_INSTANCED_ATTRIBUTES.
  *
  */
 int gfx_hardware_object_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt);
@@ -340,7 +340,7 @@ void gfx_hardware_object_set_index_buffer(GFXHardwareBuffer* buffer, const GFXHa
 
 
 /********************************************************
- * Shader Programs (yes, shader programs)
+ * Shader (compiled GPU program unit)
  *******************************************************/
 
 /** \brief Shader stages */
@@ -359,12 +359,87 @@ typedef struct GFXHardwareShader
 } GFXHardwareShader;
 
 
+/**
+ * \brief Creates a new hardware shader.
+ *
+ * \return NULL on failure.
+ *
+ */
+GFXHardwareShader* gfx_hardware_shader_create(GFXShaderStage stage, const GFXHardwareContext cnt);
+
+/**
+ * \brief Makes sure the shader is freed properly.
+ *
+ */
+void gfx_hardware_shader_free(GFXHardwareShader* shader, const GFXHardwareContext cnt);
+
+/**
+ * \brief Returns the stage of a given shader.
+ *
+ */
+GFXShaderStage gfx_hardware_shader_get_stage(GFXHardwareShader* shader, const GFXHardwareContext cnt);
+
+/**
+ * \brief Sets the source string of the shader.
+ *
+ * \param count Number of strings to copy.
+ * \param src   Array of null terminated strings to copy.
+ *
+ * The strings are appended and copied to the shader's storage.
+ *
+ */
+void gfx_hardware_shader_set_source(GFXHardwareShader* shader, size_t count, const char** src, const GFXHardwareContext cnt);
+
+/**
+ * \brief Returns the source string of the shader.
+ *
+ * If the returned string is not NULL, it should be freed manually.
+ *
+ */
+char* gfx_hardware_shader_get_source(GFXHardwareShader* shader, const GFXHardwareContext cnt);
+
+/**
+ * \brief Compiles the shader into a single shader unit.
+ *
+ * \return Non-zero if compilation was successful.
+ *
+ */
+int gfx_hardware_shader_compile(GFXHardwareShader* shader, const GFXHardwareContext cnt);
+
+/**
+ * \brief Returns a string describing warnings and/or errors of the last compilation attempt.
+ *
+ * If the returned string is not NULL, it should be freed manually.
+ *
+ */
+char* gfx_hardware_shader_get_info_log(GFXHardwareShader* shader, const GFXHardwareContext cnt);
+
+
+/********************************************************
+ * Program (compiled GPU program of multiple units)
+ *******************************************************/
+
 /** \brief Hardware Program */
 typedef struct GFXHardwareProgram
 {
 	GFXHardwareHandle handle;
 
 } GFXHardwareProgram;
+
+
+/**
+ * \brief Creates a new hardware program.
+ *
+ * \return NULL on failure.
+ *
+ */
+GFXHardwareProgram* gfx_hardware_program_create(const GFXHardwareContext cnt);
+
+/**
+ * \brief Makes sure the program is freed properly.
+ *
+ */
+void gfx_hardware_program_free(GFXHardwareProgram* program, const GFXHardwareContext cnt);
 
 
 #ifdef __cplusplus
