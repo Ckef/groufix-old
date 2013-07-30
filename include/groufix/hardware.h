@@ -40,6 +40,15 @@ typedef void* GFXHardwareContext;
 typedef unsigned int GFXHardwareHandle;
 
 
+/** \brief Hardware extensions */
+typedef unsigned int GFXHardwareExtension;
+
+#define GFX_EXT_INSTANCED_ATTRIBUTES  0x0001
+#define GFX_EXT_GEOMETRY_SHADER       0x0002
+
+#define GFX_EXT_ALL                   0xffff
+
+
 /**
  * \brief Get the currently active context.
  *
@@ -48,6 +57,14 @@ typedef unsigned int GFXHardwareHandle;
  *
  */
 GFXHardwareContext gfx_hardware_get_context(void);
+
+/**
+ * \brief Returns whether certain extensions are supported by a context or not.
+ *
+ * \return Non-zero if one or more of the given extensions are supported.
+ *
+ */
+int gfx_hardware_is_extension_supported(GFXHardwareExtension extensions, const GFXHardwareContext cnt);
 
 /**
  * \brief Polls all OpenGL errors at any given time.
@@ -295,9 +312,20 @@ int gfx_hardware_object_disable_attribute(unsigned int index, const GFXHardwareC
 int gfx_hardware_object_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt);
 
 /**
+ * \brief Modifies the rate at which attributes advance during instanced rendering (of the currently bound object).
+ *
+ * \param instances If zero, the attribute behaves regularly, if not, it will advance once per the number of instances.
+ * \return Non-zero if it could set the divisor.
+ *
+ */
+int gfx_hardware_object_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt);
+
+/**
  * \brief Returns the previously defined vertex attribute of the currently bound object.
  *
  * \return Non-zero if it could get the attribute definition.
+ *
+ * Note: this functionality needs GFX_EXT_INSTANCED_ATTRIBUTES.
  *
  */
 int gfx_hardware_object_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt);
@@ -309,6 +337,34 @@ int gfx_hardware_object_get_attribute(unsigned int index, GFXHardwareAttribute* 
  *
  */
 void gfx_hardware_object_set_index_buffer(GFXHardwareBuffer* buffer, const GFXHardwareContext cnt);
+
+
+/********************************************************
+ * Shader Programs (yes, shader programs)
+ *******************************************************/
+
+/** \brief Shader stages */
+typedef unsigned int GFXShaderStage;
+
+#define GFX_SHADER_VERTEX    0x8b31
+#define GFX_SHADER_GEOMETRY  0x8dd9
+#define GFX_SHADER_FRAGMENT  0x8b30
+
+
+/** \brief Hardware Shader */
+typedef struct GFXHardwareShader
+{
+	GFXHardwareHandle handle;
+
+} GFXHardwareShader;
+
+
+/** \brief Hardware Program */
+typedef struct GFXHardwareProgram
+{
+	GFXHardwareHandle handle;
+
+} GFXHardwareProgram;
 
 
 #ifdef __cplusplus

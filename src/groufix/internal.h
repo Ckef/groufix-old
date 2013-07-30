@@ -22,6 +22,8 @@
 #ifndef GFX_INTERNAL_H
 #define GFX_INTERNAL_H
 
+#include "groufix/hardware.h"
+#include "groufix/utils.h"
 #include "groufix/window.h"
 
 /* Get build target */
@@ -39,15 +41,6 @@
 
 /* Windows */
 #ifdef GFX_WIN32
-
-	/* Unicode */
-	#ifndef UNICODE
-	#define UNICODE
-	#endif
-
-	#ifndef _UNICODE
-	#define _UNICODE
-	#endif
 
 	/* Windows XP */
 	#ifndef WINVER
@@ -85,7 +78,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * OpenGL Extensions
+ * OpenGL and Hardware Extensions
  *******************************************************/
 
 /** \brief Proc Address */
@@ -114,6 +107,7 @@ typedef void (*GFX_GETVERTEXATTRIBIUIVPROC)      (GLuint, GLenum, GLuint*);
 typedef void (*GFX_GETVERTEXATTRIBPOINTERVPROC)  (GLuint, GLenum, GLvoid**);
 typedef void* (*GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
 typedef GLboolean (*GFX_UNMAPBUFFERPROC)         (GLenum);
+typedef void (*GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
 typedef void (*GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum, GLsizei, const GLvoid*);
 typedef void (*GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
 
@@ -121,6 +115,10 @@ typedef void (*GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboole
 /** \brief OpenGL extensions, a.k.a HardwareContext */
 typedef struct GFX_Extensions
 {
+	/* Hardware Extensions */
+	GFXHardwareExtension extensions;
+
+	/* OpenGL Extensions */
 	GFX_BINDBUFFERPROC                BindBuffer;
 	GFX_BINDVERTEXARRAYPROC           BindVertexArray;
 	GFX_BUFFERDATAPROC                BufferData;
@@ -142,25 +140,11 @@ typedef struct GFX_Extensions
 	GFX_GETVERTEXATTRIBPOINTERVPROC   GetVertexAttribPointerv;
 	GFX_MAPBUFFERRANGEPROC            MapBufferRange;
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
+	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor;
 	GFX_VERTEXATTRIBIPOINTERPROC      VertexAttribIPointer;
 	GFX_VERTEXATTRIBPOINTERPROC       VertexAttribPointer;
 
 } GFX_Extensions;
-
-
-/**
- * \brief Loads all extensions for the current window's context.
- *
- */
-void _gfx_extensions_load(GFX_Extensions* ext);
-
-/**
- * \brief Returns whether the extension can be found in the space seperated string.
- *
- * This method is primarily used in the platform implementations.
- *
- */
-int _gfx_extensions_is_in_string(const char* str, const char* ext);
 
 
 /********************************************************
@@ -189,6 +173,23 @@ typedef struct GFX_Platform_Attributes
 	GFXColorDepth        depth;
 
 } GFX_Platform_Attributes;
+
+
+/**
+ * \brief Loads all extensions for the current window's context.
+ *
+ * \param window The current window.
+ *
+ */
+void _gfx_extensions_load(GFX_Extensions* ext, GFX_Platform_Window window);
+
+/**
+ * \brief Returns whether the OpenGL extension can be found in the space seperated string.
+ *
+ * This method is primarily used in the platform implementations.
+ *
+ */
+int _gfx_extensions_is_in_string(const char* str, const char* ext);
 
 
 /********************************************************

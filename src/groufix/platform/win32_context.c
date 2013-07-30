@@ -66,22 +66,17 @@ void _gfx_platform_destroy_context(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_get(GFX_Platform_Window handle, int* major, int* minor)
-{
-	GFX_Internal_Window* window = _gfx_window_get_from_handle(handle);
-	if(window)
-	{
-		_gfx_window_make_current(window);
-		window->extensions.GetIntegerv(GL_MAJOR_VERSION, major);
-		window->extensions.GetIntegerv(GL_MINOR_VERSION, minor);
-	}
-}
-
-/******************************************************/
 void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 {
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
 	if(window) wglMakeCurrent(GetDC(handle), window->context);
+}
+
+/******************************************************/
+void _gfx_platform_context_get(int* major, int* minor)
+{
+	glGetIntegerv(GL_MAJOR_VERSION, major);
+	glGetIntegerv(GL_MINOR_VERSION, minor);
 }
 
 /******************************************************/

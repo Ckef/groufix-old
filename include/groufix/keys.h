@@ -159,7 +159,7 @@ typedef int GFXKey;
 
 
 /********************************************************
- * \brief Platform independent mouse state
+ * \brief Platform independent mouse keys
  *******************************************************/
 typedef int GFXMouseKey;
 

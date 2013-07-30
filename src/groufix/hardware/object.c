@@ -19,8 +19,6 @@
  *
  */
 
-#include "groufix/hardware.h"
-#include "groufix/utils.h"
 #include "groufix/internal.h"
 
 #include <stdlib.h>
@@ -127,6 +125,18 @@ int gfx_hardware_object_set_attribute(unsigned int index, const GFXHardwareAttri
 		attr->stride,
 		(GLvoid*)attr->offset
 	);
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_hardware_object_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	if(index >= gfx_hardware_object_get_max_attributes(cnt)) return 0;
+
+	ext->VertexAttribDivisor(index, instances);
 
 	return 1;
 }

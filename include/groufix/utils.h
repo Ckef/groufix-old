@@ -24,6 +24,15 @@
 
 #include <stdint.h>
 
+/* Unicode */
+#ifndef UNICODE
+#define UNICODE
+#endif
+
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+
 /* Concatenation */
 #define CAT_BAD(x,y) x ## y
 #define CAT(x,y) CAT_BAD(x,y)

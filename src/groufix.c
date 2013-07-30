@@ -29,7 +29,10 @@ int gfx_init(void)
 	if(_gfx_platform_init()) return 1;
 
 	/* Well derp */
-	gfx_errors_push(GFX_ERROR_INCOMPATIBLE_PLATFORM, NULL);
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_PLATFORM,
+		"The platform could not be initialized."
+	);
 
 	return 0;
 }

@@ -16,6 +16,9 @@ int main()
 	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 800, 600, 100, 100);
 	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 800, 600, 300, 300);
 
+	GFXContext context = gfx_window_get_context(window1);
+	printf("%i %i\n", context.major, context.minor);
+
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{
 		gfx_window_swap_buffers(window1);

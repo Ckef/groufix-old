@@ -19,7 +19,6 @@
  *
  */
 
-#include "groufix/hardware.h"
 #include "groufix/internal.h"
 #include "groufix/errors.h"
 

@@ -181,6 +181,7 @@ void _gfx_platform_poll_events(void);
  * \param major Major OpenGL (ES) version.
  * \param minor Minor OpenGL version.
  * \param share Window to share OpenGL resources with (can be NULL to not share).
+ * \return Whether or not the context could be created.
  *
  * Both forward compatibility and the core profile should be used for desktop systems (only 3.2 or above).
  * If the platform uses OpenGL ES, round down to the nearest with an equal major version.
@@ -197,18 +198,18 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int mino
 void _gfx_platform_destroy_context(GFX_Platform_Window handle);
 
 /**
- * \brief Retrieves the type and version of a context.
- *
- */
-void _gfx_platform_context_get(GFX_Platform_Window handle, int* major, int* minor);
-
-/**
  * \brief Makes the current window the active render target.
  *
  * \return Whether it could make the context current or not.
  *
  */
 void _gfx_platform_context_make_current(GFX_Platform_Window handle);
+
+/**
+ * \brief Returns the major and minor OpenGL version of the current context.
+ *
+ */
+void _gfx_platform_context_get(int* major, int* minor);
 
 /** 
  * \brief Swaps the internal buffers of a window.
@@ -223,7 +224,9 @@ void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle);
 int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char* ext);
 
 /**
- * \brief Returns the address to a process.
+ * \brief Returns the address to a process of the current context.
+ *
+ * \return NULL if the process does not exist.
  *
  */
 GFXProcAddress _gfx_platform_get_proc_address(const char* proc);

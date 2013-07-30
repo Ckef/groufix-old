@@ -221,7 +221,7 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 
 	/* Load extensions of context and make sure to set the main window as current */
 	_gfx_window_make_current(window);
-	_gfx_extensions_load(&window->extensions);
+	_gfx_extensions_load(&window->extensions, window->handle);
 	_gfx_window_make_current(*(GFX_Internal_Window**)_gfx_windows->begin);
 
 	/* Make the window visible */
@@ -250,12 +250,13 @@ void gfx_window_free(GFXWindow* window)
 			if(_gfx_current_window == internal) _gfx_current_window = NULL;
 
 			/* Remove the window from storage */
-			vector_erase(_gfx_windows, it);
 			if(num == 1)
 			{
 				vector_free(_gfx_windows);
 				_gfx_windows = NULL;
 			}
+			else vector_erase(_gfx_windows, it);
+
 			free(internal);
 		}
 
@@ -278,7 +279,11 @@ GFXContext gfx_window_get_context(const GFXWindow* window)
 	GFXContext context;
 	context.major = 0;
 	context.minor = 0;
-	_gfx_platform_context_get(((GFX_Internal_Window*)window)->handle, &context.major, &context.minor);
+
+	/* Set current, get context and set main window current again */
+	_gfx_window_make_current((GFX_Internal_Window*)window);
+	_gfx_platform_context_get(&context.major, &context.minor);
+	_gfx_window_make_current(*(GFX_Internal_Window**)_gfx_windows->begin);
 
 	return context;
 }

@@ -32,7 +32,6 @@
 
 /* Includes */
 #include "groufix/containers/vector.h"
-#include "groufix/utils.h"
 
 #include <X11/Xlib.h>
 #include <X11/keysym.h>

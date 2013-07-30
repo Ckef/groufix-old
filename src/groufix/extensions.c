@@ -22,7 +22,6 @@
 #define GL_GLEXT_PROTOTYPES
 #include "groufix/platform.h"
 #include "groufix/errors.h"
-#include "groufix/hardware.h"
 
 #include <string.h>
 
@@ -44,15 +43,34 @@ static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsize
 	}
 }
 
+#else
+
+/******************************************************/
+static void _gfx_vertex_attrib_divisor(GLuint index, GLuint divisor)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_INSTANCED_ATTRIBUTES is incompatible with this context."
+	);
+}
+
 #endif
 
 /******************************************************/
-void _gfx_extensions_load(GFX_Extensions* ext)
+void _gfx_extensions_load(GFX_Extensions* ext, GFX_Platform_Window window)
 {
+	/* Get OpenGL version */
+	int major, minor;
+	_gfx_platform_context_get(&major, &minor);
+
+	ext->extensions = GFX_EXT_ALL;
 
 #ifdef GFX_GLES
 
-	/* GLES */
+	/* GFX_EXT_GEOMETRY_SHADER */
+	ext->extensions ^= GFX_EXT_GEOMETRY_SHADER;
+
+	/* GLES, assumes 3.0+ */
 	ext->BindBuffer               = (GFX_BINDBUFFERPROC)               glBindBuffer;
 	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          glBindVertexArray;
 	ext->BufferData               = (GFX_BUFFERDATAPROC)               glBufferData;
@@ -72,10 +90,22 @@ void _gfx_extensions_load(GFX_Extensions* ext)
 	ext->GetVertexAttribPointerv  = (GFX_GETVERTEXATTRIBPOINTERVPROC)  glGetVertexAttribPointerv;
 	ext->MapBufferRange           = (GFX_MAPBUFFERRANGEPROC)           glMapBufferRange;
 	ext->UnmapBuffer              = (GFX_UNMAPBUFFERPROC)              glUnmapBuffer;
+	ext->VertexAttribDivisor      = (GFX_VERTEXATTRIBDIVISORPROC)      glVertexAttribDivisor;
 	ext->VertexAttribIPointer     = (GFX_VERTEXATTRIBIPOINTERPROC)     glVertexAttribIPointer;
 	ext->VertexAttribPointer      = (GFX_VERTEXATTRIBPOINTERPROC)      glVertexAttribPointer;
 
 #else
+
+	/* GFX_EXT_INSTANCED_ATTRIBUTES */
+	if(major > 3 || minor > 2)
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("glVertexAttribDivisor");
+	else if(_gfx_platform_is_extension_supported(window, "GL_ARB_instanced_arrays"))
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("VertexAttribDivisorARB");
+	else
+	{
+		ext->extensions ^= GFX_EXT_INSTANCED_ATTRIBUTES;
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_vertex_attrib_divisor;
+	}
 
 	/* Core, assumes 3.2+ context */
 	ext->BindBuffer               = (GFX_BINDBUFFERPROC)               _gfx_platform_get_proc_address("glBindBuffer");
@@ -105,6 +135,7 @@ void _gfx_extensions_load(GFX_Extensions* ext)
 	/* Same everywhere */
 	ext->GetError    = (GFX_GETERRORPROC)    glGetError;
 	ext->GetIntegerv = (GFX_GETINTEGERVPROC) glGetIntegerv;
+
 }
 
 /******************************************************/
@@ -135,6 +166,14 @@ GFXHardwareContext gfx_hardware_get_context(void)
 	if(!wind) return NULL;
 
 	return (GFXHardwareContext)&wind->extensions;
+}
+
+/******************************************************/
+int gfx_hardware_is_extension_supported(GFXHardwareExtension extensions, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	return ext->extensions & extensions;
 }
 
 /******************************************************/
