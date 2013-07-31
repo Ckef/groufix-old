@@ -80,6 +80,17 @@ void _gfx_platform_context_get(int* major, int* minor)
 }
 
 /******************************************************/
+void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num)
+{
+	if(_gfx_win32->extensions.SwapIntervalEXT)
+	{
+		/* Make current to set its interval */
+		_gfx_platform_context_make_current(handle);
+		_gfx_win32->extensions.SwapIntervalEXT(num);
+	}
+}
+
+/******************************************************/
 void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle)
 {
 	SwapBuffers(GetDC(handle));

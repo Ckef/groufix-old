@@ -313,11 +313,11 @@ DequeIterator deque_pop_back(Deque* deque)
 }
 
 /******************************************************/
-DequeIterator deque_find(Deque* deque, const void* value, DequeComparison fun)
+DequeIterator deque_find(Deque* deque, const void* value, DequeComparison func)
 {
 	DequeIterator it;
 	for(it = deque->begin; it != deque->end; it = deque_next(deque, it))
-		if(fun(it, value)) break;
+		if(func(it, value)) break;
 
 	return it;
 }

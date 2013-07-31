@@ -41,9 +41,11 @@ static GFXContext _gfx_context = {
 /******************************************************/
 static int _gfx_window_create_context(GFX_Platform_Window window)
 {
-	/* Get a window to share with (any, as all windows will share everything) */
+	/* Get the main window to share with (as all windows will share everything) */
 	GFX_Platform_Window* share = NULL;
 	if(_gfx_windows) share = (*(GFX_Internal_Window**)_gfx_windows->begin)->handle;
+
+	if(share == window) share = NULL;
 
 	/* Get maximum context */
 	GFXContext max = {
@@ -334,6 +336,14 @@ void gfx_window_show(const GFXWindow* window)
 void gfx_window_hide(const GFXWindow* window)
 {
 	_gfx_platform_window_hide(((GFX_Internal_Window*)window)->handle);
+}
+
+/******************************************************/
+void gfx_window_set_swap_interval(const GFXWindow* window, int num)
+{
+	/* Again make sure the main window is current afterwards */
+	_gfx_platform_context_set_swap_interval(((GFX_Internal_Window*)window)->handle, num);
+	_gfx_window_make_current(*(GFX_Internal_Window**)_gfx_windows->begin);
 }
 
 /******************************************************/

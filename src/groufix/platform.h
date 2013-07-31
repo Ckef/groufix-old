@@ -211,6 +211,17 @@ void _gfx_platform_context_make_current(GFX_Platform_Window handle);
  */
 void _gfx_platform_context_get(int* major, int* minor);
 
+/**
+ * \brief Sets the minimum number of video frame periods per buffer swap.
+ *
+ * A value of 1 effectively enables vsync, use 0 to disable.
+ * A value of -1 enables adaptive vsync.
+ *
+ * This method may make the window's context current.
+ *
+ */
+void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num);
+
 /** 
  * \brief Swaps the internal buffers of a window.
  *

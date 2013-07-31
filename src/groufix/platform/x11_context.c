@@ -84,6 +84,13 @@ void _gfx_platform_context_get(int* major, int* minor)
 }
 
 /******************************************************/
+void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num)
+{
+	if(_gfx_x11->extensions.SwapIntervalEXT)
+		_gfx_x11->extensions.SwapIntervalEXT(_gfx_x11->display, (Window)VOID_TO_UINT(handle), num);
+}
+
+/******************************************************/
 void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle)
 {
 	if(_gfx_x11) glXSwapBuffers(_gfx_x11->display, (Window)VOID_TO_UINT(handle));

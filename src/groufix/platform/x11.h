@@ -23,12 +23,12 @@
 #define GFX_PLATFORM_X11_H
 
 /* Validate platform */
-#define GFX_INTERNAL_GL_LEGACY
-#include "groufix/platform.h"
-
 #ifdef GFX_GLES
 	#error "Cannot compile X11 platform using GL ES"
 #endif
+
+#define GFX_INTERNAL_GL_LEGACY
+#include "groufix/platform.h"
 
 /* Includes */
 #include "groufix/containers/vector.h"
@@ -56,6 +56,7 @@ extern "C" {
 typedef struct GFX_X11_Extensions
 {
 	PFNGLXCREATECONTEXTATTRIBSARBPROC  CreateContextAttribsARB;
+	PFNGLXSWAPINTERVALEXTPROC          SwapIntervalEXT;
 
 } GFX_X11_Extensions;
 

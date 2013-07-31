@@ -23,12 +23,12 @@
 #define GFX_PLATFORM_WIN32_H
 
 /* Validate platform */
-#define GL_GLEXT_PROTOTYPES
-#include "groufix/platform.h"
-
 #ifdef GFX_GLES
 	#error "Cannot compile Win32 platform using GL ES"
 #endif
+
+#define GL_GLEXT_PROTOTYPES
+#include "groufix/platform.h"
 
 /* Includes */
 #include "groufix/containers/vector.h"
@@ -60,6 +60,7 @@ typedef struct GFX_Win32_Extensions
 {
 	PFNWGLCREATECONTEXTATTRIBSARBPROC  CreateContextAttribsARB;
 	PFNWGLGETEXTENSIONSSTRINGARBPROC   GetExtensionsStringARB;
+	PFNWGLSWAPINTERVALEXTPROC          SwapIntervalEXT;
 
 } GFX_Win32_Extensions;
 

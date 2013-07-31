@@ -46,13 +46,13 @@ extern "C" {
 /* Forward declerate */
 struct GFXWindow;
 
-typedef void (*GFXWindowCloseFun)  (struct GFXWindow*);
-typedef void (*GFXKeyPressFun)     (struct GFXWindow*, GFXKey, GFXKeyState);
-typedef void (*GFXKeyReleaseFun)   (struct GFXWindow*, GFXKey, GFXKeyState);
-typedef void (*GFXMouseMoveFun)    (struct GFXWindow*, int, int, GFXKeyState);
-typedef void (*GFXMousePressFun)   (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
-typedef void (*GFXMouseReleaseFun) (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
-typedef void (*GFXMouseWheelFun)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
+typedef void (*GFXWindowCloseFunc)  (struct GFXWindow*);
+typedef void (*GFXKeyPressFunc)     (struct GFXWindow*, GFXKey, GFXKeyState);
+typedef void (*GFXKeyReleaseFunc)   (struct GFXWindow*, GFXKey, GFXKeyState);
+typedef void (*GFXMouseMoveFunc)    (struct GFXWindow*, int, int, GFXKeyState);
+typedef void (*GFXMousePressFunc)   (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
+typedef void (*GFXMouseReleaseFunc) (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
+typedef void (*GFXMouseWheelFunc)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
 
 
 /********************************************************
@@ -98,13 +98,13 @@ typedef struct GFXWindow
 	/* Callbacks */
 	struct
 	{
-		GFXWindowCloseFun   windowClose;
-		GFXKeyPressFun      keyPress;
-		GFXKeyReleaseFun    keyRelease;
-		GFXMouseMoveFun     mouseMove;
-		GFXMousePressFun    mousePress;
-		GFXMouseReleaseFun  mouseRelease;
-		GFXMouseWheelFun    mouseWheel;
+		GFXWindowCloseFunc   windowClose;
+		GFXKeyPressFunc      keyPress;
+		GFXKeyReleaseFunc    keyRelease;
+		GFXMouseMoveFunc     mouseMove;
+		GFXMousePressFunc    mousePress;
+		GFXMouseReleaseFunc  mouseRelease;
+		GFXMouseWheelFunc    mouseWheel;
 
 	} callbacks;
 
@@ -233,6 +233,15 @@ void gfx_window_show(const GFXWindow* window);
  *
  */
 void gfx_window_hide(const GFXWindow* window);
+
+/**
+ * \brief Sets the minimum number of video frame periods per buffer swap.
+ *
+ * A value of 1 effectively enables vsync, use 0 to disable.
+ * A value of -1 enables adaptive vsync.
+ *
+ */
+void gfx_window_set_swap_interval(const GFXWindow* window, int num);
 
 /** 
  * \brief Swaps the internal buffers of a window.

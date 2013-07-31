@@ -63,6 +63,7 @@ void _gfx_extensions_load(GFX_Extensions* ext, GFX_Platform_Window window)
 	int major, minor;
 	_gfx_platform_context_get(&major, &minor);
 
+	/* Start with all extensions */
 	ext->extensions = GFX_EXT_ALL;
 
 #ifdef GFX_GLES

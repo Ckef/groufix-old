@@ -36,10 +36,6 @@ extern "C" {
 typedef void* GFXHardwareContext;
 
 
-/** \brief Hardware Handle */
-typedef unsigned int GFXHardwareHandle;
-
-
 /** \brief Hardware extensions */
 typedef unsigned int GFXHardwareExtension;
 
@@ -114,8 +110,8 @@ typedef unsigned int GFXBufferAccess;
 /** \brief Hardware Buffer */
 typedef struct GFXHardwareBuffer
 {
-	GFXHardwareHandle  handle;
-	size_t             size; /* in bytes */
+	unsigned int  handle; /* OGL handle */
+	size_t        size;   /* in bytes */
 
 } GFXHardwareBuffer;
 
@@ -235,7 +231,7 @@ typedef unsigned int GFXInterpretType;
 /** \brief Hardware Object */
 typedef struct GFXHardwareObject
 {
-	GFXHardwareHandle handle;
+	unsigned int handle; /* OGL handle */
 
 } GFXHardwareObject;
 
@@ -354,7 +350,7 @@ typedef unsigned int GFXShaderStage;
 /** \brief Hardware Shader */
 typedef struct GFXHardwareShader
 {
-	GFXHardwareHandle handle;
+	unsigned int handle; /* OGL handle */
 
 } GFXHardwareShader;
 
@@ -422,7 +418,7 @@ char* gfx_hardware_shader_get_info_log(GFXHardwareShader* shader, const GFXHardw
 /** \brief Hardware Program */
 typedef struct GFXHardwareProgram
 {
-	GFXHardwareHandle handle;
+	unsigned int handle; /* OGL handle */
 
 } GFXHardwareProgram;
 

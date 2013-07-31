@@ -120,6 +120,12 @@ static int _gfx_win32_load_extensions(void)
 		/* Load all functions */
 		_gfx_win32->extensions.CreateContextAttribsARB =
 			(PFNWGLCREATECONTEXTATTRIBSARBPROC)_gfx_platform_get_proc_address("wglCreateContextAttribsARB");
+		_gfx_win32->extensions.SwapIntervalEXT =
+			(PFNWGLSWAPINTERVALEXTPROC)_gfx_platform_get_proc_address("wglSwapIntervalEXT");
+
+		/* Check non-vital extensions */
+		if(!_gfx_platform_is_extension_supported(NULL, "WGL_EXT_swap_control"))
+			_gfx_win32->extensions.SwapIntervalEXT = NULL;
 	}
 	else success = 0;
 

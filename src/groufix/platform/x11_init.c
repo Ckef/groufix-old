@@ -74,6 +74,12 @@ static int _gfx_x11_load_extensions(void)
 	/* Load all functions */
 	_gfx_x11->extensions.CreateContextAttribsARB =
 		(PFNGLXCREATECONTEXTATTRIBSARBPROC)_gfx_platform_get_proc_address("glXCreateContextAttribsARB");
+	_gfx_x11->extensions.SwapIntervalEXT =
+		(PFNGLXSWAPINTERVALEXTPROC)_gfx_platform_get_proc_address("glXSwapIntervalEXT");
+
+	/* Check non-vital extensions */
+	if(!_gfx_x11_is_extension_supported(num, "GLX_EXT_swap_control"))
+		_gfx_x11->extensions.SwapIntervalEXT = NULL;
 
 	return 1;
 }
