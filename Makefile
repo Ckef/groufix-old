@@ -130,7 +130,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/deque.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
  $(OUT)/unix-x11/groufix/hardware/buffer.o \
- $(OUT)/unix-x11/groufix/hardware/object.o \
+ $(OUT)/unix-x11/groufix/hardware/layout.o \
  $(OUT)/unix-x11/groufix/hardware/program.o \
  $(OUT)/unix-x11/groufix/hardware/shader.o \
  $(OUT)/unix-x11/groufix/platform/x11_context.o \
@@ -171,7 +171,7 @@ $(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c 
 $(OUT)/unix-x11/groufix/hardware/buffer.o: $(SRC)/groufix/hardware/buffer.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-$(OUT)/unix-x11/groufix/hardware/object.o: $(SRC)/groufix/hardware/object.c $(HEADERS_X11)
+$(OUT)/unix-x11/groufix/hardware/layout.o: $(SRC)/groufix/hardware/layout.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/hardware/program.o: $(SRC)/groufix/hardware/program.c $(HEADERS_X11)
@@ -218,7 +218,7 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/containers/deque.o \
  $(OUT)/osx-x11/groufix/containers/vector.o \
  $(OUT)/osx-x11/groufix/hardware/buffer.o \
- $(OUT)/osx-x11/groufix/hardware/object.o \
+ $(OUT)/osx-x11/groufix/hardware/layout.o \
  $(OUT)/osx-x11/groufix/hardware/program.o \
  $(OUT)/osx-x11/groufix/hardware/shader.o \
  $(OUT)/osx-x11/groufix/platform/x11_context.o \
@@ -259,7 +259,7 @@ $(OUT)/osx-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $
 $(OUT)/osx-x11/groufix/hardware/buffer.o: $(SRC)/groufix/hardware/buffer.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
-$(OUT)/osx-x11/groufix/hardware/object.o: $(SRC)/groufix/hardware/object.c $(HEADERS_X11)
+$(OUT)/osx-x11/groufix/hardware/layout.o: $(SRC)/groufix/hardware/layout.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/hardware/program.o: $(SRC)/groufix/hardware/program.c $(HEADERS_X11)
@@ -306,7 +306,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/deque.o \
  $(OUT)/win32/groufix/containers/vector.o \
  $(OUT)/win32/groufix/hardware/buffer.o \
- $(OUT)/win32/groufix/hardware/object.o \
+ $(OUT)/win32/groufix/hardware/layout.o \
  $(OUT)/win32/groufix/hardware/program.o \
  $(OUT)/win32/groufix/hardware/shader.o \
  $(OUT)/win32/groufix/platform/win32_context.o \
@@ -347,7 +347,7 @@ $(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(H
 $(OUT)/win32/groufix/hardware/buffer.o: $(SRC)/groufix/hardware/buffer.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/hardware/object.o: $(SRC)/groufix/hardware/object.c $(HEADERS_WIN32)
+$(OUT)/win32/groufix/hardware/layout.o: $(SRC)/groufix/hardware/layout.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/hardware/program.o: $(SRC)/groufix/hardware/program.c $(HEADERS_WIN32)

@@ -24,47 +24,47 @@
 #include <stdlib.h>
 
 /******************************************************/
-GFXHardwareObject* gfx_hardware_object_create(const GFXHardwareContext cnt)
+GFXHardwareLayout* gfx_hardware_layout_create(const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Allocate */
-	GFXHardwareObject* obj = (GFXHardwareObject*)malloc(sizeof(GFXHardwareObject));
-	if(!obj) return NULL;
+	GFXHardwareLayout* layout = (GFXHardwareLayout*)malloc(sizeof(GFXHardwareLayout));
+	if(!layout) return NULL;
 
 	GLuint vao;
 	ext->GenVertexArrays(1, &vao);
 	ext->BindVertexArray(vao);
 
-	obj->handle = vao;
+	layout->handle = vao;
 
-	return obj;
+	return layout;
 }
 
 /******************************************************/
-void gfx_hardware_object_free(GFXHardwareObject* object, const GFXHardwareContext cnt)
+void gfx_hardware_layout_free(GFXHardwareLayout* layout, const GFXHardwareContext cnt)
 {
-	if(object)
+	if(layout)
 	{
 		const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-		GLuint vao = object->handle;
+		GLuint vao = layout->handle;
 		ext->DeleteVertexArrays(1, &vao);
 
-		free(object);
+		free(layout);
 	}
 }
 
 /******************************************************/
-void gfx_hardware_object_bind(GFXHardwareObject* object, const GFXHardwareContext cnt)
+void gfx_hardware_layout_bind(GFXHardwareLayout* layout, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	ext->BindVertexArray(object->handle);
+	ext->BindVertexArray(layout->handle);
 }
 
 /******************************************************/
-unsigned int gfx_hardware_object_get_max_attributes(const GFXHardwareContext cnt)
+unsigned int gfx_hardware_layout_get_max_attributes(const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
@@ -75,12 +75,12 @@ unsigned int gfx_hardware_object_get_max_attributes(const GFXHardwareContext cnt
 }
 
 /******************************************************/
-int gfx_hardware_object_enable_attribute(unsigned int index, const GFXHardwareContext cnt)
+int gfx_hardware_layout_enable_attribute(unsigned int index, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Validate index */
-	if(index >= gfx_hardware_object_get_max_attributes(cnt)) return 0;
+	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
 
 	ext->EnableVertexAttribArray(index);
 
@@ -88,12 +88,12 @@ int gfx_hardware_object_enable_attribute(unsigned int index, const GFXHardwareCo
 }
 
 /******************************************************/
-int gfx_hardware_object_disable_attribute(unsigned int index, const GFXHardwareContext cnt)
+int gfx_hardware_layout_disable_attribute(unsigned int index, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Validate index */
-	if(index >= gfx_hardware_object_get_max_attributes(cnt)) return 0;
+	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
 
 	ext->DisableVertexAttribArray(index);
 
@@ -101,16 +101,16 @@ int gfx_hardware_object_disable_attribute(unsigned int index, const GFXHardwareC
 }
 
 /******************************************************/
-int gfx_hardware_object_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt)
+int gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Validate all of it */
-	if(index >= gfx_hardware_object_get_max_attributes(cnt) || attr->size < 1 || attr->size > 4) return 0;
+	if(index >= gfx_hardware_layout_get_max_attributes(cnt) || attr->size < 1 || attr->size > 4) return 0;
 
 	ext->BindBuffer(GL_ARRAY_BUFFER, src->handle);
 
-	if(attr->interpret & GFX_OBJECT_INTEGER) ext->VertexAttribIPointer(
+	if(attr->interpret & GFX_LAYOUT_INTEGER) ext->VertexAttribIPointer(
 		index,
 		attr->size,
 		attr->type,
@@ -121,7 +121,7 @@ int gfx_hardware_object_set_attribute(unsigned int index, const GFXHardwareAttri
 		index,
 		attr->size,
 		attr->type,
-		attr->interpret & GFX_OBJECT_NORMALIZED,
+		attr->interpret & GFX_LAYOUT_NORMALIZED,
 		attr->stride,
 		(GLvoid*)attr->offset
 	);
@@ -130,11 +130,11 @@ int gfx_hardware_object_set_attribute(unsigned int index, const GFXHardwareAttri
 }
 
 /******************************************************/
-int gfx_hardware_object_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt)
+int gfx_hardware_layout_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	if(index >= gfx_hardware_object_get_max_attributes(cnt)) return 0;
+	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
 
 	ext->VertexAttribDivisor(index, instances);
 
@@ -142,11 +142,11 @@ int gfx_hardware_object_set_attribute_divisor(unsigned int index, unsigned int i
 }
 
 /******************************************************/
-int gfx_hardware_object_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt)
+int gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	if(index >= gfx_hardware_object_get_max_attributes(cnt)) return 0;
+	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
 
 	GLint size;
 	GLuint type;
@@ -163,7 +163,7 @@ int gfx_hardware_object_get_attribute(unsigned int index, GFXHardwareAttribute* 
 
 	attr->size = size;
 	attr->type = type;
-	attr->interpret = integ ? GFX_OBJECT_INTEGER : (norm ? GFX_OBJECT_NORMALIZED : GFX_OBJECT_FLOAT);
+	attr->interpret = integ ? GFX_LAYOUT_INTEGER : (norm ? GFX_LAYOUT_NORMALIZED : GFX_LAYOUT_FLOAT);
 	attr->stride = stride;
 	attr->offset = VOID_TO_UINT(offset);
 
@@ -171,7 +171,7 @@ int gfx_hardware_object_get_attribute(unsigned int index, GFXHardwareAttribute* 
 }
 
 /******************************************************/
-void gfx_hardware_object_set_index_buffer(GFXHardwareBuffer* buffer, const GFXHardwareContext cnt)
+void gfx_hardware_layout_set_index_buffer(GFXHardwareBuffer* buffer, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 

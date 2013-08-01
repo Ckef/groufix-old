@@ -204,7 +204,7 @@ void gfx_hardware_buffer_unmap(GFXHardwareBuffer* buffer, const GFXHardwareConte
 
 
 /********************************************************
- * Object (vertex specification)
+ * Layout (vertex specification)
  *******************************************************/
 
 /** \brief Storage types */
@@ -223,17 +223,17 @@ typedef unsigned int GFXDataType;
 /** \brief Interpreted data type */
 typedef unsigned int GFXInterpretType;
 
-#define GFX_OBJECT_FLOAT       0x00
-#define GFX_OBJECT_NORMALIZED  0x01
-#define GFX_OBJECT_INTEGER     0x02
+#define GFX_LAYOUT_FLOAT       0x00
+#define GFX_LAYOUT_NORMALIZED  0x01
+#define GFX_LAYOUT_INTEGER     0x02
 
 
-/** \brief Hardware Object */
-typedef struct GFXHardwareObject
+/** \brief Hardware Layout */
+typedef struct GFXHardwareLayout
 {
 	unsigned int handle; /* OGL handle */
 
-} GFXHardwareObject;
+} GFXHardwareLayout;
 
 
 /** \brief Vertex Attribute */
@@ -249,26 +249,26 @@ typedef struct GFXHardwareAttribute
 
 
 /**
- * \brief Creates a new hardware object.
+ * \brief Creates a new hardware layout.
  *
  * \return NULL on failure.
  *
- * Also binds the object.
+ * Also binds the layout.
  *
  */
-GFXHardwareObject* gfx_hardware_object_create(const GFXHardwareContext cnt);
+GFXHardwareLayout* gfx_hardware_layout_create(const GFXHardwareContext cnt);
 
 /**
- * \brief Makes sure the object is freed properly.
+ * \brief Makes sure the layout is freed properly.
  *
  */
-void gfx_hardware_object_free(GFXHardwareObject* object, const GFXHardwareContext cnt);
+void gfx_hardware_layout_free(GFXHardwareLayout* layout, const GFXHardwareContext cnt);
 
 /**
- * \brief Binds the object as active render object.
+ * \brief Binds the layout as active instructions to render with.
  *
  */
-void gfx_hardware_object_bind(GFXHardwareObject* object, const GFXHardwareContext cnt);
+void gfx_hardware_layout_bind(GFXHardwareLayout* layout, const GFXHardwareContext cnt);
 
 /**
  * \brief Returns the maximum number of attributes which can be used.
@@ -276,10 +276,10 @@ void gfx_hardware_object_bind(GFXHardwareObject* object, const GFXHardwareContex
  * Any index should be smaller than this value (index < maxAttributes).
  *
  */
-unsigned int gfx_hardware_object_get_max_attributes(const GFXHardwareContext cnt);
+unsigned int gfx_hardware_layout_get_max_attributes(const GFXHardwareContext cnt);
 
 /**
- * \brief Enables a vertex attribute of the currently bound object.
+ * \brief Enables a vertex attribute of the currently bound layout.
  *
  * \return Non-zero if it could enable the attribute.
  *
@@ -287,28 +287,28 @@ unsigned int gfx_hardware_object_get_max_attributes(const GFXHardwareContext cnt
  * If not, it will read a constant value.
  *
  */
-int gfx_hardware_object_enable_attribute(unsigned int index, const GFXHardwareContext cnt);
+int gfx_hardware_layout_enable_attribute(unsigned int index, const GFXHardwareContext cnt);
 
 /**
- * \brief Disables a vertex attribute of the currently bound object.
+ * \brief Disables a vertex attribute of the currently bound layout.
  *
  * \return Non-zero if it could disable the attribute.
  *
  */
-int gfx_hardware_object_disable_attribute(unsigned int index, const GFXHardwareContext cnt);
+int gfx_hardware_layout_disable_attribute(unsigned int index, const GFXHardwareContext cnt);
 
 /**
- * \brief Defines a vertex attribute of the currently bound object.
+ * \brief Defines a vertex attribute of the currently bound layout.
  *
  * \param src  Vertex buffer to use for this attribute.
  * \param intr How the components should be interpreted.
  * \return Non-zero if it could define the attribute.
  *
  */
-int gfx_hardware_object_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt);
+int gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt);
 
 /**
- * \brief Modifies the rate at which attributes advance during instanced rendering (of the currently bound object).
+ * \brief Modifies the rate at which attributes advance during instanced rendering (of the currently bound layout).
  *
  * \param instances If zero, the attribute behaves regularly, if not, it will advance once per the number of instances.
  * \return Non-zero if it could set the divisor.
@@ -316,23 +316,23 @@ int gfx_hardware_object_set_attribute(unsigned int index, const GFXHardwareAttri
  * Note: this functionality needs GFX_EXT_INSTANCED_ATTRIBUTES.
  *
  */
-int gfx_hardware_object_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt);
+int gfx_hardware_layout_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt);
 
 /**
- * \brief Returns the previously defined vertex attribute of the currently bound object.
+ * \brief Returns the previously defined vertex attribute of the currently bound layout.
  *
  * \return Non-zero if it could get the attribute definition.
  *
  */
-int gfx_hardware_object_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt);
+int gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt);
 
 /**
- * \brief Binds an index buffer to the object of the currently bound object.
+ * \brief Binds an index buffer to the currently bound layout.
  *
  * If using indexed drawing, this buffer will be used to pull indices from.
  *
  */
-void gfx_hardware_object_set_index_buffer(GFXHardwareBuffer* buffer, const GFXHardwareContext cnt);
+void gfx_hardware_layout_set_index_buffer(GFXHardwareBuffer* buffer, const GFXHardwareContext cnt);
 
 
 /********************************************************
@@ -412,7 +412,7 @@ char* gfx_hardware_shader_get_info_log(GFXHardwareShader* shader, const GFXHardw
 
 
 /********************************************************
- * Program (compiled GPU program of multiple units)
+ * Program (compiled GPU program pipeline)
  *******************************************************/
 
 /** \brief Hardware Program */

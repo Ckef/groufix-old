@@ -89,10 +89,6 @@ static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 {
 	switch(evt->error_code)
 	{
-		case BadAccess :
-			gfx_errors_push(GFX_ERROR_ACCESS_DENIED, "X11 BadAccess.");
-			break;
-
 		case BadAlloc :
 			gfx_errors_push(GFX_ERROR_OUT_OF_MEMORY, "X11 BadAlloc.");
 			break;
@@ -115,6 +111,7 @@ static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 Invalid Value.");
 			break;
 
+		case BadAccess :
 		case BadImplementation :
 		case BadMatch :
 			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, "X11 Invalid Operation.");

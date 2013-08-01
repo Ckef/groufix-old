@@ -22,7 +22,7 @@ To compile Groufix, you need the standard headers for your platform and OpenGL. 
 
 ## Usage
 
-Once groufix is built, it can be used in your code with `#include <groufix.h>`. All core functionality will be made available through that file. Make sure the `include` directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library.
+Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All core functionality will be made available through that file. Make sure the `include` directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library.
 
 ### Threading
 

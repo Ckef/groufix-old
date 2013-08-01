@@ -104,7 +104,7 @@ void gfx_errors_push(GFXErrorCode code, const char* description)
 	/* Copy the description */
 	if(description)
 	{
-		error.description = (char*)malloc(strlen(description) + 1);
+		error.description = (char*)malloc(sizeof(char) * (strlen(description) + 1));
 		strcpy(error.description, description);
 	}
 

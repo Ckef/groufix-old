@@ -65,7 +65,7 @@ char* wchar_to_utf8(const wchar_t* str)
 	int length = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
 	if(!length) return NULL;
 
-	char* out = (char*)malloc(length);
+	char* out = (char*)malloc(sizeof(char) * length);
 	if(!WideCharToMultiByte(CP_UTF8, 0, str, -1, out, length, NULL, NULL))
 	{
 		free(out);

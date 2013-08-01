@@ -92,7 +92,7 @@ char* gfx_hardware_shader_get_source(GFXHardwareShader* shader, const GFXHardwar
 
 	if(!length) return NULL;
 
-	char* src = (char*)malloc(length);
+	char* src = (char*)malloc(sizeof(char) * length);
 	ext->GetShaderSource(shader->handle, length, NULL, src);
 
 	return src;
@@ -121,7 +121,7 @@ char* gfx_hardware_shader_get_info_log(GFXHardwareShader* shader, const GFXHardw
 
 	if(!length) return NULL;
 
-	char* log = (char*)malloc(length);
+	char* log = (char*)malloc(sizeof(char) * length);
 	ext->GetShaderInfoLog(shader->handle, length, NULL, log);
 
 	return log;
