@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Double ended queue container
+ * Double ended queue container
  *******************************************************/
 
 /** \brief Deque iterator */

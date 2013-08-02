@@ -83,11 +83,7 @@ static DequeIterator _deque_advance(Deque* deque, DequeIterator it, long int byt
 
 	/* Get actual pointer */
 	if(diff < 0) return PTR_ADD_BYTES(deque->data, deque->capacity + diff);
-	if(diff >= deque->capacity)
-	{
-		if(new == deque->end) return new;
-		return PTR_ADD_BYTES(deque->data, diff - deque->capacity);
-	}
+	if(diff >= deque->capacity && new != deque->end) return PTR_ADD_BYTES(deque->data, diff - deque->capacity);
 
 	return new;
 }
@@ -306,7 +302,10 @@ DequeIterator deque_pop_back(Deque* deque)
 	{
 		/* Just set a new end iterator */
 		deque->end = _deque_advance(deque, deque->end, -deque->elementSize);
-		if(deque->end == deque->data) deque->end = PTR_ADD_BYTES(deque->data, deque->capacity);
+
+		/* Loop end back to the actual end, if not empty */
+		if(deque->end == deque->data && deque->begin != deque->end)
+			deque->end = PTR_ADD_BYTES(deque->data, deque->capacity);
 	}
 
 	return deque->end == deque->begin ? deque->end : PTR_SUB_BYTES(deque->end, deque->elementSize);

@@ -76,6 +76,7 @@ LIBS_WIN32    = -lopengl32 -lgdi32
 #################################################################
 HEADERS = \
  $(INCLUDE)/groufix/containers/deque.h \
+ $(INCLUDE)/groufix/containers/list.h \
  $(INCLUDE)/groufix/containers/vector.h \
  $(INCLUDE)/groufix/math/mat.h \
  $(INCLUDE)/groufix/math/quat.h \
@@ -128,6 +129,7 @@ endif
 #################################################################
 OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/deque.o \
+ $(OUT)/unix-x11/groufix/containers/list.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
  $(OUT)/unix-x11/groufix/hardware/buffer.o \
  $(OUT)/unix-x11/groufix/hardware/layout.o \
@@ -163,6 +165,9 @@ before-unix-x11:
 # All the object files
 
 $(OUT)/unix-x11/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
+$(OUT)/unix-x11/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
@@ -216,6 +221,7 @@ $(OUT)/unix-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
 #################################################################
 OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/containers/deque.o \
+ $(OUT)/osx-x11/groufix/containers/list.o \
  $(OUT)/osx-x11/groufix/containers/vector.o \
  $(OUT)/osx-x11/groufix/hardware/buffer.o \
  $(OUT)/osx-x11/groufix/hardware/layout.o \
@@ -251,6 +257,9 @@ before-osx-x11:
 # All the object files
 
 $(OUT)/osx-x11/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
+
+$(OUT)/osx-x11/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
@@ -304,6 +313,7 @@ $(OUT)/osx-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
 #################################################################
 OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/deque.o \
+ $(OUT)/win32/groufix/containers/list.o \
  $(OUT)/win32/groufix/containers/vector.o \
  $(OUT)/win32/groufix/hardware/buffer.o \
  $(OUT)/win32/groufix/hardware/layout.o \
@@ -339,6 +349,9 @@ before-win32:
 # All the object files
 
 $(OUT)/win32/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_WIN32)

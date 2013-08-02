@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Vector container
+ * Vector container
  *******************************************************/
 
 /** \brief Vector iterator */
