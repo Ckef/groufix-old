@@ -33,7 +33,7 @@ extern "C" {
  *******************************************************/
 typedef struct List
 {
-	void* data; /* Super class */
+	void* data; /* 'Super' class */
 
 	struct List* next;
 	struct List* previous;
@@ -43,6 +43,10 @@ typedef struct List
 
 /** \brief Comparison function */
 typedef int (*ListComparison)(const List*, const void* value);
+
+
+/** \brief Data free function */
+typedef void (*ListDataFree)(void* data);
 
 
 /**
@@ -56,8 +60,10 @@ List* list_create(void);
 /**
  * \brief Makes sure the list is freed properly.
  *
+ * \param func Function to use to free data.
+ *
  */
-void list_free(List* list);
+void list_free(List* list, ListDataFree func);
 
 /**
  * \brief Returns the size of the list in elements.
@@ -104,22 +110,24 @@ List* list_insert_at(List* list, size_t index);
 /**
  * \brief Erases a node.
  *
+ * \param func Function to use to free data.
  * \return The node of the element taking its place (can be NULL).
  *
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-List* list_erase(List* node);
+List* list_erase(List* node, ListDataFree func);
 
 /**
  * \brief Erases an element at a given index.
  *
+ * \param func Function to use to free data.
  * \return The node of the element taking its place (can be NULL).
  *
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-List* list_erase_at(List* list, size_t index);
+List* list_erase_at(List* list, size_t index, ListDataFree func);
 
 /**
  * \brief Finds an element equal to the given element and returns the node of it.

@@ -31,7 +31,7 @@ List* list_create(void)
 }
 
 /******************************************************/
-void list_free(List* list)
+void list_free(List* list, ListDataFree func)
 {
 	if(list)
 	{
@@ -42,6 +42,7 @@ void list_free(List* list)
 		{
 			/* Get next, free, and continue */
 			List* next = list->next;
+			func(list->data);
 			free(list);
 			list = next;
 		}
@@ -135,7 +136,7 @@ List* list_insert_at(List* list, size_t index)
 }
 
 /******************************************************/
-List* list_erase(List* node)
+List* list_erase(List* node, ListDataFree func)
 {
 	List* new = NULL;
 
@@ -154,18 +155,19 @@ List* list_erase(List* node)
 	}
 
 	/* Destroy the node */
+	func(node->data);
 	free(node);
 
 	return new;
 }
 
 /******************************************************/
-List* list_erase_at(List* list, size_t index)
+List* list_erase_at(List* list, size_t index, ListDataFree func)
 {
 	list = list_at(list, index);
 	if(!list) return NULL;
 
-	return list_erase(list);
+	return list_erase(list, func);
 }
 
 /******************************************************/
