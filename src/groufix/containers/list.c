@@ -24,14 +24,19 @@
 #include <stdlib.h>
 
 /******************************************************/
-List* list_create(void)
+List* list_create(size_t dataSize)
 {
 	/* Create a new list node */
-	return (List*)calloc(1, sizeof(List));
+	List* list = (List*)calloc(1, sizeof(list));
+	if(!list) return NULL;
+
+	list->data = malloc(dataSize);
+
+	return list;
 }
 
 /******************************************************/
-void list_free(List* list, ListDataFree func)
+void list_free(List* list)
 {
 	if(list)
 	{
@@ -42,7 +47,7 @@ void list_free(List* list, ListDataFree func)
 		{
 			/* Get next, free, and continue */
 			List* next = list->next;
-			func(list->data);
+			free(list->data);
 			free(list);
 			list = next;
 		}
@@ -85,10 +90,10 @@ List* list_advance(List* node, int num)
 }
 
 /******************************************************/
-List* list_insert_after(List* node)
+List* list_insert_after(List* node, size_t dataSize)
 {
 	/* Create the new node */
-	List* new = list_create();
+	List* new = list_create(dataSize);
 	if(!new) return NULL;
 
 	new->previous = node;
@@ -104,10 +109,10 @@ List* list_insert_after(List* node)
 }
 
 /******************************************************/
-List* list_insert_before(List* node)
+List* list_insert_before(List* node, size_t dataSize)
 {
 	/* Create the new node */
-	List* new = list_create();
+	List* new = list_create(dataSize);
 	if(!new) return NULL;
 
 	new->previous = node->previous;
@@ -123,20 +128,20 @@ List* list_insert_before(List* node)
 }
 
 /******************************************************/
-List* list_insert_at(List* list, size_t index)
+List* list_insert_at(List* list, size_t dataSize, size_t index)
 {
 	/* Just insert where we already are */
-	if(!index) return list_insert_before(list);
+	if(!index) return list_insert_before(list, dataSize);
 
 	/* Get the node before the new node */
 	list = list_at(list, index - 1);
 	if(!list) return NULL;
 
-	return list_insert_after(list);
+	return list_insert_after(list, dataSize);
 }
 
 /******************************************************/
-List* list_erase(List* node, ListDataFree func)
+List* list_erase(List* node)
 {
 	List* new = NULL;
 
@@ -155,19 +160,19 @@ List* list_erase(List* node, ListDataFree func)
 	}
 
 	/* Destroy the node */
-	func(node->data);
+	free(node->data);
 	free(node);
 
 	return new;
 }
 
 /******************************************************/
-List* list_erase_at(List* list, size_t index, ListDataFree func)
+List* list_erase_at(List* list, size_t index)
 {
 	list = list_at(list, index);
 	if(!list) return NULL;
 
-	return list_erase(list, func);
+	return list_erase(list);
 }
 
 /******************************************************/

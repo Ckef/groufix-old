@@ -45,25 +45,19 @@ typedef struct List
 typedef int (*ListComparison)(const List*, const void* value);
 
 
-/** \brief Data free function */
-typedef void (*ListDataFree)(void* data);
-
-
 /**
  * \brief Creates a new list.
  *
  * \return NULL on failure.
  *
  */
-List* list_create(void);
+List* list_create(size_t dataSize);
 
 /**
  * \brief Makes sure the list is freed properly.
  *
- * \param func Function to use to free data.
- *
  */
-void list_free(List* list, ListDataFree func);
+void list_free(List* list);
 
 /**
  * \brief Returns the size of the list in elements.
@@ -89,7 +83,7 @@ List* list_advance(List* node, int num);
  * \return The node of the new element (NULL on failure).
  *
  */
-List* list_insert_after(List* node);
+List* list_insert_after(List* node, size_t dataSize);
 
 /**
  * \brief Inserts an element before a given node.
@@ -97,7 +91,7 @@ List* list_insert_after(List* node);
  * \return The node of the new element (NULL on failure).
  *
  */
-List* list_insert_before(List* node);
+List* list_insert_before(List* node, size_t dataSize);
 
 /**
  * \brief Inserts an element after a given index.
@@ -105,29 +99,27 @@ List* list_insert_before(List* node);
  * \return The node of the new element (NULL on failure).
  *
  */
-List* list_insert_at(List* list, size_t index);
+List* list_insert_at(List* list, size_t dataSize, size_t index);
 
 /**
  * \brief Erases a node.
  *
- * \param func Function to use to free data.
  * \return The node of the element taking its place (can be NULL).
  *
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-List* list_erase(List* node, ListDataFree func);
+List* list_erase(List* node);
 
 /**
  * \brief Erases an element at a given index.
  *
- * \param func Function to use to free data.
  * \return The node of the element taking its place (can be NULL).
  *
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-List* list_erase_at(List* list, size_t index, ListDataFree func);
+List* list_erase_at(List* list, size_t index);
 
 /**
  * \brief Finds an element equal to the given element and returns the node of it.
