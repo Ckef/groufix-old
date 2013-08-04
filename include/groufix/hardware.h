@@ -39,10 +39,9 @@ typedef void* GFXHardwareContext;
 /** \brief Hardware extensions */
 typedef unsigned int GFXHardwareExtension;
 
-#define GFX_EXT_INSTANCED_ATTRIBUTES  0x0001
-#define GFX_EXT_GEOMETRY_SHADER       0x0002
-
-#define GFX_EXT_ALL                   0xffff
+#define GFX_EXT_GEOMETRY_SHADER       0x0001
+#define GFX_EXT_INSTANCED_ATTRIBUTES  0x0002
+#define GFX_EXT_PROGRAM_BINARY        0x0004
 
 
 /**
@@ -313,7 +312,7 @@ int gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttri
  * \param instances If zero, the attribute behaves regularly, if not, it will advance once per the number of instances.
  * \return Non-zero if it could set the divisor.
  *
- * Note: this functionality needs GFX_EXT_INSTANCED_ATTRIBUTES.
+ * Note: this functionality requires GFX_EXT_INSTANCED_ATTRIBUTES.
  *
  */
 int gfx_hardware_layout_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt);
@@ -418,6 +417,10 @@ char* gfx_hardware_shader_get_info_log(GFXHardwareShader* shader, const GFXHardw
  * Program (compiled GPU program pipeline)
  *******************************************************/
 
+/** \brief Binary format */
+typedef unsigned int GFXProgramFormat;
+
+
 /** \brief Hardware Program */
 typedef struct GFXHardwareProgram
 {
@@ -463,12 +466,13 @@ int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareS
 /**
  * \brief Links the shader units into a single executable program.
  *
+ * \param binary Non-zero: hint to suggest usage of gfx_hardware_program_get_binary, zero: regular linking.
  * \return Non-zero if linking was successful.
  *
  * If successful, this will also detach all shaders.
  *
  */
-int gfx_hardware_program_link(GFXHardwareProgram* program, const GFXHardwareContext cnt);
+int gfx_hardware_program_link(GFXHardwareProgram* program, int binary, const GFXHardwareContext cnt);
 
 /**
  * \brief Returns a string describing warnings and/or errors of the last linking attempt.
@@ -477,6 +481,30 @@ int gfx_hardware_program_link(GFXHardwareProgram* program, const GFXHardwareCont
  *
  */
 char* gfx_hardware_program_get_info_log(GFXHardwareProgram* program, const GFXHardwareContext cnt);
+
+/**
+ * \brief Returns the binary representation of a previously linked program.
+ *
+ * \param length Returns the length of the binary data.
+ * \param format Returns the format of the data.
+ * \return If not NULL, it must be freed manually.
+ *
+ * Note: this functionality requires GFX_EXT_PROGRAM_BINARY.
+ *
+ */
+void* gfx_hardware_program_get_binary(GFXHardwareProgram* program, unsigned int* length, GFXProgramFormat* format, const GFXHardwareContext cnt);
+
+/**
+ * \brief Sets the binary representation of a program (implicit linking).
+ *
+ * \param length The length previously returned by the above call.
+ * \param format The format previously returned by the above call.
+ * \return Non-zero on success.
+ *
+ * Note: this functionality requires GFX_EXT_PROGRAM_BINARY.
+ *
+ */
+int gfx_hardware_program_set_binary(GFXHardwareProgram* program, const void* bin, unsigned int length, GFXProgramFormat format, const GFXHardwareContext cnt);
 
 
 #ifdef __cplusplus

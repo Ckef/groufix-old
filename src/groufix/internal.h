@@ -109,6 +109,7 @@ typedef void (*GFX_GETBUFFERPOINTERVPROC)        (GLenum, GLenum, GLvoid**);
 typedef void (*GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
 typedef GLenum (*GFX_GETERRORPROC)               (void);
 typedef void (*GFX_GETINTEGERVPROC)              (GLenum, GLint*);
+typedef void (*GFX_GETPROGRAMBINARYPROC)         (GLuint, GLsizei, GLsizei*, GLenum*, void*);
 typedef void (*GFX_GETPROGRAMINFOLOGPROC)        (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (*GFX_GETPROGRAMIVPROC)             (GLuint, GLenum, GLint*);
 typedef void (*GFX_GETSHADERINFOLOGPROC)         (GLuint, GLsizei, GLsizei*, GLchar*);
@@ -119,6 +120,8 @@ typedef void (*GFX_GETVERTEXATTRIBIUIVPROC)      (GLuint, GLenum, GLuint*);
 typedef void (*GFX_GETVERTEXATTRIBPOINTERVPROC)  (GLuint, GLenum, GLvoid**);
 typedef void (*GFX_LINKPROGRAMPROC)              (GLuint);
 typedef void* (*GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
+typedef void (*GFX_PROGRAMBINARYPROC)            (GLuint, GLenum, const void*, GLsizei);
+typedef void (*GFX_PROGRAMPARAMETERIPROC)        (GLuint, GLenum, GLint);
 typedef void (*GFX_SHADERSOURCEPROC)             (GLuint, GLsizei, const GLchar**, const GLint*);
 typedef GLboolean (*GFX_UNMAPBUFFERPROC)         (GLenum);
 typedef void (*GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
@@ -156,6 +159,7 @@ typedef struct GFX_Extensions
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
 	GFX_GETERRORPROC                  GetError;
 	GFX_GETINTEGERVPROC               GetIntegerv;
+	GFX_GETPROGRAMBINARYPROC          GetProgramBinary;    /* GFX_EXT_PROGRAM_BINARY */
 	GFX_GETPROGRAMINFOLOGPROC         GetProgramInfoLog;
 	GFX_GETPROGRAMIVPROC              GetProgramiv;
 	GFX_GETSHADERINFOLOGPROC          GetShaderInfoLog;
@@ -166,6 +170,8 @@ typedef struct GFX_Extensions
 	GFX_GETVERTEXATTRIBPOINTERVPROC   GetVertexAttribPointerv;
 	GFX_LINKPROGRAMPROC               LinkProgram;
 	GFX_MAPBUFFERRANGEPROC            MapBufferRange;
+	GFX_PROGRAMBINARYPROC             ProgramBinary;       /* GFX_EXT_PROGRAM_BINARY */
+	GFX_PROGRAMPARAMETERIPROC         ProgramParameteri;   /* GFX_EXT_PROGRAM_BINARY */
 	GFX_SHADERSOURCEPROC              ShaderSource;
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
 	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor; /* GFX_EXT_INSTANCED_ATTRIBUTES */

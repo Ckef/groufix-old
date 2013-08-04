@@ -54,6 +54,35 @@ static void _gfx_gl_vertex_attrib_divisor(GLuint index, GLuint divisor)
 	);
 }
 
+/******************************************************/
+static void _gfx_gl_program_binary_error(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_PROGRAM_BINARY is incompatible with this context."
+	);
+}
+
+/******************************************************/
+static void _gfx_gl_get_program_binary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum *binaryFormat, void* binary)
+{
+	if(length) *length = 0;
+
+	_gfx_gl_program_binary_error();
+}
+
+/******************************************************/
+static void _gfx_gl_program_binary(GLuint program, GLenum binaryFormat, const void* binary, GLsizei length)
+{
+	_gfx_gl_program_binary_error();
+}
+
+/******************************************************/
+static void _gfx_gl_program_parameter_i(GLuint program, GLenum pname, GLint value)
+{
+	_gfx_gl_program_binary_error();
+}
+
 #endif
 
 /******************************************************/
@@ -64,18 +93,16 @@ void _gfx_extensions_load(void)
 	if(!window) return;
 
 	GFX_Extensions* ext = &window->extensions;
+	ext->extensions = 0;
 
 	/* Get OpenGL version */
 	int major, minor;
 	_gfx_platform_context_get(&major, &minor);
 
-	/* Start with all extensions */
-	ext->extensions = GFX_EXT_ALL;
-
 #ifdef GFX_GLES
 
-	/* GFX_EXT_GEOMETRY_SHADER */
-	ext->extensions ^= GFX_EXT_GEOMETRY_SHADER;
+	/* Default Extensions */
+	ext->extensions |= GFX_EXT_INSTANCED_ATTRIBUTES | GFX_EXT_PROGRAM_BINARY;
 
 	/* GLES, assumes 3.0+ */
 	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             glAttachShader;
@@ -99,6 +126,7 @@ void _gfx_extensions_load(void)
 	ext->GetBufferParameteriv     = (GFX_GETBUFFERPARAMETERIVPROC)     glGetBufferParameteriv;
 	ext->GetBufferPointerv        = (GFX_GETBUFFERPOINTERVPROC)        glGetBufferPointerv;
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_gles_get_buffer_sub_data;
+	ext->GetProgramBinary         = (GFX_GETPROGRAMBINARYPROC)         glGetProgramBinary;
 	ext->GetProgramInfoLog        = (GFX_GETPROGRAMINFOLOGPROC)        glGetProgramInfoLog;
 	ext->GetProgramiv             = (GFX_GETPROGRAMIVPROC)             glGetProgramiv;
 	ext->GetShaderInfoLog         = (GFX_GETSHADERINFOLOGPROC)         glGetShaderInfoLog;
@@ -109,6 +137,8 @@ void _gfx_extensions_load(void)
 	ext->GetVertexAttribPointerv  = (GFX_GETVERTEXATTRIBPOINTERVPROC)  glGetVertexAttribPointerv;
 	ext->LinkProgram              = (GFX_LINKPROGRAMPROC)              glLinkProgram;
 	ext->MapBufferRange           = (GFX_MAPBUFFERRANGEPROC)           glMapBufferRange;
+	ext->ProgramBinary            = (GFX_PROGRAMBINARYPROC)            glProgramBinary;
+	ext->ProgramParameteri        = (GFX_PROGRAMPARAMETERIPROC)        glProgramParameteri;
 	ext->ShaderSource             = (GFX_SHADERSOURCEPROC)             glShaderSource;
 	ext->UnmapBuffer              = (GFX_UNMAPBUFFERPROC)              glUnmapBuffer;
 	ext->VertexAttribDivisor      = (GFX_VERTEXATTRIBDIVISORPROC)      glVertexAttribDivisor;
@@ -117,16 +147,8 @@ void _gfx_extensions_load(void)
 
 #else
 
-	/* GFX_EXT_INSTANCED_ATTRIBUTES */
-	if(major > 3 || minor > 2)
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("glVertexAttribDivisor");
-	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("VertexAttribDivisorARB");
-	else
-	{
-		ext->extensions ^= GFX_EXT_INSTANCED_ATTRIBUTES;
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_gl_vertex_attrib_divisor;
-	}
+	/* Default Extensions */
+	ext->extensions |= GFX_EXT_GEOMETRY_SHADER;
 
 	/* Core, assumes 3.2+ context */
 	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
@@ -164,6 +186,44 @@ void _gfx_extensions_load(void)
 	ext->UnmapBuffer              = (GFX_UNMAPBUFFERPROC)              _gfx_platform_get_proc_address("glUnmapBuffer");
 	ext->VertexAttribIPointer     = (GFX_VERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");
 	ext->VertexAttribPointer      = (GFX_VERTEXATTRIBPOINTERPROC)      _gfx_platform_get_proc_address("glVertexAttribPointer");
+
+	/* GFX_EXT_INSTANCED_ATTRIBUTES */
+	if(major > 3 || minor > 2)
+	{
+		ext->extensions |= GFX_EXT_INSTANCED_ATTRIBUTES;
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("glVertexAttribDivisor");
+	}
+	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
+	{
+		ext->extensions |= GFX_EXT_INSTANCED_ATTRIBUTES;
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("VertexAttribDivisorARB");
+	}
+	else
+	{
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_gl_vertex_attrib_divisor;
+	}
+
+	/* GFX_EXT_PROGRAM_BINARY */
+	if(major > 4 || (major == 4 && minor > 0))
+	{
+		ext->extensions |= GFX_EXT_PROGRAM_BINARY;
+		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_platform_get_proc_address("glGetProgramBinary");
+		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_platform_get_proc_address("glProgramBinary");
+		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_platform_get_proc_address("glProgramParameteri");
+	}
+	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
+	{
+		ext->extensions |= GFX_EXT_PROGRAM_BINARY;
+		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_platform_get_proc_address("GetProgramBinary");
+		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_platform_get_proc_address("ProgramBinary");
+		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_platform_get_proc_address("ProgramParameteri");
+	}
+	else
+	{
+		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_gl_get_program_binary;
+		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_gl_program_binary;
+		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_gl_program_parameter_i;
+	}
 
 #endif
 

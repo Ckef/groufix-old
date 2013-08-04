@@ -30,6 +30,21 @@ static int _gfx_hardware_program_find_shader(const VectorIterator it, const void
 }
 
 /******************************************************/
+static int _gfx_hardware_program_set_link_status(GFXHardwareProgram* program, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	GLint status;
+	ext->GetProgramiv(program->handle, GL_LINK_STATUS, &status);
+
+	program->linked = status;
+	if(status) vector_clear(program->shaders);
+
+	return status;
+
+}
+
+/******************************************************/
 GFXHardwareProgram* gfx_hardware_program_create(const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
@@ -89,7 +104,7 @@ int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareS
 }
 
 /******************************************************/
-int gfx_hardware_program_link(GFXHardwareProgram* program, const GFXHardwareContext cnt)
+int gfx_hardware_program_link(GFXHardwareProgram* program, int binary, const GFXHardwareContext cnt)
 {
 	/* Already linked with latest shaders */
 	if(program->linked) return 1;
@@ -101,19 +116,17 @@ int gfx_hardware_program_link(GFXHardwareProgram* program, const GFXHardwareCont
 	for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
 		ext->AttachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
 
+	/* Set hints */
+	if(binary && (ext->extensions & GFX_EXT_PROGRAM_BINARY))
+		ext->ProgramParameteri(program->handle, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+
 	/* Link and detach all shaders */
 	ext->LinkProgram(program->handle);
 
 	for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
 		ext->DetachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
 
-	GLint status;
-	ext->GetProgramiv(program->handle, GL_LINK_STATUS, &status);
-
-	program->linked = status;
-	if(status) vector_clear(program->shaders);
-
-	return status;
+	return _gfx_hardware_program_set_link_status(program, cnt);
 }
 
 /******************************************************/
@@ -130,4 +143,43 @@ char* gfx_hardware_program_get_info_log(GFXHardwareProgram* program, const GFXHa
 	ext->GetProgramInfoLog(program->handle, length, NULL, log);
 
 	return log;
+}
+
+/******************************************************/
+void* gfx_hardware_program_get_binary(GFXHardwareProgram* program, unsigned int* length, GFXProgramFormat* format, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	/* Validate length */
+	GLint len;
+	ext->GetProgramiv(program->handle, GL_PROGRAM_BINARY_LENGTH, &len);
+
+	if(!len) return NULL;
+
+	/* Get binary */
+	GLenum form;
+	void* buff = malloc(len);
+	ext->GetProgramBinary(program->handle, len, &len, &form, buff);
+
+	/* Extra validation */
+	if(!len)
+	{
+		free(buff);
+		return NULL;
+	}
+
+	*length = len;
+	*format = form;
+
+	return buff;
+}
+
+/******************************************************/
+int gfx_hardware_program_set_binary(GFXHardwareProgram* program, const void* bin, unsigned int length, GFXProgramFormat format, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	ext->ProgramBinary(program->handle, format, bin, length);
+
+	return _gfx_hardware_program_set_link_status(program, cnt);
 }
