@@ -37,6 +37,7 @@ GFXHardwareBuffer* gfx_hardware_buffer_create(GFXBufferTarget target, GFXBufferU
 	ext->GenBuffers(1, &handle);
 	ext->BindBuffer(target, handle);
 	ext->BufferData(target, size, data, use);
+	ext->BindBuffer(target, 0);
 
 	buff->handle = handle;
 	buff->size = size;

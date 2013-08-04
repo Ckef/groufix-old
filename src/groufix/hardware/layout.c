@@ -64,6 +64,14 @@ void gfx_hardware_layout_bind(GFXHardwareLayout* layout, const GFXHardwareContex
 }
 
 /******************************************************/
+void gfx_hardware_layout_unbind(const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	ext->BindVertexArray(0);
+}
+
+/******************************************************/
 unsigned int gfx_hardware_layout_get_max_attributes(const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);

@@ -80,7 +80,7 @@ unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardware
 typedef unsigned int GFXBufferTarget;
 
 #define GFX_BUFFER_VERTEX_ARRAY   0x8892
-#define GFX_BUFFER_INDEX_ARRAY    0x8893
+#define GFX_BUFFER_INDEX_ARRAY    0x8893 /* Can only be created if a HardwareLayout is bound */
 #define GFX_BUFFER_UNIFORM_BLOCK  0x8a11
 
 
@@ -269,6 +269,12 @@ void gfx_hardware_layout_free(GFXHardwareLayout* layout, const GFXHardwareContex
  *
  */
 void gfx_hardware_layout_bind(GFXHardwareLayout* layout, const GFXHardwareContext cnt);
+
+/**
+ * \brief Unbinds the currently bound layout, making sure no changes will be made to any layout.
+ *
+ */
+void gfx_hardware_layout_unbind(const GFXHardwareContext cnt);
 
 /**
  * \brief Returns the maximum number of attributes which can be used.
