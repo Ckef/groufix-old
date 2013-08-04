@@ -37,7 +37,7 @@ typedef void* VectorIterator;
 
 
 /** \brief Comparison function */
-typedef int (*VectorComparison)(const VectorIterator, const void* value);
+typedef int (*VectorComparison)(const VectorIterator, const void*);
 
 
 /** \brief Vector */
@@ -139,7 +139,7 @@ VectorIterator vector_advance(Vector* vector, VectorIterator it, int num);
 /**
  * \brief Inserts an element at a given iterator.
  *
- * \return The iterator to the new element (NULL on failure).
+ * \return The iterator to the new element (NULL or vector->end on failure).
  *
  */
 VectorIterator vector_insert(Vector* vector, const void* element, VectorIterator pos);
@@ -147,7 +147,7 @@ VectorIterator vector_insert(Vector* vector, const void* element, VectorIterator
 /**
  * \brief Inserts an element after a given index.
  *
- * \return The iterator to the new element (NULL on failure).
+ * \return The iterator to the new element (NULL or vector->end on failure).
  *
  */
 VectorIterator vector_insert_at(Vector* vector, const void* element, size_t index);
@@ -157,7 +157,7 @@ VectorIterator vector_insert_at(Vector* vector, const void* element, size_t inde
  *
  * \param num   Number of elements to insert.
  * \param start The start of the range.
- * \return The iterator to the beginning of the inserted range (NULL on failure).
+ * \return The iterator to the beginning of the inserted range (NULL or vector->end on failure).
  *
  */
 VectorIterator vector_insert_range(Vector* vector, size_t num, VectorIterator start, VectorIterator pos);
@@ -167,7 +167,7 @@ VectorIterator vector_insert_range(Vector* vector, size_t num, VectorIterator st
  *
  * \param num   Number of elements to insert.
  * \param start The start of the range.
- * \return The iterator to the beginning of the inserted range (NULL on failure).
+ * \return The iterator to the beginning of the inserted range (NULL or vector->end on failure).
  *
  */
 VectorIterator vector_insert_range_at(Vector* vector, size_t num, VectorIterator start, size_t index);
@@ -175,7 +175,7 @@ VectorIterator vector_insert_range_at(Vector* vector, size_t num, VectorIterator
 /**
  * \brief Erases an element at a given iterator.
  *
- * \return The iterator to the element taking its place.
+ * \return The iterator to the element taking its place (NULL on failure).
  *
  */
 VectorIterator vector_erase(Vector* vector, VectorIterator pos);
@@ -183,7 +183,7 @@ VectorIterator vector_erase(Vector* vector, VectorIterator pos);
 /**
  * \brief Erases an element at a given index.
  *
- * \return The iterator to the element taking its place.
+ * \return The iterator to the element taking its place (NULL on failure).
  *
  */
 VectorIterator vector_erase_at(Vector* vector, size_t index);
@@ -193,7 +193,7 @@ VectorIterator vector_erase_at(Vector* vector, size_t index);
  *
  * \param num   Number of elements to erase.
  * \param start The start of the range.
- * \return The iterator to the element taking its place.
+ * \return The iterator to the element taking its place (NULL on failure).
  *
  */
 VectorIterator vector_erase_range(Vector* vector, size_t num, VectorIterator start);
@@ -203,7 +203,7 @@ VectorIterator vector_erase_range(Vector* vector, size_t num, VectorIterator sta
  *
  * \param num   Number of elements to erase.
  * \param start The start of the range.
- * \return The iterator to the element taking its place.
+ * \return The iterator to the element taking its place (NULL on failure).
  *
  */
 VectorIterator vector_erase_range_at(Vector* vector, size_t num, size_t index);

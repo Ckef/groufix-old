@@ -22,7 +22,7 @@
 #ifndef GFX_HARDWARE_H
 #define GFX_HARDWARE_H
 
-#include <stddef.h>
+#include "groufix/containers/vector.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -228,14 +228,6 @@ typedef unsigned int GFXInterpretType;
 #define GFX_LAYOUT_INTEGER     0x02
 
 
-/** \brief Hardware Layout */
-typedef struct GFXHardwareLayout
-{
-	unsigned int handle; /* OGL handle */
-
-} GFXHardwareLayout;
-
-
 /** \brief Vertex Attribute */
 typedef struct GFXHardwareAttribute
 {
@@ -246,6 +238,14 @@ typedef struct GFXHardwareAttribute
 	size_t            offset;    /* Byte offset of the first occurence of the attribute */
 
 } GFXHardwareAttribute;
+
+
+/** \brief Hardware Layout */
+typedef struct GFXHardwareLayout
+{
+	unsigned int handle; /* OGL handle */
+
+} GFXHardwareLayout;
 
 
 /**
@@ -350,7 +350,8 @@ typedef unsigned int GFXShaderStage;
 /** \brief Hardware Shader */
 typedef struct GFXHardwareShader
 {
-	unsigned int handle; /* OGL handle */
+	unsigned int  handle;   /* OGL handle */
+	char          compiled; /* Non-zero if compiled with latest changes */
 
 } GFXHardwareShader;
 
@@ -365,6 +366,8 @@ GFXHardwareShader* gfx_hardware_shader_create(GFXShaderStage stage, const GFXHar
 
 /**
  * \brief Makes sure the shader is freed properly.
+ *
+ * Freeing a shader which is attached to a non-linked program will result in undefined behaviour.
  *
  */
 void gfx_hardware_shader_free(GFXHardwareShader* shader, const GFXHardwareContext cnt);
@@ -418,7 +421,9 @@ char* gfx_hardware_shader_get_info_log(GFXHardwareShader* shader, const GFXHardw
 /** \brief Hardware Program */
 typedef struct GFXHardwareProgram
 {
-	unsigned int handle; /* OGL handle */
+	unsigned int  handle; /* OGL handle */
+	Vector*       shaders;
+	char          linked; /* Non-zero if linked with latest shaders */
 
 } GFXHardwareProgram;
 
@@ -436,6 +441,42 @@ GFXHardwareProgram* gfx_hardware_program_create(const GFXHardwareContext cnt);
  *
  */
 void gfx_hardware_program_free(GFXHardwareProgram* program, const GFXHardwareContext cnt);
+
+/**
+ * \brief Attaches a shader to a program, making it an active unit in the linking process.
+ *
+ * \return Whether it could attach the shader or not.
+ *
+ * Freeing a shader which is attached to a non-linked program will result in undefined behaviour.
+ *
+ */
+int gfx_hardware_program_attach_shader(GFXHardwareProgram* program, GFXHardwareShader* shader, const GFXHardwareContext cnt);
+
+/**
+ * \brief Detaches a shader from a program, removing it from the linking process.
+ *
+ * \return Non-zero if the shader was found and detached.
+ *
+ */
+int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareShader* shader, const GFXHardwareContext cnt);
+
+/**
+ * \brief Links the shader units into a single executable program.
+ *
+ * \return Non-zero if linking was successful.
+ *
+ * If successful, this will also detach all shaders.
+ *
+ */
+int gfx_hardware_program_link(GFXHardwareProgram* program, const GFXHardwareContext cnt);
+
+/**
+ * \brief Returns a string describing warnings and/or errors of the last linking attempt.
+ *
+ * If the returned string is not NULL, it should be freed manually.
+ *
+ */
+char* gfx_hardware_program_get_info_log(GFXHardwareProgram* program, const GFXHardwareContext cnt);
 
 
 #ifdef __cplusplus

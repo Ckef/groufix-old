@@ -24,14 +24,26 @@
 #include <stdlib.h>
 
 /******************************************************/
+static int _gfx_hardware_program_find_shader(const VectorIterator it, const void* value)
+{
+	return *(GFXHardwareShader**)it == value;
+}
+
+/******************************************************/
 GFXHardwareProgram* gfx_hardware_program_create(const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Allocate */
-	GFXHardwareProgram* program = (GFXHardwareProgram*)malloc(sizeof(GFXHardwareProgram));
+	GFXHardwareProgram* program = (GFXHardwareProgram*)calloc(1, sizeof(GFXHardwareProgram));
 	if(!program) return NULL;
 
+	program->shaders = vector_create(sizeof(GFXHardwareProgram*));
+	if(!program->shaders)
+	{
+		free(program);
+		return NULL;
+	}
 	program->handle = ext->CreateProgram();
 
 	return program;
@@ -45,6 +57,77 @@ void gfx_hardware_program_free(GFXHardwareProgram* program, const GFXHardwareCon
 		const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 		ext->DeleteProgram(program->handle);
+		vector_free(program->shaders);
 		free(program);
 	}
+}
+
+/******************************************************/
+int gfx_hardware_program_attach_shader(GFXHardwareProgram* program, GFXHardwareShader* shader, const GFXHardwareContext cnt)
+{
+	/* First check if it is already attached */
+	if(vector_find(program->shaders, shader, _gfx_hardware_program_find_shader) != program->shaders->end) return 1;
+
+	/* And insert the shader */
+	if(vector_insert(program->shaders, &shader, program->shaders->end) == program->shaders->end) return 0;
+
+	program->linked = 0;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareShader* shader, const GFXHardwareContext cnt)
+{
+	/* Find the shader and erase */
+	VectorIterator it = vector_find(program->shaders, shader, _gfx_hardware_program_find_shader);
+	int ret = (it != program->shaders->end);
+
+	vector_erase(program->shaders, it);
+
+	return ret;
+}
+
+/******************************************************/
+int gfx_hardware_program_link(GFXHardwareProgram* program, const GFXHardwareContext cnt)
+{
+	/* Already linked with latest shaders */
+	if(program->linked) return 1;
+
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	/* Attach all shaders */
+	VectorIterator it;
+	for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
+		ext->AttachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
+
+	/* Link and detach all shaders */
+	ext->LinkProgram(program->handle);
+
+	for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
+		ext->DetachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
+
+	GLint status;
+	ext->GetProgramiv(program->handle, GL_LINK_STATUS, &status);
+
+	program->linked = status;
+	if(status) vector_clear(program->shaders);
+
+	return status;
+}
+
+/******************************************************/
+char* gfx_hardware_program_get_info_log(GFXHardwareProgram* program, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	GLint length;
+	ext->GetProgramiv(program->handle, GL_INFO_LOG_LENGTH, &length);
+
+	if(!length) return NULL;
+
+	char* log = (char*)malloc(sizeof(char) * length);
+	ext->GetProgramInfoLog(program->handle, length, NULL, log);
+
+	return log;
 }

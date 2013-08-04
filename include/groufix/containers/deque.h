@@ -37,7 +37,7 @@ typedef void* DequeIterator;
 
 
 /** \brief Comparison function */
-typedef int (*DequeComparison)(const DequeIterator, const void* value);
+typedef int (*DequeComparison)(const DequeIterator, const void*);
 
 
 /** \brief Deque */
@@ -149,7 +149,7 @@ DequeIterator deque_advance(Deque* deque, DequeIterator it, int num);
 /**
  * \brief Adds an element to the front of the deque.
  *
- * \return An iterator to the new element (NULL on failure).
+ * \return An iterator to the new element (NULL or deque->end on failure).
  *
  */
 DequeIterator deque_push_front(Deque* deque, const void* element);
@@ -157,7 +157,7 @@ DequeIterator deque_push_front(Deque* deque, const void* element);
 /**
  * \brief Adds an element to the back of the deque.
  *
- * \return An iterator to the new element (NULL on failure).
+ * \return An iterator to the new element (NULL or deque->end on failure).
  *
  */
 DequeIterator deque_push_back(Deque* deque, const void* element);

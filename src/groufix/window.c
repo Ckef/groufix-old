@@ -223,7 +223,7 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 
 	/* Load extensions of context and make sure to set the main window as current */
 	_gfx_window_make_current(window);
-	_gfx_extensions_load(&window->extensions, window->handle);
+	_gfx_extensions_load();
 	_gfx_window_make_current(*(GFX_Internal_Window**)_gfx_windows->begin);
 
 	/* Make the window visible */

@@ -43,7 +43,7 @@ GFXHardwareShader* gfx_hardware_shader_create(GFXShaderStage stage, const GFXHar
 	}
 
 	/* Allocate */
-	GFXHardwareShader* shader = (GFXHardwareShader*)malloc(sizeof(GFXHardwareShader));
+	GFXHardwareShader* shader = (GFXHardwareShader*)calloc(1, sizeof(GFXHardwareShader));
 	if(!shader) return NULL;
 
 	shader->handle = ext->CreateShader(stage);
@@ -80,6 +80,7 @@ void gfx_hardware_shader_set_source(GFXHardwareShader* shader, size_t count, con
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	ext->ShaderSource(shader->handle, count, src, NULL);
+	shader->compiled = 0;
 }
 
 /******************************************************/
@@ -101,12 +102,18 @@ char* gfx_hardware_shader_get_source(GFXHardwareShader* shader, const GFXHardwar
 /******************************************************/
 int gfx_hardware_shader_compile(GFXHardwareShader* shader, const GFXHardwareContext cnt)
 {
+	/* Already compiled with latest changes */
+	if(shader->compiled) return 1;
+
+	/* Compile again */
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	ext->CompileShader(shader->handle);
 
 	GLint status;
 	ext->GetShaderiv(shader->handle, GL_COMPILE_STATUS, &status);
+
+	shader->compiled = status;
 
 	return status;
 }

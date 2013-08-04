@@ -86,6 +86,7 @@ typedef void (*GFXProcAddress)(void);
 
 
 /* Extension function pointers */
+typedef void (*GFX_ATTACHSHADERPROC)             (GLuint, GLuint);
 typedef void (*GFX_BINDBUFFERPROC)               (GLenum, GLuint);
 typedef void (*GFX_BINDVERTEXARRAYPROC)          (GLuint);
 typedef void (*GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
@@ -98,6 +99,7 @@ typedef void (*GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint*);
 typedef void (*GFX_DELETEPROGRAMPROC)            (GLuint);
 typedef void (*GFX_DELETESHADERPROC)             (GLuint);
 typedef void (*GFX_DELETEVERTEXARRAYSPROC)       (GLsizei, const GLuint*);
+typedef void (*GFX_DETACHSHADERPROC)             (GLuint, GLuint);
 typedef void (*GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
 typedef void (*GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef void (*GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
@@ -107,12 +109,15 @@ typedef void (*GFX_GETBUFFERPOINTERVPROC)        (GLenum, GLenum, GLvoid**);
 typedef void (*GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
 typedef GLenum (*GFX_GETERRORPROC)               (void);
 typedef void (*GFX_GETINTEGERVPROC)              (GLenum, GLint*);
+typedef void (*GFX_GETPROGRAMINFOLOGPROC)        (GLuint, GLsizei, GLsizei*, GLchar*);
+typedef void (*GFX_GETPROGRAMIVPROC)             (GLuint, GLenum, GLint*);
 typedef void (*GFX_GETSHADERINFOLOGPROC)         (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (*GFX_GETSHADERIVPROC)              (GLuint, GLenum, GLint*);
 typedef void (*GFX_GETSHADERSOURCEPROC)          (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (*GFX_GETVERTEXATTRIBIIVPROC)       (GLuint, GLenum, GLint*);
 typedef void (*GFX_GETVERTEXATTRIBIUIVPROC)      (GLuint, GLenum, GLuint*);
 typedef void (*GFX_GETVERTEXATTRIBPOINTERVPROC)  (GLuint, GLenum, GLvoid**);
+typedef void (*GFX_LINKPROGRAMPROC)              (GLuint);
 typedef void* (*GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
 typedef void (*GFX_SHADERSOURCEPROC)             (GLuint, GLsizei, const GLchar**, const GLint*);
 typedef GLboolean (*GFX_UNMAPBUFFERPROC)         (GLenum);
@@ -128,6 +133,7 @@ typedef struct GFX_Extensions
 	GFXHardwareExtension extensions;
 
 	/* OpenGL Extensions */
+	GFX_ATTACHSHADERPROC              AttachShader;
 	GFX_BINDBUFFERPROC                BindBuffer;
 	GFX_BINDVERTEXARRAYPROC           BindVertexArray;
 	GFX_BUFFERDATAPROC                BufferData;
@@ -140,6 +146,7 @@ typedef struct GFX_Extensions
 	GFX_DELETEPROGRAMPROC             DeleteProgram;
 	GFX_DELETESHADERPROC              DeleteShader;
 	GFX_DELETEVERTEXARRAYSPROC        DeleteVertexArrays;
+	GFX_DETACHSHADERPROC              DetachShader;
 	GFX_DISABLEVERTEXATTRIBARRAYPROC  DisableVertexAttribArray;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
 	GFX_GENBUFFERSPROC                GenBuffers;
@@ -149,16 +156,19 @@ typedef struct GFX_Extensions
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
 	GFX_GETERRORPROC                  GetError;
 	GFX_GETINTEGERVPROC               GetIntegerv;
+	GFX_GETPROGRAMINFOLOGPROC         GetProgramInfoLog;
+	GFX_GETPROGRAMIVPROC              GetProgramiv;
 	GFX_GETSHADERINFOLOGPROC          GetShaderInfoLog;
 	GFX_GETSHADERIVPROC               GetShaderiv;
 	GFX_GETSHADERSOURCEPROC           GetShaderSource;
 	GFX_GETVERTEXATTRIBIIVPROC        GetVertexAttribIiv;
 	GFX_GETVERTEXATTRIBIUIVPROC       GetVertexAttribIuiv;
 	GFX_GETVERTEXATTRIBPOINTERVPROC   GetVertexAttribPointerv;
+	GFX_LINKPROGRAMPROC               LinkProgram;
 	GFX_MAPBUFFERRANGEPROC            MapBufferRange;
 	GFX_SHADERSOURCEPROC              ShaderSource;
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
-	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor;
+	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor; /* GFX_EXT_INSTANCED_ATTRIBUTES */
 	GFX_VERTEXATTRIBIPOINTERPROC      VertexAttribIPointer;
 	GFX_VERTEXATTRIBPOINTERPROC       VertexAttribPointer;
 
@@ -191,23 +201,6 @@ typedef struct GFX_Platform_Attributes
 	GFXColorDepth        depth;
 
 } GFX_Platform_Attributes;
-
-
-/**
- * \brief Loads all extensions for the current window's context.
- *
- * \param window The current window.
- *
- */
-void _gfx_extensions_load(GFX_Extensions* ext, GFX_Platform_Window window);
-
-/**
- * \brief Returns whether the OpenGL extension can be found in the space seperated string.
- *
- * This method is primarily used in the platform implementations.
- *
- */
-int _gfx_extensions_is_in_string(const char* str, const char* ext);
 
 
 /********************************************************
@@ -246,6 +239,20 @@ void _gfx_window_make_current(GFX_Internal_Window* window);
  *
  */
 GFX_Internal_Window* _gfx_window_get_current(void);
+
+/**
+ * \brief Loads all extensions for the current window's context.
+ *
+ */
+void _gfx_extensions_load(void);
+
+/**
+ * \brief Returns whether the OpenGL extension can be found in the space seperated string.
+ *
+ * This method is primarily used in the platform implementations.
+ *
+ */
+int _gfx_extensions_is_in_string(const char* str, const char* ext);
 
 
 /********************************************************

@@ -42,7 +42,7 @@ typedef struct List
 
 
 /** \brief Comparison function */
-typedef int (*ListComparison)(const List*, const void* value);
+typedef int (*ListComparison)(const List*, const void*);
 
 
 /**
