@@ -104,9 +104,11 @@ void _gfx_extensions_load(void)
 	ext->extensions[GFX_EXT_GEOMETRY_SHADER]      = 0;
 	ext->extensions[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 	ext->extensions[GFX_EXT_PROGRAM_BINARY]       = 1;
+	ext->extensions[GFX_EXT_TESSELLATION_SHADER]  = 0;
 
 	/* GLES, assumes 3.0+ */
 	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             glAttachShader;
+	ext->BindAttribLocation       = (GFX_BINDATTRIBLOCATIONPROC)       glBindAttribLocation;
 	ext->BindBuffer               = (GFX_BINDBUFFERPROC)               glBindBuffer;
 	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          glBindVertexArray;
 	ext->BufferData               = (GFX_BUFFERDATAPROC)               glBufferData;
@@ -124,6 +126,7 @@ void _gfx_extensions_load(void)
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  glEnableVertexAttribArray;
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               glGenBuffers;
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          glGenVertexArrays;
+	ext->GetAttribLocation        = (GFX_GETATTRIBLOCATIONPROC)        glGetAttribLocation;
 	ext->GetBufferParameteriv     = (GFX_GETBUFFERPARAMETERIVPROC)     glGetBufferParameteriv;
 	ext->GetBufferPointerv        = (GFX_GETBUFFERPOINTERVPROC)        glGetBufferPointerv;
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_gles_get_buffer_sub_data;
@@ -142,6 +145,7 @@ void _gfx_extensions_load(void)
 	ext->ProgramParameteri        = (GFX_PROGRAMPARAMETERIPROC)        glProgramParameteri;
 	ext->ShaderSource             = (GFX_SHADERSOURCEPROC)             glShaderSource;
 	ext->UnmapBuffer              = (GFX_UNMAPBUFFERPROC)              glUnmapBuffer;
+	ext->UseProgram               = (GFX_USEPROGRAMPROC)               glUseProgram;
 	ext->VertexAttribDivisor      = (GFX_VERTEXATTRIBDIVISORPROC)      glVertexAttribDivisor;
 	ext->VertexAttribIPointer     = (GFX_VERTEXATTRIBIPOINTERPROC)     glVertexAttribIPointer;
 	ext->VertexAttribPointer      = (GFX_VERTEXATTRIBPOINTERPROC)      glVertexAttribPointer;
@@ -153,6 +157,7 @@ void _gfx_extensions_load(void)
 
 	/* Core, assumes 3.2+ context */
 	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
+	ext->BindAttribLocation       = (GFX_BINDATTRIBLOCATIONPROC)       _gfx_platform_get_proc_address("glBindAttribLocation");
 	ext->BindBuffer               = (GFX_BINDBUFFERPROC)               _gfx_platform_get_proc_address("glBindBuffer");
 	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          _gfx_platform_get_proc_address("glBindVertexArray");
 	ext->BufferData               = (GFX_BUFFERDATAPROC)               _gfx_platform_get_proc_address("glBufferData");
@@ -170,6 +175,7 @@ void _gfx_extensions_load(void)
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArrayProc");
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
+	ext->GetAttribLocation        = (GFX_GETATTRIBLOCATIONPROC)        _gfx_platform_get_proc_address("glGetAttribLocation");
 	ext->GetBufferParameteriv     = (GFX_GETBUFFERPARAMETERIVPROC)     _gfx_platform_get_proc_address("glGetBufferParameteriv");
 	ext->GetBufferPointerv        = (GFX_GETBUFFERPOINTERVPROC)        _gfx_platform_get_proc_address("glGetBufferPointerv");
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");
@@ -185,6 +191,7 @@ void _gfx_extensions_load(void)
 	ext->MapBufferRange           = (GFX_MAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
 	ext->ShaderSource             = (GFX_SHADERSOURCEPROC)             _gfx_platform_get_proc_address("glShaderSource");
 	ext->UnmapBuffer              = (GFX_UNMAPBUFFERPROC)              _gfx_platform_get_proc_address("glUnmapBuffer");
+	ext->UseProgram               = (GFX_USEPROGRAMPROC)               _gfx_platform_get_proc_address("glUseProgram");
 	ext->VertexAttribIPointer     = (GFX_VERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");
 	ext->VertexAttribPointer      = (GFX_VERTEXATTRIBPOINTERPROC)      _gfx_platform_get_proc_address("glVertexAttribPointer");
 
@@ -226,6 +233,20 @@ void _gfx_extensions_load(void)
 		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_gl_get_program_binary;
 		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_gl_program_binary;
 		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_gl_program_parameter_i;
+	}
+
+	/* GFX_EXT_TESSELLATION_SHADER */
+	if(major > 3)
+	{
+		ext->extensions[GFX_EXT_TESSELLATION_SHADER] = 1;
+	}
+	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
+	{
+		ext->extensions[GFX_EXT_TESSELLATION_SHADER] = 1;
+	}
+	else
+	{
+		ext->extensions[GFX_EXT_TESSELLATION_SHADER] = 0;
 	}
 
 #endif

@@ -87,6 +87,7 @@ typedef void (*GFXProcAddress)(void);
 
 /* Extension function pointers */
 typedef void (*GFX_ATTACHSHADERPROC)             (GLuint, GLuint);
+typedef void (*GFX_BINDATTRIBLOCATIONPROC)       (GLuint, GLuint, const GLchar*);
 typedef void (*GFX_BINDBUFFERPROC)               (GLenum, GLuint);
 typedef void (*GFX_BINDVERTEXARRAYPROC)          (GLuint);
 typedef void (*GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
@@ -104,6 +105,7 @@ typedef void (*GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
 typedef void (*GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef void (*GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
 typedef void (*GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
+typedef GLint (*GFX_GETATTRIBLOCATIONPROC)       (GLuint, const GLchar*);
 typedef void (*GFX_GETBUFFERPARAMETERIVPROC)     (GLenum, GLenum, GLint*);
 typedef void (*GFX_GETBUFFERPOINTERVPROC)        (GLenum, GLenum, GLvoid**);
 typedef void (*GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
@@ -124,6 +126,7 @@ typedef void (*GFX_PROGRAMBINARYPROC)            (GLuint, GLenum, const void*, G
 typedef void (*GFX_PROGRAMPARAMETERIPROC)        (GLuint, GLenum, GLint);
 typedef void (*GFX_SHADERSOURCEPROC)             (GLuint, GLsizei, const GLchar**, const GLint*);
 typedef GLboolean (*GFX_UNMAPBUFFERPROC)         (GLenum);
+typedef void (*GFX_USEPROGRAMPROC)               (GLuint);
 typedef void (*GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
 typedef void (*GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum, GLsizei, const GLvoid*);
 typedef void (*GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
@@ -137,6 +140,7 @@ typedef struct GFX_Extensions
 
 	/* OpenGL Extensions */
 	GFX_ATTACHSHADERPROC              AttachShader;
+	GFX_BINDATTRIBLOCATIONPROC        BindAttribLocation;
 	GFX_BINDBUFFERPROC                BindBuffer;
 	GFX_BINDVERTEXARRAYPROC           BindVertexArray;
 	GFX_BUFFERDATAPROC                BufferData;
@@ -154,6 +158,7 @@ typedef struct GFX_Extensions
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
 	GFX_GENBUFFERSPROC                GenBuffers;
 	GFX_GENVERTEXARRAYSPROC           GenVertexArrays;
+	GFX_GETATTRIBLOCATIONPROC         GetAttribLocation;
 	GFX_GETBUFFERPARAMETERIVPROC      GetBufferParameteriv;
 	GFX_GETBUFFERPOINTERVPROC         GetBufferPointerv;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
@@ -174,6 +179,7 @@ typedef struct GFX_Extensions
 	GFX_PROGRAMPARAMETERIPROC         ProgramParameteri;   /* GFX_EXT_PROGRAM_BINARY */
 	GFX_SHADERSOURCEPROC              ShaderSource;
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
+	GFX_USEPROGRAMPROC                UseProgram;
 	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor; /* GFX_EXT_INSTANCED_ATTRIBUTES */
 	GFX_VERTEXATTRIBIPOINTERPROC      VertexAttribIPointer;
 	GFX_VERTEXATTRIBPOINTERPROC       VertexAttribPointer;

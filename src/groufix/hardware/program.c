@@ -77,6 +77,14 @@ void gfx_hardware_program_free(GFXHardwareProgram* program, const GFXHardwareCon
 }
 
 /******************************************************/
+void gfx_hardware_program_use(GFXHardwareProgram* program, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	ext->UseProgram(program->handle);
+}
+
+/******************************************************/
 int gfx_hardware_program_attach_shader(GFXHardwareProgram* program, GFXHardwareShader* shader, const GFXHardwareContext cnt)
 {
 	/* First check if it is already attached */
@@ -103,6 +111,24 @@ int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareS
 }
 
 /******************************************************/
+void gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	/* Validate index */
+	if(index < gfx_hardware_layout_get_max_attributes(cnt))
+		ext->BindAttribLocation(program->handle, index, name);
+}
+
+/******************************************************/
+int gfx_hardware_program_get_attribute(GFXHardwareProgram* program, const char* name, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	return ext->GetAttribLocation(program->handle, name);
+}
+
+/******************************************************/
 int gfx_hardware_program_link(GFXHardwareProgram* program, int binary, const GFXHardwareContext cnt)
 {
 	/* Already linked with latest shaders */
@@ -115,9 +141,8 @@ int gfx_hardware_program_link(GFXHardwareProgram* program, int binary, const GFX
 	for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
 		ext->AttachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
 
-	/* Set hints */
-	if(binary && ext->extensions[GFX_EXT_PROGRAM_BINARY])
-		ext->ProgramParameteri(program->handle, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+	/* Set hints, if statements to avoid extension errors */
+	if(binary) ext->ProgramParameteri(program->handle, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
 
 	/* Link and detach all shaders */
 	ext->LinkProgram(program->handle);
@@ -158,14 +183,7 @@ void* gfx_hardware_program_get_binary(GFXHardwareProgram* program, unsigned int*
 	/* Get binary */
 	GLenum form;
 	void* buff = malloc(len);
-	ext->GetProgramBinary(program->handle, len, &len, &form, buff);
-
-	/* Extra validation */
-	if(!len)
-	{
-		free(buff);
-		return NULL;
-	}
+	ext->GetProgramBinary(program->handle, len, NULL, &form, buff);
 
 	*length = len;
 	*format = form;

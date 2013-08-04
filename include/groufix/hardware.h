@@ -42,8 +42,9 @@ typedef unsigned int GFXHardwareExtension;
 #define GFX_EXT_GEOMETRY_SHADER       0x0000
 #define GFX_EXT_INSTANCED_ATTRIBUTES  0x0001
 #define GFX_EXT_PROGRAM_BINARY        0x0002
+#define GFX_EXT_TESSELLATION_SHADER   0x0003
 
-#define GFX_EXT_COUNT                 0x0003
+#define GFX_EXT_COUNT                 0x0004
 
 
 /**
@@ -341,9 +342,11 @@ void gfx_hardware_layout_set_index_buffer(GFXHardwareBuffer* buffer, const GFXHa
 /** \brief Shader stages */
 typedef unsigned int GFXShaderStage;
 
-#define GFX_SHADER_VERTEX    0x8b31
-#define GFX_SHADER_GEOMETRY  0x8dd9 /* Requires GFX_EXT_GEOMETRY_SHADER */
-#define GFX_SHADER_FRAGMENT  0x8b30
+#define GFX_SHADER_VERTEX        0x8b31
+#define GFX_SHADER_TESS_CONTROL  0x8e88 /* Requires GFX_EXT_TESSELLATION_SHADER */
+#define GFX_SHADER_TESS_EVAL     0x8e87 /* Requires GFX_EXT_TESSELLATION_SHADER */
+#define GFX_SHADER_GEOMETRY      0x8dd9 /* Requires GFX_EXT_GEOMETRY_SHADER */
+#define GFX_SHADER_FRAGMENT      0x8b30
 
 
 /** \brief Hardware Shader */
@@ -446,10 +449,19 @@ GFXHardwareProgram* gfx_hardware_program_create(const GFXHardwareContext cnt);
 void gfx_hardware_program_free(GFXHardwareProgram* program, const GFXHardwareContext cnt);
 
 /**
+ * \brief Installs a program as part of the render pipeline.
+ *
+ * Note: if the program is not yet linked, this will produce errors.
+ *
+ */
+void gfx_hardware_program_use(GFXHardwareProgram* program, const GFXHardwareContext cnt);
+
+/**
  * \brief Attaches a shader to a program, making it an active unit in the linking process.
  *
  * \return Whether it could attach the shader or not.
  *
+ * Once the program is being linked, all attached shaders will be linked and detached.
  * Freeing a shader which is attached to a non-linked program will result in undefined behaviour.
  *
  */
@@ -462,6 +474,27 @@ int gfx_hardware_program_attach_shader(GFXHardwareProgram* program, GFXHardwareS
  *
  */
 int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareShader* shader, const GFXHardwareContext cnt);
+
+/**
+ * \brief Binds an attribute name within the program to an attribute index..
+ *
+ * \param index Index to bind to, an index CAN send its data to multiple names.
+ * \param name  Name to bind, a name CANNOT retrieve from multiple indices (doing so will override the previous index).
+ *
+ * Once the program is being linked, the attributes are set as defined.
+ *
+ */
+void gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt);
+
+/**
+ * \brief Retrieves the index the name is bound to.
+ *
+ * \return Index of the given name, -1 if not found.
+ *
+ * This method can only be called once the program is successfully linked.
+ *
+ */
+int gfx_hardware_program_get_attribute(GFXHardwareProgram* program, const char* name, const GFXHardwareContext cnt);
 
 /**
  * \brief Links the shader units into a single executable program.
