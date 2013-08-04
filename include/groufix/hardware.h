@@ -36,12 +36,14 @@ extern "C" {
 typedef void* GFXHardwareContext;
 
 
-/** \brief Hardware extensions */
+/** \brief Hardware Extensions */
 typedef unsigned int GFXHardwareExtension;
 
-#define GFX_EXT_GEOMETRY_SHADER       0x0001
-#define GFX_EXT_INSTANCED_ATTRIBUTES  0x0002
-#define GFX_EXT_PROGRAM_BINARY        0x0004
+#define GFX_EXT_GEOMETRY_SHADER       0x0000
+#define GFX_EXT_INSTANCED_ATTRIBUTES  0x0001
+#define GFX_EXT_PROGRAM_BINARY        0x0002
+
+#define GFX_EXT_COUNT                 0x0003
 
 
 /**
@@ -54,12 +56,10 @@ typedef unsigned int GFXHardwareExtension;
 GFXHardwareContext gfx_hardware_get_context(void);
 
 /**
- * \brief Returns whether certain extensions are supported by a context or not.
- *
- * \return Non-zero if one or more of the given extensions are supported.
+ * \brief Returns whether a given extension is supported by a context or not.
  *
  */
-int gfx_hardware_is_extension_supported(GFXHardwareExtension extensions, const GFXHardwareContext cnt);
+int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GFXHardwareContext cnt);
 
 /**
  * \brief Polls all OpenGL errors at any given time.
@@ -342,7 +342,7 @@ void gfx_hardware_layout_set_index_buffer(GFXHardwareBuffer* buffer, const GFXHa
 typedef unsigned int GFXShaderStage;
 
 #define GFX_SHADER_VERTEX    0x8b31
-#define GFX_SHADER_GEOMETRY  0x8dd9
+#define GFX_SHADER_GEOMETRY  0x8dd9 /* Requires GFX_EXT_GEOMETRY_SHADER */
 #define GFX_SHADER_FRAGMENT  0x8b30
 
 
@@ -486,7 +486,7 @@ char* gfx_hardware_program_get_info_log(GFXHardwareProgram* program, const GFXHa
  * \brief Returns the binary representation of a previously linked program.
  *
  * \param length Returns the length of the binary data.
- * \param format Returns the format of the data.
+ * \param format Returns the format of the data (Vendor dependent).
  * \return If not NULL, it must be freed manually.
  *
  * Note: this functionality requires GFX_EXT_PROGRAM_BINARY.

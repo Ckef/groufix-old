@@ -93,7 +93,6 @@ void _gfx_extensions_load(void)
 	if(!window) return;
 
 	GFX_Extensions* ext = &window->extensions;
-	ext->extensions = 0;
 
 	/* Get OpenGL version */
 	int major, minor;
@@ -102,7 +101,9 @@ void _gfx_extensions_load(void)
 #ifdef GFX_GLES
 
 	/* Default Extensions */
-	ext->extensions |= GFX_EXT_INSTANCED_ATTRIBUTES | GFX_EXT_PROGRAM_BINARY;
+	ext->extensions[GFX_EXT_GEOMETRY_SHADER]      = 0;
+	ext->extensions[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
+	ext->extensions[GFX_EXT_PROGRAM_BINARY]       = 1;
 
 	/* GLES, assumes 3.0+ */
 	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             glAttachShader;
@@ -148,7 +149,7 @@ void _gfx_extensions_load(void)
 #else
 
 	/* Default Extensions */
-	ext->extensions |= GFX_EXT_GEOMETRY_SHADER;
+	ext->extensions[GFX_EXT_GEOMETRY_SHADER] = 1;
 
 	/* Core, assumes 3.2+ context */
 	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
@@ -190,36 +191,38 @@ void _gfx_extensions_load(void)
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(major > 3 || minor > 2)
 	{
-		ext->extensions |= GFX_EXT_INSTANCED_ATTRIBUTES;
+		ext->extensions[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
 	{
-		ext->extensions |= GFX_EXT_INSTANCED_ATTRIBUTES;
+		ext->extensions[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("VertexAttribDivisorARB");
 	}
 	else
 	{
+		ext->extensions[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
 		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_gl_vertex_attrib_divisor;
 	}
 
 	/* GFX_EXT_PROGRAM_BINARY */
 	if(major > 4 || (major == 4 && minor > 0))
 	{
-		ext->extensions |= GFX_EXT_PROGRAM_BINARY;
+		ext->extensions[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_platform_get_proc_address("glGetProgramBinary");
 		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_platform_get_proc_address("glProgramBinary");
 		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_platform_get_proc_address("glProgramParameteri");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
-		ext->extensions |= GFX_EXT_PROGRAM_BINARY;
+		ext->extensions[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_platform_get_proc_address("GetProgramBinary");
 		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_platform_get_proc_address("ProgramBinary");
 		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_platform_get_proc_address("ProgramParameteri");
 	}
 	else
 	{
+		ext->extensions[GFX_EXT_PROGRAM_BINARY] = 0;
 		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_gl_get_program_binary;
 		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_gl_program_binary;
 		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_gl_program_parameter_i;
@@ -264,11 +267,11 @@ GFXHardwareContext gfx_hardware_get_context(void)
 }
 
 /******************************************************/
-int gfx_hardware_is_extension_supported(GFXHardwareExtension extensions, const GFXHardwareContext cnt)
+int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	return ext->extensions & extensions;
+	return ext->extensions[extension];
 }
 
 /******************************************************/

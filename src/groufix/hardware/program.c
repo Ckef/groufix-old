@@ -41,7 +41,6 @@ static int _gfx_hardware_program_set_link_status(GFXHardwareProgram* program, co
 	if(status) vector_clear(program->shaders);
 
 	return status;
-
 }
 
 /******************************************************/
@@ -117,7 +116,7 @@ int gfx_hardware_program_link(GFXHardwareProgram* program, int binary, const GFX
 		ext->AttachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
 
 	/* Set hints */
-	if(binary && (ext->extensions & GFX_EXT_PROGRAM_BINARY))
+	if(binary && ext->extensions[GFX_EXT_PROGRAM_BINARY])
 		ext->ProgramParameteri(program->handle, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
 
 	/* Link and detach all shaders */
