@@ -22,9 +22,10 @@
 #ifndef GFX_MATH_VEC_H
 #define GFX_MATH_VEC_H
 
+#include "groufix/utils.h"
+
 #include <math.h>
 #include <string.h>
-#include "groufix/utils.h"
 
 typedef unsigned char uchar;
 typedef unsigned short ushort;

@@ -22,9 +22,10 @@
 #ifndef GFX_MATH_MAT_H
 #define GFX_MATH_MAT_H
 
+#include "groufix/utils.h"
+
 #include <math.h>
 #include <string.h>
-#include "groufix/utils.h"
 
 #define MAT_CREATE_NAME(size,type) NAME(CAT(mat, size), type)
 #define MAT_CREATE_FUNC(size,type,postfix) NAME(MAT_CREATE_NAME(size, type), postfix)

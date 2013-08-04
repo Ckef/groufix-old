@@ -22,13 +22,17 @@ To compile Groufix, you need the standard headers for your platform and OpenGL. 
 
 ## Usage
 
-Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All core functionality will be made available through that file. Make sure the `include` directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library.
+Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All core functionality will be made available through that file. Make sure the `include` directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library. Before using the engine, it should be intialized with a call to `gfx_init`. After being done with the engine, it should be terminated with a call to `gfx_terminate`.
 
 ### Threading
 
 _The library is not thread safe_. All windowing and hardware functionality should be executed from the same thread at all times. Due to the complex nature of GPU interaction it is easier and safer to execute all graphics related operations on the same thread. However, there are components in the engine which are specifically designed to be used in multiple threads. Note, no other functionality is guaranteed to work concurrently.
 
 * __Buffer Mapping__, `gfx_hardware_buffer_map` and `gfx_hardware_buffer_get_map` will return a pointer to the mapped buffer, this pointer can be used in multiple threads to concurrently upload data.
+
+### Termination
+
+As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all platform dependent memory, this includes destroying windows and freeing contexts, which means the connection to the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant. But it will _not_ free any hardware or higher level structures. It is wise to free all user made objects _before_ termination to make sure memory is freed properly.
 
 ## Acknowledgements
 

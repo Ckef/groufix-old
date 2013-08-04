@@ -480,11 +480,12 @@ int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareS
  *
  * \param index Index to bind to, an index CAN send its data to multiple names.
  * \param name  Name to bind, a name CANNOT retrieve from multiple indices (doing so will override the previous index).
+ * \param return Non-zero if the index is valid (see Hardware Layout for permitted indices).
  *
  * Once the program is being linked, the attributes are set as defined.
  *
  */
-void gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt);
+int gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt);
 
 /**
  * \brief Retrieves the index the name is bound to.

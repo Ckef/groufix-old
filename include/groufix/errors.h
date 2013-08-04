@@ -22,8 +22,6 @@
 #ifndef GFX_ERRORS_H
 #define GFX_ERRORS_H
 
-#include <stddef.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -103,7 +101,7 @@ void gfx_errors_empty(void);
  * \brief Sets the maximum number of errors stored.
  *
  */
-void gfx_errors_set_maximum(size_t max);
+void gfx_errors_set_maximum(unsigned int max);
 
 
 #ifdef __cplusplus

@@ -111,13 +111,16 @@ int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareS
 }
 
 /******************************************************/
-void gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt)
+int gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	/* Validate index */
-	if(index < gfx_hardware_layout_get_max_attributes(cnt))
-		ext->BindAttribLocation(program->handle, index, name);
+	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
+
+	ext->BindAttribLocation(program->handle, index, name);
+
+	return 1;
 }
 
 /******************************************************/

@@ -22,9 +22,10 @@
 #ifndef GFX_MATH_QUAT_H
 #define GFX_MATH_QUAT_H
 
+#include "groufix/utils.h"
+
 #include <math.h>
 #include <string.h>
-#include "groufix/utils.h"
 
 #define QUAT_CREATE_NAME(type) NAME(quat, type)
 #define QUAT_CREATE_FUNC(type,postfix) NAME(QUAT_CREATE_NAME(type), postfix)

@@ -83,7 +83,6 @@ HEADERS = \
  $(INCLUDE)/groufix/math/vec.h \
  $(INCLUDE)/groufix/errors.h \
  $(INCLUDE)/groufix/hardware.h \
- $(INCLUDE)/groufix/keys.h \
  $(INCLUDE)/groufix/math.h \
  $(INCLUDE)/groufix/utils.h \
  $(INCLUDE)/groufix/window.h \

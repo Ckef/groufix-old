@@ -28,7 +28,7 @@
 
 /******************************************************/
 /* Maximum number of errors stored */
-static size_t _gfx_errors_maximum = 3; /* feels about right */
+static unsigned int _gfx_errors_maximum = 3; /* feels about right */
 
 /* Stored Errors */
 static Deque* _gfx_errors = NULL;
@@ -127,7 +127,7 @@ void gfx_errors_empty(void)
 }
 
 /******************************************************/
-void gfx_errors_set_maximum(size_t max)
+void gfx_errors_set_maximum(unsigned int max)
 {
 	_gfx_errors_maximum = max;
 
