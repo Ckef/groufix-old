@@ -123,6 +123,8 @@ void _gfx_extensions_load(void)
 	ext->DeleteVertexArrays       = (GFX_DELETEVERTEXARRAYSPROC)       glDeleteVertexArrays;
 	ext->DetachShader             = (GFX_DETACHSHADERPROC)             glDetachShader;
 	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) glDisableVertexAttribArray;
+	ext->DrawArraysInstanced      = (GFX_DRAWARRAYSINSTANCEDPROC)      glDrawArraysInstanced;
+	ext->DrawElementsInstanced    = (GFX_DRAWELEMENTSINSTANCEDPROC)    glDrawElementsInstanced;
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  glEnableVertexAttribArray;
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               glGenBuffers;
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          glGenVertexArrays;
@@ -172,6 +174,8 @@ void _gfx_extensions_load(void)
 	ext->DeleteVertexArrays       = (GFX_DELETEVERTEXARRAYSPROC)       _gfx_platform_get_proc_address("glDeleteVertexArrays");
 	ext->DetachShader             = (GFX_DETACHSHADERPROC)             _gfx_platform_get_proc_address("glDetachShader");
 	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) _gfx_platform_get_proc_address("glDisableVertexAttribArrayProc");
+	ext->DrawArraysInstanced      = (GFX_DRAWARRAYSINSTANCEDPROC)      _gfx_platform_get_proc_address("glDrawArraysInstanced");
+	ext->DrawElementsInstanced    = (GFX_DRAWELEMENTSINSTANCEDPROC)    _gfx_platform_get_proc_address("glDrawElementsInstanced");
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArrayProc");
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
@@ -252,8 +256,10 @@ void _gfx_extensions_load(void)
 #endif
 
 	/* Same everywhere */
-	ext->GetError    = (GFX_GETERRORPROC)    glGetError;
-	ext->GetIntegerv = (GFX_GETINTEGERVPROC) glGetIntegerv;
+	ext->DrawArrays   = (GFX_DRAWARRAYSPROC)   glDrawArrays;
+	ext->DrawElements = (GFX_DRAWELEMENTSPROC) glDrawElements;
+	ext->GetError     = (GFX_GETERRORPROC)     glGetError;
+	ext->GetIntegerv  = (GFX_GETINTEGERVPROC)  glGetIntegerv;
 
 }
 
@@ -276,41 +282,4 @@ int _gfx_extensions_is_in_string(const char* str, const char* ext)
 	}
 
 	return 0;
-}
-
-/******************************************************/
-GFXHardwareContext gfx_hardware_get_context(void)
-{
-	GFX_Internal_Window* wind = _gfx_window_get_current();
-	if(!wind) return NULL;
-
-	return (GFXHardwareContext)&wind->extensions;
-}
-
-/******************************************************/
-int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GFXHardwareContext cnt)
-{
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	return ext->extensions[extension];
-}
-
-/******************************************************/
-unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardwareContext cnt)
-{
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	unsigned int count = 0;
-
-	/* Loop over all errors */
-	GLenum err = ext->GetError();
-	while(err != GL_NO_ERROR)
-	{
-		gfx_errors_push(err, description);
-		err = ext->GetError();
-
-		++count;
-	}
-
-	return count;
 }

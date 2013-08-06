@@ -73,6 +73,71 @@ unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardware
 
 
 /********************************************************
+ * Draw calls (render issues)
+ *******************************************************/
+
+/** \brief Storage types */
+typedef unsigned int GFXDataType;
+
+#define GFX_BYTE                 0x1400
+#define GFX_UNSIGNED_BYTE        0x1401
+#define GFX_SHORT                0x1402
+#define GFX_UNSIGNED_SHORT       0x1403
+#define GFX_INT                  0x1404
+#define GFX_UNSIGNED_INT         0x1405
+#define GFX_FLOAT                0x1406
+#define GFX_HALF_FLOAT           0x140b
+
+
+/** \brief Primitive types */
+typedef unsigned int GFXPrimitiveType;
+
+#define GFX_PRIM_POINTS          0x0000
+#define GFX_PRIM_LINES           0x0001
+#define GFX_PRIM_LINE_LOOP       0x0002
+#define GFX_PRIM_LINE_STRIP      0x0003
+#define GFX_PRIM_TRIANGLES       0x0004
+#define GFX_PRIM_TRIANGLE_STRIP  0x0005
+#define GFX_PRIM_TRIANGLE_FAN    0x0006
+
+
+/**
+ * \brief Renders primitives from a vertex buffer.
+ *
+ * \param start Starting index.
+ * \param count Number of indices to render.
+ *
+ */
+void gfx_hardware_draw(GFXPrimitiveType prim, size_t start, size_t count, const GFXHardwareContext cnt);
+
+/**
+ * \brief Instanced version of the above call.
+ *
+ * \param inst Number of instances to draw.
+ *
+ */
+void gfx_hardware_draw_instanced(GFXPrimitiveType prim, size_t start, size_t count, size_t inst, const GFXHardwareContext cnt);
+
+/**
+ * \brief Renders primitives from a vertex buffer indexed by an index buffer.
+ *
+ * \param type  Type of the indices, must be an unsigned type.
+ * \param start Byte offset in the index buffer.
+ * \param count Number of indices to render.
+ *
+ */
+void gfx_hardware_draw_indices(GFXPrimitiveType prim, GFXDataType type, size_t start, size_t count, const GFXHardwareContext cnt);
+
+/**
+ * \brief Instanced version of the above call.
+ *
+ * \param inst Number of instances to draw.
+ *
+ */
+void gfx_hardware_draw_indices_instanced(GFXPrimitiveType prim, GFXDataType type, size_t start, size_t count, size_t inst, const GFXHardwareContext cnt);
+
+
+/********************************************************
  * Buffer (arbitrary storage)
  *******************************************************/
 
@@ -207,19 +272,6 @@ void gfx_hardware_buffer_unmap(GFXHardwareBuffer* buffer, const GFXHardwareConte
  * Layout (vertex specification)
  *******************************************************/
 
-/** \brief Storage types */
-typedef unsigned int GFXDataType;
-
-#define GFX_BYTE               0x1400
-#define GFX_UNSIGNED_BYTE      0x1401
-#define GFX_SHORT              0x1402
-#define GFX_UNSIGNED_SHORT     0x1403
-#define GFX_INT                0x1404
-#define GFX_UNSIGNED_INT       0x1405
-#define GFX_FLOAT              0x1406
-#define GFX_HALF_FLOAT         0x140b
-
-
 /** \brief Interpreted data type */
 typedef unsigned int GFXInterpretType;
 
@@ -232,7 +284,7 @@ typedef unsigned int GFXInterpretType;
 typedef struct GFXHardwareAttribute
 {
 	unsigned short    size;      /* Number of elements */
-	GFXDataType       type;      /* Data type of each element */
+	GFXDataType       type;      /* Data type of each element, can be any */
 	GFXInterpretType  interpret; /* How to interpret each element */
 	size_t            stride;    /* Byte offset between consecutive attributes */
 	size_t            offset;    /* Byte offset of the first occurence of the attribute */
@@ -305,7 +357,7 @@ void gfx_hardware_layout_disable_attribute(unsigned int index, const GFXHardware
 int gfx_hardware_layout_attribute_enabled(unsigned int index, const GFXHardwareContext cnt);
 
 /**
- * \brief Defines a vertex attribute of the currently bound layout.
+ * \brief Defines a vertex attribute of the currently bound layout stored in a specified vertex buffer.
  *
  * \param src  Vertex buffer to use for this attribute.
  * \param intr How the components should be interpreted.
@@ -485,7 +537,7 @@ int gfx_hardware_program_attach_shader(GFXHardwareProgram* program, GFXHardwareS
 int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareShader* shader, const GFXHardwareContext cnt);
 
 /**
- * \brief Binds an attribute name within the program to an attribute index..
+ * \brief Binds an attribute name within the program to an attribute index.
  *
  * \param index Index to bind to, an index CAN send its data to multiple names.
  * \param name  Name to bind, a name CANNOT retrieve from multiple indices (doing so will override the previous index).
