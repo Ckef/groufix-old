@@ -173,10 +173,10 @@ void _gfx_extensions_load(void)
 	ext->DeleteShader             = (GFX_DELETESHADERPROC)             _gfx_platform_get_proc_address("glDeleteShader");
 	ext->DeleteVertexArrays       = (GFX_DELETEVERTEXARRAYSPROC)       _gfx_platform_get_proc_address("glDeleteVertexArrays");
 	ext->DetachShader             = (GFX_DETACHSHADERPROC)             _gfx_platform_get_proc_address("glDetachShader");
-	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) _gfx_platform_get_proc_address("glDisableVertexAttribArrayProc");
+	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) _gfx_platform_get_proc_address("glDisableVertexAttribArray");
 	ext->DrawArraysInstanced      = (GFX_DRAWARRAYSINSTANCEDPROC)      _gfx_platform_get_proc_address("glDrawArraysInstanced");
 	ext->DrawElementsInstanced    = (GFX_DRAWELEMENTSINSTANCEDPROC)    _gfx_platform_get_proc_address("glDrawElementsInstanced");
-	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArrayProc");
+	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArray");
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
 	ext->GetAttribLocation        = (GFX_GETATTRIBLOCATIONPROC)        _gfx_platform_get_proc_address("glGetAttribLocation");

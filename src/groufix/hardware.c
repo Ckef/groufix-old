@@ -62,31 +62,23 @@ unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardware
 /******************************************************/
 void gfx_hardware_draw(GFXPrimitiveType prim, size_t start, size_t count, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	ext->DrawArrays(prim, start, count);
+	VOID_TO_EXT(cnt)->DrawArrays(prim, start, count);
 }
 
 /******************************************************/
 void gfx_hardware_draw_instanced(GFXPrimitiveType prim, size_t start, size_t count, size_t inst, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	ext->DrawArraysInstanced(prim, start, count, inst);
+	VOID_TO_EXT(cnt)->DrawArraysInstanced(prim, start, count, inst);
 }
 
 /******************************************************/
 void gfx_hardware_draw_indices(GFXPrimitiveType prim, GFXDataType type, size_t start, size_t count, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	ext->DrawElements(prim, count, type, UINT_TO_VOID(start));
+	VOID_TO_EXT(cnt)->DrawElements(prim, count, type, UINT_TO_VOID(start));
 }
 
 /******************************************************/
 void gfx_hardware_draw_indices_instanced(GFXPrimitiveType prim, GFXDataType type, size_t start, size_t count, size_t inst, const GFXHardwareContext cnt)
 {
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	ext->DrawElementsInstanced(prim, count, type, UINT_TO_VOID(start), inst);
+	VOID_TO_EXT(cnt)->DrawElementsInstanced(prim, count, type, UINT_TO_VOID(start), inst);
 }

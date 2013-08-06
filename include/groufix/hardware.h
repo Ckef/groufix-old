@@ -79,26 +79,26 @@ unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardware
 /** \brief Storage types */
 typedef unsigned int GFXDataType;
 
-#define GFX_BYTE                 0x1400
-#define GFX_UNSIGNED_BYTE        0x1401
-#define GFX_SHORT                0x1402
-#define GFX_UNSIGNED_SHORT       0x1403
-#define GFX_INT                  0x1404
-#define GFX_UNSIGNED_INT         0x1405
-#define GFX_FLOAT                0x1406
-#define GFX_HALF_FLOAT           0x140b
+#define GFX_BYTE            0x1400
+#define GFX_UNSIGNED_BYTE   0x1401
+#define GFX_SHORT           0x1402
+#define GFX_UNSIGNED_SHORT  0x1403
+#define GFX_INT             0x1404
+#define GFX_UNSIGNED_INT    0x1405
+#define GFX_FLOAT           0x1406
+#define GFX_HALF_FLOAT      0x140b
 
 
 /** \brief Primitive types */
 typedef unsigned int GFXPrimitiveType;
 
-#define GFX_PRIM_POINTS          0x0000
-#define GFX_PRIM_LINES           0x0001
-#define GFX_PRIM_LINE_LOOP       0x0002
-#define GFX_PRIM_LINE_STRIP      0x0003
-#define GFX_PRIM_TRIANGLES       0x0004
-#define GFX_PRIM_TRIANGLE_STRIP  0x0005
-#define GFX_PRIM_TRIANGLE_FAN    0x0006
+#define GFX_POINTS          0x0000
+#define GFX_LINES           0x0001
+#define GFX_LINE_LOOP       0x0002
+#define GFX_LINE_STRIP      0x0003
+#define GFX_TRIANGLES       0x0004
+#define GFX_TRIANGLE_STRIP  0x0005
+#define GFX_TRIANGLE_FAN    0x0006
 
 
 /**
