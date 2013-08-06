@@ -111,16 +111,11 @@ int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareS
 }
 
 /******************************************************/
-int gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt)
+void gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	/* Validate index */
-	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
-
 	ext->BindAttribLocation(program->handle, index, name);
-
-	return 1;
 }
 
 /******************************************************/
@@ -139,17 +134,27 @@ int gfx_hardware_program_link(GFXHardwareProgram* program, int binary, const GFX
 
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	/* Attach all shaders */
+	/* Compile and attach all shaders */
+	int compiled = 1;
 	VectorIterator it;
 	for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
-		ext->AttachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
+	{
+		GFXHardwareShader* shader = *(GFXHardwareShader**)it;
 
-	/* Set hints, if statements to avoid extension errors */
-	if(binary) ext->ProgramParameteri(program->handle, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+		compiled = !(!compiled | !gfx_hardware_shader_compile(shader, cnt));
+		ext->AttachShader(program->handle, shader->handle);
+	}
+	if(compiled)
+	{
+		/* Set hints */
+		if(ext->extensions[GFX_EXT_PROGRAM_BINARY])
+			ext->ProgramParameteri(program->handle, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, binary);
 
-	/* Link and detach all shaders */
-	ext->LinkProgram(program->handle);
+		/* Link all shaders */
+		ext->LinkProgram(program->handle);
+	}
 
+	/* Detach all shaders, regardless of being compiled correctly */
 	for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
 		ext->DetachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
 

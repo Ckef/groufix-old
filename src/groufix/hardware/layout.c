@@ -83,38 +83,36 @@ unsigned int gfx_hardware_layout_get_max_attributes(const GFXHardwareContext cnt
 }
 
 /******************************************************/
-int gfx_hardware_layout_enable_attribute(unsigned int index, const GFXHardwareContext cnt)
+void gfx_hardware_layout_enable_attribute(unsigned int index, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	/* Validate index */
-	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
 
 	ext->EnableVertexAttribArray(index);
-
-	return 1;
 }
 
 /******************************************************/
-int gfx_hardware_layout_disable_attribute(unsigned int index, const GFXHardwareContext cnt)
+void gfx_hardware_layout_disable_attribute(unsigned int index, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	/* Validate index */
-	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
 
 	ext->DisableVertexAttribArray(index);
-
-	return 1;
 }
 
 /******************************************************/
-int gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt)
+int gfx_hardware_layout_attribute_enabled(unsigned int index, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	/* Validate all of it */
-	if(index >= gfx_hardware_layout_get_max_attributes(cnt) || attr->size < 1 || attr->size > 4) return 0;
+	GLint enabled;
+	ext->GetVertexAttribIiv(index, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
+
+	return enabled;
+}
+
+/******************************************************/
+void gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
 	ext->BindBuffer(GL_ARRAY_BUFFER, src->handle);
 
@@ -133,28 +131,12 @@ int gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttri
 		attr->stride,
 		(GLvoid*)attr->offset
 	);
-
-	return 1;
 }
 
 /******************************************************/
-int gfx_hardware_layout_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt)
+void gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
-
-	ext->VertexAttribDivisor(index, instances);
-
-	return 1;
-}
-
-/******************************************************/
-int gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt)
-{
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	if(index >= gfx_hardware_layout_get_max_attributes(cnt)) return 0;
 
 	GLint size;
 	GLuint type;
@@ -174,8 +156,28 @@ int gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute* 
 	attr->interpret = integ ? GFX_LAYOUT_INTEGER : (norm ? GFX_LAYOUT_NORMALIZED : GFX_LAYOUT_FLOAT);
 	attr->stride = stride;
 	attr->offset = VOID_TO_UINT(offset);
+}
 
-	return 1;
+/******************************************************/
+void gfx_hardware_layout_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	ext->VertexAttribDivisor(index, instances);
+}
+
+/******************************************************/
+unsigned int gfx_hardware_layout_get_attribute_divisor(unsigned int index, const GFXHardwareContext cnt)
+{
+	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
+
+	/* Extension not supported, divisor is 0 */
+	if(!ext->extensions[GFX_EXT_INSTANCED_ATTRIBUTES]) return 0;
+
+	GLuint divisor;
+	ext->GetVertexAttribIuiv(index, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, &divisor);
+
+	return divisor;
 }
 
 /******************************************************/

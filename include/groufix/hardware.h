@@ -279,7 +279,7 @@ void gfx_hardware_layout_unbind(const GFXHardwareContext cnt);
 /**
  * \brief Returns the maximum number of attributes which can be used.
  *
- * Any index should be smaller than this value (index < maxAttributes).
+ * Any index should be smaller than this value (index < maxAttributes), or errors will occur.
  *
  */
 unsigned int gfx_hardware_layout_get_max_attributes(const GFXHardwareContext cnt);
@@ -287,50 +287,53 @@ unsigned int gfx_hardware_layout_get_max_attributes(const GFXHardwareContext cnt
 /**
  * \brief Enables a vertex attribute of the currently bound layout.
  *
- * \return Non-zero if it could enable the attribute.
- *
  * When an attribute is enabled, it will read said attribute from a buffer.
- * If not, it will read a constant value.
  *
  */
-int gfx_hardware_layout_enable_attribute(unsigned int index, const GFXHardwareContext cnt);
+void gfx_hardware_layout_enable_attribute(unsigned int index, const GFXHardwareContext cnt);
 
 /**
  * \brief Disables a vertex attribute of the currently bound layout.
  *
- * \return Non-zero if it could disable the attribute.
+ */
+void gfx_hardware_layout_disable_attribute(unsigned int index, const GFXHardwareContext cnt);
+
+/**
+ * \brief Returns whether a vertex attribute of the currently bound layout is enabled or not.
  *
  */
-int gfx_hardware_layout_disable_attribute(unsigned int index, const GFXHardwareContext cnt);
+int gfx_hardware_layout_attribute_enabled(unsigned int index, const GFXHardwareContext cnt);
 
 /**
  * \brief Defines a vertex attribute of the currently bound layout.
  *
  * \param src  Vertex buffer to use for this attribute.
  * \param intr How the components should be interpreted.
- * \return Non-zero if it could define the attribute.
  *
  */
-int gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt);
+void gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt);
+
+/**
+ * \brief Returns the previously defined vertex attribute of the currently bound layout.
+ *
+ */
+void gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt);
 
 /**
  * \brief Modifies the rate at which attributes advance during instanced rendering (of the currently bound layout).
  *
  * \param instances If zero, the attribute behaves regularly, if not, it will advance once per the number of instances.
- * \return Non-zero if it could set the divisor.
  *
  * Note: this functionality requires GFX_EXT_INSTANCED_ATTRIBUTES.
  *
  */
-int gfx_hardware_layout_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt);
+void gfx_hardware_layout_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt);
 
 /**
- * \brief Returns the previously defined vertex attribute of the currently bound layout.
- *
- * \return Non-zero if it could get the attribute definition.
+ * \brief Returns the attribute divisor set by the above method.
  *
  */
-int gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt);
+unsigned int gfx_hardware_layout_get_attribute_divisor(unsigned int index, const GFXHardwareContext cnt);
 
 /**
  * \brief Binds an index buffer to the currently bound layout.
@@ -486,12 +489,11 @@ int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareS
  *
  * \param index Index to bind to, an index CAN send its data to multiple names.
  * \param name  Name to bind, a name CANNOT retrieve from multiple indices (doing so will override the previous index).
- * \param return Non-zero if the index is valid (see Hardware Layout for permitted indices).
  *
  * Once the program is being linked, the attributes are set as defined.
  *
  */
-int gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt);
+void gfx_hardware_program_set_attribute(GFXHardwareProgram* program, unsigned int index, const char* name, const GFXHardwareContext cnt);
 
 /**
  * \brief Retrieves the index the name is bound to.
