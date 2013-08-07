@@ -140,7 +140,7 @@ typedef void (*GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboole
 typedef struct GFX_Extensions
 {
 	/* Hardware Extensions */
-	unsigned char extensions[GFX_EXT_COUNT];
+	unsigned char flags[GFX_EXT_COUNT];
 
 	/* OpenGL Extensions */
 	GFX_ATTACHSHADERPROC              AttachShader;

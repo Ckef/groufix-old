@@ -35,7 +35,7 @@ GFXHardwareShader* gfx_hardware_shader_create(GFXShaderStage stage, const GFXHar
 		case GFX_SHADER_TESS_CONTROL :
 		case GFX_SHADER_TESS_EVAL :
 		{
-			if(!ext->extensions[GFX_EXT_TESSELLATION_SHADER]) gfx_errors_push(
+			if(!ext->flags[GFX_EXT_TESSELLATION_SHADER]) gfx_errors_push(
 				GFX_ERROR_INCOMPATIBLE_CONTEXT,
 				"GFX_EXT_TESSELLATION_SHADER is incompatible with this context."
 			);
@@ -43,7 +43,7 @@ GFXHardwareShader* gfx_hardware_shader_create(GFXShaderStage stage, const GFXHar
 		}
 		case GFX_SHADER_GEOMETRY :
 		{
-			if(!ext->extensions[GFX_EXT_GEOMETRY_SHADER]) gfx_errors_push(
+			if(!ext->flags[GFX_EXT_GEOMETRY_SHADER]) gfx_errors_push(
 				GFX_ERROR_INCOMPATIBLE_CONTEXT,
 				"GFX_EXT_GEOMETRY_SHADER is incompatible with this context."
 			);

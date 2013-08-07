@@ -36,7 +36,7 @@ int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GF
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-	return ext->extensions[extension];
+	return ext->flags[extension];
 }
 
 /******************************************************/

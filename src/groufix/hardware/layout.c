@@ -155,7 +155,7 @@ void gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute*
 	ext->GetVertexAttribIiv(index, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &stride);
 	ext->GetVertexAttribPointerv(index, GL_VERTEX_ATTRIB_ARRAY_POINTER, &offset);
 
-	if(!ext->extensions[GFX_EXT_INSTANCED_ATTRIBUTES]) divisor = 0;
+	if(!ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES]) divisor = 0;
 	else ext->GetVertexAttribIuiv(index, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, &divisor);
 
 	attr->size = size;

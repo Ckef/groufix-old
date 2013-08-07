@@ -164,7 +164,7 @@ int gfx_hardware_program_link(GFXHardwareProgram* program, int binary, const GFX
 		if(compiled)
 		{
 			/* Set hints */
-			if(ext->extensions[GFX_EXT_PROGRAM_BINARY])
+			if(ext->flags[GFX_EXT_PROGRAM_BINARY])
 				ext->ProgramParameteri(program->handle, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, binary);
 
 			/* Link all shaders */
