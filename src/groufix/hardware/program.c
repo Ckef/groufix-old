@@ -30,7 +30,7 @@ static int _gfx_hardware_program_find_shader(const VectorIterator it, const void
 }
 
 /******************************************************/
-static int _gfx_hardware_program_set_link_status(GFXHardwareProgram* program, const GFXHardwareContext cnt)
+static int _gfx_hardware_program_post_link(GFXHardwareProgram* program, const GFXHardwareContext cnt)
 {
 	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
@@ -38,7 +38,11 @@ static int _gfx_hardware_program_set_link_status(GFXHardwareProgram* program, co
 	ext->GetProgramiv(program->handle, GL_LINK_STATUS, &status);
 
 	program->linked = status;
-	if(status) vector_clear(program->shaders);
+	if(status)
+	{
+		vector_free(program->shaders);
+		program->shaders = NULL;
+	}
 
 	return status;
 }
@@ -52,12 +56,6 @@ GFXHardwareProgram* gfx_hardware_program_create(const GFXHardwareContext cnt)
 	GFXHardwareProgram* program = (GFXHardwareProgram*)calloc(1, sizeof(GFXHardwareProgram));
 	if(!program) return NULL;
 
-	program->shaders = vector_create(sizeof(GFXHardwareProgram*));
-	if(!program->shaders)
-	{
-		free(program);
-		return NULL;
-	}
 	program->handle = ext->CreateProgram();
 
 	return program;
@@ -87,8 +85,15 @@ void gfx_hardware_program_use(GFXHardwareProgram* program, const GFXHardwareCont
 /******************************************************/
 int gfx_hardware_program_attach_shader(GFXHardwareProgram* program, GFXHardwareShader* shader, const GFXHardwareContext cnt)
 {
+	/* Create storage */
+	if(!program->shaders)
+	{
+		program->shaders = vector_create(sizeof(GFXHardwareShader*));
+		if(!program->shaders) return 0;
+	}
+
 	/* First check if it is already attached */
-	if(vector_find(program->shaders, shader, _gfx_hardware_program_find_shader) != program->shaders->end) return 1;
+	else if(vector_find(program->shaders, shader, _gfx_hardware_program_find_shader) != program->shaders->end) return 1;
 
 	/* And insert the shader */
 	if(vector_insert(program->shaders, &shader, program->shaders->end) == program->shaders->end) return 0;
@@ -101,11 +106,20 @@ int gfx_hardware_program_attach_shader(GFXHardwareProgram* program, GFXHardwareS
 /******************************************************/
 int gfx_hardware_program_detach_shader(GFXHardwareProgram* program, GFXHardwareShader* shader, const GFXHardwareContext cnt)
 {
+	if(!program->shaders) return 0;
+
 	/* Find the shader and erase */
 	VectorIterator it = vector_find(program->shaders, shader, _gfx_hardware_program_find_shader);
 	int ret = (it != program->shaders->end);
 
 	vector_erase(program->shaders, it);
+
+	/* Free storage */
+	if(program->shaders->begin == program->shaders->end)
+	{
+		vector_free(program->shaders);
+		program->shaders = NULL;
+	}
 
 	return ret;
 }
@@ -132,33 +146,38 @@ int gfx_hardware_program_link(GFXHardwareProgram* program, int binary, const GFX
 	/* Already linked with latest shaders */
 	if(program->linked) return 1;
 
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	/* Compile and attach all shaders */
-	int compiled = 1;
-	VectorIterator it;
-	for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
+	/* No shaders to link */
+	if(program->shaders)
 	{
-		GFXHardwareShader* shader = *(GFXHardwareShader**)it;
+		const GFX_Extensions* ext = VOID_TO_EXT(cnt);
 
-		compiled = !(!compiled | !gfx_hardware_shader_compile(shader, cnt));
-		ext->AttachShader(program->handle, shader->handle);
+		/* Compile and attach all shaders */
+		int compiled = 1;
+		VectorIterator it;
+		for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
+		{
+			GFXHardwareShader* shader = *(GFXHardwareShader**)it;
+
+			compiled = !(!compiled | !gfx_hardware_shader_compile(shader, cnt));
+			ext->AttachShader(program->handle, shader->handle);
+		}
+		if(compiled)
+		{
+			/* Set hints */
+			if(ext->extensions[GFX_EXT_PROGRAM_BINARY])
+				ext->ProgramParameteri(program->handle, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, binary);
+
+			/* Link all shaders */
+			ext->LinkProgram(program->handle);
+		}
+
+		/* Detach all shaders, regardless of being compiled correctly */
+		for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
+			ext->DetachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
+
+		return _gfx_hardware_program_post_link(program, cnt);
 	}
-	if(compiled)
-	{
-		/* Set hints */
-		if(ext->extensions[GFX_EXT_PROGRAM_BINARY])
-			ext->ProgramParameteri(program->handle, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, binary);
-
-		/* Link all shaders */
-		ext->LinkProgram(program->handle);
-	}
-
-	/* Detach all shaders, regardless of being compiled correctly */
-	for(it = program->shaders->begin; it != program->shaders->end; it = vector_next(program->shaders, it))
-		ext->DetachShader(program->handle, (*(GFXHardwareShader**)it)->handle);
-
-	return _gfx_hardware_program_set_link_status(program, cnt);
+	return 0;
 }
 
 /******************************************************/
@@ -206,5 +225,5 @@ int gfx_hardware_program_set_binary(GFXHardwareProgram* program, const void* bin
 
 	ext->ProgramBinary(program->handle, format, bin, length);
 
-	return _gfx_hardware_program_set_link_status(program, cnt);
+	return _gfx_hardware_program_post_link(program, cnt);
 }

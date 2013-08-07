@@ -116,6 +116,9 @@ void gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttr
 
 	ext->BindBuffer(GL_ARRAY_BUFFER, src->handle);
 
+	/* Check if non-zero to avoid extension error */
+	if(attr->divisor) ext->VertexAttribDivisor(index, attr->divisor);
+
 	if(attr->interpret & GFX_LAYOUT_INTEGER) ext->VertexAttribIPointer(
 		index,
 		attr->size,
@@ -144,6 +147,7 @@ void gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute*
 	GLint integ;
 	GLint stride;
 	GLvoid* offset;
+	GLuint divisor;
 	ext->GetVertexAttribIiv(index, GL_VERTEX_ATTRIB_ARRAY_SIZE, &size);
 	ext->GetVertexAttribIuiv(index, GL_VERTEX_ATTRIB_ARRAY_TYPE, &type);
 	ext->GetVertexAttribIiv(index, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &norm);
@@ -151,33 +155,15 @@ void gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute*
 	ext->GetVertexAttribIiv(index, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &stride);
 	ext->GetVertexAttribPointerv(index, GL_VERTEX_ATTRIB_ARRAY_POINTER, &offset);
 
+	if(!ext->extensions[GFX_EXT_INSTANCED_ATTRIBUTES]) divisor = 0;
+	else ext->GetVertexAttribIuiv(index, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, &divisor);
+
 	attr->size = size;
 	attr->type = type;
 	attr->interpret = integ ? GFX_LAYOUT_INTEGER : (norm ? GFX_LAYOUT_NORMALIZED : GFX_LAYOUT_FLOAT);
 	attr->stride = stride;
 	attr->offset = VOID_TO_UINT(offset);
-}
-
-/******************************************************/
-void gfx_hardware_layout_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt)
-{
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	ext->VertexAttribDivisor(index, instances);
-}
-
-/******************************************************/
-unsigned int gfx_hardware_layout_get_attribute_divisor(unsigned int index, const GFXHardwareContext cnt)
-{
-	const GFX_Extensions* ext = VOID_TO_EXT(cnt);
-
-	/* Extension not supported, divisor is 0 */
-	if(!ext->extensions[GFX_EXT_INSTANCED_ATTRIBUTES]) return 0;
-
-	GLuint divisor;
-	ext->GetVertexAttribIuiv(index, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, &divisor);
-
-	return divisor;
+	attr->divisor = divisor;
 }
 
 /******************************************************/

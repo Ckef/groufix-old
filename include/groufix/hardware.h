@@ -288,6 +288,7 @@ typedef struct GFXHardwareAttribute
 	GFXInterpretType  interpret; /* How to interpret each element */
 	size_t            stride;    /* Byte offset between consecutive attributes */
 	size_t            offset;    /* Byte offset of the first occurence of the attribute */
+	unsigned int      divisor;   /* Rate at which attributes advance, 0 for no instancing */
 
 } GFXHardwareAttribute;
 
@@ -362,30 +363,18 @@ int gfx_hardware_layout_attribute_enabled(unsigned int index, const GFXHardwareC
  * \param src  Vertex buffer to use for this attribute.
  * \param intr How the components should be interpreted.
  *
+ * Note: attr->divisor requires GFX_EXT_INSTANCED_ATTRIBUTES.
+ *
  */
 void gfx_hardware_layout_set_attribute(unsigned int index, const GFXHardwareAttribute* attr, GFXHardwareBuffer* src, const GFXHardwareContext cnt);
 
 /**
  * \brief Returns the previously defined vertex attribute of the currently bound layout.
  *
+ * Note: if GFX_EXT_INSTANCED_ATTRIBUTES is not supported, attr->divisor will always be set to 0.
+ *
  */
 void gfx_hardware_layout_get_attribute(unsigned int index, GFXHardwareAttribute* attr, const GFXHardwareContext cnt);
-
-/**
- * \brief Modifies the rate at which attributes advance during instanced rendering (of the currently bound layout).
- *
- * \param instances If zero, the attribute behaves regularly, if not, it will advance once per the number of instances.
- *
- * Note: this functionality requires GFX_EXT_INSTANCED_ATTRIBUTES.
- *
- */
-void gfx_hardware_layout_set_attribute_divisor(unsigned int index, unsigned int instances, const GFXHardwareContext cnt);
-
-/**
- * \brief Returns the attribute divisor set by the above method.
- *
- */
-unsigned int gfx_hardware_layout_get_attribute_divisor(unsigned int index, const GFXHardwareContext cnt);
 
 /**
  * \brief Binds an index buffer to the currently bound layout.

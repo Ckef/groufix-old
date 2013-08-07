@@ -25,7 +25,9 @@ int main()
 
 	/* Some triangle data setup */
 
-	const GFXHardwareContext contx = gfx_hardware_get_context();
+	GFXHardwareBuffer* triangleBuf = NULL;
+	GFXHardwareLayout* triangle = NULL;
+	GFXHardwareContext contx = gfx_hardware_get_context();
 	if(contx)
 	{
 		GFXHardwareAttribute attr;
@@ -34,6 +36,7 @@ int main()
 		attr.interpret = GFX_LAYOUT_FLOAT;
 		attr.stride = 0;
 		attr.offset = 0;
+		attr.divisor = 0;
 
 		float triangleArr[] = {
 			-0.5f, -0.5f,
@@ -41,13 +44,12 @@ int main()
 			 0.0f,  0.5f
 		};
 
-		GFXHardwareBuffer* triangleBuf = gfx_hardware_buffer_create(
+		triangleBuf = gfx_hardware_buffer_create(
 			GFX_BUFFER_VERTEX_ARRAY,
 			GFX_BUFFER_STATIC_WRITE,
 			sizeof(triangleArr), triangleArr, contx);
 
-		GFXHardwareLayout* triangle = gfx_hardware_layout_create(contx);
-		gfx_hardware_layout_bind(triangle, contx);
+		triangle = gfx_hardware_layout_create(contx);
 		gfx_hardware_layout_enable_attribute(0, contx);
 		gfx_hardware_layout_set_attribute(0, &attr, triangleBuf, contx);
 	}
@@ -71,6 +73,10 @@ int main()
 			gfx_errors_pop();
 		}
 	}
+
+	/* Free memory */
+	gfx_hardware_layout_free(triangle, contx);
+	gfx_hardware_buffer_free(triangleBuf, contx);
 
 	gfx_terminate();
 
