@@ -30,12 +30,8 @@ extern "C" {
  * Hardware Context handling
  *******************************************************/
 
-/** \brief OpenGL Context */
-typedef void* GFXHardwareContext;
-
-
 /** \brief Hardware Extensions */
-typedef unsigned int GFXHardwareExtension;
+typedef unsigned int GFXExtension;
 
 #define GFX_EXT_GEOMETRY_SHADER       0x0000
 #define GFX_EXT_INSTANCED_ATTRIBUTES  0x0001
@@ -44,21 +40,11 @@ typedef unsigned int GFXHardwareExtension;
 
 #define GFX_EXT_COUNT                 0x0004
 
-
 /**
- * \brief Get the currently active context.
- *
- * May return NULL in case no window is internally current.
- * If it returned a non NULL pointer, it should be used as context to call other hardware methods.
+ * \brief Returns whether a given extension is supported or not.
  *
  */
-GFXHardwareContext gfx_hardware_get_context(void);
-
-/**
- * \brief Returns whether a given extension is supported by a context or not.
- *
- */
-int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GFXHardwareContext cnt);
+int gfx_hardware_is_extension_supported(GFXExtension extension);
 
 /**
  * \brief Polls all OpenGL errors at any given time.
@@ -68,43 +54,6 @@ int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GF
  * 
  */
 unsigned int gfx_hardware_poll_errors(const char* description);
-
-
-/********************************************************
- * Generic Hardware Object
- *******************************************************/
-
-/** \brief Generic hardware object */
-typedef void* GFXHardwareObject;
-
-typedef void (*GFXHardwareFreeFunc)    (GFXHardwareObject, const GFXHardwareContext);
-typedef void* (*GFXHardwareSaveFunc)   (GFXHardwareObject, const GFXHardwareContext);
-typedef void (*GFXHardwareRestoreFunc) (GFXHardwareObject, void*, const GFXHardwareContext);
-
-
-/** \brief Hardware vtable */
-typedef struct GFXHardwareFuncs
-{
-	GFXHardwareFreeFunc     free;    /* Request free */
-	GFXHardwareSaveFunc     save;    /* Store data in client side buffer, returns arbitrary address (NULL to not restore) */
-	GFXHardwareRestoreFunc  restore; /* Restore data from client side buffer */
-
-} GFXHardwareFuncs;
-
-
-/**
- * \brief Registers a new generic hardware object for global operations.
- *
- * \return Non-zero on success.
- *
- */
-int gfx_hardware_object_register(GFXHardwareObject object, const GFXHardwareFuncs* funcs);
-
-/**
- * \brief Makes sure the hardware object is freed properly.
- *
- */
-void gfx_hardware_object_unregister(GFXHardwareObject object);
 
 
 #ifdef __cplusplus

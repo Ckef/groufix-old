@@ -103,6 +103,8 @@ typedef struct GFX_Platform_Attributes
 /**
  * \brief Loads all extensions for the current window's context.
  *
+ * Should not be called by the platform.
+ *
  */
 void _gfx_extensions_load(void);
 

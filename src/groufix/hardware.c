@@ -27,8 +27,8 @@
 /* Actual object storage */
 struct GFX_Internal_Hardware_Object
 {
-	GFXHardwareObject handle;
-	const GFXHardwareFuncs* funcs;
+	GFX_Hardware_Object handle;
+	const GFX_Hardware_Funcs* funcs;
 };
 
 /* Created objects */
@@ -45,18 +45,21 @@ static int _gfx_hardware_object_compare(const VectorIterator it, const void* val
 }
 
 /******************************************************/
-GFXHardwareContext gfx_hardware_get_context(void)
+static GFX_Extensions* _gfx_hardware_get_extensions(void)
 {
 	GFX_Internal_Window* wind = _gfx_window_get_current();
 	if(!wind) return NULL;
 
-	return (GFXHardwareContext)&wind->extensions;
+	return &wind->extensions;
 }
 
 /******************************************************/
-int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GFXHardwareContext cnt)
+int gfx_hardware_is_extension_supported(GFXExtension extension)
 {
-	return CONTX_TO_EXT(cnt)->flags[extension];
+	GFX_Extensions* ext = _gfx_hardware_get_extensions();
+	if(!ext) return 0;
+
+	return ext->flags[extension];
 }
 
 /******************************************************/
@@ -78,7 +81,7 @@ unsigned int gfx_hardware_poll_errors(const char* description)
 }
 
 /******************************************************/
-int gfx_hardware_object_register(GFXHardwareObject object, const GFXHardwareFuncs* funcs)
+int _gfx_hardware_object_register(GFX_Hardware_Object object, const GFX_Hardware_Funcs* funcs)
 {
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_hw_objects)
@@ -96,7 +99,7 @@ int gfx_hardware_object_register(GFXHardwareObject object, const GFXHardwareFunc
 }
 
 /******************************************************/
-void gfx_hardware_object_unregister(GFXHardwareObject object)
+void _gfx_hardware_object_unregister(GFX_Hardware_Object object)
 {
 	if(_gfx_hw_objects)
 	{
@@ -114,7 +117,7 @@ void gfx_hardware_object_unregister(GFXHardwareObject object)
 }
 
 /******************************************************/
-void _gfx_hardware_objects_free(const GFXHardwareContext cnt)
+void _gfx_hardware_objects_free(const GFX_Extensions* ext)
 {
 	if(_gfx_hw_objects)
 	{
@@ -123,7 +126,7 @@ void _gfx_hardware_objects_free(const GFXHardwareContext cnt)
 		for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = vector_next(_gfx_hw_objects, it))
 		{
 			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)it;
-			obj->funcs->free(obj->handle, cnt);
+			obj->funcs->free(obj->handle, ext);
 		}
 	}
 
@@ -136,7 +139,7 @@ void _gfx_hardware_objects_free(const GFXHardwareContext cnt)
 }
 
 /******************************************************/
-void _gfx_hardware_objects_save(const GFXHardwareContext cnt)
+void _gfx_hardware_objects_save(const GFX_Extensions* ext)
 {
 	if(_gfx_hw_objects)
 	{
@@ -153,7 +156,7 @@ void _gfx_hardware_objects_save(const GFXHardwareContext cnt)
 		{
 			/* Store pointer to arbitrary storage */
 			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)objs;
-			void* data = obj->funcs->save(obj->handle, cnt);
+			void* data = obj->funcs->save(obj->handle, ext);
 
 			vector_insert(_gfx_hw_saved_objects, &data, save);
 
@@ -165,7 +168,7 @@ void _gfx_hardware_objects_save(const GFXHardwareContext cnt)
 }
 
 /******************************************************/
-void _gfx_hardware_objects_restore(const GFXHardwareContext cnt)
+void _gfx_hardware_objects_restore(const GFX_Extensions* ext)
 {
 	if(_gfx_hw_saved_objects)
 	{
@@ -178,7 +181,7 @@ void _gfx_hardware_objects_restore(const GFXHardwareContext cnt)
 			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)objs;
 			void* data = *(void**)save;
 
-			if(data) obj->funcs->restore(obj->handle, data, cnt);
+			if(data) obj->funcs->restore(obj->handle, data, ext);
 
 			/* Next */
 			objs = vector_next(_gfx_hw_objects, objs);

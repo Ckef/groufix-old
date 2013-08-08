@@ -34,7 +34,7 @@
 #endif
 
 /* Extensions from void */
-#define CONTX_TO_EXT(x) ((const GFX_Extensions*)x)
+#define GFX_GET_EXT(x) ((const GFX_Extensions*)x)
 
 #ifdef __cplusplus
 extern "C" {
@@ -91,7 +91,7 @@ typedef void (*GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum, GLsizei
 typedef void (*GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
 
 
-/** \brief OpenGL extensions, a.k.a HardwareContext */
+/** \brief OpenGL extensions, a.k.a HardwareExtensions */
 typedef struct GFX_Extensions
 {
 	/* Hardware Extensions */
@@ -185,8 +185,40 @@ GFX_Internal_Window* _gfx_window_get_current(void);
 
 
 /********************************************************
- * Hardware Object handling (more or less events)
+ * Generic Hardware Object
  *******************************************************/
+
+/** \brief Generic hardware object */
+typedef void* GFX_Hardware_Object;
+
+typedef void (*GFX_Hardware_Free_Func)    (GFX_Hardware_Object, const GFX_Extensions*);
+typedef void* (*GFX_Hardware_Save_Func)   (GFX_Hardware_Object, const GFX_Extensions*);
+typedef void (*GFX_Hardware_Restore_Func) (GFX_Hardware_Object, void*, const GFX_Extensions*);
+
+
+/** \brief Hardware vtable */
+typedef struct GFX_Hardware_Funcs
+{
+	GFX_Hardware_Free_Func     free;    /* Request free */
+	GFX_Hardware_Save_Func     save;    /* Store data in client side buffer, returns arbitrary address (NULL to not restore) */
+	GFX_Hardware_Restore_Func  restore; /* Restore data from client side buffer */
+
+} GFX_Hardware_Funcs;
+
+
+/**
+ * \brief Registers a new generic hardware object for global operations.
+ *
+ * \return Non-zero on success.
+ *
+ */
+int _gfx_hardware_object_register(GFX_Hardware_Object object, const GFX_Hardware_Funcs* funcs);
+
+/**
+ * \brief Makes sure the hardware object is freed properly.
+ *
+ */
+void _gfx_hardware_object_unregister(GFX_Hardware_Object object);
 
 /**
  * \brief Issue free request of all hardware objects.
@@ -194,7 +226,7 @@ GFX_Internal_Window* _gfx_window_get_current(void);
  * This will issue the free request and unregister ALL objects.
  *
  */
-void _gfx_hardware_objects_free(const GFXHardwareContext cnt);
+void _gfx_hardware_objects_free(const GFX_Extensions* ext);
 
 /**
  * \brief Issue save method of all hardware objects.
@@ -202,7 +234,7 @@ void _gfx_hardware_objects_free(const GFXHardwareContext cnt);
  * During this operation, the current window is considered "deleted".
  *
  */
-void _gfx_hardware_objects_save(const GFXHardwareContext cnt);
+void _gfx_hardware_objects_save(const GFX_Extensions* ext);
 
 /**
  * \brief Issue restore method of all hardware objects.
@@ -210,7 +242,7 @@ void _gfx_hardware_objects_save(const GFXHardwareContext cnt);
  * During this operation, a new window is current.
  *
  */
-void _gfx_hardware_objects_restore(const GFXHardwareContext cnt);
+void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
 
 
 #ifdef __cplusplus
