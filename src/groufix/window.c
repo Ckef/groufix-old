@@ -19,7 +19,7 @@
  *
  */
 
-#include "groufix/platform.h"
+#include "groufix/internal.h"
 #include "groufix/containers/vector.h"
 #include "groufix/errors.h"
 
@@ -290,15 +290,20 @@ GFXScreen gfx_window_get_screen(const GFXWindow* window)
 /******************************************************/
 GFXContext gfx_window_get_context(const GFXWindow* window)
 {
-	GFXContext context;
-	context.major = 0;
-	context.minor = 0;
+	GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
+	GLint major, minor;
 
-	/* Set current, get context and set main window current again */
-	_gfx_window_make_current((GFX_Internal_Window*)window);
-	_gfx_platform_context_get(&context.major, &context.minor);
+	_gfx_window_make_current(internal);
+	internal->extensions.GetIntegerv(GL_MAJOR_VERSION, &major);
+	internal->extensions.GetIntegerv(GL_MINOR_VERSION, &minor);
+
+	/* Set main window current again */
 	_gfx_window_make_current(_gfx_main_window);
 
+	GFXContext context;
+	context.major = major;
+	context.minor = minor;
+	
 	return context;
 }
 

@@ -27,10 +27,8 @@
 	#error "Cannot compile X11 platform using GL ES"
 #endif
 
-#define GFX_INTERNAL_GL_LEGACY
-#include "groufix/platform.h"
-
 /* Includes */
+#include "groufix/platform.h"
 #include "groufix/containers/vector.h"
 
 #include <X11/Xlib.h>

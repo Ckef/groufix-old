@@ -28,7 +28,7 @@
 struct GFX_Internal_Hardware_Object
 {
 	GFXHardwareObject handle;
-	const GFXHardwareFuns* funs;
+	const GFXHardwareFuncs* funcs;
 };
 
 /* Created objects */
@@ -37,6 +37,12 @@ static Vector* _gfx_hw_objects = NULL;
 /* Saved client side memory */
 static Vector* _gfx_hw_saved_objects = NULL;
 
+
+/******************************************************/
+static int _gfx_hardware_object_compare(const VectorIterator it, const void* value)
+{
+	return ((struct GFX_Internal_Hardware_Object*)it)->handle == value;
+}
 
 /******************************************************/
 GFXHardwareContext gfx_hardware_get_context(void)
@@ -74,13 +80,7 @@ unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardware
 }
 
 /******************************************************/
-static int _gfx_hardware_object_compare(const VectorIterator it, const void* value)
-{
-	return ((struct GFX_Internal_Hardware_Object*)it)->handle == value;
-}
-
-/******************************************************/
-int gfx_hardware_object_register(GFXHardwareObject object, const GFXHardwareFuns* funs)
+int gfx_hardware_object_register(GFXHardwareObject object, const GFXHardwareFuncs* funcs)
 {
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_hw_objects)
@@ -92,7 +92,7 @@ int gfx_hardware_object_register(GFXHardwareObject object, const GFXHardwareFuns
 	/* Create internal object */
 	struct GFX_Internal_Hardware_Object internal;
 	internal.handle = object;
-	internal.funs = funs;
+	internal.funcs = funcs;
 
 	return vector_insert(_gfx_hw_objects, &internal, _gfx_hw_objects->end) != _gfx_hw_objects->end;
 }
@@ -125,7 +125,7 @@ void _gfx_hardware_objects_free(const GFXHardwareContext cnt)
 		for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = vector_next(_gfx_hw_objects, it))
 		{
 			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)it;
-			obj->funs->free(obj->handle, cnt);
+			obj->funcs->free(obj->handle, cnt);
 		}
 	}
 
@@ -155,7 +155,7 @@ void _gfx_hardware_objects_save(const GFXHardwareContext cnt)
 		{
 			/* Store pointer to arbitrary storage */
 			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)objs;
-			void* data = obj->funs->save(obj->handle, cnt);
+			void* data = obj->funcs->save(obj->handle, cnt);
 
 			vector_insert(_gfx_hw_saved_objects, &data, save);
 
@@ -176,8 +176,11 @@ void _gfx_hardware_objects_restore(const GFXHardwareContext cnt)
 		VectorIterator save = _gfx_hw_saved_objects->begin;
 		while(save != _gfx_hw_saved_objects->end)
 		{
+			/* Restore from pointer if given */
 			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)objs;
-			obj->funs->restore(obj->handle, *(void**)save, cnt);
+			void* data = *(void**)save;
+
+			if(data) obj->funcs->restore(obj->handle, data, cnt);
 
 			/* Next */
 			objs = vector_next(_gfx_hw_objects, objs);

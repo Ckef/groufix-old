@@ -73,13 +73,6 @@ void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_get(int* major, int* minor)
-{
-	glGetIntegerv(GL_MAJOR_VERSION, major);
-	glGetIntegerv(GL_MINOR_VERSION, minor);
-}
-
-/******************************************************/
 void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num)
 {
 	if(_gfx_win32->extensions.SwapIntervalEXT)

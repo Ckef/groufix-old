@@ -20,7 +20,7 @@
  */
 
 #define GL_GLEXT_PROTOTYPES
-#include "groufix/platform.h"
+#include "groufix/internal.h"
 #include "groufix/errors.h"
 
 #include <string.h>
@@ -95,8 +95,9 @@ void _gfx_extensions_load(void)
 	GFX_Extensions* ext = &window->extensions;
 
 	/* Get OpenGL version */
-	int major, minor;
-	_gfx_platform_context_get(&major, &minor);
+	GLint major, minor;
+	glGetIntegerv(GL_MAJOR_VERSION, &major);
+	glGetIntegerv(GL_MINOR_VERSION, &minor);
 
 #ifdef GFX_GLES
 

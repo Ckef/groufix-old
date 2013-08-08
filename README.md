@@ -28,7 +28,7 @@ Once Groufix is built, it can be used in your code with `#include <groufix.h>`. 
 
 _The library is not thread safe_. All windowing and hardware functionality should be executed from the same thread at all times. Due to the complex nature of GPU interaction it is easier and safer to execute all graphics related operations on the same thread. However, there are components in the engine which are specifically designed to be used in multiple threads. Note, no other functionality is guaranteed to work concurrently.
 
-* __Buffer Mapping__, `gfx_hardware_buffer_map` and `gfx_hardware_buffer_get_map` will return a pointer to the mapped buffer, this pointer can be used in multiple threads to concurrently upload data.
+* __Buffer Mapping__
 
 ### Termination
 

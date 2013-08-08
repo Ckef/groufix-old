@@ -22,11 +22,193 @@
 #ifndef GFX_PLATFORM_H
 #define GFX_PLATFORM_H
 
-#include "groufix/internal.h"
+#include "groufix/utils.h"
+#include "groufix/window.h"
+
+/* Get build target */
+#if defined(_WIN32) || defined(__WIN32__)
+	#define GFX_WIN32
+#elif defined(__APPLE__) || defined(__MACH__)
+	#define GFX_OSX
+#elif defined(__unix) || defined(__unix__) || defined(__linux__)
+	#define GFX_UNIX
+
+/* Maybe GLES? */
+#elif !defined(GFX_GLES)
+	#error "Platform not supported"
+#endif
+
+/* Windows */
+#ifdef GFX_WIN32
+
+	/* Windows XP */
+	#ifndef WINVER
+	#define WINVER 0x0501
+	#endif
+
+	/* Nothing extra */
+	#ifndef WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN
+	#endif
+
+	#ifndef VC_EXTRALEAN
+	#define VC_EXTRALEAN
+	#endif
+	
+	/* To avoid redifinitions */
+	#include <windows.h>
+
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/********************************************************
+ * Platform definitions
+ *******************************************************/
+
+/** \brief Proc Address */
+typedef void (*GFXProcAddress)(void);
+
+
+/** \brief A Screen */
+typedef void* GFX_Platform_Screen;
+
+
+/** \brief A Window */
+typedef void* GFX_Platform_Window;
+
+
+/** \brief Window initialization attributes */
+typedef struct GFX_Platform_Attributes
+{
+	GFX_Platform_Screen  screen;
+	const char*          name;
+
+	unsigned int         width;
+	unsigned int         height;
+	int                  x;
+	int                  y;
+
+	GFXColorDepth        depth;
+
+} GFX_Platform_Attributes;
+
+
+/********************************************************
+ * Extension handling (not implemented by platform)
+ *******************************************************/
+
+/**
+ * \brief Loads all extensions for the current window's context.
+ *
+ */
+void _gfx_extensions_load(void);
+
+/**
+ * \brief Returns whether the OpenGL extension can be found in the space seperated string.
+ *
+ * This method is primarily used in the platform implementations.
+ *
+ */
+int _gfx_extensions_is_in_string(const char* str, const char* ext);
+
+
+/********************************************************
+ * Event triggers (must be called manually by platform)
+ *******************************************************/
+
+/**
+ * \brief Called when a window is requested to close.
+ *
+ * Used to intercept a user requested window termination.
+ *
+ */
+void _gfx_event_window_close(GFX_Platform_Window handle);
+
+/**
+ * \brief Handles a key press event.
+ *
+ * \param key   What key is pressed.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_key_press(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
+
+/**
+ * \brief Handles a key release event.
+ *
+ * \param key   What key is released.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_key_release(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
+
+/**
+ * \brief Called when the cursor moves in a window.
+ *
+ * \param x     X coordinate of the cursor relative to the window.
+ * \param y     Y coordinate of the cursor relative to the window.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_mouse_move(GFX_Platform_Window handle, int x, int y, GFXKeyState state);
+
+/**
+ * \brief Called when the cursor enters a window.
+ *
+ * \param x     X coordinate of the cursor relative to the window.
+ * \param y     Y coordinate of the cursor relative to the window.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_mouse_enter(GFX_Platform_Window handle, int x, int y, GFXKeyState state);
+
+/**
+ * \brief Called when the cursor leaves a window.
+ *
+ * \param x     X coordinate of the cursor relative to the window.
+ * \param y     Y coordinate of the cursor relative to the window.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_mouse_leave(GFX_Platform_Window handle, int x, int y, GFXKeyState state);
+
+/**
+ * \brief Handles a mouse key press event.
+ *
+ * \param key   What key is pressed.
+ * \param x     X coordinate of the cursor relative to the window.
+ * \param y     Y coordinate of the cursor relative to the window.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_mouse_press(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
+
+/**
+ * \brief Handles a mouse key release event.
+ *
+ * \param key   What key is pressed.
+ * \param x     X coordinate of the cursor relative to the window.
+ * \param y     Y coordinate of the cursor relative to the window.
+ * \param state State of some special keys.
+ *
+ */
+void _gfx_event_mouse_release(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
+
+/**
+ * \brief Handles a mouse wheel event.
+ *
+ * \param xoffset Mouse wheel tilt (negative = left, positive = right).
+ * \param yoffset Mouse wheel rotate (negative = down, positive = up).
+ * \param x       X coordinate of the cursor relative to the window.
+ * \param y       Y coordinate of the cursor relative to the window.
+ * \param state   State of some special keys.
+ *
+ */
+void _gfx_event_mouse_wheel(GFX_Platform_Window handle, int xoffset, int yoffset, int x, int y, GFXKeyState state);
+
 
 /********************************************************
  * Initialization
@@ -204,12 +386,6 @@ void _gfx_platform_destroy_context(GFX_Platform_Window handle);
  *
  */
 void _gfx_platform_context_make_current(GFX_Platform_Window handle);
-
-/**
- * \brief Returns the major and minor OpenGL version of the current context.
- *
- */
-void _gfx_platform_context_get(int* major, int* minor);
 
 /**
  * \brief Sets the minimum number of video frame periods per buffer swap.

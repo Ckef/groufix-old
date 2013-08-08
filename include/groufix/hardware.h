@@ -83,13 +83,13 @@ typedef void (*GFXHardwareRestoreFunc) (GFXHardwareObject, void*, const GFXHardw
 
 
 /** \brief Hardware vtable */
-typedef struct GFXHardwareFuns
+typedef struct GFXHardwareFuncs
 {
 	GFXHardwareFreeFunc     free;    /* Request free */
-	GFXHardwareSaveFunc     save;    /* Store data in client side buffer, returns arbitrary address */
+	GFXHardwareSaveFunc     save;    /* Store data in client side buffer, returns arbitrary address (NULL to not restore) */
 	GFXHardwareRestoreFunc  restore; /* Restore data from client side buffer */
 
-} GFXHardwareFuns;
+} GFXHardwareFuncs;
 
 
 /**
@@ -98,7 +98,7 @@ typedef struct GFXHardwareFuns
  * \return Non-zero on success.
  *
  */
-int gfx_hardware_object_register(GFXHardwareObject object, const GFXHardwareFuns* funs);
+int gfx_hardware_object_register(GFXHardwareObject object, const GFXHardwareFuncs* funcs);
 
 /**
  * \brief Makes sure the hardware object is freed properly.

@@ -56,6 +56,20 @@ void _gfx_event_mouse_move(GFX_Platform_Window handle, int x, int y, GFXKeyState
 }
 
 /******************************************************/
+void _gfx_event_mouse_enter(GFX_Platform_Window handle, int x, int y, GFXKeyState state)
+{
+	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
+	if(window) if(window->callbacks.mouseEnter) window->callbacks.mouseEnter(window, x, y, state);
+}
+
+/******************************************************/
+void _gfx_event_mouse_leave(GFX_Platform_Window handle, int x, int y, GFXKeyState state)
+{
+	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
+	if(window) if(window->callbacks.mouseLeave) window->callbacks.mouseLeave(window, x, y, state);
+}
+
+/******************************************************/
 void _gfx_event_mouse_press(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);

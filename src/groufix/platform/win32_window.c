@@ -47,6 +47,19 @@ void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth)
 }
 
 /******************************************************/
+static void _gfx_win32_track_mouse(HWND handle)
+{
+	TRACKMOUSEEVENT track;
+	ZeroMemory(&track, sizeof(TRACKMOUSEEVENT);
+
+	track.cbSize    = sizeof(TRACKMOUSEEVENT);
+	track.dwFlags   = TME_LEAVE;
+	track.hwndTrack = handle;
+
+	TrackMouseEvent(&track);
+}
+
+/******************************************************/
 static GFXKey _gfx_win32_get_extended_key(GFXKey key, LPARAM lParam)
 {
 	/* Get extended key (probaby right key) */
@@ -127,11 +140,49 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Mouse move */
 		case WM_MOUSEMOVE :
 		{
-			_gfx_event_mouse_move(window,
-				GET_X_LPARAM(lParam),
-				GET_Y_LPARAM(lParam),
-				_gfx_win32_get_key_state()
-			);
+			int x = GET_X_LPARAM(lParam);
+			int y = GET_Y_LPARAM(lParam);
+
+			_gfx_event_mouse_move(window, x, y, _gfx_win32_get_key_state());
+
+			/* Check mouse enter event */
+			GFX_Win32_Window* win32_window = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+			if(!win32_window->mouseInside)
+			{
+				win32_window->mouseInside = 1;
+				_gfx_win32_track_mouse(handle);
+
+				_gfx_event_mouse_enter(window, x, y, _gfx_win32_get_key_state());
+			}
+
+			return 0;
+		}
+
+		/* Mouse leave */
+		case WM_MOUSELEAVE :
+		{
+			GFX_Win32_Window* win32_window = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+			win32_window->mouseInside = 0;
+
+			/* Untrack */
+			TRACKMOUSEEVENT track;
+			ZeroMemory(&track, sizeof(TRACKMOUSEEVENT);
+
+			track.cbSize    = sizeof(TRACKMOUSEEVENT);
+			track.dwFlags   = TME_CANCEL | TME_LEAVE;
+			track.hwndTrack = handle;
+
+			TrackMouseEvent(&track);
+
+			/* Get mouse position */
+			POINT pnt;
+			ZeroMemory(&pnt, sizeof(POINT));
+			GetCursorPos(&pnt);
+
+			ScreenToClient(handle, &pnt);
+
+			_gfx_event_mouse_leave(window, pnt.x, pnt.y, _gfx_win32_get_key_state());
+
 			return 0;
 		}
 
@@ -302,6 +353,18 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 
 	/* Set pixel format */
 	_gfx_win32_set_pixel_format(window.handle, &attributes->depth);
+
+	/* Fetch window/mouse position to check if mouse is in window */
+	RECT rect;
+	ZeroMemory(&rect, sizeof(RECT));
+	GetWindowRect(window.handle, &rect);
+
+	POINT pnt;
+	ZeroMemory(&pnt, sizeof(POINT));
+	GetCursorPos(&pnt);
+
+	window.mouseInside = PtInRect(&rect, pnt);
+	if(window.mouseInside) _gfx_win32_track_mouse(window.handle);
 
 	return window.handle;
 }

@@ -136,6 +136,30 @@ static void _gfx_x11_event_proc(XEvent* event)
 			break;
 		}
 
+		/* Pointer enter */
+		case EnterNotify :
+		{
+			_gfx_event_mouse_enter(window,
+				event->xcrossing.x,
+				event->xcrossing.y,
+				_gfx_x11_get_key_state(event->xcrossing.state)
+			);
+
+			break;
+		}
+
+		/* Pointer leave */
+		case LeaveNotify :
+		{
+			_gfx_event_mouse_leave(window,
+				event->xcrossing.x,
+				event->xcrossing.y,
+				_gfx_x11_get_key_state(event->xcrossing.state)
+			);
+
+			break;
+		}
+
 		/* Mouse key press */
 		case ButtonPress :
 		{
@@ -203,6 +227,8 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 		KeyPressMask |
 		KeyReleaseMask |
 		PointerMotionMask |
+		EnterWindowMask |
+		LeaveWindowMask |
 		ButtonPressMask |
 		ButtonReleaseMask;
 

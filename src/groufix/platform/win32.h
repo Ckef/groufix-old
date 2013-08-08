@@ -27,10 +27,8 @@
 	#error "Cannot compile Win32 platform using GL ES"
 #endif
 
-#define GL_GLEXT_PROTOTYPES
-#include "groufix/platform.h"
-
 /* Includes */
+#include "groufix/platform.h"
 #include "groufix/containers/vector.h"
 
 #include <wchar.h>
@@ -70,9 +68,10 @@ typedef struct GFX_Win32_Extensions
  *******************************************************/
 typedef struct GFX_Win32_Window
 {
-	HWND      handle;  /* Given to the outside world */
+	HWND      handle;      /* Given to the outside world */
 	HMONITOR  monitor;
 	HGLRC     context;
+	char      mouseInside; /* Non-zero if in window */
 
 } GFX_Win32_Window;
 
