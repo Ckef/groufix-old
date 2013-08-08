@@ -29,6 +29,7 @@
 #ifdef GFX_GLES
 	#include <GLES3/gl3.h>
 #else
+	#define GL_GLEXT_PROTOTYPES
 	#include <GL/glcorearb.h>
 #endif
 
@@ -60,9 +61,7 @@ typedef void (*GFX_DELETESHADERPROC)             (GLuint);
 typedef void (*GFX_DELETEVERTEXARRAYSPROC)       (GLsizei, const GLuint*);
 typedef void (*GFX_DETACHSHADERPROC)             (GLuint, GLuint);
 typedef void (*GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
-typedef void (*GFX_DRAWARRAYSPROC)               (GLenum, GLint, GLsizei);
 typedef void (*GFX_DRAWARRAYSINSTANCEDPROC)      (GLenum, GLint, GLsizei, GLsizei);
-typedef void (*GFX_DRAWELEMENTSPROC)             (GLenum, GLsizei, GLenum, const GLvoid*);
 typedef void (*GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei);
 typedef void (*GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef void (*GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
@@ -71,8 +70,6 @@ typedef GLint (*GFX_GETATTRIBLOCATIONPROC)       (GLuint, const GLchar*);
 typedef void (*GFX_GETBUFFERPARAMETERIVPROC)     (GLenum, GLenum, GLint*);
 typedef void (*GFX_GETBUFFERPOINTERVPROC)        (GLenum, GLenum, GLvoid**);
 typedef void (*GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
-typedef GLenum (*GFX_GETERRORPROC)               (void);
-typedef void (*GFX_GETINTEGERVPROC)              (GLenum, GLint*);
 typedef void (*GFX_GETPROGRAMBINARYPROC)         (GLuint, GLsizei, GLsizei*, GLenum*, void*);
 typedef void (*GFX_GETPROGRAMINFOLOGPROC)        (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (*GFX_GETPROGRAMIVPROC)             (GLuint, GLenum, GLint*);
@@ -117,9 +114,7 @@ typedef struct GFX_Extensions
 	GFX_DELETEVERTEXARRAYSPROC        DeleteVertexArrays;
 	GFX_DETACHSHADERPROC              DetachShader;
 	GFX_DISABLEVERTEXATTRIBARRAYPROC  DisableVertexAttribArray;
-	GFX_DRAWARRAYSPROC                DrawArrays;
 	GFX_DRAWARRAYSINSTANCEDPROC       DrawArraysInstanced;
-	GFX_DRAWELEMENTSPROC              DrawElements;
 	GFX_DRAWELEMENTSINSTANCEDPROC     DrawElementsInstanced;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
 	GFX_GENBUFFERSPROC                GenBuffers;
@@ -128,8 +123,6 @@ typedef struct GFX_Extensions
 	GFX_GETBUFFERPARAMETERIVPROC      GetBufferParameteriv;
 	GFX_GETBUFFERPOINTERVPROC         GetBufferPointerv;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
-	GFX_GETERRORPROC                  GetError;
-	GFX_GETINTEGERVPROC               GetIntegerv;
 	GFX_GETPROGRAMBINARYPROC          GetProgramBinary;    /* GFX_EXT_PROGRAM_BINARY */
 	GFX_GETPROGRAMINFOLOGPROC         GetProgramInfoLog;
 	GFX_GETPROGRAMIVPROC              GetProgramiv;

@@ -19,7 +19,6 @@
  *
  */
 
-#define GL_GLEXT_PROTOTYPES
 #include "groufix/internal.h"
 #include "groufix/errors.h"
 
@@ -255,12 +254,6 @@ void _gfx_extensions_load(void)
 	}
 
 #endif
-
-	/* Same everywhere */
-	ext->DrawArrays   = (GFX_DRAWARRAYSPROC)   glDrawArrays;
-	ext->DrawElements = (GFX_DRAWELEMENTSPROC) glDrawElements;
-	ext->GetError     = (GFX_GETERRORPROC)     glGetError;
-	ext->GetIntegerv  = (GFX_GETINTEGERVPROC)  glGetIntegerv;
 
 }
 

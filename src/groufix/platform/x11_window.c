@@ -100,6 +100,27 @@ static void _gfx_x11_event_proc(XEvent* event)
 			break;
 		}
 
+		/* Resize & Move */
+		case ConfigureNotify :
+		{
+			GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(event->xany.window);
+
+			if(internal->x != event->xconfigure.x || internal->y != event->xconfigure.y)
+			{
+				internal->x = event->xconfigure.x;
+				internal->y = event->xconfigure.y;
+				_gfx_event_window_move(window, internal->x, internal->y);
+			}
+			if(internal->width != event->xconfigure.width || internal->height != event->xconfigure.height)
+			{
+				internal->width = event->xconfigure.width;
+				internal->height = event->xconfigure.height;
+				_gfx_event_window_resize(window, internal->width, internal->height);
+			}
+
+			break;
+		}
+
 		/* Key press */
 		case KeyPress :
 		{
@@ -230,7 +251,8 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 		EnterWindowMask |
 		LeaveWindowMask |
 		ButtonPressMask |
-		ButtonReleaseMask;
+		ButtonReleaseMask |
+		StructureNotifyMask;
 
 	attr.colormap = XCreateColormap(
 		_gfx_x11->display,
@@ -256,6 +278,19 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	);
 
 	XFree(visual);
+
+	/* Get properties to check for events */
+	XWindowAttributes get;
+	get.x      = 0;
+	get.y      = 0;
+	get.width  = 0;
+	get.height = 0;
+	XGetWindowAttributes(_gfx_x11->display, window.handle, &get);
+
+	window.x      = get.x;
+	window.y      = get.y;
+	window.width  = get.width;
+	window.height = get.height;
 
 	/* Add window to vector */
 	if(!vector_insert(_gfx_x11->windows, &window, _gfx_x11->windows->end))
@@ -328,40 +363,32 @@ char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* width, unsigned int* height)
 {
-	if(!_gfx_x11)
+	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+	if(!internal)
 	{
 		*width = 0;
 		*height = 0;
 	}
 	else
 	{
-		XWindowAttributes attr;
-		attr.width = 0;
-		attr.height = 0;
-		XGetWindowAttributes(_gfx_x11->display, VOID_TO_UINT(handle), &attr);
-
-		*width = attr.width;
-		*height = attr.height;
+		*width = internal->width;
+		*height = internal->height;
 	}
 }
 
 /******************************************************/
 void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* y)
 {
-	if(!_gfx_x11)
+	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+	if(!internal)
 	{
 		*x = 0;
 		*y = 0;
 	}
 	else
 	{
-		XWindowAttributes attr;
-		attr.x = 0;
-		attr.y = 0;
-		XGetWindowAttributes(_gfx_x11->display, VOID_TO_UINT(handle), &attr);
-
-		*x = attr.x;
-		*y = attr.y;
+		*x = internal->x;
+		*y = internal->y;
 	}
 }
 

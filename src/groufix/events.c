@@ -35,6 +35,20 @@ void _gfx_event_window_close(GFX_Platform_Window handle)
 }
 
 /******************************************************/
+void _gfx_event_window_move(GFX_Platform_Window handle, int x, int y)
+{
+	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
+	if(window) if(window->callbacks.windowMove) window->callbacks.windowMove(window, x, y);
+}
+
+/******************************************************/
+void _gfx_event_window_resize(GFX_Platform_Window handle, unsigned int width, unsigned int height)
+{
+	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
+	if(window) if(window->callbacks.windowResize) window->callbacks.windowResize(window, width, height);
+}
+
+/******************************************************/
 void _gfx_event_key_press(GFX_Platform_Window handle, GFXKey key, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);

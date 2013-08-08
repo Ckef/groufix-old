@@ -47,10 +47,23 @@ void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth)
 }
 
 /******************************************************/
+static void _gfx_win32_get_monitor_position(HMONITOR monitor, int* x, int* y)
+{
+	MONITORINFO info;
+	ZeroMemory(&info, sizeof(MONITORINFO));
+
+	info.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfo(monitor, &info);
+
+	*x = info.rcMonitor.left;
+	*y = info.rcMonitor.top;
+}
+
+/******************************************************/
 static void _gfx_win32_track_mouse(HWND handle)
 {
 	TRACKMOUSEEVENT track;
-	ZeroMemory(&track, sizeof(TRACKMOUSEEVENT);
+	ZeroMemory(&track, sizeof(TRACKMOUSEEVENT));
 
 	track.cbSize    = sizeof(TRACKMOUSEEVENT);
 	track.dwFlags   = TME_LEAVE;
@@ -111,6 +124,30 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			return 0;
 		}
 
+		/* Move */
+		case WM_MOVE :
+		{
+			int xM = 0;
+			int yM = 0;
+
+			HMONITOR monitor = _gfx_platform_window_get_screen(window);
+			if(monitor) _gfx_win32_get_monitor_position(monitor, &xM, &yM);
+			
+			int x = (int)(short)LOWORD(lParam);
+			int y = (int)(short)LOWORD(lParam);
+
+			_gfx_event_window_move(window, x - xM, y - yM);
+
+			return 0;
+		}
+
+		/* Resize */
+		case WM_SIZE :
+		{
+			_gfx_event_window_resize(window, LOWORD(lParam), HIWORD(lParam));
+			return 0;
+		}
+
 		/* Key press */
 		case WM_KEYDOWN :
 		case WM_SYSKEYDOWN :
@@ -147,10 +184,10 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			_gfx_event_mouse_move(window, x, y, state);
 
 			/* Check mouse enter event */
-			GFX_Win32_Window* win32_window = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
-			if(!win32_window->mouseInside)
+			GFX_Win32_Window* internal = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+			if(!internal->mouseInside)
 			{
-				win32_window->mouseInside = 1;
+				internal->mouseInside = 1;
 				_gfx_win32_track_mouse(handle);
 
 				_gfx_event_mouse_enter(window, x, y, state);
@@ -162,12 +199,12 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		/* Mouse leave */
 		case WM_MOUSELEAVE :
 		{
-			GFX_Win32_Window* win32_window = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
-			win32_window->mouseInside = 0;
+			GFX_Win32_Window* internal = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+			internal->mouseInside = 0;
 
 			/* Untrack */
 			TRACKMOUSEEVENT track;
-			ZeroMemory(&track, sizeof(TRACKMOUSEEVENT);
+			ZeroMemory(&track, sizeof(TRACKMOUSEEVENT));
 
 			track.cbSize    = sizeof(TRACKMOUSEEVENT);
 			track.dwFlags   = TME_CANCEL | TME_LEAVE;
@@ -318,6 +355,7 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	GFX_Win32_Window window;
 	window.monitor = attributes->screen;
 	window.context = NULL;
+	window.mouseInside = 0;
 
 	/* Get monitor information */
 	MONITORINFO info;
@@ -355,17 +393,8 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	/* Set pixel format */
 	_gfx_win32_set_pixel_format(window.handle, &attributes->depth);
 
-	/* Fetch window/mouse position to check if mouse is in window */
-	RECT rect;
-	ZeroMemory(&rect, sizeof(RECT));
-	GetWindowRect(window.handle, &rect);
-
-	POINT pnt;
-	ZeroMemory(&pnt, sizeof(POINT));
-	GetCursorPos(&pnt);
-
-	window.mouseInside = PtInRect(&rect, pnt);
-	if(window.mouseInside) _gfx_win32_track_mouse(window.handle);
+	/* Start tracking the mouse */
+	_gfx_win32_track_mouse(window.handle);
 
 	return window.handle;
 }
@@ -425,23 +454,16 @@ void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* wid
 /******************************************************/
 void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* y)
 {
+	/* Get window's monitor position */
+	HMONITOR monitor = _gfx_platform_window_get_screen(handle);
+	if(monitor) _gfx_win32_get_monitor_position(monitor, x, y);
+
 	RECT rect;
 	ZeroMemory(&rect, sizeof(RECT));
 
 	GetWindowRect(handle, &rect);
-	*x = rect.left;
-	*y = rect.top;
-
-	/* Get window's monitor position */
-	HMONITOR monitor = _gfx_platform_window_get_screen(handle);
-	if(monitor)
-	{
-		MONITORINFO info;
-		info.cbSize = sizeof(MONITORINFO);
-		GetMonitorInfo(monitor, &info);
-		*x -= info.rcMonitor.left;
-		*y -= info.rcMonitor.top;
-	}
+	*x = rect.left - *x;
+	*y = rect.top - *y;
 }
 
 /******************************************************/
@@ -463,16 +485,13 @@ void _gfx_platform_window_set_size(GFX_Platform_Window handle, unsigned int widt
 void _gfx_platform_window_set_position(GFX_Platform_Window handle, int x, int y)
 {
 	/* Get window's monitor position */
+	int xM = 0;
+	int yM = 0;
+
 	HMONITOR monitor = _gfx_platform_window_get_screen(handle);
-	if(monitor)
-	{
-		MONITORINFO info;
-		info.cbSize = sizeof(MONITORINFO);
-		GetMonitorInfo(monitor, &info);
-		x += info.rcMonitor.left;
-		y += info.rcMonitor.top;
-	}
-	SetWindowPos(handle, NULL, x, y, 0, 0, SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOZORDER);
+	if(monitor) _gfx_win32_get_monitor_position(monitor, &xM, &yM);
+
+	SetWindowPos(handle, NULL, x + xM, y + yM, 0, 0, SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOZORDER);
 }
 
 /******************************************************/

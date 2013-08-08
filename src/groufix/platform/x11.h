@@ -64,9 +64,14 @@ typedef struct GFX_X11_Extensions
  *******************************************************/
 typedef struct GFX_X11_Window
 {
-	Window       handle;  /* Given to the outside world */
-	GLXFBConfig  config;
-	GLXContext   context;
+	Window        handle;  /* Given to the outside world */
+	GLXFBConfig   config;
+	GLXContext    context;
+
+	int           x;
+	int           y;
+	unsigned int  width;
+	unsigned int  height;
 
 } GFX_X11_Window;
 

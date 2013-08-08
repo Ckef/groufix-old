@@ -128,6 +128,24 @@ int _gfx_extensions_is_in_string(const char* str, const char* ext);
 void _gfx_event_window_close(GFX_Platform_Window handle);
 
 /**
+ * \brief Called when a window has been moved.
+ *
+ * \param x The new x coordinate.
+ * \param y The new y coordinate.
+ *
+ */
+void _gfx_event_window_move(GFX_Platform_Window handle, int x, int y);
+
+/**
+ * \brief Called when a window has been resized.
+ *
+ * \param width  The new width.
+ * \param height The new height.
+ *
+ */
+void _gfx_event_window_resize(GFX_Platform_Window handle, unsigned int width, unsigned int height);
+
+/**
  * \brief Handles a key press event.
  *
  * \param key   What key is pressed.

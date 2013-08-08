@@ -294,8 +294,8 @@ GFXContext gfx_window_get_context(const GFXWindow* window)
 	GLint major, minor;
 
 	_gfx_window_make_current(internal);
-	internal->extensions.GetIntegerv(GL_MAJOR_VERSION, &major);
-	internal->extensions.GetIntegerv(GL_MINOR_VERSION, &minor);
+	glGetIntegerv(GL_MAJOR_VERSION, &major);
+	glGetIntegerv(GL_MINOR_VERSION, &minor);
 
 	/* Set main window current again */
 	_gfx_window_make_current(_gfx_main_window);
@@ -303,7 +303,7 @@ GFXContext gfx_window_get_context(const GFXWindow* window)
 	GFXContext context;
 	context.major = major;
 	context.minor = minor;
-	
+
 	return context;
 }
 

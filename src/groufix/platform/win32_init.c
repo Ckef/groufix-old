@@ -117,7 +117,7 @@ static int _gfx_win32_load_extensions(void)
 			!_gfx_platform_is_extension_supported(NULL, "WGL_ARB_create_context") ||
 			!_gfx_platform_is_extension_supported(NULL, "WGL_ARB_create_context_profile"))
 		{
-			gfx_errors_push(GFX_ERROR_INCOMPATIBLE_COTNEXT, "Vital WGL extensions are missing.");
+			gfx_errors_push(GFX_ERROR_INCOMPATIBLE_CONTEXT, "Vital WGL extensions are missing.");
 			success = 0;
 		}
 

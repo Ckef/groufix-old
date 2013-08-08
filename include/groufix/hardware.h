@@ -67,7 +67,7 @@ int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GF
  * \return The number of errors encountered.
  * 
  */
-unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardwareContext cnt);
+unsigned int gfx_hardware_poll_errors(const char* description);
 
 
 /********************************************************

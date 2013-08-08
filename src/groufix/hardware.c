@@ -19,8 +19,8 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/internal.h"
+#include "groufix/containers/vector.h"
 #include "groufix/errors.h"
 
 /******************************************************/
@@ -60,18 +60,16 @@ int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GF
 }
 
 /******************************************************/
-unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardwareContext cnt)
+unsigned int gfx_hardware_poll_errors(const char* description)
 {
-	const GFX_Extensions* ext = CONTX_TO_EXT(cnt);
-
 	unsigned int count = 0;
 
 	/* Loop over all errors */
-	GLenum err = ext->GetError();
+	GLenum err = glGetError();
 	while(err != GL_NO_ERROR)
 	{
 		gfx_errors_push(err, description);
-		err = ext->GetError();
+		err = glGetError();
 
 		++count;
 	}

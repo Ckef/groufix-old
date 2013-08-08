@@ -33,6 +33,7 @@
 
 #include <wchar.h>
 #include <windowsx.h>
+#include <GL/gl.h>
 #include <GL/wglext.h>
 
 /* Windows apparently does not define this everywhere... */
