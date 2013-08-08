@@ -123,9 +123,10 @@ size_t vector_get_size(Vector* vector)
 /******************************************************/
 int vector_reserve(Vector* vector, size_t numElements)
 {
+	size_t oldSize = PTR_DIFF(vector->begin, vector->end);
 	size_t newSize = vector->elementSize * numElements;
 	if(newSize > vector->capacity)
-		return _vector_realloc(vector, newSize, _vector_get_max_capacity(newSize));
+		return _vector_realloc(vector, oldSize, _vector_get_max_capacity(newSize));
 
 	return 1;
 }

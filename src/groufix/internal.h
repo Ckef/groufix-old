@@ -71,7 +71,7 @@
 #endif
 
 /* Extensions from void */
-#define VOID_TO_EXT(x) ((const GFX_Extensions*)x)
+#define CONTX_TO_EXT(x) ((const GFX_Extensions*)x)
 
 #ifdef __cplusplus
 extern "C" {
@@ -273,6 +273,38 @@ void _gfx_extensions_load(void);
  *
  */
 int _gfx_extensions_is_in_string(const char* str, const char* ext);
+
+
+/********************************************************
+ * Hardware Object handling
+ *******************************************************/
+
+/**
+ * \brief Issue free request of all hardware objects.
+ *
+ * This will issue the free request and unregister ALL objects.
+ * Automatically issued when all windows are destroyed.
+ *
+ */
+void _gfx_hardware_objects_free(const GFXHardwareContext cnt);
+
+/**
+ * \brief Issue save method of all hardware objects.
+ *
+ * During this operation, the current window is considered "deleted".
+ * Automatically issued when the main context is being destroyed.
+ *
+ */
+void _gfx_hardware_objects_save(const GFXHardwareContext cnt);
+
+/**
+ * \brief Issue restore method of all hardware objects.
+ *
+ * During this operation, a new window is current.
+ * Automatically issued when a new main context is assigned.
+ *
+ */
+void _gfx_hardware_objects_restore(const GFXHardwareContext cnt);
 
 
 /********************************************************

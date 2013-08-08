@@ -70,6 +70,43 @@ int gfx_hardware_is_extension_supported(GFXHardwareExtension extension, const GF
 unsigned int gfx_hardware_poll_errors(const char* description, const GFXHardwareContext cnt);
 
 
+/********************************************************
+ * Generic Hardware Object
+ *******************************************************/
+
+/** \brief Generic hardware object */
+typedef void* GFXHardwareObject;
+
+typedef void (*GFXHardwareFreeFunc)    (GFXHardwareObject, const GFXHardwareContext);
+typedef void* (*GFXHardwareSaveFunc)   (GFXHardwareObject, const GFXHardwareContext);
+typedef void (*GFXHardwareRestoreFunc) (GFXHardwareObject, void*, const GFXHardwareContext);
+
+
+/** \brief Hardware vtable */
+typedef struct GFXHardwareFuns
+{
+	GFXHardwareFreeFunc     free;    /* Request free */
+	GFXHardwareSaveFunc     save;    /* Store data in client side buffer, returns arbitrary address */
+	GFXHardwareRestoreFunc  restore; /* Restore data from client side buffer */
+
+} GFXHardwareFuns;
+
+
+/**
+ * \brief Registers a new generic hardware object for global operations.
+ *
+ * \return Non-zero on success.
+ *
+ */
+int gfx_hardware_object_register(GFXHardwareObject object, const GFXHardwareFuns* funs);
+
+/**
+ * \brief Makes sure the hardware object is freed properly.
+ *
+ */
+void gfx_hardware_object_unregister(GFXHardwareObject object);
+
+
 #ifdef __cplusplus
 }
 #endif

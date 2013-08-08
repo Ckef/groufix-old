@@ -29,6 +29,9 @@
 /* Current window */
 static GFX_Internal_Window* _gfx_current_window = NULL;
 
+/* Main window (main context) */
+static GFX_Internal_Window* _gfx_main_window = NULL;
+
 /* Created windows */
 static Vector* _gfx_windows = NULL;
 
@@ -43,7 +46,7 @@ static int _gfx_window_create_context(GFX_Platform_Window window)
 {
 	/* Get the main window to share with (as all windows will share everything) */
 	GFX_Platform_Window* share = NULL;
-	if(_gfx_windows) share = (*(GFX_Internal_Window**)_gfx_windows->begin)->handle;
+	if(_gfx_main_window) share = _gfx_main_window->handle;
 
 	if(share == window) share = NULL;
 
@@ -113,7 +116,7 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
 void _gfx_window_make_current(GFX_Internal_Window* window)
 {
 	/* Prevent possible overhead */
-	if(_gfx_current_window != window)
+	if(window && _gfx_current_window != window)
 	{
 		_gfx_platform_context_make_current(window->handle);
 		_gfx_current_window = window;
@@ -221,10 +224,13 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 		return NULL;
 	}
 
+	/* Evaluate main window */
+	if(!_gfx_main_window) _gfx_main_window = window;
+
 	/* Load extensions of context and make sure to set the main window as current */
 	_gfx_window_make_current(window);
 	_gfx_extensions_load();
-	_gfx_window_make_current(*(GFX_Internal_Window**)_gfx_windows->begin);
+	_gfx_window_make_current(_gfx_main_window);
 
 	/* Make the window visible */
 	_gfx_platform_window_show(window->handle);
@@ -237,35 +243,41 @@ void gfx_window_free(GFXWindow* window)
 {
 	if(window)
 	{
-		/* Get window properties */
 		GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
-
 		VectorIterator it = vector_find(_gfx_windows, internal->handle, _gfx_window_compare);
-		unsigned int num = vector_get_size(_gfx_windows);
+		vector_erase(_gfx_windows, it);
 
-		/* Check if it is not the main window */
-		if(it != _gfx_windows->begin || num == 1)
+		/* Welp, no more windows */
+		if(_gfx_windows->begin == _gfx_windows->end)
 		{
-			/* Destroy window and un-current it */
-			_gfx_platform_destroy_window(internal->handle);
+			/* Oh, also do a free request */
+			_gfx_hardware_objects_free(&internal->extensions);
 
-			if(_gfx_current_window == internal) _gfx_current_window = NULL;
+			vector_free(_gfx_windows);
+			_gfx_windows = NULL;
 
-			/* Remove the window from storage */
-			if(num == 1)
-			{
-				vector_free(_gfx_windows);
-				_gfx_windows = NULL;
-			}
-			else vector_erase(_gfx_windows, it);
-
-			free(internal);
+			_gfx_current_window = NULL;
+			_gfx_main_window = NULL;
 		}
 
-		else gfx_errors_push(
-			GFX_ERROR_INVALID_OPERATION,
-			"The first window to exist can only be freed once all other windows are freed."
-		);
+		/* If main window, save & restore hardware objects */
+		else if(_gfx_main_window == internal)
+		{
+			_gfx_window_make_current(internal);
+			_gfx_hardware_objects_save(&internal->extensions);
+
+			/* Get new main window */
+			_gfx_main_window = *(GFX_Internal_Window**)_gfx_windows->begin;
+			_gfx_window_make_current(_gfx_main_window);
+
+			_gfx_hardware_objects_restore(&_gfx_main_window->extensions);
+		}
+
+		/* Destroy window */
+		_gfx_platform_destroy_window(internal->handle);
+		free(internal);
+
+		_gfx_window_make_current(_gfx_main_window);
 	}
 }
 
@@ -285,7 +297,7 @@ GFXContext gfx_window_get_context(const GFXWindow* window)
 	/* Set current, get context and set main window current again */
 	_gfx_window_make_current((GFX_Internal_Window*)window);
 	_gfx_platform_context_get(&context.major, &context.minor);
-	_gfx_window_make_current(*(GFX_Internal_Window**)_gfx_windows->begin);
+	_gfx_window_make_current(_gfx_main_window);
 
 	return context;
 }
@@ -343,7 +355,7 @@ void gfx_window_set_swap_interval(const GFXWindow* window, int num)
 {
 	/* Again make sure the main window is current afterwards */
 	_gfx_platform_context_set_swap_interval(((GFX_Internal_Window*)window)->handle, num);
-	_gfx_window_make_current(*(GFX_Internal_Window**)_gfx_windows->begin);
+	_gfx_window_make_current(_gfx_main_window);
 }
 
 /******************************************************/
