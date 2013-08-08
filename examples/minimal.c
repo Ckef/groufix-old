@@ -1,6 +1,5 @@
 
 #include <groufix.h>
-#include <stdio.h>
 
 int main()
 {

@@ -23,7 +23,6 @@
 #include "groufix/errors.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 /******************************************************/
 GFX_X11_Connection* _gfx_x11 = NULL;
@@ -68,8 +67,11 @@ static int _gfx_x11_load_extensions(void)
 	if(
 		!_gfx_x11_is_extension_supported(num, "GLX_ARB_get_proc_address") ||
 		!_gfx_x11_is_extension_supported(num, "GLX_ARB_create_context") ||
-		!_gfx_x11_is_extension_supported(num, "GLX_ARB_create_context_profile")
-	) return 0;
+		!_gfx_x11_is_extension_supported(num, "GLX_ARB_create_context_profile"))
+	{
+		gfx_errors_push(GFX_ERROR_INCOMPATIBLE_CONTEXT, "Vital GLX extensions are missing.");
+		return 0;
+	}
 
 	/* Load all functions */
 	_gfx_x11->extensions.CreateContextAttribsARB =

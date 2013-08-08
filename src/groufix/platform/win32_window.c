@@ -142,8 +142,9 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		{
 			int x = GET_X_LPARAM(lParam);
 			int y = GET_Y_LPARAM(lParam);
+			GFXKeyState state = _gfx_win32_get_key_state();
 
-			_gfx_event_mouse_move(window, x, y, _gfx_win32_get_key_state());
+			_gfx_event_mouse_move(window, x, y, state);
 
 			/* Check mouse enter event */
 			GFX_Win32_Window* win32_window = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
@@ -152,7 +153,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 				win32_window->mouseInside = 1;
 				_gfx_win32_track_mouse(handle);
 
-				_gfx_event_mouse_enter(window, x, y, _gfx_win32_get_key_state());
+				_gfx_event_mouse_enter(window, x, y, state);
 			}
 
 			return 0;

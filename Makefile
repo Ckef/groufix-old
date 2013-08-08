@@ -154,7 +154,6 @@ unix-x11-simple: examples/simple.c unix-x11
 before-unix-x11:
 	mkdir -p $(BIN)/unix-x11
 	mkdir -p $(OUT)/unix-x11/groufix/containers
-	mkdir -p $(OUT)/unix-x11/groufix/hardware
 	mkdir -p $(OUT)/unix-x11/groufix/platform
 
 
@@ -234,7 +233,6 @@ osx-x11-simple: examples/simple.c osx-x11
 before-osx-x11:
 	mkdir -p $(BIN)/osx-x11
 	mkdir -p $(OUT)/osx-x11/groufix/containers
-	mkdir -p $(OUT)/osx-x11/groufix/hardware
 	mkdir -p $(OUT)/osx-x11/groufix/platform
 
 
@@ -314,7 +312,6 @@ win32-simple: examples/simple.c win32
 before-win32:
 	if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
 	if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
-	if not exist $(OUT)\win32\groufix\hardware\nul mkdir $(OUT)\win32\groufix\hardware
 	if not exist $(OUT)\win32\groufix\platform\nul mkdir $(OUT)\win32\groufix\platform
 
 

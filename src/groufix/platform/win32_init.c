@@ -20,6 +20,7 @@
  */
 
 #include "groufix/platform/win32.h"
+#include "groufix/errors.h"
 
 #include <stdlib.h>
 
@@ -114,8 +115,11 @@ static int _gfx_win32_load_extensions(void)
 		/* Check all vital extensions */
 		if(
 			!_gfx_platform_is_extension_supported(NULL, "WGL_ARB_create_context") ||
-			!_gfx_platform_is_extension_supported(NULL, "WGL_ARB_create_context_profile")
-		) success = 0;
+			!_gfx_platform_is_extension_supported(NULL, "WGL_ARB_create_context_profile"))
+		{
+			gfx_errors_push(GFX_ERROR_INCOMPATIBLE_COTNEXT, "Vital WGL extensions are missing.");
+			success = 0;
+		}
 
 		/* Load all functions */
 		_gfx_win32->extensions.CreateContextAttribsARB =
