@@ -89,80 +89,51 @@ static int _gfx_x11_load_extensions(void)
 /******************************************************/
 static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 {
+	size_t length = sizeof(char) * (GFX_X11_ERROR_LENGTH);
+	char* text = (char*)malloc(length);
+
+	XGetErrorText(_gfx_x11->display, evt->error_code, text, length);
+
+	/* Make sure it's null terminated */
+	text[GFX_X11_ERROR_LENGTH - 1] = 0;
+
 	switch(evt->error_code)
 	{
+		case BadAccess :
+			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, text);
+			break;
+
 		case BadAlloc :
-			gfx_errors_push(GFX_ERROR_OUT_OF_MEMORY, "X11 BadAlloc.");
+			gfx_errors_push(GFX_ERROR_OUT_OF_MEMORY, text);
 			break;
 
 		case BadAtom :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadAtom.");
-			break;
-
 		case BadColor :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadColor.");
-			break;
-
 		case BadCursor :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadCursor.");
-			break;
-
 		case BadDrawable :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadDrawable.");
-			break;
-
 		case BadFont :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadFont.");
-			break;
-
 		case BadGC :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadGC.");
-			break;
-
 		case BadIDChoice :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadIDChoice.");
-			break;
-
-		case BadName :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadName.");
-			break;
-
-		case BadPixmap :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadPixmap.");
-			break;
-
-		case BadRequest :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadRequest.");
-			break;
-
-		case BadWindow :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadWindow.");
-			break;
-
-		case BadValue :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadValue.");
-			break;
-
 		case BadLength :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, "X11 BadLength.");
-			break;
-
-		case BadAccess :
-			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, "X11 BadAccess.");
+		case BadName :
+		case BadPixmap :
+		case BadRequest :
+		case BadValue :
+		case BadWindow :
+			gfx_errors_push(GFX_ERROR_INVALID_VALUE, text);
 			break;
 
 		case BadImplementation :
-			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, "X11 BadImplementation.");
-			break;
-
 		case BadMatch :
-			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, "X11 BadMatch.");
+			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, text);
 			break;
 
 		default :
-			gfx_errors_push(GFX_ERROR_UNKNOWN, "X11 Unknown Error.");
+			gfx_errors_push(GFX_ERROR_UNKNOWN, text);
 			break;
 	}
+
+	free(text);
 
 	return 0;
 }

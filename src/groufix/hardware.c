@@ -67,16 +67,19 @@ unsigned int gfx_hardware_poll_errors(const char* description)
 {
 	unsigned int count = 0;
 
-	/* Loop over all errors */
-	GLenum err = glGetError();
-	while(err != GL_NO_ERROR)
+	/* Check if there is a context */
+	if(_gfx_window_get_current())
 	{
-		gfx_errors_push(err, description);
-		err = glGetError();
+		/* Loop over all errors */
+		GLenum err = glGetError();
+		while(err != GL_NO_ERROR)
+		{
+			gfx_errors_push(err, description);
+			err = glGetError();
 
-		++count;
+			++count;
+		}
 	}
-
 	return count;
 }
 

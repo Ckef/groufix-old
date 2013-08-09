@@ -97,16 +97,8 @@ typedef struct GFX_Platform_Attributes
 
 
 /********************************************************
- * Extension handling (not implemented by platform)
+ * Extension helpers (not implemented by platform)
  *******************************************************/
-
-/**
- * \brief Loads all extensions for the current window's context.
- *
- * Should not be called by the platform.
- *
- */
-void _gfx_extensions_load(void);
 
 /**
  * \brief Returns whether the OpenGL extension can be found in the space seperated string.

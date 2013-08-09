@@ -44,6 +44,9 @@
 #define GFX_X11_MAX_KEYCODE   0x0ff
 #define GFX_X11_NUM_KEYCODES  0x100
 
+/* Max error length */
+#define GFX_X11_ERROR_LENGTH  0x100
+
 #ifdef __cplusplus
 extern "C" {
 #endif

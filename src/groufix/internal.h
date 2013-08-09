@@ -183,6 +183,14 @@ void _gfx_window_make_current(GFX_Internal_Window* window);
  */
 GFX_Internal_Window* _gfx_window_get_current(void);
 
+/**
+ * \brief Loads all extensions for the current window's context.
+ *
+ * Should not be called by the platform.
+ *
+ */
+void _gfx_extensions_load(void);
+
 
 /********************************************************
  * Generic Hardware Object
