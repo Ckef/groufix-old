@@ -27,8 +27,7 @@ int main()
 
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{
-		gfx_window_swap_buffers(window1);
-		gfx_window_swap_buffers(window2);
+		gfx_window_swap_all_buffers();
 
 		/* Print all the errors! */
 		GFXError error;

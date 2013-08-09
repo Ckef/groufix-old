@@ -368,3 +368,11 @@ void gfx_window_swap_buffers(const GFXWindow* window)
 {
 	_gfx_platform_context_swap_buffers(((GFX_Internal_Window*)window)->handle);
 }
+
+/******************************************************/
+void gfx_window_swap_all_buffers(void)
+{
+	VectorIterator it;
+	if(_gfx_windows) for(it = _gfx_windows->begin; it != _gfx_windows->end; it = vector_next(_gfx_windows, it))
+		_gfx_platform_context_swap_buffers((*(GFX_Internal_Window**)it)->handle);
+}

@@ -415,6 +415,12 @@ void gfx_window_set_swap_interval(const GFXWindow* window, int num);
  */
 void gfx_window_swap_buffers(const GFXWindow* window);
 
+/**
+ * \brief Swaps the internal buffers of all windows.
+ *
+ */
+void gfx_window_swap_all_buffers(void);
+
 
 #ifdef __cplusplus
 }

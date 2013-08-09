@@ -14,7 +14,7 @@ int main()
 
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{
-		gfx_window_swap_buffers(window);
+		gfx_window_swap_all_buffers();
 	}
 
 	gfx_terminate();
