@@ -22,6 +22,9 @@
 #ifndef GFX_ERRORS_H
 #define GFX_ERRORS_H
 
+/* Default maximum */
+#define GFX_MAX_ERRORS_DEFAULT  64
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,7 +53,7 @@ typedef unsigned int GFXErrorCode;
 typedef struct GFXError
 {
 	GFXErrorCode  code;
-	char*         description; /* Can be NULL */
+	const char*   description; /* Can be NULL */
 
 } GFXError;
 

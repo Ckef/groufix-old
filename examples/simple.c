@@ -2,11 +2,22 @@
 #include <groufix.h>
 #include <stdio.h>
 
+void print_error(GFXError error)
+{
+	printf("[Error #%x]: %s\n", error.code, error.description);
+}
+
 int main()
 {
 	/* Really this is for testing purposes, in no way will this be the final usage */
 
-	if(!gfx_init()) return 0;
+	if(!gfx_init())
+	{
+		GFXError error;
+		if(gfx_errors_peek(&error)) print_error(error);
+
+		return 0;
+	}
 
 
 	/* Setup 2 windows and fetch the OpenGL context version */
@@ -20,7 +31,10 @@ int main()
 	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 800, 600, 300, 300);
 
 	GFXContext context = gfx_window_get_context(window1);
-	printf("%i %i\n", context.major, context.minor);
+	printf("%i.%i\n", context.major, context.minor);
+
+	context = gfx_window_get_context(window2);
+	printf("%i.%i\n", context.major, context.minor);
 
 
 	/* Setup a loop */
@@ -29,11 +43,13 @@ int main()
 	{
 		gfx_window_swap_all_buffers();
 
+
 		/* Print all the errors! */
+
 		GFXError error;
 		while(gfx_errors_peek(&error))
 		{
-			printf("[Error #%x]: %s\n", error.code, error.description);
+			print_error(error);
 			gfx_errors_pop();
 		}
 	}

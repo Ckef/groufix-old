@@ -128,7 +128,6 @@ void _gfx_extensions_load(void)
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  glEnableVertexAttribArray;
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               glGenBuffers;
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          glGenVertexArrays;
-	ext->GetAttribLocation        = (GFX_GETATTRIBLOCATIONPROC)        glGetAttribLocation;
 	ext->GetBufferParameteriv     = (GFX_GETBUFFERPARAMETERIVPROC)     glGetBufferParameteriv;
 	ext->GetBufferPointerv        = (GFX_GETBUFFERPOINTERVPROC)        glGetBufferPointerv;
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_gles_get_buffer_sub_data;
@@ -179,7 +178,6 @@ void _gfx_extensions_load(void)
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArray");
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
-	ext->GetAttribLocation        = (GFX_GETATTRIBLOCATIONPROC)        _gfx_platform_get_proc_address("glGetAttribLocation");
 	ext->GetBufferParameteriv     = (GFX_GETBUFFERPARAMETERIVPROC)     _gfx_platform_get_proc_address("glGetBufferParameteriv");
 	ext->GetBufferPointerv        = (GFX_GETBUFFERPOINTERVPROC)        _gfx_platform_get_proc_address("glGetBufferPointerv");
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");

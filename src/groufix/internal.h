@@ -66,7 +66,6 @@ typedef void (*GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLenum, const
 typedef void (*GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef void (*GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
 typedef void (*GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
-typedef GLint (*GFX_GETATTRIBLOCATIONPROC)       (GLuint, const GLchar*);
 typedef void (*GFX_GETBUFFERPARAMETERIVPROC)     (GLenum, GLenum, GLint*);
 typedef void (*GFX_GETBUFFERPOINTERVPROC)        (GLenum, GLenum, GLvoid**);
 typedef void (*GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
@@ -119,7 +118,6 @@ typedef struct GFX_Extensions
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
 	GFX_GENBUFFERSPROC                GenBuffers;
 	GFX_GENVERTEXARRAYSPROC           GenVertexArrays;
-	GFX_GETATTRIBLOCATIONPROC         GetAttribLocation;
 	GFX_GETBUFFERPARAMETERIVPROC      GetBufferParameteriv;
 	GFX_GETBUFFERPOINTERVPROC         GetBufferPointerv;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
@@ -232,6 +230,7 @@ void _gfx_hardware_object_unregister(GFX_Hardware_Object object);
  * \brief Issue free request of all hardware objects.
  *
  * This will issue the free request and unregister ALL objects.
+ * Thus this callback is NOT allowed to unregister the object.
  *
  */
 void _gfx_hardware_objects_free(const GFX_Extensions* ext);

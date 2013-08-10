@@ -28,7 +28,7 @@
 
 /******************************************************/
 /* Maximum number of errors stored */
-static unsigned int _gfx_errors_maximum = 3; /* feels about right */
+static unsigned int _gfx_errors_maximum = GFX_MAX_ERRORS_DEFAULT;
 
 /* Stored Errors */
 static Deque* _gfx_errors = NULL;
@@ -74,7 +74,7 @@ void gfx_errors_pop(void)
 	if(err)
 	{
 		/* Make sure to free it properly */
-		free(err->description);
+		free((char*)err->description);
 		deque_pop_front(_gfx_errors);
 	}
 }
@@ -104,8 +104,10 @@ void gfx_errors_push(GFXErrorCode code, const char* description)
 	/* Copy the description */
 	if(description)
 	{
-		error.description = (char*)malloc(sizeof(char) * (strlen(description) + 1));
-		strcpy(error.description, description);
+		char* des = (char*)malloc(sizeof(char) * (strlen(description) + 1));
+		strcpy(des, description);
+
+		error.description = des;
 	}
 
 	deque_push_front(_gfx_errors, &error);
@@ -119,7 +121,7 @@ void gfx_errors_empty(void)
 		/* Free all descriptions */
 		DequeIterator it;
 		for(it = _gfx_errors->begin; it != _gfx_errors->end; it = deque_next(_gfx_errors, it))
-			free(((GFXError*)it)->description);
+			free((char*)((GFXError*)it)->description);
 
 		deque_free(_gfx_errors);
 		_gfx_errors = NULL;

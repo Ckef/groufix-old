@@ -24,6 +24,8 @@ To compile Groufix, you need the standard headers for your platform and OpenGL. 
 
 Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All core functionality will be made available through that file. Make sure the `include` directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library. Before using the engine, it should be intialized with a call to `gfx_init`. After being done with the engine, it should be terminated with a call to `gfx_terminate`.
 
+All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using such a name for any variable or function in conjunction with the engine might result in redefinitions.
+
 ### Threading
 
 _The library is not thread safe_. All windowing and hardware functionality should be executed from the same thread at all times. Due to the complex nature of GPU interaction it is easier and safer to execute all graphics related operations on the same thread. However, there are components in the engine which are specifically designed to be used in multiple threads. Note, no other functionality is guaranteed to work concurrently.

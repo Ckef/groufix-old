@@ -134,7 +134,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 			if(monitor) _gfx_win32_get_monitor_position(monitor, &xM, &yM);
 			
 			int x = (int)(short)LOWORD(lParam);
-			int y = (int)(short)LOWORD(lParam);
+			int y = (int)(short)HIWORD(lParam);
 
 			_gfx_event_window_move(window, x - xM, y - yM);
 
