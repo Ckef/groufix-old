@@ -31,14 +31,17 @@ extern "C" {
  *******************************************************/
 
 /** \brief Hardware Extensions */
-typedef unsigned int GFXExtension;
+typedef enum GFXExtension
+{
+	GFX_EXT_GEOMETRY_SHADER,
+	GFX_EXT_INSTANCED_ATTRIBUTES,
+	GFX_EXT_PROGRAM_BINARY,
+	GFX_EXT_TESSELLATION_SHADER,
 
-#define GFX_EXT_GEOMETRY_SHADER       0x0000
-#define GFX_EXT_INSTANCED_ATTRIBUTES  0x0001
-#define GFX_EXT_PROGRAM_BINARY        0x0002
-#define GFX_EXT_TESSELLATION_SHADER   0x0003
+	GFX_EXT_COUNT
 
-#define GFX_EXT_COUNT                 0x0004
+} GFXExtension;
+
 
 /**
  * \brief Returns whether a given extension is supported or not.

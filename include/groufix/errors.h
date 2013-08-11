@@ -32,19 +32,21 @@ extern "C" {
 /********************************************************
  * \brief Platform independent error code
  *******************************************************/
-typedef unsigned int GFXErrorCode;
+typedef enum GFXErrorCode
+{
+	GFX_ERROR_UNKNOWN                        = 0x0000,
+	GFX_ERROR_INCOMPATIBLE_CONTEXT           = 0x0001,
+	GFX_ERROR_MEMORY_CORRUPTION              = 0x0002,
+	GFX_ERROR_COMPILE_FAILURE                = 0x0003,
+	GFX_ERROR_INVALID_ENUM                   = 0x0500,
+	GFX_ERROR_INVALID_VALUE                  = 0x0501,
+	GFX_ERROR_INVALID_OPERATION              = 0x0502,
+	GFX_ERROR_OVERFLOW                       = 0x0503,
+	GFX_ERROR_UNDERFLOW                      = 0x0504,
+	GFX_ERROR_OUT_OF_MEMORY                  = 0x0505,
+	GFX_ERROR_INVALID_FRAMEBUFFER_OPERATION  = 0x0506
 
-#define GFX_ERROR_UNKNOWN                        0x0000
-#define GFX_ERROR_INCOMPATIBLE_CONTEXT           0x0001
-#define GFX_ERROR_MEMORY_CORRUPTION              0x0002
-#define GFX_ERROR_COMPILE_FAILURE                0x0003
-#define GFX_ERROR_INVALID_ENUM                   0x0500
-#define GFX_ERROR_INVALID_VALUE                  0x0501
-#define GFX_ERROR_INVALID_OPERATION              0x0502
-#define GFX_ERROR_OVERFLOW                       0x0503
-#define GFX_ERROR_UNDERFLOW                      0x0504
-#define GFX_ERROR_OUT_OF_MEMORY                  0x0505
-#define GFX_ERROR_INVALID_FRAMEBUFFER_OPERATION  0x0506
+} GFXErrorCode;
 
 
 /********************************************************
