@@ -96,18 +96,15 @@ static int _gfx_window_insert(const GFX_Internal_Window* window)
 }
 
 /******************************************************/
-static int _gfx_window_compare(const VectorIterator it, const void* value)
-{
-	return (*(GFX_Internal_Window**)it)->handle == value;
-}
-
-/******************************************************/
 GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
 {
 	if(!_gfx_windows) return NULL;
 
-	VectorIterator found = vector_find(_gfx_windows, handle, _gfx_window_compare);
-	if(found != _gfx_windows->end) return *(GFX_Internal_Window**)found;
+	VectorIterator it;
+	for(it = _gfx_windows->begin; it != _gfx_windows->end; it = vector_next(_gfx_windows, it))
+		if((*(GFX_Internal_Window**)it)->handle == handle) break;
+
+	if(it != _gfx_windows->end) return *(GFX_Internal_Window**)it;
 
 	return NULL;
 }
@@ -244,8 +241,14 @@ void gfx_window_free(GFXWindow* window)
 	if(window)
 	{
 		GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
-		VectorIterator it = vector_find(_gfx_windows, internal->handle, _gfx_window_compare);
-		vector_erase(_gfx_windows, it);
+
+		VectorIterator it;
+		for(it = _gfx_windows->begin; it != _gfx_windows->end; it = vector_next(_gfx_windows, it))
+			if(internal->handle == (*(GFX_Internal_Window**)it)->handle)
+			{
+				vector_erase(_gfx_windows, it);
+				break;
+			}
 
 		/* Welp, no more windows */
 		if(_gfx_windows->begin == _gfx_windows->end)

@@ -121,15 +121,6 @@ List* list_erase(List* node);
  */
 List* list_erase_at(List* list, size_t index);
 
-/**
- * \brief Finds an element equal to the given element and returns the node of it.
- *
- * \param func The comparison function to use, it should return a non-zero value if the values are considered equal.
- * \return The node of the first found element, NULL if none were found.
- *
- */
-List* list_find(List* list, const void* value, ListComparison func);
-
 
 #ifdef __cplusplus
 }

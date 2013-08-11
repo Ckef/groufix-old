@@ -178,15 +178,6 @@ DequeIterator deque_pop_front(Deque* deque);
  */
 DequeIterator deque_pop_back(Deque* deque);
 
-/**
- * \brief Finds an element equal to the given element and returns the iterator to it.
- *
- * \param func The comparison function to use, it should return a non-zero value if the values are considered equal.
- * \return An iterator to the first found element, equals deque->end if none were found.
- *
- */
-DequeIterator deque_find(Deque* deque, const void* value, DequeComparison func);
-
 
 #ifdef __cplusplus
 }

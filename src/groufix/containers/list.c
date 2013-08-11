@@ -174,14 +174,3 @@ List* list_erase_at(List* list, size_t index)
 
 	return list_erase(list);
 }
-
-/******************************************************/
-List* list_find(List* list, const void* value, ListComparison func)
-{
-	while(list)
-	{
-		if(func(list, value)) break;
-		list = list->next;
-	}
-	return list;
-}

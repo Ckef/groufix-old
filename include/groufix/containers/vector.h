@@ -208,15 +208,6 @@ VectorIterator vector_erase_range(Vector* vector, size_t num, VectorIterator sta
  */
 VectorIterator vector_erase_range_at(Vector* vector, size_t num, size_t index);
 
-/**
- * \brief Finds an element equal to the given element and returns the iterator to it.
- *
- * \param func The comparison function to use, it should return a non-zero value if the values are considered equal.
- * \return An iterator to the first found element, equals vector->end if none were found.
- *
- */
-VectorIterator vector_find(Vector* vector, const void* value, VectorComparison func);
-
 
 #ifdef __cplusplus
 }

@@ -310,13 +310,3 @@ DequeIterator deque_pop_back(Deque* deque)
 
 	return deque->end == deque->begin ? deque->end : PTR_SUB_BYTES(deque->end, deque->elementSize);
 }
-
-/******************************************************/
-DequeIterator deque_find(Deque* deque, const void* value, DequeComparison func)
-{
-	DequeIterator it;
-	for(it = deque->begin; it != deque->end; it = deque_next(deque, it))
-		if(func(it, value)) break;
-
-	return it;
-}

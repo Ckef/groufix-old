@@ -28,19 +28,15 @@
 GFX_Win32_Instance* _gfx_win32 = NULL;
 
 /******************************************************/
-static int _gfx_win32_window_compare_handle(const VectorIterator it, const void* value)
-{
-	return ((GFX_Win32_Window*)it)->handle == value;
-}
-
-/******************************************************/
 VectorIterator _gfx_win32_get_window_from_handle(HWND handle)
 {
 	if(!_gfx_win32) return NULL;
 
-	VectorIterator found = vector_find(_gfx_win32->windows, handle, _gfx_win32_window_compare_handle);
+	VectorIterator it;
+	for(it = _gfx_win32->windows->begin; it != _gfx_win32->windows->end; it = vector_next(_gfx_win32->windows, it))
+		if(((GFX_Win32_Window*)it)->handle == handle) break;
 
-	return found != _gfx_win32->windows->end ? found : NULL;
+	return it != _gfx_win32->windows->end ? it : NULL;
 }
 
 /******************************************************/

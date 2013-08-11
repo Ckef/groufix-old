@@ -21,7 +21,6 @@
 
 #include "groufix/errors.h"
 #include "groufix/containers/deque.h"
-#include "groufix/utils.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -43,12 +42,6 @@ static GFXError* _gfx_errors_last(void)
 }
 
 /******************************************************/
-static int _gfx_errors_compare(const DequeIterator it, const void* value)
-{
-	return ((GFXError*)it)->code == (GFXErrorCode)VOID_TO_UINT(value);
-}
-
-/******************************************************/
 int gfx_errors_peek(GFXError* error)
 {
 	GFXError* err = _gfx_errors_last();
@@ -64,7 +57,11 @@ int gfx_errors_find(GFXErrorCode code)
 {
 	if(!_gfx_errors) return 0;
 
-	return deque_find(_gfx_errors, UINT_TO_VOID(code), _gfx_errors_compare) != _gfx_errors->end;
+	DequeIterator it;
+	for(it = _gfx_errors->begin; it != _gfx_errors->end; it = deque_next(_gfx_errors, it))
+		if(((GFXError*)it)->code == code) break;
+
+	return it != _gfx_errors->end;
 }
 
 /******************************************************/

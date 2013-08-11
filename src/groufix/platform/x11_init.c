@@ -40,19 +40,15 @@ int _gfx_x11_is_extension_supported(int screenNumber, const char* ext)
 }
 
 /******************************************************/
-static int _gfx_x11_window_compare_handle(const VectorIterator it, const void* value)
-{
-	return ((GFX_X11_Window*)it)->handle == (Window)VOID_TO_UINT(value);
-}
-
-/******************************************************/
 VectorIterator _gfx_x11_get_window_from_handle(Window handle)
 {
 	if(!_gfx_x11) return NULL;
 
-	VectorIterator found = vector_find(_gfx_x11->windows, UINT_TO_VOID(handle), _gfx_x11_window_compare_handle);
+	VectorIterator it;
+	for(it = _gfx_x11->windows->begin; it != _gfx_x11->windows->end; it = vector_next(_gfx_x11->windows, it))
+		if(((GFX_X11_Window*)it)->handle == handle) break;
 
-	return found != _gfx_x11->windows->end ? found : NULL;
+	return it != _gfx_x11->windows->end ? it : NULL;
 }
 
 /******************************************************/

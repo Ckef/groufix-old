@@ -37,13 +37,6 @@ static Vector* _gfx_hw_objects = NULL;
 /* Saved client side memory */
 static Vector* _gfx_hw_saved_objects = NULL;
 
-
-/******************************************************/
-static int _gfx_hardware_object_compare(const VectorIterator it, const void* value)
-{
-	return ((struct GFX_Internal_Hardware_Object*)it)->handle == value;
-}
-
 /******************************************************/
 static GFX_Extensions* _gfx_hardware_get_extensions(void)
 {
@@ -107,7 +100,10 @@ void _gfx_hardware_object_unregister(GFX_Hardware_Object object)
 	if(_gfx_hw_objects)
 	{
 		/* Find and erase */
-		VectorIterator it = vector_find(_gfx_hw_objects, object, _gfx_hardware_object_compare);
+		VectorIterator it;
+		for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = vector_next(_gfx_hw_objects, it))
+			if(((struct GFX_Internal_Hardware_Object*)it)->handle == object) break;
+
 		vector_erase(_gfx_hw_objects, it);
 
 		/* Get rid of memory */
