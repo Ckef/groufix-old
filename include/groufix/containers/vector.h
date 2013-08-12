@@ -36,10 +36,6 @@ extern "C" {
 typedef void* VectorIterator;
 
 
-/** \brief Comparison function */
-typedef int (*VectorComparison)(const VectorIterator, const void*);
-
-
 /** \brief Vector */
 typedef struct Vector
 {

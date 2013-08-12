@@ -27,10 +27,8 @@
 List* list_create(size_t dataSize)
 {
 	/* Create a new list node */
-	List* list = (List*)calloc(1, sizeof(list));
+	List* list = (List*)calloc(1, sizeof(list) + dataSize);
 	if(!list) return NULL;
-
-	list->data = malloc(dataSize);
 
 	return list;
 }
@@ -47,7 +45,6 @@ void list_free(List* list)
 		{
 			/* Get next, free, and continue */
 			List* next = list->next;
-			free(list->data);
 			free(list);
 			list = next;
 		}
@@ -160,7 +157,6 @@ List* list_erase(List* node)
 	}
 
 	/* Destroy the node */
-	free(node->data);
 	free(node);
 
 	return new;

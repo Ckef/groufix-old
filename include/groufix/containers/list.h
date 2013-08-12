@@ -33,21 +33,25 @@ extern "C" {
  *******************************************************/
 typedef struct List
 {
-	void* data; /* 'Super' class */
-
 	struct List* next;
 	struct List* previous;
 
 } List;
 
 
-/** \brief Comparison function */
-typedef int (*ListComparison)(const List*, const void*);
-
+/** 
+ * \brief Returns the data attached to a node.
+ *
+ */
+inline void* list_get_data(List* node)
+{
+	return (void*)(node + 1);
+}
 
 /**
  * \brief Creates a new list.
  *
+ * \param dataSize Size of the attached data of the first node.
  * \return NULL on failure.
  *
  */
@@ -80,6 +84,7 @@ List* list_advance(List* node, int num);
 /**
  * \brief Inserts an element after a given node.
  *
+ * \param dataSize Size of the attached data of the new node.
  * \return The node of the new element (NULL on failure).
  *
  */
@@ -88,6 +93,7 @@ List* list_insert_after(List* node, size_t dataSize);
 /**
  * \brief Inserts an element before a given node.
  *
+ * \param dataSize Size of the attached data of the new node.
  * \return The node of the new element (NULL on failure).
  *
  */
@@ -96,6 +102,7 @@ List* list_insert_before(List* node, size_t dataSize);
 /**
  * \brief Inserts an element after a given index.
  *
+ * \param dataSize Size of the attached data of the new node.
  * \return The node of the new element (NULL on failure).
  *
  */

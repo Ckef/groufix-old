@@ -24,6 +24,9 @@
 
 #include <stddef.h>
 
+/* Padding between begin and end */
+#define GFX_DEQUE_PADDING  1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,10 +37,6 @@ extern "C" {
 
 /** \brief Deque iterator */
 typedef void* DequeIterator;
-
-
-/** \brief Comparison function */
-typedef int (*DequeComparison)(const DequeIterator, const void*);
 
 
 /** \brief Deque */

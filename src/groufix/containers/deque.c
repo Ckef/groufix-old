@@ -107,7 +107,7 @@ Deque* deque_create_from_buffer(size_t elementSize, size_t numElements, const vo
 
 	/* Allocate and copy */
 	size_t size = elementSize * numElements;
-	if(!_deque_realloc(deque, _deque_get_max_capacity(size)))
+	if(!_deque_realloc(deque, _deque_get_max_capacity(size + GFX_DEQUE_PADDING)))
 	{
 		deque_free(deque);
 		return NULL;
@@ -183,7 +183,7 @@ size_t deque_get_size(Deque* deque)
 /******************************************************/
 int deque_reserve(Deque* deque, size_t numElements)
 {
-	size_t newSize = deque->elementSize * numElements;
+	size_t newSize = deque->elementSize * numElements + GFX_DEQUE_PADDING;
 	if(newSize > deque->capacity)
 		return _deque_realloc(deque, _deque_get_max_capacity(newSize));
 
@@ -193,7 +193,7 @@ int deque_reserve(Deque* deque, size_t numElements)
 /******************************************************/
 int deque_shrink(Deque* deque)
 {
-	size_t newSize = deque_get_byte_size(deque);
+	size_t newSize = deque_get_byte_size(deque) + GFX_DEQUE_PADDING;
 	if(newSize < (deque->capacity >> 1))
 		return _deque_realloc(deque, _deque_get_max_capacity(newSize));
 
@@ -229,7 +229,7 @@ DequeIterator deque_push_front(Deque* deque, const void* element)
 {
 	/* Reallocate if necessary */
 	size_t oldSize = deque_get_byte_size(deque);
-	size_t newSize = oldSize + deque->elementSize;
+	size_t newSize = oldSize + deque->elementSize + GFX_DEQUE_PADDING;
 	if(newSize > deque->capacity)
 	{
 		/* Get new capacity if empty */
@@ -254,7 +254,7 @@ DequeIterator deque_push_back(Deque* deque, const void* element)
 {
 	/* Reallocate if necessary */
 	size_t oldSize = deque_get_byte_size(deque);
-	size_t newSize = oldSize + deque->elementSize;
+	size_t newSize = oldSize + deque->elementSize + GFX_DEQUE_PADDING;
 	if(newSize > deque->capacity)
 	{
 		/* Get new capacity if empty */
