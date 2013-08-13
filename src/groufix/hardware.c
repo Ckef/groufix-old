@@ -27,8 +27,8 @@
 /* Actual object storage */
 struct GFX_Internal_Hardware_Object
 {
-	GFX_Hardware_Object handle;
-	const GFX_Hardware_Funcs* funcs;
+	GFX_Hardware_Object        handle;
+	const GFX_Hardware_Funcs*  funcs;
 };
 
 /* Created objects */
@@ -38,21 +38,12 @@ static Vector* _gfx_hw_objects = NULL;
 static Vector* _gfx_hw_saved_objects = NULL;
 
 /******************************************************/
-static GFX_Extensions* _gfx_hardware_get_extensions(void)
-{
-	GFX_Internal_Window* wind = _gfx_window_get_current();
-	if(!wind) return NULL;
-
-	return &wind->extensions;
-}
-
-/******************************************************/
 int gfx_hardware_is_extension_supported(GFXExtension extension)
 {
-	GFX_Extensions* ext = _gfx_hardware_get_extensions();
-	if(!ext) return 0;
+	GFX_Internal_Window* wind = _gfx_window_get_current();
+	if(!wind) return 0;
 
-	return ext->flags[extension];
+	return wind->extensions.flags[extension];
 }
 
 /******************************************************/

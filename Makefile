@@ -84,6 +84,7 @@ HEADERS = \
  $(INCLUDE)/groufix/errors.h \
  $(INCLUDE)/groufix/hardware.h \
  $(INCLUDE)/groufix/math.h \
+ $(INCLUDE)/groufix/pipeline.h \
  $(INCLUDE)/groufix/utils.h \
  $(INCLUDE)/groufix/window.h \
  $(INCLUDE)/groufix.h

@@ -207,7 +207,7 @@ typedef struct GFX_Hardware_Funcs
 {
 	GFX_Hardware_Free_Func     free;    /* Request free */
 	GFX_Hardware_Save_Func     save;    /* Store data in client side buffer, returns arbitrary address (NULL to not restore) */
-	GFX_Hardware_Restore_Func  restore; /* Restore data from client side buffer */
+	GFX_Hardware_Restore_Func  restore; /* Restore data from client side buffer, should deal with arbitrary address */
 
 } GFX_Hardware_Funcs;
 
