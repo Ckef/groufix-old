@@ -81,6 +81,27 @@ GFXVector* gfx_vector_create_copy(GFXVector* src);
 void gfx_vector_free(GFXVector* vector);
 
 /**
+ * \brief Initializes a vector.
+ *
+ */
+void gfx_vector_init(GFXVector* vector, size_t elementSize);
+
+/**
+ * \brief Initializes a vector with a preset content.
+ *
+ * \param numElements The number of elements stored in the buffer (not byte size!).
+ * \param buff        Memory to copy content from.
+ *
+ */
+void gfx_vector_init_from_buffer(GFXVector* vector, size_t elementSize, size_t numElements, const void* buff);
+
+/**
+ * \brief Initializes a copy of a vector.
+ *
+ */
+void gfx_vector_init_copy(GFXVector* vector, GFXVector* src);
+
+/**
  * \brief Clears the content of a vector.
  *
  */

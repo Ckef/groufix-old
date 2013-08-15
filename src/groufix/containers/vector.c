@@ -99,6 +99,34 @@ void gfx_vector_free(GFXVector* vector)
 }
 
 /******************************************************/
+void gfx_vector_init(GFXVector* vector, size_t elementSize)
+{
+	memset(vector, 0, sizeof(GFXVector));
+	vector->elementSize = elementSize;
+}
+
+/******************************************************/
+void gfx_vector_init_from_buffer(GFXVector* vector, size_t elementSize, size_t numElements, const void* buff)
+{
+	/* Init the vector */
+	gfx_vector_init(vector, elementSize);
+
+	/* Allocate and copy */
+	size_t size = elementSize * numElements;
+	if(_gfx_vector_realloc(vector, size, _gfx_vector_get_max_capacity(size)))
+	{
+		memcpy(vector->begin, buff, size);
+	}
+	else gfx_vector_clear(vector);
+}
+
+/******************************************************/
+void gfx_vector_init_copy(GFXVector* vector, GFXVector* src)
+{
+	gfx_vector_init_from_buffer(vector, src->elementSize, gfx_vector_get_size(src), src->begin);
+}
+
+/******************************************************/
 void gfx_vector_clear(GFXVector* vector)
 {
 	free(vector->begin);

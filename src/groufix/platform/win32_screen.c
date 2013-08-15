@@ -25,7 +25,7 @@
 unsigned int _gfx_platform_get_num_screens(void)
 {
 	if(!_gfx_win32) return 0;
-	return gfx_vector_get_size(_gfx_win32->monitors);
+	return gfx_vector_get_size(&_gfx_win32->monitors);
 }
 
 /******************************************************/
@@ -34,8 +34,8 @@ GFX_Platform_Screen _gfx_platform_get_screen(unsigned int num)
 	if(!_gfx_win32) return NULL;
 
 	/* Validate the number first */
-	if(num >= gfx_vector_get_size(_gfx_win32->monitors)) return NULL;
-	return *((HMONITOR*)gfx_vector_at(_gfx_win32->monitors, num));
+	if(num >= gfx_vector_get_size(&_gfx_win32->monitors)) return NULL;
+	return *((HMONITOR*)gfx_vector_at(&_gfx_win32->monitors, num));
 }
 
 /******************************************************/

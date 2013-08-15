@@ -83,12 +83,12 @@ typedef struct GFX_Win32_Window
 typedef struct GFX_Win32_Instance
 {
 	/* Monitors and Windows */
-	GFXVector*  monitors;        /* Stores HMONITOR */
-	GFXVector*  windows;         /* Stores GFX_Win32_Window */
-	char        classRegistered; /* Whether or not the window class is registered */
+	GFXVector  monitors;        /* Stores HMONITOR */
+	GFXVector  windows;         /* Stores GFX_Win32_Window */
+	char       classRegistered; /* Whether or not the window class is registered */
 
 	/* Key table */
-	GFXKey      keys[GFX_WIN32_NUM_KEYCODES];
+	GFXKey     keys[GFX_WIN32_NUM_KEYCODES];
 
 	/* Extensions */
 	GFX_Win32_Extensions extensions;

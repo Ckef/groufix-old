@@ -153,6 +153,47 @@ void gfx_deque_free(GFXDeque* deque)
 }
 
 /******************************************************/
+void gfx_deque_init(GFXDeque* deque, size_t elementSize)
+{
+	memset(deque, 0, sizeof(GFXDeque));
+	deque->elementSize = elementSize;
+}
+
+/******************************************************/
+void gfx_deque_init_from_buffer(GFXDeque* deque, size_t elementSize, size_t numElements, const void* buff)
+{
+	/* Init the deque */
+	gfx_deque_init(deque, elementSize);
+
+	/* Allocate and copy */
+	size_t size = elementSize * numElements;
+	if(_gfx_deque_realloc(deque, _gfx_deque_get_max_capacity(size + GFX_DEQUE_PADDING)))
+	{
+		memcpy(deque->data, buff, size);
+		deque->end = PTR_ADD_BYTES(deque->data, size);
+	}
+	else gfx_deque_clear(deque);
+}
+
+/******************************************************/
+void gfx_deque_init_copy(GFXDeque* deque, GFXDeque* src)
+{
+	/* Init the deque */
+	gfx_deque_init(deque, src->elementSize);
+
+	/* Allocate and copy */
+	if(_gfx_deque_realloc(deque, src->capacity))
+	{
+		memcpy(deque->data, src->data, src->capacity);
+
+		/* Set begin and end */
+		deque->begin = PTR_ADD_BYTES(deque->data, PTR_DIFF(src->data, src->begin));
+		deque->end = PTR_ADD_BYTES(deque->data, PTR_DIFF(src->data, src->end));
+	}
+	else gfx_deque_clear(deque);
+}
+
+/******************************************************/
 void gfx_deque_clear(GFXDeque* deque)
 {
 	free(deque->data);

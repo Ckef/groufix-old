@@ -201,40 +201,40 @@ void _gfx_extensions_load(void)
 	if(major > 3 || minor > 2)
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("glVertexAttribDivisor");
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_platform_get_proc_address("VertexAttribDivisorARB");
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("VertexAttribDivisorARB");
 	}
 	else
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC)      _gfx_gl_vertex_attrib_divisor;
+		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC) _gfx_gl_vertex_attrib_divisor;
 	}
 
 	/* GFX_EXT_PROGRAM_BINARY */
 	if(major > 4 || (major == 4 && minor > 0))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_platform_get_proc_address("glGetProgramBinary");
-		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_platform_get_proc_address("glProgramBinary");
-		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_platform_get_proc_address("glProgramParameteri");
+		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
+		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
+		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteri");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_platform_get_proc_address("GetProgramBinary");
-		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_platform_get_proc_address("ProgramBinary");
-		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_platform_get_proc_address("ProgramParameteri");
+		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("GetProgramBinary");
+		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)     _gfx_platform_get_proc_address("ProgramBinary");
+		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("ProgramParameteri");
 	}
 	else
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
-		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)         _gfx_gl_get_program_binary;
-		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)            _gfx_gl_program_binary;
-		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC)        _gfx_gl_program_parameter_i;
+		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)  _gfx_gl_get_program_binary;
+		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)     _gfx_gl_program_binary;
+		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC) _gfx_gl_program_parameter_i;
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */

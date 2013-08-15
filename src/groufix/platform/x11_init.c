@@ -45,10 +45,10 @@ GFXVectorIterator _gfx_x11_get_window_from_handle(Window handle)
 	if(!_gfx_x11) return NULL;
 
 	GFXVectorIterator it;
-	for(it = _gfx_x11->windows->begin; it != _gfx_x11->windows->end; it = gfx_vector_next(_gfx_x11->windows, it))
+	for(it = _gfx_x11->windows.begin; it != _gfx_x11->windows.end; it = gfx_vector_next(&_gfx_x11->windows, it))
 		if(((GFX_X11_Window*)it)->handle == handle) break;
 
-	return it != _gfx_x11->windows->end ? it : NULL;
+	return it != _gfx_x11->windows.end ? it : NULL;
 }
 
 /******************************************************/
@@ -251,8 +251,8 @@ int _gfx_platform_init(void)
 		_gfx_x11->display = XOpenDisplay(NULL);
 
 		/* Setup memory and load extensions */
-		_gfx_x11->windows = gfx_vector_create(sizeof(GFX_X11_Window));
-		if(!_gfx_x11->display || !_gfx_x11->windows || !_gfx_x11_load_extensions())
+		gfx_vector_init(&_gfx_x11->windows, sizeof(GFX_X11_Window));
+		if(!_gfx_x11->display || !_gfx_x11_load_extensions())
 		{
 			_gfx_platform_terminate();
 			return 0;
@@ -279,7 +279,7 @@ void _gfx_platform_terminate(void)
 	{
 		/* Close connection (destroys all resources) */
 		XCloseDisplay(_gfx_x11->display);
-		gfx_vector_free(_gfx_x11->windows);
+		gfx_vector_clear(&_gfx_x11->windows);
 
 		/* Deallocate */
 		free(_gfx_x11);

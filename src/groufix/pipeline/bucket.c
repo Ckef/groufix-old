@@ -48,7 +48,7 @@ struct GFX_Internal_Bucket
 
 	GFXBatchUnit*  begin;   /* Begin of units */
 	GFXBatchUnit*  end;     /* End of units */
-	GFXVector*     batches; /* Batch shortcuts, stores GFXBatchUnit* */
+	GFXVector      batches; /* Batch shortcuts, stores GFXBatchUnit* */
 };
 
 /******************************************************/
@@ -59,13 +59,7 @@ GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process)
 	if(!bucket) return NULL;
 
 	/* Try to allocate the batch vector */
-	bucket->batches = gfx_vector_create(sizeof(GFXBatchUnit*));
-	if(!bucket->batches)
-	{
-		free(bucket);
-		return NULL;
-	}
-
+	gfx_vector_init(&bucket->batches, sizeof(GFXBatchUnit*));
 	bucket->bucket.process = process;
 	bucket->bits = bits;
 
@@ -80,7 +74,7 @@ void gfx_bucket_free(GFXBucket* bucket)
 		struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
 		gfx_list_free((GFXList*)internal->begin);
-		gfx_vector_free(internal->batches);
+		gfx_vector_clear(&internal->batches);
 
 		free(bucket);
 	}

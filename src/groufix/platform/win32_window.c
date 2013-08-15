@@ -348,7 +348,7 @@ static int _gfx_win32_register_window_class(void)
 }
 
 /******************************************************/
-GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
+GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* attributes)
 {
 	/* Make sure to register the window class */
 	if(!_gfx_win32_register_window_class()) return NULL;
@@ -386,7 +386,7 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	if(!window.handle) return NULL;
 
 	/* Add window to vector */
-	if(!gfx_vector_insert(_gfx_win32->windows, &window, _gfx_win32->windows->end))
+	if(!gfx_vector_insert(&_gfx_win32->windows, &window, _gfx_win32->windows.end))
 	{
 		DestroyWindow(window.handle);
 		return NULL;
@@ -402,17 +402,17 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 }
 
 /******************************************************/
-void _gfx_platform_destroy_window(GFX_Platform_Window handle)
+void _gfx_platform_window_free(GFX_Platform_Window handle)
 {
 	if(_gfx_win32)
 	{
 		/* Destroy the context and window */
-		_gfx_platform_destroy_context(handle);
+		_gfx_platform_context_free(handle);
 		DestroyWindow(handle);
 
 		/* Remove from vector */
 		GFXVectorIterator it = _gfx_win32_get_window_from_handle(handle);
-		gfx_vector_erase(_gfx_win32->windows, it);
+		gfx_vector_erase(&_gfx_win32->windows, it);
 	}
 }
 

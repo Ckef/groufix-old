@@ -290,7 +290,7 @@ void _gfx_platform_screen_get_size(GFX_Platform_Screen handle, unsigned int* wid
  * \return A handle to the window (NULL on failure).
  *
  */
-GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes);
+GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* attributes);
 
 /**
  * \brief Destroys a window, freeing all its memory.
@@ -298,7 +298,7 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
  * This method should also destroy the context if it has one.
  *
  */
-void _gfx_platform_destroy_window(GFX_Platform_Window handle);
+void _gfx_platform_window_free(GFX_Platform_Window handle);
 
 /**
  * \brief Returns the screen assigned to a window.
@@ -381,7 +381,7 @@ void _gfx_platform_poll_events(void);
  * If the platform uses OpenGL ES, round down to the nearest with an equal major version.
  *
  */
-int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share);
+int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share);
 
 /**
  * \brief Destroys the context of a window.
@@ -389,7 +389,7 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int mino
  * This method is allowed to make all contexts inactive.
  *
  */
-void _gfx_platform_destroy_context(GFX_Platform_Window handle);
+void _gfx_platform_context_free(GFX_Platform_Window handle);
 
 /**
  * \brief Makes the current window the active render target.

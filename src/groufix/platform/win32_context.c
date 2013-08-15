@@ -22,7 +22,7 @@
 #include "groufix/platform/win32.h"
 
 /******************************************************/
-int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
+int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
 {
 	/* Get the windows */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
@@ -51,7 +51,7 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int mino
 }
 
 /******************************************************/
-void _gfx_platform_destroy_context(GFX_Platform_Window handle)
+void _gfx_platform_context_free(GFX_Platform_Window handle)
 {
 	HDC dc = GetDC(handle);
 

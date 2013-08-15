@@ -227,7 +227,7 @@ static void _gfx_x11_event_proc(XEvent* event)
 }
 
 /******************************************************/
-GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* attributes)
+GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* attributes)
 {
 	/* Get FB Config */
 	GLXFBConfig* config = _gfx_x11_get_config(attributes->screen, &attributes->depth);
@@ -293,7 +293,7 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	window.height = get.height;
 
 	/* Add window to vector */
-	if(!gfx_vector_insert(_gfx_x11->windows, &window, _gfx_x11->windows->end))
+	if(!gfx_vector_insert(&_gfx_x11->windows, &window, _gfx_x11->windows.end))
 	{
 		XDestroyWindow(_gfx_x11->display, window.handle);
 		XFreeColormap(_gfx_x11->display, attr.colormap);
@@ -309,12 +309,12 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 }
 
 /******************************************************/
-void _gfx_platform_destroy_window(GFX_Platform_Window handle)
+void _gfx_platform_window_free(GFX_Platform_Window handle)
 {
 	if(_gfx_x11)
 	{
 		/* Destroy the context */
-		_gfx_platform_destroy_context(handle);
+		_gfx_platform_context_free(handle);
 
 		/* Destroy the window and its colormap */
 		XWindowAttributes attr;
@@ -325,7 +325,7 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 
 		/* Remove from vector */
 		GFXVectorIterator it = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
-		gfx_vector_erase(_gfx_x11->windows, it);
+		gfx_vector_erase(&_gfx_x11->windows, it);
 	}
 }
 

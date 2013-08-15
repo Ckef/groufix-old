@@ -22,7 +22,7 @@
 #include "groufix/platform/x11.h"
 
 /******************************************************/
-int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
+int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
 {
 	/* Get the windows */
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
@@ -56,7 +56,7 @@ int _gfx_platform_create_context(GFX_Platform_Window handle, int major, int mino
 }
 
 /******************************************************/
-void _gfx_platform_destroy_context(GFX_Platform_Window handle)
+void _gfx_platform_context_free(GFX_Platform_Window handle)
 {
 	/* Get the window and destroy its context */
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));

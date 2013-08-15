@@ -99,7 +99,7 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, void* data, GFXBatchState sta
  * Note: this forces the bucket to preprocess.
  *
  */
-void gfx_bucket_set_batch_state(GFXBatchUnit* unit, GFXBatchState state);
+void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
 
 /**
  * \brief Erases a unit from its bucket.

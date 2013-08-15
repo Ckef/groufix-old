@@ -86,7 +86,28 @@ GFXDeque* gfx_deque_create_copy(GFXDeque* src);
 void gfx_deque_free(GFXDeque* deque);
 
 /**
- * \brief Clears the content of a vector.
+ * \brief Initializes a deque.
+ *
+ */
+void gfx_deque_init(GFXDeque* deque, size_t elementSize);
+
+/**
+ * \brief Initializes a deque with a preset content.
+ *
+ * \param numElements The number of elements stored in the buffer (not byte size!).
+ * \param buff        Memory to copy content from.
+ *
+ */
+void gfx_deque_init_from_buffer(GFXDeque* deque, size_t elementSize, size_t numElements, const void* buff);
+
+/**
+ * \brief Initializes a copy of a deque.
+ *
+ */
+void gfx_deque_init_copy(GFXDeque* deque, GFXDeque* src);
+
+/**
+ * \brief Clears the content of a deque.
  *
  */
 void gfx_deque_clear(GFXDeque* deque);

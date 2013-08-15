@@ -42,7 +42,7 @@ static GFXContext _gfx_context = {
 };
 
 /******************************************************/
-static int _gfx_window_create_context(GFX_Platform_Window window)
+static int _gfx_window_context_create(GFX_Platform_Window window)
 {
 	/* Get the main window to share with (as all windows will share everything) */
 	GFX_Platform_Window* share = NULL;
@@ -63,7 +63,7 @@ static int _gfx_window_create_context(GFX_Platform_Window window)
 		 max.minor >= _gfx_context.minor))
 	{
 		/* Try to create it */
-		if(_gfx_platform_create_context(window, max.major, max.minor, share)) return 1;
+		if(_gfx_platform_context_create(window, max.major, max.minor, share)) return 1;
 
 		/* Previous version */
 		if(!max.minor)
@@ -205,7 +205,7 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	attr.y         = y;
 	attr.depth     = depth;
 
-	window->handle = _gfx_platform_create_window(&attr);
+	window->handle = _gfx_platform_window_create(&attr);
 	if(!window->handle)
 	{
 		free(window);
@@ -213,9 +213,9 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	}
 
 	/* Create context and insert in the vector */
-	if(!_gfx_window_create_context(window->handle) || !_gfx_window_insert(window))
+	if(!_gfx_window_context_create(window->handle) || !_gfx_window_insert(window))
 	{
-		_gfx_platform_destroy_window(window->handle);
+		_gfx_platform_window_free(window->handle);
 		free(window);
 
 		return NULL;
@@ -277,7 +277,7 @@ void gfx_window_free(GFXWindow* window)
 		}
 
 		/* Destroy window */
-		_gfx_platform_destroy_window(internal->handle);
+		_gfx_platform_window_free(internal->handle);
 		free(internal);
 
 		_gfx_window_make_current(_gfx_main_window);
