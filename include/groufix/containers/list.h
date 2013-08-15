@@ -31,19 +31,19 @@ extern "C" {
 /********************************************************
  * \brief List container
  *******************************************************/
-typedef struct List
+typedef struct GFXList
 {
-	struct List* next;
-	struct List* previous;
+	struct GFXList* next;
+	struct GFXList* previous;
 
-} List;
+} GFXList;
 
 
 /** 
  * \brief Returns the data attached to a node.
  *
  */
-inline void* list_get_data(List* node)
+inline void* gfx_list_get_data(GFXList* node)
 {
 	return (void*)(node + 1);
 }
@@ -51,62 +51,64 @@ inline void* list_get_data(List* node)
 /**
  * \brief Creates a new list.
  *
- * \param dataSize Size of the attached data of the first node.
+ * \param dataSize Size of the node, >= sizeof(List).
  * \return NULL on failure.
  *
  */
-List* list_create(size_t dataSize);
+GFXList* gfx_list_create(size_t dataSize);
 
 /**
  * \brief Makes sure the list is freed properly.
  *
+ * Frees each node after the given node.
+ *
  */
-void list_free(List* list);
+void gfx_list_free(GFXList* list);
 
 /**
  * \brief Returns the size of the list in elements.
  *
  */
-size_t list_get_size(List* list);
+size_t gfx_list_get_size(GFXList* list);
 
 /**
  * \brief Returns a node at a given index, can be NULL.
  *
  */ 
-List* list_at(List* list, size_t index);
+GFXList* gfx_list_at(GFXList* list, size_t index);
 
 /**
  * \brief Advances a node an arbitrary amount of indices (can be negative).
  *
  */
-List* list_advance(List* node, int num);
+GFXList* gfx_list_advance(GFXList* node, int num);
 
 /**
  * \brief Inserts an element after a given node.
  *
- * \param dataSize Size of the attached data of the new node.
+ * \param dataSize Size of the node, >= sizeof(List).
  * \return The node of the new element (NULL on failure).
  *
  */
-List* list_insert_after(List* node, size_t dataSize);
+GFXList* gfx_list_insert_after(GFXList* node, size_t dataSize);
 
 /**
  * \brief Inserts an element before a given node.
  *
- * \param dataSize Size of the attached data of the new node.
+ * \param dataSize Size of the node, >= sizeof(List).
  * \return The node of the new element (NULL on failure).
  *
  */
-List* list_insert_before(List* node, size_t dataSize);
+GFXList* gfx_list_insert_before(GFXList* node, size_t dataSize);
 
 /**
  * \brief Inserts an element after a given index.
  *
- * \param dataSize Size of the attached data of the new node.
+ * \param dataSize Size of the node, >= sizeof(List).
  * \return The node of the new element (NULL on failure).
  *
  */
-List* list_insert_at(List* list, size_t dataSize, size_t index);
+GFXList* gfx_list_insert_at(GFXList* list, size_t dataSize, size_t index);
 
 /**
  * \brief Erases a node.
@@ -116,7 +118,7 @@ List* list_insert_at(List* list, size_t dataSize, size_t index);
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-List* list_erase(List* node);
+GFXList* gfx_list_erase(GFXList* node);
 
 /**
  * \brief Erases an element at a given index.
@@ -126,7 +128,13 @@ List* list_erase(List* node);
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-List* list_erase_at(List* list, size_t index);
+GFXList* gfx_list_erase_at(GFXList* list, size_t index);
+
+/**
+ * \brief Swaps two nodes from positions within a list.
+ *
+ */
+void gfx_list_swap(GFXList* node1, GFXList* node2);
 
 
 #ifdef __cplusplus

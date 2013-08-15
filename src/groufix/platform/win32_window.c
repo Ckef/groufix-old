@@ -82,6 +82,8 @@ static GFXKey _gfx_win32_get_extended_key(GFXKey key, LPARAM lParam)
 		case GFX_KEY_SHIFT_LEFT   : return GFX_KEY_SHIFT_RIGHT;
 		case GFX_KEY_CONTROL_LEFT : return GFX_KEY_CONTROL_RIGHT;
 		case GFX_KEY_ALT_LEFT     : return GFX_KEY_ALT_RIGHT;
+		
+		default : return key;
 	}
 	return key;
 }
@@ -384,7 +386,7 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	if(!window.handle) return NULL;
 
 	/* Add window to vector */
-	if(!vector_insert(_gfx_win32->windows, &window, _gfx_win32->windows->end))
+	if(!gfx_vector_insert(_gfx_win32->windows, &window, _gfx_win32->windows->end))
 	{
 		DestroyWindow(window.handle);
 		return NULL;
@@ -409,8 +411,8 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 		DestroyWindow(handle);
 
 		/* Remove from vector */
-		VectorIterator it = _gfx_win32_get_window_from_handle(handle);
-		vector_erase(_gfx_win32->windows, it);
+		GFXVectorIterator it = _gfx_win32_get_window_from_handle(handle);
+		gfx_vector_erase(_gfx_win32->windows, it);
 	}
 }
 
@@ -430,7 +432,7 @@ char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
 	int len = GetWindowTextLength(handle);
 	if(!len++) return NULL;
 
-	wchar_t* buff = (wchar_t*)malloc(sizeof(wchar_t) * len);
+	wchar_t* buff = malloc(sizeof(wchar_t) * len);
 	if(!GetWindowText(handle, buff, len)) return NULL;
 
 	/* Make sure to convert to utf-8 */

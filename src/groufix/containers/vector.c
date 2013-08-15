@@ -26,7 +26,7 @@
 #include <string.h>
 
 /******************************************************/
-static size_t _vector_get_max_capacity(size_t size)
+static size_t _gfx_vector_get_max_capacity(size_t size)
 {
 	size_t cap = 1;
 	while(cap < size) cap <<= 1;
@@ -35,13 +35,13 @@ static size_t _vector_get_max_capacity(size_t size)
 }
 
 /******************************************************/
-static int _vector_realloc(Vector* vector, size_t size, size_t capacity)
+static int _gfx_vector_realloc(GFXVector* vector, size_t size, size_t capacity)
 {
 	/* Make sure to check if it worked */
 	void* new = realloc(vector->begin, capacity);
 	if(!new)
 	{
-		vector_clear(vector);
+		gfx_vector_clear(vector);
 		return 0;
 	}
 
@@ -54,25 +54,25 @@ static int _vector_realloc(Vector* vector, size_t size, size_t capacity)
 }
 
 /******************************************************/
-Vector* vector_create(size_t elementSize)
+GFXVector* gfx_vector_create(size_t elementSize)
 {
 	/* Create a new vector */
-	Vector* vector = (Vector*)calloc(1, sizeof(Vector));
+	GFXVector* vector = calloc(1, sizeof(GFXVector));
 	if(vector) vector->elementSize = elementSize;
 
 	return vector;
 }
 
 /******************************************************/
-Vector* vector_create_from_buffer(size_t elementSize, size_t numElements, const void* buff)
+GFXVector* gfx_vector_create_from_buffer(size_t elementSize, size_t numElements, const void* buff)
 {
 	/* Create a new vector */
-	Vector* vector = vector_create(elementSize);
+	GFXVector* vector = gfx_vector_create(elementSize);
 	if(!vector) return NULL;
 
 	/* Allocate and copy */
 	size_t size = elementSize * numElements;
-	if(!_vector_realloc(vector, size, _vector_get_max_capacity(size)))
+	if(!_gfx_vector_realloc(vector, size, _gfx_vector_get_max_capacity(size)))
 	{
 		free(vector);
 		return NULL;
@@ -83,13 +83,13 @@ Vector* vector_create_from_buffer(size_t elementSize, size_t numElements, const 
 }
 
 /******************************************************/
-Vector* vector_create_copy(Vector* src)
+GFXVector* gfx_vector_create_copy(GFXVector* src)
 {
-	return vector_create_from_buffer(src->elementSize, vector_get_size(src), src->begin);
+	return gfx_vector_create_from_buffer(src->elementSize, gfx_vector_get_size(src), src->begin);
 }
 
 /******************************************************/
-void vector_free(Vector* vector)
+void gfx_vector_free(GFXVector* vector)
 {
 	if(vector)
 	{
@@ -99,7 +99,7 @@ void vector_free(Vector* vector)
 }
 
 /******************************************************/
-void vector_clear(Vector* vector)
+void gfx_vector_clear(GFXVector* vector)
 {
 	free(vector->begin);
 	vector->begin = NULL;
@@ -109,54 +109,54 @@ void vector_clear(Vector* vector)
 }
 
 /******************************************************/
-size_t vector_get_byte_size(Vector* vector)
+size_t gfx_vector_get_byte_size(GFXVector* vector)
 {
 	return PTR_DIFF(vector->begin, vector->end);
 }
 
 /******************************************************/
-size_t vector_get_size(Vector* vector)
+size_t gfx_vector_get_size(GFXVector* vector)
 {
 	return PTR_DIFF(vector->begin, vector->end) / vector->elementSize;
 }
 
 /******************************************************/
-int vector_reserve(Vector* vector, size_t numElements)
+int gfx_vector_reserve(GFXVector* vector, size_t numElements)
 {
 	size_t oldSize = PTR_DIFF(vector->begin, vector->end);
 	size_t newSize = vector->elementSize * numElements;
 	if(newSize > vector->capacity)
-		return _vector_realloc(vector, oldSize, _vector_get_max_capacity(newSize));
+		return _gfx_vector_realloc(vector, oldSize, _gfx_vector_get_max_capacity(newSize));
 
 	return 1;
 }
 
 /******************************************************/
-VectorIterator vector_at(Vector* vector, size_t index)
+GFXVectorIterator gfx_vector_at(GFXVector* vector, size_t index)
 {
 	return PTR_ADD_BYTES(vector->begin, index * vector->elementSize);
 }
 
 /******************************************************/
-VectorIterator vector_next(Vector* vector, VectorIterator it)
+GFXVectorIterator gfx_vector_next(GFXVector* vector, GFXVectorIterator it)
 {
 	return PTR_ADD_BYTES(it, vector->elementSize);
 }
 
 /******************************************************/
-VectorIterator vector_previous(Vector* vector, VectorIterator it)
+GFXVectorIterator gfx_vector_previous(GFXVector* vector, GFXVectorIterator it)
 {
 	return PTR_SUB_BYTES(it, vector->elementSize);
 }
 
 /******************************************************/
-VectorIterator vector_advance(Vector* vector, VectorIterator it, int num)
+GFXVectorIterator gfx_vector_advance(GFXVector* vector, GFXVectorIterator it, int num)
 {
 	return PTR_ADD_BYTES(it, vector->elementSize * num);
 }
 
 /******************************************************/
-VectorIterator vector_insert(Vector* vector, const void* element, VectorIterator pos)
+GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXVectorIterator pos)
 {
 	/* Get properties */
 	size_t oldSize = PTR_DIFF(vector->begin, vector->end);
@@ -168,9 +168,9 @@ VectorIterator vector_insert(Vector* vector, const void* element, VectorIterator
 	{
 		/* Get new capacity if empty */
 		size_t cap = vector->capacity << 1;
-		if(!cap) cap = _vector_get_max_capacity(newSize);
+		if(!cap) cap = _gfx_vector_get_max_capacity(newSize);
 
-		if(!_vector_realloc(vector, newSize, cap)) return NULL;
+		if(!_gfx_vector_realloc(vector, newSize, cap)) return NULL;
 		pos = PTR_ADD_BYTES(vector->begin, oldSize - mov);
 	}
 
@@ -185,13 +185,13 @@ VectorIterator vector_insert(Vector* vector, const void* element, VectorIterator
 }
 
 /******************************************************/
-VectorIterator vector_insert_at(Vector* vector, const void* element, size_t index)
+GFXVectorIterator gfx_vector_insert_at(GFXVector* vector, const void* element, size_t index)
 {
-	return vector_insert(vector, element, vector_at(vector, index));
+	return gfx_vector_insert(vector, element, gfx_vector_at(vector, index));
 }
 
 /******************************************************/
-VectorIterator vector_insert_range(Vector* vector, size_t num, VectorIterator start, VectorIterator pos)
+GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVectorIterator start, GFXVectorIterator pos)
 {
 	/* Get properties */
 	size_t diff = num * vector->elementSize;
@@ -206,7 +206,7 @@ VectorIterator vector_insert_range(Vector* vector, size_t num, VectorIterator st
 	/* Reallocate if necessary */
 	if(newSize > vector->capacity)
 	{
-		if(!_vector_realloc(vector, newSize, _vector_get_max_capacity(newSize))) return NULL;
+		if(!_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize))) return NULL;
 		pos = PTR_ADD_BYTES(vector->begin, oldSize - mov);
 	}
 
@@ -221,26 +221,26 @@ VectorIterator vector_insert_range(Vector* vector, size_t num, VectorIterator st
 }
 
 /******************************************************/
-VectorIterator vector_insert_range_at(Vector* vector, size_t num, VectorIterator start, size_t index)
+GFXVectorIterator gfx_vector_insert_range_at(GFXVector* vector, size_t num, GFXVectorIterator start, size_t index)
 {
-	return vector_insert_range(vector, num, start, vector_at(vector, index));
+	return gfx_vector_insert_range(vector, num, start, gfx_vector_at(vector, index));
 }
 
 /******************************************************/
-VectorIterator vector_erase(Vector* vector, VectorIterator pos)
+GFXVectorIterator gfx_vector_erase(GFXVector* vector, GFXVectorIterator pos)
 {
 	/* Call erase range to make sure a minimum capacity is reallocated */
-	return vector_erase_range(vector, 1, pos);
+	return gfx_vector_erase_range(vector, 1, pos);
 }
 
 /******************************************************/
-VectorIterator vector_erase_at(Vector* vector, size_t index)
+GFXVectorIterator gfx_vector_erase_at(GFXVector* vector, size_t index)
 {
-	return vector_erase(vector, vector_at(vector, index));
+	return gfx_vector_erase(vector, gfx_vector_at(vector, index));
 }
 
 /******************************************************/
-VectorIterator vector_erase_range(Vector* vector, size_t num, VectorIterator start)
+GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVectorIterator start)
 {
 	/* Nothing to erase */
 	if(start == vector->end || !num) return NULL;
@@ -257,7 +257,7 @@ VectorIterator vector_erase_range(Vector* vector, size_t num, VectorIterator sta
 	/* Deallocate if necessary */
 	if(!newSize)
 	{
-		vector_clear(vector);
+		gfx_vector_clear(vector);
 		return NULL;
 	}
 
@@ -268,7 +268,7 @@ VectorIterator vector_erase_range(Vector* vector, size_t num, VectorIterator sta
 	/* Reallocate if necessary */
 	if(newSize < (vector->capacity >> 1))
 	{
-		if(!_vector_realloc(vector, newSize, _vector_get_max_capacity(newSize))) return NULL;
+		if(!_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize))) return NULL;
 		start = PTR_ADD_BYTES(vector->begin, oldSize - toEnd);
 	}
 
@@ -279,7 +279,7 @@ VectorIterator vector_erase_range(Vector* vector, size_t num, VectorIterator sta
 }
 
 /******************************************************/
-VectorIterator vector_erase_range_at(Vector* vector, size_t num, size_t index)
+GFXVectorIterator gfx_vector_erase_range_at(GFXVector* vector, size_t num, size_t index)
 {
-	return vector_erase_range(vector, num, vector_at(vector, index));
+	return gfx_vector_erase_range(vector, num, gfx_vector_at(vector, index));
 }

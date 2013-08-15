@@ -83,12 +83,12 @@ typedef struct GFX_Win32_Window
 typedef struct GFX_Win32_Instance
 {
 	/* Monitors and Windows */
-	Vector*   monitors;        /* Stores HMONITOR */
-	char      classRegistered; /* Whether or not the window class is registered */
-	Vector*   windows;         /* Stores GFX_Win32_Window */
+	GFXVector*  monitors;        /* Stores HMONITOR */
+	GFXVector*  windows;         /* Stores GFX_Win32_Window */
+	char        classRegistered; /* Whether or not the window class is registered */
 
 	/* Key table */
-	GFXKey    keys[GFX_WIN32_NUM_KEYCODES];
+	GFXKey      keys[GFX_WIN32_NUM_KEYCODES];
 
 	/* Extensions */
 	GFX_Win32_Extensions extensions;
@@ -112,7 +112,7 @@ void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth);
  * \brief Returns an Win32 window from its handle.
  *
  */
-VectorIterator _gfx_win32_get_window_from_handle(HWND handle);
+GFXVectorIterator _gfx_win32_get_window_from_handle(HWND handle);
 
 /**
  * \brief Converts a UTF-8 string to a wide string.

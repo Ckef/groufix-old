@@ -31,7 +31,7 @@ typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 
-#define VEC_CREATE_NAME(size,type) NAME(CAT(vec, size), type)
+#define VEC_CREATE_NAME(size,type) NAME(CAT(gfx_vec, size), type)
 #define VEC_CREATE_FUNC(size,type,postfix) NAME(VEC_CREATE_NAME(size, type), postfix)
 
 #endif // GFX_MATH_VEC_H

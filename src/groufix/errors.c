@@ -30,7 +30,7 @@
 static unsigned int _gfx_errors_maximum = GFX_MAX_ERRORS_DEFAULT;
 
 /* Stored Errors */
-static Deque* _gfx_errors = NULL;
+static GFXDeque* _gfx_errors = NULL;
 
 /******************************************************/
 static GFXError* _gfx_errors_last(void)
@@ -57,8 +57,8 @@ int gfx_errors_find(GFXErrorCode code)
 {
 	if(!_gfx_errors) return 0;
 
-	DequeIterator it;
-	for(it = _gfx_errors->begin; it != _gfx_errors->end; it = deque_next(_gfx_errors, it))
+	GFXDequeIterator it;
+	for(it = _gfx_errors->begin; it != _gfx_errors->end; it = gfx_deque_next(_gfx_errors, it))
 		if(((GFXError*)it)->code == code) break;
 
 	return it != _gfx_errors->end;
@@ -72,7 +72,7 @@ void gfx_errors_pop(void)
 	{
 		/* Make sure to free it properly */
 		free((char*)err->description);
-		deque_pop_front(_gfx_errors);
+		gfx_deque_pop_front(_gfx_errors);
 	}
 }
 
@@ -82,15 +82,15 @@ void gfx_errors_push(GFXErrorCode code, const char* description)
 	/* Allocate */
 	if(!_gfx_errors)
 	{
-		_gfx_errors = deque_create(sizeof(GFXError));
+		_gfx_errors = gfx_deque_create(sizeof(GFXError));
 		if(!_gfx_errors) return;
 
 		/* Reserve right away */
-		deque_reserve(_gfx_errors, _gfx_errors_maximum);
+		gfx_deque_reserve(_gfx_errors, _gfx_errors_maximum);
 	}
-	else if(deque_get_size(_gfx_errors) == _gfx_errors_maximum)
+	else if(gfx_deque_get_size(_gfx_errors) == _gfx_errors_maximum)
 	{
-		deque_pop_back(_gfx_errors);
+		gfx_deque_pop_back(_gfx_errors);
 	}
 
 	/* Construct an error */
@@ -101,13 +101,13 @@ void gfx_errors_push(GFXErrorCode code, const char* description)
 	/* Copy the description */
 	if(description)
 	{
-		char* des = (char*)malloc(sizeof(char) * (strlen(description) + 1));
+		char* des = malloc(sizeof(char) * (strlen(description) + 1));
 		strcpy(des, description);
 
 		error.description = des;
 	}
 
-	deque_push_front(_gfx_errors, &error);
+	gfx_deque_push_front(_gfx_errors, &error);
 }
 
 /******************************************************/
@@ -116,11 +116,11 @@ void gfx_errors_empty(void)
 	if(_gfx_errors)
 	{
 		/* Free all descriptions */
-		DequeIterator it;
-		for(it = _gfx_errors->begin; it != _gfx_errors->end; it = deque_next(_gfx_errors, it))
+		GFXDequeIterator it;
+		for(it = _gfx_errors->begin; it != _gfx_errors->end; it = gfx_deque_next(_gfx_errors, it))
 			free((char*)((GFXError*)it)->description);
 
-		deque_free(_gfx_errors);
+		gfx_deque_free(_gfx_errors);
 		_gfx_errors = NULL;
 	}
 }
@@ -135,10 +135,16 @@ void gfx_errors_set_maximum(unsigned int max)
 	else if(_gfx_errors)
 	{
 		/* Remove errors */
-		while(deque_get_size(_gfx_errors) > max) deque_pop_back(_gfx_errors);
+		while(gfx_deque_get_size(_gfx_errors) > max)
+		{
+			GFXDequeIterator it = gfx_deque_previous(_gfx_errors, _gfx_errors->end);
+			free((char*)((GFXError*)it)->description);
+
+			gfx_deque_pop_back(_gfx_errors);
+		}
 
 		/* Reallocate the memory used */
-		deque_shrink(_gfx_errors);
-		deque_reserve(_gfx_errors, max);
+		gfx_deque_shrink(_gfx_errors);
+		gfx_deque_reserve(_gfx_errors, max);
 	}
 }

@@ -35,11 +35,11 @@ extern "C" {
 #endif
 
 /* Mathematical constants */
-extern const long double MATH_PI;
-extern const long double MATH_TWO_PI;
-extern const long double MATH_HALF_PI;
-extern const long double MATH_RAD_TO_DEG;
-extern const long double MATH_DEG_TO_RAD;
+extern const long double GFX_MATH_PI;
+extern const long double GFX_MATH_TWO_PI;
+extern const long double GFX_MATH_HALF_PI;
+extern const long double GFX_MATH_RAD_TO_DEG;
+extern const long double GFX_MATH_DEG_TO_RAD;
 
 
 #ifdef __cplusplus

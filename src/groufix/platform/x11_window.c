@@ -293,7 +293,7 @@ GFX_Platform_Window _gfx_platform_create_window(const GFX_Platform_Attributes* a
 	window.height = get.height;
 
 	/* Add window to vector */
-	if(!vector_insert(_gfx_x11->windows, &window, _gfx_x11->windows->end))
+	if(!gfx_vector_insert(_gfx_x11->windows, &window, _gfx_x11->windows->end))
 	{
 		XDestroyWindow(_gfx_x11->display, window.handle);
 		XFreeColormap(_gfx_x11->display, attr.colormap);
@@ -324,8 +324,8 @@ void _gfx_platform_destroy_window(GFX_Platform_Window handle)
 		XFreeColormap(_gfx_x11->display, attr.colormap);
 
 		/* Remove from vector */
-		VectorIterator it = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
-		vector_erase(_gfx_x11->windows, it);
+		GFXVectorIterator it = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+		gfx_vector_erase(_gfx_x11->windows, it);
 	}
 }
 
@@ -352,7 +352,7 @@ char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
 	if(!buff) return NULL;
 
 	/* Copy to client side memory */
-	char* name = (char*)malloc(sizeof(char) * (strlen(buff) + 1));
+	char* name = malloc(sizeof(char) * (strlen(buff) + 1));
 	strcpy(name, buff);
 
 	XFree(buff);

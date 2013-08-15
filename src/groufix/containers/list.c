@@ -24,17 +24,17 @@
 #include <stdlib.h>
 
 /******************************************************/
-List* list_create(size_t dataSize)
+GFXList* gfx_list_create(size_t dataSize)
 {
 	/* Create a new list node */
-	List* list = (List*)calloc(1, sizeof(list) + dataSize);
+	GFXList* list = calloc(1, dataSize);
 	if(!list) return NULL;
 
 	return list;
 }
 
 /******************************************************/
-void list_free(List* list)
+void gfx_list_free(GFXList* list)
 {
 	if(list)
 	{
@@ -44,7 +44,7 @@ void list_free(List* list)
 		while(list)
 		{
 			/* Get next, free, and continue */
-			List* next = list->next;
+			GFXList* next = list->next;
 			free(list);
 			list = next;
 		}
@@ -52,7 +52,7 @@ void list_free(List* list)
 }
 
 /******************************************************/
-size_t list_get_size(List* list)
+size_t gfx_list_get_size(GFXList* list)
 {
 	size_t cnt = 1;
 	while(list->next)
@@ -65,13 +65,13 @@ size_t list_get_size(List* list)
 }
 
 /******************************************************/
-List* list_at(List* list, size_t index)
+GFXList* gfx_list_at(GFXList* list, size_t index)
 {
-	return list_advance(list, index);
+	return gfx_list_advance(list, index);
 }
 
 /******************************************************/
-List* list_advance(List* node, int num)
+GFXList* gfx_list_advance(GFXList* node, int num)
 {
 	if(num > 0) while(num--)
 	{
@@ -87,10 +87,10 @@ List* list_advance(List* node, int num)
 }
 
 /******************************************************/
-List* list_insert_after(List* node, size_t dataSize)
+GFXList* gfx_list_insert_after(GFXList* node, size_t dataSize)
 {
 	/* Create the new node */
-	List* new = list_create(dataSize);
+	GFXList* new = gfx_list_create(dataSize);
 	if(!new) return NULL;
 
 	new->previous = node;
@@ -106,10 +106,10 @@ List* list_insert_after(List* node, size_t dataSize)
 }
 
 /******************************************************/
-List* list_insert_before(List* node, size_t dataSize)
+GFXList* gfx_list_insert_before(GFXList* node, size_t dataSize)
 {
 	/* Create the new node */
-	List* new = list_create(dataSize);
+	GFXList* new = gfx_list_create(dataSize);
 	if(!new) return NULL;
 
 	new->previous = node->previous;
@@ -125,22 +125,22 @@ List* list_insert_before(List* node, size_t dataSize)
 }
 
 /******************************************************/
-List* list_insert_at(List* list, size_t dataSize, size_t index)
+GFXList* gfx_list_insert_at(GFXList* list, size_t dataSize, size_t index)
 {
 	/* Just insert where we already are */
-	if(!index) return list_insert_before(list, dataSize);
+	if(!index) return gfx_list_insert_before(list, dataSize);
 
 	/* Get the node before the new node */
-	list = list_at(list, index - 1);
+	list = gfx_list_at(list, index - 1);
 	if(!list) return NULL;
 
-	return list_insert_after(list, dataSize);
+	return gfx_list_insert_after(list, dataSize);
 }
 
 /******************************************************/
-List* list_erase(List* node)
+GFXList* gfx_list_erase(GFXList* node)
 {
-	List* new = NULL;
+	GFXList* new = NULL;
 
 	/* Set next element */
 	if(node->previous)
@@ -163,10 +163,19 @@ List* list_erase(List* node)
 }
 
 /******************************************************/
-List* list_erase_at(List* list, size_t index)
+GFXList* gfx_list_erase_at(GFXList* list, size_t index)
 {
-	list = list_at(list, index);
+	list = gfx_list_at(list, index);
 	if(!list) return NULL;
 
-	return list_erase(list);
+	return gfx_list_erase(list);
+}
+
+/******************************************************/
+void gfx_list_swap(GFXList* node1, GFXList* node2)
+{
+	/* Keep temporary */
+	GFXList temp = *node1;
+	*node1 = *node2;
+	*node2 = temp;
 }

@@ -36,21 +36,21 @@ extern "C" {
  *******************************************************/
 
 /** \brief Deque iterator */
-typedef void* DequeIterator;
+typedef void* GFXDequeIterator;
 
 
 /** \brief Deque */
-typedef struct Deque
+typedef struct GFXDeque
 {
 	size_t elementSize;
 	size_t capacity; /* in bytes */
 
 	void* data;
 
-	DequeIterator begin;
-	DequeIterator end;
+	GFXDequeIterator begin;
+	GFXDequeIterator end;
 
-} Deque;
+} GFXDeque;
 
 
 /**
@@ -59,7 +59,7 @@ typedef struct Deque
  * \return NULL on failure.
  *
  */
-Deque* deque_create(size_t elementSize);
+GFXDeque* gfx_deque_create(size_t elementSize);
 
 /**
  * \brief Creates a new deque with a preset content.
@@ -69,7 +69,7 @@ Deque* deque_create(size_t elementSize);
  * \return NULL on failure.
  *
  */
-Deque* deque_create_from_buffer(size_t elementSize, size_t numElements, const void* buff);
+GFXDeque* gfx_deque_create_from_buffer(size_t elementSize, size_t numElements, const void* buff);
 
 /**
  * \brief Creates a copy of a deque.
@@ -77,31 +77,31 @@ Deque* deque_create_from_buffer(size_t elementSize, size_t numElements, const vo
  * \return NULL on failure.
  *
  */
-Deque* deque_create_copy(Deque* src);
+GFXDeque* gfx_deque_create_copy(GFXDeque* src);
 
 /**
  * \brief Makes sure the deque is freed properly.
  *
  */
-void deque_free(Deque* deque);
+void gfx_deque_free(GFXDeque* deque);
 
 /**
  * \brief Clears the content of a vector.
  *
  */
-void deque_clear(Deque* deque);
+void gfx_deque_clear(GFXDeque* deque);
 
 /**
  * \brief Returns the size of the deque in bytes.
  *
  */
-size_t deque_get_byte_size(Deque* deque);
+size_t gfx_deque_get_byte_size(GFXDeque* deque);
 
 /**
  * \brief Returns the size of the deque in elements.
  *
  */
-size_t deque_get_size(Deque* deque);
+size_t gfx_deque_get_size(GFXDeque* deque);
 
 /**
  * \brief Requests a minimum capacity.
@@ -109,7 +109,7 @@ size_t deque_get_size(Deque* deque);
  * \return If zero, out of memory.
  *
  */
-int deque_reserve(Deque* deque, size_t numElements);
+int gfx_deque_reserve(GFXDeque* deque, size_t numElements);
 
 /**
  * \brief Shrinks the deque to fit the elements it holds.
@@ -117,7 +117,7 @@ int deque_reserve(Deque* deque, size_t numElements);
  * \return If zero, out of memory.
  *
  */
-int deque_shrink(Deque* deque);
+int gfx_deque_shrink(GFXDeque* deque);
 
 /**
  * \brief Returns an iterator of the element at a given index.
@@ -125,25 +125,25 @@ int deque_shrink(Deque* deque);
  * This method does not check the bounds!
  *
  */ 
-DequeIterator deque_at(Deque* deque, size_t index);
+GFXDequeIterator gfx_deque_at(GFXDeque* deque, size_t index);
 
 /**
  * \brief Increments an iterator to the next element.
  *
  */
-DequeIterator deque_next(Deque* deque, DequeIterator it);
+GFXDequeIterator gfx_deque_next(GFXDeque* deque, GFXDequeIterator it);
 
 /**
  * \brief Decrements an iterator to the previous element.
  *
  */
-DequeIterator deque_previous(Deque* deque, DequeIterator it);
+GFXDequeIterator gfx_deque_previous(GFXDeque* deque, GFXDequeIterator it);
 
 /**
  * \brief Advances an iterator an arbitrary amount of elements (can be negative).
  *
  */
-DequeIterator deque_advance(Deque* deque, DequeIterator it, int num);
+GFXDequeIterator gfx_deque_advance(GFXDeque* deque, GFXDequeIterator it, int num);
 
 /**
  * \brief Adds an element to the front of the deque.
@@ -151,7 +151,7 @@ DequeIterator deque_advance(Deque* deque, DequeIterator it, int num);
  * \return An iterator to the new element (NULL or deque->end on failure).
  *
  */
-DequeIterator deque_push_front(Deque* deque, const void* element);
+GFXDequeIterator gfx_deque_push_front(GFXDeque* deque, const void* element);
 
 /**
  * \brief Adds an element to the back of the deque.
@@ -159,7 +159,7 @@ DequeIterator deque_push_front(Deque* deque, const void* element);
  * \return An iterator to the new element (NULL or deque->end on failure).
  *
  */
-DequeIterator deque_push_back(Deque* deque, const void* element);
+GFXDequeIterator gfx_deque_push_back(GFXDeque* deque, const void* element);
 
 /**
  * \brief Removes an element from the front of the deque.
@@ -167,7 +167,7 @@ DequeIterator deque_push_back(Deque* deque, const void* element);
  * \return An iterator to the element taking its place.
  *
  */
-DequeIterator deque_pop_front(Deque* deque);
+GFXDequeIterator gfx_deque_pop_front(GFXDeque* deque);
 
 /**
  * \brief Removes an element from the back of the deque.
@@ -175,7 +175,7 @@ DequeIterator deque_pop_front(Deque* deque);
  * \return An iterator to the element taking its place.
  *
  */
-DequeIterator deque_pop_back(Deque* deque);
+GFXDequeIterator gfx_deque_pop_back(GFXDeque* deque);
 
 
 #ifdef __cplusplus

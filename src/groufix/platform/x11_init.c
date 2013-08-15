@@ -40,12 +40,12 @@ int _gfx_x11_is_extension_supported(int screenNumber, const char* ext)
 }
 
 /******************************************************/
-VectorIterator _gfx_x11_get_window_from_handle(Window handle)
+GFXVectorIterator _gfx_x11_get_window_from_handle(Window handle)
 {
 	if(!_gfx_x11) return NULL;
 
-	VectorIterator it;
-	for(it = _gfx_x11->windows->begin; it != _gfx_x11->windows->end; it = vector_next(_gfx_x11->windows, it))
+	GFXVectorIterator it;
+	for(it = _gfx_x11->windows->begin; it != _gfx_x11->windows->end; it = gfx_vector_next(_gfx_x11->windows, it))
 		if(((GFX_X11_Window*)it)->handle == handle) break;
 
 	return it != _gfx_x11->windows->end ? it : NULL;
@@ -86,7 +86,7 @@ static int _gfx_x11_load_extensions(void)
 static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 {
 	size_t length = sizeof(char) * (GFX_X11_ERROR_LENGTH);
-	char* text = (char*)malloc(length);
+	char* text = malloc(length);
 
 	XGetErrorText(_gfx_x11->display, evt->error_code, text, length);
 
@@ -244,14 +244,14 @@ int _gfx_platform_init(void)
 	if(!_gfx_x11)
 	{
 		/* Allocate */
-		_gfx_x11 = (GFX_X11_Connection*)calloc(1, sizeof(GFX_X11_Connection));
+		_gfx_x11 = calloc(1, sizeof(GFX_X11_Connection));
 		if(!_gfx_x11) return 0;
 
 		/* Connect to X Server */
 		_gfx_x11->display = XOpenDisplay(NULL);
 
 		/* Setup memory and load extensions */
-		_gfx_x11->windows = vector_create(sizeof(GFX_X11_Window));
+		_gfx_x11->windows = gfx_vector_create(sizeof(GFX_X11_Window));
 		if(!_gfx_x11->display || !_gfx_x11->windows || !_gfx_x11_load_extensions())
 		{
 			_gfx_platform_terminate();
@@ -279,7 +279,7 @@ void _gfx_platform_terminate(void)
 	{
 		/* Close connection (destroys all resources) */
 		XCloseDisplay(_gfx_x11->display);
-		vector_free(_gfx_x11->windows);
+		gfx_vector_free(_gfx_x11->windows);
 
 		/* Deallocate */
 		free(_gfx_x11);

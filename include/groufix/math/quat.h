@@ -27,7 +27,7 @@
 #include <math.h>
 #include <string.h>
 
-#define QUAT_CREATE_NAME(type) NAME(quat, type)
+#define QUAT_CREATE_NAME(type) NAME(gfx_quat, type)
 #define QUAT_CREATE_FUNC(type,postfix) NAME(QUAT_CREATE_NAME(type), postfix)
 
 #endif // GFX_MATH_QUAT_H

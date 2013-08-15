@@ -85,9 +85,9 @@ typedef struct GFX_X11_Window
 typedef struct GFX_X11_Connection
 {
 	/* X Display and Windows */
-	Display*  display;
-	Vector*   windows;        /* Stores GFX_X11_Window */
-	Atom      wmDeleteWindow; /* WM_DELETE_WINDOW */
+	Display*    display;
+	GFXVector*  windows;        /* Stores GFX_X11_Window */
+	Atom        wmDeleteWindow; /* WM_DELETE_WINDOW */
 
 	/* Key table */
 	GFXKey    keys[GFX_X11_NUM_KEYCODES];
@@ -114,7 +114,7 @@ int _gfx_x11_is_extension_supported(int screenNumber, const char* ext);
  * \brief Returns an X11 window from its handle.
  *
  */
-VectorIterator _gfx_x11_get_window_from_handle(Window handle);
+GFXVectorIterator _gfx_x11_get_window_from_handle(Window handle);
 
 
 #ifdef __cplusplus

@@ -33,7 +33,7 @@ static GFX_Internal_Window* _gfx_current_window = NULL;
 static GFX_Internal_Window* _gfx_main_window = NULL;
 
 /* Created windows */
-static Vector* _gfx_windows = NULL;
+static GFXVector* _gfx_windows = NULL;
 
 /* OpenGL context request */
 static GFXContext _gfx_context = {
@@ -89,10 +89,10 @@ static int _gfx_window_insert(const GFX_Internal_Window* window)
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_windows)
 	{
-		_gfx_windows = vector_create(sizeof(GFX_Internal_Window*));
+		_gfx_windows = gfx_vector_create(sizeof(GFX_Internal_Window*));
 		if(!_gfx_windows) return 0;
 	}
-	return vector_insert(_gfx_windows, &window, _gfx_windows->end) != _gfx_windows->end;
+	return gfx_vector_insert(_gfx_windows, &window, _gfx_windows->end) != _gfx_windows->end;
 }
 
 /******************************************************/
@@ -100,8 +100,8 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
 {
 	if(!_gfx_windows) return NULL;
 
-	VectorIterator it;
-	for(it = _gfx_windows->begin; it != _gfx_windows->end; it = vector_next(_gfx_windows, it))
+	GFXVectorIterator it;
+	for(it = _gfx_windows->begin; it != _gfx_windows->end; it = gfx_vector_next(_gfx_windows, it))
 		if((*(GFX_Internal_Window**)it)->handle == handle) break;
 
 	if(it != _gfx_windows->end) return *(GFX_Internal_Window**)it;
@@ -173,21 +173,21 @@ void gfx_request_context(GFXContext context)
 unsigned int gfx_get_num_windows(void)
 {
 	if(!_gfx_windows) return 0;
-	return vector_get_size(_gfx_windows);
+	return gfx_vector_get_size(_gfx_windows);
 }
 
 /******************************************************/
 GFXWindow* gfx_get_window(unsigned int num)
 {
 	if(num >= gfx_get_num_windows()) return NULL;
-	return *(GFXWindow**)vector_at(_gfx_windows, num);
+	return *(GFXWindow**)gfx_vector_at(_gfx_windows, num);
 }
 
 /******************************************************/
 GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y)
 {
 	/* Setup top level window */
-	GFX_Internal_Window* window = (GFX_Internal_Window*)calloc(1, sizeof(GFX_Internal_Window));
+	GFX_Internal_Window* window = calloc(1, sizeof(GFX_Internal_Window));
 	if(!window) return NULL;
 
 	/* Get screen */
@@ -242,11 +242,11 @@ void gfx_window_free(GFXWindow* window)
 	{
 		GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
 
-		VectorIterator it;
-		for(it = _gfx_windows->begin; it != _gfx_windows->end; it = vector_next(_gfx_windows, it))
+		GFXVectorIterator it;
+		for(it = _gfx_windows->begin; it != _gfx_windows->end; it = gfx_vector_next(_gfx_windows, it))
 			if(internal->handle == (*(GFX_Internal_Window**)it)->handle)
 			{
-				vector_erase(_gfx_windows, it);
+				gfx_vector_erase(_gfx_windows, it);
 				break;
 			}
 
@@ -256,7 +256,7 @@ void gfx_window_free(GFXWindow* window)
 			/* Oh, also do a free request */
 			_gfx_hardware_objects_free(&internal->extensions);
 
-			vector_free(_gfx_windows);
+			gfx_vector_free(_gfx_windows);
 			_gfx_windows = NULL;
 
 			_gfx_current_window = NULL;
@@ -375,7 +375,7 @@ void gfx_window_swap_buffers(const GFXWindow* window)
 /******************************************************/
 void gfx_window_swap_all_buffers(void)
 {
-	VectorIterator it;
-	if(_gfx_windows) for(it = _gfx_windows->begin; it != _gfx_windows->end; it = vector_next(_gfx_windows, it))
+	GFXVectorIterator it;
+	if(_gfx_windows) for(it = _gfx_windows->begin; it != _gfx_windows->end; it = gfx_vector_next(_gfx_windows, it))
 		_gfx_platform_context_swap_buffers((*(GFX_Internal_Window**)it)->handle);
 }
