@@ -52,7 +52,7 @@ typedef struct GFXBatchUnit
  *******************************************************/
 
 /** \brief Process applied to batches */
-typedef void (*GFXBatchProcessFunc)(GFXBatchState, size_t, GFXBatchUnit*);
+typedef void (*GFXBatchProcessFunc)(GFXBatchState, GFXBatchUnit*, GFXBatchUnit*);
 
 
 /** \brief Bucket to mange batches */
@@ -121,7 +121,7 @@ void gfx_bucket_erase(GFXBatchUnit* unit);
  * \return The first element.
  *
  */
-GFXBatchUnit* gfx_bucket_process(GFXBucket* bucket);
+void gfx_bucket_process(GFXBucket* bucket);
 
 
 #ifdef __cplusplus

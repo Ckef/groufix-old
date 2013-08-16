@@ -25,6 +25,13 @@
 #include <stdlib.h>
 
 /******************************************************/
+/* Batch pair */
+struct GFX_Batch_Pair
+{
+	GFXBatchUnit* first;
+	GFXBatchUnit* last;
+};
+
 /* Internal bucket */
 struct GFX_Internal_Bucket
 {
@@ -37,7 +44,7 @@ struct GFX_Internal_Bucket
 
 	GFXBatchUnit*  first;   /* Begin of units */
 	GFXBatchUnit*  last;    /* End of units */
-	GFXVector      batches; /* Batch shortcuts, stores GFXBatchUnit* */
+	GFXVector      batches; /* Batch shortcuts, stores GFX_Batch_Pair */
 };
 
 /* Internal batch unit */
@@ -70,42 +77,48 @@ static void _gfx_bucket_swap(struct GFX_Internal_Batch* A, struct GFX_Internal_B
 static void _gfx_bucket_radix_sort(GFXBatchState bit, struct GFX_Internal_Batch* first, struct GFX_Internal_Batch* last, struct GFX_Internal_Bucket* bucket)
 {
 	/* Nothing to sort */
-	if(first == last || !bit) return;
-
-	/* Loop over all entries */
-	struct GFX_Internal_Batch* mid = last; /* last to iterate to */
-	struct GFX_Internal_Batch* cur;
-	struct GFX_Internal_Batch* nex;
-
-	for(cur = first, nex = cur; cur != mid; cur = nex)
+	if(first == last || !bit)
 	{
-		/* If 1, put in 1 bucket */
-		if(cur->state & bit)
-		{
-			/* Shift mid back */
-			_gfx_bucket_swap(cur, mid);
-			mid = (struct GFX_Internal_Batch*)((GFXList*)mid)->previous;
-		}
-
-		/* Next entry */
-		else nex = (struct GFX_Internal_Batch*)((GFXList*)cur)->next;
-	}
-
-	/* Sort both 0 and 1 buckets */
-	if(mid->state & bit)
-	{
-		if(mid != first) _gfx_bucket_radix_sort(bit >> 1, first, (struct GFX_Internal_Batch*)((GFXList*)mid)->previous, bucket);
-		_gfx_bucket_radix_sort(bit >> 1, mid, last, bucket);
+		/* Insert as batch */
+		struct GFX_Batch_Pair pair = { (GFXBatchUnit*)first, (GFXBatchUnit*)last };
+		gfx_vector_insert(&bucket->batches, &pair, bucket->batches.end);
 	}
 	else
 	{
-		_gfx_bucket_radix_sort(bit >> 1, first, mid, bucket);
-		if(mid != last) _gfx_bucket_radix_sort(bit >> 1, (struct GFX_Internal_Batch*)((GFXList*)mid)->next, last, bucket);
-	}
+		/* Loop over all entries */
+		struct GFX_Internal_Batch* mid = last; /* last to iterate to */
+		struct GFX_Internal_Batch* cur = first;
 
-	/* Set first and last */
-	bucket->first = (GFXBatchUnit*)first;
-	bucket->last = (GFXBatchUnit*)last;
+		while(cur != mid)
+		{
+			/* If 1, put in 1 bucket */
+			if(cur->state & bit)
+			{
+				/* Shift mid back */
+				_gfx_bucket_swap(cur, mid);
+				mid = (struct GFX_Internal_Batch*)((GFXList*)mid)->previous;
+			}
+
+			/* Shift cur forwards */
+			else cur = (struct GFX_Internal_Batch*)((GFXList*)cur)->next;
+		}
+
+		/* Sort both 0 and 1 buckets */
+		if(mid->state & bit)
+		{
+			if(mid != first) _gfx_bucket_radix_sort(
+				bit >> 1, first, (struct GFX_Internal_Batch*)((GFXList*)mid)->previous, bucket);
+			_gfx_bucket_radix_sort(
+				bit >> 1, mid, last, bucket);
+		}
+		else
+		{
+			_gfx_bucket_radix_sort(
+				bit >> 1, first, mid, bucket);
+			if(mid != last) _gfx_bucket_radix_sort(
+				bit >> 1, (struct GFX_Internal_Batch*)((GFXList*)mid)->next, last, bucket);
+		}
+	}
 }
 
 /******************************************************/
@@ -117,7 +130,7 @@ GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process)
 	struct GFX_Internal_Bucket* bucket = calloc(1, sizeof(struct GFX_Internal_Bucket));
 	if(!bucket) return NULL;
 
-	gfx_vector_init(&bucket->batches, sizeof(GFXBatchUnit*));
+	gfx_vector_init(&bucket->batches, sizeof(struct GFX_Batch_Pair));
 	bucket->bucket.process = process;
 
 	/* Calculate max bit */
@@ -209,20 +222,38 @@ void gfx_bucket_erase(GFXBatchUnit* unit)
 }
 
 /******************************************************/
-GFXBatchUnit* gfx_bucket_process(GFXBucket* bucket)
+void gfx_bucket_process(GFXBucket* bucket)
 {
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
+	/* Nothing to process */
+	if(!internal->first) return;
+
 	/* Sort if needed */
-	if(internal->sort)
+	int preprocess = internal->sort;
+
+	if(preprocess)
 	{
+		gfx_vector_clear(&internal->batches);
+
 		_gfx_bucket_radix_sort(internal->maxBit,
 			(struct GFX_Internal_Batch*)internal->first,
 			(struct GFX_Internal_Batch*)internal->last,
 			internal
 		);
 		internal->sort = 0;
+
+		preprocess = bucket->preprocess ? 1 : 0;
 	}
 
-	return internal->first;
+	/* Process */
+	GFXVectorIterator it;
+	for(it = internal->batches.begin; it != internal->batches.end; it = gfx_vector_next(&internal->batches, it))
+	{
+		struct GFX_Batch_Pair* pair = it;
+		GFXBatchState state = ((struct GFX_Internal_Batch*)pair->first)->state;
+
+		if(preprocess) bucket->preprocess(state, pair->first, pair->last);
+		bucket->process(state, pair->first, pair->last);
+	}
 }

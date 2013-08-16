@@ -173,7 +173,7 @@ GFXVectorIterator gfx_vector_insert_at(GFXVector* vector, const void* element, s
  * \brief Inserts a range of elements at a given iterator (can be this vector).
  *
  * \param num   Number of elements to insert.
- * \param start The start of the range.
+ * \param start The start of the range, can also be an arbitrary pointer.
  * \return The iterator to the beginning of the inserted range (NULL or vector->end on failure).
  *
  */
@@ -183,7 +183,7 @@ GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVect
  * \brief Inserts a range of elements at a given index (can be this vector).
  *
  * \param num   Number of elements to insert.
- * \param start The start of the range.
+ * \param start The start of the range, can also be an arbitrary pointer.
  * \return The iterator to the beginning of the inserted range (NULL or vector->end on failure).
  *
  */
