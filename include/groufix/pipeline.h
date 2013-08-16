@@ -86,7 +86,7 @@ void gfx_bucket_free(GFXBucket* bucket);
  *
  * \param data  Arbitrary data to attach.
  * \param state State to associate this unit with.
- * \return The inserted unit.
+ * \return The inserted unit, NULL on failure.
  *
  * Note: this forces the bucket to preprocess
  *

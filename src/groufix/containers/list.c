@@ -172,6 +172,40 @@ GFXList* gfx_list_erase_at(GFXList* list, size_t index)
 }
 
 /******************************************************/
+void gfx_list_splice_after(GFXList* node, GFXList* pos)
+{
+	/* Close the gap of its current position */
+	if(node->previous) node->previous->next = node->next;
+	if(node->next) node->next->previous = node->previous;
+
+	node->previous = pos;
+	node->next = pos->next;
+
+	/* Set the previous element */
+	if(pos->next) pos->next->previous = node;
+
+	/* Set the next element */
+	pos->next = node;
+}
+
+/******************************************************/
+void gfx_list_splice_before(GFXList* node, GFXList* pos)
+{
+	/* Close the gap of its current position */
+	if(node->previous) node->previous->next = node->next;
+	if(node->next) node->next->previous = node->previous;
+
+	node->previous = pos->previous;
+	node->next = pos;
+
+	/* Set the next element */
+	if(pos->previous) pos->previous->next = node;
+
+	/* Set the previous element */
+	pos->previous = node;
+}
+
+/******************************************************/
 void gfx_list_swap(GFXList* node1, GFXList* node2)
 {
 	/* Keep temporary */

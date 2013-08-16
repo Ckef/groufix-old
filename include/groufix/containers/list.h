@@ -131,6 +131,28 @@ GFXList* gfx_list_erase(GFXList* node);
 GFXList* gfx_list_erase_at(GFXList* list, size_t index);
 
 /**
+ * \brief Moves an element after a given node.
+ *
+ * \param node Node to splice.
+ * \param pos  Position to move after.
+ *
+ * Note: node and pos CANNOT be the same!
+ *
+ */
+void gfx_list_splice_after(GFXList* node, GFXList* pos);
+
+/**
+ * \brief Moves an element before a given node.
+ *
+ * \param node Node to splice.
+ * \param pos  Position to move before.
+ *
+ * Note: node and pos CANNOT be the same!
+ *
+ */
+void gfx_list_splice_before(GFXList* node, GFXList* pos);
+
+/**
  * \brief Swaps two nodes from positions within a list.
  *
  */
