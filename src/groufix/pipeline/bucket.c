@@ -82,6 +82,9 @@ static void _gfx_bucket_radix_sort(GFXBatchState bit, struct GFX_Internal_Batch*
 		/* Insert as batch */
 		struct GFX_Batch_Pair pair = { (GFXBatchUnit*)first, (GFXBatchUnit*)last };
 		gfx_vector_insert(&bucket->batches, &pair, bucket->batches.end);
+
+		/* Preprocess */
+		if(bucket->bucket.preprocess) bucket->bucket.preprocess(first->state, pair.first, pair.last);
 	}
 	else
 	{
@@ -104,19 +107,22 @@ static void _gfx_bucket_radix_sort(GFXBatchState bit, struct GFX_Internal_Batch*
 		}
 
 		/* Sort both 0 and 1 buckets */
-		if(mid->state & bit)
+		int nonZero = mid->state & bit;
+		bit >>= 1;
+
+		if(nonZero)
 		{
 			if(mid != first) _gfx_bucket_radix_sort(
-				bit >> 1, first, (struct GFX_Internal_Batch*)((GFXList*)mid)->previous, bucket);
+				bit, first, (struct GFX_Internal_Batch*)((GFXList*)mid)->previous, bucket);
 			_gfx_bucket_radix_sort(
-				bit >> 1, mid, last, bucket);
+				bit, mid, last, bucket);
 		}
 		else
 		{
 			_gfx_bucket_radix_sort(
-				bit >> 1, first, mid, bucket);
+				bit, first, mid, bucket);
 			if(mid != last) _gfx_bucket_radix_sort(
-				bit >> 1, (struct GFX_Internal_Batch*)((GFXList*)mid)->next, last, bucket);
+				bit, (struct GFX_Internal_Batch*)((GFXList*)mid)->next, last, bucket);
 		}
 	}
 }
@@ -230,9 +236,7 @@ void gfx_bucket_process(GFXBucket* bucket)
 	if(!internal->first) return;
 
 	/* Sort if needed */
-	int preprocess = internal->sort;
-
-	if(preprocess)
+	if(internal->sort)
 	{
 		gfx_vector_clear(&internal->batches);
 
@@ -242,8 +246,6 @@ void gfx_bucket_process(GFXBucket* bucket)
 			internal
 		);
 		internal->sort = 0;
-
-		preprocess = bucket->preprocess ? 1 : 0;
 	}
 
 	/* Process */
@@ -253,7 +255,6 @@ void gfx_bucket_process(GFXBucket* bucket)
 		struct GFX_Batch_Pair* pair = it;
 		GFXBatchState state = ((struct GFX_Internal_Batch*)pair->first)->state;
 
-		if(preprocess) bucket->preprocess(state, pair->first, pair->last);
 		bucket->process(state, pair->first, pair->last);
 	}
 }
