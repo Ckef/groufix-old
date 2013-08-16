@@ -294,7 +294,8 @@ GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVecto
 	if(mov) memmove(start, PTR_ADD_BYTES(start, diff), mov);
 
 	/* Reallocate if necessary */
-	if(newSize < (vector->capacity >> 1))
+	/* Use upperbound/4 instead to avoid constant realloc */
+	if(newSize < (vector->capacity >> 2))
 	{
 		if(!_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize))) return NULL;
 		start = PTR_ADD_BYTES(vector->begin, oldSize - toEnd);

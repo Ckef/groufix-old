@@ -94,6 +94,12 @@ void gfx_bucket_free(GFXBucket* bucket);
 GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, void* data, GFXBatchState state);
 
 /**
+ * \brief Returns the state associated with a unit.
+ *
+ */
+GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
+
+/**
  * \brief Sets the state to associate a unit with.
  *
  * Note: this forces the bucket to preprocess.
@@ -112,8 +118,10 @@ void gfx_bucket_erase(GFXBatchUnit* unit);
 /**
  * \brief Processes the bucket, calling all batch processes.
  *
+ * \return The first element.
+ *
  */
-void gfx_bucket_process(GFXBucket* bucket);
+GFXBatchUnit* gfx_bucket_process(GFXBucket* bucket);
 
 
 #ifdef __cplusplus

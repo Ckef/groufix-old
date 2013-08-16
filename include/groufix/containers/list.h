@@ -136,8 +136,6 @@ GFXList* gfx_list_erase_at(GFXList* list, size_t index);
  * \param node Node to splice.
  * \param pos  Position to move after.
  *
- * Note: node and pos CANNOT be the same!
- *
  */
 void gfx_list_splice_after(GFXList* node, GFXList* pos);
 
@@ -147,16 +145,8 @@ void gfx_list_splice_after(GFXList* node, GFXList* pos);
  * \param node Node to splice.
  * \param pos  Position to move before.
  *
- * Note: node and pos CANNOT be the same!
- *
  */
 void gfx_list_splice_before(GFXList* node, GFXList* pos);
-
-/**
- * \brief Swaps two nodes from positions within a list.
- *
- */
-void gfx_list_swap(GFXList* node1, GFXList* node2);
 
 
 #ifdef __cplusplus
