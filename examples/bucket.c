@@ -2,7 +2,7 @@
 #include <groufix.h>
 #include <stdio.h>
 
-#define NUM_BITS 32
+#define NUM_BITS 16
 
 /* Print either all units or only batches */
 #define PRINT_ALL 1
@@ -12,11 +12,11 @@ void process(GFXBatchState state, GFXBatchUnit* first, GFXBatchUnit* last)
 #if PRINT_ALL == 1
 	while((GFXList*)first != last->node.next)
 	{
-		printf(" %04X", (unsigned int)state);
+		printf("%04X ", (unsigned int)state);
 		first = (GFXBatchUnit*)first->node.next;
 	}
 #else
-	printf(" %04X", (unsigned int)state);
+	printf("%04X ", (unsigned int)state);
 #endif
 }
 
