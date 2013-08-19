@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 /******************************************************/
+/* Free hardware buffer storage */
 static void _gfx_hardware_buffer_obj_free(GFX_Hardware_Object object, const GFX_Extensions* ext)
 {
 	_gfx_hardware_buffer_clear((GFX_Hardware_Buffer*)object, ext);

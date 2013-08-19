@@ -38,6 +38,26 @@ static GFXVector* _gfx_hw_objects = NULL;
 static GFXVector* _gfx_hw_saved_objects = NULL;
 
 /******************************************************/
+/* Binary search for an object */
+static GFXVectorIterator _gfx_hardware_obj_find(size_t start, size_t end, GFX_Hardware_Object object)
+{
+	while(start < end)
+	{
+		size_t mid = start + (end - start) / 2;
+		struct GFX_Internal_Hardware_Object* internal = gfx_vector_at(_gfx_hw_objects, mid);
+
+		/* Move boundaries */
+		if(object < internal->handle) end = mid;
+		else if(object > internal->handle) start = mid + 1;
+
+		else return (GFXVectorIterator)internal;
+	}
+
+	/* Return position to insert at */
+	return gfx_vector_at(_gfx_hw_objects, start);
+}
+
+/******************************************************/
 int gfx_hardware_is_extension_supported(GFXExtension extension)
 {
 	GFX_Internal_Window* wind = _gfx_window_get_current();
@@ -70,19 +90,33 @@ unsigned int gfx_hardware_poll_errors(const char* description)
 /******************************************************/
 int _gfx_hardware_object_register(GFX_Hardware_Object object, const GFX_Hardware_Funcs* funcs)
 {
-	/* Create vector if it doesn't exist yet */
 	if(!_gfx_hw_objects)
 	{
+		/* Create vector if it doesn't exist yet */
 		_gfx_hw_objects = gfx_vector_create(sizeof(struct GFX_Internal_Hardware_Object));
 		if(!_gfx_hw_objects) return 0;
 	}
+	else
+	{
+		/* Free saved storage */
+		gfx_vector_free(_gfx_hw_saved_objects);
+		_gfx_hw_saved_objects = NULL;
+	}
 
-	/* Create internal object */
+	/* Try to find it and update functions */
+	GFXVectorIterator it = _gfx_hardware_obj_find(0, gfx_vector_get_size(_gfx_hw_objects), object);
+	if(((struct GFX_Internal_Hardware_Object*)it)->handle == object)
+	{
+		((struct GFX_Internal_Hardware_Object*)it)->funcs = funcs;
+		return 1;
+	}
+
+	/* Create internal object and insert if not found */
 	struct GFX_Internal_Hardware_Object internal;
 	internal.handle = object;
 	internal.funcs = funcs;
 
-	return gfx_vector_insert(_gfx_hw_objects, &internal, _gfx_hw_objects->end) != _gfx_hw_objects->end;
+	return gfx_vector_insert(_gfx_hw_objects, &internal, it) != _gfx_hw_objects->end;
 }
 
 /******************************************************/
@@ -91,11 +125,9 @@ void _gfx_hardware_object_unregister(GFX_Hardware_Object object)
 	if(_gfx_hw_objects)
 	{
 		/* Find and erase */
-		GFXVectorIterator it;
-		for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = gfx_vector_next(_gfx_hw_objects, it))
-			if(((struct GFX_Internal_Hardware_Object*)it)->handle == object) break;
-
-		gfx_vector_erase(_gfx_hw_objects, it);
+		GFXVectorIterator it = _gfx_hardware_obj_find(0, gfx_vector_get_size(_gfx_hw_objects), object);
+		if(((struct GFX_Internal_Hardware_Object*)it)->handle == object)
+			gfx_vector_erase(_gfx_hw_objects, it);
 
 		/* Get rid of memory */
 		if(_gfx_hw_objects->begin == _gfx_hw_objects->end)
@@ -103,6 +135,10 @@ void _gfx_hardware_object_unregister(GFX_Hardware_Object object)
 			gfx_vector_free(_gfx_hw_objects);
 			_gfx_hw_objects = NULL;
 		}
+
+		/* Free saved storage */
+		gfx_vector_free(_gfx_hw_saved_objects);
+		_gfx_hw_saved_objects = NULL;
 	}
 }
 

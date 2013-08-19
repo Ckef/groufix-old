@@ -59,7 +59,7 @@ struct GFX_Internal_Batch
 };
 
 /******************************************************/
-/* Reconstructs the batch vector before erasinga unit */
+/* Reconstructs the batch vector before erasing a unit */
 static void _gfx_bucket_fix_batch(struct GFX_Internal_Bucket* bucket, size_t start, size_t end, struct GFX_Internal_Batch* erase)
 {
 	/* Nothing found */
