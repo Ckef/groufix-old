@@ -24,18 +24,18 @@
 #include "groufix/errors.h"
 
 /******************************************************/
+/* Created objects */
+static GFXVector* _gfx_hw_objects = NULL;
+
+/* Saved client side memory */
+static GFXVector* _gfx_hw_saved_objects = NULL;
+
 /* Actual object storage */
 struct GFX_Internal_Hardware_Object
 {
 	GFX_Hardware_Object        handle;
 	const GFX_Hardware_Funcs*  funcs;
 };
-
-/* Created objects */
-static GFXVector* _gfx_hw_objects = NULL;
-
-/* Saved client side memory */
-static GFXVector* _gfx_hw_saved_objects = NULL;
 
 /******************************************************/
 /* Binary search for an object */

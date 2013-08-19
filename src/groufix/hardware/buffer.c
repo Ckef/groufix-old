@@ -40,27 +40,6 @@ static GFX_Hardware_Funcs _gfx_hardware_buffer_obj_funcs =
 };
 
 /******************************************************/
-GFX_Hardware_Buffer* _gfx_hardware_buffer_create(GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext)
-{
-	GFX_Hardware_Buffer* buff = malloc(sizeof(GFX_Hardware_Buffer));
-	if(!buff) return NULL;
-
-	_gfx_hardware_buffer_init(buff, target, usage, size, data, ext);
-
-	return buff;
-}
-
-/******************************************************/
-void _gfx_hardware_buffer_free(GFX_Hardware_Buffer* buffer, const GFX_Extensions* ext)
-{
-	if(buffer)
-	{
-		_gfx_hardware_buffer_clear(buffer, ext);
-		free(buffer);
-	}
-}
-
-/******************************************************/
 void _gfx_hardware_buffer_init(GFX_Hardware_Buffer* buffer, GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext)
 {
 	ext->GenBuffers(1, &buffer->handle);

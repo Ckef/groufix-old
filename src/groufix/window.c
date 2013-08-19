@@ -240,6 +240,7 @@ void gfx_window_free(GFXWindow* window)
 {
 	if(window)
 	{
+		/* Erase from vector */
 		GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
 
 		GFXVectorIterator it;

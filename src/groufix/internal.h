@@ -185,7 +185,7 @@ void _gfx_extensions_load(void);
 
 
 /********************************************************
- * Generic Hardware Object
+ * Generic hardware object reconstruction
  *******************************************************/
 
 /** \brief Generic hardware object */
@@ -207,15 +207,18 @@ typedef struct GFX_Hardware_Funcs
 
 
 /**
- * \brief Registers a new generic hardware object for global operations.
+ * \brief Registers a new generic hardware object.
  *
  * \return Non-zero on success.
+ *
+ * When an object is registered, it will be asked to free when all contexts are destroyed,
+ * or reconstructed when the main context is destroyed.
  *
  */
 int _gfx_hardware_object_register(GFX_Hardware_Object object, const GFX_Hardware_Funcs* funcs);
 
 /**
- * \brief Makes sure the hardware object is freed properly.
+ * \brief Unregisters a generic hardware object.
  *
  */
 void _gfx_hardware_object_unregister(GFX_Hardware_Object object);
@@ -232,9 +235,7 @@ void _gfx_hardware_objects_free(const GFX_Extensions* ext);
 /**
  * \brief Issue save method of all hardware objects.
  *
- * During this operation, the current window is considered "deleted".
- * This method is only called when there will still be an active context,
- * if the object can be shared between windows, it does not need to be restored.
+ * During this operation, the current window and context are considered "deleted".
  *
  */
 void _gfx_hardware_objects_save(const GFX_Extensions* ext);
@@ -242,7 +243,7 @@ void _gfx_hardware_objects_save(const GFX_Extensions* ext);
 /**
  * \brief Issue restore method of all hardware objects.
  *
- * During this operation, a new window is current.
+ * During this operation, a new window and context is current.
  *
  */
 void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
@@ -262,21 +263,6 @@ typedef struct GFX_Hardware_Buffer
 
 } GFX_Hardware_Buffer;
 
-
-/**
- * \brief Creates a new hardware buffer.
- *
- * \param data Can be NULL.
- * \return NULL on failure.
- *
- */
-GFX_Hardware_Buffer* _gfx_hardware_buffer_create(GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext);
-
-/**
- * \brief Makes sure the buffer is freed properly.
- *
- */
-void _gfx_hardware_buffer_free(GFX_Hardware_Buffer* buffer, const GFX_Extensions* ext);
 
 /**
  * \brief Initializes a hardware buffer.
