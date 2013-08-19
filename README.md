@@ -34,7 +34,9 @@ _The library is not thread safe_. All windowing and hardware functionality shoul
 
 ### Termination
 
-As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all platform dependent and hardware (GPU) related memory. This includes destroying windows and freeing contexts, which means the connection to the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
+As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all hardware (GPU) related memory and free all windows. This means the connection to both the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
+
+_It will not free any other resources_. Windows are the only user allocated objects which are automatically freed, any other objects must be freed by the user.
 
 ## Acknowledgements
 
