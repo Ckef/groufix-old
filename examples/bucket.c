@@ -12,7 +12,7 @@ void process(GFXBatchState state, GFXBatchUnit* first, GFXBatchUnit* last)
 #if PRINT_ALL == 1
 	while((GFXList*)first != last->node.next)
 	{
-		printf("%04X ", (unsigned int)state);
+		printf("%04X ", (unsigned int)gfx_bucket_get_state(first));
 		first = (GFXBatchUnit*)first->node.next;
 	}
 #else
@@ -37,6 +37,8 @@ int main()
 	gfx_bucket_insert(bucket, NULL, 0x0001);
 
 	gfx_bucket_process(bucket);
+
+	gfx_bucket_free(bucket);
 
 	puts("");
 

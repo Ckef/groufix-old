@@ -52,7 +52,6 @@ typedef void (*GFX_BINDVERTEXARRAYPROC)          (GLuint);
 typedef void (*GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
 typedef void (*GFX_BUFFERSUBDATAPROC)            (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
 typedef void (*GFX_COMPILESHADERPROC)            (GLuint);
-typedef void (*GFX_COPYBUFFERSUBDATAPROC)        (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr);
 typedef GLuint (*GFX_CREATEPROGRAMPROC)          (void);
 typedef GLuint (*GFX_CREATESHADERPROC)           (GLenum);
 typedef void (*GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint*);
@@ -66,8 +65,6 @@ typedef void (*GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLenum, const
 typedef void (*GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef void (*GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
 typedef void (*GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
-typedef void (*GFX_GETBUFFERPARAMETERIVPROC)     (GLenum, GLenum, GLint*);
-typedef void (*GFX_GETBUFFERPOINTERVPROC)        (GLenum, GLenum, GLvoid**);
 typedef void (*GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
 typedef void (*GFX_GETPROGRAMBINARYPROC)         (GLuint, GLsizei, GLsizei*, GLenum*, void*);
 typedef void (*GFX_GETPROGRAMINFOLOGPROC)        (GLuint, GLsizei, GLsizei*, GLchar*);
@@ -104,7 +101,6 @@ typedef struct GFX_Extensions
 	GFX_BUFFERDATAPROC                BufferData;
 	GFX_BUFFERSUBDATAPROC             BufferSubData;
 	GFX_COMPILESHADERPROC             CompileShader;
-	GFX_COPYBUFFERSUBDATAPROC         CopyBufferSubData;
 	GFX_CREATEPROGRAMPROC             CreateProgram;
 	GFX_CREATESHADERPROC              CreateShader;
 	GFX_DELETEBUFFERSPROC             DeleteBuffers;
@@ -118,8 +114,6 @@ typedef struct GFX_Extensions
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
 	GFX_GENBUFFERSPROC                GenBuffers;
 	GFX_GENVERTEXARRAYSPROC           GenVertexArrays;
-	GFX_GETBUFFERPARAMETERIVPROC      GetBufferParameteriv;
-	GFX_GETBUFFERPOINTERVPROC         GetBufferPointerv;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
 	GFX_GETPROGRAMBINARYPROC          GetProgramBinary;    /* GFX_EXT_PROGRAM_BINARY */
 	GFX_GETPROGRAMINFOLOGPROC         GetProgramInfoLog;
@@ -202,7 +196,7 @@ typedef void* (*GFX_Hardware_Save_Func)   (GFX_Hardware_Object, const GFX_Extens
 typedef void (*GFX_Hardware_Restore_Func) (GFX_Hardware_Object, void*, const GFX_Extensions*);
 
 
-/** \brief Hardware vtable */
+/** \brief Hardware vtable, can all be NULL */
 typedef struct GFX_Hardware_Funcs
 {
 	GFX_Hardware_Free_Func     free;    /* Request free */
@@ -239,6 +233,8 @@ void _gfx_hardware_objects_free(const GFX_Extensions* ext);
  * \brief Issue save method of all hardware objects.
  *
  * During this operation, the current window is considered "deleted".
+ * This method is only called when there will still be an active context,
+ * if the object can be shared between windows, it does not need to be restored.
  *
  */
 void _gfx_hardware_objects_save(const GFX_Extensions* ext);
@@ -250,6 +246,51 @@ void _gfx_hardware_objects_save(const GFX_Extensions* ext);
  *
  */
 void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
+
+
+/********************************************************
+ * Internal Hardware Buffer Objects
+ *******************************************************/
+
+/** \brief Buffer Object */
+typedef struct GFX_Hardware_Buffer
+{
+	GLuint  handle;
+
+	GLenum  usage;
+	size_t  size;
+
+} GFX_Hardware_Buffer;
+
+
+/**
+ * \brief Creates a new hardware buffer.
+ *
+ * \param data Can be NULL.
+ * \return NULL on failure.
+ *
+ */
+GFX_Hardware_Buffer* _gfx_hardware_buffer_create(GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext);
+
+/**
+ * \brief Makes sure the buffer is freed properly.
+ *
+ */
+void _gfx_hardware_buffer_free(GFX_Hardware_Buffer* buffer, const GFX_Extensions* ext);
+
+/**
+ * \brief Initializes a hardware buffer.
+ *
+ * \param data Can be NULL.
+ *
+ */
+void _gfx_hardware_buffer_init(GFX_Hardware_Buffer* buffer, GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext);
+
+/**
+ * \brief Clears the content of a hardware buffer.
+ *
+ */
+void _gfx_hardware_buffer_clear(GFX_Hardware_Buffer* buffer, const GFX_Extensions* ext);
 
 
 #ifdef __cplusplus

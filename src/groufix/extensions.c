@@ -113,7 +113,6 @@ void _gfx_extensions_load(void)
 	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          glBindVertexArray;
 	ext->BufferData               = (GFX_BUFFERDATAPROC)               glBufferData;
 	ext->BufferSubData            = (GFX_BUFFERSUBDATAPROC)            glBufferSubData;
-	ext->CopyBufferSubData        = (GFX_COPYBUFFERSUBDATAPROC)        glCopyBufferSubData;
 	ext->CompileShader            = (GFX_COMPILESHADERPROC)            glCompileShader;
 	ext->CreateProgram            = (GFX_CREATEPROGRAMPROC)            glCreateProgram;
 	ext->CreateShader             = (GFX_CREATESHADERPROC)             glCreateShader;
@@ -128,8 +127,6 @@ void _gfx_extensions_load(void)
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  glEnableVertexAttribArray;
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               glGenBuffers;
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          glGenVertexArrays;
-	ext->GetBufferParameteriv     = (GFX_GETBUFFERPARAMETERIVPROC)     glGetBufferParameteriv;
-	ext->GetBufferPointerv        = (GFX_GETBUFFERPOINTERVPROC)        glGetBufferPointerv;
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_gles_get_buffer_sub_data;
 	ext->GetProgramBinary         = (GFX_GETPROGRAMBINARYPROC)         glGetProgramBinary;
 	ext->GetProgramInfoLog        = (GFX_GETPROGRAMINFOLOGPROC)        glGetProgramInfoLog;
@@ -163,7 +160,6 @@ void _gfx_extensions_load(void)
 	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          _gfx_platform_get_proc_address("glBindVertexArray");
 	ext->BufferData               = (GFX_BUFFERDATAPROC)               _gfx_platform_get_proc_address("glBufferData");
 	ext->BufferSubData            = (GFX_BUFFERSUBDATAPROC)            _gfx_platform_get_proc_address("glBufferSubData");
-	ext->CopyBufferSubData        = (GFX_COPYBUFFERSUBDATAPROC)        _gfx_platform_get_proc_address("glCopyBufferSubData");
 	ext->CompileShader            = (GFX_COMPILESHADERPROC)            _gfx_platform_get_proc_address("glCompileShader");
 	ext->CreateProgram            = (GFX_CREATEPROGRAMPROC)            _gfx_platform_get_proc_address("glCreateProgram");
 	ext->CreateShader             = (GFX_CREATESHADERPROC)             _gfx_platform_get_proc_address("glCreateShader");
@@ -178,8 +174,6 @@ void _gfx_extensions_load(void)
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArray");
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
-	ext->GetBufferParameteriv     = (GFX_GETBUFFERPARAMETERIVPROC)     _gfx_platform_get_proc_address("glGetBufferParameteriv");
-	ext->GetBufferPointerv        = (GFX_GETBUFFERPOINTERVPROC)        _gfx_platform_get_proc_address("glGetBufferPointerv");
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");
 	ext->GetProgramInfoLog        = (GFX_GETPROGRAMINFOLOGPROC)        _gfx_platform_get_proc_address("glGetProgramInfoLog");
 	ext->GetProgramiv             = (GFX_GETPROGRAMIVPROC)             _gfx_platform_get_proc_address("glGetProgramiv");

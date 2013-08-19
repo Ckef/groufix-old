@@ -59,6 +59,7 @@ struct GFX_Internal_Batch
 };
 
 /******************************************************/
+/* Reconstructs the batch vector before erasinga unit */
 static void _gfx_bucket_fix_batch(struct GFX_Internal_Bucket* bucket, size_t start, size_t end, struct GFX_Internal_Batch* erase)
 {
 	/* Nothing found */
@@ -89,6 +90,7 @@ static void _gfx_bucket_fix_batch(struct GFX_Internal_Bucket* bucket, size_t sta
 }
 
 /******************************************************/
+/* Sorts the linked list and constructs the batch vector */
 static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXBatchUnit** last, struct GFX_Internal_Bucket* bucket)
 {
 	/* Nothing to sort */
