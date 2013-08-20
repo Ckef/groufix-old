@@ -22,12 +22,14 @@
 #ifndef GFX_HARDWARE_H
 #define GFX_HARDWARE_H
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /********************************************************
- * Hardware Context handling
+ * Hardware Context & Extension handling
  *******************************************************/
 
 /** \brief Hardware Extensions */
@@ -57,6 +59,48 @@ int gfx_hardware_is_extension_supported(GFXExtension extension);
  * 
  */
 unsigned int gfx_hardware_poll_errors(const char* description);
+
+
+/********************************************************
+ * Hardware definitions
+ *******************************************************/
+
+/** \brief Hardware data type */
+typedef enum GFXDataType
+{
+	GFX_BYTE            = 0x1400,
+	GFX_UNSIGNED_BYTE   = 0x1401,
+	GFX_SHORT           = 0x1402,
+	GFX_UNSIGNED_SHORT  = 0x1403,
+	GFX_INT             = 0x1404,
+	GFX_UNSIGNED_INT    = 0x1405,
+	GFX_FLOAT           = 0x1406,
+	GFX_HALF_FLOAT      = 0x140b
+
+} GFXDataType;
+
+
+/** \brief Interpret type */
+typedef enum GFXInterpretType
+{
+	GFX_INTERPRET_FLOAT       = 0x00,
+	GFX_INTERPRET_NORMALIZED  = 0x01,
+	GFX_INTERPRET_INTEGER     = 0x02
+
+} GFXInterpretType;
+
+
+/** \brief Vertex Attribute */
+typedef struct GFXHardwareAttribute
+{
+	unsigned char     size;      /* Number of elements */
+	GFXDataType       type;      /* Data type of each element */
+	GFXInterpretType  interpret; /* How to interpret each element */
+	size_t            stride;    /* Byte offset between consecutive attributes */
+	size_t            offset;    /* Byte offset of the first occurence of the attribute */
+	unsigned int      divisor;   /* Rate at which attributes advance, 0 for no instancing */
+
+} GFXHardwareAttribute;
 
 
 #ifdef __cplusplus

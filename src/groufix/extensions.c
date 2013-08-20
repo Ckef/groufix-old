@@ -98,6 +98,9 @@ void _gfx_extensions_load(void)
 	glGetIntegerv(GL_MAJOR_VERSION, &major);
 	glGetIntegerv(GL_MINOR_VERSION, &minor);
 
+	/* Get OpenGL constants */
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &ext->MAX_VERTEX_ATTRIBS);
+
 #ifdef GFX_GLES
 
 	/* Default Extensions */
@@ -134,9 +137,6 @@ void _gfx_extensions_load(void)
 	ext->GetShaderInfoLog         = (GFX_GETSHADERINFOLOGPROC)         glGetShaderInfoLog;
 	ext->GetShaderiv              = (GFX_GETSHADERIVPROC)              glGetShaderiv;
 	ext->GetShaderSource          = (GFX_GETSHADERSOURCEPROC)          glGetShaderSource;
-	ext->GetVertexAttribIiv       = (GFX_GETVERTEXATTRIBIIVPROC)       glGetVertexAttribIiv;
-	ext->GetVertexAttribIuiv      = (GFX_GETVERTEXATTRIBIUIVPROC)      glGetVertexAttribIuiv;
-	ext->GetVertexAttribPointerv  = (GFX_GETVERTEXATTRIBPOINTERVPROC)  glGetVertexAttribPointerv;
 	ext->LinkProgram              = (GFX_LINKPROGRAMPROC)              glLinkProgram;
 	ext->MapBufferRange           = (GFX_MAPBUFFERRANGEPROC)           glMapBufferRange;
 	ext->ProgramBinary            = (GFX_PROGRAMBINARYPROC)            glProgramBinary;
@@ -180,9 +180,6 @@ void _gfx_extensions_load(void)
 	ext->GetShaderInfoLog         = (GFX_GETSHADERINFOLOGPROC)         _gfx_platform_get_proc_address("glGetShaderInfoLog");
 	ext->GetShaderiv              = (GFX_GETSHADERIVPROC)              _gfx_platform_get_proc_address("glGetShaderiv");
 	ext->GetShaderSource          = (GFX_GETSHADERSOURCEPROC)          _gfx_platform_get_proc_address("glGetShaderSource");
-	ext->GetVertexAttribIiv       = (GFX_GETVERTEXATTRIBIIVPROC)       _gfx_platform_get_proc_address("glGetVertexAttribIiv");
-	ext->GetVertexAttribIuiv      = (GFX_GETVERTEXATTRIBIUIVPROC)      _gfx_platform_get_proc_address("glGetVertexAttribIuiv");
-	ext->GetVertexAttribPointerv  = (GFX_GETVERTEXATTRIBPOINTERVPROC)  _gfx_platform_get_proc_address("glGetVertexAttribPointerv");
 	ext->LinkProgram              = (GFX_LINKPROGRAMPROC)              _gfx_platform_get_proc_address("glLinkProgram");
 	ext->MapBufferRange           = (GFX_MAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
 	ext->ShaderSource             = (GFX_SHADERSOURCEPROC)             _gfx_platform_get_proc_address("glShaderSource");

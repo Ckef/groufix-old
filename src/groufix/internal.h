@@ -72,9 +72,6 @@ typedef void (*GFX_GETPROGRAMIVPROC)             (GLuint, GLenum, GLint*);
 typedef void (*GFX_GETSHADERINFOLOGPROC)         (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (*GFX_GETSHADERIVPROC)              (GLuint, GLenum, GLint*);
 typedef void (*GFX_GETSHADERSOURCEPROC)          (GLuint, GLsizei, GLsizei*, GLchar*);
-typedef void (*GFX_GETVERTEXATTRIBIIVPROC)       (GLuint, GLenum, GLint*);
-typedef void (*GFX_GETVERTEXATTRIBIUIVPROC)      (GLuint, GLenum, GLuint*);
-typedef void (*GFX_GETVERTEXATTRIBPOINTERVPROC)  (GLuint, GLenum, GLvoid**);
 typedef void (*GFX_LINKPROGRAMPROC)              (GLuint);
 typedef void* (*GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
 typedef void (*GFX_PROGRAMBINARYPROC)            (GLuint, GLenum, const void*, GLsizei);
@@ -92,6 +89,9 @@ typedef struct GFX_Extensions
 {
 	/* Hardware Extensions */
 	unsigned char flags[GFX_EXT_COUNT];
+
+	/* OpenGL Constants */
+	GLint  MAX_VERTEX_ATTRIBS;
 
 	/* OpenGL Extensions */
 	GFX_ATTACHSHADERPROC              AttachShader;
@@ -121,9 +121,6 @@ typedef struct GFX_Extensions
 	GFX_GETSHADERINFOLOGPROC          GetShaderInfoLog;
 	GFX_GETSHADERIVPROC               GetShaderiv;
 	GFX_GETSHADERSOURCEPROC           GetShaderSource;
-	GFX_GETVERTEXATTRIBIIVPROC        GetVertexAttribIiv;
-	GFX_GETVERTEXATTRIBIUIVPROC       GetVertexAttribIuiv;
-	GFX_GETVERTEXATTRIBPOINTERVPROC   GetVertexAttribPointerv;
 	GFX_LINKPROGRAMPROC               LinkProgram;
 	GFX_MAPBUFFERRANGEPROC            MapBufferRange;
 	GFX_PROGRAMBINARYPROC             ProgramBinary;       /* GFX_EXT_PROGRAM_BINARY */
@@ -250,7 +247,7 @@ void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
 
 
 /********************************************************
- * Internal Hardware Buffer Objects
+ * Internal Hardware Buffer (arbitrary storage)
  *******************************************************/
 
 /** \brief Buffer Object */

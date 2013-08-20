@@ -102,9 +102,7 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
 
 	GFXVectorIterator it;
 	for(it = _gfx_windows->begin; it != _gfx_windows->end; it = gfx_vector_next(_gfx_windows, it))
-		if((*(GFX_Internal_Window**)it)->handle == handle) break;
-
-	if(it != _gfx_windows->end) return *(GFX_Internal_Window**)it;
+		if((*(GFX_Internal_Window**)it)->handle == handle) return *(GFX_Internal_Window**)it;
 
 	return NULL;
 }
