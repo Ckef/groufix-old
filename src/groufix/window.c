@@ -234,6 +234,61 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 }
 
 /******************************************************/
+int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth depth)
+{
+	GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
+
+	/* Get screen */
+	GFX_Platform_Screen scr;
+	if(screen) scr = (GFX_Platform_Screen)screen;
+	else scr = _gfx_platform_get_default_screen();
+
+	/* Create platform window */
+	char* name = _gfx_platform_window_get_name(internal->handle);
+
+	GFX_Platform_Attributes attr;
+	attr.screen = scr;
+	attr.name   = name;
+	attr.depth  = depth;
+
+	_gfx_platform_window_get_size(internal->handle, &attr.width, &attr.height);
+	_gfx_platform_window_get_position(internal->handle, &attr.x, &attr.y);
+
+	GFX_Platform_Window handle = _gfx_platform_window_create(&attr);
+
+	free(name);
+	if(!handle) return 0;
+
+	/* Create context */
+	if(!_gfx_window_context_create(handle))
+	{
+		_gfx_platform_window_free(handle);
+		return 0;
+	}
+
+	int isMain = (internal == _gfx_main_window);
+
+	/* Save objects if main window and destroy old window */
+	_gfx_window_make_current(internal);
+	if(isMain) _gfx_hardware_objects_save(&internal->extensions);
+	_gfx_platform_window_free(internal->handle);
+
+	/* Load new extensions */
+	internal->handle = handle;
+	_gfx_platform_context_make_current(handle);
+	_gfx_extensions_load();
+
+	/* Restore hardware objects if main window & make sure the main window is current */
+	if(isMain) _gfx_hardware_objects_restore(&internal->extensions);
+	else _gfx_window_make_current(_gfx_main_window);
+
+	/* Make the window visible */
+	_gfx_platform_window_show(handle);
+
+	return 1;
+}
+
+/******************************************************/
 void gfx_window_free(GFXWindow* window)
 {
 	if(window)
@@ -243,7 +298,7 @@ void gfx_window_free(GFXWindow* window)
 
 		GFXVectorIterator it;
 		for(it = _gfx_windows->begin; it != _gfx_windows->end; it = gfx_vector_next(_gfx_windows, it))
-			if(internal->handle == (*(GFX_Internal_Window**)it)->handle)
+			if(internal == *(GFX_Internal_Window**)it)
 			{
 				gfx_vector_erase(_gfx_windows, it);
 				break;

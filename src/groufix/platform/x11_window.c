@@ -82,7 +82,6 @@ static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
 
 	return st;
 }
-
 /******************************************************/
 static void _gfx_x11_event_proc(XEvent* event)
 {
@@ -316,10 +315,14 @@ void _gfx_platform_window_free(GFX_Platform_Window handle)
 		/* Destroy the context */
 		_gfx_platform_context_free(handle);
 
-		/* Destroy the window and its colormap */
+		/* Remove all events of the window from the queue */
 		XWindowAttributes attr;
 		XGetWindowAttributes(_gfx_x11->display, VOID_TO_UINT(handle), &attr);
 
+		XEvent event;
+		while(XCheckWindowEvent(_gfx_x11->display, VOID_TO_UINT(handle), attr.all_event_masks, &event));
+
+		/* Destroy the window and its colormap */
 		XDestroyWindow(_gfx_x11->display, VOID_TO_UINT(handle));
 		XFreeColormap(_gfx_x11->display, attr.colormap);
 

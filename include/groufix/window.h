@@ -329,17 +329,29 @@ GFXWindow* gfx_get_window(unsigned int num);
  * Creates a new window.
  *
  * @param screen Screen to use, NULL for default screen.
- * @param depth  Color depth of the window, must be set.
+ * @param depth  Color depth of the window.
  * @return NULL on failure.
- *
- * The first window created is considered the main static OpenGL context,
- * it cannot be freed untill all other windows have been freed.
  * 
  */
 GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y);
 
 /**
+ * Recreates a window.
+ *
+ * @param screen New screen to use, NULL for default screen.
+ * @param depth  New color depth for the window.
+ * @return zero on failure (old window is still functional).
+ *
+ * This method is to avoid destructing a window, thereby freeing hardware memory.
+ *
+ */
+int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth depth);
+
+/**
  * Destroys and frees the window.
+ *
+ * Once all windows are destroyed, all hardware related memory is freed.
+ * This is done automatically at termination.
  *
  */
 void gfx_window_free(GFXWindow* window);

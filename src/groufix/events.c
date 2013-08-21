@@ -25,81 +25,78 @@
 void _gfx_event_window_close(GFX_Platform_Window handle)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window)
-	{
-		if(window->callbacks.windowClose) window->callbacks.windowClose(window);
+	if(window->callbacks.windowClose) window->callbacks.windowClose(window);
 
-		/* Close window if it has no callback */
-		else gfx_window_free(window);
-	}
+	/* Close window if it has no callback */
+	else gfx_window_free(window);
 }
 
 /******************************************************/
 void _gfx_event_window_move(GFX_Platform_Window handle, int x, int y)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.windowMove) window->callbacks.windowMove(window, x, y);
+	if(window->callbacks.windowMove) window->callbacks.windowMove(window, x, y);
 }
 
 /******************************************************/
 void _gfx_event_window_resize(GFX_Platform_Window handle, unsigned int width, unsigned int height)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.windowResize) window->callbacks.windowResize(window, width, height);
+	if(window->callbacks.windowResize) window->callbacks.windowResize(window, width, height);
 }
 
 /******************************************************/
 void _gfx_event_key_press(GFX_Platform_Window handle, GFXKey key, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.keyPress) window->callbacks.keyPress(window, key, state);
+	if(window->callbacks.keyPress) window->callbacks.keyPress(window, key, state);
 }
 
 /******************************************************/
 void _gfx_event_key_release(GFX_Platform_Window handle, GFXKey key, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.keyRelease) window->callbacks.keyRelease(window, key, state);
+	if(window->callbacks.keyRelease) window->callbacks.keyRelease(window, key, state);
 }
 
 /******************************************************/
 void _gfx_event_mouse_move(GFX_Platform_Window handle, int x, int y, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.mouseMove) window->callbacks.mouseMove(window, x, y, state);
+	if(window->callbacks.mouseMove) window->callbacks.mouseMove(window, x, y, state);
 }
 
 /******************************************************/
 void _gfx_event_mouse_enter(GFX_Platform_Window handle, int x, int y, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.mouseEnter) window->callbacks.mouseEnter(window, x, y, state);
+	if(window->callbacks.mouseEnter) window->callbacks.mouseEnter(window, x, y, state);
 }
 
 /******************************************************/
 void _gfx_event_mouse_leave(GFX_Platform_Window handle, int x, int y, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.mouseLeave) window->callbacks.mouseLeave(window, x, y, state);
+	if(window->callbacks.mouseLeave) window->callbacks.mouseLeave(window, x, y, state);
 }
 
 /******************************************************/
 void _gfx_event_mouse_press(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.mousePress) window->callbacks.mousePress(window, key, x, y, state);
+	if(window->callbacks.mousePress) window->callbacks.mousePress(window, key, x, y, state);
 }
 
 /******************************************************/
 void _gfx_event_mouse_release(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.mouseRelease) window->callbacks.mouseRelease(window, key, x, y, state);
+	if(window->callbacks.mouseRelease) window->callbacks.mouseRelease(window, key, x, y, state);
 }
 
 /******************************************************/
 void _gfx_event_mouse_wheel(GFX_Platform_Window handle, int xoffset, int yoffset, int x, int y, GFXKeyState state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window) if(window->callbacks.mouseWheel) window->callbacks.mouseWheel(window, xoffset, yoffset, x, y, state);
+	if(window->callbacks.mouseWheel) window->callbacks.mouseWheel(window, xoffset, yoffset, x, y, state);
 }
