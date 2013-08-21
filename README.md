@@ -22,7 +22,7 @@ To compile Groufix, you need the standard headers for your platform and OpenGL. 
 
 ## Usage
 
-Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All core functionality will be made available through that file. Make sure the `include` directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library. Before using the engine, it should be intialized with a call to `gfx_init`. After being done with the engine, it should be terminated with a call to `gfx_terminate`.
+Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All core functionality will be made available through that file. Make sure the include directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library. Before using the engine, it should be intialized with a call to `gfx_init`. After being done with the engine, it should be terminated with a call to `gfx_terminate`.
 
 All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using such a name for any variable or function in conjunction with the engine might result in redefinitions.
 
@@ -36,7 +36,7 @@ _The library is not thread safe_. All windowing and hardware functionality shoul
 
 As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all hardware (GPU) related memory and free all windows. This means the connection to both the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
 
-_It will not free any other resources_. Windows are the only user allocated objects which are automatically freed, any other objects must be freed by the user.
+_It will not free any other resources_. Windows are the only user allocated objects which are automatically freed, any other objects must be freed by the user. To make sure everything is freed properly, every create method must be followed up by the appropriate free method.
 
 ## Acknowledgements
 

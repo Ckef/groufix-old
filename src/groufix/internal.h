@@ -188,17 +188,17 @@ void _gfx_extensions_load(void);
 /** \brief Generic hardware object */
 typedef void* GFX_Hardware_Object;
 
-typedef void (*GFX_Hardware_Free_Func)    (GFX_Hardware_Object, const GFX_Extensions*);
-typedef void* (*GFX_Hardware_Save_Func)   (GFX_Hardware_Object, const GFX_Extensions*);
-typedef void (*GFX_Hardware_Restore_Func) (GFX_Hardware_Object, void*, const GFX_Extensions*);
+
+/** \brief Generic hardware object operator */
+typedef void (*GFX_Hardware_Object_Func) (GFX_Hardware_Object, const GFX_Extensions*);
 
 
 /** \brief Hardware vtable, can all be NULL */
 typedef struct GFX_Hardware_Funcs
 {
-	GFX_Hardware_Free_Func     free;    /* Request free */
-	GFX_Hardware_Save_Func     save;    /* Store data in client side buffer, returns arbitrary address (NULL to not restore) */
-	GFX_Hardware_Restore_Func  restore; /* Restore data from client side buffer, should deal with arbitrary address */
+	GFX_Hardware_Object_Func free;    /* GPU free request */
+	GFX_Hardware_Object_Func save;    /* Prepare for context destruction */
+	GFX_Hardware_Object_Func restore; /* Restore for new context */
 
 } GFX_Hardware_Funcs;
 
@@ -274,6 +274,58 @@ void _gfx_hardware_buffer_init(GFX_Hardware_Buffer* buffer, GLenum target, GLenu
  *
  */
 void _gfx_hardware_buffer_clear(GFX_Hardware_Buffer* buffer, const GFX_Extensions* ext);
+
+
+/********************************************************
+ * Internal Hardware Layout (vertex specification)
+ *******************************************************/
+
+/** \brief Layout Object */
+typedef struct GFX_Hardware_Layout
+{
+	GLuint handle;
+
+} GFX_Hardware_Layout;
+
+
+/**
+ * \brief Creates a new hardware layout.
+ *
+ * \return NULL on failure.
+ *
+ */
+GFX_Hardware_Layout* _gfx_hardware_layout_create(const GFX_Extensions* ext);
+
+/**
+ * \brief Makes sure the hardware layout is freed properly.
+ *
+ */
+void _gfx_hardware_layout_free(GFX_Hardware_Layout* layout, const GFX_Extensions* ext);
+
+/**
+ * \brief Sets a vertex attribute of a layout.
+ *
+ * \param src Vertex buffer to use as source for this attribute.
+ * \return Non-zero when successful.
+ *
+ * Note: attr->divisor requires GFX_EXT_INSTANCED_ATTRIBUTES.
+ *
+ */
+int _gfx_hardware_layout_set_attrib(GFX_Hardware_Layout* layout, unsigned int index, const GFXVertexAttribute* attr, GFX_Hardware_Buffer* src, const GFX_Extensions* ext);
+
+/**
+ * \brief Returns a previously defined vertex attribute of a layout.
+ *
+ * \return Non-zero when the attribute was found.
+ *
+ */
+int _gfx_hardware_layout_get_attrib(GFX_Hardware_Layout* layout, unsigned int index, GFXVertexAttribute* attr, GFX_Hardware_Buffer** src, const GFX_Extensions* ext);
+
+/**
+ * \brief Removes a previously defined vertex attribute from a layout.
+ *
+ */
+void _gfx_hardware_layout_remove_attrib(GFX_Hardware_Layout* layout, unsigned int index, const GFX_Extensions* ext);
 
 
 #ifdef __cplusplus

@@ -24,10 +24,13 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Free hardware buffer storage */
 static void _gfx_hardware_buffer_obj_free(GFX_Hardware_Object object, const GFX_Extensions* ext)
 {
-	_gfx_hardware_buffer_clear((GFX_Hardware_Buffer*)object, ext);
+	GFX_Hardware_Buffer* buffer = (GFX_Hardware_Buffer*)object;
+
+	ext->DeleteBuffers(1, &buffer->handle);
+	buffer->handle = 0;
+	buffer->size = 0;
 }
 
 /******************************************************/
@@ -56,10 +59,7 @@ void _gfx_hardware_buffer_init(GFX_Hardware_Buffer* buffer, GLenum target, GLenu
 /******************************************************/
 void _gfx_hardware_buffer_clear(GFX_Hardware_Buffer* buffer, const GFX_Extensions* ext)
 {
-	ext->DeleteBuffers(1, &buffer->handle);
-
-	buffer->handle = 0;
-	buffer->size = 0;
+	_gfx_hardware_buffer_obj_free(buffer, ext);
 
 	/* Unregister as object */
 	_gfx_hardware_object_unregister(buffer);

@@ -27,9 +27,6 @@
 /* Created objects */
 static GFXVector* _gfx_hw_objects = NULL;
 
-/* Saved client side memory */
-static GFXVector* _gfx_hw_saved_objects = NULL;
-
 /* Actual object storage */
 struct GFX_Internal_Hardware_Object
 {
@@ -96,12 +93,6 @@ int _gfx_hardware_object_register(GFX_Hardware_Object object, const GFX_Hardware
 		_gfx_hw_objects = gfx_vector_create(sizeof(struct GFX_Internal_Hardware_Object));
 		if(!_gfx_hw_objects) return 0;
 	}
-	else
-	{
-		/* Free saved storage */
-		gfx_vector_free(_gfx_hw_saved_objects);
-		_gfx_hw_saved_objects = NULL;
-	}
 
 	/* Try to find it and update functions */
 	GFXVectorIterator it = _gfx_hardware_obj_find(0, gfx_vector_get_size(_gfx_hw_objects), object);
@@ -135,10 +126,6 @@ void _gfx_hardware_object_unregister(GFX_Hardware_Object object)
 			gfx_vector_free(_gfx_hw_objects);
 			_gfx_hw_objects = NULL;
 		}
-
-		/* Free saved storage */
-		gfx_vector_free(_gfx_hw_saved_objects);
-		_gfx_hw_saved_objects = NULL;
 	}
 }
 
@@ -154,71 +141,35 @@ void _gfx_hardware_objects_free(const GFX_Extensions* ext)
 			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)it;
 			if(obj->funcs->free) obj->funcs->free(obj->handle, ext);
 		}
+
+		/* Unregister all */
+		gfx_vector_free(_gfx_hw_objects);
+		_gfx_hw_objects = NULL;
 	}
-
-	/* Unregister all */
-	gfx_vector_free(_gfx_hw_objects);
-	_gfx_hw_objects = NULL;
-
-	gfx_vector_free(_gfx_hw_saved_objects);
-	_gfx_hw_saved_objects = NULL;
 }
 
 /******************************************************/
 void _gfx_hardware_objects_save(const GFX_Extensions* ext)
 {
-	if(_gfx_hw_objects)
+	/* Issue save method */
+	GFXVectorIterator it;
+	if(_gfx_hw_objects) for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = gfx_vector_next(_gfx_hw_objects, it))
 	{
-		/* Create memory pool */
-		gfx_vector_free(_gfx_hw_saved_objects);
-		_gfx_hw_saved_objects = gfx_vector_create(sizeof(void*));
-
-		gfx_vector_reserve(_gfx_hw_saved_objects, gfx_vector_get_size(_gfx_hw_objects));
-
-		/* Issue save method */
-		GFXVectorIterator objs = _gfx_hw_objects->begin;
-		GFXVectorIterator save = _gfx_hw_saved_objects->begin;
-		while(objs != _gfx_hw_objects->end)
-		{
-			/* Store pointer to arbitrary storage */
-			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)objs;
-			void* data = NULL;
-
-			if(obj->funcs->save) data = obj->funcs->save(obj->handle, ext);
-			gfx_vector_insert(_gfx_hw_saved_objects, &data, save);
-
-			/* Next */
-			objs = gfx_vector_next(_gfx_hw_objects, objs);
-			save = gfx_vector_next(_gfx_hw_saved_objects, save);
-		}
+		/* Store pointer to arbitrary storage */
+		struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)it;
+		if(obj->funcs->save) obj->funcs->save(obj->handle, ext);
 	}
 }
 
 /******************************************************/
 void _gfx_hardware_objects_restore(const GFX_Extensions* ext)
 {
-	if(_gfx_hw_saved_objects)
+	/* Issue restore method */
+	GFXVectorIterator it;
+	if(_gfx_hw_objects) for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = gfx_vector_next(_gfx_hw_objects, it))
 	{
-		/* Issue restore method */
-		GFXVectorIterator objs = _gfx_hw_objects->begin;
-		GFXVectorIterator save = _gfx_hw_saved_objects->begin;
-		while(save != _gfx_hw_saved_objects->end)
-		{
-			/* Restore from pointer if given */
-			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)objs;
-			if(obj->funcs->restore)
-			{
-				void* data = *(void**)save;
-				if(data) obj->funcs->restore(obj->handle, data, ext);
-			}
-
-			/* Next */
-			objs = gfx_vector_next(_gfx_hw_objects, objs);
-			save = gfx_vector_next(_gfx_hw_saved_objects, save);
-		}
-
-		/* Free saved storage */
-		gfx_vector_free(_gfx_hw_saved_objects);
-		_gfx_hw_saved_objects = NULL;
+		/* Restore from pointer if given */
+		struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)it;
+		if(obj->funcs->restore) obj->funcs->restore(obj->handle, ext);
 	}
 }

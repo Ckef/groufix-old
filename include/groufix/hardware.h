@@ -60,9 +60,8 @@ int gfx_hardware_is_extension_supported(GFXExtension extension);
  */
 unsigned int gfx_hardware_poll_errors(const char* description);
 
-
 /********************************************************
- * Hardware definitions
+ * Hardware data types
  *******************************************************/
 
 /** \brief Hardware data type */
@@ -80,6 +79,10 @@ typedef enum GFXDataType
 } GFXDataType;
 
 
+/********************************************************
+ * Hardware Vertex specifications
+ *******************************************************/
+
 /** \brief Interpret type */
 typedef enum GFXInterpretType
 {
@@ -91,16 +94,17 @@ typedef enum GFXInterpretType
 
 
 /** \brief Vertex Attribute */
-typedef struct GFXHardwareAttribute
+typedef struct GFXVertexAttribute
 {
 	unsigned char     size;      /* Number of elements */
 	GFXDataType       type;      /* Data type of each element */
 	GFXInterpretType  interpret; /* How to interpret each element */
+
 	size_t            stride;    /* Byte offset between consecutive attributes */
 	size_t            offset;    /* Byte offset of the first occurence of the attribute */
 	unsigned int      divisor;   /* Rate at which attributes advance, 0 for no instancing */
 
-} GFXHardwareAttribute;
+} GFXVertexAttribute;
 
 
 #ifdef __cplusplus
