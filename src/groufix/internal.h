@@ -84,7 +84,7 @@ typedef void (*GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum, GLsizei
 typedef void (*GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
 
 
-/** \brief OpenGL extensions, a.k.a HardwareExtensions */
+/** OpenGL extensions, a.k.a HardwareExtensions */
 typedef struct GFX_Extensions
 {
 	/* Hardware Extensions */
@@ -139,7 +139,7 @@ typedef struct GFX_Extensions
  * Internal window data & methods
  *******************************************************/
 
-/** \brief Internal window */
+/** Internal window */
 typedef struct GFX_Internal_Window
 {
 	/* Super class */
@@ -153,19 +153,19 @@ typedef struct GFX_Internal_Window
 
 
 /**
- * \brief Returns the top level window associated with a platform window.
+ * Returns the top level window associated with a platform window.
  *
  */
 GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle);
 
 /**
- * \brief Sets the window as the current render target.
+ * Sets the window as the current render target.
  *
  */
 void _gfx_window_make_current(GFX_Internal_Window* window);
 
 /**
- * \brief Returns the current window.
+ * Returns the current window.
  *
  * Returns NULL if no window is active.
  *
@@ -173,7 +173,7 @@ void _gfx_window_make_current(GFX_Internal_Window* window);
 GFX_Internal_Window* _gfx_window_get_current(void);
 
 /**
- * \brief Loads all extensions for the current window's context.
+ * Loads all extensions for the current window's context.
  *
  * Should not be called by the platform.
  *
@@ -185,15 +185,15 @@ void _gfx_extensions_load(void);
  * Generic hardware object reconstruction
  *******************************************************/
 
-/** \brief Generic hardware object */
+/** Generic hardware object */
 typedef void* GFX_Hardware_Object;
 
 
-/** \brief Generic hardware object operator */
+/** Generic hardware object operator */
 typedef void (*GFX_Hardware_Object_Func) (GFX_Hardware_Object, const GFX_Extensions*);
 
 
-/** \brief Hardware vtable, can all be NULL */
+/** Hardware vtable, can all be NULL */
 typedef struct GFX_Hardware_Funcs
 {
 	GFX_Hardware_Object_Func free;    /* GPU free request */
@@ -204,9 +204,9 @@ typedef struct GFX_Hardware_Funcs
 
 
 /**
- * \brief Registers a new generic hardware object.
+ * Registers a new generic hardware object.
  *
- * \return Non-zero on success.
+ * @return Non-zero on success.
  *
  * When an object is registered, it will be asked to free when all contexts are destroyed,
  * or reconstructed when the main context is destroyed.
@@ -215,13 +215,13 @@ typedef struct GFX_Hardware_Funcs
 int _gfx_hardware_object_register(GFX_Hardware_Object object, const GFX_Hardware_Funcs* funcs);
 
 /**
- * \brief Unregisters a generic hardware object.
+ * Unregisters a generic hardware object.
  *
  */
 void _gfx_hardware_object_unregister(GFX_Hardware_Object object);
 
 /**
- * \brief Issue free request of all hardware objects.
+ * Issue free request of all hardware objects.
  *
  * This will issue the free request and unregister ALL objects.
  * Thus this callback is NOT allowed to unregister the object.
@@ -230,7 +230,7 @@ void _gfx_hardware_object_unregister(GFX_Hardware_Object object);
 void _gfx_hardware_objects_free(const GFX_Extensions* ext);
 
 /**
- * \brief Issue save method of all hardware objects.
+ * Issue save method of all hardware objects.
  *
  * During this operation, the current window and context are considered "deleted".
  *
@@ -238,7 +238,7 @@ void _gfx_hardware_objects_free(const GFX_Extensions* ext);
 void _gfx_hardware_objects_save(const GFX_Extensions* ext);
 
 /**
- * \brief Issue restore method of all hardware objects.
+ * Issue restore method of all hardware objects.
  *
  * During this operation, a new window and context is current.
  *
@@ -250,7 +250,7 @@ void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
  * Internal Hardware Buffer (arbitrary storage)
  *******************************************************/
 
-/** \brief Buffer Object */
+/** Buffer Object */
 typedef struct GFX_Hardware_Buffer
 {
 	GLuint  handle;
@@ -262,15 +262,15 @@ typedef struct GFX_Hardware_Buffer
 
 
 /**
- * \brief Initializes a hardware buffer.
+ * Initializes a hardware buffer.
  *
- * \param data Can be NULL.
+ * @param data Can be NULL.
  *
  */
 void _gfx_hardware_buffer_init(GFX_Hardware_Buffer* buffer, GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext);
 
 /**
- * \brief Clears the content of a hardware buffer.
+ * Clears the content of a hardware buffer.
  *
  */
 void _gfx_hardware_buffer_clear(GFX_Hardware_Buffer* buffer, const GFX_Extensions* ext);
@@ -280,7 +280,7 @@ void _gfx_hardware_buffer_clear(GFX_Hardware_Buffer* buffer, const GFX_Extension
  * Internal Hardware Layout (vertex specification)
  *******************************************************/
 
-/** \brief Layout Object */
+/** Layout Object */
 typedef struct GFX_Hardware_Layout
 {
 	GLuint handle;
@@ -289,24 +289,24 @@ typedef struct GFX_Hardware_Layout
 
 
 /**
- * \brief Creates a new hardware layout.
+ * Creates a new hardware layout.
  *
- * \return NULL on failure.
+ * @return NULL on failure.
  *
  */
 GFX_Hardware_Layout* _gfx_hardware_layout_create(const GFX_Extensions* ext);
 
 /**
- * \brief Makes sure the hardware layout is freed properly.
+ * Makes sure the hardware layout is freed properly.
  *
  */
 void _gfx_hardware_layout_free(GFX_Hardware_Layout* layout, const GFX_Extensions* ext);
 
 /**
- * \brief Sets a vertex attribute of a layout.
+ * Sets a vertex attribute of a layout.
  *
- * \param src Vertex buffer to use as source for this attribute.
- * \return Non-zero when successful.
+ * @param src Vertex buffer to use as source for this attribute.
+ * @return Non-zero when successful.
  *
  * Note: attr->divisor requires GFX_EXT_INSTANCED_ATTRIBUTES.
  *
@@ -314,15 +314,15 @@ void _gfx_hardware_layout_free(GFX_Hardware_Layout* layout, const GFX_Extensions
 int _gfx_hardware_layout_set_attrib(GFX_Hardware_Layout* layout, unsigned int index, const GFXVertexAttribute* attr, GFX_Hardware_Buffer* src, const GFX_Extensions* ext);
 
 /**
- * \brief Returns a previously defined vertex attribute of a layout.
+ * Returns a previously defined vertex attribute of a layout.
  *
- * \return Non-zero when the attribute was found.
+ * @return Non-zero when the attribute was found.
  *
  */
 int _gfx_hardware_layout_get_attrib(GFX_Hardware_Layout* layout, unsigned int index, GFXVertexAttribute* attr, GFX_Hardware_Buffer** src, const GFX_Extensions* ext);
 
 /**
- * \brief Removes a previously defined vertex attribute from a layout.
+ * Removes a previously defined vertex attribute from a layout.
  *
  */
 void _gfx_hardware_layout_remove_attrib(GFX_Hardware_Layout* layout, unsigned int index, const GFX_Extensions* ext);

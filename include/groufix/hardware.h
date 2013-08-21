@@ -32,7 +32,7 @@ extern "C" {
  * Hardware Context & Extension handling
  *******************************************************/
 
-/** \brief Hardware Extensions */
+/** Hardware Extensions */
 typedef enum GFXExtension
 {
 	GFX_EXT_GEOMETRY_SHADER,
@@ -46,16 +46,16 @@ typedef enum GFXExtension
 
 
 /**
- * \brief Returns whether a given extension is supported or not.
+ * Returns whether a given extension is supported or not.
  *
  */
 int gfx_hardware_is_extension_supported(GFXExtension extension);
 
 /**
- * \brief Polls all OpenGL errors at any given time.
+ * Polls all OpenGL errors at any given time.
  *
- * \param description A description to attach to each error (can be NULL).
- * \return The number of errors encountered.
+ * @param description A description to attach to each error (can be NULL).
+ * @return The number of errors encountered.
  * 
  */
 unsigned int gfx_hardware_poll_errors(const char* description);
@@ -64,7 +64,7 @@ unsigned int gfx_hardware_poll_errors(const char* description);
  * Hardware data types
  *******************************************************/
 
-/** \brief Hardware data type */
+/** Hardware data type */
 typedef enum GFXDataType
 {
 	GFX_BYTE            = 0x1400,
@@ -83,7 +83,7 @@ typedef enum GFXDataType
  * Hardware Vertex specifications
  *******************************************************/
 
-/** \brief Interpret type */
+/** Interpret type */
 typedef enum GFXInterpretType
 {
 	GFX_INTERPRET_FLOAT       = 0x00,
@@ -93,7 +93,7 @@ typedef enum GFXInterpretType
 } GFXInterpretType;
 
 
-/** \brief Vertex Attribute */
+/** Vertex Attribute */
 typedef struct GFXVertexAttribute
 {
 	unsigned char     size;      /* Number of elements */

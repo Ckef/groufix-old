@@ -53,7 +53,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Vital Win32 Extensions
+ * Vital Win32 Extensions
  *******************************************************/
 typedef struct GFX_Win32_Extensions
 {
@@ -65,7 +65,7 @@ typedef struct GFX_Win32_Extensions
 
 
 /********************************************************
- * \brief Win32 Window
+ * Win32 Window
  *******************************************************/
 typedef struct GFX_Win32_Window
 {
@@ -78,7 +78,7 @@ typedef struct GFX_Win32_Window
 
 
 /********************************************************
- * \brief Win32 Instance
+ * Win32 Instance
  *******************************************************/
 typedef struct GFX_Win32_Instance
 {
@@ -97,25 +97,25 @@ typedef struct GFX_Win32_Instance
 
 
 /**
- * \brief Instance pointer
+ * Instance pointer
  */
 extern GFX_Win32_Instance* _gfx_win32;
 
 
 /**
- * \brief Sets the pixel format for a window.
+ * Sets the pixel format for a window.
  *
  */
 void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth);
 
 /**
- * \brief Returns an Win32 window from its handle.
+ * Returns an Win32 window from its handle.
  *
  */
 GFXVectorIterator _gfx_win32_get_window_from_handle(HWND handle);
 
 /**
- * \brief Converts a UTF-8 string to a wide string.
+ * Converts a UTF-8 string to a wide string.
  *
  * If the returned pointer is not NULL, it should be freed manually.
  *
@@ -123,7 +123,7 @@ GFXVectorIterator _gfx_win32_get_window_from_handle(HWND handle);
 wchar_t* utf8_to_wchar(const char* str);
 
 /**
- * \brief Converts a wide string to a UTF-8 string.
+ * Converts a wide string to a UTF-8 string.
  *
  * If the returned pointer is not NULL, it should be freed manually.
  *

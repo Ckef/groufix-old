@@ -68,19 +68,19 @@ extern "C" {
  * Platform definitions
  *******************************************************/
 
-/** \brief Proc Address */
+/** Proc Address */
 typedef void (*GFXProcAddress)(void);
 
 
-/** \brief A Screen */
+/** A Screen */
 typedef void* GFX_Platform_Screen;
 
 
-/** \brief A Window */
+/** A Window */
 typedef void* GFX_Platform_Window;
 
 
-/** \brief Window initialization attributes */
+/** Window initialization attributes */
 typedef struct GFX_Platform_Attributes
 {
 	GFX_Platform_Screen  screen;
@@ -101,7 +101,7 @@ typedef struct GFX_Platform_Attributes
  *******************************************************/
 
 /**
- * \brief Returns whether the OpenGL extension can be found in the space seperated string.
+ * Returns whether the OpenGL extension can be found in the space seperated string.
  *
  * This method is primarily used in the platform implementations.
  *
@@ -114,7 +114,7 @@ int _gfx_extensions_is_in_string(const char* str, const char* ext);
  *******************************************************/
 
 /**
- * \brief Called when a window is requested to close.
+ * Called when a window is requested to close.
  *
  * Used to intercept a user requested window termination.
  *
@@ -122,101 +122,101 @@ int _gfx_extensions_is_in_string(const char* str, const char* ext);
 void _gfx_event_window_close(GFX_Platform_Window handle);
 
 /**
- * \brief Called when a window has been moved.
+ * Called when a window has been moved.
  *
- * \param x The new x coordinate.
- * \param y The new y coordinate.
+ * @param x The new x coordinate.
+ * @param y The new y coordinate.
  *
  */
 void _gfx_event_window_move(GFX_Platform_Window handle, int x, int y);
 
 /**
- * \brief Called when a window has been resized.
+ * Called when a window has been resized.
  *
- * \param width  The new width.
- * \param height The new height.
+ * @param width  The new width.
+ * @param height The new height.
  *
  */
 void _gfx_event_window_resize(GFX_Platform_Window handle, unsigned int width, unsigned int height);
 
 /**
- * \brief Handles a key press event.
+ * Handles a key press event.
  *
- * \param key   What key is pressed.
- * \param state State of some special keys.
+ * @param key   What key is pressed.
+ * @param state State of some special keys.
  *
  */
 void _gfx_event_key_press(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
 
 /**
- * \brief Handles a key release event.
+ * Handles a key release event.
  *
- * \param key   What key is released.
- * \param state State of some special keys.
+ * @param key   What key is released.
+ * @param state State of some special keys.
  *
  */
 void _gfx_event_key_release(GFX_Platform_Window handle, GFXKey key, GFXKeyState state);
 
 /**
- * \brief Called when the cursor moves in a window.
+ * Called when the cursor moves in a window.
  *
- * \param x     X coordinate of the cursor relative to the window.
- * \param y     Y coordinate of the cursor relative to the window.
- * \param state State of some special keys.
+ * @param x     X coordinate of the cursor relative to the window.
+ * @param y     Y coordinate of the cursor relative to the window.
+ * @param state State of some special keys.
  *
  */
 void _gfx_event_mouse_move(GFX_Platform_Window handle, int x, int y, GFXKeyState state);
 
 /**
- * \brief Called when the cursor enters a window.
+ * Called when the cursor enters a window.
  *
- * \param x     X coordinate of the cursor relative to the window.
- * \param y     Y coordinate of the cursor relative to the window.
- * \param state State of some special keys.
+ * @param x     X coordinate of the cursor relative to the window.
+ * @param y     Y coordinate of the cursor relative to the window.
+ * @param state State of some special keys.
  *
  */
 void _gfx_event_mouse_enter(GFX_Platform_Window handle, int x, int y, GFXKeyState state);
 
 /**
- * \brief Called when the cursor leaves a window.
+ * Called when the cursor leaves a window.
  *
- * \param x     X coordinate of the cursor relative to the window.
- * \param y     Y coordinate of the cursor relative to the window.
- * \param state State of some special keys.
+ * @param x     X coordinate of the cursor relative to the window.
+ * @param y     Y coordinate of the cursor relative to the window.
+ * @param state State of some special keys.
  *
  */
 void _gfx_event_mouse_leave(GFX_Platform_Window handle, int x, int y, GFXKeyState state);
 
 /**
- * \brief Handles a mouse key press event.
+ * Handles a mouse key press event.
  *
- * \param key   What key is pressed.
- * \param x     X coordinate of the cursor relative to the window.
- * \param y     Y coordinate of the cursor relative to the window.
- * \param state State of some special keys.
+ * @param key   What key is pressed.
+ * @param x     X coordinate of the cursor relative to the window.
+ * @param y     Y coordinate of the cursor relative to the window.
+ * @param state State of some special keys.
  *
  */
 void _gfx_event_mouse_press(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
 
 /**
- * \brief Handles a mouse key release event.
+ * Handles a mouse key release event.
  *
- * \param key   What key is pressed.
- * \param x     X coordinate of the cursor relative to the window.
- * \param y     Y coordinate of the cursor relative to the window.
- * \param state State of some special keys.
+ * @param key   What key is pressed.
+ * @param x     X coordinate of the cursor relative to the window.
+ * @param y     Y coordinate of the cursor relative to the window.
+ * @param state State of some special keys.
  *
  */
 void _gfx_event_mouse_release(GFX_Platform_Window handle, GFXMouseKey key, int x, int y, GFXKeyState state);
 
 /**
- * \brief Handles a mouse wheel event.
+ * Handles a mouse wheel event.
  *
- * \param xoffset Mouse wheel tilt (negative = left, positive = right).
- * \param yoffset Mouse wheel rotate (negative = down, positive = up).
- * \param x       X coordinate of the cursor relative to the window.
- * \param y       Y coordinate of the cursor relative to the window.
- * \param state   State of some special keys.
+ * @param xoffset Mouse wheel tilt (negative = left, positive = right).
+ * @param yoffset Mouse wheel rotate (negative = down, positive = up).
+ * @param x       X coordinate of the cursor relative to the window.
+ * @param y       Y coordinate of the cursor relative to the window.
+ * @param state   State of some special keys.
  *
  */
 void _gfx_event_mouse_wheel(GFX_Platform_Window handle, int xoffset, int yoffset, int x, int y, GFXKeyState state);
@@ -227,21 +227,21 @@ void _gfx_event_mouse_wheel(GFX_Platform_Window handle, int xoffset, int yoffset
  *******************************************************/
 
 /**
- * \brief Initializes the platform.
+ * Initializes the platform.
  *
- * \return If successfully initialized, a non-zero value is returned.
+ * @return If successfully initialized, a non-zero value is returned.
  *
  */
 int _gfx_platform_init(void);
 
 /**
- * \brief Returns a non-zero value if the platform is initialized correctly.
+ * Returns a non-zero value if the platform is initialized correctly.
  *
  */
 int _gfx_platform_is_initialized(void);
 
 /**
- * \brief Terminates the platform.
+ * Terminates the platform.
  *
  */
 void _gfx_platform_terminate(void);
@@ -252,28 +252,28 @@ void _gfx_platform_terminate(void);
  *******************************************************/
 
 /**
- * \brief Returns the number of visible screens.
+ * Returns the number of visible screens.
  *
  */
 unsigned int _gfx_platform_get_num_screens(void);
 
 /**
- * \brief Returns a screen.
+ * Returns a screen.
  *
- * \param num The number of the screens (num < num_screens).
- * \return A handle to the screen, NULL if not found.
+ * @param num The number of the screens (num < num_screens).
+ * @return A handle to the screen, NULL if not found.
  *
  */
 GFX_Platform_Screen _gfx_platform_get_screen(unsigned int num);
 
 /**
- * \brief Returns the default screen.
+ * Returns the default screen.
  *
  */
 GFX_Platform_Screen _gfx_platform_get_default_screen(void);
 
 /**
- * \brief Gets the resolution of a screen in pixels.
+ * Gets the resolution of a screen in pixels.
  *
  */
 void _gfx_platform_screen_get_size(GFX_Platform_Screen handle, unsigned int* width, unsigned int* height);
@@ -284,16 +284,16 @@ void _gfx_platform_screen_get_size(GFX_Platform_Screen handle, unsigned int* wid
  *******************************************************/
 
 /**
- * \brief Creates a new window.
+ * Creates a new window.
  *
- * \brief attributes The attributes to initialize the window with (cannot be NULL).
- * \return A handle to the window (NULL on failure).
+ * @brief attributes The attributes to initialize the window with (cannot be NULL).
+ * @return A handle to the window (NULL on failure).
  *
  */
 GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* attributes);
 
 /**
- * \brief Destroys a window, freeing all its memory.
+ * Destroys a window, freeing all its memory.
  *
  * This method should also destroy the context if it has one.
  *
@@ -301,15 +301,15 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 void _gfx_platform_window_free(GFX_Platform_Window handle);
 
 /**
- * \brief Returns the screen assigned to a window.
+ * Returns the screen assigned to a window.
  *
- * \return NULL if the handle was not a previously created window.
+ * @return NULL if the handle was not a previously created window.
  *
  */
 GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle);
 
 /**
- * \brief Returns the name of a window.
+ * Returns the name of a window.
  *
  * If the returned pointer is not NULL, it should be freed manually.
  *
@@ -317,49 +317,49 @@ GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle);
 char* _gfx_platform_window_get_name(GFX_Platform_Window handle);
 
 /**
- * \brief Gets the resolution of a window in pixels.
+ * Gets the resolution of a window in pixels.
  *
  */
 void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* width, unsigned int* height);
 
 /**
- * \brief Gets the position of the window.
+ * Gets the position of the window.
  *
  */
 void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* y);
 
 /**
- * \brief Sets the name of the window.
+ * Sets the name of the window.
  *
  */
 void _gfx_platform_window_set_name(GFX_Platform_Window handle, const char* name);
 
 /**
- * \brief Sets the resolution of the window in pixels.
+ * Sets the resolution of the window in pixels.
  *
  */
 void _gfx_platform_window_set_size(GFX_Platform_Window handle, unsigned int width, unsigned int height);
 
 /**
- * \brief Sets the position of the window.
+ * Sets the position of the window.
  *
  */
 void _gfx_platform_window_set_position(GFX_Platform_Window handle, int x, int y);
 
 /**
- * \brief Makes a window visible.
+ * Makes a window visible.
  *
  */
 void _gfx_platform_window_show(GFX_Platform_Window handle);
 
 /**
- * \brief Hides a window, making it invisible.
+ * Hides a window, making it invisible.
  *
  */
 void _gfx_platform_window_hide(GFX_Platform_Window handle);
 
 /**
- * \brief Polls events of all windows.
+ * Polls events of all windows.
  *
  */
 void _gfx_platform_poll_events(void);
@@ -370,12 +370,12 @@ void _gfx_platform_poll_events(void);
  *******************************************************/
 
 /**
- * \brief Creates the OpenGL context of a window.
+ * Creates the OpenGL context of a window.
  *
- * \param major Major OpenGL (ES) version.
- * \param minor Minor OpenGL version.
- * \param share Window to share OpenGL resources with (can be NULL to not share).
- * \return Whether or not the context could be created.
+ * @param major Major OpenGL (ES) version.
+ * @param minor Minor OpenGL version.
+ * @param share Window to share OpenGL resources with (can be NULL to not share).
+ * @return Whether or not the context could be created.
  *
  * Both forward compatibility and the core profile should be used for desktop systems (only 3.2 or above).
  * If the platform uses OpenGL ES, round down to the nearest with an equal major version.
@@ -384,7 +384,7 @@ void _gfx_platform_poll_events(void);
 int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share);
 
 /**
- * \brief Destroys the context of a window.
+ * Destroys the context of a window.
  *
  * This method is allowed to make all contexts inactive.
  *
@@ -392,15 +392,15 @@ int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int mino
 void _gfx_platform_context_free(GFX_Platform_Window handle);
 
 /**
- * \brief Makes the current window the active render target.
+ * Makes the current window the active render target.
  *
- * \return Whether it could make the context current or not.
+ * @return Whether it could make the context current or not.
  *
  */
 void _gfx_platform_context_make_current(GFX_Platform_Window handle);
 
 /**
- * \brief Sets the minimum number of video frame periods per buffer swap.
+ * Sets the minimum number of video frame periods per buffer swap.
  *
  * A value of 1 effectively enables vsync, use 0 to disable.
  * A value of -1 enables adaptive vsync.
@@ -411,21 +411,21 @@ void _gfx_platform_context_make_current(GFX_Platform_Window handle);
 void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num);
 
 /** 
- * \brief Swaps the internal buffers of a window.
+ * Swaps the internal buffers of a window.
  *
  */
 void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle);
 
 /**
- * \brief Returns whether an extension is supported for a given window.
+ * Returns whether an extension is supported for a given window.
  *
  */
 int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char* ext);
 
 /**
- * \brief Returns the address to a process of the current context.
+ * Returns the address to a process of the current context.
  *
- * \return NULL if the process does not exist.
+ * @return NULL if the process does not exist.
  *
  */
 GFXProcAddress _gfx_platform_get_proc_address(const char* proc);

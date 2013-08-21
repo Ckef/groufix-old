@@ -34,11 +34,11 @@ extern "C" {
  * Units to batch using a state key
  *******************************************************/
 
-/** \brief Key representing a state */
+/** Key representing a state */
 typedef uint64_t GFXBatchState;
 
 
-/** \brief Unit to batch */
+/** Unit to batch */
 typedef struct GFXBatchUnit
 {
 	GFXList  node;
@@ -51,11 +51,11 @@ typedef struct GFXBatchUnit
  * Buckets to hold batches
  *******************************************************/
 
-/** \brief Process applied to batches */
+/** Process applied to batches */
 typedef void (*GFXBatchProcessFunc)(GFXBatchState, GFXBatchUnit*, GFXBatchUnit*);
 
 
-/** \brief Bucket to mange batches */
+/** Bucket to mange batches */
 typedef struct GFXBucket
 {
 	GFXBatchProcessFunc  preprocess; /* Process to apply when a batch changes */
@@ -65,28 +65,27 @@ typedef struct GFXBucket
 
 
 /**
- * \brief Creates a new bucket.
+ * Creates a new bucket.
  *
- * \param bits Number of bits to consider when sorting (LSB = 1st bit).
- * \param process Cannot be NULL.
- *
- * \return NULL on failure.
+ * @param bits Number of bits to consider when sorting (LSB = 1st bit).
+ * @param process Cannot be NULL.
+ * @return NULL on failure.
  *
  */
 GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process);
 
 /**
- * \brief Makes sure the bucket is freed properly.
+ * Makes sure the bucket is freed properly.
  *
  */
 void gfx_bucket_free(GFXBucket* bucket);
 
 /**
- * \brief Insert a unit to be processed into the bucket.
+ * Insert a unit to be processed into the bucket.
  *
- * \param data  Arbitrary data to attach.
- * \param state State to associate this unit with.
- * \return The inserted unit, NULL on failure.
+ * @param data  Arbitrary data to attach.
+ * @param state State to associate this unit with.
+ * @return The inserted unit, NULL on failure.
  *
  * Note: this forces the bucket to preprocess.
  *
@@ -94,13 +93,13 @@ void gfx_bucket_free(GFXBucket* bucket);
 GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, void* data, GFXBatchState state);
 
 /**
- * \brief Returns the state associated with a unit.
+ * Returns the state associated with a unit.
  *
  */
 GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
 
 /**
- * \brief Sets the state to associate a unit with.
+ * Sets the state to associate a unit with.
  *
  * Note: this forces the bucket to preprocess.
  *
@@ -108,7 +107,7 @@ GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
 void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
 
 /**
- * \brief Erases and frees a unit from its bucket.
+ * Erases and frees a unit from its bucket.
  *
  * Note: this DOES NOT preprocess the bucket.
  *
@@ -116,9 +115,9 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
 void gfx_bucket_erase(GFXBatchUnit* unit);
 
 /**
- * \brief Processes the bucket, calling all batch processes.
+ * Processes the bucket, calling all batch processes.
  *
- * \return The first element.
+ * @return The first element.
  *
  */
 void gfx_bucket_process(GFXBucket* bucket);

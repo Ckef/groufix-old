@@ -104,7 +104,7 @@ extern "C" {
 
 
 /********************************************************
- * \brief Vector Template
+ * Vector Template
  *******************************************************/
 typedef struct
 {
@@ -115,7 +115,7 @@ typedef struct
 
 
 /**
- * \brief Returns a value of the vector.
+ * Returns a value of the vector.
  *
  */
 inline VEC_TYPE* VEC_FUNC(get)(VEC_NAME* a, size_t component)
@@ -124,9 +124,9 @@ inline VEC_TYPE* VEC_FUNC(get)(VEC_NAME* a, size_t component)
 }
 
 /**
- * \brief Sets the value of all a vector's components to 0.
+ * Sets the value of all a vector's components to 0.
  *
- * \return The given vector itself.
+ * @return The given vector itself.
  *
  */
 inline VEC_NAME* VEC_FUNC(set_zero)(VEC_NAME* a)
@@ -135,9 +135,9 @@ inline VEC_NAME* VEC_FUNC(set_zero)(VEC_NAME* a)
 }
 
 /**
- * \brief Add two vectors.
+ * Add two vectors.
  *
- * \param dest Destination vector.
+ * @param dest Destination vector.
  *
  */
 inline VEC_NAME* VEC_FUNC(add)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
@@ -150,9 +150,9 @@ inline VEC_NAME* VEC_FUNC(add)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
 }
 
 /**
- * \brief Subtract two vectors.
+ * Subtract two vectors.
  *
- * \param dest Destination vector.
+ * @param dest Destination vector.
  *
  */
 inline VEC_NAME* VEC_FUNC(sub)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
@@ -165,9 +165,9 @@ inline VEC_NAME* VEC_FUNC(sub)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
 }
 
 /**
- * \brief Multiplies two vectors component wise.
+ * Multiplies two vectors component wise.
  *
- * \param dest Destination vector.
+ * @param dest Destination vector.
  *
  */
 inline VEC_NAME* VEC_FUNC(mult)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
@@ -180,9 +180,9 @@ inline VEC_NAME* VEC_FUNC(mult)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
 }
 
 /**
- * \brief Scales a vector by a scalar.
+ * Scales a vector by a scalar.
  *
- * \param dest Destination vector.
+ * @param dest Destination vector.
  *
  */
 inline VEC_NAME* VEC_FUNC(scale)(VEC_NAME* dest, VEC_NAME* a, VEC_TYPE scalar)
@@ -195,7 +195,7 @@ inline VEC_NAME* VEC_FUNC(scale)(VEC_NAME* dest, VEC_NAME* a, VEC_TYPE scalar)
 }
 
 /**
- * \brief Take the dot product of two vectors.
+ * Take the dot product of two vectors.
  *
  */
 inline VEC_TYPE VEC_FUNC(dot)(VEC_NAME* a, VEC_NAME* b)
@@ -210,9 +210,9 @@ inline VEC_TYPE VEC_FUNC(dot)(VEC_NAME* a, VEC_NAME* b)
 
 #if VEC_SIZE == 3
 /**
- * \brief Take the cross product of two 3D vectors.
+ * Take the cross product of two 3D vectors.
  *
- * \param dest Destination vector.
+ * @param dest Destination vector.
  *
  */
 inline VEC_NAME* VEC_FUNC(cross)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
@@ -228,7 +228,7 @@ inline VEC_NAME* VEC_FUNC(cross)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
 #endif
 
 /**
- * \brief Take the squared magnitude of a vector.
+ * Take the squared magnitude of a vector.
  *
  */
 inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_NAME* a)
@@ -244,7 +244,7 @@ inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_NAME* a)
 }
 
 /**
- * \brief Take the magnitude of a vector.
+ * Take the magnitude of a vector.
  *
  */
 inline double VEC_FUNC(magnitude)(VEC_NAME* a)
@@ -253,9 +253,9 @@ inline double VEC_FUNC(magnitude)(VEC_NAME* a)
 }
 
 /**
- * \brief Normalize a vector.
+ * Normalize a vector.
  *
- * \param dest Destination vector.
+ * @param dest Destination vector.
  *
  */
 inline VEC_NAME* VEC_FUNC(normalize)(VEC_NAME* dest, VEC_NAME* a)
@@ -267,9 +267,9 @@ inline VEC_NAME* VEC_FUNC(normalize)(VEC_NAME* dest, VEC_NAME* a)
 }
 
 /**
- * \brief Compares a vector against 0, component wise.
+ * Compares a vector against 0, component wise.
  *
- * \return If the vector is zero, a non-zero value is returned.
+ * @return If the vector is zero, a non-zero value is returned.
  *
  */
 inline int VEC_FUNC(is_zero)(VEC_NAME* a)

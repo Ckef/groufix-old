@@ -86,7 +86,7 @@ extern "C" {
 
 
 /********************************************************
- * \brief Matrix Template
+ * Matrix Template
  *******************************************************/
 typedef struct
 {
@@ -97,7 +97,7 @@ typedef struct
 
 
 /**
- * \brief Returns a value of the matrix.
+ * Returns a value of the matrix.
  *
  */
 inline MAT_TYPE* MAT_FUNC(get)(MAT_NAME* a, size_t row, size_t column)
@@ -106,9 +106,9 @@ inline MAT_TYPE* MAT_FUNC(get)(MAT_NAME* a, size_t row, size_t column)
 }
 
 /**
- * \brief Sets the value of all a matrix components to 0.
+ * Sets the value of all a matrix components to 0.
  *
- * \return The given matrix itself.
+ * @return The given matrix itself.
  *
  */
 inline MAT_NAME* MAT_FUNC(set_zero)(MAT_NAME* a)
@@ -117,9 +117,9 @@ inline MAT_NAME* MAT_FUNC(set_zero)(MAT_NAME* a)
 }
 
 /**
- * \brief Add two matrices.
+ * Add two matrices.
  *
- * \param dest Destination matrix.
+ * @param dest Destination matrix.
  *
  */
 inline MAT_NAME* MAT_FUNC(add)(MAT_NAME* dest, MAT_NAME* a, MAT_NAME* b)
@@ -132,9 +132,9 @@ inline MAT_NAME* MAT_FUNC(add)(MAT_NAME* dest, MAT_NAME* a, MAT_NAME* b)
 }
 
 /**
- * \brief Subtracts two matrices.
+ * Subtracts two matrices.
  *
- * \param dest Destination matrix.
+ * @param dest Destination matrix.
  *
  */
 inline MAT_NAME* MAT_FUNC(sub)(MAT_NAME* dest, MAT_NAME* a, MAT_NAME* b)
@@ -147,9 +147,9 @@ inline MAT_NAME* MAT_FUNC(sub)(MAT_NAME* dest, MAT_NAME* a, MAT_NAME* b)
 }
 
 /**
- * \brief Multiplies two matrices.
+ * Multiplies two matrices.
  *
- * \param dest Destination matrix.
+ * @param dest Destination matrix.
  *
  */
 inline MAT_NAME* MAT_FUNC(mult)(MAT_NAME* dest, MAT_NAME* a, MAT_NAME* b)
@@ -171,9 +171,9 @@ inline MAT_NAME* MAT_FUNC(mult)(MAT_NAME* dest, MAT_NAME* a, MAT_NAME* b)
 }
 
 /**
- * \brief Multiplies a matrix by a scalar.
+ * Multiplies a matrix by a scalar.
  *
- * \param dest Destination matrix.
+ * @param dest Destination matrix.
  *
  */
 inline MAT_NAME* MAT_FUNC(mult_scalar)(MAT_NAME* dest, MAT_NAME* a, MAT_TYPE scalar)
@@ -186,9 +186,9 @@ inline MAT_NAME* MAT_FUNC(mult_scalar)(MAT_NAME* dest, MAT_NAME* a, MAT_TYPE sca
 }
 
 /**
- * \brief Takes the transpose of a matrix.
+ * Takes the transpose of a matrix.
  *
- * \param dest Destination matrix.
+ * @param dest Destination matrix.
  *
  */
 inline MAT_NAME* MAT_FUNC(transpose)(MAT_NAME* dest, MAT_NAME* a)
@@ -204,9 +204,9 @@ inline MAT_NAME* MAT_FUNC(transpose)(MAT_NAME* dest, MAT_NAME* a)
 }
 
 /**
- * \brief Compares a matrix against 0, component wise.
+ * Compares a matrix against 0, component wise.
  *
- * \return If the matrix is zero, a non-zero value is returned.
+ * @return If the matrix is zero, a non-zero value is returned.
  *
  */
 inline int MAT_FUNC(is_zero)(MAT_NAME* a)
@@ -220,7 +220,7 @@ inline int MAT_FUNC(is_zero)(MAT_NAME* a)
 
 #if MAT_SIZE == 2
 /**
- * \brief Computes the determinant of a matrix.
+ * Computes the determinant of a matrix.
  *
  */
 inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME* a)
@@ -229,10 +229,10 @@ inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME* a)
 }
 
 /**
- * \brief Takes the inverse of a matrix.
+ * Takes the inverse of a matrix.
  *
- * \param dest Destination matrix.
- * \return Non-zero if it could take the inverse, otherwise zero.
+ * @param dest Destination matrix.
+ * @return Non-zero if it could take the inverse, otherwise zero.
  *
  */
 inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
@@ -254,7 +254,7 @@ inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
 
 #elif MAT_SIZE == 3
 /**
- * \brief Computes the determinant of a matrix.
+ * Computes the determinant of a matrix.
  *
  */
 inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME* a)
@@ -269,10 +269,10 @@ inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME* a)
 }
 
 /**
- * \brief Takes the inverse of a matrix.
+ * Takes the inverse of a matrix.
  *
- * \param dest Destination matrix.
- * \return Non-zero if it could take the inverse, otherwise zero.
+ * @param dest Destination matrix.
+ * @return Non-zero if it could take the inverse, otherwise zero.
  *
  */
 inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
@@ -305,7 +305,7 @@ inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
 
 #elif MAT_SIZE == 4
 /**
- * \brief Computes the determinant of a matrix.
+ * Computes the determinant of a matrix.
  *
  */
 inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME* a)
@@ -329,10 +329,10 @@ inline MAT_TYPE MAT_FUNC(determinant)(MAT_NAME* a)
 }
 
 /**
- * \brief Takes the inverse of a matrix.
+ * Takes the inverse of a matrix.
  *
- * \param dest Destination matrix.
- * \return Non-zero if it could take the inverse, otherwise zero.
+ * @param dest Destination matrix.
+ * @return Non-zero if it could take the inverse, otherwise zero.
  *
  */
 inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
@@ -382,7 +382,7 @@ inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
 
 #ifdef MAT_USE_VEC
 /**
- * \brief Returns a column of a matrix as vector.
+ * Returns a column of a matrix as vector.
  *
  */
 inline VEC_NAME* MAT_FUNC(get_column)(MAT_NAME* a, size_t column)
@@ -391,9 +391,9 @@ inline VEC_NAME* MAT_FUNC(get_column)(MAT_NAME* a, size_t column)
 }
 
 /**
- * \brief Multiplies a matrix by a vector.
+ * Multiplies a matrix by a vector.
  *
- * \param dest Destination vector.
+ * @param dest Destination vector.
  *
  */
 inline VEC_NAME* MAT_FUNC(mult_vec)(VEC_NAME* dest, MAT_NAME* a, VEC_NAME* b)

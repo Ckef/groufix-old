@@ -76,7 +76,7 @@ extern "C" {
 
 
 /********************************************************
- * \brief Quaternion Template
+ * Quaternion Template
  *******************************************************/
 typedef struct
 {
@@ -87,7 +87,7 @@ typedef struct
 
 
 /**
- * \brief Returns a value of the quaternion.
+ * Returns a value of the quaternion.
  *
  */
 inline QUAT_TYPE* QUAT_FUNC(get)(QUAT_NAME* a, size_t component)
@@ -96,9 +96,9 @@ inline QUAT_TYPE* QUAT_FUNC(get)(QUAT_NAME* a, size_t component)
 }
 
 /**
- * \brief Sets the value of all a quaternion's components to 0.
+ * Sets the value of all a quaternion's components to 0.
  *
- * \return The given quaternion itself.
+ * @return The given quaternion itself.
  *
  */
 inline QUAT_NAME* QUAT_FUNC(set_zero)(QUAT_NAME* a)
@@ -107,9 +107,9 @@ inline QUAT_NAME* QUAT_FUNC(set_zero)(QUAT_NAME* a)
 }
 
 /**
- * \brief Add two quaternions.
+ * Add two quaternions.
  *
- * \param dest Destination quaternion.
+ * @param dest Destination quaternion.
  *
  */
 inline QUAT_NAME* QUAT_FUNC(add)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
@@ -122,9 +122,9 @@ inline QUAT_NAME* QUAT_FUNC(add)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
 }
 
 /**
- * \brief Subtract two quaternions.
+ * Subtract two quaternions.
  *
- * \param dest Destination quaternion.
+ * @param dest Destination quaternion.
  *
  */
 inline QUAT_NAME* QUAT_FUNC(sub)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
@@ -137,9 +137,9 @@ inline QUAT_NAME* QUAT_FUNC(sub)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
 }
 
 /**
- * \brief Multiplies two quaternions.
+ * Multiplies two quaternions.
  *
- * \param dest Destination quaternion.
+ * @param dest Destination quaternion.
  *
  */
 inline QUAT_NAME* QUAT_FUNC(mult)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
@@ -155,9 +155,9 @@ inline QUAT_NAME* QUAT_FUNC(mult)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
 }
 
 /**
- * \brief Scales a quaternion by a scalar.
+ * Scales a quaternion by a scalar.
  *
- * \param dest Destination quaternion.
+ * @param dest Destination quaternion.
  *
  */
 inline QUAT_NAME* QUAT_FUNC(scale)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_TYPE scalar)
@@ -170,9 +170,9 @@ inline QUAT_NAME* QUAT_FUNC(scale)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_TYPE scal
 }
 
 /**
- * \brief Takes the conjugate of a quaternion.
+ * Takes the conjugate of a quaternion.
  *
- * \param dest Destination quaternion.
+ * @param dest Destination quaternion.
  *
  */
 inline QUAT_NAME* QUAT_FUNC(conjugate)(QUAT_NAME* dest, QUAT_NAME* a)
@@ -186,7 +186,7 @@ inline QUAT_NAME* QUAT_FUNC(conjugate)(QUAT_NAME* dest, QUAT_NAME* a)
 }
 
 /**
- * \brief Take the squared norm of a quaternion.
+ * Take the squared norm of a quaternion.
  *
  */
 inline QUAT_TYPE QUAT_FUNC(norm_squared)(QUAT_NAME* a)
@@ -202,7 +202,7 @@ inline QUAT_TYPE QUAT_FUNC(norm_squared)(QUAT_NAME* a)
 }
 
 /**
- * \brief Take the norm of a quaternion.
+ * Take the norm of a quaternion.
  *
  */
 inline double QUAT_FUNC(norm)(QUAT_NAME* a)
@@ -211,9 +211,9 @@ inline double QUAT_FUNC(norm)(QUAT_NAME* a)
 }
 
 /**
- * \brief Normalize a quaternion.
+ * Normalize a quaternion.
  *
- * \param dest Destination quaternion.
+ * @param dest Destination quaternion.
  *
  */
 inline QUAT_NAME* QUAT_FUNC(normalize)(QUAT_NAME* dest, QUAT_NAME* a)
@@ -225,9 +225,9 @@ inline QUAT_NAME* QUAT_FUNC(normalize)(QUAT_NAME* dest, QUAT_NAME* a)
 }
 
 /**
- * \brief Takes the inverse of a quaternion.
+ * Takes the inverse of a quaternion.
  *
- * \param dest Destination quaternion.
+ * @param dest Destination quaternion.
  *
  */
 inline QUAT_NAME* QUAT_FUNC(inverse)(QUAT_NAME* dest, QUAT_NAME* a)
@@ -240,9 +240,9 @@ inline QUAT_NAME* QUAT_FUNC(inverse)(QUAT_NAME* dest, QUAT_NAME* a)
 }
 
 /**
- * \brief Compares a quaternion against 0, component wise.
+ * Compares a quaternion against 0, component wise.
  *
- * \return If the quaternion is zero, a non-zero value is returned.
+ * @return If the quaternion is zero, a non-zero value is returned.
  *
  */
 inline int QUAT_FUNC(is_zero)(QUAT_NAME* a)
@@ -256,11 +256,11 @@ inline int QUAT_FUNC(is_zero)(QUAT_NAME* a)
 
 #ifdef QUAT_USE_VEC
 /**
- * \brief Computes a quaternion from an angle and an axis.
+ * Computes a quaternion from an angle and an axis.
  *
- * \param dest  Destination quaternion.
- * \param angle Angle in radians.
- * \param axis  Axis to 'rotate' around.
+ * @param dest  Destination quaternion.
+ * @param angle Angle in radians.
+ * @param axis  Axis to 'rotate' around.
  *
  * This method assumes the axis is of unit length (magnitude or magnitude_squared = 1).
  *
@@ -279,11 +279,11 @@ inline QUAT_NAME* QUAT_FUNC(from_angle_axis)(QUAT_NAME* dest, double angle, VEC_
 }
 
 /**
- * \brief Computes an angle and axis from a quaternion.
+ * Computes an angle and axis from a quaternion.
  *
- * \param src   Source quaternion.
- * \param angle Angle in radians.
- * \param axis  Axis to 'rotate' around.
+ * @param src   Source quaternion.
+ * @param angle Angle in radians.
+ * @param axis  Axis to 'rotate' around.
  *
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
@@ -301,9 +301,9 @@ inline void QUAT_FUNC(to_angle_axis)(QUAT_NAME* src, double* angle, VEC_NAME* ax
 }
 
 /**
- * \brief Multiplies a 'position' vector by a quaternion.
+ * Multiplies a 'position' vector by a quaternion.
  *
- * \param dest Destination vector.
+ * @param dest Destination vector.
  *
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
@@ -332,9 +332,9 @@ inline VEC_NAME* QUAT_FUNC(mult_vec)(VEC_NAME* dest, QUAT_NAME* a, VEC_NAME* b)
 
 #ifdef QUAT_USE_MAT
 /**
- * \brief Computes the 3x3 rotation matrix equivalent to a quaternion.
+ * Computes the 3x3 rotation matrix equivalent to a quaternion.
  *
- * \param dest Destination matrix.
+ * @param dest Destination matrix.
  *
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *

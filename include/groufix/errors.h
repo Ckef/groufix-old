@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Platform independent error code
+ * Platform independent error code
  *******************************************************/
 typedef enum GFXErrorCode
 {
@@ -50,7 +50,7 @@ typedef enum GFXErrorCode
 
 
 /********************************************************
- * \brief Error structure
+ * Error structure
  *******************************************************/
 typedef struct GFXError
 {
@@ -61,40 +61,40 @@ typedef struct GFXError
 
 
 /**
- * \brief Returns the last error without removing it.
+ * Returns the last error without removing it.
  *
- * \param error Error structure to copy to.
- * \return Whether or not an error was present.
+ * @param error Error structure to copy to.
+ * @return Whether or not an error was present.
  *
  */
 int gfx_errors_peek(GFXError* error);
 
 /**
- * \brief Find a specific error code.
+ * Find a specific error code.
  *
- * \param code  The error code to search for.
- * \return non-zero if any error with the given code was found.
+ * @param code  The error code to search for.
+ * @return non-zero if any error with the given code was found.
  *
  */
 int gfx_errors_find(GFXErrorCode code);
 
 /**
- * \brief Removes the last error.
+ * Removes the last error.
  *
  */
 void gfx_errors_pop(void);
 
 /**
- * \brief Adds an error to the internal queue.
+ * Adds an error to the internal queue.
  *
- * \param code        The error code to add.
- * \param description Optional null terminated message to describe the error (can be NULL).
+ * @param code        The error code to add.
+ * @param description Optional null terminated message to describe the error (can be NULL).
  *
  */
 void gfx_errors_push(GFXErrorCode code, const char* description);
 
 /**
- * \brief Empty the internal error queue.
+ * Empty the internal error queue.
  *
  * Should NOT be called frequently for efficiency.
  *
@@ -102,7 +102,7 @@ void gfx_errors_push(GFXErrorCode code, const char* description);
 void gfx_errors_empty(void);
 
 /**
- * \brief Sets the maximum number of errors stored.
+ * Sets the maximum number of errors stored.
  *
  */
 void gfx_errors_set_maximum(unsigned int max);

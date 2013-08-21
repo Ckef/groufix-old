@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Platform independent key code
+ * Platform independent key code
  *******************************************************/
 typedef enum GFXKey
 {
@@ -172,7 +172,7 @@ typedef enum GFXKey
 
 
 /********************************************************
- * \brief Platform independent mouse keys
+ * Platform independent mouse keys
  *******************************************************/
 typedef enum GFXMouseKey
 {
@@ -184,7 +184,7 @@ typedef enum GFXMouseKey
 
 
 /********************************************************
- * \brief Platform independent key state
+ * Platform independent key state
  *******************************************************/
 typedef enum GFXKeyState
 {
@@ -224,33 +224,33 @@ typedef void (*GFXMouseWheelFunc)   (struct GFXWindow*, int, int, int, int, GFXK
 
 
 /********************************************************
- * \brief Top level screen
+ * Top level screen
  *******************************************************/
 typedef void* GFXScreen;
 
 
 /**
- * \brief Returns the number of visible screens.
+ * Returns the number of visible screens.
  *
  */
 unsigned int gfx_get_num_screens(void);
 
 /**
- * \brief Returns a screen.
+ * Returns a screen.
  *
- * \param num The number of the screens (num < num_screens).
+ * @param num The number of the screens (num < num_screens).
  *
  */
 GFXScreen gfx_get_screen(unsigned int num);
 
 /**
- * \brief Returns the default screen.
+ * Returns the default screen.
  *
  */
 GFXScreen gfx_get_default_screen(void);
 
 /**
- * \brief Gets the resolution of a screen in pixels.
+ * Gets the resolution of a screen in pixels.
  *
  */
 void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height);
@@ -260,7 +260,7 @@ void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* he
  * Top level windowing
  *******************************************************/
 
-/** \brief A top level window */
+/** A top level window */
 typedef struct GFXWindow
 {
 	/* Callbacks */
@@ -283,7 +283,7 @@ typedef struct GFXWindow
 } GFXWindow;
 
 
-/** \brief Color depth */
+/** Color depth */
 typedef struct GFXColorDepth
 {
 	unsigned short redBits;
@@ -303,22 +303,22 @@ typedef struct GFXContext
 
 
 /**
- * \brief Requests a minimal OpenGL Context for new windows.
+ * Requests a minimal OpenGL Context for new windows.
  *
  */
 void gfx_request_context(GFXContext context);
 
 /**
- * \brief Returns the number of windows.
+ * Returns the number of windows.
  *
  */
 unsigned int gfx_get_num_windows(void);
 
 /**
- * \brief Returns a window.
+ * Returns a window.
  *
- * \param num The number of the window (num < num_windows).
- * \return The window, NULL if not found.
+ * @param num The number of the window (num < num_windows).
+ * @return The window, NULL if not found.
  *
  * The number of a screen can change, this is meant purely for iteration.
  *
@@ -326,11 +326,11 @@ unsigned int gfx_get_num_windows(void);
 GFXWindow* gfx_get_window(unsigned int num);
 
 /**
- * \brief Creates a new window.
+ * Creates a new window.
  *
- * \param screen Screen to use, NULL for default screen.
- * \param depth  Color depth of the window, must be set.
- * \return NULL on failure.
+ * @param screen Screen to use, NULL for default screen.
+ * @param depth  Color depth of the window, must be set.
+ * @return NULL on failure.
  *
  * The first window created is considered the main static OpenGL context,
  * it cannot be freed untill all other windows have been freed.
@@ -339,25 +339,25 @@ GFXWindow* gfx_get_window(unsigned int num);
 GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y);
 
 /**
- * \brief Destroys and frees the window.
+ * Destroys and frees the window.
  *
  */
 void gfx_window_free(GFXWindow* window);
 
 /**
- * \brief Returns the screen associated with a window.
+ * Returns the screen associated with a window.
  *
  */
 GFXScreen gfx_window_get_screen(const GFXWindow* window);
 
 /**
- * \brief Returns the context of the window.
+ * Returns the context of the window.
  *
  */
 GFXContext gfx_window_get_context(const GFXWindow* window);
 
 /**
- * \brief Gets the name of the window.
+ * Gets the name of the window.
  *
  * If the returned pointer is not NULL, it should be freed manually.
  *
@@ -365,49 +365,49 @@ GFXContext gfx_window_get_context(const GFXWindow* window);
 char* gfx_window_get_name(const GFXWindow* window);
 
 /**
- * \brief Gets the size of the window.
+ * Gets the size of the window.
  *
  */
 void gfx_window_get_size(const GFXWindow* window, unsigned int* width, unsigned int* height);
 
 /**
- * \brief Gets the position of the window.
+ * Gets the position of the window.
  *
  */
 void gfx_window_get_position(const GFXWindow* window, int* x, int* y);
 
 /**
- * \brief Sets the name of the window.
+ * Sets the name of the window.
  *
  */
 void gfx_window_set_name(const GFXWindow* window, const char* name);
 
 /**
- * \brief Sets the size of the window.
+ * Sets the size of the window.
  *
  */
 void gfx_window_set_size(const GFXWindow* window, unsigned int width, unsigned int height);
 
 /**
- * \brief Sets the position of the window.
+ * Sets the position of the window.
  *
  */
 void gfx_window_set_position(const GFXWindow* window, int x, int y);
 
 /**
- * \brief Makes a window visible.
+ * Makes a window visible.
  *
  */
 void gfx_window_show(const GFXWindow* window);
 
 /**
- * \brief Makes a window invisible.
+ * Makes a window invisible.
  *
  */
 void gfx_window_hide(const GFXWindow* window);
 
 /**
- * \brief Sets the minimum number of video frame periods per buffer swap.
+ * Sets the minimum number of video frame periods per buffer swap.
  *
  * A value of 1 effectively enables vsync, use 0 to disable.
  * A value of -1 enables adaptive vsync.
@@ -416,13 +416,13 @@ void gfx_window_hide(const GFXWindow* window);
 void gfx_window_set_swap_interval(const GFXWindow* window, int num);
 
 /** 
- * \brief Swaps the internal buffers of a window.
+ * Swaps the internal buffers of a window.
  *
  */
 void gfx_window_swap_buffers(const GFXWindow* window);
 
 /**
- * \brief Swaps the internal buffers of all windows.
+ * Swaps the internal buffers of all windows.
  *
  */
 void gfx_window_swap_all_buffers(void);

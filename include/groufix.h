@@ -35,23 +35,23 @@ extern "C" {
 #endif
 
 /**
- * \brief Initializes the Groufix engine.
+ * Initializes the Groufix engine.
  *
- * \return non-zero if initialization was successful.
+ * @return non-zero if initialization was successful.
  *
  */
 int gfx_init(void);
 
 /**
- * \brief Polls events of all windows.
+ * Polls events of all windows.
  *
- * \return Whether or not the engine is still active.
+ * @return Whether or not the engine is still active.
  *
  */
 int gfx_poll_events(void);
 
 /**
- * \brief Terminates the Groufix engine.
+ * Terminates the Groufix engine.
  *
  */
 void gfx_terminate(void);

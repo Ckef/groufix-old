@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief Vital X11 Extensions
+ * Vital X11 Extensions
  *******************************************************/
 typedef struct GFX_X11_Extensions
 {
@@ -63,7 +63,7 @@ typedef struct GFX_X11_Extensions
 
 
 /********************************************************
- * \brief X11 Window
+ * X11 Window
  *******************************************************/
 typedef struct GFX_X11_Window
 {
@@ -80,7 +80,7 @@ typedef struct GFX_X11_Window
 
 
 /********************************************************
- * \brief X11 Connection
+ * X11 Connection
  *******************************************************/
 typedef struct GFX_X11_Connection
 {
@@ -99,19 +99,19 @@ typedef struct GFX_X11_Connection
 
 
 /**
- * \brief Connection pointer
+ * Connection pointer
  */
 extern GFX_X11_Connection* _gfx_x11;
 
 
 /**
- * \brief Returns whether an extension is supported for a given screen.
+ * Returns whether an extension is supported for a given screen.
  *
  */
 int _gfx_x11_is_extension_supported(int screenNumber, const char* ext);
 
 /**
- * \brief Returns an X11 window from its handle.
+ * Returns an X11 window from its handle.
  *
  */
 GFXVectorIterator _gfx_x11_get_window_from_handle(Window handle);

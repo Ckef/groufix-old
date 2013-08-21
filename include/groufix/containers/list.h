@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * \brief List container
+ * List container
  *******************************************************/
 typedef struct GFXList
 {
@@ -40,7 +40,7 @@ typedef struct GFXList
 
 
 /** 
- * \brief Returns the data attached to a node.
+ * Returns the data attached to a node.
  *
  */
 inline void* gfx_list_get_data(GFXList* node)
@@ -49,16 +49,16 @@ inline void* gfx_list_get_data(GFXList* node)
 }
 
 /**
- * \brief Creates a new list.
+ * Creates a new list.
  *
- * \param dataSize Size of the node, >= sizeof(List).
- * \return NULL on failure.
+ * @param dataSize Size of the node, >= sizeof(List).
+ * @return NULL on failure.
  *
  */
 GFXList* gfx_list_create(size_t dataSize);
 
 /**
- * \brief Makes sure the list is freed properly.
+ * Makes sure the list is freed properly.
  *
  * Frees each node after the given node.
  *
@@ -66,54 +66,54 @@ GFXList* gfx_list_create(size_t dataSize);
 void gfx_list_free(GFXList* list);
 
 /**
- * \brief Returns the size of the list in elements.
+ * Returns the size of the list in elements.
  *
  */
 size_t gfx_list_get_size(GFXList* list);
 
 /**
- * \brief Returns a node at a given index, can be NULL.
+ * Returns a node at a given index, can be NULL.
  *
  */ 
 GFXList* gfx_list_at(GFXList* list, size_t index);
 
 /**
- * \brief Advances a node an arbitrary amount of indices (can be negative).
+ * Advances a node an arbitrary amount of indices (can be negative).
  *
  */
 GFXList* gfx_list_advance(GFXList* node, int num);
 
 /**
- * \brief Inserts an element after a given node.
+ * Inserts an element after a given node.
  *
- * \param dataSize Size of the node, >= sizeof(List).
- * \return The node of the new element (NULL on failure).
+ * @param dataSize Size of the node, >= sizeof(List).
+ * @return The node of the new element (NULL on failure).
  *
  */
 GFXList* gfx_list_insert_after(GFXList* node, size_t dataSize);
 
 /**
- * \brief Inserts an element before a given node.
+ * Inserts an element before a given node.
  *
- * \param dataSize Size of the node, >= sizeof(List).
- * \return The node of the new element (NULL on failure).
+ * @param dataSize Size of the node, >= sizeof(List).
+ * @return The node of the new element (NULL on failure).
  *
  */
 GFXList* gfx_list_insert_before(GFXList* node, size_t dataSize);
 
 /**
- * \brief Inserts an element after a given index.
+ * Inserts an element after a given index.
  *
- * \param dataSize Size of the node, >= sizeof(List).
- * \return The node of the new element (NULL on failure).
+ * @param dataSize Size of the node, >= sizeof(List).
+ * @return The node of the new element (NULL on failure).
  *
  */
 GFXList* gfx_list_insert_at(GFXList* list, size_t dataSize, size_t index);
 
 /**
- * \brief Erases a node.
+ * Erases a node.
  *
- * \return The node of the element taking its place (can be NULL).
+ * @return The node of the element taking its place (can be NULL).
  *
  * If no node takes its place, it will try to return the previous node instead.
  *
@@ -121,9 +121,9 @@ GFXList* gfx_list_insert_at(GFXList* list, size_t dataSize, size_t index);
 GFXList* gfx_list_erase(GFXList* node);
 
 /**
- * \brief Erases an element at a given index.
+ * Erases an element at a given index.
  *
- * \return The node of the element taking its place (can be NULL).
+ * @return The node of the element taking its place (can be NULL).
  *
  * If no node takes its place, it will try to return the previous node instead.
  *
@@ -131,19 +131,19 @@ GFXList* gfx_list_erase(GFXList* node);
 GFXList* gfx_list_erase_at(GFXList* list, size_t index);
 
 /**
- * \brief Moves an element after a given node.
+ * Moves an element after a given node.
  *
- * \param node Node to splice.
- * \param pos  Position to move after.
+ * @param node Node to splice.
+ * @param pos  Position to move after.
  *
  */
 void gfx_list_splice_after(GFXList* node, GFXList* pos);
 
 /**
- * \brief Moves an element before a given node.
+ * Moves an element before a given node.
  *
- * \param node Node to splice.
- * \param pos  Position to move before.
+ * @param node Node to splice.
+ * @param pos  Position to move before.
  *
  */
 void gfx_list_splice_before(GFXList* node, GFXList* pos);

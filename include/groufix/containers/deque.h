@@ -35,11 +35,11 @@ extern "C" {
  * Double ended queue container
  *******************************************************/
 
-/** \brief Deque iterator */
+/** Deque iterator */
 typedef void* GFXDequeIterator;
 
 
-/** \brief Deque */
+/** Deque */
 typedef struct GFXDeque
 {
 	size_t elementSize;
@@ -54,94 +54,94 @@ typedef struct GFXDeque
 
 
 /**
- * \brief Creates a new deque.
+ * Creates a new deque.
  *
- * \return NULL on failure.
+ * @return NULL on failure.
  *
  */
 GFXDeque* gfx_deque_create(size_t elementSize);
 
 /**
- * \brief Creates a new deque with a preset content.
+ * Creates a new deque with a preset content.
  *
- * \param numElements The number of elements stored in the buffer (not byte size!).
- * \param buff        Memory to copy content from.
- * \return NULL on failure.
+ * @param numElements The number of elements stored in the buffer (not byte size!).
+ * @param buff        Memory to copy content from.
+ * @return NULL on failure.
  *
  */
 GFXDeque* gfx_deque_create_from_buffer(size_t elementSize, size_t numElements, const void* buff);
 
 /**
- * \brief Creates a copy of a deque.
+ * Creates a copy of a deque.
  *
- * \return NULL on failure.
+ * @return NULL on failure.
  *
  */
 GFXDeque* gfx_deque_create_copy(GFXDeque* src);
 
 /**
- * \brief Makes sure the deque is freed properly.
+ * Makes sure the deque is freed properly.
  *
  */
 void gfx_deque_free(GFXDeque* deque);
 
 /**
- * \brief Initializes a deque.
+ * Initializes a deque.
  *
  */
 void gfx_deque_init(GFXDeque* deque, size_t elementSize);
 
 /**
- * \brief Initializes a deque with a preset content.
+ * Initializes a deque with a preset content.
  *
- * \param numElements The number of elements stored in the buffer (not byte size!).
- * \param buff        Memory to copy content from.
+ * @param numElements The number of elements stored in the buffer (not byte size!).
+ * @param buff        Memory to copy content from.
  *
  */
 void gfx_deque_init_from_buffer(GFXDeque* deque, size_t elementSize, size_t numElements, const void* buff);
 
 /**
- * \brief Initializes a copy of a deque.
+ * Initializes a copy of a deque.
  *
  */
 void gfx_deque_init_copy(GFXDeque* deque, GFXDeque* src);
 
 /**
- * \brief Clears the content of a deque.
+ * Clears the content of a deque.
  *
  */
 void gfx_deque_clear(GFXDeque* deque);
 
 /**
- * \brief Returns the size of the deque in bytes.
+ * Returns the size of the deque in bytes.
  *
  */
 size_t gfx_deque_get_byte_size(GFXDeque* deque);
 
 /**
- * \brief Returns the size of the deque in elements.
+ * Returns the size of the deque in elements.
  *
  */
 size_t gfx_deque_get_size(GFXDeque* deque);
 
 /**
- * \brief Requests a minimum capacity.
+ * Requests a minimum capacity.
  *
- * \return If zero, out of memory.
+ * @return If zero, out of memory.
  *
  */
 int gfx_deque_reserve(GFXDeque* deque, size_t numElements);
 
 /**
- * \brief Shrinks the deque to fit the elements it holds.
+ * Shrinks the deque to fit the elements it holds.
  *
- * \return If zero, out of memory.
+ * @return If zero, out of memory.
  *
  */
 int gfx_deque_shrink(GFXDeque* deque);
 
 /**
- * \brief Returns an iterator of the element at a given index.
+ * Returns an iterator of the element at a given index.
  *
  * This method does not check the bounds!
  *
@@ -149,51 +149,51 @@ int gfx_deque_shrink(GFXDeque* deque);
 GFXDequeIterator gfx_deque_at(GFXDeque* deque, size_t index);
 
 /**
- * \brief Increments an iterator to the next element.
+ * Increments an iterator to the next element.
  *
  */
 GFXDequeIterator gfx_deque_next(GFXDeque* deque, GFXDequeIterator it);
 
 /**
- * \brief Decrements an iterator to the previous element.
+ * Decrements an iterator to the previous element.
  *
  */
 GFXDequeIterator gfx_deque_previous(GFXDeque* deque, GFXDequeIterator it);
 
 /**
- * \brief Advances an iterator an arbitrary amount of elements (can be negative).
+ * Advances an iterator an arbitrary amount of elements (can be negative).
  *
  */
 GFXDequeIterator gfx_deque_advance(GFXDeque* deque, GFXDequeIterator it, int num);
 
 /**
- * \brief Adds an element to the front of the deque.
+ * Adds an element to the front of the deque.
  *
- * \return An iterator to the new element (NULL or deque->end on failure).
+ * @return An iterator to the new element (NULL or deque->end on failure).
  *
  */
 GFXDequeIterator gfx_deque_push_front(GFXDeque* deque, const void* element);
 
 /**
- * \brief Adds an element to the back of the deque.
+ * Adds an element to the back of the deque.
  *
- * \return An iterator to the new element (NULL or deque->end on failure).
+ * @return An iterator to the new element (NULL or deque->end on failure).
  *
  */
 GFXDequeIterator gfx_deque_push_back(GFXDeque* deque, const void* element);
 
 /**
- * \brief Removes an element from the front of the deque.
+ * Removes an element from the front of the deque.
  *
- * \return An iterator to the element taking its place.
+ * @return An iterator to the element taking its place.
  *
  */
 GFXDequeIterator gfx_deque_pop_front(GFXDeque* deque);
 
 /**
- * \brief Removes an element from the back of the deque.
+ * Removes an element from the back of the deque.
  *
- * \return An iterator to the element taking its place.
+ * @return An iterator to the element taking its place.
  *
  */
 GFXDequeIterator gfx_deque_pop_back(GFXDeque* deque);
