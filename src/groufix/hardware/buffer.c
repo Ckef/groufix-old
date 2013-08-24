@@ -39,24 +39,28 @@ static GFX_Hardware_Funcs _gfx_hardware_buffer_obj_funcs =
 };
 
 /******************************************************/
-GFX_Hardware_Buffer _gfx_hardware_buffer_create(GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext)
+void _gfx_hardware_buffers_init(size_t num, GFX_Hardware_Buffer* buffers, GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext)
 {
-	GLuint buffer;
-	ext->GenBuffers(1, &buffer);
-	ext->BindBuffer(target, buffer);
-	ext->BufferData(target, size, data, usage);
+	ext->GenBuffers(num, buffers);
 
-	/* Register as object */
-	_gfx_hardware_object_register(UINT_TO_VOID(buffer), &_gfx_hardware_buffer_obj_funcs);
+	/* Init all buffers */
+	size_t i;
+	for(i = 0; i < num; ++i)
+	{
+		ext->BindBuffer(target, buffers[i]);
+		ext->BufferData(target, size, data, usage);
 
-	return buffer;
+		/* Register as object */
+		_gfx_hardware_object_register(UINT_TO_VOID(buffers[i]), &_gfx_hardware_buffer_obj_funcs);
+	}
 }
 
 /******************************************************/
-void _gfx_hardware_buffer_free(GFX_Hardware_Buffer buffer, const GFX_Extensions* ext)
+void _gfx_hardware_buffers_clear(size_t num, GFX_Hardware_Buffer* buffers, const GFX_Extensions* ext)
 {
-	_gfx_hardware_buffer_obj_free(UINT_TO_VOID(buffer), ext);
+	ext->DeleteBuffers(num, buffers);
 
-	/* Unregister as object */
-	_gfx_hardware_object_unregister(UINT_TO_VOID(buffer));
+	/* Unregister all as object */
+	size_t i;
+	for(i = 0; i < num; ++i) _gfx_hardware_object_unregister(UINT_TO_VOID(buffers[i]));
 }

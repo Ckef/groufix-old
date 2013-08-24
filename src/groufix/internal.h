@@ -255,18 +255,19 @@ typedef GLuint GFX_Hardware_Buffer;
 
 
 /**
- * Creates a new hardware buffer.
+ * Initializes a buffer.
  *
+ * @param num  Number of buffers to initialize.
  * @param data Can be NULL.
  *
  */
-GFX_Hardware_Buffer _gfx_hardware_buffer_create(GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext);
+void _gfx_hardware_buffers_init(size_t num, GFX_Hardware_Buffer* buffers, GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext);
 
 /**
- * Makes sure the hardware buffer is freed properly.
+ * Clears the content of a buffer.
  *
  */
-void _gfx_hardware_buffer_free(GFX_Hardware_Buffer buffer, const GFX_Extensions* ext);
+void _gfx_hardware_buffers_clear(size_t num, GFX_Hardware_Buffer* buffers, const GFX_Extensions* ext);
 
 
 /********************************************************
