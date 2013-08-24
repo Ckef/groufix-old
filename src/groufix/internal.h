@@ -251,29 +251,22 @@ void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
  *******************************************************/
 
 /** Buffer Object */
-typedef struct GFX_Hardware_Buffer
-{
-	GLuint  handle;
-
-	GLenum  usage;
-	size_t  size;
-
-} GFX_Hardware_Buffer;
+typedef GLuint GFX_Hardware_Buffer;
 
 
 /**
- * Initializes a hardware buffer.
+ * Creates a new hardware buffer.
  *
  * @param data Can be NULL.
  *
  */
-void _gfx_hardware_buffer_init(GFX_Hardware_Buffer* buffer, GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext);
+GFX_Hardware_Buffer _gfx_hardware_buffer_create(GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext);
 
 /**
- * Clears the content of a hardware buffer.
+ * Makes sure the hardware buffer is freed properly.
  *
  */
-void _gfx_hardware_buffer_clear(GFX_Hardware_Buffer* buffer, const GFX_Extensions* ext);
+void _gfx_hardware_buffer_free(GFX_Hardware_Buffer buffer, const GFX_Extensions* ext);
 
 
 /********************************************************
@@ -281,11 +274,7 @@ void _gfx_hardware_buffer_clear(GFX_Hardware_Buffer* buffer, const GFX_Extension
  *******************************************************/
 
 /** Layout Object */
-typedef struct GFX_Hardware_Layout
-{
-	GLuint handle;
-
-} GFX_Hardware_Layout;
+typedef GLuint GFX_Hardware_Layout;
 
 
 /**
@@ -311,7 +300,7 @@ void _gfx_hardware_layout_free(GFX_Hardware_Layout* layout, const GFX_Extensions
  * Note: attr->divisor requires GFX_EXT_INSTANCED_ATTRIBUTES.
  *
  */
-int _gfx_hardware_layout_set_attrib(GFX_Hardware_Layout* layout, unsigned int index, const GFXVertexAttribute* attr, GFX_Hardware_Buffer* src, const GFX_Extensions* ext);
+int _gfx_hardware_layout_set_attrib(GFX_Hardware_Layout* layout, unsigned int index, const GFXVertexAttribute* attr, GFX_Hardware_Buffer src, const GFX_Extensions* ext);
 
 /**
  * Returns a previously defined vertex attribute of a layout.
@@ -319,7 +308,7 @@ int _gfx_hardware_layout_set_attrib(GFX_Hardware_Layout* layout, unsigned int in
  * @return Non-zero when the attribute was found.
  *
  */
-int _gfx_hardware_layout_get_attrib(GFX_Hardware_Layout* layout, unsigned int index, GFXVertexAttribute* attr, GFX_Hardware_Buffer** src, const GFX_Extensions* ext);
+int _gfx_hardware_layout_get_attrib(GFX_Hardware_Layout* layout, unsigned int index, GFXVertexAttribute* attr, GFX_Hardware_Buffer* src, const GFX_Extensions* ext);
 
 /**
  * Removes a previously defined vertex attribute from a layout.

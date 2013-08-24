@@ -60,6 +60,7 @@ int gfx_hardware_is_extension_supported(GFXExtension extension);
  */
 unsigned int gfx_hardware_poll_errors(const char* description);
 
+
 /********************************************************
  * Hardware data types
  *******************************************************/

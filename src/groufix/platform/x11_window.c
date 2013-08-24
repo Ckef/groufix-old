@@ -82,6 +82,7 @@ static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
 
 	return st;
 }
+
 /******************************************************/
 static void _gfx_x11_event_proc(XEvent* event)
 {

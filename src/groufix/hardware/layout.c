@@ -41,18 +41,18 @@ struct GFX_Internal_Attribute
 	GFXVertexAttribute attribute;
 
 	/* Hidden data */
-	GFX_Hardware_Buffer*  buffer;
-	unsigned int          index;
+	GFX_Hardware_Buffer  buffer;
+	unsigned int         index;
 };
 
 /******************************************************/
-static void _gfx_hardware_layout_init_attrib(GFX_Hardware_Layout* layout, struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
+static void _gfx_hardware_layout_init_attrib(GFX_Hardware_Layout layout, struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
 {
 	/* Set the attribute */
-	ext->BindVertexArray(layout->handle);
+	ext->BindVertexArray(layout);
 	ext->EnableVertexAttribArray(attr->index);
 
-	ext->BindBuffer(GL_ARRAY_BUFFER, attr->buffer->handle);
+	ext->BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
 
 	if(attr->attribute.interpret & GFX_INTERPRET_INTEGER) ext->VertexAttribIPointer(
 		attr->index,
@@ -80,8 +80,8 @@ static void _gfx_hardware_layout_obj_free(GFX_Hardware_Object object, const GFX_
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 
 	/* Delete everything */
-	ext->DeleteVertexArrays(1, &layout->layout.handle);
-	layout->layout.handle = 0;
+	ext->DeleteVertexArrays(1, &layout->layout);
+	layout->layout = 0;
 
 	gfx_vector_clear(&layout->attributes);
 }
@@ -92,8 +92,8 @@ static void _gfx_hardware_layout_obj_save(GFX_Hardware_Object object, const GFX_
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 
 	/* Just don't clear the attribute vector */
-	ext->DeleteVertexArrays(1, &layout->layout.handle);
-	layout->layout.handle = 0;
+	ext->DeleteVertexArrays(1, &layout->layout);
+	layout->layout = 0;
 }
 
 /******************************************************/
@@ -102,12 +102,12 @@ static void _gfx_hardware_layout_obj_restore(GFX_Hardware_Object object, const G
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 
 	/* Create VAO */
-	ext->GenVertexArrays(1, &layout->layout.handle);
+	ext->GenVertexArrays(1, &layout->layout);
 
 	/* Restore attributes */
 	GFXVectorIterator it;
 	for(it = layout->attributes.begin; it != layout->attributes.end; it = gfx_vector_next(&layout->attributes, it))
-		_gfx_hardware_layout_init_attrib(&layout->layout, (struct GFX_Internal_Attribute*)it, ext);
+		_gfx_hardware_layout_init_attrib(layout->layout, (struct GFX_Internal_Attribute*)it, ext);
 }
 
 /******************************************************/
@@ -126,7 +126,7 @@ GFX_Hardware_Layout* _gfx_hardware_layout_create(const GFX_Extensions* ext)
 	if(!layout) return NULL;
 
 	/* Create VAO and attribute vector */
-	ext->GenVertexArrays(1, &layout->layout.handle);
+	ext->GenVertexArrays(1, &layout->layout);
 	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Internal_Attribute));
 
 	/* Register as object */
@@ -149,7 +149,7 @@ void _gfx_hardware_layout_free(GFX_Hardware_Layout* layout, const GFX_Extensions
 }
 
 /******************************************************/
-int _gfx_hardware_layout_set_attrib(GFX_Hardware_Layout* layout, unsigned int index, const GFXVertexAttribute* attr, GFX_Hardware_Buffer* src, const GFX_Extensions* ext)
+int _gfx_hardware_layout_set_attrib(GFX_Hardware_Layout* layout, unsigned int index, const GFXVertexAttribute* attr, GFX_Hardware_Buffer src, const GFX_Extensions* ext)
 {
 	/* Derp */
 	if(index >= ext->MAX_VERTEX_ATTRIBS) return 0;
@@ -181,13 +181,13 @@ int _gfx_hardware_layout_set_attrib(GFX_Hardware_Layout* layout, unsigned int in
 		if(gfx_vector_insert(&internal->attributes, &new, it) == internal->attributes.end) return 0;
 
 	/* Send attribute to OpenGL */
-	_gfx_hardware_layout_init_attrib(layout, &new, ext);
+	_gfx_hardware_layout_init_attrib(*layout, &new, ext);
 
 	return 1;
 }
 
 /******************************************************/
-int _gfx_hardware_layout_get_attrib(GFX_Hardware_Layout* layout, unsigned int index, GFXVertexAttribute* attr, GFX_Hardware_Buffer** src, const GFX_Extensions* ext)
+int _gfx_hardware_layout_get_attrib(GFX_Hardware_Layout* layout, unsigned int index, GFXVertexAttribute* attr, GFX_Hardware_Buffer* src, const GFX_Extensions* ext)
 {
 	/* Herp */
 	if(index >= ext->MAX_VERTEX_ATTRIBS) return 0;
@@ -229,7 +229,7 @@ void _gfx_hardware_layout_remove_attrib(GFX_Hardware_Layout* layout, unsigned in
 				gfx_vector_erase(&internal->attributes, it);
 
 				/* Send request to OpenGL */
-				ext->BindVertexArray(layout->handle);
+				ext->BindVertexArray(*layout);
 				ext->DisableVertexAttribArray(index);
 
 				break;

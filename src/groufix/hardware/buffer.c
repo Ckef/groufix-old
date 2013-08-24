@@ -21,16 +21,12 @@
 
 #include "groufix/internal.h"
 
-#include <stdlib.h>
-
 /******************************************************/
 static void _gfx_hardware_buffer_obj_free(GFX_Hardware_Object object, const GFX_Extensions* ext)
 {
-	GFX_Hardware_Buffer* buffer = (GFX_Hardware_Buffer*)object;
+	GFX_Hardware_Buffer buffer = VOID_TO_UINT(object);
 
-	ext->DeleteBuffers(1, &buffer->handle);
-	buffer->handle = 0;
-	buffer->size = 0;
+	ext->DeleteBuffers(1, &buffer);
 }
 
 /******************************************************/
@@ -43,24 +39,24 @@ static GFX_Hardware_Funcs _gfx_hardware_buffer_obj_funcs =
 };
 
 /******************************************************/
-void _gfx_hardware_buffer_init(GFX_Hardware_Buffer* buffer, GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext)
+GFX_Hardware_Buffer _gfx_hardware_buffer_create(GLenum target, GLenum usage, size_t size, const void* data, const GFX_Extensions* ext)
 {
-	ext->GenBuffers(1, &buffer->handle);
-	ext->BindBuffer(target, buffer->handle);
+	GLuint buffer;
+	ext->GenBuffers(1, &buffer);
+	ext->BindBuffer(target, buffer);
 	ext->BufferData(target, size, data, usage);
 
-	buffer->usage = usage;
-	buffer->size = size;
-
 	/* Register as object */
-	_gfx_hardware_object_register(buffer, &_gfx_hardware_buffer_obj_funcs);
+	_gfx_hardware_object_register(UINT_TO_VOID(buffer), &_gfx_hardware_buffer_obj_funcs);
+
+	return buffer;
 }
 
 /******************************************************/
-void _gfx_hardware_buffer_clear(GFX_Hardware_Buffer* buffer, const GFX_Extensions* ext)
+void _gfx_hardware_buffer_free(GFX_Hardware_Buffer buffer, const GFX_Extensions* ext)
 {
-	_gfx_hardware_buffer_obj_free(buffer, ext);
+	_gfx_hardware_buffer_obj_free(UINT_TO_VOID(buffer), ext);
 
 	/* Unregister as object */
-	_gfx_hardware_object_unregister(buffer);
+	_gfx_hardware_object_unregister(UINT_TO_VOID(buffer));
 }
