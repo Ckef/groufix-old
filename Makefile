@@ -84,6 +84,7 @@ HEADERS = \
  $(INCLUDE)/groufix/math/quat.h \
  $(INCLUDE)/groufix/math/vec.h \
  $(INCLUDE)/groufix/errors.h \
+ $(INCLUDE)/groufix/geometry.h \
  $(INCLUDE)/groufix/hardware.h \
  $(INCLUDE)/groufix/math.h \
  $(INCLUDE)/groufix/pipeline.h \
@@ -133,8 +134,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/deque.o \
  $(OUT)/unix-x11/groufix/containers/list.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
- $(OUT)/unix-x11/groufix/hardware/buffer.o \
- $(OUT)/unix-x11/groufix/hardware/layout.o \
+ $(OUT)/unix-x11/groufix/geometry/mesh.o \
  $(OUT)/unix-x11/groufix/pipeline/bucket.o \
  $(OUT)/unix-x11/groufix/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
@@ -163,7 +163,7 @@ unix-x11-simple: examples/simple.c unix-x11
 before-unix-x11:
 	mkdir -p $(BIN)/unix-x11
 	mkdir -p $(OUT)/unix-x11/groufix/containers
-	mkdir -p $(OUT)/unix-x11/groufix/hardware
+	mkdir -p $(OUT)/unix-x11/groufix/geometry
 	mkdir -p $(OUT)/unix-x11/groufix/pipeline
 	mkdir -p $(OUT)/unix-x11/groufix/platform
 
@@ -179,10 +179,7 @@ $(OUT)/unix-x11/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HE
 $(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-$(OUT)/unix-x11/groufix/hardware/buffer.o: $(SRC)/groufix/hardware/buffer.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/hardware/layout.o: $(SRC)/groufix/hardware/layout.c $(HEADERS_X11)
+$(OUT)/unix-x11/groufix/geometry/mesh.o: $(SRC)/groufix/geometry/mesh.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_X11)
@@ -229,8 +226,7 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/containers/deque.o \
  $(OUT)/osx-x11/groufix/containers/list.o \
  $(OUT)/osx-x11/groufix/containers/vector.o \
- $(OUT)/osx-x11/groufix/hardware/buffer.o \
- $(OUT)/osx-x11/groufix/hardware/layout.o \
+ $(OUT)/osx-x11/groufix/geometry/mesh.o \
  $(OUT)/osx-x11/groufix/pipeline/bucket.o \
  $(OUT)/osx-x11/groufix/platform/x11_context.o \
  $(OUT)/osx-x11/groufix/platform/x11_init.o \
@@ -256,7 +252,7 @@ osx-x11-simple: examples/simple.c osx-x11
 before-osx-x11:
 	mkdir -p $(BIN)/osx-x11
 	mkdir -p $(OUT)/osx-x11/groufix/containers
-	mkdir -p $(OUT)/osx-x11/groufix/hardware
+	mkdir -p $(OUT)/osx-x11/groufix/geometry
 	mkdir -p $(OUT)/osx-x11/groufix/pipeline
 	mkdir -p $(OUT)/osx-x11/groufix/platform
 
@@ -272,10 +268,7 @@ $(OUT)/osx-x11/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEA
 $(OUT)/osx-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
-$(OUT)/osx-x11/groufix/hardware/buffer.o: $(SRC)/groufix/hardware/buffer.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/hardware/layout.o: $(SRC)/groufix/hardware/layout.c $(HEADERS_X11)
+$(OUT)/osx-x11/groufix/geometry/mesh.o: $(SRC)/groufix/geometry/mesh.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_X11)
@@ -322,8 +315,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/deque.o \
  $(OUT)/win32/groufix/containers/list.o \
  $(OUT)/win32/groufix/containers/vector.o \
- $(OUT)/win32/groufix/hardware/buffer.o \
- $(OUT)/win32/groufix/hardware/layout.o \
+ $(OUT)/win32/groufix/geometry/mesh.o \
  $(OUT)/win32/groufix/pipeline/bucket.o \
  $(OUT)/win32/groufix/platform/win32_context.o \
  $(OUT)/win32/groufix/platform/win32_init.o \
@@ -352,7 +344,7 @@ win32-simple: examples/simple.c win32
 before-win32:
 	if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
 	if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
-	if not exist $(OUT)\win32\groufix\hardware\nul mkdir $(OUT)\win32\groufix\hardware
+	if not exist $(OUT)\win32\groufix\geometry\nul mkdir $(OUT)\win32\groufix\geometry
 	if not exist $(OUT)\win32\groufix\pipeline\nul mkdir $(OUT)\win32\groufix\pipeline
 	if not exist $(OUT)\win32\groufix\platform\nul mkdir $(OUT)\win32\groufix\platform
 
@@ -368,10 +360,7 @@ $(OUT)/win32/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEADE
 $(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/hardware/buffer.o: $(SRC)/groufix/hardware/buffer.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/hardware/layout.o: $(SRC)/groufix/hardware/layout.c $(HEADERS_WIN32)
+$(OUT)/win32/groufix/geometry/mesh.o: $(SRC)/groufix/geometry/mesh.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_WIN32)
