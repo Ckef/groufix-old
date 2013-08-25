@@ -66,7 +66,7 @@ static void _gfx_bucket_fix_batch(struct GFX_Internal_Bucket* bucket, size_t sta
 	if(start < end)
 	{
 		/* Binary search for the state */
-		size_t mid = start + (end - start) / 2;
+		size_t mid = start + ((end - start) >> 1);
 		struct GFX_Batch_Pair* pair = gfx_vector_at(&bucket->batches, mid);
 
 		GFXBatchState compare = ((struct GFX_Internal_Batch*)pair->first)->state;

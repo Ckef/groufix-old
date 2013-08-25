@@ -25,6 +25,7 @@
 #include "groufix/hardware.h"
 
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,8 +61,22 @@ typedef enum GFXInterpretType
 
 
 /********************************************************
- * Vertex specifications
+ * Submesh (vertex specifications + draw calls)
  *******************************************************/
+
+/** Primitive types */
+typedef enum GFXPrimitive
+{
+	GFX_POINTS          = 0x0000,
+	GFX_LINES           = 0x0001,
+	GFX_LINE_LOOP       = 0x0002,
+	GFX_LINE_STRIP      = 0x0003,
+	GFX_TRIANGLES       = 0x0004,
+	GFX_TRIANGLE_STRIP  = 0x0005,
+	GFX_TRIANGLE_FAN    = 0x0006
+
+} GFXPrimitive;
+
 
 /** Vertex Attribute */
 typedef struct GFXVertexAttribute
@@ -75,6 +90,18 @@ typedef struct GFXVertexAttribute
 	unsigned int      divisor;   /* Rate at which attributes advance, 0 for no instancing */
 
 } GFXVertexAttribute;
+
+
+/** Draw call */
+typedef struct GFXDrawCall
+{
+	GFXPrimitive  primitive;
+	GFXDataType   indexType; /* Can only be an unsigned type */
+
+	uintptr_t     first;     /* First index (direct) or byte offset (indexed) */
+	size_t        count;     /* Number of indices to draw */
+
+} GFXDrawCall;
 
 
 #ifdef __cplusplus

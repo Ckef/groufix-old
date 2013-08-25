@@ -40,7 +40,7 @@ static GFXVectorIterator _gfx_hardware_obj_find(size_t start, size_t end, GFX_Ha
 {
 	while(start < end)
 	{
-		size_t mid = start + (end - start) / 2;
+		size_t mid = start + ((end - start) >> 1);
 		struct GFX_Internal_Hardware_Object* internal = gfx_vector_at(_gfx_hw_objects, mid);
 
 		/* Move boundaries */

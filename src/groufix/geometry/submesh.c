@@ -24,11 +24,15 @@
 #include "groufix/internal.h"
 
 /******************************************************/
-/** \brief Internal hardware layout */
-struct GFX_Internal_Layout
+/** \brief Internal Submesh */
+struct GFX_Internal_Submesh
 {
+	/* Draw calls */
+	GFXVector  drawCalls;  /* Stores GFXDrawCall */
+
+	/* Layout */
 	GLuint     vao;
-	GFXVector  attributes; /* Stores the below */
+	GFXVector  attributes; /* Stores GFX_Internal_Attribute */
 };
 
 /** \brief Internal vertex attribute */
@@ -43,7 +47,7 @@ struct GFX_Internal_Attribute
 };
 
 /******************************************************/
-static void _gfx_hardware_layout_init_attrib(GLuint vao, const struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
+static void _gfx_submesh_init_attrib(GLuint vao, const struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
 {
 	/* Set the attribute */
 	ext->BindVertexArray(vao);
@@ -72,82 +76,84 @@ static void _gfx_hardware_layout_init_attrib(GLuint vao, const struct GFX_Intern
 }
 
 /******************************************************/
-static void _gfx_hardware_layout_obj_free(GFX_Hardware_Object object, const GFX_Extensions* ext)
+static void _gfx_submesh_obj_free(GFX_Hardware_Object object, const GFX_Extensions* ext)
 {
-	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
+	struct GFX_Internal_Submesh* sub = (struct GFX_Internal_Submesh*)object;
 
 	/* Delete everything */
-	ext->DeleteVertexArrays(1, &layout->vao);
-	layout->vao = 0;
+	ext->DeleteVertexArrays(1, &sub->vao);
+	sub->vao = 0;
 
-	gfx_vector_clear(&layout->attributes);
+	gfx_vector_clear(&sub->attributes);
 }
 
 /******************************************************/
-static void _gfx_hardware_layout_obj_save(GFX_Hardware_Object object, const GFX_Extensions* ext)
+static void _gfx_submesh_obj_save(GFX_Hardware_Object object, const GFX_Extensions* ext)
 {
-	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
+	struct GFX_Internal_Submesh* sub = (struct GFX_Internal_Submesh*)object;
 
 	/* Just don't clear the attribute vector */
-	ext->DeleteVertexArrays(1, &layout->vao);
-	layout->vao = 0;
+	ext->DeleteVertexArrays(1, &sub->vao);
+	sub->vao = 0;
 }
 
 /******************************************************/
-static void _gfx_hardware_layout_obj_restore(GFX_Hardware_Object object, const GFX_Extensions* ext)
+static void _gfx_submesh_obj_restore(GFX_Hardware_Object object, const GFX_Extensions* ext)
 {
-	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
+	struct GFX_Internal_Submesh* sub = (struct GFX_Internal_Submesh*)object;
 
 	/* Create VAO */
-	ext->GenVertexArrays(1, &layout->vao);
+	ext->GenVertexArrays(1, &sub->vao);
 
 	/* Restore attributes */
 	GFXVectorIterator it;
-	for(it = layout->attributes.begin; it != layout->attributes.end; it = gfx_vector_next(&layout->attributes, it))
-		_gfx_hardware_layout_init_attrib(layout->vao, (struct GFX_Internal_Attribute*)it, ext);
+	for(it = sub->attributes.begin; it != sub->attributes.end; it = gfx_vector_next(&sub->attributes, it))
+		_gfx_submesh_init_attrib(sub->vao, (struct GFX_Internal_Attribute*)it, ext);
 }
 
 /******************************************************/
-/* vtable for hardware layout object */
-static GFX_Hardware_Funcs _gfx_hardware_layout_obj_funcs =
+/* vtable for hardware part of submesh */
+static GFX_Hardware_Funcs _gfx_submesh_obj_funcs =
 {
-	_gfx_hardware_layout_obj_free,
-	_gfx_hardware_layout_obj_save,
-	_gfx_hardware_layout_obj_restore
+	_gfx_submesh_obj_free,
+	_gfx_submesh_obj_save,
+	_gfx_submesh_obj_restore
 };
 
 /******************************************************/
-static void _gfx_hardware_layout_init(struct GFX_Internal_Layout* layout, const GFX_Extensions* ext)
+static void _gfx_submesh_init(struct GFX_Internal_Submesh* submesh, const GFX_Extensions* ext)
 {
-	/* Create VAO and attribute vector */
-	ext->GenVertexArrays(1, &layout->vao);
-	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Internal_Attribute));
+	/* Create VAO and vectors */
+	ext->GenVertexArrays(1, &submesh->vao);
+	gfx_vector_init(&submesh->drawCalls, sizeof(GFXDrawCall));
+	gfx_vector_init(&submesh->attributes, sizeof(struct GFX_Internal_Attribute));
 
 	/* Register as object */
-	_gfx_hardware_object_register(layout, &_gfx_hardware_layout_obj_funcs);
+	_gfx_hardware_object_register(submesh, &_gfx_submesh_obj_funcs);
 }
 
 /******************************************************/
-static void _gfx_hardware_layout_free(struct GFX_Internal_Layout* layout, const GFX_Extensions* ext)
+static void _gfx_submesh_free(struct GFX_Internal_Submesh* submesh, const GFX_Extensions* ext)
 {
-	if(layout)
+	if(submesh)
 	{
-		_gfx_hardware_layout_obj_free(layout, ext);
+		gfx_vector_clear(&submesh->drawCalls);
+		_gfx_submesh_obj_free(submesh, ext);
 
 		/* Unregister as object */
-		_gfx_hardware_object_unregister(layout);
+		_gfx_hardware_object_unregister(submesh);
 	}
 }
 
 /******************************************************/
-static int _gfx_hardware_layout_set_attrib(struct GFX_Internal_Layout* layout, const struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
+static int _gfx_submesh_set_attrib(struct GFX_Internal_Submesh* submesh, const struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
 {
 	/* Derp */
 	if(attr->index >= ext->MAX_VERTEX_ATTRIBS) return 0;
 
 	/* Find the attribute */
 	GFXVectorIterator it;
-	for(it = layout->attributes.begin; it != layout->attributes.end; it = gfx_vector_next(&layout->attributes, it))
+	for(it = submesh->attributes.begin; it != submesh->attributes.end; it = gfx_vector_next(&submesh->attributes, it))
 	{
 		struct GFX_Internal_Attribute* set = (struct GFX_Internal_Attribute*)it;
 
@@ -160,31 +166,31 @@ static int _gfx_hardware_layout_set_attrib(struct GFX_Internal_Layout* layout, c
 	}
 
 	/* Insert new attribute */
-	if(it == layout->attributes.end)
-		if(gfx_vector_insert(&layout->attributes, attr, it) == layout->attributes.end) return 0;
+	if(it == submesh->attributes.end)
+		if(gfx_vector_insert(&submesh->attributes, attr, it) == submesh->attributes.end) return 0;
 
 	/* Send attribute to OpenGL */
-	_gfx_hardware_layout_init_attrib(layout->vao, attr, ext);
+	_gfx_submesh_init_attrib(submesh->vao, attr, ext);
 
 	return 1;
 }
 
 /******************************************************/
-static void _gfx_hardware_layout_remove_attrib(struct GFX_Internal_Layout* layout, unsigned int index, const GFX_Extensions* ext)
+static void _gfx_submesh_remove_attrib(struct GFX_Internal_Submesh* submesh, unsigned int index, const GFX_Extensions* ext)
 {
 	/* Herp */
 	if(index < ext->MAX_VERTEX_ATTRIBS)
 	{
 		/* Find the attribute and remove */
 		GFXVectorIterator it;
-		for(it = layout->attributes.begin; it != layout->attributes.end; it = gfx_vector_next(&layout->attributes, it))
+		for(it = submesh->attributes.begin; it != submesh->attributes.end; it = gfx_vector_next(&submesh->attributes, it))
 		{
 			if(((struct GFX_Internal_Attribute*)it)->index == index)
 			{
-				gfx_vector_erase(&layout->attributes, it);
+				gfx_vector_erase(&submesh->attributes, it);
 
 				/* Send request to OpenGL */
-				ext->BindVertexArray(layout->vao);
+				ext->BindVertexArray(submesh->vao);
 				ext->DisableVertexAttribArray(index);
 
 				break;
