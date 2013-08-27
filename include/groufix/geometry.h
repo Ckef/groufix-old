@@ -22,8 +22,6 @@
 #ifndef GFX_GEOMETRY_H
 #define GFX_GEOMETRY_H
 
-#include "groufix/hardware.h"
-
 #include <stddef.h>
 #include <stdint.h>
 
@@ -61,8 +59,12 @@ typedef enum GFXInterpretType
 
 
 /********************************************************
- * Submesh (vertex specifications + draw calls)
+ * Vertex Layout (vertex specifications + draw calls)
  *******************************************************/
+
+/** Vertex Layout */
+typedef void* GFXVertexLayout;
+
 
 /** Primitive types */
 typedef enum GFXPrimitive
@@ -102,6 +104,37 @@ typedef struct GFXDrawCall
 	size_t        count;     /* Number of indices to draw */
 
 } GFXDrawCall;
+
+
+/**
+ * Creates a new vertex layout.
+ *
+ * @return Non-zero on success.
+ *
+ */
+GFXVertexLayout gfx_vertex_layout_create(void);
+
+/**
+ * Makes sure the vertex layout is freed properly.
+ *
+ */
+void gfx_vertex_layout_free(GFXVertexLayout layout);
+
+/**
+ * Sets an attribute of a vertex layout.
+ *
+ * @param index  Index of the attribute to set.
+ * @param buffer Buffer to read this attribute from.
+ * @return Zero on failure.
+ *
+ */
+int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, const GFXVertexAttribute* attr, void* buffer);
+
+/**
+ * Removes an attribute from a vertex layout.
+ *
+ */
+void gfx_vertex_layout_remove_attribute(GFXVertexLayout, unsigned int index);
 
 
 #ifdef __cplusplus

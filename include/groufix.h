@@ -25,6 +25,7 @@
 /* All includes */
 #include "groufix/errors.h"
 #include "groufix/geometry.h"
+#include "groufix/hardware.h"
 #include "groufix/math.h"
 #include "groufix/pipeline.h"
 #include "groufix/utils.h"

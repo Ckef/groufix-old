@@ -39,11 +39,7 @@ static int _gfx_vector_realloc(GFXVector* vector, size_t size, size_t capacity)
 {
 	/* Make sure to check if it worked */
 	void* new = realloc(vector->begin, capacity);
-	if(!new)
-	{
-		gfx_vector_clear(vector);
-		return 0;
-	}
+	if(!new) return 0;
 
 	/* Set new properties */
 	vector->begin = new;
@@ -149,6 +145,12 @@ size_t gfx_vector_get_size(GFXVector* vector)
 }
 
 /******************************************************/
+size_t gfx_vector_get_index(GFXVector* vector, GFXVectorIterator it)
+{
+	return PTR_DIFF(vector->begin, it) / vector->elementSize;
+}
+
+/******************************************************/
 int gfx_vector_reserve(GFXVector* vector, size_t numElements)
 {
 	size_t oldSize = PTR_DIFF(vector->begin, vector->end);
@@ -198,7 +200,7 @@ GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXV
 		size_t cap = vector->capacity << 1;
 		if(!cap) cap = _gfx_vector_get_max_capacity(newSize);
 
-		if(!_gfx_vector_realloc(vector, newSize, cap)) return NULL;
+		if(!_gfx_vector_realloc(vector, newSize, cap)) return vector->end;
 		pos = PTR_ADD_BYTES(vector->begin, oldSize - mov);
 	}
 
@@ -234,7 +236,7 @@ GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVect
 	/* Reallocate if necessary */
 	if(newSize > vector->capacity)
 	{
-		if(!_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize))) return NULL;
+		if(!_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize))) return vector->end;
 		pos = PTR_ADD_BYTES(vector->begin, oldSize - mov);
 	}
 

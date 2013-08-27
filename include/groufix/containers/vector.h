@@ -120,6 +120,12 @@ size_t gfx_vector_get_byte_size(GFXVector* vector);
 size_t gfx_vector_get_size(GFXVector* vector);
 
 /**
+ * Returns the index of an iterator.
+ *
+ */
+size_t gfx_vector_get_index(GFXVector* vector, GFXVectorIterator it);
+
+/**
  * Requests a minimum capacity, which will hold as long as nothing is erased.
  *
  * @return If zero, out of memory.
@@ -156,7 +162,7 @@ GFXVectorIterator gfx_vector_advance(GFXVector* vector, GFXVectorIterator it, in
 /**
  * Inserts an element at a given iterator.
  *
- * @return The iterator to the new element (NULL or vector->end on failure).
+ * @return The iterator to the new element (vector->end on failure).
  *
  */
 GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXVectorIterator pos);
@@ -164,7 +170,7 @@ GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXV
 /**
  * Inserts an element after a given index.
  *
- * @return The iterator to the new element (NULL or vector->end on failure).
+ * @return The iterator to the new element (vector->end on failure).
  *
  */
 GFXVectorIterator gfx_vector_insert_at(GFXVector* vector, const void* element, size_t index);
@@ -174,7 +180,7 @@ GFXVectorIterator gfx_vector_insert_at(GFXVector* vector, const void* element, s
  *
  * @param num   Number of elements to insert.
  * @param start The start of the range, can also be an arbitrary pointer.
- * @return The iterator to the beginning of the inserted range (NULL or vector->end on failure).
+ * @return The iterator to the beginning of the inserted range (vector->end on failure).
  *
  */
 GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVectorIterator start, GFXVectorIterator pos);
@@ -184,7 +190,7 @@ GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVect
  *
  * @param num   Number of elements to insert.
  * @param start The start of the range, can also be an arbitrary pointer.
- * @return The iterator to the beginning of the inserted range (NULL or vector->end on failure).
+ * @return The iterator to the beginning of the inserted range (vector->end on failure).
  *
  */
 GFXVectorIterator gfx_vector_insert_range_at(GFXVector* vector, size_t num, GFXVectorIterator start, size_t index);

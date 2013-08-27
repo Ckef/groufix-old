@@ -134,7 +134,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/deque.o \
  $(OUT)/unix-x11/groufix/containers/list.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
- $(OUT)/unix-x11/groufix/geometry/submesh.o \
+ $(OUT)/unix-x11/groufix/geometry/layout.o \
  $(OUT)/unix-x11/groufix/pipeline/bucket.o \
  $(OUT)/unix-x11/groufix/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
@@ -179,7 +179,7 @@ $(OUT)/unix-x11/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HE
 $(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-$(OUT)/unix-x11/groufix/geometry/submesh.o: $(SRC)/groufix/geometry/submesh.c $(HEADERS_X11)
+$(OUT)/unix-x11/groufix/geometry/layout.o: $(SRC)/groufix/geometry/layout.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_X11)
@@ -226,7 +226,7 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/containers/deque.o \
  $(OUT)/osx-x11/groufix/containers/list.o \
  $(OUT)/osx-x11/groufix/containers/vector.o \
- $(OUT)/osx-x11/groufix/geometry/submesh.o \
+ $(OUT)/osx-x11/groufix/geometry/layout.o \
  $(OUT)/osx-x11/groufix/pipeline/bucket.o \
  $(OUT)/osx-x11/groufix/platform/x11_context.o \
  $(OUT)/osx-x11/groufix/platform/x11_init.o \
@@ -268,7 +268,7 @@ $(OUT)/osx-x11/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEA
 $(OUT)/osx-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
-$(OUT)/osx-x11/groufix/geometry/submesh.o: $(SRC)/groufix/geometry/submesh.c $(HEADERS_X11)
+$(OUT)/osx-x11/groufix/geometry/layout.o: $(SRC)/groufix/geometry/layout.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_X11)
@@ -315,7 +315,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/deque.o \
  $(OUT)/win32/groufix/containers/list.o \
  $(OUT)/win32/groufix/containers/vector.o \
- $(OUT)/win32/groufix/geometry/submesh.o \
+ $(OUT)/win32/groufix/geometry/layout.o \
  $(OUT)/win32/groufix/pipeline/bucket.o \
  $(OUT)/win32/groufix/platform/win32_context.o \
  $(OUT)/win32/groufix/platform/win32_init.o \
@@ -360,7 +360,7 @@ $(OUT)/win32/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEADE
 $(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/geometry/submesh.o: $(SRC)/groufix/geometry/submesh.c $(HEADERS_WIN32)
+$(OUT)/win32/groufix/geometry/layout.o: $(SRC)/groufix/geometry/layout.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_WIN32)

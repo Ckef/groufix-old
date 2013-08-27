@@ -96,10 +96,14 @@ int _gfx_hardware_object_register(GFX_Hardware_Object object, const GFX_Hardware
 
 	/* Try to find it and update functions */
 	GFXVectorIterator it = _gfx_hardware_obj_find(0, gfx_vector_get_size(_gfx_hw_objects), object);
-	if(((struct GFX_Internal_Hardware_Object*)it)->handle == object)
+	if(it != _gfx_hw_objects->end)
 	{
-		((struct GFX_Internal_Hardware_Object*)it)->funcs = funcs;
-		return 1;
+		struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)it;
+		if(obj->handle == object)
+		{
+			obj->funcs = funcs;
+			return 1;
+		}
 	}
 
 	/* Create internal object and insert if not found */
