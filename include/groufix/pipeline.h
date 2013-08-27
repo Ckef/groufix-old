@@ -87,7 +87,7 @@ void gfx_bucket_free(GFXBucket* bucket);
  * @param state State to associate this unit with.
  * @return The inserted unit, NULL on failure.
  *
- * Note: this forces the bucket to preprocess.
+ * Note: this forces the bucket to have to preprocess.
  *
  */
 GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, void* data, GFXBatchState state);
@@ -101,7 +101,7 @@ GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
 /**
  * Sets the state to associate a unit with.
  *
- * Note: this forces the bucket to preprocess.
+ * Note: this forces the bucket to have to preprocess.
  *
  */
 void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
@@ -109,15 +109,21 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
 /**
  * Erases and frees a unit from its bucket.
  *
- * Note: this DOES NOT preprocess the bucket.
+ * Note: this DOES NOT cause the need to preprocess the bucket.
  *
  */
 void gfx_bucket_erase(GFXBatchUnit* unit);
 
 /**
- * Processes the bucket, calling all batch processes.
+ * Preprocesses the bucket if necessary, calling all batch preprocesses.
  *
- * @return The first element.
+ * Note: will do nothing if not resorted.
+ *
+ */
+void gfx_bucket_preprocess(GFXBucket* bucket);
+
+/**
+ * Processes the bucket, calling all batch processes.
  *
  */
 void gfx_bucket_process(GFXBucket* bucket);

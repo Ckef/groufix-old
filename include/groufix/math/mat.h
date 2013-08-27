@@ -24,6 +24,7 @@
 
 #include "groufix/utils.h"
 
+#include <float.h>
 #include <math.h>
 #include <string.h>
 
@@ -239,7 +240,7 @@ inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
 {
 	/* Check if determinant is non-zero */
 	double det = MAT_FUNC(determinant)(a);
-	if(!det) return 0;
+	if(fabs(det) <= DBL_EPSILON) return 0;
 
 	MAT_NAME res;
 	det = 1.0 / det;
@@ -295,7 +296,7 @@ inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
 		a->data[3] * adj.data[1] +
 		a->data[6] * adj.data[2];
 
-	if(!det) return 0;
+	if(fabs(det) <= DBL_EPSILON) return 0;
 
 	/* Write 1/det * adjugate to destination */
 	MAT_FUNC(mult_scalar)(dest, &adj, 1.0 / det);
@@ -354,7 +355,7 @@ inline int MAT_FUNC(inverse)(MAT_NAME* dest, MAT_NAME* a)
 
 	/* Check if determinant is non-zero */
 	double det = S0 * C5 - S1 * C4 + S2 * C3 + S3 * C2 - S4 * C1 + S5 * C0;
-	if(!det) return 0;
+	if(fabs(det) <= DBL_EPSILON) return 0;
 
 	MAT_NAME res;
 	det = 1.0 / det;

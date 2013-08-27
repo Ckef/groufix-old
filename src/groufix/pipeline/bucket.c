@@ -257,21 +257,24 @@ void gfx_bucket_erase(GFXBatchUnit* unit)
 }
 
 /******************************************************/
-void gfx_bucket_process(GFXBucket* bucket)
+void gfx_bucket_preprocess(GFXBucket* bucket)
 {
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
-	/* Nothing to process */
-	if(!internal->first) return;
-
-	/* Sort if needed */
-	if(internal->sort)
+	/* Check if sort is needed */
+	if(internal->first && internal->sort)
 	{
 		gfx_vector_clear(&internal->batches);
 		_gfx_bucket_radix_sort(internal->maxBit, &internal->first, &internal->last, internal);
 
 		internal->sort = 0;
 	}
+}
+
+/******************************************************/
+void gfx_bucket_process(GFXBucket* bucket)
+{
+	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
 	/* Process */
 	GFXVectorIterator it;
