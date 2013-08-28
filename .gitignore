@@ -3,6 +3,7 @@
 *.cbTemp
 *.depend
 *.layout
+*.supp
 *.swo
 *.swp
 *.fuse_hidden*

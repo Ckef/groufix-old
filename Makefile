@@ -30,7 +30,6 @@ default:
 	@echo " $(MAKE) clean-all         Clean all files $(MAKE) produced."
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo " $(MAKE) unix-x11          Build the Groufix Unix target using X11."
-	@echo " $(MAKE) unix-x11-bucket   Build the bucket example Unix target using X11."
 	@echo " $(MAKE) unix-x11-minimal  Build the minimal example Unix target using X11."
 	@echo " $(MAKE) unix-x11-simple   Build the simple example Unix target using X11."
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -39,7 +38,6 @@ default:
 	@echo " $(MAKE) osx-x11-simple    Build the simple example OS X target using X11."
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo " $(MAKE) win32             Build the Groufix Windows target."
-	@echo " $(MAKE) win32-bucket      Build the bucket example Windows target."
 	@echo " $(MAKE) win32-minimal     Build the minimal example Windows target."
 	@echo " $(MAKE) win32-simple      Build the simple example Windows target."
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -150,9 +148,6 @@ OBJS_UNIX_X11 = \
 
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
 	$(CC) -shared $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LIBS_UNIX_X11)
-
-unix-x11-bucket: examples/bucket.c unix-x11
-	$(CC) $(CFLAGS) $< -o $(BIN)/unix-x11/bucket -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 unix-x11-minimal: examples/minimal.c unix-x11 
 	$(CC) $(CFLAGS) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
@@ -331,9 +326,6 @@ OBJS_WIN32 = \
 
 win32: before-win32 $(OBJS_WIN32)
 	$(CC) -shared $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LIBS_WIN32)
-
-win32-bucket: examples/bucket.c win32
-	$(CC) $(CFLAGS) $< -o $(BIN)/win32/bucket -L$(BIN)/win32/ -lGroufix
 
 win32-minimal: examples/minimal.c win32
 	$(CC) $(CFLAGS) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
