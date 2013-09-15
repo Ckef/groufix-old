@@ -135,11 +135,7 @@ GFXVertexLayout gfx_vertex_layout_create(void)
 	if(!layout) return NULL;
 
 	window->extensions.GenVertexArrays(1, &layout->vao);
-	if(!layout->vao)
-	{
-		free(layout);
-		return NULL;
-	}
+
 	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Internal_Attribute));
 	gfx_vector_init(&layout->drawCalls, sizeof(GFXDrawCall));
 
@@ -170,7 +166,7 @@ void gfx_vertex_layout_free(GFXVertexLayout layout)
 }
 
 /******************************************************/
-int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, const GFXVertexAttribute* attr, void* buffer)
+int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer)
 {
 	/* Get current window and internal layout */
 	GFX_Internal_Window* window = _gfx_window_get_current();

@@ -195,13 +195,13 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 
 	/* Create platform window */
 	GFX_Platform_Attributes attr;
-	attr.screen    = scr;
-	attr.name      = name;
-	attr.width     = width;
-	attr.height    = height;
-	attr.x         = x;
-	attr.y         = y;
-	attr.depth     = depth;
+	attr.screen = scr;
+	attr.name   = name;
+	attr.width  = width;
+	attr.height = height;
+	attr.x      = x;
+	attr.y      = y;
+	attr.depth  = depth;
 
 	window->handle = _gfx_platform_window_create(&attr);
 	if(!window->handle)

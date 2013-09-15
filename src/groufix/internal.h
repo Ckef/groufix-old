@@ -33,9 +33,6 @@
 	#include <GL/glcorearb.h>
 #endif
 
-/* Extensions from void */
-#define GFX_GET_EXT(x) ((const GFX_Extensions*)x)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -233,6 +230,7 @@ void _gfx_hardware_objects_free(const GFX_Extensions* ext);
  * Issue save method of all hardware objects.
  *
  * During this operation, the current window and context are considered "deleted".
+ * It is guaranteed another context is still active, this is only meant for objects which can't be shared.
  *
  */
 void _gfx_hardware_objects_save(const GFX_Extensions* ext);

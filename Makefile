@@ -81,6 +81,7 @@ HEADERS = \
  $(INCLUDE)/groufix/math/mat.h \
  $(INCLUDE)/groufix/math/quat.h \
  $(INCLUDE)/groufix/math/vec.h \
+ $(INCLUDE)/groufix/buffer.h \
  $(INCLUDE)/groufix/errors.h \
  $(INCLUDE)/groufix/geometry.h \
  $(INCLUDE)/groufix/hardware.h \
@@ -138,6 +139,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/platform/x11_screen.o \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
+ $(OUT)/unix-x11/groufix/buffer.o \
  $(OUT)/unix-x11/groufix/errors.o \
  $(OUT)/unix-x11/groufix/events.o \
  $(OUT)/unix-x11/groufix/extensions.o \
@@ -192,6 +194,9 @@ $(OUT)/unix-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_scree
 $(OUT)/unix-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/buffer.o: $(SRC)/groufix/buffer.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -227,6 +232,7 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/platform/x11_init.o \
  $(OUT)/osx-x11/groufix/platform/x11_screen.o \
  $(OUT)/osx-x11/groufix/platform/x11_window.o \
+ $(OUT)/osx-x11/groufix/buffer.o \
  $(OUT)/osx-x11/groufix/errors.o \
  $(OUT)/osx-x11/groufix/events.o \
  $(OUT)/osx-x11/groufix/extensions.o \
@@ -281,6 +287,9 @@ $(OUT)/osx-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_screen
 $(OUT)/osx-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
+$(OUT)/osx-x11/groufix/buffer.o: $(SRC)/groufix/buffer.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
+
 $(OUT)/osx-x11/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
@@ -316,6 +325,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/platform/win32_init.o \
  $(OUT)/win32/groufix/platform/win32_screen.o \
  $(OUT)/win32/groufix/platform/win32_window.o \
+ $(OUT)/win32/groufix/buffer.o \
  $(OUT)/win32/groufix/errors.o \
  $(OUT)/win32/groufix/events.o \
  $(OUT)/win32/groufix/extensions.o \
@@ -368,6 +378,9 @@ $(OUT)/win32/groufix/platform/win32_screen.o: $(SRC)/groufix/platform/win32_scre
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_window.o: $(SRC)/groufix/platform/win32_window.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/buffer.o: $(SRC)/groufix/buffer.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_WIN32)

@@ -22,9 +22,9 @@
 #ifndef GFX_GEOMETRY_H
 #define GFX_GEOMETRY_H
 
+#include "groufix/buffer.h"
 #include "groufix/hardware.h"
 
-#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -101,7 +101,7 @@ void gfx_vertex_layout_free(GFXVertexLayout layout);
  * @return Zero on failure.
  *
  */
-int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, const GFXVertexAttribute* attr, void* buffer);
+int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer);
 
 /**
  * Removes an attribute from a vertex layout.

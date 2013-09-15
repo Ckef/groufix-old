@@ -33,11 +33,29 @@ extern "C" {
  *******************************************************/
 
 /** Buffer */
-typedef GFXBuffer
+typedef struct GFXBuffer
 {
-	size_t size;
+	size_t         size;        /* Size of the buffer */
+	unsigned char  backbuffers; /* Number of back buffers */
 
 } GFXBuffer;
+
+
+/**
+ * Creates a new buffer.
+ *
+ * @param size Size of the buffer.
+ * @param back Number of backbuffers to allocate (> 0 for multi buffering, 0 for regular buffer).
+ * @return Non-zero on success.
+ *
+ */
+GFXBuffer* gfx_buffer_create(size_t size, unsigned char back);
+
+/**
+ * Makes sure the buffer is freed properly.
+ *
+ */
+void gfx_buffer_free(GFXBuffer* buffer);
 
 
 #ifdef __cplusplus
