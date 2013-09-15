@@ -30,13 +30,13 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 _The library is not thread safe_. All windowing and hardware functionality should be executed from the same thread at all times. Due to the complex nature of GPU interaction it is easier and safer to execute all graphics related operations on the same thread. However, there are components in the engine which are specifically designed to be used in multiple threads. Note, no other functionality is guaranteed to work concurrently.
 
-* __Buffer Mapping__
+* __Buffer Mapping__, the returned pointer may be used from within any location in the program, as long as it is valid.
 
 ### Termination
 
 As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all hardware (GPU) related memory and free all windows. This means the connection to both the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
 
-_It will not free any other resources_. Windows are the only user allocated objects which are automatically freed, any other objects must be freed by the user. To make sure everything is freed properly, every create method must be followed up by the appropriate free method.
+_It will not free any other resources_. Windows are the only user allocated objects which are automatically freed, any other objects must be freed by the user. To make sure everything is freed properly, every create method must be followed up by the appropriate free method and every init method must be followed up by the appropriate clear method.
 
 ## Acknowledgements
 
