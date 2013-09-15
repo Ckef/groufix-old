@@ -143,8 +143,7 @@ void gfx_errors_set_maximum(unsigned int max)
 			gfx_deque_pop_back(_gfx_errors);
 		}
 
-		/* Reallocate the memory used */
-		gfx_deque_shrink(_gfx_errors);
+		/* Reserve the memory */
 		gfx_deque_reserve(_gfx_errors, max);
 	}
 }

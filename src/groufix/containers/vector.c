@@ -273,7 +273,7 @@ GFXVectorIterator gfx_vector_erase_at(GFXVector* vector, size_t index)
 GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVectorIterator start)
 {
 	/* Nothing to erase */
-	if(start == vector->end || !num) return NULL;
+	if(start == vector->end || !num) return vector->end;
 
 	/* Get new properties */
 	size_t diff = num * vector->elementSize;
@@ -288,7 +288,7 @@ GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVecto
 	if(!newSize)
 	{
 		gfx_vector_clear(vector);
-		return NULL;
+		return vector->end;
 	}
 
 	/* Move elements if necessary */
@@ -299,9 +299,10 @@ GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVecto
 	/* Use upperbound/4 instead to avoid constant realloc */
 	if(newSize < (vector->capacity >> 2))
 	{
-		if(!_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize))) return NULL;
+		_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize));
 		start = PTR_ADD_BYTES(vector->begin, oldSize - toEnd);
 	}
+	else if(!newSize) gfx_vector_clear(vector);
 
 	/* Set new end */
 	else vector->end = PTR_ADD_BYTES(vector->begin, newSize);

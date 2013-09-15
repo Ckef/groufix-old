@@ -198,7 +198,7 @@ GFXVectorIterator gfx_vector_insert_range_at(GFXVector* vector, size_t num, GFXV
 /**
  * Erases an element at a given iterator.
  *
- * @return The iterator to the element taking its place (NULL on failure).
+ * @return The iterator to the element taking its place.
  *
  */
 GFXVectorIterator gfx_vector_erase(GFXVector* vector, GFXVectorIterator pos);
@@ -206,7 +206,7 @@ GFXVectorIterator gfx_vector_erase(GFXVector* vector, GFXVectorIterator pos);
 /**
  * Erases an element at a given index.
  *
- * @return The iterator to the element taking its place (NULL on failure).
+ * @return The iterator to the element taking its place.
  *
  */
 GFXVectorIterator gfx_vector_erase_at(GFXVector* vector, size_t index);
@@ -216,7 +216,7 @@ GFXVectorIterator gfx_vector_erase_at(GFXVector* vector, size_t index);
  *
  * @param num   Number of elements to erase.
  * @param start The start of the range.
- * @return The iterator to the element taking its place (NULL on failure).
+ * @return The iterator to the element taking its place.
  *
  */
 GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVectorIterator start);
@@ -226,7 +226,7 @@ GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVecto
  *
  * @param num   Number of elements to erase.
  * @param start The start of the range.
- * @return The iterator to the element taking its place (NULL on failure).
+ * @return The iterator to the element taking its place.
  *
  */
 GFXVectorIterator gfx_vector_erase_range_at(GFXVector* vector, size_t num, size_t index);

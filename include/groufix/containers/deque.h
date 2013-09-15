@@ -131,20 +131,12 @@ size_t gfx_deque_get_size(GFXDeque* deque);
 size_t gfx_deque_get_index(GFXDeque* deque, GFXDequeIterator it);
 
 /**
- * Requests a minimum capacity.
+ * Requests a minimum capacity, which will hold as long as nothing is erased.
  *
  * @return If zero, out of memory.
  *
  */
 int gfx_deque_reserve(GFXDeque* deque, size_t numElements);
-
-/**
- * Shrinks the deque to fit the elements it holds.
- *
- * @return If zero, out of memory.
- *
- */
-int gfx_deque_shrink(GFXDeque* deque);
 
 /**
  * Returns an iterator of the element at a given index.
