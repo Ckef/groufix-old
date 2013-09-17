@@ -123,7 +123,7 @@ static GFX_Hardware_Funcs _gfx_layout_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_vertex_layout_get_handle(GFXVertexLayout layout)
+GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout layout)
 {
 	GLuint* handle = (GLuint*)layout;
 
@@ -153,7 +153,7 @@ GFXVertexLayout gfx_vertex_layout_create(void)
 }
 
 /******************************************************/
-void gfx_vertex_layout_free(const GFXVertexLayout layout)
+void gfx_vertex_layout_free(GFXVertexLayout layout)
 {
 	if(layout)
 	{
