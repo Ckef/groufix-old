@@ -19,7 +19,6 @@
  *
  */
 
-#include "groufix/geometry.h"
 #include "groufix/containers/vector.h"
 #include "groufix/internal.h"
 
@@ -124,6 +123,14 @@ static GFX_Hardware_Funcs _gfx_layout_obj_funcs =
 };
 
 /******************************************************/
+GLuint _gfx_vertex_layout_get_handle(GFXVertexLayout layout)
+{
+	GLuint* handle = (GLuint*)layout;
+
+	return *handle;
+}
+
+/******************************************************/
 GFXVertexLayout gfx_vertex_layout_create(void)
 {
 	/* Get current window and context */
@@ -146,7 +153,7 @@ GFXVertexLayout gfx_vertex_layout_create(void)
 }
 
 /******************************************************/
-void gfx_vertex_layout_free(GFXVertexLayout layout)
+void gfx_vertex_layout_free(const GFXVertexLayout layout)
 {
 	if(layout)
 	{
@@ -185,7 +192,7 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, 
 		if(set->index == index)
 		{
 			set->attr = *attr;
-			set->buffer = 0;
+			set->buffer = _gfx_buffer_get_handle(buffer);
 
 			break;
 		}
@@ -195,9 +202,9 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, 
 	if(it == internal->attributes.end)
 	{
 		struct GFX_Internal_Attribute insert;
-		insert.attr = *attr;
-		insert.buffer = 0;
-		insert.index = index;
+		insert.attr   = *attr;
+		insert.buffer = _gfx_buffer_get_handle(buffer);
+		insert.index  = index;
 
 		it = gfx_vector_insert(&internal->attributes, &insert, it);
 		if(it == internal->attributes.end) return 0;

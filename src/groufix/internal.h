@@ -22,6 +22,8 @@
 #ifndef GFX_INTERNAL_H
 #define GFX_INTERNAL_H
 
+#include "groufix/buffer.h"
+#include "groufix/geometry.h"
 #include "groufix/hardware.h"
 #include "groufix/platform.h"
 
@@ -242,6 +244,23 @@ void _gfx_hardware_objects_save(const GFX_Extensions* ext);
  *
  */
 void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
+
+
+/********************************************************
+ * Internal hardware object access
+ *******************************************************/
+
+/**
+ * Returns the current handle of a buffer.
+ *
+ */
+GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer);
+
+/**
+ * Returns the VAO of a layout.
+ *
+ */
+GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout layout);
 
 
 #ifdef __cplusplus
