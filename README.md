@@ -30,7 +30,7 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 _The library is not thread safe_. All windowing and hardware functionality should be executed from the same thread at all times. Due to the complex nature of GPU interaction it is easier and safer to execute all graphics related operations on the same thread. However, there are components in the engine which are specifically designed to be used in multiple threads. Note, no other functionality is guaranteed to work concurrently.
 
-* __Buffer Mapping__, the returned pointer may be used from within any location in the program, as long as it is valid.
+* __Buffer Mapping__, `gfx_buffer_map` returns a pointer which may be used from within any location in the program, as long as it is valid.
 
 ### Termination
 

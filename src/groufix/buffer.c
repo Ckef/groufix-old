@@ -152,12 +152,14 @@ void gfx_buffer_free(GFXBuffer* buffer)
 }
 
 /******************************************************/
-void gfx_buffer_swap(GFXBuffer* buffer)
+int gfx_buffer_swap(GFXBuffer* buffer)
 {
 	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 
 	++internal->current;
 	internal->current = internal->current > buffer->multi ? 0 : internal->current;
+
+	return buffer->multi;
 }
 
 /******************************************************/

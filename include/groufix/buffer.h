@@ -103,8 +103,10 @@ void gfx_buffer_free(GFXBuffer* buffer);
 /**
  * Advances to the next backbuffer.
  *
+ * @return Zero if this buffer is not multi buffered (and thus no swap occurred).
+ *
  */
-void gfx_buffer_swap(GFXBuffer* buffer);
+int gfx_buffer_swap(GFXBuffer* buffer);
 
 /**
  * Writes data to the buffer synchronously.

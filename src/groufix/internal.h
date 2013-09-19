@@ -24,7 +24,6 @@
 
 #include "groufix/buffer.h"
 #include "groufix/geometry.h"
-#include "groufix/hardware.h"
 #include "groufix/platform.h"
 
 /* Correct OGL header */
