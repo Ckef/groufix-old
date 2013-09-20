@@ -75,7 +75,7 @@ static void _gfx_win32_track_mouse(HWND handle)
 /******************************************************/
 static GFXKey _gfx_win32_get_extended_key(GFXKey key, LPARAM lParam)
 {
-	/* Get extended key (probaby right key) */
+	/* Get extended key (probably right key) */
 	if(lParam & 0x1000000) switch(key)
 	{
 		case GFX_KEY_RETURN       : return GFX_KEY_KP_RETURN;

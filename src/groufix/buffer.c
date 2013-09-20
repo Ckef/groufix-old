@@ -45,8 +45,9 @@ struct GFX_Internal_Buffer_Segment
 	GFXBufferSegment segment;
 
 	/* Hidden data */
-	size_t     current;
-	GFXVector  fences; /* Stores GLsync */
+	unsigned char  firstBuffer; /* First used multi buffer */
+	size_t         current;     /* Current fence to be created */
+	GFXVector      fences;      /* Stores GLsync */
 };
 
 /******************************************************/
@@ -301,15 +302,14 @@ void gfx_buffer_unmap(GFXBuffer* buffer)
 GFXBufferSegment* gfx_buffer_segment_create(GFXBuffer* buffer, size_t size)
 {
 	/* Allocate segment */
-	struct GFX_Internal_Buffer_Segment* segment = malloc(sizeof(struct GFX_Internal_Buffer_Segment));
+	struct GFX_Internal_Buffer_Segment* segment = calloc(1, sizeof(struct GFX_Internal_Buffer_Segment));
 	if(!segment) return NULL;
 
 	gfx_vector_init(&segment->fences, sizeof(GLsync));
 
-	segment->current = 0;
+	segment->firstBuffer = ((struct GFX_Internal_Buffer*)buffer)->current;
 	segment->segment.buffer = buffer;
 	segment->segment.size = size > buffer->size ? buffer->size : size;
-	segment->segment.offset = 0;
 
 	return (GFXBufferSegment*)segment;
 }
@@ -324,4 +324,29 @@ void gfx_buffer_segment_free(GFXBufferSegment* segment)
 		gfx_vector_clear(&internal->fences);
 		free(segment);
 	}
+}
+
+/******************************************************/
+int gfx_buffer_segment_swap(GFXBufferSegment* segment)
+{
+	struct GFX_Internal_Buffer_Segment* internal = (struct GFX_Internal_Buffer_Segment*)segment;
+	struct GFX_Internal_Buffer* buffer = (struct GFX_Internal_Buffer*)segment->buffer;
+
+	/* Advance to next block */
+	size_t curr = internal->current;
+	size_t off = segment->offset + segment->size;
+	++internal->current;
+
+	if(off + segment->size > segment->buffer->size)
+	{
+		/* Swap buffer if out of bounds */
+		segment->offset = 0;
+		gfx_buffer_swap(segment->buffer);
+
+		if(buffer->current == internal->firstBuffer) internal->current = 0;
+	}
+	else segment->offset = off;
+
+	/* If either is not zero, a new segment was selected */
+	return curr | internal->current;
 }

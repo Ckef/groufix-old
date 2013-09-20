@@ -167,7 +167,7 @@ void gfx_buffer_unmap(GFXBuffer* buffer);
 
 
 /********************************************************
- * Buffer Segmentation (auto syncrhonization)
+ * Buffer Segmentation (auto synchronization)
  *******************************************************/
 
 /** Buffer Segment */
@@ -193,6 +193,16 @@ GFXBufferSegment* gfx_buffer_segment_create(GFXBuffer* buffer, size_t size);
  *
  */
 void gfx_buffer_segment_free(GFXBufferSegment* segment);
+
+/**
+ * Advances to the next block in the buffer.
+ *
+ * @return Zero if no swap could be made (thus the same memory block is pointed to).
+ *
+ * Note: this method implicitly calls the swap of the buffer itself.
+ *
+ */
+int gfx_buffer_segment_swap(GFXBufferSegment* segment);
 
 
 #ifdef __cplusplus
