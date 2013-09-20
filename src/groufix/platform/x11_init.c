@@ -93,41 +93,7 @@ static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 	/* Make sure it's null terminated */
 	text[GFX_X11_ERROR_LENGTH - 1] = 0;
 
-	switch(evt->error_code)
-	{
-		case BadAccess :
-			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, text);
-			break;
-
-		case BadAlloc :
-			gfx_errors_push(GFX_ERROR_OUT_OF_MEMORY, text);
-			break;
-
-		case BadAtom :
-		case BadColor :
-		case BadCursor :
-		case BadDrawable :
-		case BadFont :
-		case BadGC :
-		case BadIDChoice :
-		case BadLength :
-		case BadName :
-		case BadPixmap :
-		case BadRequest :
-		case BadValue :
-		case BadWindow :
-			gfx_errors_push(GFX_ERROR_INVALID_VALUE, text);
-			break;
-
-		case BadImplementation :
-		case BadMatch :
-			gfx_errors_push(GFX_ERROR_INVALID_OPERATION, text);
-			break;
-
-		default :
-			gfx_errors_push(GFX_ERROR_UNKNOWN, text);
-			break;
-	}
+	gfx_errors_push(GFX_ERROR_PLATFORM_ERROR, text);
 
 	free(text);
 

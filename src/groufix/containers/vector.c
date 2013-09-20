@@ -73,7 +73,7 @@ GFXVector* gfx_vector_create_from_buffer(size_t elementSize, size_t numElements,
 		free(vector);
 		return NULL;
 	}
-	memcpy(vector->begin, buff, size);
+	else if(buff) memcpy(vector->begin, buff, size);
 
 	return vector;
 }
@@ -109,11 +109,11 @@ void gfx_vector_init_from_buffer(GFXVector* vector, size_t elementSize, size_t n
 
 	/* Allocate and copy */
 	size_t size = elementSize * numElements;
-	if(_gfx_vector_realloc(vector, size, _gfx_vector_get_max_capacity(size)))
+	if(!_gfx_vector_realloc(vector, size, _gfx_vector_get_max_capacity(size)))
 	{
-		memcpy(vector->begin, buff, size);
+		gfx_vector_clear(vector);
 	}
-	else gfx_vector_clear(vector);
+	else if(buff) memcpy(vector->begin, buff, size);
 }
 
 /******************************************************/
@@ -209,7 +209,7 @@ GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXV
 
 	/* Move elements if inserting */
 	if(mov) memmove(PTR_ADD_BYTES(pos, vector->elementSize), pos, mov);
-	memcpy(pos, element, vector->elementSize);
+	if(element) memcpy(pos, element, vector->elementSize);
 
 	return pos;
 }
@@ -231,7 +231,7 @@ GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVect
 
 	/* Copy to a temporary buffer */
 	int8_t buff[diff];
-	memcpy(buff, start, diff);
+	if(start) memcpy(buff, start, diff);
 
 	/* Reallocate if necessary */
 	if(newSize > vector->capacity)

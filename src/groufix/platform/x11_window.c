@@ -293,7 +293,7 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 	window.height = get.height;
 
 	/* Add window to vector */
-	if(!gfx_vector_insert(&_gfx_x11->windows, &window, _gfx_x11->windows.end))
+	if(gfx_vector_insert(&_gfx_x11->windows, &window, _gfx_x11->windows.end) == _gfx_x11->windows.end)
 	{
 		XDestroyWindow(_gfx_x11->display, window.handle);
 		XFreeColormap(_gfx_x11->display, attr.colormap);

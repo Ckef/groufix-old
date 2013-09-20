@@ -65,7 +65,7 @@ GFXDeque* gfx_deque_create(size_t elementSize);
  * Creates a new deque with a preset content.
  *
  * @param numElements The number of elements stored in the buffer (not byte size!).
- * @param buff        Memory to copy content from.
+ * @param buff        Memory to copy content from, if NULL, nothing will be copied.
  * @return NULL on failure.
  *
  */
@@ -95,7 +95,7 @@ void gfx_deque_init(GFXDeque* deque, size_t elementSize);
  * Initializes a deque with a preset content.
  *
  * @param numElements The number of elements stored in the buffer (not byte size!).
- * @param buff        Memory to copy content from.
+ * @param buff        Memory to copy content from, if NULL, nothing will be copied.
  *
  */
 void gfx_deque_init_from_buffer(GFXDeque* deque, size_t elementSize, size_t numElements, const void* buff);
@@ -167,6 +167,7 @@ GFXDequeIterator gfx_deque_advance(GFXDeque* deque, GFXDequeIterator it, int num
 /**
  * Adds an element to the front of the deque.
  *
+ * @param element Data to copy into the new element, can be NULL to copy nothing.
  * @return An iterator to the new element (deque->end on failure).
  *
  */
@@ -175,6 +176,7 @@ GFXDequeIterator gfx_deque_push_front(GFXDeque* deque, const void* element);
 /**
  * Adds an element to the back of the deque.
  *
+ * @param element Data to copy into the new element, can be NULL to copy nothing.
  * @return An iterator to the new element (deque->end on failure).
  *
  */

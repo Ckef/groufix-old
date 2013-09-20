@@ -86,7 +86,6 @@ static void _gfx_layout_obj_free(GFX_Hardware_Object object, const GFX_Extension
 	layout->vao = 0;
 
 	gfx_vector_clear(&layout->attributes);
-	gfx_vector_clear(&layout->drawCalls);
 }
 
 /******************************************************/

@@ -60,7 +60,7 @@ GFXVector* gfx_vector_create(size_t elementSize);
  * Creates a new vector with a preset content.
  *
  * @param numElements The number of elements stored in the buffer (not byte size!).
- * @param buff        Memory to copy content from.
+ * @param buff        Memory to copy content from, if NULL, nothing will be copied.
  * @return NULL on failure.
  *
  */
@@ -90,7 +90,7 @@ void gfx_vector_init(GFXVector* vector, size_t elementSize);
  * Initializes a vector with a preset content.
  *
  * @param numElements The number of elements stored in the buffer (not byte size!).
- * @param buff        Memory to copy content from.
+ * @param buff        Memory to copy content from, if NULL, nothing will be copied.
  *
  */
 void gfx_vector_init_from_buffer(GFXVector* vector, size_t elementSize, size_t numElements, const void* buff);
@@ -162,6 +162,7 @@ GFXVectorIterator gfx_vector_advance(GFXVector* vector, GFXVectorIterator it, in
 /**
  * Inserts an element at a given iterator.
  *
+ * @param element Data to copy into the new element, can be NULL to copy nothing.
  * @return The iterator to the new element (vector->end on failure).
  *
  */
@@ -170,6 +171,7 @@ GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXV
 /**
  * Inserts an element after a given index.
  *
+ * @param element Data to copy into the new element, can be NULL to copy nothing.
  * @return The iterator to the new element (vector->end on failure).
  *
  */
@@ -179,7 +181,7 @@ GFXVectorIterator gfx_vector_insert_at(GFXVector* vector, const void* element, s
  * Inserts a range of elements at a given iterator (can be this vector).
  *
  * @param num   Number of elements to insert.
- * @param start The start of the range, can also be an arbitrary pointer.
+ * @param start The start of the range, can also be an arbitrary pointer, or NULL to copy nothing.
  * @return The iterator to the beginning of the inserted range (vector->end on failure).
  *
  */
@@ -189,7 +191,7 @@ GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVect
  * Inserts a range of elements at a given index (can be this vector).
  *
  * @param num   Number of elements to insert.
- * @param start The start of the range, can also be an arbitrary pointer.
+ * @param start The start of the range, can also be an arbitrary pointer, or NULL to copy nothing.
  * @return The iterator to the beginning of the inserted range (vector->end on failure).
  *
  */

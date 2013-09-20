@@ -386,7 +386,7 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 	if(!window.handle) return NULL;
 
 	/* Add window to vector */
-	if(!gfx_vector_insert(&_gfx_win32->windows, &window, _gfx_win32->windows.end))
+	if(gfx_vector_insert(&_gfx_win32->windows, &window, _gfx_win32->windows.end) == _gfx_win32->windows.end)
 	{
 		DestroyWindow(window.handle);
 		return NULL;

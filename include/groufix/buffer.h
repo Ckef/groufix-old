@@ -64,9 +64,10 @@ typedef enum GFXBufferTarget
 /** Buffer */
 typedef struct GFXBuffer
 {
-	size_t          size;  /* Size of the buffer */
-	GFXBufferUsage  usage; /* Intended usage of the buffer */
-	unsigned char   multi; /* Number of extra buffers (0 = regular buffering) */
+	size_t           size;   /* Size of the buffer */
+	GFXBufferUsage   usage;  /* Intended usage of the buffer */
+	GFXBufferTarget  target; /* Storage type the buffer is targeted for */
+	unsigned char    multi;  /* Number of extra buffers (0 = regular buffering) */
 
 } GFXBuffer;
 
@@ -88,11 +89,14 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 /**
  * Creates a copy of a buffer.
  *
+ * @param usage  Usage bitflag, how the buffer is intended to be used.
  * @param target Storage type the buffer is targeted for.
  * @return Non-zero on success.
  *
+ * Note: only copies the current buffer when multi buffering.
+ *
  */
-GFXBuffer* gfx_buffer_create_copy(GFXBuffer* src, GFXBufferTarget target);
+GFXBuffer* gfx_buffer_create_copy(GFXBuffer* src, GFXBufferUsage usage, GFXBufferTarget target);
 
 /**
  * Makes sure the buffer is freed properly.
@@ -107,6 +111,24 @@ void gfx_buffer_free(GFXBuffer* buffer);
  *
  */
 int gfx_buffer_swap(GFXBuffer* buffer);
+
+/**
+ * Allocates more buffers for multibuffering.
+ *
+ * @param num Number of extra buffers to allocate.
+ * @return Non-zero on success.
+ *
+ */
+int gfx_buffer_expand(GFXBuffer* buffer, unsigned char num);
+
+/**
+ * Deallocates buffers from multibuffering.
+ *
+ * @param num Number of buffers to remove.
+ * @return Number of buffers actually removed.
+ *
+ */
+int gfx_buffer_shrink(GFXBuffer* buffer, unsigned char num);
 
 /**
  * Writes data to the buffer synchronously.
@@ -142,6 +164,35 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferAcc
  *
  */
 void gfx_buffer_unmap(GFXBuffer* buffer);
+
+
+/********************************************************
+ * Buffer Segmentation (auto syncrhonization)
+ *******************************************************/
+
+/** Buffer Segment */
+typedef struct GFXBufferSegment
+{
+	GFXBuffer*  buffer;
+	size_t      size;   /* Byte size of the segment */
+	size_t      offset; /* Byte offset within the buffer */
+
+} GFXBufferSegment;
+
+
+/**
+ * Creates a new buffer segment.
+ *
+ * @param size Size of the segment, will be clipped to buffer size.
+ *
+ */
+GFXBufferSegment* gfx_buffer_segment_create(GFXBuffer* buffer, size_t size);
+
+/**
+ * Makes sure the buffer segment is freed properly.
+ *
+ */
+void gfx_buffer_segment_free(GFXBufferSegment* segment);
 
 
 #ifdef __cplusplus

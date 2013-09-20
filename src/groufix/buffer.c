@@ -20,6 +20,7 @@
  */
 
 #include "groufix/internal.h"
+#include "groufix/containers/vector.h"
 #include "groufix/errors.h"
 
 #include <stdlib.h>
@@ -34,7 +35,18 @@ struct GFX_Internal_Buffer
 
 	/* Hidden data */
 	unsigned char  current; /* Current active buffer */
-	GLuint*        handles;
+	GFXVector      handles; /* Stores GLuint */
+};
+
+/** Internal Buffer Segment */
+struct GFX_Internal_Buffer_Segment
+{
+	/* Super class */
+	GFXBufferSegment segment;
+
+	/* Hidden data */
+	size_t     current;
+	GFXVector  fences; /* Stores GLsync */
 };
 
 /******************************************************/
@@ -56,9 +68,9 @@ static void _gfx_buffer_obj_free(GFX_Hardware_Object object, const GFX_Extension
 	struct GFX_Internal_Buffer* buffer = (struct GFX_Internal_Buffer*)object;
 
 	unsigned char num = buffer->buffer.multi + 1;
-
-	ext->DeleteBuffers(num, buffer->handles);
-	memset(buffer->handles, 0, sizeof(GLuint) * num);
+	
+	ext->DeleteBuffers(num, buffer->handles.begin);
+	memset(buffer->handles.begin, 0, sizeof(GLuint) * num);
 }
 
 /******************************************************/
@@ -75,7 +87,7 @@ GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer)
 {
 	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 
-	return internal->handles[internal->current];
+	return *(GLuint*)gfx_vector_at(&internal->handles, internal->current);
 }
 
 /******************************************************/
@@ -86,30 +98,31 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 	if(!window) return NULL;
 
 	/* Create new buffer */
-	struct GFX_Internal_Buffer* buffer = malloc(sizeof(struct GFX_Internal_Buffer));
+	struct GFX_Internal_Buffer* buffer = calloc(1, sizeof(struct GFX_Internal_Buffer));
 	if(!buffer) return NULL;
 
 	/* Force stream when multi buffering */
 	usage |= multi ? GFX_BUFFER_STREAM : 0;
 
-	buffer->buffer.size  = size;
+	buffer->buffer.size = size;
 	buffer->buffer.usage = usage;
+	buffer->buffer.target = target;
 	buffer->buffer.multi = multi;
 
 	/* Increment, as we need a front buffer too! */
-	buffer->handles = malloc(sizeof(GLuint) * ++multi);
-	if(!buffer->handles)
+	gfx_vector_init_from_buffer(&buffer->handles, sizeof(GLuint), ++multi, NULL);
+	if(buffer->handles.begin == buffer->handles.end)
 	{
 		free(buffer);
 		return NULL;
 	}
-	window->extensions.GenBuffers(multi, buffer->handles);
+	window->extensions.GenBuffers(multi, buffer->handles.begin);
 
 	/* Allocate buffers */
 	GLenum us = _gfx_buffer_get_usage(usage);
 	while(multi > 0)
 	{
-		window->extensions.BindBuffer(target, buffer->handles[--multi]);
+		window->extensions.BindBuffer(target, *(GLuint*)gfx_vector_at(&buffer->handles, --multi));
 		window->extensions.BufferData(target, size, multi ? NULL : data, us);
 	}
 
@@ -120,13 +133,13 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 }
 
 /******************************************************/
-GFXBuffer* gfx_buffer_create_copy(GFXBuffer* src, GFXBufferTarget target)
+GFXBuffer* gfx_buffer_create_copy(GFXBuffer* src, GFXBufferUsage usage, GFXBufferTarget target)
 {
 	/* Map buffer to copy data and create */
 	void* data = gfx_buffer_map(src, src->size, 0, GFX_ACCESS_READ);
 	if(!data) return NULL;
 
-	GFXBuffer* buffer = gfx_buffer_create(src->usage, target, src->size, data, src->multi);
+	GFXBuffer* buffer = gfx_buffer_create(usage, target, src->size, data, src->multi);
 	gfx_buffer_unmap(src);
 
 	return buffer;
@@ -141,9 +154,9 @@ void gfx_buffer_free(GFXBuffer* buffer)
 
 		/* Get current window and context */
 		GFX_Internal_Window* window = _gfx_window_get_current();
-		if(window) window->extensions.DeleteBuffers(buffer->multi + 1, internal->handles);
+		if(window) window->extensions.DeleteBuffers(buffer->multi + 1, internal->handles.begin);
 
-		free(internal->handles);
+		gfx_vector_clear(&internal->handles);
 		free(buffer);
 
 		/* Unregister as object */
@@ -163,6 +176,71 @@ int gfx_buffer_swap(GFXBuffer* buffer)
 }
 
 /******************************************************/
+int gfx_buffer_expand(GFXBuffer* buffer, unsigned char num)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return 0;
+
+	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+
+	/* Allocate new handles */
+	GFXVectorIterator it = gfx_vector_insert_range(&internal->handles, num, NULL, internal->handles.end);
+	if(it == internal->handles.end) return 0;
+
+	window->extensions.GenBuffers(num, it);
+	buffer->multi += num;
+
+	/* Allocate buffers */
+	GLenum us = _gfx_buffer_get_usage(buffer->usage);
+	for(; it != internal->handles.end; it = gfx_vector_next(&internal->handles, it))
+	{
+		window->extensions.BindBuffer(buffer->target, *(GLuint*)it);
+		window->extensions.BufferData(buffer->target, buffer->size, NULL, us);
+	}
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_buffer_shrink(GFXBuffer* buffer, unsigned char num)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return 0;
+
+	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+
+	/* Get where to remove buffers */
+	unsigned char rem = num > buffer->multi ? buffer->multi : num;
+	unsigned char aft = buffer->multi - internal->current;
+
+	aft = aft > rem ? rem : aft;
+	unsigned char bef = rem - aft;
+
+	if(aft)
+	{
+		/* Erase handles after current */
+		GFXVectorIterator it = gfx_vector_at(&internal->handles, internal->current + 1);
+
+		window->extensions.DeleteBuffers(aft, it);
+		gfx_vector_erase_range(&internal->handles, aft, it);
+	}
+	if(bef)
+	{
+		/* Erase handles at beginning */
+		window->extensions.DeleteBuffers(bef, internal->handles.begin);
+		gfx_vector_erase_range(&internal->handles, bef, internal->handles.begin);
+	}
+
+	/* Adjust values */
+	buffer->multi -= rem;
+	internal->current -= bef;
+
+	return rem;
+}
+
+/******************************************************/
 void gfx_buffer_write(GFXBuffer* buffer, size_t size, const void* data, size_t offset)
 {
 	/* Get current window and context */
@@ -171,7 +249,7 @@ void gfx_buffer_write(GFXBuffer* buffer, size_t size, const void* data, size_t o
 
 	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 
-	window->extensions.BindBuffer(GL_ARRAY_BUFFER, internal->handles[internal->current]);
+	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 	window->extensions.BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
@@ -184,7 +262,7 @@ void gfx_buffer_read(GFXBuffer* buffer, size_t size, void* data, size_t offset)
 
 	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 
-	window->extensions.BindBuffer(GL_ARRAY_BUFFER, internal->handles[internal->current]);
+	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 	window->extensions.GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
@@ -197,7 +275,7 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferAcc
 
 	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 
-	window->extensions.BindBuffer(GL_ARRAY_BUFFER, internal->handles[internal->current]);
+	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 
 	return window->extensions.MapBufferRange(GL_ARRAY_BUFFER, offset, size, access);
 }
@@ -211,10 +289,39 @@ void gfx_buffer_unmap(GFXBuffer* buffer)
 
 	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 
-	window->extensions.BindBuffer(GL_ARRAY_BUFFER, internal->handles[internal->current]);
+	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 
 	if(!window->extensions.UnmapBuffer(GL_ARRAY_BUFFER)) gfx_errors_push(
 		GFX_ERROR_MEMORY_CORRUPTION,
 		"Mapping a buffer might have corrupted its memory."
 	);
+}
+
+/******************************************************/
+GFXBufferSegment* gfx_buffer_segment_create(GFXBuffer* buffer, size_t size)
+{
+	/* Allocate segment */
+	struct GFX_Internal_Buffer_Segment* segment = malloc(sizeof(struct GFX_Internal_Buffer_Segment));
+	if(!segment) return NULL;
+
+	gfx_vector_init(&segment->fences, sizeof(GLsync));
+
+	segment->current = 0;
+	segment->segment.buffer = buffer;
+	segment->segment.size = size > buffer->size ? buffer->size : size;
+	segment->segment.offset = 0;
+
+	return (GFXBufferSegment*)segment;
+}
+
+/******************************************************/
+void gfx_buffer_segment_free(GFXBufferSegment* segment)
+{
+	if(segment)
+	{
+		struct GFX_Internal_Buffer_Segment* internal = (struct GFX_Internal_Buffer_Segment*)segment;
+
+		gfx_vector_clear(&internal->fences);
+		free(segment);
+	}
 }
