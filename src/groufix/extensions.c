@@ -111,6 +111,7 @@ void _gfx_extensions_load(void)
 
 	/* GLES, assumes 3.0+ */
 	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             glAttachShader;
+	ext->ClientWaitSync           = (GFX_CLIENTWAITSYNCPROC)           glClientWaitSync;
 	ext->BindAttribLocation       = (GFX_BINDATTRIBLOCATIONPROC)       glBindAttribLocation;
 	ext->BindBuffer               = (GFX_BINDBUFFERPROC)               glBindBuffer;
 	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          glBindVertexArray;
@@ -122,12 +123,14 @@ void _gfx_extensions_load(void)
 	ext->DeleteBuffers            = (GFX_DELETEBUFFERSPROC)            glDeleteBuffers;
 	ext->DeleteProgram            = (GFX_DELETEPROGRAMPROC)            glDeleteProgram;
 	ext->DeleteShader             = (GFX_DELETESHADERPROC)             glDeleteShader;
+	ext->DeleteSync               = (GFX_DELETESYNCPROC)               glDeleteSync;
 	ext->DeleteVertexArrays       = (GFX_DELETEVERTEXARRAYSPROC)       glDeleteVertexArrays;
 	ext->DetachShader             = (GFX_DETACHSHADERPROC)             glDetachShader;
 	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) glDisableVertexAttribArray;
 	ext->DrawArraysInstanced      = (GFX_DRAWARRAYSINSTANCEDPROC)      glDrawArraysInstanced;
 	ext->DrawElementsInstanced    = (GFX_DRAWELEMENTSINSTANCEDPROC)    glDrawElementsInstanced;
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  glEnableVertexAttribArray;
+	ext->FenceSync                = (GFX_FENCESYNCPROC)                glFenceSync;
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               glGenBuffers;
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          glGenVertexArrays;
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_gles_get_buffer_sub_data;
@@ -155,6 +158,7 @@ void _gfx_extensions_load(void)
 
 	/* Core, assumes 3.2+ context */
 	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
+	ext->ClientWaitSync           = (GFX_CLIENTWAITSYNCPROC)           _gfx_platform_get_proc_address("glClientWaitSync");
 	ext->BindAttribLocation       = (GFX_BINDATTRIBLOCATIONPROC)       _gfx_platform_get_proc_address("glBindAttribLocation");
 	ext->BindBuffer               = (GFX_BINDBUFFERPROC)               _gfx_platform_get_proc_address("glBindBuffer");
 	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          _gfx_platform_get_proc_address("glBindVertexArray");
@@ -166,12 +170,14 @@ void _gfx_extensions_load(void)
 	ext->DeleteBuffers            = (GFX_DELETEBUFFERSPROC)            _gfx_platform_get_proc_address("glDeleteBuffers");
 	ext->DeleteProgram            = (GFX_DELETEPROGRAMPROC)            _gfx_platform_get_proc_address("glDeleteProgram");
 	ext->DeleteShader             = (GFX_DELETESHADERPROC)             _gfx_platform_get_proc_address("glDeleteShader");
+	ext->DeleteSync               = (GFX_DELETESYNCPROC)               _gfx_platform_get_proc_address("glDeleteSync");
 	ext->DeleteVertexArrays       = (GFX_DELETEVERTEXARRAYSPROC)       _gfx_platform_get_proc_address("glDeleteVertexArrays");
 	ext->DetachShader             = (GFX_DETACHSHADERPROC)             _gfx_platform_get_proc_address("glDetachShader");
 	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) _gfx_platform_get_proc_address("glDisableVertexAttribArray");
 	ext->DrawArraysInstanced      = (GFX_DRAWARRAYSINSTANCEDPROC)      _gfx_platform_get_proc_address("glDrawArraysInstanced");
 	ext->DrawElementsInstanced    = (GFX_DRAWELEMENTSINSTANCEDPROC)    _gfx_platform_get_proc_address("glDrawElementsInstanced");
 	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArray");
+	ext->FenceSync                = (GFX_FENCESYNCPROC)                _gfx_platform_get_proc_address("glFenceSync");
 	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
 	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
 	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");

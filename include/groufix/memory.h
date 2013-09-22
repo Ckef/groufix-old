@@ -58,7 +58,7 @@ typedef enum GFXInterpretType
 
 
 /********************************************************
- * Buffer metadata
+ * Buffer (arbitrary GPU storage)
  *******************************************************/
 
 /** Buffer usage hint */
@@ -71,16 +71,6 @@ typedef enum GFXBufferUsage
 } GFXBufferUsage;
 
 
-/** Buffer access */
-typedef enum GFXBufferAccess
-{
-	GFX_ACCESS_READ   = 0x0001,
-	GFX_ACCESS_WRITE  = 0x0002,
-	GFX_ACCESS_ASYNC  = 0x0020
-
-} GFXBufferAccess;
-
-
 /** Buffer target */
 typedef enum GFXBufferTarget
 {
@@ -90,14 +80,10 @@ typedef enum GFXBufferTarget
 } GFXBufferTarget;
 
 
-/********************************************************
- * Buffer (arbitrary GPU storage)
- *******************************************************/
-
 /** Buffer */
 typedef struct GFXBuffer
 {
-	size_t           size;   /* Size of the buffer */
+	size_t           size;   /* Size of the buffer in bytes */
 	GFXBufferUsage   usage;  /* Intended usage of the buffer */
 	GFXBufferTarget  target; /* Storage type the buffer is targeted for */
 	unsigned char    multi;  /* Number of extra buffers (0 = regular buffering) */
@@ -108,16 +94,16 @@ typedef struct GFXBuffer
 /**
  * Creates a new buffer.
  *
- * @param usage  Usage bitflag, how the buffer is intended to be used.
- * @param target Storage type the buffer is targeted for.
- * @param data   Data to copy to the buffer (can be NULL).
- * @param multi  Number of extra buffers to allocate (> 0 for multi buffering, 0 for regular buffering).
+ * @param usage    Usage bitflag, how the buffer is intended to be used.
+ * @param target   Storage type the buffer is targeted for.
+ * @param multi    Number of extra buffers to allocate (> 0 for multi buffering, 0 for regular buffering).
+ * @param segments Number of segments per buffer.
  * @return Non-zero on success.
  *
- * Note: if a data pointer is given, this data is NOT copied to any extra buffers.
+ * Note: if data is not NULL, this data is NOT copied to any extra buffers.
  *
  */
-GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_t size, const void* data, unsigned char multi);
+GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_t size, const void* data, unsigned char multi, unsigned char segments);
 
 /**
  * Creates a copy of a buffer.
@@ -138,14 +124,6 @@ GFXBuffer* gfx_buffer_create_copy(GFXBuffer* src, GFXBufferUsage usage, GFXBuffe
 void gfx_buffer_free(GFXBuffer* buffer);
 
 /**
- * Advances to the next backbuffer.
- *
- * @return Zero if this buffer is not multi buffered (and thus no swap occurred).
- *
- */
-int gfx_buffer_swap(GFXBuffer* buffer);
-
-/**
  * Allocates more buffers for multibuffering.
  *
  * @param num Number of extra buffers to allocate.
@@ -162,6 +140,17 @@ int gfx_buffer_expand(GFXBuffer* buffer, unsigned char num);
  *
  */
 int gfx_buffer_shrink(GFXBuffer* buffer, unsigned char num);
+
+/**
+ * Advances to the next segment and/or backbuffer.
+ *
+ * @return Zero if this buffer is not multi buffered or segmented (and thus no swap occurred).
+ *
+ * Additionally, this is the command which issues a fence sync.
+ * It is appropriate to call this immediately after writing/reading to/from the segment is done.
+ *
+ */
+int gfx_buffer_swap(GFXBuffer* buffer);
 
 /**
  * Writes data to the buffer synchronously.
@@ -185,10 +174,19 @@ void gfx_buffer_read(GFXBuffer* buffer, size_t size, void* data, size_t offset);
  * @param access Access rules to optimize (which must be followed by the client).
  * @return A pointer in client address space (NULL on failure).
  *
- * Note: BUFFER_ACCESS_ASYNC and BUFFER_ACCESS_READ cannot be set simultaneously.
+ */
+void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access);
+
+/**
+ * Maps the buffer's current segment and returns a pointer to the mapped data.
+ *
+ * @param access Access rules to optimize (which must be followed by the client).
+ * @return A pointer in client address space (NULL on failure).
+ *
+ * This method will automatically try to asynchronously upload.
  *
  */
-void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferAccess access);
+void* gfx_buffer_map_segment(GFXBuffer* buffer, GFXBufferUsage access);
 
 /**
  * Unmaps the buffer, invalidating the pointer returned by gfx_buffer_map.
@@ -197,45 +195,6 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferAcc
  *
  */
 void gfx_buffer_unmap(GFXBuffer* buffer);
-
-
-/********************************************************
- * Buffer Segmentation (auto synchronization)
- *******************************************************/
-
-/** Buffer Segment */
-typedef struct GFXBufferSegment
-{
-	GFXBuffer*  buffer;
-	size_t      size;   /* Byte size of the segment */
-	size_t      offset; /* Byte offset within the buffer */
-
-} GFXBufferSegment;
-
-
-/**
- * Creates a new buffer segment.
- *
- * @param size Size of the segment, will be clipped to buffer size.
- *
- */
-GFXBufferSegment* gfx_buffer_segment_create(GFXBuffer* buffer, size_t size);
-
-/**
- * Makes sure the buffer segment is freed properly.
- *
- */
-void gfx_buffer_segment_free(GFXBufferSegment* segment);
-
-/**
- * Advances to the next block in the buffer.
- *
- * @return Zero if no swap could be made (thus the same memory block is pointed to).
- *
- * Note: this method implicitly calls the swap of the buffer itself.
- *
- */
-int gfx_buffer_segment_swap(GFXBufferSegment* segment);
 
 
 #ifdef __cplusplus

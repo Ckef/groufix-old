@@ -43,6 +43,7 @@ extern "C" {
 
 /* Extension function pointers */
 typedef void (*GFX_ATTACHSHADERPROC)             (GLuint, GLuint);
+typedef GLenum (*GFX_CLIENTWAITSYNCPROC)         (GLsync, GLbitfield, GLuint64);
 typedef void (*GFX_BINDATTRIBLOCATIONPROC)       (GLuint, GLuint, const GLchar*);
 typedef void (*GFX_BINDBUFFERPROC)               (GLenum, GLuint);
 typedef void (*GFX_BINDVERTEXARRAYPROC)          (GLuint);
@@ -54,12 +55,14 @@ typedef GLuint (*GFX_CREATESHADERPROC)           (GLenum);
 typedef void (*GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint*);
 typedef void (*GFX_DELETEPROGRAMPROC)            (GLuint);
 typedef void (*GFX_DELETESHADERPROC)             (GLuint);
+typedef void (*GFX_DELETESYNCPROC)               (GLsync);
 typedef void (*GFX_DELETEVERTEXARRAYSPROC)       (GLsizei, const GLuint*);
 typedef void (*GFX_DETACHSHADERPROC)             (GLuint, GLuint);
 typedef void (*GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
 typedef void (*GFX_DRAWARRAYSINSTANCEDPROC)      (GLenum, GLint, GLsizei, GLsizei);
 typedef void (*GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei);
 typedef void (*GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
+typedef GLsync (*GFX_FENCESYNCPROC)              (GLenum, GLbitfield);
 typedef void (*GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
 typedef void (*GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
 typedef void (*GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
@@ -92,6 +95,7 @@ typedef struct GFX_Extensions
 
 	/* OpenGL Extensions */
 	GFX_ATTACHSHADERPROC              AttachShader;
+	GFX_CLIENTWAITSYNCPROC            ClientWaitSync;
 	GFX_BINDATTRIBLOCATIONPROC        BindAttribLocation;
 	GFX_BINDBUFFERPROC                BindBuffer;
 	GFX_BINDVERTEXARRAYPROC           BindVertexArray;
@@ -103,12 +107,14 @@ typedef struct GFX_Extensions
 	GFX_DELETEBUFFERSPROC             DeleteBuffers;
 	GFX_DELETEPROGRAMPROC             DeleteProgram;
 	GFX_DELETESHADERPROC              DeleteShader;
+	GFX_DELETESYNCPROC                DeleteSync;
 	GFX_DELETEVERTEXARRAYSPROC        DeleteVertexArrays;
 	GFX_DETACHSHADERPROC              DetachShader;
 	GFX_DISABLEVERTEXATTRIBARRAYPROC  DisableVertexAttribArray;
 	GFX_DRAWARRAYSINSTANCEDPROC       DrawArraysInstanced;
 	GFX_DRAWELEMENTSINSTANCEDPROC     DrawElementsInstanced;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
+	GFX_FENCESYNCPROC                 FenceSync;
 	GFX_GENBUFFERSPROC                GenBuffers;
 	GFX_GENVERTEXARRAYSPROC           GenVertexArrays;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
