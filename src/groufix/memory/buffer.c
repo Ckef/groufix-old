@@ -38,18 +38,6 @@ struct GFX_Internal_Buffer
 	GFXVector      handles; /* Stores GLuint */
 };
 
-/** Internal Buffer Segment */
-struct GFX_Internal_Buffer_Segment
-{
-	/* Super class */
-	GFXBufferSegment segment;
-
-	/* Hidden data */
-	unsigned char  firstBuffer; /* First used multi buffer */
-	size_t         current;     /* Current fence to be created */
-	GFXVector      fences;      /* Stores GLsync */
-};
-
 /******************************************************/
 static GLenum _gfx_buffer_get_usage(GFXBufferUsage usage)
 {
@@ -297,6 +285,19 @@ void gfx_buffer_unmap(GFXBuffer* buffer)
 		"Mapping a buffer might have corrupted its memory."
 	);
 }
+
+/******************************************************/
+/** Internal Buffer Segment */
+struct GFX_Internal_Buffer_Segment
+{
+	/* Super class */
+	GFXBufferSegment segment;
+
+	/* Hidden data */
+	unsigned char  firstBuffer; /* First used multi buffer */
+	size_t         current;     /* Current fence to be created */
+	GFXVector      fences;      /* Stores GLsync */
+};
 
 /******************************************************/
 GFXBufferSegment* gfx_buffer_segment_create(GFXBuffer* buffer, size_t size)

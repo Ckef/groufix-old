@@ -22,8 +22,7 @@
 #ifndef GFX_GEOMETRY_H
 #define GFX_GEOMETRY_H
 
-#include "groufix/buffer.h"
-#include "groufix/utils.h"
+#include "groufix/memory.h"
 
 #include <stdint.h>
 
@@ -32,7 +31,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * Vertex Layout (vertex specifications + draw calls)
+ * Vertex Layout metadata
  *******************************************************/
 
 /** Primitive types */
@@ -74,6 +73,10 @@ typedef struct GFXDrawCall
 
 } GFXDrawCall;
 
+
+/********************************************************
+ * Vertex Layout (vertex specifications + draw calls)
+ *******************************************************/
 
 /** Vertex Layout */
 typedef void* GFXVertexLayout;

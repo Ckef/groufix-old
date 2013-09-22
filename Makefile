@@ -81,10 +81,10 @@ HEADERS = \
  $(INCLUDE)/groufix/math/mat.h \
  $(INCLUDE)/groufix/math/quat.h \
  $(INCLUDE)/groufix/math/vec.h \
- $(INCLUDE)/groufix/buffer.h \
  $(INCLUDE)/groufix/errors.h \
  $(INCLUDE)/groufix/geometry.h \
  $(INCLUDE)/groufix/math.h \
+ $(INCLUDE)/groufix/memory.h \
  $(INCLUDE)/groufix/pipeline.h \
  $(INCLUDE)/groufix/utils.h \
  $(INCLUDE)/groufix/window.h \
@@ -133,12 +133,12 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/list.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
  $(OUT)/unix-x11/groufix/geometry/layout.o \
+ $(OUT)/unix-x11/groufix/memory/buffer.o \
  $(OUT)/unix-x11/groufix/pipeline/bucket.o \
  $(OUT)/unix-x11/groufix/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/platform/x11_screen.o \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
- $(OUT)/unix-x11/groufix/buffer.o \
  $(OUT)/unix-x11/groufix/errors.o \
  $(OUT)/unix-x11/groufix/events.o \
  $(OUT)/unix-x11/groufix/extensions.o \
@@ -160,6 +160,7 @@ before-unix-x11:
 	mkdir -p $(BIN)/unix-x11
 	mkdir -p $(OUT)/unix-x11/groufix/containers
 	mkdir -p $(OUT)/unix-x11/groufix/geometry
+	mkdir -p $(OUT)/unix-x11/groufix/memory
 	mkdir -p $(OUT)/unix-x11/groufix/pipeline
 	mkdir -p $(OUT)/unix-x11/groufix/platform
 
@@ -178,6 +179,9 @@ $(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c 
 $(OUT)/unix-x11/groufix/geometry/layout.o: $(SRC)/groufix/geometry/layout.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/memory/buffer.o: $(SRC)/groufix/memory/buffer.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -191,9 +195,6 @@ $(OUT)/unix-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_scree
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/buffer.o: $(SRC)/groufix/buffer.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_X11)
@@ -226,12 +227,12 @@ OBJS_OSX_X11 = \
  $(OUT)/osx-x11/groufix/containers/list.o \
  $(OUT)/osx-x11/groufix/containers/vector.o \
  $(OUT)/osx-x11/groufix/geometry/layout.o \
+ $(OUT)/osx-x11/groufix/memory/buffer.o \
  $(OUT)/osx-x11/groufix/pipeline/bucket.o \
  $(OUT)/osx-x11/groufix/platform/x11_context.o \
  $(OUT)/osx-x11/groufix/platform/x11_init.o \
  $(OUT)/osx-x11/groufix/platform/x11_screen.o \
  $(OUT)/osx-x11/groufix/platform/x11_window.o \
- $(OUT)/osx-x11/groufix/buffer.o \
  $(OUT)/osx-x11/groufix/errors.o \
  $(OUT)/osx-x11/groufix/events.o \
  $(OUT)/osx-x11/groufix/extensions.o \
@@ -253,6 +254,7 @@ before-osx-x11:
 	mkdir -p $(BIN)/osx-x11
 	mkdir -p $(OUT)/osx-x11/groufix/containers
 	mkdir -p $(OUT)/osx-x11/groufix/geometry
+	mkdir -p $(OUT)/osx-x11/groufix/memory
 	mkdir -p $(OUT)/osx-x11/groufix/pipeline
 	mkdir -p $(OUT)/osx-x11/groufix/platform
 
@@ -271,6 +273,9 @@ $(OUT)/osx-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $
 $(OUT)/osx-x11/groufix/geometry/layout.o: $(SRC)/groufix/geometry/layout.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
+$(OUT)/osx-x11/groufix/memory/buffer.o: $(SRC)/groufix/memory/buffer.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
+
 $(OUT)/osx-x11/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
@@ -284,9 +289,6 @@ $(OUT)/osx-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_screen
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/buffer.o: $(SRC)/groufix/buffer.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 $(OUT)/osx-x11/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_X11)
@@ -319,12 +321,12 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/list.o \
  $(OUT)/win32/groufix/containers/vector.o \
  $(OUT)/win32/groufix/geometry/layout.o \
+ $(OUT)/win32/groufix/memory/buffer.o \
  $(OUT)/win32/groufix/pipeline/bucket.o \
  $(OUT)/win32/groufix/platform/win32_context.o \
  $(OUT)/win32/groufix/platform/win32_init.o \
  $(OUT)/win32/groufix/platform/win32_screen.o \
  $(OUT)/win32/groufix/platform/win32_window.o \
- $(OUT)/win32/groufix/buffer.o \
  $(OUT)/win32/groufix/errors.o \
  $(OUT)/win32/groufix/events.o \
  $(OUT)/win32/groufix/extensions.o \
@@ -346,6 +348,7 @@ before-win32:
 	if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
 	if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
 	if not exist $(OUT)\win32\groufix\geometry\nul mkdir $(OUT)\win32\groufix\geometry
+	if not exist $(OUT)\win32\groufix\memory\nul mkdir $(OUT)\win32\groufix\memory
 	if not exist $(OUT)\win32\groufix\pipeline\nul mkdir $(OUT)\win32\groufix\pipeline
 	if not exist $(OUT)\win32\groufix\platform\nul mkdir $(OUT)\win32\groufix\platform
 
@@ -364,6 +367,9 @@ $(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(H
 $(OUT)/win32/groufix/geometry/layout.o: $(SRC)/groufix/geometry/layout.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
+$(OUT)/win32/groufix/memory/buffer.o: $(SRC)/groufix/memory/buffer.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
 $(OUT)/win32/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
@@ -377,9 +383,6 @@ $(OUT)/win32/groufix/platform/win32_screen.o: $(SRC)/groufix/platform/win32_scre
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_window.o: $(SRC)/groufix/platform/win32_window.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/buffer.o: $(SRC)/groufix/buffer.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_WIN32)
