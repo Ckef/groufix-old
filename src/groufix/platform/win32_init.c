@@ -84,8 +84,7 @@ static int _gfx_win32_load_extensions(void)
 	wc.lpszClassName = GFX_WIN32_WND_CLASS;
 
 	if(!RegisterClass(&wc)) return 0;
-	HWND window = CreateWindow(
-		GFX_WIN32_WND_CLASS, L"", 0, 0, 0, 0, 0, NULL, NULL, GetModuleHandle(NULL), NULL);
+	HWND window = CreateWindow(GFX_WIN32_WND_CLASS, L"", 0, 0, 0, 0, 0, NULL, NULL, GetModuleHandle(NULL), NULL);
 
 	/* Setup context properties */
 	GFXColorDepth depth;
@@ -104,7 +103,7 @@ static int _gfx_win32_load_extensions(void)
 
 	/* Get extension string extension.. */
 	_gfx_win32->extensions.GetExtensionsStringARB =
-		(PFNWGLGETEXTENSIONSSTRINGARBPROC)_gfx_platform_get_proc_address("wglGetExtensionsStringARB");
+		(PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
 
 	if(_gfx_win32->extensions.GetExtensionsStringARB)
 	{
@@ -119,9 +118,9 @@ static int _gfx_win32_load_extensions(void)
 
 		/* Load all functions */
 		_gfx_win32->extensions.CreateContextAttribsARB =
-			(PFNWGLCREATECONTEXTATTRIBSARBPROC)_gfx_platform_get_proc_address("wglCreateContextAttribsARB");
+			(PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 		_gfx_win32->extensions.SwapIntervalEXT =
-			(PFNWGLSWAPINTERVALEXTPROC)_gfx_platform_get_proc_address("wglSwapIntervalEXT");
+			(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
 
 		/* Check non-vital extensions */
 		if(!_gfx_platform_is_extension_supported(NULL, "WGL_EXT_swap_control"))

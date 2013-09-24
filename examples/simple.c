@@ -21,7 +21,6 @@ int main()
 
 
 	/* Setup 2 windows and fetch the OpenGL context version */
-
 	GFXColorDepth depth;
 	depth.redBits   = 8;
 	depth.greenBits = 8;
@@ -38,14 +37,12 @@ int main()
 
 
 	/* Setup a loop */
-
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{
 		gfx_window_swap_all_buffers();
 
 
 		/* Print all the errors! */
-
 		GFXError error;
 		while(gfx_errors_peek(&error))
 		{

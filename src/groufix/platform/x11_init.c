@@ -71,9 +71,9 @@ static int _gfx_x11_load_extensions(void)
 
 	/* Load all functions */
 	_gfx_x11->extensions.CreateContextAttribsARB =
-		(PFNGLXCREATECONTEXTATTRIBSARBPROC)_gfx_platform_get_proc_address("glXCreateContextAttribsARB");
+		(PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
 	_gfx_x11->extensions.SwapIntervalEXT =
-		(PFNGLXSWAPINTERVALEXTPROC)_gfx_platform_get_proc_address("glXSwapIntervalEXT");
+		(PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalEXT");
 
 	/* Check non-vital extensions */
 	if(!_gfx_x11_is_extension_supported(num, "GLX_EXT_swap_control"))
@@ -190,7 +190,8 @@ static void _gfx_x11_create_key_table(void)
 	/* Get permitted keycodes and their symbols */
 	int minKey, maxKey;
 	XDisplayKeycodes(_gfx_x11->display, &minKey, &maxKey);
-	if(maxKey > GFX_X11_MAX_KEYCODE) maxKey = GFX_X11_MAX_KEYCODE;
+	maxKey = maxKey > GFX_X11_MAX_KEYCODE ? GFX_X11_MAX_KEYCODE : maxKey;
+
 	int numKeys = maxKey - minKey + 1;
 
 	int symbolsPerKey;

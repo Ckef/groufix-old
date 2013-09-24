@@ -33,6 +33,13 @@
 	#include <GL/glcorearb.h>
 #endif
 
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+#ifndef APIENTRYP
+#define APIENTRYP APIENTRY *
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -42,46 +49,46 @@ extern "C" {
  *******************************************************/
 
 /* Extension function pointers */
-typedef void (*GFX_ATTACHSHADERPROC)             (GLuint, GLuint);
-typedef GLenum (*GFX_CLIENTWAITSYNCPROC)         (GLsync, GLbitfield, GLuint64);
-typedef void (*GFX_BINDATTRIBLOCATIONPROC)       (GLuint, GLuint, const GLchar*);
-typedef void (*GFX_BINDBUFFERPROC)               (GLenum, GLuint);
-typedef void (*GFX_BINDVERTEXARRAYPROC)          (GLuint);
-typedef void (*GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
-typedef void (*GFX_BUFFERSUBDATAPROC)            (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
-typedef void (*GFX_COMPILESHADERPROC)            (GLuint);
-typedef GLuint (*GFX_CREATEPROGRAMPROC)          (void);
-typedef GLuint (*GFX_CREATESHADERPROC)           (GLenum);
-typedef void (*GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint*);
-typedef void (*GFX_DELETEPROGRAMPROC)            (GLuint);
-typedef void (*GFX_DELETESHADERPROC)             (GLuint);
-typedef void (*GFX_DELETESYNCPROC)               (GLsync);
-typedef void (*GFX_DELETEVERTEXARRAYSPROC)       (GLsizei, const GLuint*);
-typedef void (*GFX_DETACHSHADERPROC)             (GLuint, GLuint);
-typedef void (*GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
-typedef void (*GFX_DRAWARRAYSINSTANCEDPROC)      (GLenum, GLint, GLsizei, GLsizei);
-typedef void (*GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei);
-typedef void (*GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
-typedef GLsync (*GFX_FENCESYNCPROC)              (GLenum, GLbitfield);
-typedef void (*GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
-typedef void (*GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
-typedef void (*GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
-typedef void (*GFX_GETPROGRAMBINARYPROC)         (GLuint, GLsizei, GLsizei*, GLenum*, void*);
-typedef void (*GFX_GETPROGRAMINFOLOGPROC)        (GLuint, GLsizei, GLsizei*, GLchar*);
-typedef void (*GFX_GETPROGRAMIVPROC)             (GLuint, GLenum, GLint*);
-typedef void (*GFX_GETSHADERINFOLOGPROC)         (GLuint, GLsizei, GLsizei*, GLchar*);
-typedef void (*GFX_GETSHADERIVPROC)              (GLuint, GLenum, GLint*);
-typedef void (*GFX_GETSHADERSOURCEPROC)          (GLuint, GLsizei, GLsizei*, GLchar*);
-typedef void (*GFX_LINKPROGRAMPROC)              (GLuint);
-typedef void* (*GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
-typedef void (*GFX_PROGRAMBINARYPROC)            (GLuint, GLenum, const void*, GLsizei);
-typedef void (*GFX_PROGRAMPARAMETERIPROC)        (GLuint, GLenum, GLint);
-typedef void (*GFX_SHADERSOURCEPROC)             (GLuint, GLsizei, const GLchar**, const GLint*);
-typedef GLboolean (*GFX_UNMAPBUFFERPROC)         (GLenum);
-typedef void (*GFX_USEPROGRAMPROC)               (GLuint);
-typedef void (*GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
-typedef void (*GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum, GLsizei, const GLvoid*);
-typedef void (*GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
+typedef void (APIENTRYP GFX_ATTACHSHADERPROC)             (GLuint, GLuint);
+typedef GLenum (APIENTRYP GFX_CLIENTWAITSYNCPROC)         (GLsync, GLbitfield, GLuint64);
+typedef void (APIENTRYP GFX_BINDATTRIBLOCATIONPROC)       (GLuint, GLuint, const GLchar*);
+typedef void (APIENTRYP GFX_BINDBUFFERPROC)               (GLenum, GLuint);
+typedef void (APIENTRYP GFX_BINDVERTEXARRAYPROC)          (GLuint);
+typedef void (APIENTRYP GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
+typedef void (APIENTRYP GFX_BUFFERSUBDATAPROC)            (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
+typedef void (APIENTRYP GFX_COMPILESHADERPROC)            (GLuint);
+typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)          (void);
+typedef GLuint (APIENTRYP GFX_CREATESHADERPROC)           (GLenum);
+typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_DELETEPROGRAMPROC)            (GLuint);
+typedef void (APIENTRYP GFX_DELETESHADERPROC)             (GLuint);
+typedef void (APIENTRYP GFX_DELETESYNCPROC)               (GLsync);
+typedef void (APIENTRYP GFX_DELETEVERTEXARRAYSPROC)       (GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_DETACHSHADERPROC)             (GLuint, GLuint);
+typedef void (APIENTRYP GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
+typedef void (APIENTRYP GFX_DRAWARRAYSINSTANCEDPROC)      (GLenum, GLint, GLsizei, GLsizei);
+typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei);
+typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
+typedef GLsync (APIENTRYP GFX_FENCESYNCPROC)              (GLenum, GLbitfield);
+typedef void (APIENTRYP GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
+typedef void (APIENTRYP GFX_GETPROGRAMBINARYPROC)         (GLuint, GLsizei, GLsizei*, GLenum*, void*);
+typedef void (APIENTRYP GFX_GETPROGRAMINFOLOGPROC)        (GLuint, GLsizei, GLsizei*, GLchar*);
+typedef void (APIENTRYP GFX_GETPROGRAMIVPROC)             (GLuint, GLenum, GLint*);
+typedef void (APIENTRYP GFX_GETSHADERINFOLOGPROC)         (GLuint, GLsizei, GLsizei*, GLchar*);
+typedef void (APIENTRYP GFX_GETSHADERIVPROC)              (GLuint, GLenum, GLint*);
+typedef void (APIENTRYP GFX_GETSHADERSOURCEPROC)          (GLuint, GLsizei, GLsizei*, GLchar*);
+typedef void (APIENTRYP GFX_LINKPROGRAMPROC)              (GLuint);
+typedef void* (APIENTRYP GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
+typedef void (APIENTRYP GFX_PROGRAMBINARYPROC)            (GLuint, GLenum, const void*, GLsizei);
+typedef void (APIENTRYP GFX_PROGRAMPARAMETERIPROC)        (GLuint, GLenum, GLint);
+typedef void (APIENTRYP GFX_SHADERSOURCEPROC)             (GLuint, GLsizei, const GLchar*const*, const GLint*);
+typedef GLboolean (APIENTRYP GFX_UNMAPBUFFERPROC)         (GLenum);
+typedef void (APIENTRYP GFX_USEPROGRAMPROC)               (GLuint);
+typedef void (APIENTRYP GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
+typedef void (APIENTRYP GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum, GLsizei, const GLvoid*);
+typedef void (APIENTRYP GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
 
 
 /** OpenGL extensions, a.k.a HardwareExtensions */

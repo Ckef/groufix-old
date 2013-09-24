@@ -110,46 +110,46 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_TESSELLATION_SHADER]  = 0;
 
 	/* GLES, assumes 3.0+ */
-	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             glAttachShader;
-	ext->ClientWaitSync           = (GFX_CLIENTWAITSYNCPROC)           glClientWaitSync;
-	ext->BindAttribLocation       = (GFX_BINDATTRIBLOCATIONPROC)       glBindAttribLocation;
-	ext->BindBuffer               = (GFX_BINDBUFFERPROC)               glBindBuffer;
-	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          glBindVertexArray;
-	ext->BufferData               = (GFX_BUFFERDATAPROC)               glBufferData;
-	ext->BufferSubData            = (GFX_BUFFERSUBDATAPROC)            glBufferSubData;
-	ext->CompileShader            = (GFX_COMPILESHADERPROC)            glCompileShader;
-	ext->CreateProgram            = (GFX_CREATEPROGRAMPROC)            glCreateProgram;
-	ext->CreateShader             = (GFX_CREATESHADERPROC)             glCreateShader;
-	ext->DeleteBuffers            = (GFX_DELETEBUFFERSPROC)            glDeleteBuffers;
-	ext->DeleteProgram            = (GFX_DELETEPROGRAMPROC)            glDeleteProgram;
-	ext->DeleteShader             = (GFX_DELETESHADERPROC)             glDeleteShader;
-	ext->DeleteSync               = (GFX_DELETESYNCPROC)               glDeleteSync;
-	ext->DeleteVertexArrays       = (GFX_DELETEVERTEXARRAYSPROC)       glDeleteVertexArrays;
-	ext->DetachShader             = (GFX_DETACHSHADERPROC)             glDetachShader;
-	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) glDisableVertexAttribArray;
-	ext->DrawArraysInstanced      = (GFX_DRAWARRAYSINSTANCEDPROC)      glDrawArraysInstanced;
-	ext->DrawElementsInstanced    = (GFX_DRAWELEMENTSINSTANCEDPROC)    glDrawElementsInstanced;
-	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  glEnableVertexAttribArray;
-	ext->FenceSync                = (GFX_FENCESYNCPROC)                glFenceSync;
-	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               glGenBuffers;
-	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          glGenVertexArrays;
-	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_gles_get_buffer_sub_data;
-	ext->GetProgramBinary         = (GFX_GETPROGRAMBINARYPROC)         glGetProgramBinary;
-	ext->GetProgramInfoLog        = (GFX_GETPROGRAMINFOLOGPROC)        glGetProgramInfoLog;
-	ext->GetProgramiv             = (GFX_GETPROGRAMIVPROC)             glGetProgramiv;
-	ext->GetShaderInfoLog         = (GFX_GETSHADERINFOLOGPROC)         glGetShaderInfoLog;
-	ext->GetShaderiv              = (GFX_GETSHADERIVPROC)              glGetShaderiv;
-	ext->GetShaderSource          = (GFX_GETSHADERSOURCEPROC)          glGetShaderSource;
-	ext->LinkProgram              = (GFX_LINKPROGRAMPROC)              glLinkProgram;
-	ext->MapBufferRange           = (GFX_MAPBUFFERRANGEPROC)           glMapBufferRange;
-	ext->ProgramBinary            = (GFX_PROGRAMBINARYPROC)            glProgramBinary;
-	ext->ProgramParameteri        = (GFX_PROGRAMPARAMETERIPROC)        glProgramParameteri;
-	ext->ShaderSource             = (GFX_SHADERSOURCEPROC)             glShaderSource;
-	ext->UnmapBuffer              = (GFX_UNMAPBUFFERPROC)              glUnmapBuffer;
-	ext->UseProgram               = (GFX_USEPROGRAMPROC)               glUseProgram;
-	ext->VertexAttribDivisor      = (GFX_VERTEXATTRIBDIVISORPROC)      glVertexAttribDivisor;
-	ext->VertexAttribIPointer     = (GFX_VERTEXATTRIBIPOINTERPROC)     glVertexAttribIPointer;
-	ext->VertexAttribPointer      = (GFX_VERTEXATTRIBPOINTERPROC)      glVertexAttribPointer;
+	ext->AttachShader             = glAttachShader;
+	ext->ClientWaitSync           = glClientWaitSync;
+	ext->BindAttribLocation       = glBindAttribLocation;
+	ext->BindBuffer               = glBindBuffer;
+	ext->BindVertexArray          = glBindVertexArray;
+	ext->BufferData               = glBufferData;
+	ext->BufferSubData            = glBufferSubData;
+	ext->CompileShader            = glCompileShader;
+	ext->CreateProgram            = glCreateProgram;
+	ext->CreateShader             = glCreateShader;
+	ext->DeleteBuffers            = glDeleteBuffers;
+	ext->DeleteProgram            = glDeleteProgram;
+	ext->DeleteShader             = glDeleteShader;
+	ext->DeleteSync               = glDeleteSync;
+	ext->DeleteVertexArrays       = glDeleteVertexArrays;
+	ext->DetachShader             = glDetachShader;
+	ext->DisableVertexAttribArray = glDisableVertexAttribArray;
+	ext->DrawArraysInstanced      = glDrawArraysInstanced;
+	ext->DrawElementsInstanced    = glDrawElementsInstanced;
+	ext->EnableVertexAttribArray  = glEnableVertexAttribArray;
+	ext->FenceSync                = glFenceSync;
+	ext->GenBuffers               = glGenBuffers;
+	ext->GenVertexArrays          = glGenVertexArrays;
+	ext->GetBufferSubData         = _gfx_gles_get_buffer_sub_data;
+	ext->GetProgramBinary         = glGetProgramBinary;
+	ext->GetProgramInfoLog        = glGetProgramInfoLog;
+	ext->GetProgramiv             = glGetProgramiv;
+	ext->GetShaderInfoLog         = glGetShaderInfoLog;
+	ext->GetShaderiv              = glGetShaderiv;
+	ext->GetShaderSource          = glGetShaderSource;
+	ext->LinkProgram              = glLinkProgram;
+	ext->MapBufferRange           = glMapBufferRange;
+	ext->ProgramBinary            = glProgramBinary;
+	ext->ProgramParameteri        = glProgramParameteri;
+	ext->ShaderSource             = glShaderSource;
+	ext->UnmapBuffer              = glUnmapBuffer;
+	ext->UseProgram               = glUseProgram;
+	ext->VertexAttribDivisor      = glVertexAttribDivisor;
+	ext->VertexAttribIPointer     = glVertexAttribIPointer;
+	ext->VertexAttribPointer      = glVertexAttribPointer;
 
 #else
 
@@ -157,81 +157,81 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_GEOMETRY_SHADER] = 1;
 
 	/* Core, assumes 3.2+ context */
-	ext->AttachShader             = (GFX_ATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
-	ext->ClientWaitSync           = (GFX_CLIENTWAITSYNCPROC)           _gfx_platform_get_proc_address("glClientWaitSync");
-	ext->BindAttribLocation       = (GFX_BINDATTRIBLOCATIONPROC)       _gfx_platform_get_proc_address("glBindAttribLocation");
-	ext->BindBuffer               = (GFX_BINDBUFFERPROC)               _gfx_platform_get_proc_address("glBindBuffer");
-	ext->BindVertexArray          = (GFX_BINDVERTEXARRAYPROC)          _gfx_platform_get_proc_address("glBindVertexArray");
-	ext->BufferData               = (GFX_BUFFERDATAPROC)               _gfx_platform_get_proc_address("glBufferData");
-	ext->BufferSubData            = (GFX_BUFFERSUBDATAPROC)            _gfx_platform_get_proc_address("glBufferSubData");
-	ext->CompileShader            = (GFX_COMPILESHADERPROC)            _gfx_platform_get_proc_address("glCompileShader");
-	ext->CreateProgram            = (GFX_CREATEPROGRAMPROC)            _gfx_platform_get_proc_address("glCreateProgram");
-	ext->CreateShader             = (GFX_CREATESHADERPROC)             _gfx_platform_get_proc_address("glCreateShader");
-	ext->DeleteBuffers            = (GFX_DELETEBUFFERSPROC)            _gfx_platform_get_proc_address("glDeleteBuffers");
-	ext->DeleteProgram            = (GFX_DELETEPROGRAMPROC)            _gfx_platform_get_proc_address("glDeleteProgram");
-	ext->DeleteShader             = (GFX_DELETESHADERPROC)             _gfx_platform_get_proc_address("glDeleteShader");
-	ext->DeleteSync               = (GFX_DELETESYNCPROC)               _gfx_platform_get_proc_address("glDeleteSync");
-	ext->DeleteVertexArrays       = (GFX_DELETEVERTEXARRAYSPROC)       _gfx_platform_get_proc_address("glDeleteVertexArrays");
-	ext->DetachShader             = (GFX_DETACHSHADERPROC)             _gfx_platform_get_proc_address("glDetachShader");
-	ext->DisableVertexAttribArray = (GFX_DISABLEVERTEXATTRIBARRAYPROC) _gfx_platform_get_proc_address("glDisableVertexAttribArray");
-	ext->DrawArraysInstanced      = (GFX_DRAWARRAYSINSTANCEDPROC)      _gfx_platform_get_proc_address("glDrawArraysInstanced");
-	ext->DrawElementsInstanced    = (GFX_DRAWELEMENTSINSTANCEDPROC)    _gfx_platform_get_proc_address("glDrawElementsInstanced");
-	ext->EnableVertexAttribArray  = (GFX_ENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArray");
-	ext->FenceSync                = (GFX_FENCESYNCPROC)                _gfx_platform_get_proc_address("glFenceSync");
-	ext->GenBuffers               = (GFX_GENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
-	ext->GenVertexArrays          = (GFX_GENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
-	ext->GetBufferSubData         = (GFX_GETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");
-	ext->GetProgramInfoLog        = (GFX_GETPROGRAMINFOLOGPROC)        _gfx_platform_get_proc_address("glGetProgramInfoLog");
-	ext->GetProgramiv             = (GFX_GETPROGRAMIVPROC)             _gfx_platform_get_proc_address("glGetProgramiv");
-	ext->GetShaderInfoLog         = (GFX_GETSHADERINFOLOGPROC)         _gfx_platform_get_proc_address("glGetShaderInfoLog");
-	ext->GetShaderiv              = (GFX_GETSHADERIVPROC)              _gfx_platform_get_proc_address("glGetShaderiv");
-	ext->GetShaderSource          = (GFX_GETSHADERSOURCEPROC)          _gfx_platform_get_proc_address("glGetShaderSource");
-	ext->LinkProgram              = (GFX_LINKPROGRAMPROC)              _gfx_platform_get_proc_address("glLinkProgram");
-	ext->MapBufferRange           = (GFX_MAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
-	ext->ShaderSource             = (GFX_SHADERSOURCEPROC)             _gfx_platform_get_proc_address("glShaderSource");
-	ext->UnmapBuffer              = (GFX_UNMAPBUFFERPROC)              _gfx_platform_get_proc_address("glUnmapBuffer");
-	ext->UseProgram               = (GFX_USEPROGRAMPROC)               _gfx_platform_get_proc_address("glUseProgram");
-	ext->VertexAttribIPointer     = (GFX_VERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");
-	ext->VertexAttribPointer      = (GFX_VERTEXATTRIBPOINTERPROC)      _gfx_platform_get_proc_address("glVertexAttribPointer");
+	ext->AttachShader             = (PFNGLATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
+	ext->ClientWaitSync           = (PFNGLCLIENTWAITSYNCPROC)           _gfx_platform_get_proc_address("glClientWaitSync");
+	ext->BindAttribLocation       = (PFNGLBINDATTRIBLOCATIONPROC)       _gfx_platform_get_proc_address("glBindAttribLocation");
+	ext->BindBuffer               = (PFNGLBINDBUFFERPROC)               _gfx_platform_get_proc_address("glBindBuffer");
+	ext->BindVertexArray          = (PFNGLBINDVERTEXARRAYPROC)          _gfx_platform_get_proc_address("glBindVertexArray");
+	ext->BufferData               = (PFNGLBUFFERDATAPROC)               _gfx_platform_get_proc_address("glBufferData");
+	ext->BufferSubData            = (PFNGLBUFFERSUBDATAPROC)            _gfx_platform_get_proc_address("glBufferSubData");
+	ext->CompileShader            = (PFNGLCOMPILESHADERPROC)            _gfx_platform_get_proc_address("glCompileShader");
+	ext->CreateProgram            = (PFNGLCREATEPROGRAMPROC)            _gfx_platform_get_proc_address("glCreateProgram");
+	ext->CreateShader             = (PFNGLCREATESHADERPROC)             _gfx_platform_get_proc_address("glCreateShader");
+	ext->DeleteBuffers            = (PFNGLDELETEBUFFERSPROC)            _gfx_platform_get_proc_address("glDeleteBuffers");
+	ext->DeleteProgram            = (PFNGLDELETEPROGRAMPROC)            _gfx_platform_get_proc_address("glDeleteProgram");
+	ext->DeleteShader             = (PFNGLDELETESHADERPROC)             _gfx_platform_get_proc_address("glDeleteShader");
+	ext->DeleteSync               = (PFNGLDELETESYNCPROC)               _gfx_platform_get_proc_address("glDeleteSync");
+	ext->DeleteVertexArrays       = (PFNGLDELETEVERTEXARRAYSPROC)       _gfx_platform_get_proc_address("glDeleteVertexArrays");
+	ext->DetachShader             = (PFNGLDETACHSHADERPROC)             _gfx_platform_get_proc_address("glDetachShader");
+	ext->DisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC) _gfx_platform_get_proc_address("glDisableVertexAttribArray");
+	ext->DrawArraysInstanced      = (PFNGLDRAWARRAYSINSTANCEDPROC)      _gfx_platform_get_proc_address("glDrawArraysInstanced");
+	ext->DrawElementsInstanced    = (PFNGLDRAWELEMENTSINSTANCEDPROC)    _gfx_platform_get_proc_address("glDrawElementsInstanced");
+	ext->EnableVertexAttribArray  = (PFNGLENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArray");
+	ext->FenceSync                = (PFNGLFENCESYNCPROC)                _gfx_platform_get_proc_address("glFenceSync");
+	ext->GenBuffers               = (PFNGLGENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
+	ext->GenVertexArrays          = (PFNGLGENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
+	ext->GetBufferSubData         = (PFNGLGETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");
+	ext->GetProgramInfoLog        = (PFNGLGETPROGRAMINFOLOGPROC)        _gfx_platform_get_proc_address("glGetProgramInfoLog");
+	ext->GetProgramiv             = (PFNGLGETPROGRAMIVPROC)             _gfx_platform_get_proc_address("glGetProgramiv");
+	ext->GetShaderInfoLog         = (PFNGLGETSHADERINFOLOGPROC)         _gfx_platform_get_proc_address("glGetShaderInfoLog");
+	ext->GetShaderiv              = (PFNGLGETSHADERIVPROC)              _gfx_platform_get_proc_address("glGetShaderiv");
+	ext->GetShaderSource          = (PFNGLGETSHADERSOURCEPROC)          _gfx_platform_get_proc_address("glGetShaderSource");
+	ext->LinkProgram              = (PFNGLLINKPROGRAMPROC)              _gfx_platform_get_proc_address("glLinkProgram");
+	ext->MapBufferRange           = (PFNGLMAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
+	ext->ShaderSource             = (PFNGLSHADERSOURCEPROC)             _gfx_platform_get_proc_address("glShaderSource");
+	ext->UnmapBuffer              = (PFNGLUNMAPBUFFERPROC)              _gfx_platform_get_proc_address("glUnmapBuffer");
+	ext->UseProgram               = (PFNGLUSEPROGRAMPROC)               _gfx_platform_get_proc_address("glUseProgram");
+	ext->VertexAttribIPointer     = (PFNGLVERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");
+	ext->VertexAttribPointer      = (PFNGLVERTEXATTRIBPOINTERPROC)      _gfx_platform_get_proc_address("glVertexAttribPointer");
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(major > 3 || minor > 2)
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
+		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("VertexAttribDivisorARB");
+		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("VertexAttribDivisorARB");
 	}
 	else
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
-		ext->VertexAttribDivisor = (GFX_VERTEXATTRIBDIVISORPROC) _gfx_gl_vertex_attrib_divisor;
+		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_gl_vertex_attrib_divisor;
 	}
 
 	/* GFX_EXT_PROGRAM_BINARY */
 	if(major > 4 || (major == 4 && minor > 0))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
-		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
-		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteri");
+		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
+		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
+		ext->ProgramParameteri   = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteri");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("GetProgramBinary");
-		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)     _gfx_platform_get_proc_address("ProgramBinary");
-		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("ProgramParameteri");
+		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("GetProgramBinary");
+		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("ProgramBinary");
+		ext->ProgramParameteri   = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("ProgramParameteri");
 	}
 	else
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
-		ext->GetProgramBinary    = (GFX_GETPROGRAMBINARYPROC)  _gfx_gl_get_program_binary;
-		ext->ProgramBinary       = (GFX_PROGRAMBINARYPROC)     _gfx_gl_program_binary;
-		ext->ProgramParameteri   = (GFX_PROGRAMPARAMETERIPROC) _gfx_gl_program_parameter_i;
+		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_gl_get_program_binary;
+		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_gl_program_binary;
+		ext->ProgramParameteri   = (PFNGLPROGRAMPARAMETERIPROC) _gfx_gl_program_parameter_i;
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
