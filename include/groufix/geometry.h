@@ -69,7 +69,7 @@ typedef struct GFXDrawCall
 	GFXDataType   indexType; /* Can only be an unsigned type */
 
 	uintptr_t     first;     /* First index (direct) or byte offset (indexed) */
-	size_t        count;     /* Number of indices to draw */
+	size_t        count;     /* Number of vertices to draw */
 
 } GFXDrawCall;
 

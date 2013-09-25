@@ -33,10 +33,6 @@ default:
 	@echo " $(MAKE) unix-x11-minimal  Build the minimal example Unix target using X11."
 	@echo " $(MAKE) unix-x11-simple   Build the simple example Unix target using X11."
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo " $(MAKE) osx-x11           Build the Groufix OS X target using X11."
-	@echo " $(MAKE) osx-x11-minimal   Build the minimal example OS X target using X11."
-	@echo " $(MAKE) osx-x11-simple    Build the simple example OS X target using X11."
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo " $(MAKE) win32             Build the Groufix Windows target."
 	@echo " $(MAKE) win32-minimal     Build the minimal example Windows target."
 	@echo " $(MAKE) win32-simple      Build the simple example Windows target."
@@ -62,12 +58,10 @@ CFLAGS = -Os -O2 -Wall -std=c99 -pedantic -I$(INCLUDE)
 # Object files only
 OBJFLAGS          = $(CFLAGS) -c -I$(DEPEND) -I$(SRC)
 OBJFLAGS_UNIX_X11 = $(OBJFLAGS) -fPIC -s
-OBJFLAGS_OSX_X11  = $(OBJFLAGS) -fPIC -I/usr/X11/include
 OBJFLAGS_WIN32    = $(OBJFLAGS) -s
 
 # Libraries to link to
 LIBS_UNIX_X11 = -lX11 -lGL
-LIBS_OSX_X11  = -L/usr/X11/lib -lX11 -lGL
 LIBS_WIN32    = -lopengl32 -lgdi32
 
 
@@ -96,15 +90,15 @@ HEADERS_LIB = \
  $(SRC)/groufix/internal.h \
  $(SRC)/groufix/platform.h
 
-HEADERS_WIN32 = \
- $(HEADERS_LIB) \
- $(DEPEND)/GL/wglext.h \
- $(SRC)/groufix/platform/win32.h
-
 HEADERS_X11 = \
  $(HEADERS_LIB) \
  $(DEPEND)/GL/glxext.h \
  $(SRC)/groufix/platform/x11.h
+
+HEADERS_WIN32 = \
+ $(HEADERS_LIB) \
+ $(DEPEND)/GL/wglext.h \
+ $(SRC)/groufix/platform/win32.h
 
 
 #################################################################
@@ -217,100 +211,6 @@ $(OUT)/unix-x11/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_X11)
 
 $(OUT)/unix-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-
-#################################################################
-# OS X X11 builds
-#################################################################
-OBJS_OSX_X11 = \
- $(OUT)/osx-x11/groufix/containers/deque.o \
- $(OUT)/osx-x11/groufix/containers/list.o \
- $(OUT)/osx-x11/groufix/containers/vector.o \
- $(OUT)/osx-x11/groufix/geometry/layout.o \
- $(OUT)/osx-x11/groufix/memory/buffer.o \
- $(OUT)/osx-x11/groufix/pipeline/bucket.o \
- $(OUT)/osx-x11/groufix/platform/x11_context.o \
- $(OUT)/osx-x11/groufix/platform/x11_init.o \
- $(OUT)/osx-x11/groufix/platform/x11_screen.o \
- $(OUT)/osx-x11/groufix/platform/x11_window.o \
- $(OUT)/osx-x11/groufix/errors.o \
- $(OUT)/osx-x11/groufix/events.o \
- $(OUT)/osx-x11/groufix/extensions.o \
- $(OUT)/osx-x11/groufix/hardware.o \
- $(OUT)/osx-x11/groufix/math.o \
- $(OUT)/osx-x11/groufix/window.o \
- $(OUT)/osx-x11/groufix.o
-
-osx-x11: before-osx-x11 $(OBJS_OSX_X11)
-	$(CC) -dynamiclib -install_name 'libGroufix.dylib' $(OBJS_OSX_X11) -o $(BIN)/osx-x11/libGroufix.dylib $(LIBS_OSX_X11)
-
-osx-x11-minimal: examples/minimal.c osx-x11
-	$(CC) $(CFLAGS) $< -o $(BIN)/osx-x11/minimal -L$(BIN)/osx-x11/ -lGroufix
-
-osx-x11-simple: examples/simple.c osx-x11
-	$(CC) $(CFLAGS) $< -o $(BIN)/osx-x11/simple -L$(BIN)/osx-x11/ -lGroufix
-
-before-osx-x11:
-	mkdir -p $(BIN)/osx-x11
-	mkdir -p $(OUT)/osx-x11/groufix/containers
-	mkdir -p $(OUT)/osx-x11/groufix/geometry
-	mkdir -p $(OUT)/osx-x11/groufix/memory
-	mkdir -p $(OUT)/osx-x11/groufix/pipeline
-	mkdir -p $(OUT)/osx-x11/groufix/platform
-
-
-# All the object files
-
-$(OUT)/osx-x11/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/geometry/layout.o: $(SRC)/groufix/geometry/layout.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/memory/buffer.o: $(SRC)/groufix/memory/buffer.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/platform/x11_context.o: $(SRC)/groufix/platform/x11_context.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_screen.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/events.o: $(SRC)/groufix/events.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/extensions.o: $(SRC)/groufix/extensions.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/hardware.o: $(SRC)/groufix/hardware.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
-
-$(OUT)/osx-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_OSX_X11) $< -o $@
 
 
 #################################################################
