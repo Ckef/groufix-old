@@ -195,12 +195,8 @@ void _gfx_extensions_load(void);
  * Generic hardware object reconstruction
  *******************************************************/
 
-/** Generic hardware object */
-typedef void* GFX_Hardware_Object;
-
-
 /** Generic hardware object operator */
-typedef void (*GFX_Hardware_Object_Func) (GFX_Hardware_Object, const GFX_Extensions*);
+typedef void (*GFX_Hardware_Object_Func) (void* object, const GFX_Extensions*);
 
 
 /** Hardware vtable, can all be NULL */
@@ -216,19 +212,29 @@ typedef struct GFX_Hardware_Funcs
 /**
  * Registers a new generic hardware object.
  *
- * @return Non-zero on success.
+ * @object Arbitrary data to identify with a number.
+ * @funcs  Functions to associate with the object.
+ * @return Identifier of the object (0 on failure).
  *
  * When an object is registered, it will be asked to free when all contexts are destroyed,
  * or reconstructed when the main context is destroyed.
  *
  */
-int _gfx_hardware_object_register(GFX_Hardware_Object object, const GFX_Hardware_Funcs* funcs);
+size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* funcs);
 
 /**
- * Unregisters a generic hardware object.
+ * Returns the data associated with an id.
+ *
+ * This performs NO bound checking!
  *
  */
-void _gfx_hardware_object_unregister(GFX_Hardware_Object object);
+void* _gfx_hardware_object_get(size_t id);
+
+/**
+ * Unregisters a generic hardware object by identifier.
+ *
+ */
+void _gfx_hardware_object_unregister(size_t id);
 
 /**
  * Issue free request of all hardware objects.
@@ -271,7 +277,7 @@ GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer);
  * Returns the VAO of a layout.
  *
  */
-GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout layout);
+GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout);
 
 
 #ifdef __cplusplus

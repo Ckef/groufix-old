@@ -79,7 +79,11 @@ typedef struct GFXDrawCall
  *******************************************************/
 
 /** Vertex Layout */
-typedef void* GFXVertexLayout;
+typedef struct GFXVertexLayout
+{
+	size_t id; /* Unique ID */
+
+} GFXVertexLayout;
 
 
 /**
@@ -88,13 +92,13 @@ typedef void* GFXVertexLayout;
  * @return Non-zero on success.
  *
  */
-GFXVertexLayout gfx_vertex_layout_create(void);
+GFXVertexLayout* gfx_vertex_layout_create(void);
 
 /**
  * Makes sure the vertex layout is freed properly.
  *
  */
-void gfx_vertex_layout_free(GFXVertexLayout layout);
+void gfx_vertex_layout_free(GFXVertexLayout* layout);
 
 /**
  * Sets an attribute of a vertex layout.
@@ -104,13 +108,13 @@ void gfx_vertex_layout_free(GFXVertexLayout layout);
  * @return Zero on failure.
  *
  */
-int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer);
+int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer);
 
 /**
  * Removes an attribute from a vertex layout.
  *
  */
-void gfx_vertex_layout_remove_attribute(GFXVertexLayout, unsigned int index);
+void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int index);
 
 
 #ifdef __cplusplus

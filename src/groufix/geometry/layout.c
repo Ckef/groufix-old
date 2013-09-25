@@ -28,11 +28,12 @@
 /** Internal Vertex layout */
 struct GFX_Internal_Layout
 {
-	/* Layout */
-	GLuint     vao;        /* Super class */
-	GFXVector  attributes; /* Stores GFX_Internal_Attribute */
+	/* Super class */
+	GFXVertexLayout layout;
 
-	/* Draw calls */
+	/* Hidden data */
+	GLuint     vao;        /* OpenGL handle */
+	GFXVector  attributes; /* Stores GFX_Internal_Attribute */
 	GFXVector  drawCalls;  /* Stores GFXDrawCall */
 };
 
@@ -77,19 +78,20 @@ static void _gfx_layout_init_attrib(GLuint vao, const struct GFX_Internal_Attrib
 }
 
 /******************************************************/
-static void _gfx_layout_obj_free(GFX_Hardware_Object object, const GFX_Extensions* ext)
+static void _gfx_layout_obj_free(void* object, const GFX_Extensions* ext)
 {
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 
 	/* Destroy layout itself */
 	ext->DeleteVertexArrays(1, &layout->vao);
 	layout->vao = 0;
+	layout->layout.id = 0;
 
 	gfx_vector_clear(&layout->attributes);
 }
 
 /******************************************************/
-static void _gfx_layout_obj_save(GFX_Hardware_Object object, const GFX_Extensions* ext)
+static void _gfx_layout_obj_save(void* object, const GFX_Extensions* ext)
 {
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 
@@ -99,7 +101,7 @@ static void _gfx_layout_obj_save(GFX_Hardware_Object object, const GFX_Extension
 }
 
 /******************************************************/
-static void _gfx_layout_obj_restore(GFX_Hardware_Object object, const GFX_Extensions* ext)
+static void _gfx_layout_obj_restore(void* object, const GFX_Extensions* ext)
 {
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 
@@ -122,15 +124,13 @@ static GFX_Hardware_Funcs _gfx_layout_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout layout)
+GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout)
 {
-	GLuint* handle = (GLuint*)layout;
-
-	return *handle;
+	return ((struct GFX_Internal_Layout*)layout)->vao;
 }
 
 /******************************************************/
-GFXVertexLayout gfx_vertex_layout_create(void)
+GFXVertexLayout* gfx_vertex_layout_create(void)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -140,22 +140,31 @@ GFXVertexLayout gfx_vertex_layout_create(void)
 	struct GFX_Internal_Layout* layout = malloc(sizeof(struct GFX_Internal_Layout));
 	if(!layout) return NULL;
 
+	/* Register as object */
+	layout->layout.id = _gfx_hardware_object_register(layout, &_gfx_layout_obj_funcs);
+	if(!layout->layout.id)
+	{
+		free(layout);
+		return NULL;
+	}
+
+	/* Create OpenGL resources */
 	window->extensions.GenVertexArrays(1, &layout->vao);
 
 	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Internal_Attribute));
 	gfx_vector_init(&layout->drawCalls, sizeof(GFXDrawCall));
 
-	/* Register as object */
-	_gfx_hardware_object_register(layout, &_gfx_layout_obj_funcs);
-
-	return layout;
+	return (GFXVertexLayout*)layout;
 }
 
 /******************************************************/
-void gfx_vertex_layout_free(GFXVertexLayout layout)
+void gfx_vertex_layout_free(GFXVertexLayout* layout)
 {
 	if(layout)
 	{
+		/* Unregister as object */
+		_gfx_hardware_object_unregister(layout->id);
+
 		struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
 		/* Get current window and context */
@@ -165,14 +174,11 @@ void gfx_vertex_layout_free(GFXVertexLayout layout)
 		gfx_vector_clear(&internal->attributes);
 		gfx_vector_clear(&internal->drawCalls);
 		free(layout);
-
-		/* Unregister as object */
-		_gfx_hardware_object_unregister(internal);
 	}
 }
 
 /******************************************************/
-int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer)
+int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer)
 {
 	/* Get current window and internal layout */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -216,7 +222,7 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout layout, unsigned int index, 
 }
 
 /******************************************************/
-void gfx_vertex_layout_remove_attribute(GFXVertexLayout layout, unsigned int index)
+void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int index)
 {
 	/* Get current window and internal layout */
 	GFX_Internal_Window* window = _gfx_window_get_current();

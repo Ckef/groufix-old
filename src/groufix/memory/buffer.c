@@ -110,7 +110,7 @@ static void _gfx_buffer_delete_buffers(struct GFX_Internal_Buffer* buffer, GFXVe
 }
 
 /******************************************************/
-static void _gfx_buffer_obj_free(GFX_Hardware_Object object, const GFX_Extensions* ext)
+static void _gfx_buffer_obj_free(void* object, const GFX_Extensions* ext)
 {
 	struct GFX_Internal_Buffer* buffer = (struct GFX_Internal_Buffer*)object;
 	
@@ -119,6 +119,8 @@ static void _gfx_buffer_obj_free(GFX_Hardware_Object object, const GFX_Extension
 	/* Delete buffers and reset memory */
 	_gfx_buffer_delete_buffers(buffer, buffer->handles.begin, num, ext);
 	memset(buffer->handles.begin, 0, buffer->handles.elementSize * num);
+
+	buffer->buffer.id = 0;
 }
 
 /******************************************************/
@@ -149,6 +151,14 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 	struct GFX_Internal_Buffer* buffer = calloc(1, sizeof(struct GFX_Internal_Buffer));
 	if(!buffer) return NULL;
 
+	/* Register as object */
+	buffer->buffer.id = _gfx_hardware_object_register(buffer, &_gfx_buffer_obj_funcs);
+	if(!buffer->buffer.id)
+	{
+		free(buffer);
+		return NULL;
+	}
+
 	/* Force stream when multi buffering and/or segmenting */
 	usage |= (multi | segments) ? GFX_BUFFER_STREAM : 0;
 
@@ -176,9 +186,6 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 	}
 	_gfx_buffer_alloc_buffers(buffer, buffer->handles.begin, multi, data, &window->extensions);
 
-	/* Register as object */
-	_gfx_hardware_object_register(buffer, &_gfx_buffer_obj_funcs);
-
 	return (GFXBuffer*)buffer;
 }
 
@@ -202,6 +209,9 @@ void gfx_buffer_free(GFXBuffer* buffer)
 {
 	if(buffer)
 	{
+		/* Unregister as object */
+		_gfx_hardware_object_unregister(buffer->id);
+
 		struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 
 		/* Get current window and context */
@@ -210,9 +220,6 @@ void gfx_buffer_free(GFXBuffer* buffer)
 
 		gfx_vector_clear(&internal->handles);
 		free(buffer);
-
-		/* Unregister as object */
-		_gfx_hardware_object_unregister(buffer);
 	}
 }
 
