@@ -367,11 +367,25 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 	/* Make sure to convert to wide character */
 	wchar_t* name = utf8_to_wchar(attributes->name);
 
+	/* Create window style */
+	DWORD style =
+		WS_CAPTION |
+		WS_CLIPCHILDREN |
+		WS_CLIPSIBLINGS |
+		WS_MINIMIZEBOX |
+		WS_OVERLAPPED |
+		WS_SYSMENU;
+
+	if(attributes->flags & GFX_WINDOW_RESIZABLE) style |=
+		WS_MAXIMIZEBOX |
+		WS_SIZEBOX;
+
+	/* Create the actual window */
 	window.handle = CreateWindowEx(
 		0,
 		GFX_WIN32_WND_CLASS,
 		name,
-		WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		style,
 		attributes->x + info.rcMonitor.left,
 		attributes->y + info.rcMonitor.top,
 		attributes->width,

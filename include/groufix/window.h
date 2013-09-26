@@ -237,26 +237,6 @@ typedef enum GFXKeyState
 
 
 /********************************************************
- * Window Callbacks
- *******************************************************/
-
-/* Forward declerate */
-struct GFXWindow;
-
-typedef void (*GFXWindowCloseFunc)  (struct GFXWindow*);
-typedef void (*GFXWindowMoveFunc)   (struct GFXWindow*, int, int);
-typedef void (*GFXWindowResizeFunc) (struct GFXWindow*, unsigned int, unsigned int);
-typedef void (*GFXKeyPressFunc)     (struct GFXWindow*, GFXKey, GFXKeyState);
-typedef void (*GFXKeyReleaseFunc)   (struct GFXWindow*, GFXKey, GFXKeyState);
-typedef void (*GFXMouseMoveFunc)    (struct GFXWindow*, int, int, GFXKeyState);
-typedef void (*GFXMouseEnterFunc)   (struct GFXWindow*, int, int, GFXKeyState);
-typedef void (*GFXMouseLeaveFunc)   (struct GFXWindow*, int, int, GFXKeyState);
-typedef void (*GFXMousePressFunc)   (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
-typedef void (*GFXMouseReleaseFunc) (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
-typedef void (*GFXMouseWheelFunc)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
-
-
-/********************************************************
  * Top level screen
  *******************************************************/
 typedef void* GFXScreen;
@@ -290,6 +270,46 @@ void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* he
 
 
 /********************************************************
+ * Top level context handling
+ *******************************************************/
+
+/* OpenGL Context */
+typedef struct GFXContext
+{
+	int major;
+	int minor;
+
+} GFXContext;
+
+
+/**
+ * Requests a minimal OpenGL Context for new windows.
+ *
+ */
+void gfx_request_context(GFXContext context);
+
+
+/********************************************************
+ * Window Callbacks
+ *******************************************************/
+
+/* Forward declerate */
+struct GFXWindow;
+
+typedef void (*GFXWindowCloseFunc)  (struct GFXWindow*);
+typedef void (*GFXWindowMoveFunc)   (struct GFXWindow*, int, int);
+typedef void (*GFXWindowResizeFunc) (struct GFXWindow*, unsigned int, unsigned int);
+typedef void (*GFXKeyPressFunc)     (struct GFXWindow*, GFXKey, GFXKeyState);
+typedef void (*GFXKeyReleaseFunc)   (struct GFXWindow*, GFXKey, GFXKeyState);
+typedef void (*GFXMouseMoveFunc)    (struct GFXWindow*, int, int, GFXKeyState);
+typedef void (*GFXMouseEnterFunc)   (struct GFXWindow*, int, int, GFXKeyState);
+typedef void (*GFXMouseLeaveFunc)   (struct GFXWindow*, int, int, GFXKeyState);
+typedef void (*GFXMousePressFunc)   (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
+typedef void (*GFXMouseReleaseFunc) (struct GFXWindow*, GFXMouseKey, int, int, GFXKeyState);
+typedef void (*GFXMouseWheelFunc)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
+
+
+/********************************************************
  * Top level windowing
  *******************************************************/
 
@@ -316,6 +336,15 @@ typedef struct GFXWindow
 } GFXWindow;
 
 
+/** Window flags */
+typedef enum GFXWindowFlags
+{
+	GFX_WINDOW_FULLSCREEN  = 0x01,
+	GFX_WINDOW_RESIZABLE   = 0x02
+
+} GFXWindowFlags;
+
+
 /** Color depth */
 typedef struct GFXColorDepth
 {
@@ -325,21 +354,6 @@ typedef struct GFXColorDepth
 
 } GFXColorDepth;
 
-
-/* OpenGL Context */
-typedef struct GFXContext
-{
-	int major;
-	int minor;
-
-} GFXContext;
-
-
-/**
- * Requests a minimal OpenGL Context for new windows.
- *
- */
-void gfx_request_context(GFXContext context);
 
 /**
  * Returns the number of windows.
@@ -362,23 +376,23 @@ GFXWindow* gfx_get_window(unsigned int num);
  * Creates a new window.
  *
  * @param screen Screen to use, NULL for default screen.
- * @param depth  Color depth of the window.
+ * @param flags  Flags to apply to this window, fullscreen has precedence over all other flags.
  * @return NULL on failure.
  * 
  */
-GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y);
+GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y, GFXWindowFlags flags);
 
 /**
  * Recreates a window.
  *
  * @param screen New screen to use, NULL for default screen.
- * @param depth  New color depth for the window.
+ * @param flags  Flags to apply to this window, fullscreen has precedence over all other flags.
  * @return zero on failure (old window is still functional).
  *
  * This method is to avoid destructing a window, thereby freeing hardware memory.
  *
  */
-int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth depth);
+int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth depth, GFXWindowFlags flags);
 
 /**
  * Destroys and frees the window.

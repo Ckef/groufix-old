@@ -92,6 +92,7 @@ typedef struct GFX_Platform_Attributes
 	int                  y;
 
 	GFXColorDepth        depth;
+	GFXWindowFlags       flags;
 
 } GFX_Platform_Attributes;
 

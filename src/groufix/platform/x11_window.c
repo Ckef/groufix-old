@@ -51,18 +51,6 @@ static GLXFBConfig* _gfx_x11_get_config(Screen* screen, const GFXColorDepth* dep
 }
 
 /******************************************************/
-static void _gfx_x11_set_atoms(Window window)
-{
-	/* Create atom array */
-	Atom atoms[] = {
-		_gfx_x11->wmDeleteWindow
-	};
-
-	/* Set atom protocols */
-	XSetWMProtocols(_gfx_x11->display, window, atoms, 1);
-}
-
-/******************************************************/
 static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
 {
 	GFXKeyState st = GFX_KEY_STATE_NONE;
@@ -301,8 +289,29 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 		return NULL;
 	}
 
-	/* Set protocols */
-	_gfx_x11_set_atoms(window.handle);
+	/* Set size hints */
+	if(!(attributes->flags & GFX_WINDOW_RESIZABLE))
+	{
+		XSizeHints* hints = XAllocSizeHints();
+		hints->flags = PMinSize | PMaxSize;
+
+		hints->min_width = attributes->width;
+		hints->max_width = attributes->width;
+		hints->min_height = attributes->height;
+		hints->max_height = attributes->height;
+
+		XSetWMNormalHints(_gfx_x11->display, window.handle, hints);
+
+		XFree(hints);
+	}
+
+	/* Create atom array */
+	Atom atoms[] = {
+		_gfx_x11->wmDeleteWindow
+	};
+
+	/* Set atom protocols */
+	XSetWMProtocols(_gfx_x11->display, window.handle, atoms, 1);
 	XStoreName(_gfx_x11->display, window.handle, attributes->name);
 
 	return UINT_TO_VOID(window.handle);

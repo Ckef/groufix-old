@@ -182,7 +182,7 @@ GFXWindow* gfx_get_window(unsigned int num)
 }
 
 /******************************************************/
-GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y)
+GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y, GFXWindowFlags flags)
 {
 	/* Setup top level window */
 	GFX_Internal_Window* window = calloc(1, sizeof(GFX_Internal_Window));
@@ -202,6 +202,7 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	attr.x      = x;
 	attr.y      = y;
 	attr.depth  = depth;
+	attr.flags  = flags;
 
 	window->handle = _gfx_platform_window_create(&attr);
 	if(!window->handle)
@@ -234,7 +235,7 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 }
 
 /******************************************************/
-int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth depth)
+int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth depth, GFXWindowFlags flags)
 {
 	GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
 
@@ -250,6 +251,7 @@ int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth
 	attr.screen = scr;
 	attr.name   = name;
 	attr.depth  = depth;
+	attr.flags  = flags;
 
 	_gfx_platform_window_get_size(internal->handle, &attr.width, &attr.height);
 	_gfx_platform_window_get_position(internal->handle, &attr.x, &attr.y);
