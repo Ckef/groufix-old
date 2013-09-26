@@ -88,8 +88,6 @@ typedef struct GFXBuffer
 	GFXBufferTarget  target; /* Storage type the buffer is targeted for */
 	unsigned char    multi;  /* Number of extra buffers (0 = regular buffering) */
 
-	size_t id; /* Unique ID */
-
 } GFXBuffer;
 
 
