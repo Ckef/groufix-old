@@ -126,6 +126,16 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
 unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall* call, const GFXBuffer* buffer);
 
 /**
+ * Changes a draw call of the vertex layout.
+ *
+ * @param buffer Index buffer associated with indexed drawing, can be NULL.
+ * @param index  Index of the draw call.
+ * @return Non-zero if the draw call could be changed.
+ *
+ */
+int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call, const GFXBuffer* buffer);
+
+/**
  * Removes the last added draw call from the vertex layout.
  *
  * @return index of the removed draw call (0 if no calls were present).

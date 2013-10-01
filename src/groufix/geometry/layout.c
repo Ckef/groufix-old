@@ -278,6 +278,25 @@ unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall
 }
 
 /******************************************************/
+int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call, const GFXBuffer* buffer)
+{
+	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+
+	/* Check index */
+	unsigned short size = gfx_deque_get_size(&internal->drawCalls);
+	if(index > size) return 0;
+
+	/* Replace data */
+	struct GFX_Internal_Draw* draw = (struct GFX_Internal_Draw*)gfx_deque_at(&internal->drawCalls, index - 1);
+	draw->call   = *call;
+	draw->buffer = 0;
+
+	if(buffer) draw->buffer = _gfx_buffer_get_handle(buffer);
+
+	return 1;
+}
+
+/******************************************************/
 unsigned short gfx_vertex_layout_pop(GFXVertexLayout* layout)
 {
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
