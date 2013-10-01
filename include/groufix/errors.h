@@ -39,7 +39,6 @@ typedef enum GFXErrorCode
 	GFX_ERROR_PLATFORM_ERROR                 = 0x0002,
 	GFX_ERROR_MEMORY_CORRUPTION              = 0x0003,
 	GFX_ERROR_COMPILE_FAIL                   = 0x0004,
-	GFX_ERROR_SYNC_FAIL                      = 0x0005,
 	GFX_ERROR_INVALID_ENUM                   = 0x0500,
 	GFX_ERROR_INVALID_VALUE                  = 0x0501,
 	GFX_ERROR_INVALID_OPERATION              = 0x0502,

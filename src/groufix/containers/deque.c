@@ -54,7 +54,7 @@ static int _gfx_deque_realloc(GFXDeque* deque, size_t capacity)
 
 	/* Make sure to check if it worked */
 	void* new = realloc(deque->data, capacity);
-	if(new) return 0;
+	if(!new) return 0;
 
 	/* Set new properties */
 	deque->data = new;

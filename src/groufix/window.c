@@ -110,8 +110,7 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_window_make_current(GFX_Internal_Window* window)
 {
-	/* Prevent possible overhead */
-	if(window && _gfx_current_window != window)
+	if(window)
 	{
 		_gfx_platform_context_make_current(window->handle);
 		_gfx_current_window = window;

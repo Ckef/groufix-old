@@ -171,6 +171,8 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle);
 /**
  * Sets the window as the current render target.
  *
+ * Note: This SHOULD NOT be called unless you know damn well what you're doing.
+ *
  */
 void _gfx_window_make_current(GFX_Internal_Window* window);
 
