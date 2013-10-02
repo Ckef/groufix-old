@@ -56,7 +56,7 @@ static int _gfx_window_context_create(GFX_Platform_Window window)
 		GFX_CONTEXT_MINOR_MAX
 	};
 
-	/* Iterate from max to min untill a valid context was created */
+	/* Iterate from max to min until a valid context was created */
 	while(
 		max.major > _gfx_context.major ||
 		(max.major == _gfx_context.major &&

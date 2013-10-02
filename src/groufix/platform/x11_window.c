@@ -53,7 +53,7 @@ static GLXFBConfig* _gfx_x11_get_config(Screen* screen, const GFXColorDepth* dep
 /******************************************************/
 static void _gfx_x11_set_fullscreen(Window handle, Window root)
 {
-	/* Create event to set fullscreen atom */
+	/* Create event to set full screen atom */
 	XEvent event;
 	event.xclient.type         = ClientMessage;
 	event.xclient.serial       = 0;
@@ -310,7 +310,7 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 		return NULL;
 	}
 
-	/* Show window & set fullscreen */
+	/* Show window & set full screen */
 	XMapWindow(_gfx_x11->display, window.handle);
 	if(attributes->flags & GFX_WINDOW_FULLSCREEN) _gfx_x11_set_fullscreen(window.handle, get.root);
 

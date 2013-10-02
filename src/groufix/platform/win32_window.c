@@ -380,16 +380,25 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 		WS_MAXIMIZEBOX |
 		WS_SIZEBOX;
 
+	GFXWindowFlags fullscreen = attributes->flags & GFX_WINDOW_FULLSCREEN;
+	if(fullscreen) style = (style & ~(
+		WS_CAPTION |
+		WS_MINIMIZEBOX |
+		WS_MAXIMIZEBOX |
+		WS_SYSMENU |
+		WS_SIZEBOX)) |
+		WS_POPUP;
+
 	/* Create the actual window */
 	window.handle = CreateWindowEx(
 		0,
 		GFX_WIN32_WND_CLASS,
 		name,
 		style,
-		attributes->x + info.rcMonitor.left,
-		attributes->y + info.rcMonitor.top,
-		attributes->width,
-		attributes->height,
+		fullscreen ? info.rcMonitor.left : attributes->x + info.rcMonitor.left,
+		fullscreen ? info.rcMonitor.top : attributes->y + info.rcMonitor.top,
+		fullscreen ? info.rcMonitor.right - info.rcMonitor.left : attributes->width,
+		fullscreen ? info.rcMonitor.bottom - info.rcMonitor.top : attributes->height,
 		NULL,
 		NULL,
 		GetModuleHandle(NULL),

@@ -376,7 +376,7 @@ GFXWindow* gfx_get_window(unsigned int num);
  * Creates a new window.
  *
  * @param screen Screen to use, NULL for default screen.
- * @param flags  Flags to apply to this window, fullscreen has precedence over all other flags.
+ * @param flags  Flags to apply to this window, full screen has precedence over all other flags.
  * @return NULL on failure.
  * 
  */
@@ -386,7 +386,7 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
  * Recreates a window.
  *
  * @param screen New screen to use, NULL for default screen.
- * @param flags  Flags to apply to this window, fullscreen has precedence over all other flags.
+ * @param flags  Flags to apply to this window, full screen has precedence over all other flags.
  * @return zero on failure (old window is still functional).
  *
  * This method is to avoid destructing a window, thereby freeing hardware memory.
