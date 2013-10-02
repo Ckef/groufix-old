@@ -55,8 +55,8 @@ struct GFX_Internal_Attribute
 /** Internal draw call */
 struct GFX_Internal_Draw
 {
-	GFXDrawCall  call;   /* Super class */
-	GLuint       buffer; /* Index buffer */
+	GFXDrawCall       call;   /* Super class */
+	const GFXBuffer*  buffer; /* Index buffer */
 };
 
 /******************************************************/
@@ -269,9 +269,7 @@ unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall
 	/* Try to push a new element */
 	struct GFX_Internal_Draw draw;
 	draw.call   = *call;
-	draw.buffer = 0;
-
-	if(buffer) draw.buffer = _gfx_buffer_get_handle(buffer);
+	draw.buffer = buffer;
 
 	/* Return actual index + 1 */
 	return gfx_deque_push_back(&internal->drawCalls, &draw) == internal->drawCalls.end ? 0 : index;
@@ -289,9 +287,7 @@ int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const G
 	/* Replace data */
 	struct GFX_Internal_Draw* draw = (struct GFX_Internal_Draw*)gfx_deque_at(&internal->drawCalls, index - 1);
 	draw->call   = *call;
-	draw->buffer = 0;
-
-	if(buffer) draw->buffer = _gfx_buffer_get_handle(buffer);
+	draw->buffer = buffer;
 
 	return 1;
 }
@@ -343,7 +339,7 @@ void gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned short num,
 	{
 		struct GFX_Internal_Draw* call = (struct GFX_Internal_Draw*)it;
 
-		internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
+		internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buffer_get_handle(call->buffer));
 		glDrawElements(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first);
 
 		it = gfx_deque_next(&internal->drawCalls, it);
@@ -383,7 +379,7 @@ void gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned 
 	{
 		struct GFX_Internal_Draw* call = (struct GFX_Internal_Draw*)it;
 
-		internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
+		internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buffer_get_handle(call->buffer));
 		internal->ext->DrawElementsInstanced(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first, inst);
 
 		it = gfx_deque_next(&internal->drawCalls, it);
