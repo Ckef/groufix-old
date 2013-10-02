@@ -227,9 +227,6 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	_gfx_extensions_load();
 	_gfx_window_make_current(_gfx_main_window);
 
-	/* Make the window visible */
-	_gfx_platform_window_show(window->handle);
-
 	return (GFXWindow*)window;
 }
 
@@ -282,9 +279,6 @@ int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth
 	/* Restore hardware objects if main window & make sure the main window is current */
 	if(isMain) _gfx_hardware_objects_restore(&internal->extensions);
 	else _gfx_window_make_current(_gfx_main_window);
-
-	/* Make the window visible */
-	_gfx_platform_window_show(handle);
 
 	return 1;
 }

@@ -86,8 +86,12 @@ typedef struct GFX_X11_Connection
 {
 	/* X Display and Windows */
 	Display*   display;
-	GFXVector  windows;        /* Stores GFX_X11_Window */
-	Atom       wmDeleteWindow; /* WM_DELETE_WINDOW */
+	GFXVector  windows;           /* Stores GFX_X11_Window */
+
+	/* Atoms */
+	Atom       wmDeleteWindow;    /* WM_DELETE_WINDOW */
+	Atom       wmState;           /* _NET_WM_STATE */
+	Atom       wmStateFullscreen; /* _NET_WM_STATE_FULLSCREEN */
 
 	/* Key table */
 	GFXKey     keys[GFX_X11_NUM_KEYCODES];

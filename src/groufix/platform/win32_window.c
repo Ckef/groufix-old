@@ -412,6 +412,9 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 	/* Start tracking the mouse */
 	_gfx_win32_track_mouse(window.handle);
 
+	/* Show window */
+	ShowWindow(window.handle, SW_SHOW);
+
 	return window.handle;
 }
 

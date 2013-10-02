@@ -51,6 +51,27 @@ static GLXFBConfig* _gfx_x11_get_config(Screen* screen, const GFXColorDepth* dep
 }
 
 /******************************************************/
+static void _gfx_x11_set_fullscreen(Window handle, Window root)
+{
+	/* Create event to set fullscreen atom */
+	XEvent event;
+	event.xclient.type         = ClientMessage;
+	event.xclient.serial       = 0;
+	event.xclient.send_event   = True;
+	event.xclient.display      = _gfx_x11->display;
+	event.xclient.window       = handle;
+	event.xclient.message_type = _gfx_x11->wmState;
+	event.xclient.format       = 0x20;
+
+	event.xclient.data.l[0] = 1;
+	event.xclient.data.l[1] = _gfx_x11->wmStateFullscreen;
+	event.xclient.data.l[2] = 0;
+
+	/* Send it */
+	XSendEvent(_gfx_x11->display, root, False, SubstructureRedirectMask | SubstructureNotifyMask, &event);
+}
+
+/******************************************************/
 static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
 {
 	GFXKeyState st = GFX_KEY_STATE_NONE;
@@ -289,8 +310,12 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 		return NULL;
 	}
 
+	/* Show window & set fullscreen */
+	XMapWindow(_gfx_x11->display, window.handle);
+	if(attributes->flags & GFX_WINDOW_FULLSCREEN) _gfx_x11_set_fullscreen(window.handle, get.root);
+
 	/* Set size hints */
-	if(!(attributes->flags & GFX_WINDOW_RESIZABLE))
+	else if(!(GFX_WINDOW_RESIZABLE & attributes->flags))
 	{
 		XSizeHints* hints = XAllocSizeHints();
 		hints->flags = PMinSize | PMaxSize;
@@ -305,13 +330,8 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 		XFree(hints);
 	}
 
-	/* Create atom array */
-	Atom atoms[] = {
-		_gfx_x11->wmDeleteWindow
-	};
-
-	/* Set atom protocols */
-	XSetWMProtocols(_gfx_x11->display, window.handle, atoms, 1);
+	/* Set protocols */
+	XSetWMProtocols(_gfx_x11->display, window.handle, &_gfx_x11->wmDeleteWindow, 1);
 	XStoreName(_gfx_x11->display, window.handle, attributes->name);
 
 	return UINT_TO_VOID(window.handle);

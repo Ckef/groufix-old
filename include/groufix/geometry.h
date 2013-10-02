@@ -128,8 +128,8 @@ unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall
 /**
  * Changes a draw call of the vertex layout.
  *
- * @param buffer Index buffer associated with indexed drawing, can be NULL.
  * @param index  Index of the draw call.
+ * @param buffer Index buffer associated with indexed drawing, can be NULL.
  * @return Non-zero if the draw call could be changed.
  *
  */
