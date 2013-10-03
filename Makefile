@@ -80,6 +80,7 @@ HEADERS = \
  $(INCLUDE)/groufix/math.h \
  $(INCLUDE)/groufix/memory.h \
  $(INCLUDE)/groufix/pipeline.h \
+ $(INCLUDE)/groufix/shading.h \
  $(INCLUDE)/groufix/utils.h \
  $(INCLUDE)/groufix/window.h \
  $(INCLUDE)/groufix.h
@@ -133,6 +134,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/platform/x11_screen.o \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
+ $(OUT)/unix-x11/groufix/shading/shader.o \
  $(OUT)/unix-x11/groufix/errors.o \
  $(OUT)/unix-x11/groufix/events.o \
  $(OUT)/unix-x11/groufix/extensions.o \
@@ -157,6 +159,7 @@ before-unix-x11:
 	mkdir -p $(OUT)/unix-x11/groufix/memory
 	mkdir -p $(OUT)/unix-x11/groufix/pipeline
 	mkdir -p $(OUT)/unix-x11/groufix/platform
+	mkdir -p $(OUT)/unix-x11/groufix/shading
 
 
 # All the object files
@@ -189,6 +192,9 @@ $(OUT)/unix-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_scree
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
+$(OUT)/unix-x11/groufix/shading/shader.o: $(SRC)/groufix/shading/shader.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_X11)
@@ -227,6 +233,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/platform/win32_init.o \
  $(OUT)/win32/groufix/platform/win32_screen.o \
  $(OUT)/win32/groufix/platform/win32_window.o \
+ $(OUT)/win32/groufix/shading/shader.o \
  $(OUT)/win32/groufix/errors.o \
  $(OUT)/win32/groufix/events.o \
  $(OUT)/win32/groufix/extensions.o \
@@ -251,6 +258,7 @@ before-win32:
 	if not exist $(OUT)\win32\groufix\memory\nul mkdir $(OUT)\win32\groufix\memory
 	if not exist $(OUT)\win32\groufix\pipeline\nul mkdir $(OUT)\win32\groufix\pipeline
 	if not exist $(OUT)\win32\groufix\platform\nul mkdir $(OUT)\win32\groufix\platform
+	if not exist $(OUT)\win32\groufix\shading\nul mkdir $(OUT)\win32\groufix\shading
 
 
 # All the object files
@@ -283,6 +291,9 @@ $(OUT)/win32/groufix/platform/win32_screen.o: $(SRC)/groufix/platform/win32_scre
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_window.o: $(SRC)/groufix/platform/win32_window.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/shading/shader.o: $(SRC)/groufix/shading/shader.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/errors.o: $(SRC)/groufix/errors.c $(HEADERS_WIN32)

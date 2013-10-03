@@ -23,6 +23,7 @@
 #define GFX_INTERNAL_H
 
 #include "groufix/geometry.h"
+#include "groufix/shading.h"
 #include "groufix/platform.h"
 
 /* Correct OGL header */
@@ -280,6 +281,12 @@ GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer);
  *
  */
 GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout);
+
+/**
+ * Returns the handle of a shader.
+ *
+ */
+GLuint _gfx_shader_get_handle(const GFXShader* shader);
 
 
 #ifdef __cplusplus

@@ -98,7 +98,7 @@ typedef struct GFXBuffer
  * @param target   Storage type the buffer is targeted for.
  * @param multi    Number of extra buffers to allocate (> 0 for multi buffering, 0 for regular buffering).
  * @param segments Number of segments per buffer.
- * @return Non-zero on success.
+ * @return NULL on failure.
  *
  * Note: if data is not NULL, this data is NOT copied to any extra buffers.
  *

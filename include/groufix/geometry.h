@@ -89,7 +89,7 @@ typedef struct GFXVertexLayout
 /**
  * Creates a new vertex layout.
  *
- * @return Non-zero on success.
+ * @return NULL on failure.
  *
  */
 GFXVertexLayout* gfx_vertex_layout_create(void);
