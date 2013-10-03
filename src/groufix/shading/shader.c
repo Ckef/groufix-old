@@ -41,23 +41,35 @@ static int _gfx_shader_eval_type(GFXShaderType type, const GFX_Extensions* ext)
 {
 	switch(type)
 	{
+		/* GFX_EXT_TESSELLATION_SHADER */
 		case GFX_TESS_CONTROL_SHADER :
 		case GFX_TESS_EVAL_SHADER :
-			if(!ext->flags[GFX_EXT_TESSELLATION_SHADER]) gfx_errors_push(
-				GFX_ERROR_INCOMPATIBLE_CONTEXT,
-				"GFX_EXT_TESSELLATION_SHADER is incompatible with this context."
-			);
-			return 0;
 
-		case GFX_GEOMETRY_SHADER :
-			if(!ext->flags[GFX_EXT_GEOMETRY_SHADER]) gfx_errors_push(
-				GFX_ERROR_INCOMPATIBLE_CONTEXT,
-				"GFX_EXT_GEOMETRY_SHADER is incompatible with this context."
-			);
-			return 0;
-
-		default :
+			if(!ext->flags[GFX_EXT_TESSELLATION_SHADER])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"GFX_EXT_TESSELLATION_SHADER is incompatible with this context."
+				);
+				return 0;
+			}
 			return 1;
+
+		/* GFX_EXT_GEOMETRY_SHADER */
+		case GFX_GEOMETRY_SHADER :
+
+			if(!ext->flags[GFX_EXT_GEOMETRY_SHADER])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"GFX_EXT_GEOMETRY_SHADER is incompatible with this context."
+				);
+				return 0;
+			}
+			return 1;
+
+		/* Everything else */
+		default : return 1;
 	}
 }
 
@@ -68,6 +80,7 @@ static void _gfx_shader_obj_free(void* object, const GFX_Extensions* ext)
 
 	ext->DeleteShader(shader->handle);
 	shader->handle = 0;
+	shader->shader.compiled = 0;
 
 	shader->id = 0;
 }
@@ -94,7 +107,6 @@ GFXShader* gfx_shader_create(GFXShaderType type)
 	GFX_Internal_Window* window = _gfx_window_get_current();
 	if(!window) return NULL;
 
-	/* Evaluate shader type */
 	if(!_gfx_shader_eval_type(type, &window->extensions)) return NULL;
 
 	/* Create new shader */
@@ -132,4 +144,86 @@ void gfx_shader_free(GFXShader* shader)
 
 		free(shader);
 	}
+}
+
+/******************************************************/
+void gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, const char** src)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return;
+
+	struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
+
+	/* Set the source */
+	window->extensions.ShaderSource(internal->handle, num, src, length);
+	shader->compiled = 0;
+}
+
+/******************************************************/
+char* gfx_shader_get_source(GFXShader* shader, size_t* length)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window)
+	{
+		if(length) *length = 0;
+		return NULL;
+	}
+
+	struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
+
+	/* Get source length */
+	GLint len;
+	window->extensions.GetShaderiv(internal->handle, GL_SHADER_SOURCE_LENGTH, &len);
+	if(!len)
+	{
+		if(length) *length = 0;
+		return NULL;
+	}
+
+	/* Get actual source */
+	char* buff = malloc(len);
+	window->extensions.GetShaderSource(internal->handle, len, NULL, buff);
+
+	if(length) *length = len - 1;
+
+	return buff;
+}
+
+/******************************************************/
+int gfx_shader_compile(GFXShader* shader)
+{
+	/* Already compiled */
+	if(!shader->compiled)
+	{
+		/* Get current window and context */
+		GFX_Internal_Window* window = _gfx_window_get_current();
+		if(!window) return 0;
+
+		struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
+
+		/* Try to compiled */
+		GLint status;
+		window->extensions.CompileShader(internal->handle);
+		window->extensions.GetShaderiv(internal->handle, GL_COMPILE_STATUS, &status);
+
+		/* Generate error */
+		if(!status)
+		{
+			GLint len;
+			window->extensions.GetShaderiv(internal->handle, GL_INFO_LOG_LENGTH, &len);
+
+			char* buff = malloc(len);
+			window->extensions.GetShaderInfoLog(internal->handle, len, NULL, buff);
+
+			gfx_errors_push(GFX_ERROR_COMPILE_FAIL, buff);
+			free(buff);
+
+			return 0;
+		}
+	}
+
+	/* Yep, compiled! */
+	return shader->compiled = 1;
 }

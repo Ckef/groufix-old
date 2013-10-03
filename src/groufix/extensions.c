@@ -111,12 +111,12 @@ void _gfx_extensions_load(void)
 
 	/* GLES, assumes 3.0+ */
 	ext->AttachShader             = glAttachShader;
-	ext->ClientWaitSync           = glClientWaitSync;
 	ext->BindAttribLocation       = glBindAttribLocation;
 	ext->BindBuffer               = glBindBuffer;
 	ext->BindVertexArray          = glBindVertexArray;
 	ext->BufferData               = glBufferData;
 	ext->BufferSubData            = glBufferSubData;
+	ext->ClientWaitSync           = glClientWaitSync;
 	ext->CompileShader            = glCompileShader;
 	ext->CreateProgram            = glCreateProgram;
 	ext->CreateShader             = glCreateShader;
@@ -158,12 +158,12 @@ void _gfx_extensions_load(void)
 
 	/* Core, assumes 3.2+ context */
 	ext->AttachShader             = (PFNGLATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
-	ext->ClientWaitSync           = (PFNGLCLIENTWAITSYNCPROC)           _gfx_platform_get_proc_address("glClientWaitSync");
 	ext->BindAttribLocation       = (PFNGLBINDATTRIBLOCATIONPROC)       _gfx_platform_get_proc_address("glBindAttribLocation");
 	ext->BindBuffer               = (PFNGLBINDBUFFERPROC)               _gfx_platform_get_proc_address("glBindBuffer");
 	ext->BindVertexArray          = (PFNGLBINDVERTEXARRAYPROC)          _gfx_platform_get_proc_address("glBindVertexArray");
 	ext->BufferData               = (PFNGLBUFFERDATAPROC)               _gfx_platform_get_proc_address("glBufferData");
 	ext->BufferSubData            = (PFNGLBUFFERSUBDATAPROC)            _gfx_platform_get_proc_address("glBufferSubData");
+	ext->ClientWaitSync           = (PFNGLCLIENTWAITSYNCPROC)           _gfx_platform_get_proc_address("glClientWaitSync");
 	ext->CompileShader            = (PFNGLCOMPILESHADERPROC)            _gfx_platform_get_proc_address("glCompileShader");
 	ext->CreateProgram            = (PFNGLCREATEPROGRAMPROC)            _gfx_platform_get_proc_address("glCreateProgram");
 	ext->CreateShader             = (PFNGLCREATESHADERPROC)             _gfx_platform_get_proc_address("glCreateShader");

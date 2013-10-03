@@ -51,12 +51,12 @@ extern "C" {
 
 /* Extension function pointers */
 typedef void (APIENTRYP GFX_ATTACHSHADERPROC)             (GLuint, GLuint);
-typedef GLenum (APIENTRYP GFX_CLIENTWAITSYNCPROC)         (GLsync, GLbitfield, GLuint64);
 typedef void (APIENTRYP GFX_BINDATTRIBLOCATIONPROC)       (GLuint, GLuint, const GLchar*);
 typedef void (APIENTRYP GFX_BINDBUFFERPROC)               (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDVERTEXARRAYPROC)          (GLuint);
 typedef void (APIENTRYP GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
 typedef void (APIENTRYP GFX_BUFFERSUBDATAPROC)            (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
+typedef GLenum (APIENTRYP GFX_CLIENTWAITSYNCPROC)         (GLsync, GLbitfield, GLuint64);
 typedef void (APIENTRYP GFX_COMPILESHADERPROC)            (GLuint);
 typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)          (void);
 typedef GLuint (APIENTRYP GFX_CREATESHADERPROC)           (GLenum);
@@ -103,12 +103,12 @@ typedef struct GFX_Extensions
 
 	/* OpenGL Extensions */
 	GFX_ATTACHSHADERPROC              AttachShader;
-	GFX_CLIENTWAITSYNCPROC            ClientWaitSync;
 	GFX_BINDATTRIBLOCATIONPROC        BindAttribLocation;
 	GFX_BINDBUFFERPROC                BindBuffer;
 	GFX_BINDVERTEXARRAYPROC           BindVertexArray;
 	GFX_BUFFERDATAPROC                BufferData;
 	GFX_BUFFERSUBDATAPROC             BufferSubData;
+	GFX_CLIENTWAITSYNCPROC            ClientWaitSync;
 	GFX_COMPILESHADERPROC             CompileShader;
 	GFX_CREATEPROGRAMPROC             CreateProgram;
 	GFX_CREATESHADERPROC              CreateShader;
