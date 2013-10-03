@@ -106,6 +106,10 @@ int gfx_shader_compile(GFXShader* shader);
  * Program (linked shaders to form GPU pipeline)
  *******************************************************/
 
+/** Program Binary Format */
+typedef unsigned int GFXProgramFormat;
+
+
 /** Program */
 typedef struct GFXProgram
 {
@@ -141,6 +145,31 @@ void gfx_program_free(GFXProgram* program);
  *
  */
 int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders);
+
+/**
+ * Retrieves the binary representation of a program.
+ *
+ * @param format Returns the format of the data (implementation dependent).
+ * @param size   Number of bytes of the binary data.
+ * @return Binary data, NULL on failure.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ */
+void* gfx_program_get_binary(GFXProgram* program, GFXProgramFormat* format, size_t* size);
+
+/**
+ * Sets the binary representation of a program.
+ *
+ * @param data   Data to read.
+ * @param format Format of the data (implementation dependent).
+ * @param size   Number of bytes to read.
+ * @return Non-zero on success.
+ *
+ * This operation can be considered to perform an implicit linking operation.
+ *
+ */
+int gfx_program_set_binary(GFXProgram* program, GFXProgramFormat format, size_t size, const void* data);
 
 
 #ifdef __cplusplus

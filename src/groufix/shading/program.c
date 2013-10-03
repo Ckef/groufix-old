@@ -158,3 +158,47 @@ int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders)
 
 	return status;
 }
+
+/******************************************************/
+void* gfx_program_get_binary(GFXProgram* program, GFXProgramFormat* format, size_t* size)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window)
+	{
+		*size = 0;
+		return NULL;
+	}
+
+	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
+
+	/* Get data bytesize */
+	GLint bytes;
+	window->extensions.GetProgramiv(internal->handle, GL_PROGRAM_BINARY_LENGTH, &bytes);
+	*size = bytes;
+
+	if(!bytes) return NULL;
+
+	/* Get the data */
+	void* data = malloc(bytes);
+	window->extensions.GetProgramBinary(internal->handle, bytes, NULL, format, data);
+
+	return data;
+}
+
+/******************************************************/
+int gfx_program_set_binary(GFXProgram* program, GFXProgramFormat format, size_t size, const void* data)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return 0;
+
+	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
+
+	/* Set binary representation */
+	GLint status;
+	window->extensions.ProgramBinary(internal->handle, format, data, size);
+	window->extensions.GetProgramiv(internal->handle, GL_LINK_STATUS, &status);
+
+	return status;
+}
