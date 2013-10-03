@@ -203,7 +203,7 @@ int gfx_shader_compile(GFXShader* shader)
 
 		struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
 
-		/* Try to compiled */
+		/* Try to compile */
 		GLint status;
 		window->extensions.CompileShader(internal->handle);
 		window->extensions.GetShaderiv(internal->handle, GL_COMPILE_STATUS, &status);
@@ -214,11 +214,9 @@ int gfx_shader_compile(GFXShader* shader)
 			GLint len;
 			window->extensions.GetShaderiv(internal->handle, GL_INFO_LOG_LENGTH, &len);
 
-			char* buff = malloc(len);
+			char buff[len];
 			window->extensions.GetShaderInfoLog(internal->handle, len, NULL, buff);
-
 			gfx_errors_push(GFX_ERROR_COMPILE_FAIL, buff);
-			free(buff);
 
 			return 0;
 		}

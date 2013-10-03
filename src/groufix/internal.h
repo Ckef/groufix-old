@@ -288,6 +288,12 @@ GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout);
  */
 GLuint _gfx_shader_get_handle(const GFXShader* shader);
 
+/**
+ * Returns the handle of a program.
+ *
+ */
+GLuint _gfx_program_get_handle(const GFXProgram* program);
+
 
 #ifdef __cplusplus
 }

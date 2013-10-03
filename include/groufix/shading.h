@@ -63,6 +63,8 @@ GFXShader* gfx_shader_create(GFXShaderType type);
 /**
  * Makes sure the shader is freed properly.
  *
+ * If the shader is currently attached to a program, it will not be freed internally.
+ *
  */
 void gfx_shader_free(GFXShader* shader);
 
@@ -73,6 +75,7 @@ void gfx_shader_free(GFXShader* shader);
  * @param src    Array containing the sources to append to each other.
  *
  * Note: This will entirely replace a source set by a previous call to the method.
+ * The source strings will be copied.
  *
  */
 void gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, const char** src);
@@ -97,6 +100,47 @@ char* gfx_shader_get_source(GFXShader* shader, size_t* length);
  *
  */
 int gfx_shader_compile(GFXShader* shader);
+
+
+/********************************************************
+ * Program (linked shaders to form GPU pipeline)
+ *******************************************************/
+
+/** Program */
+typedef struct GFXProgram
+{
+	size_t id; /* Unique ID */
+
+} GFXProgram;
+
+
+/**
+ * Creates a new program.
+ *
+ * @return NULL on failure.
+ *
+ */
+GFXProgram* gfx_program_create(void);
+
+/**
+ * Makes sure the program is freed properly.
+ *
+ */
+void gfx_program_free(GFXProgram* program);
+
+/**
+ * Links given shaders into a program.
+ *
+ * @shaders All shader objects to link into the program (cannot be NULL).
+ * @return Non-zero on success.
+ *
+ * Note: this call will attempt to compile all given shaders.
+ *
+ * Additionally, an error will be generated on failure.
+ * This will remove any evidence of a previous link operation.
+ *
+ */
+int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders);
 
 
 #ifdef __cplusplus
