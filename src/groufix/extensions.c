@@ -76,12 +76,6 @@ static void _gfx_gl_program_binary(GLuint program, GLenum binaryFormat, const vo
 	_gfx_gl_program_binary_error();
 }
 
-/******************************************************/
-static void _gfx_gl_program_parameter_i(GLuint program, GLenum pname, GLint value)
-{
-	_gfx_gl_program_binary_error();
-}
-
 #endif
 
 /******************************************************/
@@ -143,7 +137,6 @@ void _gfx_extensions_load(void)
 	ext->LinkProgram              = glLinkProgram;
 	ext->MapBufferRange           = glMapBufferRange;
 	ext->ProgramBinary            = glProgramBinary;
-	ext->ProgramParameteri        = glProgramParameteri;
 	ext->ShaderSource             = glShaderSource;
 	ext->UnmapBuffer              = glUnmapBuffer;
 	ext->UseProgram               = glUseProgram;
@@ -217,21 +210,18 @@ void _gfx_extensions_load(void)
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
 		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
-		ext->ProgramParameteri   = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteri");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("GetProgramBinary");
 		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("ProgramBinary");
-		ext->ProgramParameteri   = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("ProgramParameteri");
 	}
 	else
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
 		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_gl_get_program_binary;
 		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_gl_program_binary;
-		ext->ProgramParameteri   = (PFNGLPROGRAMPARAMETERIPROC) _gfx_gl_program_parameter_i;
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
