@@ -104,9 +104,14 @@ size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* fun
 			if(!_gfx_hw_objects) return 0;
 		}
 
-		/* Insert a new object at the end (issue size after insertion to get index + 1) */
-		if(gfx_vector_insert(_gfx_hw_objects, &internal, _gfx_hw_objects->end) != _gfx_hw_objects->end)
-			id = gfx_vector_get_size(_gfx_hw_objects);
+		/* Get index + 1 as ID and check it against the maximum */
+		/* Or overflow? omg, many objects! */
+		id = gfx_vector_get_size(_gfx_hw_objects) + 1;
+		if(!id || id > GFX_MAX_HARDWARE_ID) return 0;
+
+		/* Insert a new object at the end */
+		if(gfx_vector_insert(_gfx_hw_objects, &internal, _gfx_hw_objects->end) == _gfx_hw_objects->end)
+			return 0;
 	}
 	return id;
 }
