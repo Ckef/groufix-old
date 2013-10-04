@@ -44,39 +44,38 @@ struct GFX_Internal_Layout
 /** Internal vertex attribute */
 struct GFX_Internal_Attribute
 {
-	/* Super class */
-	GFXVertexAttribute attr;
-
-	/* Hidden data */
-	GLuint        buffer;
-	unsigned int  index;
+	GFXVertexAttribute  attr;   /* Super class */
+	GLuint              buffer; /* Vertex buffer */
 };
 
 /** Internal draw call */
 struct GFX_Internal_Draw
 {
 	GFXDrawCall       call;   /* Super class */
-	const GFXBuffer*  buffer; /* Index buffer */
+	const GFXBuffer*  buffer; /* Index buffer (dynamically pick back buffer) */
 };
 
 /******************************************************/
-static void _gfx_layout_init_attrib(GLuint vao, const struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
+static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
 {
+	/* Validate attribute */
+	if(!attr->attr.size) return;
+
 	/* Set the attribute */
 	ext->BindVertexArray(vao);
-	ext->EnableVertexAttribArray(attr->index);
+	ext->EnableVertexAttribArray(index);
 
 	ext->BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
 
 	if(attr->attr.interpret & GFX_INTERPRET_INTEGER) ext->VertexAttribIPointer(
-		attr->index,
+		index,
 		attr->attr.size,
 		attr->attr.type,
 		attr->attr.stride,
 		(GLvoid*)attr->attr.offset
 	);
 	else ext->VertexAttribPointer(
-		attr->index,
+		index,
 		attr->attr.size,
 		attr->attr.type,
 		attr->attr.interpret & GFX_INTERPRET_NORMALIZED,
@@ -85,7 +84,7 @@ static void _gfx_layout_init_attrib(GLuint vao, const struct GFX_Internal_Attrib
 	);
 
 	/* Check if non-zero to avoid extension error */
-	if(attr->attr.divisor) ext->VertexAttribDivisor(attr->index, attr->attr.divisor);
+	if(attr->attr.divisor) ext->VertexAttribDivisor(index, attr->attr.divisor);
 }
 
 /******************************************************/
@@ -125,9 +124,13 @@ static void _gfx_layout_obj_restore(void* object, const GFX_Extensions* ext)
 	ext->GenVertexArrays(1, &layout->vao);
 
 	/* Restore attributes */
-	GFXVectorIterator it;
-	for(it = layout->attributes.begin; it != layout->attributes.end; it = gfx_vector_next(&layout->attributes, it))
-		_gfx_layout_init_attrib(layout->vao, (struct GFX_Internal_Attribute*)it, ext);
+	unsigned int i = 0;
+	GFXVectorIterator it = layout->attributes.begin;
+	while(it != layout->attributes.end)
+	{
+		_gfx_layout_init_attrib(layout->vao, i++, (struct GFX_Internal_Attribute*)it, ext);
+		it = gfx_vector_next(&layout->attributes, it);
+	}
 }
 
 /******************************************************/
@@ -201,35 +204,28 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index,
 
 	if(index >= internal->ext->MAX_VERTEX_ATTRIBS) return 0;
 
-	/* Find the attribute */
-	GFXVectorIterator it;
-	for(it = internal->attributes.begin; it != internal->attributes.end; it = gfx_vector_next(&internal->attributes, it))
+	/* Allocate enough memory */
+	size_t size = gfx_vector_get_size(&internal->attributes);
+	if(index >= size)
 	{
-		/* Replace data */
-		struct GFX_Internal_Attribute* set = (struct GFX_Internal_Attribute*)it;
-		if(set->index == index)
-		{
-			set->attr = *attr;
-			set->buffer = _gfx_buffer_get_handle(buffer);
+		GFXVectorIterator it = gfx_vector_insert_range(&internal->attributes, index + 1 - size, NULL, internal->attributes.end);
+		if(it == internal->attributes.end) return 0;
 
-			break;
+		while(it != internal->attributes.end)
+		{
+			/* Initialize size to 0 so the attributes will be ignored */
+			((struct GFX_Internal_Attribute*)it)->attr.size = 0;
+			it = gfx_vector_next(&internal->attributes, it);
 		}
 	}
 
-	/* Insert new attribute */
-	if(it == internal->attributes.end)
-	{
-		struct GFX_Internal_Attribute insert;
-		insert.attr   = *attr;
-		insert.buffer = _gfx_buffer_get_handle(buffer);
-		insert.index  = index;
-
-		it = gfx_vector_insert(&internal->attributes, &insert, it);
-		if(it == internal->attributes.end) return 0;
-	}
+	/* Set attribute */
+	struct GFX_Internal_Attribute* set = (struct GFX_Internal_Attribute*)gfx_vector_at(&internal->attributes, index);
+	set->attr = *attr;
+	set->buffer = _gfx_buffer_get_handle(buffer);
 
 	/* Send attribute to OpenGL */
-	_gfx_layout_init_attrib(internal->vao, (struct GFX_Internal_Attribute*)it, internal->ext);
+	_gfx_layout_init_attrib(internal->vao, index, set, internal->ext);
 
 	return 1;
 }
@@ -238,24 +234,37 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index,
 void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int index)
 {
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
-
 	if(!internal->ext) return;
 
-	/* Find the attribute and remove it */
-	GFXVectorIterator it;
-	for(it = internal->attributes.begin; it != internal->attributes.end; it = gfx_vector_next(&internal->attributes, it))
+	/* Check what index is being removed */
+	size_t size = gfx_vector_get_size(&internal->attributes);
+	if(index >= size) return;
+
+	if(size > 1)
 	{
-		if(((struct GFX_Internal_Attribute*)it)->index == index)
+		/* Mark attribute as 'empty' */
+		((struct GFX_Internal_Attribute*)gfx_vector_at(&internal->attributes, index))->attr.size = 0;
+
+		/* Deallocate all empty attributes at the end */
+		unsigned int num;
+		GFXVectorIterator beg = internal->attributes.end;
+
+		for(num = 0; num < size; ++num)
 		{
-			gfx_vector_erase(&internal->attributes, it);
+			GFXVectorIterator prev = gfx_vector_previous(&internal->attributes, beg);
+			if(((struct GFX_Internal_Attribute*)prev)->attr.size) break;
 
-			/* Send request to OpenGL */
-			internal->ext->BindVertexArray(internal->vao);
-			internal->ext->DisableVertexAttribArray(index);
-
-			break;
+			beg = prev;
 		}
+		gfx_vector_erase_range(&internal->attributes, num, beg);
 	}
+
+	/* Clear vector */
+	else gfx_vector_clear(&internal->attributes);
+
+	/* Send request to OpenGL */
+	internal->ext->BindVertexArray(internal->vao);
+	internal->ext->DisableVertexAttribArray(index);
 }
 
 /******************************************************/
