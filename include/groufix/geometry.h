@@ -68,7 +68,7 @@ typedef struct GFXVertexAttribute
 	GFXInterpretType  interpret; /* How to interpret each element */
 
 	size_t            stride;    /* Byte offset between consecutive attributes */
-	size_t            offset;    /* Byte offset of the first occurence of the attribute */
+	size_t            offset;    /* Byte offset of the first occurrence of the attribute */
 	unsigned int      divisor;   /* Rate at which attributes advance, 0 for no instancing */
 
 } GFXVertexAttribute;

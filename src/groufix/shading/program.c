@@ -105,6 +105,23 @@ void gfx_program_free(GFXProgram* program)
 }
 
 /******************************************************/
+int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const char* name)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return 0;
+	
+	if(index >= window->extensions.MAX_VERTEX_ATTRIBS) return 0;
+
+	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
+	
+	/* Set the attribute */
+	window->extensions.BindAttribLocation(internal->handle, index, name);
+	
+	return 1;
+}
+
+/******************************************************/
 int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders)
 {
 	/* Get current window and context */
@@ -172,7 +189,7 @@ void* gfx_program_get_binary(GFXProgram* program, GFXProgramFormat* format, size
 
 	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
 
-	/* Get data bytesize */
+	/* Get data byte size */
 	GLint bytes;
 	window->extensions.GetProgramiv(internal->handle, GL_PROGRAM_BINARY_LENGTH, &bytes);
 	*size = bytes;

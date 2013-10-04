@@ -197,8 +197,9 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer)
 {
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	if(!internal->ext) return 0;
 
-	if(!internal->ext || index >= internal->ext->MAX_VERTEX_ATTRIBS) return 0;
+	if(index >= internal->ext->MAX_VERTEX_ATTRIBS) return 0;
 
 	/* Find the attribute */
 	GFXVectorIterator it;

@@ -133,6 +133,18 @@ GFXProgram* gfx_program_create(void);
 void gfx_program_free(GFXProgram* program);
 
 /**
+ * Forwards data send to the given index to a given name within the program.
+ *
+ * @param name Name of the attribute in the shaders (the string is copied).
+ * @return Zero on failure.
+ *
+ * This method only takes effect once the program is linked.
+ * Note: an index can be forwarded to multiple names.
+ *
+ */
+int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const char* name);
+
+/**
  * Links given shaders into a program.
  *
  * @shaders All shader objects to link into the program (cannot be NULL).
