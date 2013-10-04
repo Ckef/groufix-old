@@ -29,7 +29,7 @@ int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int mino
 	if(!window) return 0;
 
 	GFX_Win32_Window* shareWind = NULL;
-	if(share) _gfx_win32_get_window_from_handle(share);
+	if(share) shareWind = _gfx_win32_get_window_from_handle(share);
 
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
