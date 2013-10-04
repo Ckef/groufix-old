@@ -111,7 +111,18 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout);
 int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer);
 
 /**
+ * Retrieves an attribute from a vertex layout.
+ *
+ * @param index Index of the attribute to retrieve.
+ * @return Zero on failure (nothing is written to the output parameters).
+ *
+ */
+int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index, GFXVertexAttribute* attr);
+
+/**
  * Removes an attribute from a vertex layout.
+ *
+ * @param index  Index of the attribute to remove.
  *
  */
 void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int index);
@@ -134,6 +145,15 @@ unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall
  *
  */
 int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call, const GFXBuffer* buffer);
+
+/**
+ * Retrieves a draw call from the vertex layout.
+ *
+ * @param index Index of the draw call to retrieve.
+ * @return Zero on failure (nothing is written to the output parameters).
+ *
+ */
+int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned short index, GFXDrawCall* call);
 
 /**
  * Removes the last added draw call from the vertex layout.

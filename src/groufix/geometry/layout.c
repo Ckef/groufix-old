@@ -202,12 +202,13 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index,
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 	if(!internal->ext) return 0;
 
+	/* Check index */
 	if(index >= internal->ext->MAX_VERTEX_ATTRIBS) return 0;
-
-	/* Allocate enough memory */
 	size_t size = gfx_vector_get_size(&internal->attributes);
+
 	if(index >= size)
 	{
+		/* Allocate enough memory */
 		GFXVectorIterator it = gfx_vector_insert_range(&internal->attributes, index + 1 - size, NULL, internal->attributes.end);
 		if(it == internal->attributes.end) return 0;
 
@@ -228,6 +229,23 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index,
 	_gfx_layout_init_attrib(internal->vao, index, set, internal->ext);
 
 	return 1;
+}
+
+/******************************************************/
+int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index, GFXVertexAttribute* attr)
+{
+	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+
+	/* Validate index */
+	size_t size = gfx_vector_get_size(&internal->attributes);
+	if(index >= size) return 0;
+
+	/* Retrieve data */
+	struct GFX_Internal_Attribute* get = (struct GFX_Internal_Attribute*)gfx_vector_at(&internal->attributes, index);
+	*attr = get->attr;
+
+	/* Retrieve size for validity */
+	return get->attr.size;
 }
 
 /******************************************************/
@@ -292,12 +310,28 @@ int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const G
 
 	/* Check index */
 	unsigned short size = gfx_deque_get_size(&internal->drawCalls);
-	if(index > size) return 0;
+	if(!index || index > size) return 0;
 
 	/* Replace data */
 	struct GFX_Internal_Draw* draw = (struct GFX_Internal_Draw*)gfx_deque_at(&internal->drawCalls, index - 1);
 	draw->call   = *call;
 	draw->buffer = buffer;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned short index, GFXDrawCall* call)
+{
+	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+
+	/* Validate index */
+	size_t size = gfx_deque_get_size(&internal->drawCalls);
+	if(!index || index > size) return 0;
+
+	/* Retrieve data */
+	struct GFX_Internal_Draw* draw = (struct GFX_Internal_Draw*)gfx_deque_at(&internal->drawCalls, index - 1);
+	*call = draw->call;
 
 	return 1;
 }
