@@ -171,7 +171,7 @@ typedef struct GFX_Internal_Window
 GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle);
 
 /**
- * Destroyes the server side window.
+ * Destroys the server side window.
  *
  * Creates a zombie window, the window struct still exists, but is not registered.
  * Thus, it must still be freed.

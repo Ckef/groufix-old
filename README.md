@@ -35,9 +35,9 @@ Regardless, there are components in the engine which are specifically designed t
 
 ### Termination
 
-As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all hardware (GPU) related memory and free all windows. This means the connection to both the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
+As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all hardware (GPU) and window manager related resources. This means the connection to both the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
 
-_It will not free any other resources_. Windows are the only user allocated objects which are automatically freed, any other objects must be freed by the user. To make sure everything is freed properly, every create method must be followed up by the appropriate free method and every init method must be followed up by the appropriate clear method. On a side note, any free method can take NULL as parameter and it will do nothing.
+_It will not free any other resources_. All user allocated resources must be freed by the user. To make sure everything is freed properly, every create method must be followed up by the appropriate free method and every init method must be followed up by the appropriate clear method. On a side note, any free method can take NULL as parameter and it will do nothing.
 
 ## Acknowledgements
 
