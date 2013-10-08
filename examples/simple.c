@@ -64,7 +64,8 @@ int main()
 		/* Draw a triangle */
 		gfx_vertex_layout_draw(layout, 1, index);
 
-		gfx_window_swap_all_buffers();
+		gfx_window_swap_buffers(window1);
+		gfx_window_swap_buffers(window2);
 
 		/* Print all the errors! */
 		GFXError error;
@@ -77,6 +78,9 @@ int main()
 
 	gfx_vertex_layout_free(layout);
 	gfx_buffer_free(buffer);
+
+	gfx_window_free(window1);
+	gfx_window_free(window2);
 
 	gfx_terminate();
 

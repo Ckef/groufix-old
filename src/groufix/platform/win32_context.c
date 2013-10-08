@@ -53,8 +53,6 @@ int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int mino
 /******************************************************/
 void _gfx_platform_context_free(GFX_Platform_Window handle)
 {
-	HDC dc = GetDC(handle);
-
 	/* Get the window and destroy its context */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
 	if(window)
@@ -62,7 +60,6 @@ void _gfx_platform_context_free(GFX_Platform_Window handle)
 		wglDeleteContext(window->context);
 		window->context = NULL;
 	}
-	ReleaseDC(handle, dc);
 }
 
 /******************************************************/

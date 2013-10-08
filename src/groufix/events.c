@@ -27,8 +27,8 @@ void _gfx_event_window_close(GFX_Platform_Window handle)
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
 	if(window->callbacks.windowClose) window->callbacks.windowClose(window);
 
-	/* Close window if it has no callback */
-	else gfx_window_free(window);
+	/* Destroy window if it has no callback */
+	else _gfx_window_destroy((GFX_Internal_Window*)window);
 }
 
 /******************************************************/
