@@ -28,10 +28,10 @@
 
 /* Maximal supported context */
 #define GFX_CONTEXT_MAJOR_MAX 4
-#define GFX_CONTEXT_MINOR_MAX 3
+#define GFX_CONTEXT_MINOR_MAX 4
 
 /* Greatest minor version possible */
-#define GFX_CONTEXT_ALL_MINORS_MAX 3;
+#define GFX_CONTEXT_ALL_MINORS_MAX 4;
 
 #ifdef __cplusplus
 extern "C" {
@@ -376,11 +376,13 @@ GFXWindow* gfx_get_window(unsigned int num);
  * Creates a new window.
  *
  * @param screen Screen to use, NULL for default screen.
+ * @param w      Width of the window.
+ * @param h      Height of the window.
  * @param flags  Flags to apply to this window, full screen has precedence over all other flags.
  * @return NULL on failure.
  * 
  */
-GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y, GFXWindowFlags flags);
+GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int w, unsigned int h, GFXWindowFlags flags);
 
 /**
  * Recreates a window.

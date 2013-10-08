@@ -181,7 +181,7 @@ GFXWindow* gfx_get_window(unsigned int num)
 }
 
 /******************************************************/
-GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int width, unsigned int height, int x, int y, GFXWindowFlags flags)
+GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int w, unsigned int h, GFXWindowFlags flags)
 {
 	/* Setup top level window */
 	GFX_Internal_Window* window = calloc(1, sizeof(GFX_Internal_Window));
@@ -196,10 +196,10 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	GFX_Platform_Attributes attr;
 	attr.screen = scr;
 	attr.name   = name;
-	attr.width  = width;
-	attr.height = height;
-	attr.x      = x;
-	attr.y      = y;
+	attr.width  = w;
+	attr.height = h;
+	attr.x      = 0;
+	attr.y      = 0;
 	attr.depth  = depth;
 	attr.flags  = flags;
 

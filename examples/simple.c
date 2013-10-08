@@ -26,8 +26,8 @@ int main()
 	depth.greenBits = 8;
 	depth.blueBits  = 8;
 
-	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 800, 600, 100, 100, GFX_WINDOW_RESIZABLE);
-	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 800, 600, 300, 300, 0);
+	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 800, 600, 0);
 
 	GFXContext context = gfx_window_get_context(window1);
 	printf("%i.%i\n", context.major, context.minor);
