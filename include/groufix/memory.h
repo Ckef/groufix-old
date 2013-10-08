@@ -83,10 +83,12 @@ typedef enum GFXBufferTarget
 /** Buffer */
 typedef struct GFXBuffer
 {
-	size_t           size;   /* Size of the buffer in bytes */
-	GFXBufferUsage   usage;  /* Intended usage of the buffer */
-	GFXBufferTarget  target; /* Storage type the buffer is targeted for */
-	unsigned char    multi;  /* Number of extra buffers (0 = regular buffering) */
+	size_t           size;    /* Size of the buffer in bytes */
+	size_t           segSize; /* Size of a segment in the buffer (can equal size) */
+	unsigned char    multi;   /* Number of extra buffers (0 = regular buffering) */
+
+	GFXBufferUsage   usage;   /* Intended usage of the buffer */
+	GFXBufferTarget  target;  /* Storage type the buffer is targeted for */
 
 } GFXBuffer;
 
@@ -181,12 +183,13 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsa
  * Maps the buffer's current segment and returns a pointer to the mapped data.
  *
  * @param access Access rules to optimize (which must be followed by the client).
+ * @param offset Offset within the segment.
  * @return A pointer in client address space (NULL on failure).
  *
  * This method will automatically try to asynchronously upload.
  *
  */
-void* gfx_buffer_map_segment(GFXBuffer* buffer, GFXBufferUsage access);
+void* gfx_buffer_map_segment(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access);
 
 /**
  * Unmaps the buffer, invalidating the pointer returned by gfx_buffer_map.

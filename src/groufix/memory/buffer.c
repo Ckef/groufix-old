@@ -36,7 +36,6 @@ struct GFX_Internal_Buffer
 	/* Hidden data */
 	unsigned char  current;     /* Current active buffer */
 	unsigned char  currentSeg;  /* Current active segment */
-	size_t         segmentSize; /* Size of a single segment in bytes */
 	GFXVector      handles;     /* Stores GLuint + (GLsync * numSegments) */
 
 	size_t id; /* Unique ID */
@@ -92,7 +91,7 @@ static void _gfx_buffer_alloc_buffers(struct GFX_Internal_Buffer* buffer, GFXVec
 static void _gfx_buffer_delete_buffers(struct GFX_Internal_Buffer* buffer, GFXVectorIterator it, unsigned char num, const GFX_Extensions* ext)
 {
 	GLuint handles[num];
-	unsigned char segs = buffer->buffer.size / buffer->segmentSize;
+	unsigned char segs = buffer->buffer.size / buffer->buffer.segSize;
 
 	/* Iterate over buffers */
 	unsigned char i, s;
@@ -166,11 +165,11 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 
 	/* Calculate segment size, force at least one segment */
 	segments = segments ? segments : 1;
-	buffer->segmentSize = size / segments;
+	buffer->buffer.segSize = size / segments;
 
-	if(!buffer->segmentSize)
+	if(!buffer->buffer.segSize)
 	{
-		buffer->segmentSize = size;
+		buffer->buffer.segSize = size;
 		segments = 1;
 	}
 
@@ -194,13 +193,11 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 /******************************************************/
 GFXBuffer* gfx_buffer_create_copy(GFXBuffer* src, GFXBufferUsage usage, GFXBufferTarget target)
 {
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)src;
-
 	/* Map buffer to copy data and create */
 	void* data = gfx_buffer_map(src, src->size, 0, GFX_BUFFER_READ);
 	if(!data) return NULL;
 
-	GFXBuffer* buffer = gfx_buffer_create(usage, target, src->size, data, src->multi, src->size / internal->segmentSize);
+	GFXBuffer* buffer = gfx_buffer_create(usage, target, src->size, data, src->multi, src->size / src->segSize);
 	gfx_buffer_unmap(src);
 
 	return buffer;
@@ -301,9 +298,9 @@ int gfx_buffer_swap(GFXBuffer* buffer)
 
 	/* Advance segment */
 	++internal->currentSeg;
-	size_t offset = internal->currentSeg * internal->segmentSize;
+	size_t offset = internal->currentSeg * buffer->segSize;
 
-	if(offset + internal->segmentSize > buffer->size)
+	if(offset + buffer->segSize > buffer->size)
 	{
 		/* Swap buffer if out of bounds */
 		internal->currentSeg = 0;
@@ -359,7 +356,7 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsa
 }
 
 /******************************************************/
-void* gfx_buffer_map_segment(GFXBuffer* buffer, GFXBufferUsage access)
+void* gfx_buffer_map_segment(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -379,8 +376,8 @@ void* gfx_buffer_map_segment(GFXBuffer* buffer, GFXBufferUsage access)
 
 	return window->extensions.MapBufferRange(
 		GL_ARRAY_BUFFER,
-		internal->currentSeg * internal->segmentSize,
-		internal->segmentSize,
+		internal->currentSeg * buffer->segSize + offset,
+		size,
 		access | GL_MAP_UNSYNCHRONIZED_BIT
 	);
 }
