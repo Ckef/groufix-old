@@ -287,6 +287,12 @@ void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
 GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer);
 
 /**
+ * Returns the handle of a texture.
+ *
+ */
+GLuint _gfx_texture_get_handle(const GFXTexture* texture);
+
+/**
  * Returns the VAO of a layout.
  *
  */

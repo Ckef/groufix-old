@@ -200,6 +200,44 @@ void* gfx_buffer_map_segment(GFXBuffer* buffer, size_t size, size_t offset, GFXB
 void gfx_buffer_unmap(GFXBuffer* buffer);
 
 
+/********************************************************
+ * Texture (an n-D image stored on the GPU)
+ *******************************************************/
+
+/** Texture types */
+typedef enum GFXTextureType
+{
+	GFX_1D_TEXTURE,
+	GFX_2D_TEXTURE,
+	GFX_3D_TEXTURE,
+	GFX_CUBEMAP
+
+} GFXTextureType;
+
+
+/** Texture */
+typedef struct GFXTexture
+{
+	GFXTextureType  type; /* Describes texture storage */
+
+} GFXTexture;
+
+
+/**
+ * Creates a new texture.
+ *
+ * @return NULL on failure.
+ *
+ */
+GFXTexture* gfx_texture_create(GFXTextureType type);
+
+/**
+ * Makes sure the texture is freed properly.
+ *
+ */
+void gfx_texture_free(GFXTexture* texture);
+
+
 #ifdef __cplusplus
 }
 #endif

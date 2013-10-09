@@ -63,7 +63,7 @@ static void _gfx_buffer_sync(GLsync sync, const GFX_Extensions* ext)
 }
 
 /******************************************************/
-/* Create buffers in existing vector entires */
+/* Create buffers in existing vector */
 static void _gfx_buffer_alloc_buffers(struct GFX_Internal_Buffer* buffer, GFXVectorIterator it, unsigned char num, const void* data, const GFX_Extensions* ext)
 {	
 	/* Allocate buffers */
