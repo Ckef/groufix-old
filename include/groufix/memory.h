@@ -207,7 +207,7 @@ void gfx_buffer_unmap(GFXBuffer* buffer);
 /** Texture types */
 typedef enum GFXTextureType
 {
-	GFX_1D_TEXTURE,
+	GFX_1D_TEXTURE, /* requires GFX_EXT_TEXTURE_1D */
 	GFX_2D_TEXTURE,
 	GFX_3D_TEXTURE,
 	GFX_CUBEMAP
@@ -218,7 +218,11 @@ typedef enum GFXTextureType
 /** Texture */
 typedef struct GFXTexture
 {
-	GFXTextureType  type; /* Describes texture storage */
+	GFXTextureType  type;   /* Describes image arrangement */
+	size_t          width;
+	size_t          height;
+	size_t          depth;
+	unsigned short  layers; /* Only applicable to 1D or 2D texture */
 
 } GFXTexture;
 

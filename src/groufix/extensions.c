@@ -92,8 +92,11 @@ void _gfx_extensions_load(void)
 	glGetIntegerv(GL_MAJOR_VERSION, &major);
 	glGetIntegerv(GL_MINOR_VERSION, &minor);
 
-	/* Get OpenGL constants */
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &ext->MAX_VERTEX_ATTRIBS);
+	/* Get OpenGL constants (a.k.a hardware limits) */
+	glGetInteger64v(GL_MAX_ARRAY_TEXTURE_LAYERS, &ext->limits[GFX_LIM_MAX_TEXTURE_LAYERS]);
+	glGetInteger64v(GL_MAX_TEXTURE_SIZE,         &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE]);
+	glGetInteger64v(GL_MAX_3D_TEXTURE_SIZE,      &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE_3D]);
+	glGetInteger64v(GL_MAX_VERTEX_ATTRIBS,       &ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]);
 
 #ifdef GFX_GLES
 
@@ -102,6 +105,7 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 	ext->flags[GFX_EXT_PROGRAM_BINARY]       = 1;
 	ext->flags[GFX_EXT_TESSELLATION_SHADER]  = 0;
+	ext->flags[GFX_EXT_TEXTURE_1D]           = 0;
 
 	/* GLES, assumes 3.0+ */
 	ext->AttachShader             = glAttachShader;
@@ -148,6 +152,7 @@ void _gfx_extensions_load(void)
 
 	/* Default Extensions */
 	ext->flags[GFX_EXT_GEOMETRY_SHADER] = 1;
+	ext->flags[GFX_EXT_TEXTURE_1D]      = 1;
 
 	/* Core, assumes 3.2+ context */
 	ext->AttachShader             = (PFNGLATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
@@ -190,11 +195,13 @@ void _gfx_extensions_load(void)
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(major > 3 || minor > 2)
 	{
+		/* Core context */
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
 	{
+		/* ARB_instanced_arrays */
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("VertexAttribDivisorARB");
 	}
@@ -207,12 +214,14 @@ void _gfx_extensions_load(void)
 	/* GFX_EXT_PROGRAM_BINARY */
 	if(major > 4 || (major == 4 && minor > 0))
 	{
+		/* Core context */
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
 		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
+		/* ARB_get_program_binary */
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("GetProgramBinary");
 		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("ProgramBinary");
@@ -227,10 +236,12 @@ void _gfx_extensions_load(void)
 	/* GFX_EXT_TESSELLATION_SHADER */
 	if(major > 3)
 	{
+		/* Core context */
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
 	{
+		/* ARB_tessellation_shader */
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
 	}
 	else

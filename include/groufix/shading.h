@@ -34,9 +34,9 @@ extern "C" {
 typedef enum GFXShaderType
 {
 	GFX_VERTEX_SHADER        = 0x8b31,
-	GFX_TESS_CONTROL_SHADER  = 0x8e88,
-	GFX_TESS_EVAL_SHADER     = 0x8e87,
-	GFX_GEOMETRY_SHADER      = 0x8dd9,
+	GFX_TESS_CONTROL_SHADER  = 0x8e88, /* requires GFX_EXT_TESSELLATION_SHADER */
+	GFX_TESS_EVAL_SHADER     = 0x8e87, /* requires GFX_EXT_TESSELLATION_SHADER */
+	GFX_GEOMETRY_SHADER      = 0x8dd9, /* requires GFX_EXT_GEOMETRY_SHADER */
 	GFX_FRAGMENT_SHADER      = 0x8b30
 
 } GFXShaderType;
@@ -135,7 +135,8 @@ void gfx_program_free(GFXProgram* program);
 /**
  * Forwards data send to the given index to a given name within the program.
  *
- * @param name Name of the attribute in the shaders (the string is copied).
+ * @param name  Name of the attribute in the shaders (the string is copied).
+ * @param index Index of the attribute (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
  * @return Zero on failure.
  *
  * This method only takes effect once the program is linked.

@@ -111,7 +111,7 @@ int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const cha
 	GFX_Internal_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 	
-	if(index >= window->extensions.MAX_VERTEX_ATTRIBS) return 0;
+	if(index >= window->extensions.limits[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
 
 	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
 	

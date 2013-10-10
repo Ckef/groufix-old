@@ -100,8 +100,8 @@ typedef struct GFX_Extensions
 	/* Hardware Extensions */
 	unsigned char flags[GFX_EXT_COUNT];
 
-	/* OpenGL Constants */
-	GLint  MAX_VERTEX_ATTRIBS;
+	/* Hardware Limits */
+	int64_t limits[GFX_LIM_COUNT];
 
 	/* OpenGL Extensions */
 	GFX_ATTACHSHADERPROC              AttachShader;

@@ -22,6 +22,8 @@
 #ifndef GFX_WINDOW_H
 #define GFX_WINDOW_H
 
+#include <stdint.h>
+
 /* Minimal supported context */
 #define GFX_CONTEXT_MAJOR_MIN 3
 #define GFX_CONTEXT_MINOR_MIN 2
@@ -48,10 +50,24 @@ typedef enum GFXExtension
 	GFX_EXT_INSTANCED_ATTRIBUTES,
 	GFX_EXT_PROGRAM_BINARY,
 	GFX_EXT_TESSELLATION_SHADER,
+	GFX_EXT_TEXTURE_1D,
 
 	GFX_EXT_COUNT
 
 } GFXExtension;
+
+
+/** Hardware Limits */
+typedef enum GFXLimit
+{
+	GFX_LIM_MAX_TEXTURE_LAYERS,
+	GFX_LIM_MAX_TEXTURE_SIZE,
+	GFX_LIM_MAX_TEXTURE_SIZE_3D,
+	GFX_LIM_MAX_VERTEX_ATTRIBS,
+
+	GFX_LIM_COUNT
+
+} GFXLimit;
 
 
 /**
@@ -61,6 +77,14 @@ typedef enum GFXExtension
  *
  */
 int gfx_hardware_is_extension_supported(GFXExtension extension);
+
+/**
+ * Returns a limit given by the hardware.
+ *
+ * Note: if no window is created, thus no context exists, this will return -1.
+ *
+ */
+int64_t gfx_hardware_get_limit(GFXLimit limit);
 
 /**
  * Polls all OpenGL errors at any given time.

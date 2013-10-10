@@ -203,7 +203,7 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index,
 	if(!internal->ext) return 0;
 
 	/* Check index */
-	if(index >= internal->ext->MAX_VERTEX_ATTRIBS) return 0;
+	if(index >= internal->ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
 	size_t size = gfx_vector_get_size(&internal->attributes);
 
 	if(index >= size)

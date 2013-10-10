@@ -50,6 +50,15 @@ int gfx_hardware_is_extension_supported(GFXExtension extension)
 }
 
 /******************************************************/
+int64_t gfx_hardware_get_limit(GFXLimit limit)
+{
+	GFX_Internal_Window* wind = _gfx_window_get_current();
+	if(!wind) return -1;
+
+	return wind->extensions.limits[limit];
+}
+
+/******************************************************/
 unsigned int gfx_hardware_poll_errors(const char* description)
 {
 	unsigned int count = 0;

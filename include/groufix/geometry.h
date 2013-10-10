@@ -69,7 +69,7 @@ typedef struct GFXVertexAttribute
 
 	size_t            stride;    /* Byte offset between consecutive attributes */
 	size_t            offset;    /* Byte offset of the first occurrence of the attribute */
-	unsigned int      divisor;   /* Rate at which attributes advance, 0 for no instancing */
+	unsigned int      divisor;   /* Rate at which to advance, 0 for no instancing, requires GFX_EXT_INSTANCED_ATTRIBUTES */
 
 } GFXVertexAttribute;
 
@@ -103,7 +103,7 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout);
 /**
  * Sets an attribute of a vertex layout.
  *
- * @param index  Index of the attribute to set.
+ * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
  * @param buffer Buffer to read this attribute from (cannot be NULL).
  * @return Zero on failure.
  *
