@@ -64,14 +64,15 @@ unsigned int gfx_hardware_poll_errors(const char* description)
 	unsigned int count = 0;
 
 	/* Check if there is a context */
-	if(_gfx_window_get_current())
+	GFX_Internal_Window* wind = _gfx_window_get_current();
+	if(wind)
 	{
 		/* Loop over all errors */
-		GLenum err = glGetError();
+		GLenum err = wind->extensions.GetError();
 		while(err != GL_NO_ERROR)
 		{
 			gfx_errors_push(err, description);
-			err = glGetError();
+			err = wind->extensions.GetError();
 
 			++count;
 		}

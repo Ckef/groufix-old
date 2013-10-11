@@ -363,7 +363,7 @@ void gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned short num, unsigne
 	while(num--)
 	{
 		struct GFX_Internal_Draw* call = (struct GFX_Internal_Draw*)it;
-		glDrawArrays(call->call.primitive, call->call.first, call->call.count);
+		internal->ext->DrawArrays(call->call.primitive, call->call.first, call->call.count);
 
 		it = gfx_deque_next(&internal->drawCalls, it);
 	}
@@ -384,7 +384,7 @@ void gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned short num,
 		struct GFX_Internal_Draw* call = (struct GFX_Internal_Draw*)it;
 
 		internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buffer_get_handle(call->buffer));
-		glDrawElements(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first);
+		internal->ext->DrawElements(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first);
 
 		it = gfx_deque_next(&internal->drawCalls, it);
 	}

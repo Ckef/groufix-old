@@ -367,8 +367,8 @@ GFXContext gfx_window_get_context(const GFXWindow* window)
 	if(internal->handle)
 	{
 		_gfx_window_make_current(internal);
-		glGetIntegerv(GL_MAJOR_VERSION, &major);
-		glGetIntegerv(GL_MINOR_VERSION, &minor);
+		internal->extensions.GetIntegerv(GL_MAJOR_VERSION, &major);
+		internal->extensions.GetIntegerv(GL_MINOR_VERSION, &minor);
 
 		_gfx_window_make_current(_gfx_main_window);
 	}

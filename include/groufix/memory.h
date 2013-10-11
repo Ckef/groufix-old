@@ -232,7 +232,7 @@ typedef struct GFXTexture
 /**
  * Creates a new texture.
  *
- * @param layers Number of extra images within the texture.
+ * @param layers Number of extra images within the texture, acts as an array.
  * @return NULL on failure.
  *
  */
@@ -241,7 +241,7 @@ GFXTexture* gfx_texture_create(GFXTextureType type, unsigned char layers);
 /**
  * Creates a new multisampled 2D texture.
  *
- * @param layers Number of extra images within the texture.
+ * @param layers Number of extra images within the texture, acts as an array.
  * @return NULL on failure.
  *
  * When rendered to, this texture will be multisampled.

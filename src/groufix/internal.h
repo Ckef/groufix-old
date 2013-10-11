@@ -30,7 +30,6 @@
 #ifdef GFX_GLES
 	#include <GLES3/gl3.h>
 #else
-	#define GL_GLEXT_PROTOTYPES
 	#include <GL/glcorearb.h>
 #endif
 
@@ -65,6 +64,7 @@ extern "C" {
 typedef void (APIENTRYP GFX_ATTACHSHADERPROC)             (GLuint, GLuint);
 typedef void (APIENTRYP GFX_BINDATTRIBLOCATIONPROC)       (GLuint, GLuint, const GLchar*);
 typedef void (APIENTRYP GFX_BINDBUFFERPROC)               (GLenum, GLuint);
+typedef void (APIENTRYP GFX_BINDTEXTUREPROC)              (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDVERTEXARRAYPROC)          (GLuint);
 typedef void (APIENTRYP GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
 typedef void (APIENTRYP GFX_BUFFERSUBDATAPROC)            (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
@@ -76,16 +76,22 @@ typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint
 typedef void (APIENTRYP GFX_DELETEPROGRAMPROC)            (GLuint);
 typedef void (APIENTRYP GFX_DELETESHADERPROC)             (GLuint);
 typedef void (APIENTRYP GFX_DELETESYNCPROC)               (GLsync);
+typedef void (APIENTRYP GFX_DELETETEXTURESPROC)           (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEVERTEXARRAYSPROC)       (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DETACHSHADERPROC)             (GLuint, GLuint);
 typedef void (APIENTRYP GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
+typedef void (APIENTRYP GFX_DRAWARRAYSPROC)               (GLenum, GLint, GLsizei);
 typedef void (APIENTRYP GFX_DRAWARRAYSINSTANCEDPROC)      (GLenum, GLint, GLsizei, GLsizei);
+typedef void (APIENTRYP GFX_DRAWELEMENTSPROC)             (GLenum, GLsizei, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei);
 typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef GLsync (APIENTRYP GFX_FENCESYNCPROC)              (GLenum, GLbitfield);
 typedef void (APIENTRYP GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_GENTEXTURESPROC)              (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
+typedef GLenum (APIENTRYP GFX_GETERRORPROC)               (void);
+typedef void (APIENTRYP GFX_GETINTEGERVPROC)              (GLenum, GLint*);
 typedef void (APIENTRYP GFX_GETPROGRAMBINARYPROC)         (GLuint, GLsizei, GLsizei*, GLenum*, void*);
 typedef void (APIENTRYP GFX_GETPROGRAMINFOLOGPROC)        (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (APIENTRYP GFX_GETPROGRAMIVPROC)             (GLuint, GLenum, GLint*);
@@ -98,9 +104,10 @@ typedef void (APIENTRYP GFX_PROGRAMBINARYPROC)            (GLuint, GLenum, const
 typedef void (APIENTRYP GFX_SHADERSOURCEPROC)             (GLuint, GLsizei, const GLchar*const*, const GLint*);
 typedef void (APIENTRYP GFX_TEXBUFFERPROC)                (GLenum, GLenum, GLuint);
 typedef void (APIENTRYP GFX_TEXIMAGE1DPROC)               (GLenum, GLint, GLint, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
+typedef void (APIENTRYP GFX_TEXIMAGE2DPROC)               (GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXIMAGE2DMULTISAMPLEPROC)    (GLenum, GLsizei, GLint, GLsizei, GLsizei, GLboolean);
-typedef void (APIENTRYP GFX_TEXIMAGE3DMULTISAMPLEPROC)    (GLenum, GLsizei, GLint, GLsizei, GLsizei, GLsizei, GLboolean);
 typedef void (APIENTRYP GFX_TEXIMAGE3DPROC)               (GLenum, GLint, GLint, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
+typedef void (APIENTRYP GFX_TEXIMAGE3DMULTISAMPLEPROC)    (GLenum, GLsizei, GLint, GLsizei, GLsizei, GLsizei, GLboolean);
 typedef GLboolean (APIENTRYP GFX_UNMAPBUFFERPROC)         (GLenum);
 typedef void (APIENTRYP GFX_USEPROGRAMPROC)               (GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
@@ -121,6 +128,7 @@ typedef struct GFX_Extensions
 	GFX_ATTACHSHADERPROC              AttachShader;
 	GFX_BINDATTRIBLOCATIONPROC        BindAttribLocation;
 	GFX_BINDBUFFERPROC                BindBuffer;
+	GFX_BINDTEXTUREPROC               BindTexture;
 	GFX_BINDVERTEXARRAYPROC           BindVertexArray;
 	GFX_BUFFERDATAPROC                BufferData;
 	GFX_BUFFERSUBDATAPROC             BufferSubData;
@@ -132,16 +140,22 @@ typedef struct GFX_Extensions
 	GFX_DELETEPROGRAMPROC             DeleteProgram;
 	GFX_DELETESHADERPROC              DeleteShader;
 	GFX_DELETESYNCPROC                DeleteSync;
+	GFX_DELETETEXTURESPROC            DeleteTextures;
 	GFX_DELETEVERTEXARRAYSPROC        DeleteVertexArrays;
 	GFX_DETACHSHADERPROC              DetachShader;
 	GFX_DISABLEVERTEXATTRIBARRAYPROC  DisableVertexAttribArray;
+	GFX_DRAWARRAYSPROC                DrawArrays;
 	GFX_DRAWARRAYSINSTANCEDPROC       DrawArraysInstanced;
+	GFX_DRAWELEMENTSPROC              DrawElements;
 	GFX_DRAWELEMENTSINSTANCEDPROC     DrawElementsInstanced;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
 	GFX_FENCESYNCPROC                 FenceSync;
 	GFX_GENBUFFERSPROC                GenBuffers;
+	GFX_GENTEXTURESPROC               GenTextures;
 	GFX_GENVERTEXARRAYSPROC           GenVertexArrays;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
+	GFX_GETERRORPROC                  GetError;
+	GFX_GETINTEGERVPROC               GetIntegerv;
 	GFX_GETPROGRAMBINARYPROC          GetProgramBinary;       /* GFX_EXT_PROGRAM_BINARY */
 	GFX_GETPROGRAMINFOLOGPROC         GetProgramInfoLog;
 	GFX_GETPROGRAMIVPROC              GetProgramiv;
@@ -154,9 +168,10 @@ typedef struct GFX_Extensions
 	GFX_SHADERSOURCEPROC              ShaderSource;
 	GFX_TEXBUFFERPROC                 TexBuffer;              /* GFX_EXT_BUFFER_TEXTURE */
 	GFX_TEXIMAGE1DPROC                TexImage1D;             /* GFX_EXT_TEXTURE_1D */
+	GFX_TEXIMAGE2DPROC                TexImage2D;
 	GFX_TEXIMAGE2DMULTISAMPLEPROC     TexImage2DMultisample;  /* GFX_EXT_MULTISAMPLE_TEXTURE */
-	GFX_TEXIMAGE3DMULTISAMPLEPROC     TexImage3DMultisample;  /* GFX_EXT_MULTISAMPLE_TEXTURE */
 	GFX_TEXIMAGE3DPROC                TexImage3D;
+	GFX_TEXIMAGE3DMULTISAMPLEPROC     TexImage3DMultisample;  /* GFX_EXT_MULTISAMPLE_TEXTURE */
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
 	GFX_USEPROGRAMPROC                UseProgram;
 	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor;    /* GFX_EXT_INSTANCED_ATTRIBUTES */

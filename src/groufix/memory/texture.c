@@ -108,7 +108,7 @@ static void _gfx_texture_obj_free(void* object, const GFX_Extensions* ext)
 {
 	struct GFX_Internal_Texture* texture = (struct GFX_Internal_Texture*)object;
 
-	glDeleteTextures(1, &texture->handle);
+	ext->DeleteTextures(1, &texture->handle);
 	texture->handle = 0;
 
 	texture->id = 0;
@@ -140,7 +140,7 @@ static struct GFX_Internal_Texture* _gfx_texture_alloc(GLenum target, const GFX_
 		free(tex);
 		return NULL;
 	}
-	glGenTextures(1, &tex->handle);
+	ext->GenTextures(1, &tex->handle);
 
 	return tex;
 }
@@ -219,7 +219,8 @@ void gfx_texture_free(GFXTexture* texture)
 		_gfx_hardware_object_unregister(internal->id);
 
 		/* Get current window and context */
-		if(_gfx_window_get_current()) glDeleteTextures(1, &internal->handle);
+		GFX_Internal_Window* window = _gfx_window_get_current();
+		if(window) window->extensions.DeleteTextures(1, &internal->handle);
 
 		free(texture);
 	}
