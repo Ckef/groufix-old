@@ -69,6 +69,7 @@ static int _gfx_texture_eval_target(GLenum target, const GFX_Extensions* ext)
 				);
 				return 0;
 			}
+			return 1;
 
 		/* GFX_EXT_BUFFER_TEXTURE */
 		case GL_TEXTURE_BUFFER :
@@ -81,6 +82,21 @@ static int _gfx_texture_eval_target(GLenum target, const GFX_Extensions* ext)
 				);
 				return 0;
 			}
+			return 1;
+
+		/* GFX_EXT_MULTISAMPLE_TEXTURE */
+		case GL_TEXTURE_2D_MULTISAMPLE :
+		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
+
+			if(!ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"GFX_EXT_MULTISAMPLE_TEXTURE is incompatible with this context."
+				);
+				return 0;
+			}
+			return 1;
 
 		/* Everything else */
 		default : return 1;
@@ -156,7 +172,27 @@ GFXTexture* gfx_texture_create(GFXTextureType type, unsigned char layers)
 }
 
 /******************************************************/
-GFXTexture* gfx_texture_create_from_buffer(const GFXBuffer* buffer)
+GFXTexture* gfx_texture_create_multisample(unsigned char layers)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return NULL;
+
+	/* Get target */
+	GLenum target = layers ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
+
+	/* Allocate texture */
+	struct GFX_Internal_Texture* tex = _gfx_texture_alloc(target, &window->extensions);
+	if(!tex) return NULL;
+
+	tex->texture.type   = GFX_TEXTURE_2D;
+	tex->texture.layers = layers;
+
+	return (GFXTexture*)tex;
+}
+
+/******************************************************/
+GFXTexture* gfx_texture_create_buffer_link(const GFXBuffer* buffer)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();

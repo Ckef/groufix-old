@@ -51,6 +51,36 @@ static void _gfx_gles_tex_buffer(GLenum target, GLenum internalFormat, GLuint bu
 	);
 }
 
+/******************************************************/
+static void _gfx_gles_tex_image_1d(GLenum target​, GLint level​, GLint internalFormat​, GLsizei width​, GLint border​, GLenum format​, GLenum type​, const GLvoid * data​)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_TEXTURE_1D is incompatible with this context."
+	);
+}
+
+/******************************************************/
+static void _gfx_gles_multisample_tex_error(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_MULTISAMPLE_TEXTURE is incompatible with this context."
+	);
+}
+
+/******************************************************/
+static void _gfx_gles_tex_image_2d_multisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height, GLboolean ﬁxedsamplelocations)
+{
+	_gfx_gles_multisample_tex_error();
+}
+
+/******************************************************/
+static void _gfx_gles_tex_image_3d_multisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLboolean ﬁxedsamplelocations)
+{
+	_gfx_gles_multisample_tex_error();
+}
+
 #else
 
 /******************************************************/
@@ -102,11 +132,11 @@ void _gfx_extensions_load(void)
 	glGetIntegerv(GL_MINOR_VERSION, &minor);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetInteger64v(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &ext->limits[GFX_LIM_MAX_CUBEMAP_SIZE]);
-	glGetInteger64v(GL_MAX_3D_TEXTURE_SIZE,       &ext->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE]);
-	glGetInteger64v(GL_MAX_ARRAY_TEXTURE_LAYERS,  &ext->limits[GFX_LIM_MAX_TEXTURE_LAYERS]);
-	glGetInteger64v(GL_MAX_TEXTURE_SIZE,          &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE]);
-	glGetInteger64v(GL_MAX_VERTEX_ATTRIBS,        &ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]);
+	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &ext->limits[GFX_LIM_MAX_CUBEMAP_SIZE]);
+	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,       &ext->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE]);
+	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,  &ext->limits[GFX_LIM_MAX_TEXTURE_LAYERS]);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE,          &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE]);
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,        &ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]);
 
 #ifdef GFX_GLES
 
@@ -117,6 +147,7 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]       = 0;
 	ext->flags[GFX_EXT_GEOMETRY_SHADER]      = 0;
 	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
+	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE]  = 0;
 	ext->flags[GFX_EXT_PROGRAM_BINARY]       = 1;
 	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]     = 0;
 	ext->flags[GFX_EXT_TESSELLATION_SHADER]  = 0;
@@ -158,6 +189,10 @@ void _gfx_extensions_load(void)
 	ext->ProgramBinary            = glProgramBinary;
 	ext->ShaderSource             = glShaderSource;
 	ext->TexBuffer                = _gfx_gles_tex_buffer;
+	ext->TexImage1D               = _gfx_gles_tex_image_1d;
+	ext->TexImage2DMultisample    = _gfx_gles_tex_image_2d_multisample;
+	ext->TexImage3DMultisample    = _gfx_gles_tex_image_3d_multisample;
+	ext->TexImage3D               = glTexImage3D;
 	ext->UnmapBuffer              = glUnmapBuffer;
 	ext->UseProgram               = glUseProgram;
 	ext->VertexAttribDivisor      = glVertexAttribDivisor;
@@ -170,13 +205,14 @@ void _gfx_extensions_load(void)
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetInteger64v(GL_MAX_TEXTURE_BUFFER_SIZE, &ext->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE]);
+	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &ext->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE]);
 
 	/* Default Extensions */
-	ext->flags[GFX_EXT_BUFFER_TEXTURE]   = 1;
-	ext->flags[GFX_EXT_GEOMETRY_SHADER]  = 1;
-	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP] = 1;
-	ext->flags[GFX_EXT_TEXTURE_1D]       = 1;
+	ext->flags[GFX_EXT_BUFFER_TEXTURE]      = 1;
+	ext->flags[GFX_EXT_GEOMETRY_SHADER]     = 1;
+	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
+	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]    = 1;
+	ext->flags[GFX_EXT_TEXTURE_1D]          = 1;
 
 	/* Core, assumes 3.2+ context */
 	ext->AttachShader             = (PFNGLATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
@@ -212,6 +248,10 @@ void _gfx_extensions_load(void)
 	ext->MapBufferRange           = (PFNGLMAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
 	ext->ShaderSource             = (PFNGLSHADERSOURCEPROC)             _gfx_platform_get_proc_address("glShaderSource");
 	ext->TexBuffer                = (PFNGLTEXBUFFERPROC)                _gfx_platform_get_proc_address("glTexBuffer");
+	ext->TexImage1D               = (PFNGLTEXIMAGE1DPROC)               glTexImage1D;
+	ext->TexImage2DMultisample    = (PFNGLTEXIMAGE2DMULTISAMPLEPROC)    _gfx_platform_get_proc_address("glTexImage2DMultisample");
+	ext->TexImage3DMultisample    = (PFNGLTEXIMAGE3DMULTISAMPLEPROC)    _gfx_platform_get_proc_address("glTexImage3DMultisample");
+	ext->TexImage3D               = (PFNGLTEXIMAGE3DPROC)               _gfx_platform_get_proc_address("glTexImage3D");
 	ext->UnmapBuffer              = (PFNGLUNMAPBUFFERPROC)              _gfx_platform_get_proc_address("glUnmapBuffer");
 	ext->UseProgram               = (PFNGLUSEPROGRAMPROC)               _gfx_platform_get_proc_address("glUseProgram");
 	ext->VertexAttribIPointer     = (PFNGLVERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");

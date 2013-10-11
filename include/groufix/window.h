@@ -22,8 +22,6 @@
 #ifndef GFX_WINDOW_H
 #define GFX_WINDOW_H
 
-#include <stdint.h>
-
 /* Minimal supported context */
 #define GFX_CONTEXT_MAJOR_MIN 3
 #define GFX_CONTEXT_MINOR_MIN 2
@@ -49,6 +47,7 @@ typedef enum GFXExtension
 	GFX_EXT_BUFFER_TEXTURE,
 	GFX_EXT_GEOMETRY_SHADER,
 	GFX_EXT_INSTANCED_ATTRIBUTES,
+	GFX_EXT_MULTISAMPLE_TEXTURE,
 	GFX_EXT_PROGRAM_BINARY,
 	GFX_EXT_SEAMLESS_CUBEMAP,
 	GFX_EXT_TESSELLATION_SHADER,
@@ -88,7 +87,7 @@ int gfx_hardware_is_extension_supported(GFXExtension extension);
  * Note: if no window is created, thus no context exists, this will return -1.
  *
  */
-int64_t gfx_hardware_get_limit(GFXLimit limit);
+int gfx_hardware_get_limit(GFXLimit limit);
 
 /**
  * Polls all OpenGL errors at any given time.

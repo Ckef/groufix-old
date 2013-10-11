@@ -207,7 +207,7 @@ void gfx_buffer_unmap(GFXBuffer* buffer);
 /** Texture types */
 typedef enum GFXTextureType
 {
-	GFX_TEXTURE_1D, /* requires GFX_EXT_1D_TEXTURE (or implicitely GFX_EXT_BUFFER_TEXTURE) */
+	GFX_TEXTURE_1D, /* requires GFX_EXT_1D_TEXTURE (or implicitly GFX_EXT_BUFFER_TEXTURE) */
 	GFX_TEXTURE_2D,
 	GFX_TEXTURE_3D,
 	GFX_CUBEMAP,
@@ -224,7 +224,7 @@ typedef struct GFXTexture
 	size_t          depth;
 
 	unsigned char   mipmaps; /* Number of mipmaps (0 for none) */
-	unsigned char   layers;  /* Number of extra images, only applicatble to 1D or 2D */
+	unsigned char   layers;  /* Number of extra images, only applicable to 1D or 2D */
 
 } GFXTexture;
 
@@ -239,6 +239,18 @@ typedef struct GFXTexture
 GFXTexture* gfx_texture_create(GFXTextureType type, unsigned char layers);
 
 /**
+ * Creates a new multisampled 2D texture.
+ *
+ * @param layers Number of extra images within the texture.
+ * @return NULL on failure.
+ *
+ * When rendered to, this texture will be multisampled.
+ * Note: requires GFX_EXT_MULTISAMPLE_TEXTURE.
+ *
+ */
+GFXTexture* gfx_texture_create_multisample(unsigned char layers);
+
+/**
  * Creates a new texture associated with a 1D buffer.
  *
  * @return NULL on failure.
@@ -247,7 +259,7 @@ GFXTexture* gfx_texture_create(GFXTextureType type, unsigned char layers);
  * Note: requires GFX_EXT_BUFFER_TEXTURE.
  *
  */
-GFXTexture* gfx_texture_create_from_buffer(const GFXBuffer* buffer);
+GFXTexture* gfx_texture_create_buffer_link(const GFXBuffer* buffer);
 
 /**
  * Makes sure the texture is freed properly.

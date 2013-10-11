@@ -50,7 +50,7 @@ int gfx_hardware_is_extension_supported(GFXExtension extension)
 }
 
 /******************************************************/
-int64_t gfx_hardware_get_limit(GFXLimit limit)
+int gfx_hardware_get_limit(GFXLimit limit)
 {
 	GFX_Internal_Window* wind = _gfx_window_get_current();
 	if(!wind) return -1;
