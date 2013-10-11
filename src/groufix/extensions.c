@@ -42,6 +42,15 @@ static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsize
 	}
 }
 
+/******************************************************/
+static void _gfx_gles_tex_buffer(GLenum target, GLenum internalFormat, GLuint buffer)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_BUFFER_TEXTURE is incompatible with this context."
+	);
+}
+
 #else
 
 /******************************************************/
@@ -93,17 +102,23 @@ void _gfx_extensions_load(void)
 	glGetIntegerv(GL_MINOR_VERSION, &minor);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetInteger64v(GL_MAX_ARRAY_TEXTURE_LAYERS, &ext->limits[GFX_LIM_MAX_TEXTURE_LAYERS]);
-	glGetInteger64v(GL_MAX_TEXTURE_SIZE,         &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE]);
-	glGetInteger64v(GL_MAX_3D_TEXTURE_SIZE,      &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE_3D]);
-	glGetInteger64v(GL_MAX_VERTEX_ATTRIBS,       &ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]);
+	glGetInteger64v(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &ext->limits[GFX_LIM_MAX_CUBEMAP_SIZE]);
+	glGetInteger64v(GL_MAX_3D_TEXTURE_SIZE,       &ext->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE]);
+	glGetInteger64v(GL_MAX_ARRAY_TEXTURE_LAYERS,  &ext->limits[GFX_LIM_MAX_TEXTURE_LAYERS]);
+	glGetInteger64v(GL_MAX_TEXTURE_SIZE,          &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE]);
+	glGetInteger64v(GL_MAX_VERTEX_ATTRIBS,        &ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]);
 
 #ifdef GFX_GLES
 
+	/* Get OpenGL constants (a.k.a hardware limits) */
+	ext->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = 0;
+
 	/* Default Extensions */
+	ext->flags[GFX_EXT_BUFFER_TEXTURE]       = 0;
 	ext->flags[GFX_EXT_GEOMETRY_SHADER]      = 0;
 	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 	ext->flags[GFX_EXT_PROGRAM_BINARY]       = 1;
+	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]     = 0;
 	ext->flags[GFX_EXT_TESSELLATION_SHADER]  = 0;
 	ext->flags[GFX_EXT_TEXTURE_1D]           = 0;
 
@@ -142,6 +157,7 @@ void _gfx_extensions_load(void)
 	ext->MapBufferRange           = glMapBufferRange;
 	ext->ProgramBinary            = glProgramBinary;
 	ext->ShaderSource             = glShaderSource;
+	ext->TexBuffer                = _gfx_gles_tex_buffer;
 	ext->UnmapBuffer              = glUnmapBuffer;
 	ext->UseProgram               = glUseProgram;
 	ext->VertexAttribDivisor      = glVertexAttribDivisor;
@@ -150,9 +166,17 @@ void _gfx_extensions_load(void)
 
 #else
 
+	/* Settings */
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+	/* Get OpenGL constants (a.k.a hardware limits) */
+	glGetInteger64v(GL_MAX_TEXTURE_BUFFER_SIZE, &ext->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE]);
+
 	/* Default Extensions */
-	ext->flags[GFX_EXT_GEOMETRY_SHADER] = 1;
-	ext->flags[GFX_EXT_TEXTURE_1D]      = 1;
+	ext->flags[GFX_EXT_BUFFER_TEXTURE]   = 1;
+	ext->flags[GFX_EXT_GEOMETRY_SHADER]  = 1;
+	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP] = 1;
+	ext->flags[GFX_EXT_TEXTURE_1D]       = 1;
 
 	/* Core, assumes 3.2+ context */
 	ext->AttachShader             = (PFNGLATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
@@ -187,6 +211,7 @@ void _gfx_extensions_load(void)
 	ext->LinkProgram              = (PFNGLLINKPROGRAMPROC)              _gfx_platform_get_proc_address("glLinkProgram");
 	ext->MapBufferRange           = (PFNGLMAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
 	ext->ShaderSource             = (PFNGLSHADERSOURCEPROC)             _gfx_platform_get_proc_address("glShaderSource");
+	ext->TexBuffer                = (PFNGLTEXBUFFERPROC)                _gfx_platform_get_proc_address("glTexBuffer");
 	ext->UnmapBuffer              = (PFNGLUNMAPBUFFERPROC)              _gfx_platform_get_proc_address("glUnmapBuffer");
 	ext->UseProgram               = (PFNGLUSEPROGRAMPROC)               _gfx_platform_get_proc_address("glUseProgram");
 	ext->VertexAttribIPointer     = (PFNGLVERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");
@@ -265,9 +290,12 @@ int _gfx_extensions_is_in_string(const char* str, const char* ext)
 	while(found)
 	{
 		char* end = found + len;
-		if((found == str || *(found - 1) == ' ') && (*end == ' ' || *end == '\0'))
-			return 1;
-
+		if(*end == ' ' || *end == '\0')
+		{
+			/* To avoid segfault */
+			if(found == str) return 1;
+			if(*(found - 1) == ' ') return 1;
+		}
 		found = strstr(end, ext);
 	}
 

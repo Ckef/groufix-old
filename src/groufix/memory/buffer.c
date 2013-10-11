@@ -164,9 +164,7 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 	usage |= (multi | segments) ? GFX_BUFFER_STREAM : 0;
 
 	/* Calculate segment size, force at least one segment */
-	segments = segments ? segments : 1;
-	buffer->buffer.segSize = size / segments;
-
+	buffer->buffer.segSize = size / ++segments;
 	if(!buffer->buffer.segSize)
 	{
 		buffer->buffer.segSize = size;
@@ -227,7 +225,7 @@ int gfx_buffer_expand(GFXBuffer* buffer, unsigned char num)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
-	if(!window) return 0;
+	if(!window || !num) return 0;
 
 	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 

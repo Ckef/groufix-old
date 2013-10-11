@@ -378,7 +378,7 @@ void _gfx_platform_poll_events(void);
  * @param share Window to share OpenGL resources with (can be NULL to not share).
  * @return Whether or not the context could be created.
  *
- * Both forward compatibility and the core profile should be used for desktop systems (only 3.2 or above).
+ * Both forward compatibility and the core profile should be used (only 3.2 or above).
  * If the platform uses OpenGL ES, round down to the nearest with an equal major version.
  *
  */

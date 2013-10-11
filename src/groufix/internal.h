@@ -41,6 +41,13 @@
 #define APIENTRYP APIENTRY *
 #endif
 
+/* Some defines to be compatible */
+#ifdef GFX_GLES
+	#define GL_TEXTURE_1D        0x0de0
+	#define GL_TEXTURE_1D_ARRAY  0x8c18
+	#define GL_TEXTURE_BUFFER    0x8c2a
+#endif
+
 /* Hardware Object Limit */
 #define GFX_MAX_HARDWARE_ID 0xfffff
 
@@ -87,6 +94,7 @@ typedef void (APIENTRYP GFX_LINKPROGRAMPROC)              (GLuint);
 typedef void* (APIENTRYP GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
 typedef void (APIENTRYP GFX_PROGRAMBINARYPROC)            (GLuint, GLenum, const void*, GLsizei);
 typedef void (APIENTRYP GFX_SHADERSOURCEPROC)             (GLuint, GLsizei, const GLchar*const*, const GLint*);
+typedef void (APIENTRYP GFX_TEXBUFFERPROC)                (GLenum, GLenum, GLuint);
 typedef GLboolean (APIENTRYP GFX_UNMAPBUFFERPROC)         (GLenum);
 typedef void (APIENTRYP GFX_USEPROGRAMPROC)               (GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
@@ -128,7 +136,7 @@ typedef struct GFX_Extensions
 	GFX_GENBUFFERSPROC                GenBuffers;
 	GFX_GENVERTEXARRAYSPROC           GenVertexArrays;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
-	GFX_GETPROGRAMBINARYPROC          GetProgramBinary;    /* GFX_EXT_PROGRAM_BINARY */
+	GFX_GETPROGRAMBINARYPROC          GetProgramBinary;     /* GFX_EXT_PROGRAM_BINARY */
 	GFX_GETPROGRAMINFOLOGPROC         GetProgramInfoLog;
 	GFX_GETPROGRAMIVPROC              GetProgramiv;
 	GFX_GETSHADERINFOLOGPROC          GetShaderInfoLog;
@@ -136,11 +144,12 @@ typedef struct GFX_Extensions
 	GFX_GETSHADERSOURCEPROC           GetShaderSource;
 	GFX_LINKPROGRAMPROC               LinkProgram;
 	GFX_MAPBUFFERRANGEPROC            MapBufferRange;
-	GFX_PROGRAMBINARYPROC             ProgramBinary;       /* GFX_EXT_PROGRAM_BINARY */
+	GFX_PROGRAMBINARYPROC             ProgramBinary;        /* GFX_EXT_PROGRAM_BINARY */
 	GFX_SHADERSOURCEPROC              ShaderSource;
+	GFX_TEXBUFFERPROC                 TexBuffer;            /* GFX_EXT_BUFFER_TEXTURE */
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
 	GFX_USEPROGRAMPROC                UseProgram;
-	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor; /* GFX_EXT_INSTANCED_ATTRIBUTES */
+	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor;  /* GFX_EXT_INSTANCED_ATTRIBUTES */
 	GFX_VERTEXATTRIBIPOINTERPROC      VertexAttribIPointer;
 	GFX_VERTEXATTRIBPOINTERPROC       VertexAttribPointer;
 

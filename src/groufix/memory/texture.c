@@ -20,6 +20,7 @@
  */
 
 #include "groufix/internal.h"
+#include "groufix/errors.h"
 
 #include <stdlib.h>
 
@@ -31,9 +32,60 @@ struct GFX_Internal_Texture
 	GFXTexture texture;
 
 	/* Hidden data */
+	GLuint  buffer; /* Associated buffer */
 	GLuint  handle; /* OpenGL handle */
 	size_t  id;     /* Unique ID */
 };
+
+/******************************************************/
+static GLenum _gfx_texture_get_target(GFXTextureType type, unsigned char array)
+{
+	switch(type)
+	{
+		case GFX_TEXTURE_1D : return array ? GL_TEXTURE_1D_ARRAY : GL_TEXTURE_1D;
+		case GFX_TEXTURE_2D : return array ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
+		case GFX_TEXTURE_3D : return GL_TEXTURE_3D;
+		case GFX_CUBEMAP    : return GL_TEXTURE_CUBE_MAP;
+
+		/* ??? */
+		default : return 0;
+	}
+}
+
+/******************************************************/
+static int _gfx_texture_eval_target(GLenum target, const GFX_Extensions* ext)
+{
+	switch(target)
+	{
+		/* GFX_EXT_TEXTURE_1D */
+		case GL_TEXTURE_1D :
+		case GL_TEXTURE_1D_ARRAY :
+
+			if(!ext->flags[GFX_EXT_TEXTURE_1D])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"GFX_EXT_TEXTURE_1D is incompatible with this context."
+				);
+				return 0;
+			}
+
+		/* GFX_EXT_BUFFER_TEXTURE */
+		case GL_TEXTURE_BUFFER :
+
+			if(!ext->flags[GFX_EXT_BUFFER_TEXTURE])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"GFX_EXT_BUFFER_TEXTURE is incompatible with this context."
+				);
+				return 0;
+			}
+
+		/* Everything else */
+		default : return 1;
+	}
+}
 
 /******************************************************/
 static void _gfx_texture_obj_free(void* object, const GFX_Extensions* ext)
@@ -56,19 +108,13 @@ static GFX_Hardware_Funcs _gfx_texture_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_texture_get_handle(const GFXTexture* texture)
+static struct GFX_Internal_Texture* _gfx_texture_alloc(GLenum target, const GFX_Extensions* ext)
 {
-	return ((struct GFX_Internal_Texture*)texture)->handle;
-}
-
-/******************************************************/
-GFXTexture* gfx_texture_create(GFXTextureType type)
-{
-	/* Get current window and context */
-	if(!_gfx_window_get_current()) return NULL;
+	/* Validate type */
+	if(!_gfx_texture_eval_target(target, ext)) return NULL;
 
 	/* Create new texture */
-	struct GFX_Internal_Texture* tex = malloc(sizeof(struct GFX_Internal_Texture));
+	struct GFX_Internal_Texture* tex = calloc(1, sizeof(struct GFX_Internal_Texture));
 	if(!tex) return NULL;
 
 	/* Register as object */
@@ -78,10 +124,50 @@ GFXTexture* gfx_texture_create(GFXTextureType type)
 		free(tex);
 		return NULL;
 	}
-
-	/* Generate OpenGL resources */
-	tex->texture.type = type;
 	glGenTextures(1, &tex->handle);
+
+	return tex;
+}
+
+/******************************************************/
+GLuint _gfx_texture_get_handle(const GFXTexture* texture)
+{
+	return ((struct GFX_Internal_Texture*)texture)->handle;
+}
+
+/******************************************************/
+GFXTexture* gfx_texture_create(GFXTextureType type, unsigned char layers)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return NULL;
+
+	/* Get target */
+	GLenum target = _gfx_texture_get_target(type, layers);
+
+	/* Allocate texture */
+	struct GFX_Internal_Texture* tex = _gfx_texture_alloc(target, &window->extensions);
+	if(!tex) return NULL;
+
+	tex->texture.type   = type;
+	tex->texture.layers = layers;
+
+	return (GFXTexture*)tex;
+}
+
+/******************************************************/
+GFXTexture* gfx_texture_create_from_buffer(const GFXBuffer* buffer)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return NULL;
+
+	/* Allocate texture */
+	struct GFX_Internal_Texture* tex = _gfx_texture_alloc(GL_TEXTURE_BUFFER, &window->extensions);
+	if(!tex) return NULL;
+
+	tex->buffer = _gfx_buffer_get_handle(buffer);
+	tex->texture.type = GFX_TEXTURE_1D;
 
 	return (GFXTexture*)tex;
 }

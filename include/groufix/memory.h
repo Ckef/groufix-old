@@ -99,7 +99,7 @@ typedef struct GFXBuffer
  * @param usage    Usage bitflag, how the buffer is intended to be used.
  * @param target   Storage type the buffer is targeted for.
  * @param multi    Number of extra buffers to allocate (> 0 for multi buffering, 0 for regular buffering).
- * @param segments Number of segments per buffer.
+ * @param segments Number of extra segments per buffer (> 0 for segmentation, 0 for one big segment).
  * @return NULL on failure.
  *
  * Note: if data is not NULL, this data is NOT copied to any extra buffers.
@@ -207,10 +207,10 @@ void gfx_buffer_unmap(GFXBuffer* buffer);
 /** Texture types */
 typedef enum GFXTextureType
 {
-	GFX_1D_TEXTURE, /* requires GFX_EXT_TEXTURE_1D */
-	GFX_2D_TEXTURE,
-	GFX_3D_TEXTURE,
-	GFX_CUBEMAP
+	GFX_TEXTURE_1D, /* requires GFX_EXT_1D_TEXTURE (or implicitely GFX_EXT_BUFFER_TEXTURE) */
+	GFX_TEXTURE_2D,
+	GFX_TEXTURE_3D,
+	GFX_CUBEMAP,
 
 } GFXTextureType;
 
@@ -218,11 +218,13 @@ typedef enum GFXTextureType
 /** Texture */
 typedef struct GFXTexture
 {
-	GFXTextureType  type;   /* Describes image arrangement */
+	GFXTextureType  type;    /* Describes image arrangement and sampling */
 	size_t          width;
 	size_t          height;
 	size_t          depth;
-	unsigned short  layers; /* Only applicable to 1D or 2D texture */
+
+	unsigned char   mipmaps; /* Number of mipmaps (0 for none) */
+	unsigned char   layers;  /* Number of extra images, only applicatble to 1D or 2D */
 
 } GFXTexture;
 
@@ -230,10 +232,22 @@ typedef struct GFXTexture
 /**
  * Creates a new texture.
  *
+ * @param layers Number of extra images within the texture.
  * @return NULL on failure.
  *
  */
-GFXTexture* gfx_texture_create(GFXTextureType type);
+GFXTexture* gfx_texture_create(GFXTextureType type, unsigned char layers);
+
+/**
+ * Creates a new texture associated with a 1D buffer.
+ *
+ * @return NULL on failure.
+ *
+ * This texture will share memory with the buffer.
+ * Note: requires GFX_EXT_BUFFER_TEXTURE.
+ *
+ */
+GFXTexture* gfx_texture_create_from_buffer(const GFXBuffer* buffer);
 
 /**
  * Makes sure the texture is freed properly.
