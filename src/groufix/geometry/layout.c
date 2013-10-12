@@ -67,17 +67,20 @@ static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct
 
 	ext->BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
 
-	if(attr->attr.interpret & GFX_INTERPRET_INTEGER) ext->VertexAttribIPointer(
+	/* Override if packed type */
+	int packed = _gfx_is_data_type_packed(attr->attr.type);
+
+	if(!packed && attr->attr.interpret & GFX_INTERPRET_INTEGER) ext->VertexAttribIPointer(
 		index,
 		attr->attr.size,
-		attr->attr.type,
+		attr->attr.type.unpacked,
 		attr->attr.stride,
 		(GLvoid*)attr->attr.offset
 	);
 	else ext->VertexAttribPointer(
 		index,
 		attr->attr.size,
-		attr->attr.type,
+		packed ? attr->attr.type.packed : attr->attr.type.unpacked,
 		attr->attr.interpret & GFX_INTERPRET_NORMALIZED,
 		attr->attr.stride,
 		(GLvoid*)attr->attr.offset

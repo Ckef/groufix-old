@@ -32,8 +32,8 @@ extern "C" {
  * Data types associated with the GPU
  *******************************************************/
 
-/** Storage data type */
-typedef enum GFXDataType
+/** Unpacked storage data type */
+typedef enum GFXUnpackedType
 {
 	GFX_BYTE            = 0x1400,
 	GFX_UNSIGNED_BYTE   = 0x1401,
@@ -44,7 +44,21 @@ typedef enum GFXDataType
 	GFX_FLOAT           = 0x1406,
 	GFX_HALF_FLOAT      = 0x140b
 
-} GFXDataType;
+} GFXUnpackedType;
+
+
+/** Packed storage data type */
+typedef enum GFXPackedType
+{
+	GFX_UNSIGNED_SHORT_5_6_5      = 0x8363,
+	GFX_UNSIGNED_SHORT_4_4_4_4    = 0x8033,
+	GFX_UNSIGNED_SHORT_5_5_5_1    = 0x8034,
+	GFX_INT_10_10_10_2            = 0x8d9f,
+	GFX_UNSIGNED_INT_10_10_10_2   = 0x8368,
+	GFX_UNSIGNED_INT_11F_11F_10F  = 0x8c3b,
+	GFX_UNSIGNED_INT_9_9_9_5      = 0x8c3e  /* Shared exponent of 5 bits */
+
+} GFXPackedType;
 
 
 /** Interpreted type */
@@ -55,6 +69,15 @@ typedef enum GFXInterpretType
 	GFX_INTERPRET_INTEGER     = 0x02
 
 } GFXInterpretType;
+
+
+/** Storage data type */
+typedef union GFXDataType
+{
+	GFXUnpackedType  unpacked;
+	GFXPackedType    packed;
+
+} GFXDataType;
 
 
 /********************************************************
@@ -215,6 +238,16 @@ typedef enum GFXTextureType
 } GFXTextureType;
 
 
+/** Texture format */
+typedef struct GFXTextureFormat
+{
+	unsigned char     components; /* Number of components */
+	GFXDataType       type;       /* Data type of each component, packed types override the entire format */
+	GFXInterpretType  interpret;  /* How to interpret the texture components */
+
+} GFXTextureFormat;
+
+
 /** Texture */
 typedef struct GFXTexture
 {
@@ -236,7 +269,7 @@ typedef struct GFXTexture
  * @return NULL on failure.
  *
  */
-GFXTexture* gfx_texture_create(GFXTextureType type, unsigned char layers);
+GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers);
 
 /**
  * Creates a new multisampled 2D texture.
@@ -248,24 +281,30 @@ GFXTexture* gfx_texture_create(GFXTextureType type, unsigned char layers);
  * Note: requires GFX_EXT_MULTISAMPLE_TEXTURE.
  *
  */
-GFXTexture* gfx_texture_create_multisample(unsigned char layers);
+GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char layers);
 
 /**
  * Creates a new texture associated with a 1D buffer.
  *
  * @return NULL on failure.
  *
- * This texture will share memory with the buffer.
+ * This texture will share memory with the buffer, the format cannot be packed.
  * Note: requires GFX_EXT_BUFFER_TEXTURE.
  *
  */
-GFXTexture* gfx_texture_create_buffer_link(const GFXBuffer* buffer);
+GFXTexture* gfx_texture_create_buffer_link(GFXTextureFormat format, const GFXBuffer* buffer);
 
 /**
  * Makes sure the texture is freed properly.
  *
  */
 void gfx_texture_free(GFXTexture* texture);
+
+/**
+ * Returns the internal format of the texture.
+ *
+ */
+GFXTextureFormat gfx_texture_get_format(GFXTexture* texture);
 
 
 #ifdef __cplusplus

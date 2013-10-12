@@ -51,11 +51,11 @@ typedef enum GFXPrimitive
 /** Draw call */
 typedef struct GFXDrawCall
 {
-	GFXPrimitive  primitive;
-	GFXDataType   indexType; /* Can only be an unsigned type */
+	GFXPrimitive     primitive;
+	GFXUnpackedType  indexType; /* Can only be an unsigned type */
 
-	uintptr_t     first;     /* First index (regular) or byte offset (indexed) */
-	size_t        count;     /* Number of vertices to draw */
+	uintptr_t        first;     /* First index (regular) or byte offset (indexed) */
+	size_t           count;     /* Number of vertices to draw */
 
 } GFXDrawCall;
 
@@ -64,7 +64,7 @@ typedef struct GFXDrawCall
 typedef struct GFXVertexAttribute
 {
 	unsigned char     size;      /* Number of elements */
-	GFXDataType       type;      /* Data type of each element */
+	GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
 	GFXInterpretType  interpret; /* How to interpret each element */
 
 	size_t            stride;    /* Byte offset between consecutive attributes */
@@ -106,6 +106,8 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout);
  * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
  * @param buffer Buffer to read this attribute from (cannot be NULL).
  * @return Zero on failure.
+ *
+ * The attribute's type can be unpacked or (UNSIGNED_)INT_10_10_10_2 if GFX_EXT_PACKED_ATTRIBUTES is supported.
  *
  */
 int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer);

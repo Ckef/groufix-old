@@ -41,12 +41,12 @@ int main()
 	GFXBuffer* buffer = gfx_buffer_create(GFX_BUFFER_WRITE, GFX_VERTEX_BUFFER, sizeof(triangle), triangle, 0, 0);
 
 	GFXVertexAttribute attr;
-	attr.size      = 3;
-	attr.type      = GFX_FLOAT;
-	attr.interpret = GFX_INTERPRET_FLOAT;
-	attr.stride    = 0;
-	attr.offset    = 0;
-	attr.divisor   = 0;
+	attr.size          = 3;
+	attr.type.unpacked = GFX_FLOAT;
+	attr.interpret     = GFX_INTERPRET_FLOAT;
+	attr.stride        = 0;
+	attr.offset        = 0;
+	attr.divisor       = 0;
 
 	GFXDrawCall call;
 	call.primitive = GFX_TRIANGLES;

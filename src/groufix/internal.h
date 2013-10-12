@@ -40,15 +40,6 @@
 #define APIENTRYP APIENTRY *
 #endif
 
-/* Some defines to be compatible */
-#ifdef GFX_GLES
-	#define GL_TEXTURE_1D                    0x0de0
-	#define GL_TEXTURE_1D_ARRAY              0x8c18
-	#define GL_TEXTURE_2D_MULTISAMPLE        0x9100
-	#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY  0x9102
-	#define GL_TEXTURE_BUFFER                0x8c2a
-#endif
-
 /* Hardware Object Limit */
 #define GFX_MAX_HARDWARE_ID 0xfffff
 
@@ -239,6 +230,37 @@ void _gfx_extensions_load(void);
 
 
 /********************************************************
+ * Internal datatype & format helpers
+ *******************************************************/
+
+/**
+ * Returns 1 if packed data, 0 if unpacked.
+ *
+ */
+int _gfx_is_data_type_packed(GFXDataType type);
+
+/**
+ * Returns the size of a data type in bytes.
+ *
+ */
+unsigned char _gfx_sizeof_data_type(GFXDataType type);
+
+/**
+ * Converts from a texture format to an internal format.
+ *
+ * @return -1 on failure.
+ *
+ */
+GLint _gfx_texture_format_to_internal(GFXTextureFormat format);
+
+/**
+ * Converts an internal format to a texture format.
+ *
+ */
+GFXTextureFormat _gfx_texture_format_from_internal(GLint format);
+
+
+/********************************************************
  * Generic hardware object reconstruction
  *******************************************************/
 
@@ -311,7 +333,7 @@ void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
 
 
 /********************************************************
- * Internal hardware object access
+ * Internal hardware object access & helpers
  *******************************************************/
 
 /**

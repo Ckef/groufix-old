@@ -277,13 +277,11 @@ void _gfx_extensions_load(void)
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(major > 3 || minor > 2)
 	{
-		/* Core context */
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
 	{
-		/* ARB_instanced_arrays */
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("VertexAttribDivisorARB");
 	}
@@ -296,14 +294,12 @@ void _gfx_extensions_load(void)
 	/* GFX_EXT_PROGRAM_BINARY */
 	if(major > 4 || (major == 4 && minor > 0))
 	{
-		/* Core context */
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
 		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
-		/* ARB_get_program_binary */
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("GetProgramBinary");
 		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("ProgramBinary");
@@ -316,14 +312,8 @@ void _gfx_extensions_load(void)
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
-	if(major > 3)
+	if(major > 3 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
 	{
-		/* Core context */
-		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
-	}
-	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
-	{
-		/* ARB_tessellation_shader */
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
 	}
 	else
