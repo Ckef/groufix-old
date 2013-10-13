@@ -295,7 +295,6 @@ typedef struct GFXTexture
  * @return NULL on failure.
  *
  * Note: layers can only be used for 1D or 2D textures.
- * The pixel format describes the dimensions of the texture, ignoring the offsets.
  *
  */
 GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers, unsigned char mips, size_t width, size_t height, size_t depth);
