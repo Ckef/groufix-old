@@ -247,8 +247,8 @@ GFXTexture* gfx_texture_create_buffer_link(GFXTextureFormat format, const GFXBuf
 	tex->texture.width = tex->texture.width > max ? max : tex->texture.width;
 
 	/* Link buffer */
-	window->extensions.BindTexture(GL_TEXTURE_BUFFER, tex->handle);
-	window->extensions.TexBuffer(GL_TEXTURE_BUFFER, tex->format, tex->buffer);
+	window->extensions.BindTexture(tex->target, tex->handle);
+	window->extensions.TexBuffer(tex->target, tex->format, tex->buffer);
 
 	return (GFXTexture*)tex;
 }

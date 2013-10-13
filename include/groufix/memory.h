@@ -41,8 +41,8 @@ typedef enum GFXUnpackedType
 	GFX_UNSIGNED_SHORT  = 0x1403,
 	GFX_INT             = 0x1404,
 	GFX_UNSIGNED_INT    = 0x1405,
-	GFX_FLOAT           = 0x1406,
-	GFX_HALF_FLOAT      = 0x140b
+	GFX_HALF_FLOAT      = 0x140b,
+	GFX_FLOAT           = 0x1406
 
 } GFXUnpackedType;
 

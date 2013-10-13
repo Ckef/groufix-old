@@ -23,6 +23,21 @@
 
 #include <string.h>
 
+#ifdef GFX_GLES
+
+	/* Define unsupported formats */
+	#define GL_R16_SNORM     -1
+	#define GL_R16           -1
+	#define GL_RG16_SNORM    -1
+	#define GL_RG16          -1
+	#define GL_RGB16_SNORM   -1
+	#define GL_RGB16         -1
+	#define GL_RGBA16_SNORM  -1
+	#define GL_RGBA16        -1
+
+#endif
+
+
 /******************************************************/
 int _gfx_is_data_type_packed(GFXDataType type)
 {
@@ -95,6 +110,124 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 		case GFX_UNSIGNED_INT_9_9_9_5     : return GL_RGB9_E5;
 	}
 
+	/* Decode unpacked types */
+	switch(format.interpret)
+	{
+		/* Floating point format */
+		case GFX_INTERPRET_FLOAT : switch(format.components)
+		{
+			case 1 : switch(format.type.unpacked)
+			{
+				case GFX_HALF_FLOAT : return GL_R16F;
+				case GFX_FLOAT      : return GL_R32F;
+				default             : return -1;
+			}
+			case 2 : switch(format.type.unpacked)
+			{
+				case GFX_HALF_FLOAT : return GL_RG16F;
+				case GFX_FLOAT      : return GL_RG32F;
+				default             : return -1;
+			}
+			case 3 : switch(format.type.unpacked)
+			{
+				case GFX_HALF_FLOAT : return GL_RGB16F;
+				case GFX_FLOAT      : return GL_RGB32F;
+				default             : return -1;
+			}
+			case 4 : switch(format.type.unpacked)
+			{
+				case GFX_HALF_FLOAT : return GL_RGBA16F;
+				case GFX_FLOAT      : return GL_RGBA32F;
+				default             : return -1;
+			}
+			default : return -1;
+		}
+
+		/* Normalized format */
+		case GFX_INTERPRET_NORMALIZED : switch(format.components)
+		{
+			case 1 : switch(format.type.unpacked)
+			{
+				case GFX_BYTE           : return GL_R8_SNORM;
+				case GFX_UNSIGNED_BYTE  : return GL_R8;
+				case GFX_SHORT          : return GL_R16_SNORM;
+				case GFX_UNSIGNED_SHORT : return GL_R16;
+				default                 : return -1;
+			}
+			case 2 : switch(format.type.unpacked)
+			{
+				case GFX_BYTE           : return GL_RG8_SNORM;
+				case GFX_UNSIGNED_BYTE  : return GL_RG8;
+				case GFX_SHORT          : return GL_RG16_SNORM;
+				case GFX_UNSIGNED_SHORT : return GL_RG16;
+				default                 : return -1;
+			}
+			case 3 : switch(format.type.unpacked)
+			{
+				case GFX_BYTE           : return GL_RGB8_SNORM;
+				case GFX_UNSIGNED_BYTE  : return GL_RGB8;
+				case GFX_SHORT          : return GL_RGB16_SNORM;
+				case GFX_UNSIGNED_SHORT : return GL_RGB16;
+				default                 : return -1;
+			}
+			case 4 : switch(format.type.unpacked)
+			{
+				case GFX_BYTE           : return GL_RGBA8_SNORM;
+				case GFX_UNSIGNED_BYTE  : return GL_RGBA8;
+				case GFX_SHORT          : return GL_RGBA16_SNORM;
+				case GFX_UNSIGNED_SHORT : return GL_RGBA16;
+				default                 : return -1;
+			}
+			default : return -1;
+		}
+
+		/* Integral format */
+		case GFX_INTERPRET_INTEGER : switch(format.components)
+		{
+			case 1 : switch(format.type.unpacked)
+			{
+				case GFX_BYTE           : return GL_R8I;
+				case GFX_UNSIGNED_BYTE  : return GL_R8UI;
+				case GFX_SHORT          : return GL_R16I;
+				case GFX_UNSIGNED_SHORT : return GL_R16UI;
+				case GFX_INT            : return GL_R32I;
+				case GFX_UNSIGNED_INT   : return GL_R32UI;
+				default                 : return -1;
+			}
+			case 2 : switch(format.type.unpacked)
+			{
+				case GFX_BYTE           : return GL_RG8I;
+				case GFX_UNSIGNED_BYTE  : return GL_RG8UI;
+				case GFX_SHORT          : return GL_RG16I;
+				case GFX_UNSIGNED_SHORT : return GL_RG16UI;
+				case GFX_INT            : return GL_RG32I;
+				case GFX_UNSIGNED_INT   : return GL_RG32UI;
+				default                 : return -1;
+			}
+			case 3 : switch(format.type.unpacked)
+			{
+				case GFX_BYTE           : return GL_RGB8I;
+				case GFX_UNSIGNED_BYTE  : return GL_RGB8UI;
+				case GFX_SHORT          : return GL_RGB16I;
+				case GFX_UNSIGNED_SHORT : return GL_RGB16UI;
+				case GFX_INT            : return GL_RGB32I;
+				case GFX_UNSIGNED_INT   : return GL_RGB32UI;
+				default                 : return -1;
+			}
+			case 4 : switch(format.type.unpacked)
+			{
+				case GFX_BYTE           : return GL_RGBA8I;
+				case GFX_UNSIGNED_BYTE  : return GL_RGBA8UI;
+				case GFX_SHORT          : return GL_RGBA16I;
+				case GFX_UNSIGNED_SHORT : return GL_RGBA16UI;
+				case GFX_INT            : return GL_RGBA32I;
+				case GFX_UNSIGNED_INT   : return GL_RGBA32UI;
+				default                 : return -1;
+			}
+			default : return -1;
+		}
+	}
+
 	/* ??? */
 	return -1;
 }
@@ -105,7 +238,8 @@ GFXTextureFormat _gfx_texture_format_from_internal(GLint format)
 	GFXTextureFormat ret;
 	memset(&ret, 0, sizeof(GFXTextureFormat));
 
-	switch(format)
+	/* Check for a valid format */
+	if(format >= 0) switch(format)
 	{
 		/* Check for packed formats */
 		case GL_RGB565 :
@@ -148,6 +282,297 @@ GFXTextureFormat _gfx_texture_format_from_internal(GLint format)
 			ret.components  = 3;
 			ret.type.packed = GFX_UNSIGNED_INT_9_9_9_5;
 			ret.interpret   = GFX_INTERPRET_FLOAT;
+			break;
+
+		/* Unpacked floating point formats */
+		case GL_R16F :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_HALF_FLOAT;
+			ret.interpret     = GFX_INTERPRET_FLOAT;
+			break;
+
+		case GL_R32F :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_FLOAT;
+			ret.interpret     = GFX_INTERPRET_FLOAT;
+			break;
+
+		case GL_RG16F :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_HALF_FLOAT;
+			ret.interpret     = GFX_INTERPRET_FLOAT;
+			break;
+
+		case GL_RG32F :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_FLOAT;
+			ret.interpret     = GFX_INTERPRET_FLOAT;
+			break;
+
+		case GL_RGB16F :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_HALF_FLOAT;
+			ret.interpret     = GFX_INTERPRET_FLOAT;
+			break;
+
+		case GL_RGB32F :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_FLOAT;
+			ret.interpret     = GFX_INTERPRET_FLOAT;
+			break;
+
+		case GL_RGBA16F :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_HALF_FLOAT;
+			ret.interpret     = GFX_INTERPRET_FLOAT;
+			break;
+
+		case GL_RGBA32F :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_FLOAT;
+			ret.interpret     = GFX_INTERPRET_FLOAT;
+			break;
+
+		/* Unpacked normalized formats */
+		case GL_R8_SNORM :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_BYTE;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_R8 :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_UNSIGNED_BYTE;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_R16_SNORM :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_SHORT;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_R16 :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RG8_SNORM :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_BYTE;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RG8 :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_UNSIGNED_BYTE;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RG16_SNORM :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_SHORT;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RG16 :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RGB8_SNORM :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_BYTE;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RGB8 :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_UNSIGNED_BYTE;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RGB16_SNORM :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_SHORT;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RGB16 :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RGBA8_SNORM :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_BYTE;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RGBA8 :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_UNSIGNED_BYTE;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RGBA16_SNORM :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_SHORT;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		case GL_RGBA16 :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_NORMALIZED;
+			break;
+
+		/* Unpacked integral formats */
+		case GL_R8I :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_BYTE;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_R8UI :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_UNSIGNED_BYTE;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_R16I :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_SHORT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_R16UI :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_R32I :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_INT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_R32UI :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_UNSIGNED_INT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RG8I :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_BYTE;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RG8UI :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_UNSIGNED_BYTE;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RG16I :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_SHORT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RG16UI :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RG32I :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_INT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RG32UI :
+			ret.components    = 2;
+			ret.type.unpacked = GFX_UNSIGNED_INT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGB8I :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_BYTE;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGB8UI :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_UNSIGNED_BYTE;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGB16I :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_SHORT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGB16UI :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGB32I :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_INT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGB32UI :
+			ret.components    = 3;
+			ret.type.unpacked = GFX_UNSIGNED_INT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGBA8I :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_BYTE;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGBA8UI :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_UNSIGNED_BYTE;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGBA16I :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_SHORT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGBA16UI :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGBA32I :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_INT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		case GL_RGBA32UI :
+			ret.components    = 4;
+			ret.type.unpacked = GFX_UNSIGNED_INT;
+			ret.interpret     = GFX_INTERPRET_INTEGER;
 			break;
 	}
 

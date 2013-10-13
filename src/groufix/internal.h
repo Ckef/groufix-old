@@ -333,7 +333,7 @@ void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
 
 
 /********************************************************
- * Internal hardware object access & helpers
+ * Internal hardware object access
  *******************************************************/
 
 /**
