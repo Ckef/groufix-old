@@ -61,6 +61,7 @@ typedef enum GFXExtension
 /** Hardware Limits */
 typedef enum GFXLimit
 {
+	GFX_LIM_MAX_ACTIVE_TEXTURES,
 	GFX_LIM_MAX_BUFFER_TEXTURE_SIZE,
 	GFX_LIM_MAX_CUBEMAP_SIZE,
 	GFX_LIM_MAX_TEXTURE_3D_SIZE,

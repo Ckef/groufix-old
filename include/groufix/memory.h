@@ -54,9 +54,9 @@ typedef enum GFXPackedType
 	GFX_UNSIGNED_SHORT_4_4_4_4    = 0x8033,
 	GFX_UNSIGNED_SHORT_5_5_5_1    = 0x8034,
 	GFX_INT_10_10_10_2            = 0x8d9f,
-	GFX_UNSIGNED_INT_10_10_10_2   = 0x8368,
+	GFX_UNSIGNED_INT_10_10_10_2   = 0x8368, /* Interpreted as integer */
 	GFX_UNSIGNED_INT_11F_11F_10F  = 0x8c3b,
-	GFX_UNSIGNED_INT_9_9_9_5      = 0x8c3e, /* Shared exponent of 5 bits */
+	GFX_UNSIGNED_INT_9_9_9_5E     = 0x8c3e, /* Shared exponent of 5 bits */
 	GFX_UNSIGNED_INT_24_8         = 0x84fa, /* Depth/stencil only */
 	GFX_FLOAT_UNSIGNED_INT_24_8   = 0x8dad  /* Depth/stencil only */
 
@@ -290,13 +290,15 @@ typedef struct GFXTexture
 /**
  * Creates a new texture.
  *
- * @param layers Number of extra images within the texture, acts as an array.
+ * @param layers  Number of extra images within the texture, acts as an array.
+ * @param mips    Number of mipmaps to allocate.
  * @return NULL on failure.
  *
  * Note: layers can only be used for 1D or 2D textures.
+ * The pixel format describes the dimensions of the texture, ignoring the offsets.
  *
  */
-GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers);
+GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers, unsigned char mips, size_t width, size_t height, size_t depth);
 
 /**
  * Creates a new multisampled 2D texture.
@@ -308,7 +310,7 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, uns
  * Note: requires GFX_EXT_MULTISAMPLE_TEXTURE.
  *
  */
-GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char layers);
+GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char layers, size_t width, size_t height);
 
 /**
  * Creates a new texture associated with a 1D buffer.

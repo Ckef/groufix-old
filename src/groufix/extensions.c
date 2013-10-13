@@ -133,11 +133,12 @@ void _gfx_extensions_load(void)
 	glGetIntegerv(GL_MINOR_VERSION, &minor);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &ext->limits[GFX_LIM_MAX_CUBEMAP_SIZE]);
-	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,       &ext->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE]);
-	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,  &ext->limits[GFX_LIM_MAX_TEXTURE_LAYERS]);
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE,          &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE]);
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,        &ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]);
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &ext->limits[GFX_LIM_MAX_ACTIVE_TEXTURES]);
+	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,        &ext->limits[GFX_LIM_MAX_CUBEMAP_SIZE]);
+	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,              &ext->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE]);
+	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,         &ext->limits[GFX_LIM_MAX_TEXTURE_LAYERS]);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE,                 &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE]);
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,               &ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]);
 
 #ifdef GFX_GLES
 
@@ -155,6 +156,7 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_TEXTURE_1D]           = 0;
 
 	/* GLES, assumes 3.0+ */
+	ext->ActiveTexture            = glActiveTexture;
 	ext->AttachShader             = glAttachShader;
 	ext->BindAttribLocation       = glBindAttribLocation;
 	ext->BindBuffer               = glBindBuffer;
@@ -224,6 +226,7 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_TEXTURE_1D]          = 1;
 
 	/* Core, assumes 3.2+ context */
+	ext->ActiveTexture            = (PFNGLACTIVETEXTUREPROC)            _gfx_platform_get_proc_address("glActiveTexture");
 	ext->AttachShader             = (PFNGLATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
 	ext->BindAttribLocation       = (PFNGLBINDATTRIBLOCATIONPROC)       _gfx_platform_get_proc_address("glBindAttribLocation");
 	ext->BindBuffer               = (PFNGLBINDBUFFERPROC)               _gfx_platform_get_proc_address("glBindBuffer");

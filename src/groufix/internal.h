@@ -52,6 +52,7 @@ extern "C" {
  *******************************************************/
 
 /* Extension function pointers */
+typedef void (APIENTRYP GFX_ACTIVETEXTUREPROC)            (GLenum);
 typedef void (APIENTRYP GFX_ATTACHSHADERPROC)             (GLuint, GLuint);
 typedef void (APIENTRYP GFX_BINDATTRIBLOCATIONPROC)       (GLuint, GLuint, const GLchar*);
 typedef void (APIENTRYP GFX_BINDBUFFERPROC)               (GLenum, GLuint);
@@ -116,6 +117,7 @@ typedef struct GFX_Extensions
 	int limits[GFX_LIM_COUNT];
 
 	/* OpenGL Extensions */
+	GFX_ACTIVETEXTUREPROC             ActiveTexture;
 	GFX_ATTACHSHADERPROC              AttachShader;
 	GFX_BINDATTRIBLOCATIONPROC        BindAttribLocation;
 	GFX_BINDBUFFERPROC                BindBuffer;
@@ -246,7 +248,15 @@ int _gfx_is_data_type_packed(GFXDataType type);
 unsigned char _gfx_sizeof_data_type(GFXDataType type);
 
 /**
- * Converts from a texture format to an internal format.
+ * Converts a texture format to a client pixel format.
+ *
+ * @return -1 on failure.
+ *
+ */
+GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format);
+
+/**
+ * Converts a texture format to an internal format.
  *
  * @return -1 on failure.
  *

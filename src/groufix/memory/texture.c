@@ -104,12 +104,35 @@ static int _gfx_texture_eval_target(GLenum target, const GFX_Extensions* ext)
 }
 
 /******************************************************/
+static GLint _gfx_texture_eval_pixel_format(GFXTextureFormat format)
+{
+	GLint form = _gfx_texture_format_to_pixel_format(format);
+	if(form < 0) gfx_errors_push(
+		GFX_ERROR_INVALID_VALUE,
+		"A requested pixel transfer format is not supported."
+	);
+	return form;
+}
+
+/******************************************************/
+static GLint _gfx_texture_eval_internal_format(GFXTextureFormat format)
+{
+	GLint form = _gfx_texture_format_to_internal(format);
+	if(form < 0) gfx_errors_push(
+		GFX_ERROR_INVALID_VALUE,
+		"A requested texture format is not supported."
+	);
+	return form;
+}
+
+/******************************************************/
 static void _gfx_texture_obj_free(void* object, const GFX_Extensions* ext)
 {
 	struct GFX_Internal_Texture* texture = (struct GFX_Internal_Texture*)object;
 
 	ext->DeleteTextures(1, &texture->handle);
 	texture->handle = 0;
+	texture->buffer = 0;
 
 	texture->id = 0;
 }
@@ -127,16 +150,8 @@ static GFX_Hardware_Funcs _gfx_texture_obj_funcs =
 static struct GFX_Internal_Texture* _gfx_texture_alloc(GLenum target, GFXTextureFormat format, const GFX_Extensions* ext)
 {
 	/* Validate type & format */
-	GLint form = _gfx_texture_format_to_internal(format);
-	if(form < 0)
-	{
-		gfx_errors_push(
-			GFX_ERROR_INVALID_ENUM,
-			"A requested texture format is not supported."
-		);
-		return NULL;
-	}
-	if(!_gfx_texture_eval_target(target, ext)) return NULL;
+	GLint form = _gfx_texture_eval_internal_format(format);
+	if(form < 0 || !_gfx_texture_eval_target(target, ext)) return NULL;
 
 	/* Create new texture */
 	struct GFX_Internal_Texture* tex = calloc(1, sizeof(struct GFX_Internal_Texture));
@@ -164,7 +179,7 @@ GLuint _gfx_texture_get_handle(const GFXTexture* texture)
 }
 
 /******************************************************/
-GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers)
+GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers, unsigned char mips, size_t width, size_t height, size_t depth)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -201,14 +216,21 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, uns
 	/* Validate layers */
 	if(type != GFX_TEXTURE_1D && type != GFX_TEXTURE_2D) layers = 0;
 
-	tex->texture.type   = type;
-	tex->texture.layers = layers;
+	tex->texture.type    = type;
+	tex->texture.mipmaps = mips;
+	tex->texture.layers  = layers;
+	tex->texture.width   = width;
+	tex->texture.height  = (type == GFX_TEXTURE_1D) ? 1 : height;
+	tex->texture.depth   = (type != GFX_TEXTURE_3D) ? 1 : depth;
+
+	/* Allocate texture */
+	window->extensions.BindTexture(tex->target, tex->handle);
 
 	return (GFXTexture*)tex;
 }
 
 /******************************************************/
-GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char layers)
+GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char layers, size_t width, size_t height)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -223,6 +245,12 @@ GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned cha
 
 	tex->texture.type   = GFX_TEXTURE_2D;
 	tex->texture.layers = layers;
+	tex->texture.width  = width;
+	tex->texture.height = height;
+	tex->texture.depth  = 1;
+
+	/* Allocate texture */
+	window->extensions.BindTexture(tex->target, tex->handle);
 
 	return (GFXTexture*)tex;
 }
@@ -230,9 +258,9 @@ GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned cha
 /******************************************************/
 GFXTexture* gfx_texture_create_buffer_link(GFXTextureFormat format, const GFXBuffer* buffer)
 {
-	/* Get current window and context & format type */
+	/* Get current window and context & validate format */
 	GFX_Internal_Window* window = _gfx_window_get_current();
-	if(!window || _gfx_is_data_type_packed(format.type)) return NULL;
+	if(!window || _gfx_is_data_type_packed(format.type) || format.interpret == GFX_INTERPRET_DEPTH) return NULL;
 
 	/* Allocate texture */
 	struct GFX_Internal_Texture* tex = _gfx_texture_alloc(GL_TEXTURE_BUFFER, format, &window->extensions);
@@ -242,12 +270,14 @@ GFXTexture* gfx_texture_create_buffer_link(GFXTextureFormat format, const GFXBuf
 	tex->texture.type = GFX_TEXTURE_1D;
 
 	/* Compute dimensions */
-	tex->texture.height = 1;
 	tex->texture.width = format.components * _gfx_sizeof_data_type(format.type);
 	if(tex->texture.width) tex->texture.width = buffer->size / tex->texture.width;
 
 	int max = window->extensions.limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE];
 	tex->texture.width = tex->texture.width > max ? max : tex->texture.width;
+
+	tex->texture.height = 1;
+	tex->texture.depth  = 1;
 
 	/* Link buffer */
 	window->extensions.BindTexture(tex->target, tex->handle);
