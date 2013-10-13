@@ -51,6 +51,8 @@ int _gfx_is_data_type_packed(GFXDataType type)
 		case GFX_UNSIGNED_INT_10_10_10_2 :
 		case GFX_UNSIGNED_INT_11F_11F_10F :
 		case GFX_UNSIGNED_INT_9_9_9_5 :
+		case GFX_UNSIGNED_INT_24_8 :
+		case GFX_FLOAT_UNSIGNED_INT_24_8 :
 			return 1;
 	}
 	return 0;
@@ -89,7 +91,11 @@ unsigned char _gfx_sizeof_data_type(GFXDataType type)
 		case GFX_UNSIGNED_INT_10_10_10_2 :
 		case GFX_UNSIGNED_INT_11F_11F_10F :
 		case GFX_UNSIGNED_INT_9_9_9_5 :
+		case GFX_UNSIGNED_INT_24_8 :
 			return 4;
+
+		case GFX_FLOAT_UNSIGNED_INT_24_8 :
+			return 8;
 	}
 
 	return 0;
@@ -108,6 +114,8 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 		case GFX_UNSIGNED_INT_10_10_10_2  : return GL_RGB10_A2UI;
 		case GFX_UNSIGNED_INT_11F_11F_10F : return GL_R11F_G11F_B10F;
 		case GFX_UNSIGNED_INT_9_9_9_5     : return GL_RGB9_E5;
+		case GFX_UNSIGNED_INT_24_8        : return GL_DEPTH24_STENCIL8;
+		case GFX_FLOAT_UNSIGNED_INT_24_8  : return GL_DEPTH32F_STENCIL8;
 	}
 
 	/* Decode unpacked types */
@@ -226,6 +234,19 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 			}
 			default : return -1;
 		}
+
+		/* Depth formats */
+		case GFX_INTERPRET_DEPTH : switch(format.components)
+		{
+			case 1 : switch(format.type.unpacked)
+			{
+				case GFX_UNSIGNED_SHORT : return GL_DEPTH_COMPONENT16;
+				case GFX_UNSIGNED_INT   : return GL_DEPTH_COMPONENT24;
+				case GFX_FLOAT          : return GL_DEPTH_COMPONENT32F;
+				default                 : return -1;
+			}
+			default : return -1;
+		}
 	}
 
 	/* ??? */
@@ -282,6 +303,18 @@ GFXTextureFormat _gfx_texture_format_from_internal(GLint format)
 			ret.components  = 3;
 			ret.type.packed = GFX_UNSIGNED_INT_9_9_9_5;
 			ret.interpret   = GFX_INTERPRET_FLOAT;
+			break;
+
+		case GL_DEPTH24_STENCIL8 :
+			ret.components  = 2;
+			ret.type.packed = GFX_UNSIGNED_INT_24_8;
+			ret.interpret   = GFX_INTERPRET_DEPTH;
+			break;
+
+		case GL_DEPTH32F_STENCIL8 :
+			ret.components  = 2;
+			ret.type.packed = GFX_FLOAT_UNSIGNED_INT_24_8;
+			ret.interpret   = GFX_INTERPRET_DEPTH;
 			break;
 
 		/* Unpacked floating point formats */
@@ -573,6 +606,25 @@ GFXTextureFormat _gfx_texture_format_from_internal(GLint format)
 			ret.components    = 4;
 			ret.type.unpacked = GFX_UNSIGNED_INT;
 			ret.interpret     = GFX_INTERPRET_INTEGER;
+			break;
+
+		/* Depth formats */
+		case GL_DEPTH_COMPONENT16 :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_DEPTH;
+			break;
+
+		case GL_DEPTH_COMPONENT24 :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_UNSIGNED_INT;
+			ret.interpret     = GFX_INTERPRET_DEPTH;
+			break;
+
+		case GL_DEPTH_COMPONENT32F :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_FLOAT;
+			ret.interpret     = GFX_INTERPRET_DEPTH;
 			break;
 	}
 

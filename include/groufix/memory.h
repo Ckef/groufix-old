@@ -56,7 +56,9 @@ typedef enum GFXPackedType
 	GFX_INT_10_10_10_2            = 0x8d9f,
 	GFX_UNSIGNED_INT_10_10_10_2   = 0x8368,
 	GFX_UNSIGNED_INT_11F_11F_10F  = 0x8c3b,
-	GFX_UNSIGNED_INT_9_9_9_5      = 0x8c3e  /* Shared exponent of 5 bits */
+	GFX_UNSIGNED_INT_9_9_9_5      = 0x8c3e, /* Shared exponent of 5 bits */
+	GFX_UNSIGNED_INT_24_8         = 0x84fa, /* Depth/stencil only */
+	GFX_FLOAT_UNSIGNED_INT_24_8   = 0x8dad  /* Depth/stencil only */
 
 } GFXPackedType;
 
@@ -66,7 +68,8 @@ typedef enum GFXInterpretType
 {
 	GFX_INTERPRET_FLOAT       = 0x00,
 	GFX_INTERPRET_NORMALIZED  = 0x01,
-	GFX_INTERPRET_INTEGER     = 0x02
+	GFX_INTERPRET_INTEGER     = 0x02,
+	GFX_INTERPRET_DEPTH       = 0x04
 
 } GFXInterpretType;
 
@@ -224,7 +227,7 @@ void gfx_buffer_unmap(GFXBuffer* buffer);
 
 
 /********************************************************
- * Texture (an n-D image stored on the GPU)
+ * Texture & Pixel metadata
  *******************************************************/
 
 /** Texture types */
@@ -248,6 +251,28 @@ typedef struct GFXTextureFormat
 } GFXTextureFormat;
 
 
+/** Pixel transfer parameters */
+typedef struct GFXPixelTransfer
+{
+	GFXTextureFormat  format; /* Format of the client memory */
+
+	unsigned char     mipmap; /* Mipmap index to write to */
+	unsigned char     layer;  /* Layer index to write to */
+
+	unsigned int      xOffset;
+	unsigned int      yOffset;
+	unsigned int      zOffset;
+	size_t            width;
+	size_t            height;
+	size_t            depth;
+
+} GFXPixelTransfer;
+
+
+/********************************************************
+ * Texture (an n-D image stored on the GPU)
+ *******************************************************/
+
 /** Texture */
 typedef struct GFXTexture
 {
@@ -267,6 +292,8 @@ typedef struct GFXTexture
  *
  * @param layers Number of extra images within the texture, acts as an array.
  * @return NULL on failure.
+ *
+ * Note: layers can only be used for 1D or 2D textures.
  *
  */
 GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers);

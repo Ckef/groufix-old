@@ -198,6 +198,9 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, uns
 	struct GFX_Internal_Texture* tex = _gfx_texture_alloc(target, format, &window->extensions);
 	if(!tex) return NULL;
 
+	/* Validate layers */
+	if(type != GFX_TEXTURE_1D && type != GFX_TEXTURE_2D) layers = 0;
+
 	tex->texture.type   = type;
 	tex->texture.layers = layers;
 
