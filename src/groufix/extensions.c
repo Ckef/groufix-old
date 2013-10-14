@@ -135,6 +135,7 @@ void _gfx_extensions_load(void)
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &ext->limits[GFX_LIM_MAX_ACTIVE_TEXTURES]);
 	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,        &ext->limits[GFX_LIM_MAX_CUBEMAP_SIZE]);
+	glGetIntegerv(GL_MAX_SAMPLES,                      &ext->limits[GFX_LIM_MAX_SAMPLES]);
 	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,              &ext->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE]);
 	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,         &ext->limits[GFX_LIM_MAX_TEXTURE_LAYERS]);
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE,                 &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE]);

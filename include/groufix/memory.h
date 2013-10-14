@@ -290,8 +290,8 @@ typedef struct GFXTexture
 /**
  * Creates a new texture.
  *
- * @param layers  Number of extra images within the texture, acts as an array.
- * @param mips    Number of mipmaps to allocate.
+ * @param layers  Number of extra images within the texture, acts as an array of images.
+ * @param mips    Number of mipmaps to allocate, 0 for just the base texture.
  * @return NULL on failure.
  *
  * Note: layers can only be used for 1D or 2D textures.
@@ -302,14 +302,14 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, uns
 /**
  * Creates a new multisampled 2D texture.
  *
- * @param layers Number of extra images within the texture, acts as an array.
+ * @param layers  Number of extra images within the texture, acts as an array of images.
  * @return NULL on failure.
  *
  * When rendered to, this texture will be multisampled.
  * Note: requires GFX_EXT_MULTISAMPLE_TEXTURE.
  *
  */
-GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char layers, size_t width, size_t height);
+GFXTexture* gfx_texture_create_multisample(unsigned char samples, GFXTextureFormat format, unsigned char layers, size_t width, size_t height);
 
 /**
  * Creates a new texture associated with a 1D buffer.

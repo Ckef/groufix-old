@@ -230,7 +230,7 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, uns
 }
 
 /******************************************************/
-GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char layers, size_t width, size_t height)
+GFXTexture* gfx_texture_create_multisample(unsigned char samples, GFXTextureFormat format, unsigned char layers, size_t width, size_t height)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -249,8 +249,22 @@ GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned cha
 	tex->texture.height = height;
 	tex->texture.depth  = 1;
 
+	/* Limit samples */
+	int maxSamples = window->extensions.limits[GFX_LIM_MAX_SAMPLES];
+	samples = samples > maxSamples ? maxSamples : (samples < 2 ? 2 : samples);
+
 	/* Allocate texture */
 	window->extensions.BindTexture(tex->target, tex->handle);
+	switch(tex->target)
+	{
+		case GL_TEXTURE_2D_MULTISAMPLE :
+			window->extensions.TexImage2DMultisample(tex->target, samples, tex->format, width, height, GL_FALSE);
+			break;
+
+		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
+			window->extensions.TexImage3DMultisample(tex->target, samples, tex->format, width, height, layers + 1, GL_FALSE);
+			break;
+	}
 
 	return (GFXTexture*)tex;
 }
