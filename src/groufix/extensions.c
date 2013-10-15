@@ -53,7 +53,7 @@ static void _gfx_gles_tex_buffer(GLenum target, GLenum internalFormat, GLuint bu
 }
 
 /******************************************************/
-static void _gfx_gles_tex_image_1d(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid * data)
+static void _gfx_gles_tex_image_1d(GLenum target, GLint level, GLint internalFormat, GLsizei w, GLint b, GLenum format, GLenum type, const GLvoid * data)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -71,13 +71,13 @@ static void _gfx_gles_multisample_tex_error(void)
 }
 
 /******************************************************/
-static void _gfx_gles_tex_image_2d_multisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height, GLboolean ﬁxedsamplelocations)
+static void _gfx_gles_tex_image_2d_multisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei w, GLsizei h, GLboolean f)
 {
 	_gfx_gles_multisample_tex_error();
 }
 
 /******************************************************/
-static void _gfx_gles_tex_image_3d_multisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLboolean ﬁxedsamplelocations)
+static void _gfx_gles_tex_image_3d_multisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei w, GLsizei h, GLsizei d, GLboolean f)
 {
 	_gfx_gles_multisample_tex_error();
 }
@@ -205,6 +205,7 @@ void _gfx_extensions_load(void)
 	ext->TexImage2DMultisample    = _gfx_gles_tex_image_2d_multisample;
 	ext->TexImage3D               = glTexImage3D;
 	ext->TexImage3DMultisample    = _gfx_gles_tex_image_3d_multisample;
+	ext->TexParameteri            = glTexParameteri;
 	ext->UnmapBuffer              = glUnmapBuffer;
 	ext->UseProgram               = glUseProgram;
 	ext->VertexAttribDivisor      = glVertexAttribDivisor;
@@ -273,6 +274,7 @@ void _gfx_extensions_load(void)
 	ext->TexImage2DMultisample    = (PFNGLTEXIMAGE2DMULTISAMPLEPROC)    _gfx_platform_get_proc_address("glTexImage2DMultisample");
 	ext->TexImage3D               = (PFNGLTEXIMAGE3DPROC)               _gfx_platform_get_proc_address("glTexImage3D");
 	ext->TexImage3DMultisample    = (PFNGLTEXIMAGE3DMULTISAMPLEPROC)    _gfx_platform_get_proc_address("glTexImage3DMultisample");
+	ext->TexParameteri            = (PFNGLTEXPARAMETERIPROC)            glTexParameteri;
 	ext->UnmapBuffer              = (PFNGLUNMAPBUFFERPROC)              _gfx_platform_get_proc_address("glUnmapBuffer");
 	ext->UseProgram               = (PFNGLUSEPROGRAMPROC)               _gfx_platform_get_proc_address("glUseProgram");
 	ext->VertexAttribIPointer     = (PFNGLVERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");

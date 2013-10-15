@@ -100,6 +100,7 @@ typedef void (APIENTRYP GFX_TEXIMAGE2DPROC)               (GLenum, GLint, GLint,
 typedef void (APIENTRYP GFX_TEXIMAGE2DMULTISAMPLEPROC)    (GLenum, GLsizei, GLint, GLsizei, GLsizei, GLboolean);
 typedef void (APIENTRYP GFX_TEXIMAGE3DPROC)               (GLenum, GLint, GLint, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXIMAGE3DMULTISAMPLEPROC)    (GLenum, GLsizei, GLint, GLsizei, GLsizei, GLsizei, GLboolean);
+typedef void (APIENTRYP GFX_TEXPARAMETERIPROC)            (GLenum, GLenum, GLint);
 typedef GLboolean (APIENTRYP GFX_UNMAPBUFFERPROC)         (GLenum);
 typedef void (APIENTRYP GFX_USEPROGRAMPROC)               (GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
@@ -165,6 +166,7 @@ typedef struct GFX_Extensions
 	GFX_TEXIMAGE2DMULTISAMPLEPROC     TexImage2DMultisample;  /* GFX_EXT_MULTISAMPLE_TEXTURE */
 	GFX_TEXIMAGE3DPROC                TexImage3D;
 	GFX_TEXIMAGE3DMULTISAMPLEPROC     TexImage3DMultisample;  /* GFX_EXT_MULTISAMPLE_TEXTURE */
+	GFX_TEXPARAMETERIPROC             TexParameteri;
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
 	GFX_USEPROGRAMPROC                UseProgram;
 	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor;    /* GFX_EXT_INSTANCED_ATTRIBUTES */
