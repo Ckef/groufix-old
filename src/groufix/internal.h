@@ -92,6 +92,7 @@ typedef void (APIENTRYP GFX_GETSHADERIVPROC)              (GLuint, GLenum, GLint
 typedef void (APIENTRYP GFX_GETSHADERSOURCEPROC)          (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (APIENTRYP GFX_LINKPROGRAMPROC)              (GLuint);
 typedef void* (APIENTRYP GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
+typedef void (APIENTRYP GFX_PIXELSTOREIPROC)              (GLenum, GLint);
 typedef void (APIENTRYP GFX_PROGRAMBINARYPROC)            (GLuint, GLenum, const void*, GLsizei);
 typedef void (APIENTRYP GFX_SHADERSOURCEPROC)             (GLuint, GLsizei, const GLchar*const*, const GLint*);
 typedef void (APIENTRYP GFX_TEXBUFFERPROC)                (GLenum, GLenum, GLuint);
@@ -101,6 +102,9 @@ typedef void (APIENTRYP GFX_TEXIMAGE2DMULTISAMPLEPROC)    (GLenum, GLsizei, GLin
 typedef void (APIENTRYP GFX_TEXIMAGE3DPROC)               (GLenum, GLint, GLint, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXIMAGE3DMULTISAMPLEPROC)    (GLenum, GLsizei, GLint, GLsizei, GLsizei, GLsizei, GLboolean);
 typedef void (APIENTRYP GFX_TEXPARAMETERIPROC)            (GLenum, GLenum, GLint);
+typedef void (APIENTRYP GFX_TEXSUBIMAGE1DPROC)            (GLenum, GLint, GLint, GLsizei, GLenum, GLenum, const GLvoid*);
+typedef void (APIENTRYP GFX_TEXSUBIMAGE2DPROC)            (GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*);
+typedef void (APIENTRYP GFX_TEXSUBIMAGE3DPROC)            (GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*);
 typedef GLboolean (APIENTRYP GFX_UNMAPBUFFERPROC)         (GLenum);
 typedef void (APIENTRYP GFX_USEPROGRAMPROC)               (GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
@@ -158,6 +162,7 @@ typedef struct GFX_Extensions
 	GFX_GETSHADERSOURCEPROC           GetShaderSource;
 	GFX_LINKPROGRAMPROC               LinkProgram;
 	GFX_MAPBUFFERRANGEPROC            MapBufferRange;
+	GFX_PIXELSTOREIPROC               PixelStorei;
 	GFX_PROGRAMBINARYPROC             ProgramBinary;          /* GFX_EXT_PROGRAM_BINARY */
 	GFX_SHADERSOURCEPROC              ShaderSource;
 	GFX_TEXBUFFERPROC                 TexBuffer;              /* GFX_EXT_BUFFER_TEXTURE */
@@ -167,6 +172,9 @@ typedef struct GFX_Extensions
 	GFX_TEXIMAGE3DPROC                TexImage3D;
 	GFX_TEXIMAGE3DMULTISAMPLEPROC     TexImage3DMultisample;  /* GFX_EXT_MULTISAMPLE_TEXTURE */
 	GFX_TEXPARAMETERIPROC             TexParameteri;
+	GFX_TEXSUBIMAGE1DPROC             TexSubImage1D;          /* GFX_EXT_TEXTURE1D */
+	GFX_TEXSUBIMAGE2DPROC             TexSubImage2D;
+	GFX_TEXSUBIMAGE3DPROC             TexSubImage3D;
 	GFX_UNMAPBUFFERPROC               UnmapBuffer;
 	GFX_USEPROGRAMPROC                UseProgram;
 	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor;    /* GFX_EXT_INSTANCED_ATTRIBUTES */

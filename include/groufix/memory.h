@@ -241,6 +241,19 @@ typedef enum GFXTextureType
 } GFXTextureType;
 
 
+/** Faces of a cubemap */
+typedef enum GFXTextureFace
+{
+	GFX_FACE_POSITIVE_X,
+	GFX_FACE_NEGATIVE_X,
+	GFX_FACE_POSITIVE_Y,
+	GFX_FACE_NEGATIVE_Y,
+	GFX_FACE_POSITIVE_Z,
+	GFX_FACE_NEGATIVE_Z
+
+} GFXTextureFace;
+
+
 /** Texture format */
 typedef struct GFXTextureFormat
 {
@@ -254,17 +267,18 @@ typedef struct GFXTextureFormat
 /** Pixel transfer parameters */
 typedef struct GFXPixelTransfer
 {
-	GFXTextureFormat  format; /* Format of the client memory */
+	GFXTextureFormat  format;    /* Format of the client memory */
+	unsigned char     alignment; /* Row byte alignment of client memory, can be 1, 2, 4 or 8 */
 
-	unsigned char     mipmap; /* Mipmap index to write to */
-	unsigned char     layer;  /* Layer index to write to */
+	unsigned char     mipmap;    /* Mipmap index to write to/read from */
+	GFXTextureFace    face;      /* Face of the cubemap to write to/read from */
 
 	unsigned int      xOffset;
-	unsigned int      yOffset;
-	unsigned int      zOffset;
+	unsigned int      yOffset;   /* Layer offset for 1D textures */
+	unsigned int      zOffset;   /* Layer offset for 2D textures */
 	size_t            width;
-	size_t            height;
-	size_t            depth;
+	size_t            height;    /* Layer count for 1D textures */
+	size_t            depth;     /* Layer count for 2D textures */
 
 } GFXPixelTransfer;
 
@@ -277,12 +291,10 @@ typedef struct GFXPixelTransfer
 typedef struct GFXTexture
 {
 	GFXTextureType  type;    /* Describes image arrangement and sampling */
+	unsigned char   mipmaps; /* Number of mipmaps (0 for none) */
 	size_t          width;
 	size_t          height;
 	size_t          depth;
-
-	unsigned char   mipmaps; /* Number of mipmaps (0 for none) */
-	unsigned char   layers;  /* Number of extra images, only applicable to 1D or 2D */
 
 } GFXTexture;
 
@@ -290,33 +302,34 @@ typedef struct GFXTexture
 /**
  * Creates a new texture.
  *
- * @param layers  Number of extra images within the texture, acts as an array of images.
  * @param mipmaps Number of mipmaps to allocate, 0 for just the base texture, < 0 to use all mipmap levels.
+ * @param height  If 1D texture, acts as an array of images.
+ * @param depth   If 2D texture, acts as an array of images.
  * @return NULL on failure.
  *
  * Note: layers can only be used for 1D or 2D textures.
  *
  */
-GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers, int mipmaps, size_t width, size_t height, size_t depth);
+GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int mipmaps, size_t width, size_t height, size_t depth);
 
 /**
  * Creates a new multisampled 2D texture.
  *
- * @param layers  Number of extra images within the texture, acts as an array of images.
+ * @param layers Number of images within the texture, acts as an array of images (stored as depth).
  * @return NULL on failure.
  *
- * When rendered to, this texture will be multisampled.
+ * When rendered to, this texture will be multisampled, but you cannot write to this texture.
  * Note: requires GFX_EXT_MULTISAMPLE_TEXTURE.
  *
  */
-GFXTexture* gfx_texture_create_multisample(unsigned char samples, GFXTextureFormat format, unsigned char layers, size_t width, size_t height);
+GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char samples, size_t width, size_t height, size_t layers);
 
 /**
  * Creates a new texture associated with a 1D buffer.
  *
  * @return NULL on failure.
  *
- * This texture will share memory with the buffer, the format cannot be packed.
+ * This texture will share memory with the buffer, the format cannot be packed or interpreted as depth.
  * Note: requires GFX_EXT_BUFFER_TEXTURE.
  *
  */
@@ -333,6 +346,16 @@ void gfx_texture_free(GFXTexture* texture);
  *
  */
 GFXTextureFormat gfx_texture_get_format(GFXTexture* texture);
+
+/**
+ * Writes to the texture synchronously.
+ *
+ * @param data Data to write to the texture, cannot be NULL.
+ *
+ * Note: if the texture is linked to a buffer, the client format must be equal to the texture format.
+ *
+ */
+void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, const void* data);
 
 
 #ifdef __cplusplus

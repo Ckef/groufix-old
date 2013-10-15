@@ -53,12 +53,24 @@ static void _gfx_gles_tex_buffer(GLenum target, GLenum internalFormat, GLuint bu
 }
 
 /******************************************************/
-static void _gfx_gles_tex_image_1d(GLenum target, GLint level, GLint internalFormat, GLsizei w, GLint b, GLenum format, GLenum type, const GLvoid * data)
+static void _gfx_gles_tex_1d_error(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
 		"GFX_EXT_TEXTURE_1D is incompatible with this context."
 	);
+}
+
+/******************************************************/
+static void _gfx_gles_tex_image_1d(GLenum target, GLint level, GLint internalFormat, GLsizei w, GLint b, GLenum format, GLenum type, const GLvoid* data)
+{
+	_gfx_gles_tex_1d_error();
+}
+
+/******************************************************/
+static void _gfx_gles_tex_sub_image_1d(GLenum target, GLint level, GLint xoff, GLsizei w, GLenum format, GLenum type, const GLvoid* data)
+{
+	_gfx_gles_tex_1d_error();
 }
 
 /******************************************************/
@@ -197,6 +209,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderSource          = glGetShaderSource;
 	ext->LinkProgram              = glLinkProgram;
 	ext->MapBufferRange           = glMapBufferRange;
+	ext->PixelStorei              = glPixelStorei;
 	ext->ProgramBinary            = glProgramBinary;
 	ext->ShaderSource             = glShaderSource;
 	ext->TexBuffer                = _gfx_gles_tex_buffer;
@@ -206,6 +219,9 @@ void _gfx_extensions_load(void)
 	ext->TexImage3D               = glTexImage3D;
 	ext->TexImage3DMultisample    = _gfx_gles_tex_image_3d_multisample;
 	ext->TexParameteri            = glTexParameteri;
+	ext->TexSubImage1D            = _gfx_gles_tex_sub_image_1d;
+	ext->TexSubImage2D            = glTexSubImage2D;
+	ext->TexSubImage3D            = glTexSubImage3D;
 	ext->UnmapBuffer              = glUnmapBuffer;
 	ext->UseProgram               = glUseProgram;
 	ext->VertexAttribDivisor      = glVertexAttribDivisor;
@@ -267,6 +283,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderSource          = (PFNGLGETSHADERSOURCEPROC)          _gfx_platform_get_proc_address("glGetShaderSource");
 	ext->LinkProgram              = (PFNGLLINKPROGRAMPROC)              _gfx_platform_get_proc_address("glLinkProgram");
 	ext->MapBufferRange           = (PFNGLMAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
+	ext->PixelStorei              = (PFNGLPIXELSTOREIPROC)              glPixelStorei;
 	ext->ShaderSource             = (PFNGLSHADERSOURCEPROC)             _gfx_platform_get_proc_address("glShaderSource");
 	ext->TexBuffer                = (PFNGLTEXBUFFERPROC)                _gfx_platform_get_proc_address("glTexBuffer");
 	ext->TexImage1D               = (PFNGLTEXIMAGE1DPROC)               glTexImage1D;
@@ -275,6 +292,9 @@ void _gfx_extensions_load(void)
 	ext->TexImage3D               = (PFNGLTEXIMAGE3DPROC)               _gfx_platform_get_proc_address("glTexImage3D");
 	ext->TexImage3DMultisample    = (PFNGLTEXIMAGE3DMULTISAMPLEPROC)    _gfx_platform_get_proc_address("glTexImage3DMultisample");
 	ext->TexParameteri            = (PFNGLTEXPARAMETERIPROC)            glTexParameteri;
+	ext->TexSubImage1D            = (PFNGLTEXSUBIMAGE1DPROC)            glTexSubImage1D;
+	ext->TexSubImage2D            = (PFNGLTEXSUBIMAGE2DPROC)            glTexSubImage2D;
+	ext->TexSubImage3D            = (PFNGLTEXSUBIMAGE3DPROC)            _gfx_platform_get_proc_address("glTexSubImage3D");
 	ext->UnmapBuffer              = (PFNGLUNMAPBUFFERPROC)              _gfx_platform_get_proc_address("glUnmapBuffer");
 	ext->UseProgram               = (PFNGLUSEPROGRAMPROC)               _gfx_platform_get_proc_address("glUseProgram");
 	ext->VertexAttribIPointer     = (PFNGLVERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");
