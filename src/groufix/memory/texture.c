@@ -204,7 +204,7 @@ GLuint _gfx_texture_get_handle(const GFXTexture* texture)
 }
 
 /******************************************************/
-GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers, unsigned char mips, size_t width, size_t height, size_t depth)
+GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, unsigned char layers, int mipmaps, size_t width, size_t height, size_t depth)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -246,10 +246,10 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, uns
 
 	/* Limit mipmaps */
 	unsigned char maxMips = _gfx_texture_get_num_mipmaps(width, height, depth);
-	mips = maxMips > mips ? maxMips : mips;
+	mipmaps = mipmaps < 0 ? maxMips : (maxMips > mipmaps ? maxMips : mipmaps);
 
 	tex->texture.type    = type;
-	tex->texture.mipmaps = mips;
+	tex->texture.mipmaps = mipmaps;
 	tex->texture.layers  = layers;
 	tex->texture.width   = width;
 	tex->texture.height  = height;
@@ -258,14 +258,14 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, uns
 	/* Allocate texture */
 	window->extensions.BindTexture(tex->target, tex->handle);
 	window->extensions.TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
-	window->extensions.TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mips);
+	window->extensions.TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
 
 	GLint pixForm = _gfx_texture_format_to_pixel_format(format);
 	GLenum pixType = _gfx_is_data_type_packed(format.type) ? format.type.packed : format.type.unpacked;
 
 	/* Iterate through mipmaps */
 	unsigned char m;
-	for(m = 0; m <= mips; ++m)
+	for(m = 0; m <= mipmaps; ++m)
 	{
 		size_t w = width;
 		size_t h = height;
