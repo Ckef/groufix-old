@@ -162,6 +162,7 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]       = 0;
 	ext->flags[GFX_EXT_GEOMETRY_SHADER]      = 0;
 	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
+	ext->flags[GFX_EXT_LAYERED_CUBEMAP]      = 0;
 	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE]  = 0;
 	ext->flags[GFX_EXT_PROGRAM_BINARY]       = 1;
 	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]     = 0;
@@ -315,6 +316,16 @@ void _gfx_extensions_load(void)
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_gl_vertex_attrib_divisor;
+	}
+
+	/* GFX_EXT_LAYERED_CUBEMAP */
+	if(major > 4 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_texture_cube_map_array"))
+	{
+		ext->flags[GFX_EXT_LAYERED_CUBEMAP] = 1;
+	}
+	else
+	{
+		ext->flags[GFX_EXT_LAYERED_CUBEMAP] = 0;
 	}
 
 	/* GFX_EXT_PROGRAM_BINARY */

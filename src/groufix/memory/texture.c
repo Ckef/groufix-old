@@ -32,6 +32,7 @@
 	#define GL_TEXTURE_2D_MULTISAMPLE        0x9100
 	#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY  0x9102
 	#define GL_TEXTURE_BUFFER                0x8c2a
+	#define GL_TEXTURE_CUBE_MAP_ARRAY        0x9009
 
 #endif
 
@@ -118,6 +119,19 @@ static int _gfx_texture_eval_target(GLenum target, const GFX_Extensions* ext)
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
 					"GFX_EXT_MULTISAMPLE_TEXTURE is incompatible with this context."
+				);
+				return 0;
+			}
+			return 1;
+
+		/* GFX_EXT_LAYERED_CUBEMAP */
+		case GL_TEXTURE_CUBE_MAP_ARRAY :
+
+			if(!ext->flags[GFX_EXT_LAYERED_CUBEMAP])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"GFX_EXT_LAYERED_CUBEMAP is incompatible with this context."
 				);
 				return 0;
 			}
@@ -236,8 +250,7 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int
 
 		case GFX_CUBEMAP :
 			d = 1;
-			depth = 1;
-			target = GL_TEXTURE_CUBE_MAP;
+			target = (depth > 1) ? GL_TEXTURE_CUBE_MAP_ARRAY : GL_TEXTURE_CUBE_MAP;
 			break;
 
 		/* ??? */
@@ -305,6 +318,10 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int
 				window->extensions.TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, m, tex->format, mw, mh, 0, pixForm, pixType, NULL);
 				window->extensions.TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, m, tex->format, mw, mh, 0, pixForm, pixType, NULL);
 				window->extensions.TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, m, tex->format, mw, mh, 0, pixForm, pixType, NULL);
+				break;
+
+			case GL_TEXTURE_CUBE_MAP_ARRAY :
+				window->extensions.TexImage3D(tex->target, m, tex->format, mw, mh, depth * 6, 0, pixForm, pixType, NULL);
 				break;
 		}
 	}
@@ -463,6 +480,22 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 				);
 				break;
 
+			case GL_TEXTURE_2D_ARRAY :
+			case GL_TEXTURE_3D :
+				window->extensions.TexSubImage3D(internal->target,
+					transfer->mipmap,
+					transfer->xOffset,
+					transfer->yOffset,
+					transfer->zOffset,
+					transfer->width,
+					transfer->height,
+					transfer->depth,
+					pixForm,
+					pixType,
+					data
+				);
+				break;
+
 			case GL_TEXTURE_CUBE_MAP :
 				window->extensions.TexSubImage2D(transfer->face + GL_TEXTURE_CUBE_MAP_POSITIVE_X,
 					transfer->mipmap,
@@ -476,13 +509,12 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 				);
 				break;
 
-			case GL_TEXTURE_2D_ARRAY :
-			case GL_TEXTURE_3D :
+			case GL_TEXTURE_CUBE_MAP_ARRAY :
 				window->extensions.TexSubImage3D(internal->target,
 					transfer->mipmap,
 					transfer->xOffset,
 					transfer->yOffset,
-					transfer->zOffset,
+					(transfer->face * texture->depth) + transfer->zOffset,
 					transfer->width,
 					transfer->height,
 					transfer->depth,

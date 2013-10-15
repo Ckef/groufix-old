@@ -307,7 +307,7 @@ typedef struct GFXTexture
  * @param depth   If 2D texture, acts as an array of images.
  * @return NULL on failure.
  *
- * Note: layers can only be used for 1D or 2D textures.
+ * Note: layers can only be used for 1D or 2D textures, or cubemaps if GFX_EXT_LAYERED_CUBEMAP.
  *
  */
 GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int mipmaps, size_t width, size_t height, size_t depth);
