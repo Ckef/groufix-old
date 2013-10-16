@@ -198,6 +198,7 @@ void _gfx_extensions_load(void)
 	ext->EnableVertexAttribArray  = glEnableVertexAttribArray;
 	ext->FenceSync                = glFenceSync;
 	ext->GenBuffers               = glGenBuffers;
+	ext->GenerateMipmap           = glGenerateMipmap;
 	ext->GenTextures              = glGenTextures;
 	ext->GenVertexArrays          = glGenVertexArrays;
 	ext->GetBufferSubData         = _gfx_gles_get_buffer_sub_data;
@@ -274,6 +275,7 @@ void _gfx_extensions_load(void)
 	ext->EnableVertexAttribArray  = (PFNGLENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArray");
 	ext->FenceSync                = (PFNGLFENCESYNCPROC)                _gfx_platform_get_proc_address("glFenceSync");
 	ext->GenBuffers               = (PFNGLGENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
+	ext->GenerateMipmap           = (PFNGLGENERATEMIPMAPPROC)           _gfx_platform_get_proc_address("glGenerateMipmap");
 	ext->GenTextures              = (PFNGLGENTEXTURESPROC)              glGenTextures;
 	ext->GenVertexArrays          = (PFNGLGENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
 	ext->GetBufferSubData         = (PFNGLGETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");

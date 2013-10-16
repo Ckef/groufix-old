@@ -368,6 +368,15 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
  */
 void gfx_texture_write_from_buffer(GFXTexture* texture, const GFXPixelTransfer* transfer, const GFXBuffer* buffer, size_t offset);
 
+/**
+ * Auto generates all mipmap levels.
+ *
+ * Note: the base mipmap level (level 0) is assumed to contain correct data.
+ * All other mipmap levels will be overridden.
+ *
+ */
+void gfx_texture_generate_mipmaps(GFXTexture* texture);
+
 
 #ifdef __cplusplus
 }

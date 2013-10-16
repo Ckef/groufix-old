@@ -555,3 +555,16 @@ void gfx_texture_write_from_buffer(GFXTexture* texture, const GFXPixelTransfer* 
 		window->extensions.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	}
 }
+
+/******************************************************/
+void gfx_texture_generate_mipmaps(GFXTexture* texture)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return;
+
+	struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)texture;
+
+	window->extensions.BindTexture(internal->target, internal->handle);
+	window->extensions.GenerateMipmap(internal->target);
+}

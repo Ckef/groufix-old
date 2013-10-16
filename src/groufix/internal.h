@@ -80,6 +80,7 @@ typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLen
 typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef GLsync (APIENTRYP GFX_FENCESYNCPROC)              (GLenum, GLbitfield);
 typedef void (APIENTRYP GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_GENERATEMIPMAPPROC)           (GLenum);
 typedef void (APIENTRYP GFX_GENTEXTURESPROC)              (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
@@ -151,6 +152,7 @@ typedef struct GFX_Extensions
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
 	GFX_FENCESYNCPROC                 FenceSync;
 	GFX_GENBUFFERSPROC                GenBuffers;
+	GFX_GENERATEMIPMAPPROC            GenerateMipmap;
 	GFX_GENTEXTURESPROC               GenTextures;
 	GFX_GENVERTEXARRAYSPROC           GenVertexArrays;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
