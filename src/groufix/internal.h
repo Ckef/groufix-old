@@ -62,6 +62,7 @@ typedef void (APIENTRYP GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, c
 typedef void (APIENTRYP GFX_BUFFERSUBDATAPROC)            (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
 typedef GLenum (APIENTRYP GFX_CLIENTWAITSYNCPROC)         (GLsync, GLbitfield, GLuint64);
 typedef void (APIENTRYP GFX_COMPILESHADERPROC)            (GLuint);
+typedef void (APIENTRYP GFX_COPYBUFFERSUBDATAPROC)        (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr);
 typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)          (void);
 typedef GLuint (APIENTRYP GFX_CREATESHADERPROC)           (GLenum);
 typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint*);
@@ -132,6 +133,7 @@ typedef struct GFX_Extensions
 	GFX_BUFFERSUBDATAPROC             BufferSubData;
 	GFX_CLIENTWAITSYNCPROC            ClientWaitSync;
 	GFX_COMPILESHADERPROC             CompileShader;
+	GFX_COPYBUFFERSUBDATAPROC         CopyBufferSubData;
 	GFX_CREATEPROGRAMPROC             CreateProgram;
 	GFX_CREATESHADERPROC              CreateShader;
 	GFX_DELETEBUFFERSPROC             DeleteBuffers;

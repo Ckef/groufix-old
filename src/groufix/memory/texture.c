@@ -436,7 +436,7 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 
 	if(internal->buffer)
 	{
-		/* Write indirectly to a buffer */
+		/* Write indirectly to the linked buffer */
 		size_t size = transfer->format.components * _gfx_sizeof_data_type(transfer->format.type);
 
 		window->extensions.BindBuffer(GL_ARRAY_BUFFER, internal->buffer);
@@ -524,5 +524,34 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 				);
 				break;
 		}
+	}
+}
+
+/******************************************************/
+void gfx_texture_write_from_buffer(GFXTexture* texture, const GFXPixelTransfer* transfer, const GFXBuffer* buffer, size_t offset)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return;
+
+	struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)texture;
+
+	if(internal->buffer)
+	{
+		/* Copy the buffer data to the linked buffer */
+		window->extensions.BindBuffer(GL_COPY_READ_BUFFER, _gfx_buffer_get_handle(buffer));
+		window->extensions.BindBuffer(GL_COPY_WRITE_BUFFER, internal->buffer);
+
+		size_t size = transfer->format.components * _gfx_sizeof_data_type(transfer->format.type);
+		window->extensions.CopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, offset, transfer->xOffset * size, transfer->width * size);
+	}
+	else
+	{
+		/* Bind buffer as unpack pixel buffer before performing the copy */
+		window->extensions.BindBuffer(GL_PIXEL_UNPACK_BUFFER, _gfx_buffer_get_handle(buffer));
+		gfx_texture_write(texture, transfer, UINT_TO_VOID(offset));
+
+		/* Also unbind for future transfers */
+		window->extensions.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	}
 }

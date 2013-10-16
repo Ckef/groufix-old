@@ -344,6 +344,8 @@ void gfx_texture_free(GFXTexture* texture);
 /**
  * Returns the internal format of the texture.
  *
+ * Note: this might differ from a previously given format if it contained a packed type.
+ *
  */
 GFXTextureFormat gfx_texture_get_format(GFXTexture* texture);
 
@@ -356,6 +358,15 @@ GFXTextureFormat gfx_texture_get_format(GFXTexture* texture);
  *
  */
 void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, const void* data);
+
+/**
+ * Writes to the texture from a buffer.
+ *
+ * This method is asynchronous, it performs a DMA transfer.
+ * Note: if the texture is linked to a buffer, the client format must be equal to the texture format.
+ *
+ */
+void gfx_texture_write_from_buffer(GFXTexture* texture, const GFXPixelTransfer* transfer, const GFXBuffer* buffer, size_t offset);
 
 
 #ifdef __cplusplus

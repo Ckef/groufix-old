@@ -104,7 +104,7 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout);
  * Sets an attribute of a vertex layout.
  *
  * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
- * @param buffer Buffer to read this attribute from (cannot be NULL).
+ * @param buffer Buffer to read this attribute from (cannot be NULL), a multi buffer swap will have no effect on the attribute.
  * @return Zero on failure.
  *
  * The attribute's type can be unpacked or (UNSIGNED_)INT_10_10_10_2 if GFX_EXT_PACKED_ATTRIBUTES is supported.
@@ -134,6 +134,8 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
  *
  * @param buffer Index buffer associated with indexed drawing, can be NULL.
  * @return index of the draw call (0 on failure).
+ *
+ * A multi buffer swap will be properly updated as index buffer, unlike the vertex buffer used for attributes.
  *
  */
 unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall* call, const GFXBuffer* buffer);

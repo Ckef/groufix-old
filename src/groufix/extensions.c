@@ -180,6 +180,7 @@ void _gfx_extensions_load(void)
 	ext->BufferSubData            = glBufferSubData;
 	ext->ClientWaitSync           = glClientWaitSync;
 	ext->CompileShader            = glCompileShader;
+	ext->CopyBufferSubData        = glCopyBufferSubData;
 	ext->CreateProgram            = glCreateProgram;
 	ext->CreateShader             = glCreateShader;
 	ext->DeleteBuffers            = glDeleteBuffers;
@@ -255,6 +256,7 @@ void _gfx_extensions_load(void)
 	ext->BufferSubData            = (PFNGLBUFFERSUBDATAPROC)            _gfx_platform_get_proc_address("glBufferSubData");
 	ext->ClientWaitSync           = (PFNGLCLIENTWAITSYNCPROC)           _gfx_platform_get_proc_address("glClientWaitSync");
 	ext->CompileShader            = (PFNGLCOMPILESHADERPROC)            _gfx_platform_get_proc_address("glCompileShader");
+	ext->CopyBufferSubData        = (PFNGLCOPYBUFFERSUBDATAPROC)        _gfx_platform_get_proc_address("glCopyBufferSubData");
 	ext->CreateProgram            = (PFNGLCREATEPROGRAMPROC)            _gfx_platform_get_proc_address("glCreateProgram");
 	ext->CreateShader             = (PFNGLCREATESHADERPROC)             _gfx_platform_get_proc_address("glCreateShader");
 	ext->DeleteBuffers            = (PFNGLDELETEBUFFERSPROC)            _gfx_platform_get_proc_address("glDeleteBuffers");
