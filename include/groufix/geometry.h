@@ -52,10 +52,11 @@ typedef enum GFXPrimitive
 typedef struct GFXDrawCall
 {
 	GFXPrimitive     primitive;
-	GFXUnpackedType  indexType; /* Can only be an unsigned type */
-
 	uintptr_t        first;     /* First index (regular) or byte offset (indexed) */
 	size_t           count;     /* Number of vertices to draw */
+
+	GFXUnpackedType  indexType; /* Can only be an unsigned type */
+	GFXBuffer*       buffer;    /* Index buffer */
 
 } GFXDrawCall;
 
@@ -132,23 +133,22 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
 /**
  * Adds a draw call to the vertex layout.
  *
- * @param buffer Index buffer associated with indexed drawing, can be NULL.
  * @return index of the draw call (0 on failure).
  *
  * A multi buffer swap will be properly updated as index buffer, unlike the vertex buffer used for attributes.
+ * The index buffer can be NULL if never used.
  *
  */
-unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall* call, const GFXBuffer* buffer);
+unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall* call);
 
 /**
  * Changes a draw call of the vertex layout.
  *
  * @param index  Index of the draw call.
- * @param buffer Index buffer associated with indexed drawing, can be NULL.
  * @return Non-zero if the draw call could be changed.
  *
  */
-int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call, const GFXBuffer* buffer);
+int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call);
 
 /**
  * Retrieves a draw call from the vertex layout.

@@ -55,7 +55,7 @@ int main()
 
 	GFXVertexLayout* layout = gfx_vertex_layout_create();
 	gfx_vertex_layout_set_attribute(layout, 0, &attr, buffer);
-	unsigned short index = gfx_vertex_layout_push(layout, &call, NULL);
+	unsigned short index = gfx_vertex_layout_push(layout, &call);
 
 
 	/* Setup a loop */

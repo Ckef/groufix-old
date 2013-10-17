@@ -39,12 +39,7 @@ typedef uint64_t GFXBatchState;
 
 
 /** Unit to batch */
-typedef struct GFXBatchUnit
-{
-	GFXList  node;
-	void*    data;
-
-} GFXBatchUnit;
+typedef GFXList GFXBatchUnit;
 
 
 /********************************************************
@@ -67,12 +62,13 @@ typedef struct GFXBucket
 /**
  * Creates a new bucket.
  *
- * @param bits Number of bits to consider when sorting (LSB = 1st bit).
- * @param process Cannot be NULL.
+ * @param bits       Number of bits to consider when sorting (LSB = 1st bit).
+ * @param process    Cannot be NULL.
+ * @param preprocess CAN be NULL.
  * @return NULL on failure.
  *
  */
-GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process);
+GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process, GFXBatchProcessFunc preprocess);
 
 /**
  * Makes sure the bucket is freed properly.
@@ -83,14 +79,14 @@ void gfx_bucket_free(GFXBucket* bucket);
 /**
  * Insert a unit to be processed into the bucket.
  *
- * @param data  Arbitrary data to attach.
- * @param state State to associate this unit with.
+ * @param state    State to associate this unit with.
+ * @param dataSize Size of extra data to attach.
  * @return The inserted unit, NULL on failure.
  *
  * Note: this forces the bucket to have to preprocess.
  *
  */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, void* data, GFXBatchState state);
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize);
 
 /**
  * Returns the state associated with a unit.
@@ -105,6 +101,12 @@ GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
  *
  */
 void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
+
+/**
+ * Returns a pointer to the data with previously requested size.
+ *
+ */
+void* gfx_bucket_get_data(GFXBatchUnit* unit);
 
 /**
  * Erases and frees a unit from its bucket.
