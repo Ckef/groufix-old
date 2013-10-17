@@ -62,7 +62,7 @@ typedef struct GFXBucket
 /**
  * Creates a new bucket.
  *
- * @param bits       Number of bits to consider when sorting (LSB = 1st bit).
+ * @param bits       Number of bits to consider when sorting (LSB = 1st bit, 0 for all bits).
  * @param process    Cannot be NULL.
  * @param preprocess CAN be NULL.
  * @return NULL on failure.

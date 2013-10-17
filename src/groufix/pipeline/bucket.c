@@ -39,7 +39,7 @@ struct GFX_Internal_Bucket
 	GFXBucket bucket;
 
 	/* Hidden data */
-	GFXBatchState  maxBit;  /* Single bit */
+	unsigned char  bit;     /* Index of the max bit to sort by */
 	unsigned char  sort;
 
 	GFXBatchUnit*  first;   /* Begin of units */
@@ -144,19 +144,16 @@ static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXB
 /******************************************************/
 GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process, GFXBatchProcessFunc preprocess)
 {
-	if(!bits) return NULL;
-
 	/* Allocate bucket */
 	struct GFX_Internal_Bucket* bucket = calloc(1, sizeof(struct GFX_Internal_Bucket));
 	if(!bucket) return NULL;
 
 	gfx_vector_init(&bucket->batches, sizeof(struct GFX_Unit_Pair));
+
+	/* Init bucket */
+	bucket->bit = (bits ? bits : sizeof(GFXBatchState) * 8) - 1;
 	bucket->bucket.process = process;
 	bucket->bucket.preprocess = preprocess;
-
-	/* Calculate max bit */
-	bucket->maxBit = 1;
-	while(--bits) bucket->maxBit <<= 1;
 
 	return (GFXBucket*)bucket;
 }
@@ -258,7 +255,7 @@ void gfx_bucket_preprocess(GFXBucket* bucket)
 	if(internal->first && internal->sort)
 	{
 		gfx_vector_clear(&internal->batches);
-		_gfx_bucket_radix_sort(internal->maxBit, &internal->first, &internal->last, internal);
+		_gfx_bucket_radix_sort(1 << internal->bit, &internal->first, &internal->last, internal);
 
 		internal->sort = 0;
 	}
