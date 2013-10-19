@@ -53,8 +53,7 @@ typedef void (*GFXBatchProcessFunc)(GFXBatchState, GFXBatchUnit*, GFXBatchUnit*)
 /** Bucket to manage batches */
 typedef struct GFXBucket
 {
-	GFXBatchProcessFunc  preprocess; /* Process to apply when a batch changes */
-	GFXBatchProcessFunc  process;    /* Process to apply when iterating, cannot be NULL */
+	GFXBatchProcessFunc process;
 
 } GFXBucket;
 
@@ -62,13 +61,12 @@ typedef struct GFXBucket
 /**
  * Creates a new bucket.
  *
- * @param bits       Number of bits to consider when sorting (LSB = 1st bit, 0 for all bits).
- * @param process    Cannot be NULL.
- * @param preprocess CAN be NULL.
+ * @param bits    Number of bits to consider when sorting (LSB = 1st bit, 0 for all bits).
+ * @param process Function to process batches with, cannot be NULL.
  * @return NULL on failure.
  *
  */
-GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process, GFXBatchProcessFunc preprocess);
+GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process);
 
 /**
  * Makes sure the bucket is freed properly.
@@ -117,7 +115,7 @@ void* gfx_bucket_get_data(GFXBatchUnit* unit);
 void gfx_bucket_erase(GFXBatchUnit* unit);
 
 /**
- * Preprocesses the bucket if necessary, calling all batch preprocesses.
+ * Preprocesses the bucket if necessary.
  *
  * Note: will do nothing if not resorted.
  *
