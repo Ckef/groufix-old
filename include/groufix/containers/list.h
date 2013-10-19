@@ -131,6 +131,16 @@ GFXList* gfx_list_erase(GFXList* node);
 GFXList* gfx_list_erase_at(GFXList* list, size_t index);
 
 /**
+ * Erases a range of nodes.
+ *
+ * @return The node of the element taking its place (can be NULL).
+ *
+ * If no node takes its place, it will try to return the previous node instead.
+ *
+ */
+GFXList* gfx_list_erase_range(GFXList* first, GFXList* last);
+
+/**
  * Moves an element after a given node.
  *
  * @param node Node to splice.
@@ -147,6 +157,39 @@ void gfx_list_splice_after(GFXList* node, GFXList* pos);
  *
  */
 void gfx_list_splice_before(GFXList* node, GFXList* pos);
+
+/**
+ * Inserts a range of elements after a given node.
+ *
+ * @param first The first node of the range.
+ * @param last  The last node of the range.
+ *
+ * Note: if node is within the range, behaviour is undefined.
+ *
+ */
+void gfx_list_splice_range_after(GFXList* node, GFXList* first, GFXList* last);
+
+/**
+ * Inserts a range of elements before a given node.
+ *
+ * @param first The first node of the range.
+ * @param last  The last node of the range.
+ *
+ * Note: if node is within the range, behaviour is undefined.
+ *
+ */
+void gfx_list_splice_range_before(GFXList* node, GFXList* first, GFXList* last);
+
+/**
+ * Unlinks a range of elements, effectively creating two seperate lists.
+ *
+ * @param first The first node of the range.
+ * @param last  The last node of the range.
+ *
+ * The two nodes can be equal to each other.
+ *
+ */
+void gfx_list_unsplice(GFXList* first, GFXList* last);
 
 
 #ifdef __cplusplus

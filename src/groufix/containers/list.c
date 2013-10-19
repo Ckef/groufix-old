@@ -172,6 +172,34 @@ GFXList* gfx_list_erase_at(GFXList* list, size_t index)
 }
 
 /******************************************************/
+GFXList* gfx_list_erase_range(GFXList* first, GFXList* last)
+{
+	GFXList* new = NULL;
+
+	/* Set next element */
+	if(first->previous)
+	{
+		first->previous->next = last->next;
+		new = first->previous;
+	}
+
+	/* Set previous element */
+	if(last->next)
+	{
+		last->next->previous = first->previous;
+		new = last->next;
+	}
+
+	/* Unlink range */
+	first->previous = NULL;
+	last->next = NULL;
+
+	gfx_list_free(first);
+
+	return new;
+}
+
+/******************************************************/
 void gfx_list_splice_after(GFXList* node, GFXList* pos)
 {
 	if(node != pos)
@@ -209,4 +237,52 @@ void gfx_list_splice_before(GFXList* node, GFXList* pos)
 		/* Set the previous element */
 		pos->previous = node;
 	}
+}
+
+/******************************************************/
+void gfx_list_splice_range_after(GFXList* node, GFXList* first, GFXList* last)
+{
+	/* Close the gap of the range */
+	if(first->previous) first->previous->next = last->next;
+	if(last->next) last->next->previous = first->previous;
+
+	/* Link in the range */
+	first->previous = node;
+	last->next = node->next;
+
+	/* Set the previous element */
+	if(node->next) node->next->previous = last;
+
+	/* Set the next element */
+	node->next = first;
+}
+
+/******************************************************/
+void gfx_list_splice_range_before(GFXList* node, GFXList* first, GFXList* last)
+{
+	/* Close the gap of the range */
+	if(first->previous) first->previous->next = last->next;
+	if(last->next) last->next->previous = first->previous;
+
+	/* Link in the range */
+	first->previous = node->previous;
+	last->next = node;
+
+	/* Set the next element */
+	if(node->previous) node->previous->next = first;
+
+	/* Set the previous element */
+	node->previous = last;
+}
+
+/******************************************************/
+void gfx_list_unsplice(GFXList* first, GFXList* last)
+{
+	/* Close the gap of the range */
+	if(first->previous) first->previous->next = last->next;
+	if(last->next) last->next->previous = first->previous;
+
+	/* Unlink range */
+	first->previous = NULL;
+	last->next = NULL;
 }

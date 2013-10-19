@@ -50,7 +50,7 @@ typedef GFXList GFXBatchUnit;
 typedef void (*GFXBatchProcessFunc)(GFXBatchState, GFXBatchUnit*, GFXBatchUnit*);
 
 
-/** Bucket to mange batches */
+/** Bucket to manage batches */
 typedef struct GFXBucket
 {
 	GFXBatchProcessFunc  preprocess; /* Process to apply when a batch changes */
