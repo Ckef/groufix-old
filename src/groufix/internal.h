@@ -23,6 +23,7 @@
 #define GFX_INTERNAL_H
 
 #include "groufix/geometry.h"
+#include "groufix/pipeline.h"
 #include "groufix/shading.h"
 #include "groufix/platform.h"
 
@@ -66,6 +67,7 @@ typedef void (APIENTRYP GFX_COPYBUFFERSUBDATAPROC)        (GLenum, GLenum, GLint
 typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)          (void);
 typedef GLuint (APIENTRYP GFX_CREATESHADERPROC)           (GLenum);
 typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_DELETEFRAMEBUFFERSPROC)       (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEPROGRAMPROC)            (GLuint);
 typedef void (APIENTRYP GFX_DELETESHADERPROC)             (GLuint);
 typedef void (APIENTRYP GFX_DELETESYNCPROC)               (GLsync);
@@ -81,6 +83,7 @@ typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef GLsync (APIENTRYP GFX_FENCESYNCPROC)              (GLenum, GLbitfield);
 typedef void (APIENTRYP GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENERATEMIPMAPPROC)           (GLenum);
+typedef void (APIENTRYP GFX_GENFRAMEBUFFERSPROC)          (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENTEXTURESPROC)              (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
@@ -138,6 +141,7 @@ typedef struct GFX_Extensions
 	GFX_CREATEPROGRAMPROC             CreateProgram;
 	GFX_CREATESHADERPROC              CreateShader;
 	GFX_DELETEBUFFERSPROC             DeleteBuffers;
+	GFX_DELETEFRAMEBUFFERSPROC        DeleteFramebuffers;
 	GFX_DELETEPROGRAMPROC             DeleteProgram;
 	GFX_DELETESHADERPROC              DeleteShader;
 	GFX_DELETESYNCPROC                DeleteSync;
@@ -153,6 +157,7 @@ typedef struct GFX_Extensions
 	GFX_FENCESYNCPROC                 FenceSync;
 	GFX_GENBUFFERSPROC                GenBuffers;
 	GFX_GENERATEMIPMAPPROC            GenerateMipmap;
+	GFX_GENFRAMEBUFFERSPROC           GenFramebuffers;
 	GFX_GENTEXTURESPROC               GenTextures;
 	GFX_GENVERTEXARRAYSPROC           GenVertexArrays;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
@@ -367,6 +372,24 @@ void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
 GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer);
 
 /**
+ * Returns the handle of the framebuffer associated with a pipeline.
+ *
+ */
+GLuint _gfx_pipeline_get_handle(const GFXPipeline* pipeline);
+
+/**
+ * Returns the handle of a program.
+ *
+ */
+GLuint _gfx_program_get_handle(const GFXProgram* program);
+
+/**
+ * Returns the handle of a shader.
+ *
+ */
+GLuint _gfx_shader_get_handle(const GFXShader* shader);
+
+/**
  * Returns the handle of a texture.
  *
  */
@@ -377,18 +400,6 @@ GLuint _gfx_texture_get_handle(const GFXTexture* texture);
  *
  */
 GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout);
-
-/**
- * Returns the handle of a shader.
- *
- */
-GLuint _gfx_shader_get_handle(const GFXShader* shader);
-
-/**
- * Returns the handle of a program.
- *
- */
-GLuint _gfx_program_get_handle(const GFXProgram* program);
 
 
 #ifdef __cplusplus

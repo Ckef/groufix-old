@@ -78,19 +78,19 @@ void gfx_bucket_free(GFXBucket* bucket);
  * Insert a unit to be processed into the bucket.
  *
  * @param state    State to associate this unit with.
- * @param dataSize Size of extra data to attach.
+ * @param dataSize Size of extra data to copy and attach.
  * @return The inserted unit, NULL on failure.
  *
  * Note: this forces the bucket to have to preprocess.
  *
  */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize);
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize, const void* data);
 
 /**
  * Returns the state associated with a unit.
  *
  */
-GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
+GFXBatchState gfx_bucket_get_state(const GFXBatchUnit* unit);
 
 /**
  * Sets the state to associate a unit with.
@@ -101,10 +101,10 @@ GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
 void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
 
 /**
- * Returns a pointer to the data with previously requested size.
+ * Returns a pointer to the data with previously requested uploaded data.
  *
  */
-void* gfx_bucket_get_data(GFXBatchUnit* unit);
+const void* gfx_bucket_get_data(const GFXBatchUnit* unit);
 
 /**
  * Erases and frees a unit from its bucket.
@@ -115,18 +115,37 @@ void* gfx_bucket_get_data(GFXBatchUnit* unit);
 void gfx_bucket_erase(GFXBatchUnit* unit);
 
 /**
- * Preprocesses the bucket if necessary.
- *
- * Note: will do nothing if not resorted.
- *
- */
-void gfx_bucket_preprocess(GFXBucket* bucket);
-
-/**
  * Processes the bucket, calling all batch processes.
  *
  */
 void gfx_bucket_process(GFXBucket* bucket);
+
+
+/********************************************************
+ * Pipelines (execute arbitrary processes in order)
+ *******************************************************/
+
+/** Pipeline */
+typedef struct GFXPipeline
+{
+	size_t id; /* Hardware Object ID */
+
+} GFXPipeline;
+
+
+/**
+ * Creates a new pipeline.
+ *
+ * @return NULL on failure.
+ *
+ */
+GFXPipeline* gfx_pipeline_create(void);
+
+/**
+ * Makes sure the pipeline is freed properly.
+ *
+ */
+void gfx_pipeline_free(GFXPipeline* pipeline);
 
 
 #ifdef __cplusplus

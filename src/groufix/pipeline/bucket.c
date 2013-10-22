@@ -23,6 +23,7 @@
 #include "groufix/containers/vector.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
 /* Batch pair */
@@ -133,7 +134,7 @@ void gfx_bucket_free(GFXBucket* bucket)
 }
 
 /******************************************************/
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize)
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize, const void* data)
 {
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 	size_t size = sizeof(struct GFX_Internal_Unit) + dataSize;
@@ -141,6 +142,8 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t d
 	/* Create unit */
 	struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)gfx_list_create(size);
 	if(!unit) return NULL;
+
+	memcpy(unit + 1, data, dataSize);
 
 	unit->state = state;
 	unit->bucket = bucket;
@@ -164,7 +167,7 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t d
 }
 
 /******************************************************/
-GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit)
+GFXBatchState gfx_bucket_get_state(const GFXBatchUnit* unit)
 {
 	return ((struct GFX_Internal_Unit*)unit)->state;
 }
@@ -181,9 +184,9 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state)
 }
 
 /******************************************************/
-void* gfx_bucket_get_data(GFXBatchUnit* unit)
+const void* gfx_bucket_get_data(const GFXBatchUnit* unit)
 {
-	return (void*)(((struct GFX_Internal_Unit*)unit) + 1);
+	return ((const struct GFX_Internal_Unit*)unit) + 1;
 }
 
 /******************************************************/
@@ -204,19 +207,13 @@ void gfx_bucket_erase(GFXBatchUnit* unit)
 }
 
 /******************************************************/
-void gfx_bucket_preprocess(GFXBucket* bucket)
+void gfx_bucket_process(GFXBucket* bucket)
 {
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
 	/* Check if sort is needed */
 	if((internal->batches.begin == internal->batches.end) && internal->first)
 		_gfx_bucket_radix_sort(1 << internal->bit, &internal->first, &internal->last, internal);
-}
-
-/******************************************************/
-void gfx_bucket_process(GFXBucket* bucket)
-{
-	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
 	/* Process */
 	GFXVectorIterator it;

@@ -178,10 +178,10 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 {
 	if(layout)
 	{
+		struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(layout->id);
-
-		struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
 		/* Delete VAO */
 		if(internal->ext) internal->ext->DeleteVertexArrays(1, &internal->vao);

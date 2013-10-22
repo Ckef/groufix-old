@@ -184,6 +184,7 @@ void _gfx_extensions_load(void)
 	ext->CreateProgram            = glCreateProgram;
 	ext->CreateShader             = glCreateShader;
 	ext->DeleteBuffers            = glDeleteBuffers;
+	ext->DeleteFramebuffers       = glDeleteFramebuffers;
 	ext->DeleteProgram            = glDeleteProgram;
 	ext->DeleteShader             = glDeleteShader;
 	ext->DeleteSync               = glDeleteSync;
@@ -199,6 +200,7 @@ void _gfx_extensions_load(void)
 	ext->FenceSync                = glFenceSync;
 	ext->GenBuffers               = glGenBuffers;
 	ext->GenerateMipmap           = glGenerateMipmap;
+	ext->GenFramebuffers          = glGenFramebuffers;
 	ext->GenTextures              = glGenTextures;
 	ext->GenVertexArrays          = glGenVertexArrays;
 	ext->GetBufferSubData         = _gfx_gles_get_buffer_sub_data;
@@ -261,6 +263,7 @@ void _gfx_extensions_load(void)
 	ext->CreateProgram            = (PFNGLCREATEPROGRAMPROC)            _gfx_platform_get_proc_address("glCreateProgram");
 	ext->CreateShader             = (PFNGLCREATESHADERPROC)             _gfx_platform_get_proc_address("glCreateShader");
 	ext->DeleteBuffers            = (PFNGLDELETEBUFFERSPROC)            _gfx_platform_get_proc_address("glDeleteBuffers");
+	ext->DeleteFramebuffers       = (PFNGLDELETEFRAMEBUFFERSPROC)       _gfx_platform_get_proc_address("glDeleteFramebuffers");
 	ext->DeleteProgram            = (PFNGLDELETEPROGRAMPROC)            _gfx_platform_get_proc_address("glDeleteProgram");
 	ext->DeleteShader             = (PFNGLDELETESHADERPROC)             _gfx_platform_get_proc_address("glDeleteShader");
 	ext->DeleteSync               = (PFNGLDELETESYNCPROC)               _gfx_platform_get_proc_address("glDeleteSync");
@@ -276,6 +279,7 @@ void _gfx_extensions_load(void)
 	ext->FenceSync                = (PFNGLFENCESYNCPROC)                _gfx_platform_get_proc_address("glFenceSync");
 	ext->GenBuffers               = (PFNGLGENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
 	ext->GenerateMipmap           = (PFNGLGENERATEMIPMAPPROC)           _gfx_platform_get_proc_address("glGenerateMipmap");
+	ext->GenFramebuffers          = (PFNGLGENFRAMEBUFFERSPROC)          _gfx_platform_get_proc_address("glGenFramebuffers");
 	ext->GenTextures              = (PFNGLGENTEXTURESPROC)              glGenTextures;
 	ext->GenVertexArrays          = (PFNGLGENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
 	ext->GetBufferSubData         = (PFNGLGETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");
