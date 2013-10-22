@@ -38,71 +38,6 @@ extern "C" {
 #endif
 
 /********************************************************
- * Hardware Context & Extension handling
- *******************************************************/
-
-/** Hardware Extensions */
-typedef enum GFXExtension
-{
-	GFX_EXT_BUFFER_TEXTURE,
-	GFX_EXT_GEOMETRY_SHADER,
-	GFX_EXT_INSTANCED_ATTRIBUTES,
-	GFX_EXT_LAYERED_CUBEMAP,
-	GFX_EXT_MULTISAMPLE_TEXTURE,
-	GFX_EXT_PROGRAM_BINARY,
-	GFX_EXT_SEAMLESS_CUBEMAP,
-	GFX_EXT_TESSELLATION_SHADER,
-	GFX_EXT_TEXTURE_1D,
-
-	GFX_EXT_COUNT
-
-} GFXExtension;
-
-
-/** Hardware Limits */
-typedef enum GFXLimit
-{
-	GFX_LIM_MAX_ACTIVE_TEXTURES,
-	GFX_LIM_MAX_BUFFER_TEXTURE_SIZE,
-	GFX_LIM_MAX_CUBEMAP_SIZE,
-	GFX_LIM_MAX_SAMPLES,
-	GFX_LIM_MAX_TEXTURE_3D_SIZE,
-	GFX_LIM_MAX_TEXTURE_LAYERS,
-	GFX_LIM_MAX_TEXTURE_SIZE,
-	GFX_LIM_MAX_VERTEX_ATTRIBS,
-
-	GFX_LIM_COUNT
-
-} GFXLimit;
-
-
-/**
- * Returns whether a given extension is supported or not.
- *
- * Note: if no window is created, thus no context exists, this will return 0.
- *
- */
-int gfx_hardware_is_extension_supported(GFXExtension extension);
-
-/**
- * Returns a limit given by the hardware.
- *
- * Note: if no window is created, thus no context exists, this will return -1.
- *
- */
-int gfx_hardware_get_limit(GFXLimit limit);
-
-/**
- * Polls all OpenGL errors at any given time.
- *
- * @param description A description to attach to each error (can be NULL).
- * @return The number of errors encountered.
- * 
- */
-unsigned int gfx_hardware_poll_errors(const char* description);
-
-
-/********************************************************
  * Platform independent key input
  *******************************************************/
 
@@ -267,6 +202,87 @@ typedef enum GFXKeyState
 
 
 /********************************************************
+ * Top level context & extension handling
+ *******************************************************/
+
+/** Hardware Extensions */
+typedef enum GFXExtension
+{
+	GFX_EXT_BUFFER_TEXTURE,
+	GFX_EXT_GEOMETRY_SHADER,
+	GFX_EXT_INSTANCED_ATTRIBUTES,
+	GFX_EXT_LAYERED_CUBEMAP,
+	GFX_EXT_MULTISAMPLE_TEXTURE,
+	GFX_EXT_PROGRAM_BINARY,
+	GFX_EXT_SEAMLESS_CUBEMAP,
+	GFX_EXT_TESSELLATION_SHADER,
+	GFX_EXT_TEXTURE_1D,
+
+	GFX_EXT_COUNT
+
+} GFXExtension;
+
+
+/** Hardware Limits */
+typedef enum GFXLimit
+{
+	GFX_LIM_MAX_ACTIVE_TEXTURES,
+	GFX_LIM_MAX_BUFFER_TEXTURE_SIZE,
+	GFX_LIM_MAX_CUBEMAP_SIZE,
+	GFX_LIM_MAX_SAMPLES,
+	GFX_LIM_MAX_TEXTURE_3D_SIZE,
+	GFX_LIM_MAX_TEXTURE_LAYERS,
+	GFX_LIM_MAX_TEXTURE_SIZE,
+	GFX_LIM_MAX_VERTEX_ATTRIBS,
+
+	GFX_LIM_COUNT
+
+} GFXLimit;
+
+
+/* OpenGL Context */
+typedef struct GFXContext
+{
+	int major;
+	int minor;
+
+} GFXContext;
+
+
+/**
+ * Returns whether a given extension is supported or not.
+ *
+ * Note: if no window is created, thus no context exists, this will return 0.
+ *
+ */
+int gfx_hardware_is_extension_supported(GFXExtension extension);
+
+/**
+ * Returns a limit given by the hardware.
+ *
+ * Note: if no window is created, thus no context exists, this will return -1.
+ *
+ */
+int gfx_hardware_get_limit(GFXLimit limit);
+
+/**
+ * Polls all OpenGL errors at any given time.
+ *
+ * @param description A description to attach to each error (can be NULL).
+ * @return The number of errors encountered.
+ * 
+ */
+unsigned int gfx_hardware_poll_errors(const char* description);
+
+
+/**
+ * Requests a minimal OpenGL Context for new windows.
+ *
+ */
+void gfx_request_context(GFXContext context);
+
+
+/********************************************************
  * Top level screen
  *******************************************************/
 
@@ -299,26 +315,6 @@ GFXScreen gfx_get_default_screen(void);
  *
  */
 void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height);
-
-
-/********************************************************
- * Top level context handling
- *******************************************************/
-
-/* OpenGL Context */
-typedef struct GFXContext
-{
-	int major;
-	int minor;
-
-} GFXContext;
-
-
-/**
- * Requests a minimal OpenGL Context for new windows.
- *
- */
-void gfx_request_context(GFXContext context);
 
 
 /********************************************************
