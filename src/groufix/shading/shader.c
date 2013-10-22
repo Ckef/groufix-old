@@ -33,7 +33,6 @@ struct GFX_Internal_Shader
 
 	/* Hidden data */
 	GLuint  handle; /* OpenGL handle */
-	size_t  id;     /* Unique id */
 };
 
 /******************************************************/
@@ -82,7 +81,7 @@ static void _gfx_shader_obj_free(void* object, const GFX_Extensions* ext)
 	shader->handle = 0;
 	shader->shader.compiled = 0;
 
-	shader->id = 0;
+	shader->shader.id = 0;
 }
 
 /******************************************************/
@@ -114,8 +113,8 @@ GFXShader* gfx_shader_create(GFXShaderType type)
 	if(!shader) return NULL;
 
 	/* Register as object */
-	shader->id = _gfx_hardware_object_register(shader, &_gfx_shader_obj_funcs);
-	if(!shader->id)
+	shader->shader.id = _gfx_hardware_object_register(shader, &_gfx_shader_obj_funcs);
+	if(!shader->shader.id)
 	{
 		free(shader);
 		return NULL;
@@ -136,7 +135,7 @@ void gfx_shader_free(GFXShader* shader)
 		struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
 
 		/* Unregister as object */
-		_gfx_hardware_object_unregister(internal->id);
+		_gfx_hardware_object_unregister(shader->id);
 
 		/* Get current window and context */
 		GFX_Internal_Window* window = _gfx_window_get_current();

@@ -37,8 +37,6 @@ struct GFX_Internal_Buffer
 	unsigned char  current;     /* Current active buffer */
 	unsigned char  currentSeg;  /* Current active segment */
 	GFXVector      handles;     /* Stores GLuint + (GLsync * numSegments) */
-
-	size_t id; /* Unique ID */
 };
 
 /******************************************************/
@@ -121,7 +119,7 @@ static void _gfx_buffer_obj_free(void* object, const GFX_Extensions* ext)
 	_gfx_buffer_delete_buffers(buffer, buffer->handles.begin, num, ext);
 	memset(buffer->handles.begin, 0, buffer->handles.elementSize * num);
 
-	buffer->id = 0;
+	buffer->buffer.id = 0;
 }
 
 /******************************************************/
@@ -153,8 +151,8 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 	if(!buffer) return NULL;
 
 	/* Register as object */
-	buffer->id = _gfx_hardware_object_register(buffer, &_gfx_buffer_obj_funcs);
-	if(!buffer->id)
+	buffer->buffer.id = _gfx_hardware_object_register(buffer, &_gfx_buffer_obj_funcs);
+	if(!buffer->buffer.id)
 	{
 		free(buffer);
 		return NULL;
@@ -209,7 +207,7 @@ void gfx_buffer_free(GFXBuffer* buffer)
 		struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 
 		/* Unregister as object */
-		_gfx_hardware_object_unregister(internal->id);
+		_gfx_hardware_object_unregister(buffer->id);
 
 		/* Get current window and context */
 		GFX_Internal_Window* window = _gfx_window_get_current();

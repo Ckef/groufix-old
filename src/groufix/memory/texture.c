@@ -46,9 +46,6 @@ struct GFX_Internal_Texture
 	/* Hidden data */
 	GLuint  buffer;
 	GLuint  handle; /* OpenGL handle */
-	size_t  id;     /* Unique ID */
-
-	/* Texture data */
 	GLenum  target;
 	GLint   format; /* Internal format */
 };
@@ -173,7 +170,7 @@ static void _gfx_texture_obj_free(void* object, const GFX_Extensions* ext)
 	texture->handle = 0;
 	texture->buffer = 0;
 
-	texture->id = 0;
+	texture->texture.id = 0;
 }
 
 /******************************************************/
@@ -197,8 +194,8 @@ static struct GFX_Internal_Texture* _gfx_texture_alloc(GLenum target, GFXTexture
 	if(!tex) return NULL;
 
 	/* Register as object */
-	tex->id = _gfx_hardware_object_register(tex, &_gfx_texture_obj_funcs);
-	if(!tex->id)
+	tex->texture.id = _gfx_hardware_object_register(tex, &_gfx_texture_obj_funcs);
+	if(!tex->texture.id)
 	{
 		free(tex);
 		return NULL;
@@ -407,7 +404,7 @@ void gfx_texture_free(GFXTexture* texture)
 		struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)texture;
 
 		/* Unregister as object */
-		_gfx_hardware_object_unregister(internal->id);
+		_gfx_hardware_object_unregister(texture->id);
 
 		/* Get current window and context */
 		GFX_Internal_Window* window = _gfx_window_get_current();

@@ -41,7 +41,7 @@
 #endif
 
 /* Hardware Object Limit */
-#define GFX_MAX_HARDWARE_ID 0xfffff
+#define GFX_MAX_HARDWARE_ID 0x100000
 
 #ifdef __cplusplus
 extern "C" {

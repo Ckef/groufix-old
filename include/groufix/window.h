@@ -269,6 +269,8 @@ typedef enum GFXKeyState
 /********************************************************
  * Top level screen
  *******************************************************/
+
+/** A top level screen */
 typedef void* GFXScreen;
 
 

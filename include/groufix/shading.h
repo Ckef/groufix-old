@@ -45,6 +45,7 @@ typedef enum GFXShaderType
 /** Shader */
 typedef struct GFXShader
 {
+	size_t         id;       /* Hardware Object ID */
 	GFXShaderType  type;     /* Shader stage of GPU pipeline */
 	char           compiled; /* Non-zero if compiled with latest changes. */
 
@@ -113,7 +114,7 @@ typedef unsigned int GFXProgramFormat;
 /** Program */
 typedef struct GFXProgram
 {
-	size_t id; /* Unique ID */
+	size_t id; /* Hardware Object ID */
 
 } GFXProgram;
 

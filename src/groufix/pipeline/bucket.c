@@ -42,7 +42,7 @@ struct GFX_Internal_Bucket
 	unsigned char  bit;     /* Index of the max bit to sort by */
 	GFXBatchUnit*  first;   /* Begin of units */
 	GFXBatchUnit*  last;    /* End of units */
-	GFXVector      batches; /* Batch shortcuts, stores GFX_Unit_Pair */
+	GFXVector      batches; /* Batch shortcuts, stores GFX_Internal_Batch */
 };
 
 /* Internal batch unit */

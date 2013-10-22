@@ -82,7 +82,7 @@ typedef struct GFXVertexAttribute
 /** Vertex Layout */
 typedef struct GFXVertexLayout
 {
-	size_t id; /* Unique ID */
+	size_t id; /* Hardware Object ID */
 
 } GFXVertexLayout;
 

@@ -109,6 +109,8 @@ typedef enum GFXBufferTarget
 /** Buffer */
 typedef struct GFXBuffer
 {
+	size_t           id;      /* Hardware Object ID */
+
 	size_t           size;    /* Size of the buffer in bytes */
 	size_t           segSize; /* Size of a segment in the buffer (can equal size) */
 	unsigned char    multi;   /* Number of extra buffers (0 = regular buffering) */
@@ -290,8 +292,11 @@ typedef struct GFXPixelTransfer
 /** Texture */
 typedef struct GFXTexture
 {
+	size_t          id;      /* Hardware Object ID */
+
 	GFXTextureType  type;    /* Describes image arrangement and sampling */
 	unsigned char   mipmaps; /* Number of mipmaps (0 for none) */
+
 	size_t          width;
 	size_t          height;
 	size_t          depth;
