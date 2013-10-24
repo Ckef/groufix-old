@@ -21,7 +21,7 @@
 
 #include "groufix/containers/deque.h"
 #include "groufix/containers/vector.h"
-#include "groufix/internal.h"
+#include "groufix/memory/datatypes.h"
 
 #include <stdlib.h>
 

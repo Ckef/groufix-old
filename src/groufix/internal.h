@@ -251,45 +251,6 @@ void _gfx_extensions_load(void);
 
 
 /********************************************************
- * Internal datatype & format helpers
- *******************************************************/
-
-/**
- * Returns 1 if packed data, 0 if unpacked.
- *
- */
-int _gfx_is_data_type_packed(GFXDataType type);
-
-/**
- * Returns the size of a data type in bytes.
- *
- */
-unsigned char _gfx_sizeof_data_type(GFXDataType type);
-
-/**
- * Converts a texture format to a client pixel format.
- *
- * @return -1 on failure.
- *
- */
-GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format);
-
-/**
- * Converts a texture format to an internal format.
- *
- * @return -1 on failure.
- *
- */
-GLint _gfx_texture_format_to_internal(GFXTextureFormat format);
-
-/**
- * Converts an internal format to a texture format.
- *
- */
-GFXTextureFormat _gfx_texture_format_from_internal(GLint format);
-
-
-/********************************************************
  * Generic hardware object reconstruction
  *******************************************************/
 
