@@ -31,62 +31,62 @@ typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 
-#define VEC_CREATE_NAME(size,type) NAME(CAT(gfx_vec, size), type)
-#define VEC_CREATE_FUNC(size,type,postfix) NAME(VEC_CREATE_NAME(size, type), postfix)
+#define GFX_VEC_CREATE_NAME(size,type) GFX_NAME(GFX_CAT(gfx_vec, size), type)
+#define GFX_VEC_CREATE_FUNC(size,type,postfix) GFX_NAME(GFX_VEC_CREATE_NAME(size, type), postfix)
 
 #endif // GFX_MATH_VEC_H
 
 
 /* Load all default sizes */
-#if !defined(VEC_SIZE)
+#if !defined(GFX_VEC_SIZE)
 
-	#define VEC_SIZE 2
+	#define GFX_VEC_SIZE 2
 	#include "groufix/math/vec.h"
-	#undef VEC_SIZE
+	#undef GFX_VEC_SIZE
 
-	#define VEC_SIZE 3
+	#define GFX_VEC_SIZE 3
 	#include "groufix/math/vec.h"
-	#undef VEC_SIZE
+	#undef GFX_VEC_SIZE
 
-	#define VEC_SIZE 4
+	#define GFX_VEC_SIZE 4
 	#include "groufix/math/vec.h"
-	#undef VEC_SIZE
+	#undef GFX_VEC_SIZE
 
 
 /* Load all default datatypes */
-#elif !defined(VEC_TYPE)
+#elif !defined(GFX_VEC_TYPE)
 
-	#define VEC_TYPE char
+	#define GFX_VEC_TYPE char
 	#include "groufix/math/vec.h"
-	#undef VEC_TYPE
+	#undef GFX_VEC_TYPE
 
-	#define VEC_TYPE uchar
+	#define GFX_VEC_TYPE uchar
 	#include "groufix/math/vec.h"
-	#undef VEC_TYPE
+	#undef GFX_VEC_TYPE
 
-	#define VEC_TYPE short
+	#define GFX_VEC_TYPE short
 	#include "groufix/math/vec.h"
-	#undef VEC_TYPE
+	#undef GFX_VEC_TYPE
 
-	#define VEC_TYPE ushort
+	#define GFX_VEC_TYPE ushort
 	#include "groufix/math/vec.h"
-	#undef VEC_TYPE
+	#undef GFX_VEC_TYPE
 
-	#define VEC_TYPE int
+	#define GFX_VEC_TYPE int
 	#include "groufix/math/vec.h"
-	#undef VEC_TYPE
+	#undef GFX_VEC_TYPE
 
-	#define VEC_TYPE uint
+	#define GFX_VEC_TYPE uint
 	#include "groufix/math/vec.h"
-	#undef VEC_TYPE
+	#undef GFX_VEC_TYPE
 
-	#define VEC_TYPE float
+	#define GFX_VEC_TYPE float
 	#include "groufix/math/vec.h"
-	#undef VEC_TYPE
+	#undef GFX_VEC_TYPE
 
-	#define VEC_TYPE double
+	#define GFX_VEC_TYPE double
 	#include "groufix/math/vec.h"
-	#undef VEC_TYPE
+	#undef GFX_VEC_TYPE
 
 #else
 
@@ -99,8 +99,8 @@ extern "C" {
 #endif
 
 /* Name & Function */
-#define VEC_NAME VEC_CREATE_NAME(VEC_SIZE, VEC_TYPE)
-#define VEC_FUNC(postfix) VEC_CREATE_FUNC(VEC_SIZE, VEC_TYPE, postfix)
+#define GFX_VEC_NAME GFX_VEC_CREATE_NAME(GFX_VEC_SIZE, GFX_VEC_TYPE)
+#define GFX_VEC_FUNC(postfix) GFX_VEC_CREATE_FUNC(GFX_VEC_SIZE, GFX_VEC_TYPE, postfix)
 
 
 /********************************************************
@@ -109,16 +109,16 @@ extern "C" {
 typedef struct
 {
 	/** Components */
-	VEC_TYPE data[VEC_SIZE];
+	GFX_VEC_TYPE data[GFX_VEC_SIZE];
 
-} VEC_NAME;
+} GFX_VEC_NAME;
 
 
 /**
  * Returns a value of the vector.
  *
  */
-inline VEC_TYPE* VEC_FUNC(get)(VEC_NAME* a, size_t component)
+inline GFX_VEC_TYPE* GFX_VEC_FUNC(get)(GFX_VEC_NAME* a, size_t component)
 {
 	return a->data + component;
 }
@@ -129,9 +129,9 @@ inline VEC_TYPE* VEC_FUNC(get)(VEC_NAME* a, size_t component)
  * @return The given vector itself.
  *
  */
-inline VEC_NAME* VEC_FUNC(set_zero)(VEC_NAME* a)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(set_zero)(GFX_VEC_NAME* a)
 {
-	return (VEC_NAME*)memset(a, 0, sizeof(VEC_NAME));
+	return (GFX_VEC_NAME*)memset(a, 0, sizeof(GFX_VEC_NAME));
 }
 
 /**
@@ -140,10 +140,10 @@ inline VEC_NAME* VEC_FUNC(set_zero)(VEC_NAME* a)
  * @param dest Destination vector.
  *
  */
-inline VEC_NAME* VEC_FUNC(add)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(add)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_NAME* b)
 {
 	size_t i;
-	for(i = 0; i < VEC_SIZE; ++i)
+	for(i = 0; i < GFX_VEC_SIZE; ++i)
 		dest->data[i] = a->data[i] + b->data[i];
 
 	return dest;
@@ -155,10 +155,10 @@ inline VEC_NAME* VEC_FUNC(add)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
  * @param dest Destination vector.
  *
  */
-inline VEC_NAME* VEC_FUNC(sub)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(sub)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_NAME* b)
 {
 	size_t i;
-	for(i = 0; i < VEC_SIZE; ++i)
+	for(i = 0; i < GFX_VEC_SIZE; ++i)
 		dest->data[i] = a->data[i] - b->data[i];
 
 	return dest;
@@ -170,10 +170,10 @@ inline VEC_NAME* VEC_FUNC(sub)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
  * @param dest Destination vector.
  *
  */
-inline VEC_NAME* VEC_FUNC(mult)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(mult)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_NAME* b)
 {
 	size_t i;
-	for(i = 0; i < VEC_SIZE; ++i)
+	for(i = 0; i < GFX_VEC_SIZE; ++i)
 		dest->data[i] = a->data[i] * b->data[i];
 
 	return dest;
@@ -185,10 +185,10 @@ inline VEC_NAME* VEC_FUNC(mult)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
  * @param dest Destination vector.
  *
  */
-inline VEC_NAME* VEC_FUNC(scale)(VEC_NAME* dest, VEC_NAME* a, VEC_TYPE scalar)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(scale)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_TYPE scalar)
 {
 	size_t i;
-	for(i = 0; i < VEC_SIZE; ++i)
+	for(i = 0; i < GFX_VEC_SIZE; ++i)
 		dest->data[i] = a->data[i] * scalar;
 
 	return dest;
@@ -198,31 +198,32 @@ inline VEC_NAME* VEC_FUNC(scale)(VEC_NAME* dest, VEC_NAME* a, VEC_TYPE scalar)
  * Take the dot product of two vectors.
  *
  */
-inline VEC_TYPE VEC_FUNC(dot)(VEC_NAME* a, VEC_NAME* b)
+inline GFX_VEC_TYPE GFX_VEC_FUNC(dot)(GFX_VEC_NAME* a, GFX_VEC_NAME* b)
 {
-	VEC_TYPE dot = 0;
+	GFX_VEC_TYPE dot = 0;
 	size_t i;
-	for(i = 0; i < VEC_SIZE; ++i)
+	for(i = 0; i < GFX_VEC_SIZE; ++i)
 		dot += a->data[i] * b->data[i];
 
 	return dot;
 }
 
-#if VEC_SIZE == 3
+#if GFX_VEC_SIZE == 3
 /**
  * Take the cross product of two 3D vectors.
  *
  * @param dest Destination vector.
  *
  */
-inline VEC_NAME* VEC_FUNC(cross)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(cross)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_NAME* b)
 {
-	VEC_NAME res;
+	GFX_VEC_NAME res;
 	res.data[0] = a->data[1] * b->data[2] - a->data[2] * b->data[1];
 	res.data[1] = a->data[2] * b->data[0] - a->data[0] * b->data[2];
 	res.data[2] = a->data[0] * b->data[1] - a->data[1] * b->data[0];
 
 	*dest = res;
+
 	return dest;
 }
 #endif
@@ -231,13 +232,13 @@ inline VEC_NAME* VEC_FUNC(cross)(VEC_NAME* dest, VEC_NAME* a, VEC_NAME* b)
  * Take the squared magnitude of a vector.
  *
  */
-inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_NAME* a)
+inline GFX_VEC_TYPE GFX_VEC_FUNC(magnitude_squared)(GFX_VEC_NAME* a)
 {
-	VEC_TYPE dot = 0;
+	GFX_VEC_TYPE dot = 0;
 	size_t i;
-	for(i = 0; i < VEC_SIZE; ++i)
+	for(i = 0; i < GFX_VEC_SIZE; ++i)
 	{
-		VEC_TYPE *val = a->data + i;
+		GFX_VEC_TYPE *val = a->data + i;
 		dot += (*val) * (*val);
 	}
 	return dot;
@@ -247,9 +248,9 @@ inline VEC_TYPE VEC_FUNC(magnitude_squared)(VEC_NAME* a)
  * Take the magnitude of a vector.
  *
  */
-inline double VEC_FUNC(magnitude)(VEC_NAME* a)
+inline double GFX_VEC_FUNC(magnitude)(GFX_VEC_NAME* a)
 {
-	return sqrt((double)VEC_FUNC(magnitude_squared)(a));
+	return sqrt((double)GFX_VEC_FUNC(magnitude_squared)(a));
 }
 
 /**
@@ -258,12 +259,12 @@ inline double VEC_FUNC(magnitude)(VEC_NAME* a)
  * @param dest Destination vector.
  *
  */
-inline VEC_NAME* VEC_FUNC(normalize)(VEC_NAME* dest, VEC_NAME* a)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a)
 {
-	double mag = VEC_FUNC(magnitude)(a);
-	VEC_TYPE scale = (VEC_TYPE)(mag ? 1.0 / mag : 0.0);
+	double mag = GFX_VEC_FUNC(magnitude)(a);
+	GFX_VEC_TYPE scale = (GFX_VEC_TYPE)(mag ? 1.0 / mag : 0.0);
 
-	return VEC_FUNC(scale)(dest, a, scale);
+	return GFX_VEC_FUNC(scale)(dest, a, scale);
 }
 
 /**
@@ -272,17 +273,17 @@ inline VEC_NAME* VEC_FUNC(normalize)(VEC_NAME* dest, VEC_NAME* a)
  * @return If the vector is zero, a non-zero value is returned.
  *
  */
-inline int VEC_FUNC(is_zero)(VEC_NAME* a)
+inline int GFX_VEC_FUNC(is_zero)(GFX_VEC_NAME* a)
 {
 	size_t i;
-	for(i = 0; i < VEC_SIZE; ++i)
+	for(i = 0; i < GFX_VEC_SIZE; ++i)
 		if(a->data[i]) return 0;
 
 	return 1;
 }
 
-#undef VEC_NAME
-#undef VEC_FUNC
+#undef GFX_VEC_NAME
+#undef GFX_VEC_FUNC
 
 #ifdef __cplusplus
 }

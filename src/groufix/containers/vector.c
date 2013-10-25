@@ -43,7 +43,7 @@ static int _gfx_vector_realloc(GFXVector* vector, size_t size, size_t capacity)
 
 	/* Set new properties */
 	vector->begin = new;
-	vector->end = PTR_ADD_BYTES(vector->begin, size);
+	vector->end = GFX_PTR_ADD_BYTES(vector->begin, size);
 	vector->capacity = capacity;
 
 	return 1;
@@ -135,25 +135,25 @@ void gfx_vector_clear(GFXVector* vector)
 /******************************************************/
 size_t gfx_vector_get_byte_size(GFXVector* vector)
 {
-	return PTR_DIFF(vector->begin, vector->end);
+	return GFX_PTR_DIFF(vector->begin, vector->end);
 }
 
 /******************************************************/
 size_t gfx_vector_get_size(GFXVector* vector)
 {
-	return PTR_DIFF(vector->begin, vector->end) / vector->elementSize;
+	return GFX_PTR_DIFF(vector->begin, vector->end) / vector->elementSize;
 }
 
 /******************************************************/
 size_t gfx_vector_get_index(GFXVector* vector, GFXVectorIterator it)
 {
-	return PTR_DIFF(vector->begin, it) / vector->elementSize;
+	return GFX_PTR_DIFF(vector->begin, it) / vector->elementSize;
 }
 
 /******************************************************/
 int gfx_vector_reserve(GFXVector* vector, size_t numElements)
 {
-	size_t oldSize = PTR_DIFF(vector->begin, vector->end);
+	size_t oldSize = GFX_PTR_DIFF(vector->begin, vector->end);
 	size_t newSize = vector->elementSize * numElements;
 	if(newSize > vector->capacity)
 		return _gfx_vector_realloc(vector, oldSize, _gfx_vector_get_max_capacity(newSize));
@@ -164,34 +164,34 @@ int gfx_vector_reserve(GFXVector* vector, size_t numElements)
 /******************************************************/
 GFXVectorIterator gfx_vector_at(GFXVector* vector, size_t index)
 {
-	return PTR_ADD_BYTES(vector->begin, index * vector->elementSize);
+	return GFX_PTR_ADD_BYTES(vector->begin, index * vector->elementSize);
 }
 
 /******************************************************/
 GFXVectorIterator gfx_vector_next(GFXVector* vector, GFXVectorIterator it)
 {
-	return PTR_ADD_BYTES(it, vector->elementSize);
+	return GFX_PTR_ADD_BYTES(it, vector->elementSize);
 }
 
 /******************************************************/
 GFXVectorIterator gfx_vector_previous(GFXVector* vector, GFXVectorIterator it)
 {
-	return PTR_SUB_BYTES(it, vector->elementSize);
+	return GFX_PTR_SUB_BYTES(it, vector->elementSize);
 }
 
 /******************************************************/
 GFXVectorIterator gfx_vector_advance(GFXVector* vector, GFXVectorIterator it, int num)
 {
-	return PTR_ADD_BYTES(it, vector->elementSize * num);
+	return GFX_PTR_ADD_BYTES(it, vector->elementSize * num);
 }
 
 /******************************************************/
 GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXVectorIterator pos)
 {
 	/* Get properties */
-	size_t oldSize = PTR_DIFF(vector->begin, vector->end);
+	size_t oldSize = GFX_PTR_DIFF(vector->begin, vector->end);
 	size_t newSize = oldSize + vector->elementSize;
-	size_t mov = PTR_DIFF(pos, vector->end);
+	size_t mov = GFX_PTR_DIFF(pos, vector->end);
 
 	/* Reallocate if necessary */
 	if(newSize > vector->capacity)
@@ -201,14 +201,14 @@ GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXV
 		if(!cap) cap = _gfx_vector_get_max_capacity(newSize);
 
 		if(!_gfx_vector_realloc(vector, newSize, cap)) return vector->end;
-		pos = PTR_ADD_BYTES(vector->begin, oldSize - mov);
+		pos = GFX_PTR_ADD_BYTES(vector->begin, oldSize - mov);
 	}
 
 	/* Set new end */
-	else vector->end = PTR_ADD_BYTES(vector->begin, newSize);
+	else vector->end = GFX_PTR_ADD_BYTES(vector->begin, newSize);
 
 	/* Move elements if inserting */
-	if(mov) memmove(PTR_ADD_BYTES(pos, vector->elementSize), pos, mov);
+	if(mov) memmove(GFX_PTR_ADD_BYTES(pos, vector->elementSize), pos, mov);
 	if(element) memcpy(pos, element, vector->elementSize);
 
 	return pos;
@@ -225,9 +225,9 @@ GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVect
 {
 	/* Get properties */
 	size_t diff = num * vector->elementSize;
-	size_t oldSize = PTR_DIFF(vector->begin, vector->end);
+	size_t oldSize = GFX_PTR_DIFF(vector->begin, vector->end);
 	size_t newSize = oldSize + diff;
-	size_t mov = PTR_DIFF(pos, vector->end);
+	size_t mov = GFX_PTR_DIFF(pos, vector->end);
 
 	/* Copy to a temporary buffer */
 	int8_t buff[diff];
@@ -237,14 +237,14 @@ GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVect
 	if(newSize > vector->capacity)
 	{
 		if(!_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize))) return vector->end;
-		pos = PTR_ADD_BYTES(vector->begin, oldSize - mov);
+		pos = GFX_PTR_ADD_BYTES(vector->begin, oldSize - mov);
 	}
 
 	/* Set new end */
-	else vector->end = PTR_ADD_BYTES(vector->begin, newSize);
+	else vector->end = GFX_PTR_ADD_BYTES(vector->begin, newSize);
 
 	/* Move elements if inserting */
-	if(mov) memmove(PTR_ADD_BYTES(pos, diff), pos, mov);
+	if(mov) memmove(GFX_PTR_ADD_BYTES(pos, diff), pos, mov);
 	memcpy(pos, buff, diff);
 
 	return pos;
@@ -277,8 +277,8 @@ GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVecto
 
 	/* Get new properties */
 	size_t diff = num * vector->elementSize;
-	size_t oldSize = PTR_DIFF(vector->begin, vector->end);
-	size_t toEnd = PTR_DIFF(start, vector->end);
+	size_t oldSize = GFX_PTR_DIFF(vector->begin, vector->end);
+	size_t toEnd = GFX_PTR_DIFF(start, vector->end);
 
 	/* Boundaries! */
 	if(diff > toEnd) diff = toEnd;
@@ -293,19 +293,19 @@ GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVecto
 
 	/* Move elements if necessary */
 	size_t mov = toEnd - diff;
-	if(mov) memmove(start, PTR_ADD_BYTES(start, diff), mov);
+	if(mov) memmove(start, GFX_PTR_ADD_BYTES(start, diff), mov);
 
 	/* Reallocate if necessary */
 	/* Use upperbound/4 instead to avoid constant realloc */
 	if(newSize < (vector->capacity >> 2))
 	{
 		_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize));
-		start = PTR_ADD_BYTES(vector->begin, oldSize - toEnd);
+		start = GFX_PTR_ADD_BYTES(vector->begin, oldSize - toEnd);
 	}
 	else if(!newSize) gfx_vector_clear(vector);
 
 	/* Set new end */
-	else vector->end = PTR_ADD_BYTES(vector->begin, newSize);
+	else vector->end = GFX_PTR_ADD_BYTES(vector->begin, newSize);
 
 	return start;
 }

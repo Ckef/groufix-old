@@ -25,11 +25,11 @@
 int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
 {
 	/* Get the windows */
-	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 	if(!window) return 0;
 
 	GFX_X11_Window* shareWind = NULL;
-	if(share) shareWind = _gfx_x11_get_window_from_handle(VOID_TO_UINT(share));
+	if(share) shareWind = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(share));
 
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
@@ -59,7 +59,7 @@ int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int mino
 void _gfx_platform_context_free(GFX_Platform_Window handle)
 {
 	/* Get the window and destroy its context */
-	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 	if(window)
 	{
 		glXMakeCurrent(_gfx_x11->display, None, NULL);
@@ -72,7 +72,7 @@ void _gfx_platform_context_free(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 {
-	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 	if(window) glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
 }
 
@@ -80,13 +80,13 @@ void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num)
 {
 	if(_gfx_x11->extensions.SwapIntervalEXT)
-		_gfx_x11->extensions.SwapIntervalEXT(_gfx_x11->display, (Window)VOID_TO_UINT(handle), num);
+		_gfx_x11->extensions.SwapIntervalEXT(_gfx_x11->display, (Window)GFX_VOID_TO_UINT(handle), num);
 }
 
 /******************************************************/
 void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle)
 {
-	if(_gfx_x11) glXSwapBuffers(_gfx_x11->display, (Window)VOID_TO_UINT(handle));
+	if(_gfx_x11) glXSwapBuffers(_gfx_x11->display, (Window)GFX_VOID_TO_UINT(handle));
 }
 
 /******************************************************/

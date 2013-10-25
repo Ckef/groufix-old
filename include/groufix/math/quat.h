@@ -27,22 +27,22 @@
 #include <math.h>
 #include <string.h>
 
-#define QUAT_CREATE_NAME(type) NAME(gfx_quat, type)
-#define QUAT_CREATE_FUNC(type,postfix) NAME(QUAT_CREATE_NAME(type), postfix)
+#define GFX_QUAT_CREATE_NAME(type) GFX_NAME(gfx_quat, type)
+#define GFX_QUAT_CREATE_FUNC(type,postfix) GFX_NAME(GFX_QUAT_CREATE_NAME(type), postfix)
 
 #endif // GFX_MATH_QUAT_H
 
 
 /* Load all default datatypes */
-#if !defined(QUAT_TYPE)
+#if !defined(GFX_QUAT_TYPE)
 
-	#define QUAT_TYPE float
+	#define GFX_QUAT_TYPE float
 	#include "groufix/math/quat.h"
-	#undef QUAT_TYPE
+	#undef GFX_QUAT_TYPE
 
-	#define QUAT_TYPE double
+	#define GFX_QUAT_TYPE double
 	#include "groufix/math/quat.h"
-	#undef QUAT_TYPE
+	#undef GFX_QUAT_TYPE
 
 #else
 
@@ -55,23 +55,23 @@ extern "C" {
 #endif
 
 /* Name & Function */
-#define QUAT_NAME QUAT_CREATE_NAME(QUAT_TYPE)
-#define QUAT_FUNC(postfix) QUAT_CREATE_FUNC(QUAT_TYPE, postfix)
+#define GFX_QUAT_NAME GFX_QUAT_CREATE_NAME(GFX_QUAT_TYPE)
+#define GFX_QUAT_FUNC(postfix) GFX_QUAT_CREATE_FUNC(GFX_QUAT_TYPE, postfix)
 
 /* Matrix specific */
-#ifdef QUAT_USE_MAT
+#ifdef GFX_QUAT_USE_MAT
 	#ifndef GFX_MATH_MAT_H
-		#error "Need to include groufix/math/mat.h to use QUAT_USE_MAT"
+		#error "Need to include groufix/math/mat.h to use GFX_QUAT_USE_MAT"
 	#endif
-	#define MAT_NAME MAT_CREATE_NAME(3, QUAT_TYPE)
+	#define GFX_MAT_NAME GFX_MAT_CREATE_NAME(3, GFX_QUAT_TYPE)
 #endif
 
 /*  Vector specific */
-#ifdef QUAT_USE_VEC
+#ifdef GFX_QUAT_USE_VEC
 	#ifndef GFX_MATH_VEC_H
-		#error "Need to include groufix/math/vec.h to use QUAT_USE_VEC"
+		#error "Need to include groufix/math/vec.h to use GFX_QUAT_USE_VEC"
 	#endif
-	#define VEC_NAME VEC_CREATE_NAME(3, QUAT_TYPE)
+	#define GFX_VEC_NAME GFX_VEC_CREATE_NAME(3, GFX_QUAT_TYPE)
 #endif
 
 
@@ -81,16 +81,16 @@ extern "C" {
 typedef struct
 {
 	/** Components */
-	QUAT_TYPE data[4];
+	GFX_QUAT_TYPE data[4];
 
-} QUAT_NAME;
+} GFX_QUAT_NAME;
 
 
 /**
  * Returns a value of the quaternion.
  *
  */
-inline QUAT_TYPE* QUAT_FUNC(get)(QUAT_NAME* a, size_t component)
+inline GFX_QUAT_TYPE* GFX_QUAT_FUNC(get)(GFX_QUAT_NAME* a, size_t component)
 {
 	return a->data + component;
 }
@@ -101,9 +101,9 @@ inline QUAT_TYPE* QUAT_FUNC(get)(QUAT_NAME* a, size_t component)
  * @return The given quaternion itself.
  *
  */
-inline QUAT_NAME* QUAT_FUNC(set_zero)(QUAT_NAME* a)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(set_zero)(GFX_QUAT_NAME* a)
 {
-	return (QUAT_NAME*)memset(a, 0, sizeof(QUAT_NAME));
+	return (GFX_QUAT_NAME*)memset(a, 0, sizeof(GFX_QUAT_NAME));
 }
 
 /**
@@ -112,7 +112,7 @@ inline QUAT_NAME* QUAT_FUNC(set_zero)(QUAT_NAME* a)
  * @param dest Destination quaternion.
  *
  */
-inline QUAT_NAME* QUAT_FUNC(add)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(add)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a, GFX_QUAT_NAME* b)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -127,7 +127,7 @@ inline QUAT_NAME* QUAT_FUNC(add)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
  * @param dest Destination quaternion.
  *
  */
-inline QUAT_NAME* QUAT_FUNC(sub)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(sub)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a, GFX_QUAT_NAME* b)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -142,15 +142,16 @@ inline QUAT_NAME* QUAT_FUNC(sub)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
  * @param dest Destination quaternion.
  *
  */
-inline QUAT_NAME* QUAT_FUNC(mult)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(mult)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a, GFX_QUAT_NAME* b)
 {
-	QUAT_NAME res;
+	GFX_QUAT_NAME res;
 	res.data[0] = a->data[0] * b->data[0] - a->data[1] * b->data[1] - a->data[2] * b->data[2] - a->data[3] * b->data[3];
 	res.data[1] = a->data[0] * b->data[1] + a->data[1] * b->data[0] + a->data[2] * b->data[3] - a->data[3] * b->data[2];
 	res.data[2] = a->data[0] * b->data[2] - a->data[1] * b->data[3] + a->data[2] * b->data[0] + a->data[3] * b->data[1];
 	res.data[3] = a->data[0] * b->data[3] + a->data[1] * b->data[2] - a->data[2] * b->data[1] + a->data[3] * b->data[0];
 
 	*dest = res;
+
 	return dest;
 }
 
@@ -160,7 +161,7 @@ inline QUAT_NAME* QUAT_FUNC(mult)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_NAME* b)
  * @param dest Destination quaternion.
  *
  */
-inline QUAT_NAME* QUAT_FUNC(scale)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_TYPE scalar)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(scale)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a, GFX_QUAT_TYPE scalar)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -175,7 +176,7 @@ inline QUAT_NAME* QUAT_FUNC(scale)(QUAT_NAME* dest, QUAT_NAME* a, QUAT_TYPE scal
  * @param dest Destination quaternion.
  *
  */
-inline QUAT_NAME* QUAT_FUNC(conjugate)(QUAT_NAME* dest, QUAT_NAME* a)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(conjugate)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a)
 {
 	dest->data[0] = +a->data[0];
 	dest->data[1] = -a->data[1];
@@ -189,13 +190,13 @@ inline QUAT_NAME* QUAT_FUNC(conjugate)(QUAT_NAME* dest, QUAT_NAME* a)
  * Take the squared norm of a quaternion.
  *
  */
-inline QUAT_TYPE QUAT_FUNC(norm_squared)(QUAT_NAME* a)
+inline GFX_QUAT_TYPE GFX_QUAT_FUNC(norm_squared)(GFX_QUAT_NAME* a)
 {
-	QUAT_TYPE norm = 0;
+	GFX_QUAT_TYPE norm = 0;
 	size_t i;
 	for(i = 0; i < 4; ++i)
 	{
-		QUAT_TYPE *val = a->data + i;
+		GFX_QUAT_TYPE *val = a->data + i;
 		norm += (*val) * (*val);
 	}
 	return norm;
@@ -205,9 +206,9 @@ inline QUAT_TYPE QUAT_FUNC(norm_squared)(QUAT_NAME* a)
  * Take the norm of a quaternion.
  *
  */
-inline double QUAT_FUNC(norm)(QUAT_NAME* a)
+inline double GFX_QUAT_FUNC(norm)(GFX_QUAT_NAME* a)
 {
-	return sqrt((double)QUAT_FUNC(norm_squared)(a));
+	return sqrt((double)GFX_QUAT_FUNC(norm_squared)(a));
 }
 
 /**
@@ -216,12 +217,12 @@ inline double QUAT_FUNC(norm)(QUAT_NAME* a)
  * @param dest Destination quaternion.
  *
  */
-inline QUAT_NAME* QUAT_FUNC(normalize)(QUAT_NAME* dest, QUAT_NAME* a)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(normalize)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a)
 {
-	double norm = QUAT_FUNC(norm)(a);
-	QUAT_TYPE scale = (QUAT_TYPE)(norm ? 1.0 / norm : 0.0);
+	double norm = GFX_QUAT_FUNC(norm)(a);
+	GFX_QUAT_TYPE scale = (GFX_QUAT_TYPE)(norm ? 1.0 / norm : 0.0);
 
-	return QUAT_FUNC(scale)(dest, a, scale);
+	return GFX_QUAT_FUNC(scale)(dest, a, scale);
 }
 
 /**
@@ -230,13 +231,13 @@ inline QUAT_NAME* QUAT_FUNC(normalize)(QUAT_NAME* dest, QUAT_NAME* a)
  * @param dest Destination quaternion.
  *
  */
-inline QUAT_NAME* QUAT_FUNC(inverse)(QUAT_NAME* dest, QUAT_NAME* a)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(inverse)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a)
 {
-	double normSq = QUAT_FUNC(norm_squared)(a);
-	QUAT_TYPE scale = (QUAT_TYPE)(normSq ? 1.0f / normSq : 0.0);
+	double normSq = GFX_QUAT_FUNC(norm_squared)(a);
+	GFX_QUAT_TYPE scale = (GFX_QUAT_TYPE)(normSq ? 1.0f / normSq : 0.0);
 
-	QUAT_FUNC(conjugate)(dest, a);
-	return QUAT_FUNC(scale)(dest, dest, scale);
+	GFX_QUAT_FUNC(conjugate)(dest, a);
+	return GFX_QUAT_FUNC(scale)(dest, dest, scale);
 }
 
 /**
@@ -245,7 +246,7 @@ inline QUAT_NAME* QUAT_FUNC(inverse)(QUAT_NAME* dest, QUAT_NAME* a)
  * @return If the quaternion is zero, a non-zero value is returned.
  *
  */
-inline int QUAT_FUNC(is_zero)(QUAT_NAME* a)
+inline int GFX_QUAT_FUNC(is_zero)(GFX_QUAT_NAME* a)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -254,7 +255,7 @@ inline int QUAT_FUNC(is_zero)(QUAT_NAME* a)
 	return 1;
 }
 
-#ifdef QUAT_USE_VEC
+#ifdef GFX_QUAT_USE_VEC
 /**
  * Computes a quaternion from an angle and an axis.
  *
@@ -265,7 +266,7 @@ inline int QUAT_FUNC(is_zero)(QUAT_NAME* a)
  * This method assumes the axis is of unit length (magnitude or magnitude_squared = 1).
  *
  */
-inline QUAT_NAME* QUAT_FUNC(from_angle_axis)(QUAT_NAME* dest, double angle, VEC_NAME* axis)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(from_angle_axis)(GFX_QUAT_NAME* dest, double angle, GFX_VEC_NAME* axis)
 {
 	double half = angle * 0.5;
 	double scale = sin(half);
@@ -288,7 +289,7 @@ inline QUAT_NAME* QUAT_FUNC(from_angle_axis)(QUAT_NAME* dest, double angle, VEC_
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-inline void QUAT_FUNC(to_angle_axis)(QUAT_NAME* src, double* angle, VEC_NAME* axis)
+inline void GFX_QUAT_FUNC(to_angle_axis)(GFX_QUAT_NAME* src, double* angle, GFX_VEC_NAME* axis)
 {
 	double half = acos(src->data[0]);
 	double scale = sin(half);
@@ -308,14 +309,14 @@ inline void QUAT_FUNC(to_angle_axis)(QUAT_NAME* src, double* angle, VEC_NAME* ax
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-inline VEC_NAME* QUAT_FUNC(mult_vec)(VEC_NAME* dest, QUAT_NAME* a, VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_QUAT_FUNC(mult_vec)(GFX_VEC_NAME* dest, GFX_QUAT_NAME* a, GFX_VEC_NAME* b)
 {
 	/* want = q * v * q^-1 (sandwich product)
 	 * in which v = (0, bx, by, bz) and q^-1 = (aw, -ax, -ay, -az) (conjugate)
 	 * because of the 0 we write it out to spare some calculations
 	 * first we compute v * q^-1
 	 */
-	QUAT_NAME res;
+	GFX_QUAT_NAME res;
 	res.data[0] = b->data[0] * a->data[1] + b->data[1] * a->data[2] + b->data[2] * a->data[3];
 	res.data[1] = b->data[0] * a->data[0] - b->data[1] * a->data[3] + b->data[2] * a->data[2];
 	res.data[2] = b->data[0] * a->data[3] + b->data[1] * a->data[0] - b->data[2] * a->data[1];
@@ -328,9 +329,9 @@ inline VEC_NAME* QUAT_FUNC(mult_vec)(VEC_NAME* dest, QUAT_NAME* a, VEC_NAME* b)
 
 	return dest;
 }
-#endif // QUAT_USE_VEC
+#endif // GFX_QUAT_USE_VEC
 
-#ifdef QUAT_USE_MAT
+#ifdef GFX_QUAT_USE_MAT
 /**
  * Computes the 3x3 rotation matrix equivalent to a quaternion.
  *
@@ -339,21 +340,21 @@ inline VEC_NAME* QUAT_FUNC(mult_vec)(VEC_NAME* dest, QUAT_NAME* a, VEC_NAME* b)
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-inline MAT_NAME* QUAT_FUNC(to_matrix)(MAT_NAME* dest, QUAT_NAME* a)
+inline GFX_MAT_NAME* GFX_QUAT_FUNC(to_matrix)(GFX_MAT_NAME* dest, GFX_QUAT_NAME* a)
 {
-	QUAT_TYPE x2 = a->data[1] + a->data[1];
-	QUAT_TYPE y2 = a->data[2] + a->data[2];
-	QUAT_TYPE z2 = a->data[3] + a->data[3];
+	GFX_QUAT_TYPE x2 = a->data[1] + a->data[1];
+	GFX_QUAT_TYPE y2 = a->data[2] + a->data[2];
+	GFX_QUAT_TYPE z2 = a->data[3] + a->data[3];
 
-	QUAT_TYPE wx = x2 * a->data[0];
-	QUAT_TYPE wy = y2 * a->data[0];
-	QUAT_TYPE wz = z2 * a->data[0];
-	QUAT_TYPE xx = x2 * a->data[1];
-	QUAT_TYPE xy = y2 * a->data[1];
-	QUAT_TYPE xz = z2 * a->data[1];
-	QUAT_TYPE yy = y2 * a->data[2];
-	QUAT_TYPE yz = z2 * a->data[2];
-	QUAT_TYPE zz = z2 * a->data[3];
+	GFX_QUAT_TYPE wx = x2 * a->data[0];
+	GFX_QUAT_TYPE wy = y2 * a->data[0];
+	GFX_QUAT_TYPE wz = z2 * a->data[0];
+	GFX_QUAT_TYPE xx = x2 * a->data[1];
+	GFX_QUAT_TYPE xy = y2 * a->data[1];
+	GFX_QUAT_TYPE xz = z2 * a->data[1];
+	GFX_QUAT_TYPE yy = y2 * a->data[2];
+	GFX_QUAT_TYPE yz = z2 * a->data[2];
+	GFX_QUAT_TYPE zz = z2 * a->data[3];
 
 	dest->data[0] = 1 - yy - zz; dest->data[3] = xy - wz; dest->data[6] = xz + wy;
 	dest->data[1] = xy + wz; dest->data[4] = 1 - xx - zz; dest->data[7] = yz - wx;
@@ -361,13 +362,13 @@ inline MAT_NAME* QUAT_FUNC(to_matrix)(MAT_NAME* dest, QUAT_NAME* a)
 
 	return dest;
 }
-#endif // QUAT_USE_MAT
+#endif // GFX_QUAT_USE_MAT
 
-#undef QUAT_NAME
-#undef QUAT_FUNC
+#undef GFX_QUAT_NAME
+#undef GFX_QUAT_FUNC
 
-#undef MAT_NAME
-#undef VEC_NAME
+#undef GFX_MAT_NAME
+#undef GFX_VEC_NAME
 
 #ifdef __cplusplus
 }

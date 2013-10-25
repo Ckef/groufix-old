@@ -546,7 +546,7 @@ void gfx_texture_write_from_buffer(GFXTexture* texture, const GFXPixelTransfer* 
 	{
 		/* Bind buffer as unpack pixel buffer before performing the copy */
 		window->extensions.BindBuffer(GL_PIXEL_UNPACK_BUFFER, _gfx_buffer_get_handle(buffer));
-		gfx_texture_write(texture, transfer, UINT_TO_VOID(offset));
+		gfx_texture_write(texture, transfer, GFX_UINT_TO_VOID(offset));
 
 		/* Also unbind for future transfers */
 		window->extensions.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);

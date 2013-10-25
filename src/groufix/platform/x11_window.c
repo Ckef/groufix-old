@@ -96,7 +96,7 @@ static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
 static void _gfx_x11_event_proc(XEvent* event)
 {
 	/* Get window */
-	GFX_Platform_Window window = UINT_TO_VOID(event->xany.window);
+	GFX_Platform_Window window = GFX_UINT_TO_VOID(event->xany.window);
 
 	switch(event->type)
 	{
@@ -334,7 +334,7 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 	XSetWMProtocols(_gfx_x11->display, window.handle, &_gfx_x11->wmDeleteWindow, 1);
 	XStoreName(_gfx_x11->display, window.handle, attributes->name);
 
-	return UINT_TO_VOID(window.handle);
+	return GFX_UINT_TO_VOID(window.handle);
 }
 
 /******************************************************/
@@ -347,17 +347,17 @@ void _gfx_platform_window_free(GFX_Platform_Window handle)
 
 		/* Remove all events of the window from the queue */
 		XWindowAttributes attr;
-		XGetWindowAttributes(_gfx_x11->display, VOID_TO_UINT(handle), &attr);
+		XGetWindowAttributes(_gfx_x11->display, GFX_VOID_TO_UINT(handle), &attr);
 
 		XEvent event;
-		while(XCheckWindowEvent(_gfx_x11->display, VOID_TO_UINT(handle), attr.all_event_masks, &event));
+		while(XCheckWindowEvent(_gfx_x11->display, GFX_VOID_TO_UINT(handle), attr.all_event_masks, &event));
 
 		/* Destroy the window and its colormap */
-		XDestroyWindow(_gfx_x11->display, VOID_TO_UINT(handle));
+		XDestroyWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle));
 		XFreeColormap(_gfx_x11->display, attr.colormap);
 
 		/* Remove from vector */
-		GFXVectorIterator it = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+		GFXVectorIterator it = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 		gfx_vector_erase(&_gfx_x11->windows, it);
 	}
 }
@@ -369,7 +369,7 @@ GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle)
 
 	XWindowAttributes attr;
 	attr.screen = NULL;
-	XGetWindowAttributes(_gfx_x11->display, VOID_TO_UINT(handle), &attr);
+	XGetWindowAttributes(_gfx_x11->display, GFX_VOID_TO_UINT(handle), &attr);
 
 	return attr.screen;
 }
@@ -381,7 +381,7 @@ char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
 
 	/* Check if it has a name */
 	char* buff;
-	XFetchName(_gfx_x11->display, VOID_TO_UINT(handle), &buff);
+	XFetchName(_gfx_x11->display, GFX_VOID_TO_UINT(handle), &buff);
 	if(!buff) return NULL;
 
 	/* Copy to client side memory */
@@ -396,7 +396,7 @@ char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* width, unsigned int* height)
 {
-	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 	if(!internal)
 	{
 		*width = 0;
@@ -412,7 +412,7 @@ void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* wid
 /******************************************************/
 void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* y)
 {
-	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(VOID_TO_UINT(handle));
+	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 	if(!internal)
 	{
 		*x = 0;
@@ -428,31 +428,31 @@ void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* 
 /******************************************************/
 void _gfx_platform_window_set_name(GFX_Platform_Window handle, const char* name)
 {
-	if(_gfx_x11) XStoreName(_gfx_x11->display, VOID_TO_UINT(handle), name);
+	if(_gfx_x11) XStoreName(_gfx_x11->display, GFX_VOID_TO_UINT(handle), name);
 }
 
 /******************************************************/
 void _gfx_platform_window_set_size(GFX_Platform_Window handle, unsigned int width, unsigned int height)
 {
-	if(_gfx_x11) XResizeWindow(_gfx_x11->display, VOID_TO_UINT(handle), width, height);
+	if(_gfx_x11) XResizeWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle), width, height);
 }
 
 /******************************************************/
 void _gfx_platform_window_set_position(GFX_Platform_Window handle, int x, int y)
 {
-	if(_gfx_x11) XMoveWindow(_gfx_x11->display, VOID_TO_UINT(handle), x, y);
+	if(_gfx_x11) XMoveWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle), x, y);
 }
 
 /******************************************************/
 void _gfx_platform_window_show(GFX_Platform_Window handle)
 {
-	if(_gfx_x11) XMapWindow(_gfx_x11->display, VOID_TO_UINT(handle));
+	if(_gfx_x11) XMapWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle));
 }
 
 /******************************************************/
 void _gfx_platform_window_hide(GFX_Platform_Window handle)
 {
-	if(_gfx_x11) XUnmapWindow(_gfx_x11->display, VOID_TO_UINT(handle));
+	if(_gfx_x11) XUnmapWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle));
 }
 
 /******************************************************/
