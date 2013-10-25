@@ -178,9 +178,13 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state)
 	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
 	struct GFX_Internal_Bucket* bucket = (struct GFX_Internal_Bucket*)internal->bucket;
 
-	/* Force a re-sort */
-	gfx_vector_clear(&bucket->batches);
-	internal->state = state;
+	/* Detect equal states */
+	if(internal->state != state)
+	{
+		/* Force a re-sort */
+		internal->state = state;
+		gfx_vector_clear(&bucket->batches);
+	}
 }
 
 /******************************************************/
