@@ -19,23 +19,72 @@
  *
  */
 
+#include "groufix/containers/deque.h"
+#include "groufix/pipeline/pipes.h"
 #include "groufix/internal.h"
 
 #include <stdlib.h>
 
 /******************************************************/
+/** Internal Pipe */
+struct GFX_Internal_Pipe
+{
+	GFXPipeProcessFunc  process;
+	GFXPipe             pipe;
+};
+
 /** Internal Pipeline */
 struct GFX_Internal_Pipeline
 {
 	/* Super class */
 	GFXPipeline pipeline;
 
-	/* OpenGL handle */
-	GLuint fbo;
+	/* Hidden data */
+	GLuint    fbo;   /* OpenGL handle */
+	GFXDeque  pipes; /* Stores GFX_Internal_Pipe */
 
 	/* Not a shared resource */
 	const GFX_Extensions* ext;
 };
+
+/******************************************************/
+static void _gfx_pipe_free(struct GFX_Internal_Pipe* pipe)
+{
+	if(pipe->process) free(pipe->pipe.data);
+	else _gfx_bucket_free(pipe->pipe.bucket);
+}
+
+/******************************************************/
+static int _gfx_pipe_create_bucket(struct GFX_Internal_Pipe* pipe, unsigned char bits, GFXBatchProcessFunc process)
+{
+	/* Create bucket */
+	GFXBucket* bucket = _gfx_bucket_create(bits, process);
+	if(!bucket) return 0;
+
+	/* Fill the pipe */
+	pipe->process = NULL;
+	pipe->pipe.bucket = bucket;
+
+	return 1;
+}
+
+/******************************************************/
+static int _gfx_pipe_create_process(struct GFX_Internal_Pipe* pipe, GFXPipeProcessFunc process, size_t dataSize)
+{
+	/* Allocate data */
+	void* data = NULL;
+	if(dataSize)
+	{
+		data = malloc(dataSize);
+		if(!data) return 0;
+	}
+
+	/* Fill the pipe */
+	pipe->process = process;
+	pipe->pipe.data = data;
+
+	return 1;
+}
 
 /******************************************************/
 static void _gfx_pipeline_obj_free(void* object, const GFX_Extensions* ext)
@@ -110,6 +159,8 @@ GFXPipeline* gfx_pipeline_create(void)
 	pl->ext = &window->extensions;
 	pl->ext->GenFramebuffers(1, &pl->fbo);
 
+	gfx_deque_init(&pl->pipes, sizeof(struct GFX_Internal_Pipe));
+
 	return (GFXPipeline*)pl;
 }
 
@@ -123,9 +174,138 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(pipeline->id);
 
+		/* Free all pipes */
+		GFXDequeIterator it;
+		for(it = internal->pipes.begin; it != internal->pipes.end; it = gfx_deque_next(&internal->pipes, it))
+			_gfx_pipe_free((struct GFX_Internal_Pipe*)it);
+
 		/* Delete FBO */
 		if(internal->ext) internal->ext->DeleteFramebuffers(1, &internal->fbo);
 
+		gfx_deque_clear(&internal->pipes);
 		free(pipeline);
 	}
+}
+
+/******************************************************/
+unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBatchProcessFunc process)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Check for overflow (so many pipes, unbelievable!) */
+	unsigned short index = gfx_deque_get_size(&internal->pipes) + 1;
+	if(!index) return 0;
+
+	/* Create pipe */
+	struct GFX_Internal_Pipe pipe;
+	if(!_gfx_pipe_create_bucket(&pipe, bits, process)) return 0;
+
+	/* Insert and return actual index + 1 */
+	if(gfx_deque_push_back(&internal->pipes, &pipe) == internal->pipes.end)
+	{
+		_gfx_pipe_free(&pipe);
+		return 0;
+	}
+	return index;
+}
+
+/******************************************************/
+unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, GFXPipeProcessFunc process, size_t dataSize)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Check for overflow (moar pipes!) */
+	unsigned short index = gfx_deque_get_size(&internal->pipes) + 1;
+	if(!index) return 0;
+
+	/* Create pipe */
+	struct GFX_Internal_Pipe pipe;
+	if(!_gfx_pipe_create_process(&pipe, process, dataSize)) return 0;
+
+	/* Insert and return actual index + 1 */
+	if(gfx_deque_push_back(&internal->pipes, &pipe) == internal->pipes.end)
+	{
+		_gfx_pipe_free(&pipe);
+		return 0;
+	}
+	return index;
+}
+
+/******************************************************/
+int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigned char bits, GFXBatchProcessFunc process)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Validate index */
+	size_t size = gfx_deque_get_size(&internal->pipes);
+	if(!index || index > size) return 0;
+
+	/* Create new pipe */
+	struct GFX_Internal_Pipe pipe;
+	if(!_gfx_pipe_create_bucket(&pipe, bits, process)) return 0;
+
+	/* Free previous pipe & replace with new */
+	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
+
+	_gfx_pipe_free(p);
+	*p = pipe;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_pipeline_set_process(GFXPipeline* pipeline, unsigned short index, GFXPipeProcessFunc process, size_t dataSize)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Validate index */
+	size_t size = gfx_deque_get_size(&internal->pipes);
+	if(!index || index > size) return 0;
+
+	/* Create new pipe */
+	struct GFX_Internal_Pipe pipe;
+	if(!_gfx_pipe_create_process(&pipe, process, dataSize)) return 0;
+
+	/* Free previous pipe & replace with new */
+	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
+
+	_gfx_pipe_free(p);
+	*p = pipe;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type, GFXPipe* pipe)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Validate index */
+	size_t size = gfx_deque_get_size(&internal->pipes);
+	if(!index || index > size) return 0;
+
+	/* Retrieve data */
+	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
+
+	*type = p->process ? GFX_PIPE_PROCESS : GFX_PIPE_BUCKET;
+	*pipe = p->pipe;
+
+	return 1;
+}
+
+/******************************************************/
+unsigned short gfx_pipeline_pop(GFXPipeline* pipeline)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Get index of last call */
+	unsigned short index = gfx_deque_get_size(&internal->pipes);
+
+	/* Free the pipe */
+	_gfx_pipe_free((struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1));
+
+	/* Try to pop the last element */
+	gfx_deque_pop_back(&internal->pipes);
+
+	return index;
 }

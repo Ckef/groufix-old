@@ -104,7 +104,7 @@ static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXB
 }
 
 /******************************************************/
-GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process)
+GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process)
 {
 	/* Allocate bucket */
 	struct GFX_Internal_Bucket* bucket = calloc(1, sizeof(struct GFX_Internal_Bucket));
@@ -120,7 +120,7 @@ GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process)
 }
 
 /******************************************************/
-void gfx_bucket_free(GFXBucket* bucket)
+void _gfx_bucket_free(GFXBucket* bucket)
 {
 	if(bucket)
 	{
@@ -130,6 +130,24 @@ void gfx_bucket_free(GFXBucket* bucket)
 		gfx_vector_clear(&internal->batches);
 
 		free(bucket);
+	}
+}
+
+/******************************************************/
+void _gfx_bucket_process(GFXBucket* bucket)
+{
+	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
+
+	/* Check if sort is needed */
+	if((internal->batches.begin == internal->batches.end) && internal->first)
+		_gfx_bucket_radix_sort(1 << internal->bit, &internal->first, &internal->last, internal);
+
+	/* Process */
+	GFXVectorIterator it;
+	for(it = internal->batches.begin; it != internal->batches.end; it = gfx_vector_next(&internal->batches, it))
+	{
+		struct GFX_Internal_Batch* batch = it;
+		bucket->process(((struct GFX_Internal_Unit*)batch->first)->state, batch->first, batch->last);
 	}
 }
 
@@ -208,22 +226,4 @@ void gfx_bucket_erase(GFXBatchUnit* unit)
 
 	/* Force a re-sort */
 	gfx_vector_clear(&bucket->batches);
-}
-
-/******************************************************/
-void gfx_bucket_process(GFXBucket* bucket)
-{
-	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
-
-	/* Check if sort is needed */
-	if((internal->batches.begin == internal->batches.end) && internal->first)
-		_gfx_bucket_radix_sort(1 << internal->bit, &internal->first, &internal->last, internal);
-
-	/* Process */
-	GFXVectorIterator it;
-	for(it = internal->batches.begin; it != internal->batches.end; it = gfx_vector_next(&internal->batches, it))
-	{
-		struct GFX_Internal_Batch* batch = it;
-		bucket->process(((struct GFX_Internal_Unit*)batch->first)->state, batch->first, batch->last);
-	}
 }

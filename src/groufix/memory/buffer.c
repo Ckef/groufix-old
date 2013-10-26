@@ -346,6 +346,8 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsa
 
 	/* Strip access bitfield */
 	access &= GFX_BUFFER_READ | GFX_BUFFER_WRITE;
+	access |= !(access & GFX_BUFFER_WRITE) ? GL_MAP_UNSYNCHRONIZED_BIT : 0;
+
 	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 
 	return window->extensions.MapBufferRange(GL_ARRAY_BUFFER, offset, size, access);

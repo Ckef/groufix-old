@@ -59,22 +59,6 @@ typedef struct GFXBucket
 
 
 /**
- * Creates a new bucket.
- *
- * @param bits    Number of bits to consider when sorting (LSB = 1st bit, 0 for all bits).
- * @param process Function to process batches with, cannot be NULL.
- * @return NULL on failure.
- *
- */
-GFXBucket* gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process);
-
-/**
- * Makes sure the bucket is freed properly.
- *
- */
-void gfx_bucket_free(GFXBucket* bucket);
-
-/**
  * Insert a unit to be processed into the bucket.
  *
  * @param state    State to associate this unit with.
@@ -114,11 +98,31 @@ const void* gfx_bucket_get_data(const GFXBatchUnit* unit);
  */
 void gfx_bucket_erase(GFXBatchUnit* unit);
 
-/**
- * Processes the bucket, calling all batch processes.
- *
- */
-void gfx_bucket_process(GFXBucket* bucket);
+
+/********************************************************
+ * Pipe (processes to transfer between states)
+ *******************************************************/
+
+/** Process to push to a pipeline */
+typedef void (*GFXPipeProcessFunc)(void*);
+
+
+/** Pipe types */
+typedef enum GFXPipeType
+{
+	GFX_PIPE_BUCKET,
+	GFX_PIPE_PROCESS
+
+} GFXPipeType;
+
+
+/** Individual pipe */
+typedef union GFXPipe
+{
+	GFXBucket*   bucket; /* Bucket to be processed */
+	void*        data;   /* Data associated with a process */
+
+} GFXPipe;
 
 
 /********************************************************
@@ -146,6 +150,65 @@ GFXPipeline* gfx_pipeline_create(void);
  *
  */
 void gfx_pipeline_free(GFXPipeline* pipeline);
+
+/**
+ * Adds a bucket to the pipeline.
+ *
+ * @param bits    Number of bits to sort by.
+ * @param process Process to apply to batches.
+ * @return Index of the pipe (0 on failure).
+ *
+ */
+unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBatchProcessFunc process);
+
+/**
+ * Adds a process to the pipeline.
+ *
+ * @param dataSize Bytes of the data to pass to the process.
+ * @return Index of the pipe (0 on failure).
+ *
+ */
+unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, GFXPipeProcessFunc process, size_t dataSize);
+
+/**
+ * Changes a pipe to be a bucket.
+ *
+ * @param index   Index to change.
+ * @param bits    Number of bits to sort by.
+ * @param process Process to apply to batches.
+ * @return Non-zero if the pipe could be changed.
+ *
+ */
+int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigned char bits, GFXBatchProcessFunc process);
+
+/**
+ * Changes a pipe to be a process.
+ *
+ * @param index    Index to change.
+ * @param dataSize Bytes of the data to pass to the process.
+ * @return Non-zero if the pipe could be changed.
+ *
+ */
+int gfx_pipeline_set_process(GFXPipeline* pipeline, unsigned short index, GFXPipeProcessFunc process, size_t dataSize);
+
+/**
+ * Returns the data associated with a pipe.
+ *
+ * @param index Index to return.
+ * @param type  Returns the type of the pipe.
+ * @param pipe  Returns the pipe itself.
+ * @return Non-zero on success.
+ *
+ */
+int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type, GFXPipe* pipe);
+
+/**
+ * Removes the last added pipe.
+ *
+ * @return Index of the removed pipe (0 if no pipes were present).
+ *
+ */
+unsigned short gfx_pipeline_pop(GFXPipeline* pipeline);
 
 
 #ifdef __cplusplus
