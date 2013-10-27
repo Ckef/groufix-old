@@ -22,7 +22,7 @@
 #ifndef GFX_INTERNAL_H
 #define GFX_INTERNAL_H
 
-#include "groufix/geometry.h"
+#include "groufix/memory.h"
 #include "groufix/pipeline.h"
 #include "groufix/shading.h"
 #include "groufix/platform.h"

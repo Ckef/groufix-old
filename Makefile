@@ -76,7 +76,6 @@ HEADERS = \
  $(INCLUDE)/groufix/math/quat.h \
  $(INCLUDE)/groufix/math/vec.h \
  $(INCLUDE)/groufix/errors.h \
- $(INCLUDE)/groufix/geometry.h \
  $(INCLUDE)/groufix/math.h \
  $(INCLUDE)/groufix/memory.h \
  $(INCLUDE)/groufix/pipeline.h \
@@ -132,9 +131,9 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/deque.o \
  $(OUT)/unix-x11/groufix/containers/list.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
- $(OUT)/unix-x11/groufix/geometry/layout.o \
  $(OUT)/unix-x11/groufix/memory/buffer.o \
  $(OUT)/unix-x11/groufix/memory/formats.o \
+ $(OUT)/unix-x11/groufix/memory/layout.o \
  $(OUT)/unix-x11/groufix/memory/texture.o \
  $(OUT)/unix-x11/groufix/pipeline/bucket.o \
  $(OUT)/unix-x11/groufix/pipeline/pipes.o \
@@ -183,13 +182,13 @@ $(OUT)/unix-x11/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HE
 $(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-$(OUT)/unix-x11/groufix/geometry/layout.o: $(SRC)/groufix/geometry/layout.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
 $(OUT)/unix-x11/groufix/memory/buffer.o: $(SRC)/groufix/memory/buffer.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/memory/formats.o: $(SRC)/groufix/memory/formats.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
+$(OUT)/unix-x11/groufix/memory/layout.o: $(SRC)/groufix/memory/layout.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/memory/texture.o: $(SRC)/groufix/memory/texture.c $(HEADERS_X11)
@@ -251,9 +250,9 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/deque.o \
  $(OUT)/win32/groufix/containers/list.o \
  $(OUT)/win32/groufix/containers/vector.o \
- $(OUT)/win32/groufix/geometry/layout.o \
  $(OUT)/win32/groufix/memory/buffer.o \
  $(OUT)/win32/groufix/memory/formats.o \
+ $(OUT)/win32/groufix/memory/layout.o \
  $(OUT)/win32/groufix/memory/texture.o \
  $(OUT)/win32/groufix/pipeline/bucket.o \
  $(OUT)/win32/groufix/pipeline/pipes.o \
@@ -302,13 +301,13 @@ $(OUT)/win32/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEADE
 $(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/geometry/layout.o: $(SRC)/groufix/geometry/layout.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
 $(OUT)/win32/groufix/memory/buffer.o: $(SRC)/groufix/memory/buffer.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/memory/formats.o: $(SRC)/groufix/memory/formats.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/memory/layout.o: $(SRC)/groufix/memory/layout.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/memory/texture.o: $(SRC)/groufix/memory/texture.c $(HEADERS_WIN32)
