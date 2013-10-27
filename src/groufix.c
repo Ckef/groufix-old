@@ -25,6 +25,9 @@
 /******************************************************/
 int gfx_init(void)
 {
+	/* To make it clip against the maximum */
+	gfx_hardware_set_max_id_width(GFX_HARDWARE_ID_WIDTH_DEFAULT);
+
 	/* Initialize platform */
 	if(_gfx_platform_init()) return 1;
 

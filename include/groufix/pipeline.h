@@ -116,6 +116,26 @@ typedef enum GFXPipeType
 } GFXPipeType;
 
 
+/** Pipe state */
+typedef enum GFXPipeState
+{
+	GFX_STATE_CLEAR_COLOR    = 0x0001,
+	GFX_STATE_CLEAR_DEPTH    = 0x0002,
+	GFX_STATE_CLEAR_STENCIL  = 0x0004,
+	GFX_STATE_NO_RASTERIZER  = 0x0008,
+
+	GFX_STATE_DEPTH_WRITE    = 0x0010,
+	GFX_STATE_DEPTH_TEST     = 0x0020,
+	GFX_STATE_CULL_FRONT     = 0x0040,
+	GFX_STATE_CULL_BACK      = 0x0080,
+	GFX_STATE_BLEND          = 0x0100,
+	GFX_STATE_STENCIL_TEST   = 0x0200,
+
+	GFX_STATE_DEFAULT = GFX_STATE_DEPTH_WRITE | GFX_STATE_DEPTH_TEST | GFX_STATE_CULL_BACK
+
+} GFXPipeState;
+
+
 /** Individual pipe */
 typedef union GFXPipe
 {
@@ -192,15 +212,27 @@ int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigne
 int gfx_pipeline_set_process(GFXPipeline* pipeline, unsigned short index, GFXPipeProcessFunc process, size_t dataSize);
 
 /**
+ * Sets the state of a pipe.
+ *
+ * @param index Index to set the state of.
+ * @return Non-zero if the state could be changed.
+ *
+ * The default is that of the previous pipe, the first pipe well have GFX_STATE_DEFAULT as default.
+ *
+ */
+int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeState state);
+
+/**
  * Returns the data associated with a pipe.
  *
  * @param index Index to return.
  * @param type  Returns the type of the pipe (can be NULL).
- * @param pipe  Returns the pipe itself.
+ * @param state Returns the state of the pipe (can be NULL).
+ * @param pipe  Returns the pipe itself (can be NULL).
  * @return Non-zero on success.
  *
  */
-int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type, GFXPipe* pipe);
+int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type, GFXPipeState* state, GFXPipe* pipe);
 
 /**
  * Removes the last added pipe.

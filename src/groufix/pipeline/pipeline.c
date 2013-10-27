@@ -30,6 +30,7 @@
 struct GFX_Internal_Pipe
 {
 	GFXPipeProcessFunc  process;
+	GFXPipeState        state;
 	GFXPipe             pipe;
 };
 
@@ -63,6 +64,7 @@ static int _gfx_pipe_create_bucket(struct GFX_Internal_Pipe* pipe, unsigned char
 
 	/* Fill the pipe */
 	pipe->process = NULL;
+	pipe->state = GFX_STATE_DEFAULT;
 	pipe->pipe.bucket = bucket;
 
 	return 1;
@@ -81,6 +83,7 @@ static int _gfx_pipe_create_process(struct GFX_Internal_Pipe* pipe, GFXPipeProce
 
 	/* Fill the pipe */
 	pipe->process = process;
+	pipe->state = GFX_STATE_DEFAULT;
 	pipe->pipe.data = data;
 
 	return 1;
@@ -94,6 +97,15 @@ static void _gfx_pipeline_set_pipe(struct GFX_Internal_Pipeline* pipeline, struc
 
 	_gfx_pipe_free(p);
 	*p = pipe;
+}
+
+/******************************************************/
+static GFXPipeState _gfx_pipeline_get_state(struct GFX_Internal_Pipeline* pipeline, unsigned short index)
+{
+	/* Return default state if index 0 */
+	if(!index) return GFX_STATE_DEFAULT;
+
+	return ((struct GFX_Internal_Pipe*)gfx_deque_at(&pipeline->pipes, index - 1))->state;
 }
 
 /******************************************************/
@@ -208,7 +220,9 @@ unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bit
 
 	/* Create pipe */
 	struct GFX_Internal_Pipe pipe;
+
 	if(!_gfx_pipe_create_bucket(&pipe, bits, process)) return 0;
+	pipe.state = _gfx_pipeline_get_state(internal, index - 1);
 
 	/* Insert and return actual index + 1 */
 	if(gfx_deque_push_back(&internal->pipes, &pipe) == internal->pipes.end)
@@ -230,7 +244,9 @@ unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, GFXPipeProcessFu
 
 	/* Create pipe */
 	struct GFX_Internal_Pipe pipe;
+
 	if(!_gfx_pipe_create_process(&pipe, process, dataSize)) return 0;
+	pipe.state = _gfx_pipeline_get_state(internal, index - 1);
 
 	/* Insert and return actual index + 1 */
 	if(gfx_deque_push_back(&internal->pipes, &pipe) == internal->pipes.end)
@@ -254,6 +270,7 @@ int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigne
 	struct GFX_Internal_Pipe pipe;
 	if(!_gfx_pipe_create_bucket(&pipe, bits, process)) return 0;
 
+	pipe.state = _gfx_pipeline_get_state(internal, index);
 	_gfx_pipeline_set_pipe(internal, pipe, index);
 
 	return 1;
@@ -272,13 +289,29 @@ int gfx_pipeline_set_process(GFXPipeline* pipeline, unsigned short index, GFXPip
 	struct GFX_Internal_Pipe pipe;
 	if(!_gfx_pipe_create_process(&pipe, process, dataSize)) return 0;
 
+	pipe.state = _gfx_pipeline_get_state(internal, index);
 	_gfx_pipeline_set_pipe(internal, pipe, index);
 
 	return 1;
 }
 
 /******************************************************/
-int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type, GFXPipe* pipe)
+int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeState state)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Validate index */
+	size_t size = gfx_deque_get_size(&internal->pipes);
+	if(!index || index > size) return 0;
+
+	/* Set state of pipe */
+	((struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1))->state = state;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type, GFXPipeState* state, GFXPipe* pipe)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 
@@ -290,7 +323,8 @@ int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* t
 	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
 
 	if(type) *type = p->process ? GFX_PIPE_PROCESS : GFX_PIPE_BUCKET;
-	*pipe = p->pipe;
+	if(state) *state = p->state;
+	if(pipe) *pipe = p->pipe;
 
 	return 1;
 }

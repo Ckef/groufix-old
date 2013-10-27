@@ -277,6 +277,9 @@ unsigned int gfx_hardware_poll_errors(const char* description);
  * The actual width is one bit extra,
  * as you can always subract 1 to get an ID of the passed width (0 is not a valid ID).
  *
+ * Note: in order for this call to have any effect,
+ * it should be called before hardware objects are created.
+ *
  */
 void gfx_hardware_set_max_id_width(unsigned char width);
 

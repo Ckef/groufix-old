@@ -144,14 +144,18 @@ void _gfx_extensions_load(void)
 	glGetIntegerv(GL_MAJOR_VERSION, &major);
 	glGetIntegerv(GL_MINOR_VERSION, &minor);
 
+	/* Settings */
+	glDepthRangef(0.0f, 1.0f);
+	glFrontFace(GL_CCW);
+
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &ext->limits[GFX_LIM_MAX_ACTIVE_TEXTURES]);
-	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,        &ext->limits[GFX_LIM_MAX_CUBEMAP_SIZE]);
-	glGetIntegerv(GL_MAX_SAMPLES,                      &ext->limits[GFX_LIM_MAX_SAMPLES]);
-	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,              &ext->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE]);
-	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,         &ext->limits[GFX_LIM_MAX_TEXTURE_LAYERS]);
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE,                 &ext->limits[GFX_LIM_MAX_TEXTURE_SIZE]);
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,               &ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]);
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, ext->limits + GFX_LIM_MAX_ACTIVE_TEXTURES);
+	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,        ext->limits + GFX_LIM_MAX_CUBEMAP_SIZE);
+	glGetIntegerv(GL_MAX_SAMPLES,                      ext->limits + GFX_LIM_MAX_SAMPLES);
+	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,              ext->limits + GFX_LIM_MAX_TEXTURE_3D_SIZE);
+	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,         ext->limits + GFX_LIM_MAX_TEXTURE_LAYERS);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE,                 ext->limits + GFX_LIM_MAX_TEXTURE_SIZE);
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,               ext->limits + GFX_LIM_MAX_VERTEX_ATTRIBS);
 
 #ifdef GFX_GLES
 
@@ -239,7 +243,7 @@ void _gfx_extensions_load(void)
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &ext->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE]);
+	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, ext->limits + GFX_LIM_MAX_BUFFER_TEXTURE_SIZE);
 
 	/* Default Extensions */
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]      = 1;
