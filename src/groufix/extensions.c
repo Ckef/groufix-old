@@ -148,9 +148,6 @@ void _gfx_extensions_load(void)
 	glDepthRangef(0.0f, 1.0f);
 	glFrontFace(GL_CCW);
 
-	/* Set default state */
-	_gfx_states_force_set(GFX_STATE_DEFAULT, ext);
-
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, ext->limits + GFX_LIM_MAX_ACTIVE_TEXTURES);
 	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,        ext->limits + GFX_LIM_MAX_CUBEMAP_SIZE);
@@ -385,6 +382,8 @@ void _gfx_extensions_load(void)
 
 #endif
 
+	/* Set default state */
+	_gfx_states_force_set(GFX_STATE_DEFAULT, ext);
 }
 
 /******************************************************/
