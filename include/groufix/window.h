@@ -434,6 +434,15 @@ int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth
 void gfx_window_free(GFXWindow* window);
 
 /**
+ * Returns whether a window is still alive.
+ *
+ * A window can be destroyed by other means than freeing it,
+ * this call queries whether the window is still physically open.
+ *
+ */
+int gfx_window_is_open(GFXWindow* window);
+
+/**
  * Returns the screen associated with a window.
  *
  */

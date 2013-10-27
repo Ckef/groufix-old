@@ -347,6 +347,12 @@ void gfx_window_free(GFXWindow* window)
 }
 
 /******************************************************/
+int gfx_window_is_open(GFXWindow* window)
+{
+	return ((GFX_Internal_Window*)window)->handle ? 1 : 0;
+}
+
+/******************************************************/
 GFXScreen gfx_window_get_screen(const GFXWindow* window)
 {
 	/* Check if zombie window */
