@@ -22,6 +22,8 @@
 #ifndef GFX_WINDOW_H
 #define GFX_WINDOW_H
 
+#include <stddef.h>
+
 /* Minimal supported context */
 #define GFX_CONTEXT_MAJOR_MIN 3
 #define GFX_CONTEXT_MINOR_MIN 2
@@ -31,7 +33,10 @@
 #define GFX_CONTEXT_MINOR_MAX 4
 
 /* Greatest minor version possible */
-#define GFX_CONTEXT_ALL_MINORS_MAX 4;
+#define GFX_CONTEXT_ALL_MINORS_MAX 4
+
+/* Default hardware ID width */
+#define GFX_HARDWARE_ID_WIDTH_DEFAULT 20
 
 #ifdef __cplusplus
 extern "C" {
@@ -240,15 +245,6 @@ typedef enum GFXLimit
 } GFXLimit;
 
 
-/* OpenGL Context */
-typedef struct GFXContext
-{
-	int major;
-	int minor;
-
-} GFXContext;
-
-
 /**
  * Returns whether a given extension is supported or not.
  *
@@ -274,12 +270,23 @@ int gfx_hardware_get_limit(GFXLimit limit);
  */
 unsigned int gfx_hardware_poll_errors(const char* description);
 
-
 /**
- * Requests a minimal OpenGL Context for new windows.
+ * Sets the maximum bit width of any hardware ID.
+ *
+ * This determines how many objects with an hardware ID can be alive at the same time.
+ * The actual width is one bit extra,
+ * as you can always subract 1 to get an ID of the passed width (0 is not a valid ID).
  *
  */
-void gfx_request_context(GFXContext context);
+void gfx_hardware_set_max_id_width(unsigned char width);
+
+/**
+ * Returns the maximum hardware ID (not the width!).
+ *
+ * Subtracting one will get an ID with all 1s for the given bit width.
+ *
+ */
+size_t gfx_hardware_get_max_id(void);
 
 
 /********************************************************
@@ -382,6 +389,21 @@ typedef struct GFXColorDepth
 
 } GFXColorDepth;
 
+
+/* OpenGL Context */
+typedef struct GFXContext
+{
+	int major;
+	int minor;
+
+} GFXContext;
+
+
+/**
+ * Requests a minimal OpenGL Context for new windows.
+ *
+ */
+void gfx_request_context(GFXContext context);
 
 /**
  * Returns the number of windows.

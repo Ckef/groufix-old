@@ -152,7 +152,7 @@ void _gfx_bucket_process(GFXBucket* bucket)
 }
 
 /******************************************************/
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize, const void* data)
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize)
 {
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 	size_t size = sizeof(struct GFX_Internal_Unit) + dataSize;
@@ -160,8 +160,6 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t d
 	/* Create unit */
 	struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)gfx_list_create(size);
 	if(!unit) return NULL;
-
-	memcpy(unit + 1, data, dataSize);
 
 	unit->state = state;
 	unit->bucket = bucket;
@@ -206,9 +204,9 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state)
 }
 
 /******************************************************/
-const void* gfx_bucket_get_data(const GFXBatchUnit* unit)
+void* gfx_bucket_get_data(GFXBatchUnit* unit)
 {
-	return ((const struct GFX_Internal_Unit*)unit) + 1;
+	return ((struct GFX_Internal_Unit*)unit) + 1;
 }
 
 /******************************************************/

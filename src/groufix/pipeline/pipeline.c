@@ -87,6 +87,16 @@ static int _gfx_pipe_create_process(struct GFX_Internal_Pipe* pipe, GFXPipeProce
 }
 
 /******************************************************/
+static void _gfx_pipeline_set_pipe(struct GFX_Internal_Pipeline* pipeline, struct GFX_Internal_Pipe pipe, unsigned short index)
+{
+	/* Free previous pipe & replace with new */
+	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&pipeline->pipes, index - 1);
+
+	_gfx_pipe_free(p);
+	*p = pipe;
+}
+
+/******************************************************/
 static void _gfx_pipeline_obj_free(void* object, const GFX_Extensions* ext)
 {
 	struct GFX_Internal_Pipeline* pipeline = (struct GFX_Internal_Pipeline*)object;
@@ -244,11 +254,7 @@ int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigne
 	struct GFX_Internal_Pipe pipe;
 	if(!_gfx_pipe_create_bucket(&pipe, bits, process)) return 0;
 
-	/* Free previous pipe & replace with new */
-	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
-
-	_gfx_pipe_free(p);
-	*p = pipe;
+	_gfx_pipeline_set_pipe(internal, pipe, index);
 
 	return 1;
 }
@@ -266,11 +272,7 @@ int gfx_pipeline_set_process(GFXPipeline* pipeline, unsigned short index, GFXPip
 	struct GFX_Internal_Pipe pipe;
 	if(!_gfx_pipe_create_process(&pipe, process, dataSize)) return 0;
 
-	/* Free previous pipe & replace with new */
-	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
-
-	_gfx_pipe_free(p);
-	*p = pipe;
+	_gfx_pipeline_set_pipe(internal, pipe, index);
 
 	return 1;
 }
@@ -287,7 +289,7 @@ int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* t
 	/* Retrieve data */
 	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
 
-	*type = p->process ? GFX_PIPE_PROCESS : GFX_PIPE_BUCKET;
+	if(type) *type = p->process ? GFX_PIPE_PROCESS : GFX_PIPE_BUCKET;
 	*pipe = p->pipe;
 
 	return 1;
@@ -308,4 +310,20 @@ unsigned short gfx_pipeline_pop(GFXPipeline* pipeline)
 	gfx_deque_pop_back(&internal->pipes);
 
 	return index;
+}
+
+/******************************************************/
+void gfx_pipeline_execute(GFXPipeline* pipeline)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Iterate over all pipes */
+	GFXDequeIterator it;
+	for(it = internal->pipes.begin; it != internal->pipes.end; it = gfx_deque_next(&internal->pipes, it))
+	{
+		struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)it;
+
+		if(pipe->process) pipe->process(pipe->pipe.data);
+		else _gfx_bucket_process(pipe->pipe.bucket);
+	}
 }

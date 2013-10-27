@@ -41,9 +41,6 @@
 #define APIENTRYP APIENTRY *
 #endif
 
-/* Hardware Object Limit */
-#define GFX_MAX_HARDWARE_ID 0x100000
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -273,7 +270,7 @@ typedef struct GFX_Hardware_Funcs
  *
  * @object Arbitrary data to identify with a number.
  * @funcs  Functions to associate with the object.
- * @return Identifier of the object, 1 <= id <= GFX_MAX_HARDWARE_ID (0 on failure).
+ * @return Identifier of the object, 1 <= id <= max hardware ID (0 on failure).
  *
  * When an object is registered, it will be asked to free when all contexts are destroyed,
  * or reconstructed when the main context is destroyed.

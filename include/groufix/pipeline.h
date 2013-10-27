@@ -68,7 +68,7 @@ typedef struct GFXBucket
  * Note: this forces the bucket to have to preprocess.
  *
  */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize, const void* data);
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize);
 
 /**
  * Returns the state associated with a unit.
@@ -88,7 +88,7 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
  * Returns a pointer to the data with previously requested uploaded data.
  *
  */
-const void* gfx_bucket_get_data(const GFXBatchUnit* unit);
+void* gfx_bucket_get_data(GFXBatchUnit* unit);
 
 /**
  * Erases and frees a unit from its bucket.
@@ -195,7 +195,7 @@ int gfx_pipeline_set_process(GFXPipeline* pipeline, unsigned short index, GFXPip
  * Returns the data associated with a pipe.
  *
  * @param index Index to return.
- * @param type  Returns the type of the pipe.
+ * @param type  Returns the type of the pipe (can be NULL).
  * @param pipe  Returns the pipe itself.
  * @return Non-zero on success.
  *
@@ -209,6 +209,12 @@ int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* t
  *
  */
 unsigned short gfx_pipeline_pop(GFXPipeline* pipeline);
+
+/**
+ * Executes all pipes in order.
+ *
+ */
+void gfx_pipeline_execute(GFXPipeline* pipeline);
 
 
 #ifdef __cplusplus

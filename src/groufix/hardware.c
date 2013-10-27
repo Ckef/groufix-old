@@ -27,6 +27,9 @@
 #include <string.h>
 
 /******************************************************/
+/* Maximum hardware ID width */
+static unsigned char _gfx_hw_max_id = GFX_HARDWARE_ID_WIDTH_DEFAULT;
+
 /* Created objects, index = ID */
 static GFXVector* _gfx_hw_objects = NULL;
 
@@ -81,6 +84,25 @@ unsigned int gfx_hardware_poll_errors(const char* description)
 }
 
 /******************************************************/
+void gfx_hardware_set_max_id_width(unsigned char width)
+{
+	/* Clamp to maximum (max width - 1) */
+	unsigned char max = (sizeof(size_t) << 3) - 1;
+	width = max > width ? max : width;
+
+	_gfx_hw_max_id = width;
+}
+
+/******************************************************/
+size_t gfx_hardware_get_max_id(void)
+{
+	size_t id = 1;
+	id <<= _gfx_hw_max_id;
+
+	return id;
+}
+
+/******************************************************/
 size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* funcs)
 {
 	/* Create internal object */
@@ -117,7 +139,7 @@ size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* fun
 		/* Get index + 1 as ID and check it against the maximum */
 		/* Or overflow? omg, many objects! */
 		id = gfx_vector_get_size(_gfx_hw_objects) + 1;
-		if(!id || id > GFX_MAX_HARDWARE_ID) return 0;
+		if(!id || id > gfx_hardware_get_max_id()) return 0;
 
 		/* Insert a new object at the end */
 		if(gfx_vector_insert(_gfx_hw_objects, &internal, _gfx_hw_objects->end) == _gfx_hw_objects->end)
