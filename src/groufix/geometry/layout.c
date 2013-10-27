@@ -84,7 +84,7 @@ static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct
 }
 
 /******************************************************/
-static void _gfx_layout_obj_free(void* object, const GFX_Extensions* ext)
+static void _gfx_layout_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 
@@ -99,7 +99,7 @@ static void _gfx_layout_obj_free(void* object, const GFX_Extensions* ext)
 }
 
 /******************************************************/
-static void _gfx_layout_obj_save(void* object, const GFX_Extensions* ext)
+static void _gfx_layout_obj_save(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 
@@ -111,7 +111,7 @@ static void _gfx_layout_obj_save(void* object, const GFX_Extensions* ext)
 }
 
 /******************************************************/
-static void _gfx_layout_obj_restore(void* object, const GFX_Extensions* ext)
+static void _gfx_layout_obj_restore(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 

@@ -109,7 +109,7 @@ static void _gfx_buffer_delete_buffers(struct GFX_Internal_Buffer* buffer, GFXVe
 }
 
 /******************************************************/
-static void _gfx_buffer_obj_free(void* object, const GFX_Extensions* ext)
+static void _gfx_buffer_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Buffer* buffer = (struct GFX_Internal_Buffer*)object;
 	

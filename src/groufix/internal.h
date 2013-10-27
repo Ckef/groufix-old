@@ -58,11 +58,13 @@ typedef void (APIENTRYP GFX_BINDTEXTUREPROC)              (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDVERTEXARRAYPROC)          (GLuint);
 typedef void (APIENTRYP GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
 typedef void (APIENTRYP GFX_BUFFERSUBDATAPROC)            (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
+typedef void (APIENTRYP GFX_CLEARPROC)                    (GLbitfield);
 typedef GLenum (APIENTRYP GFX_CLIENTWAITSYNCPROC)         (GLsync, GLbitfield, GLuint64);
 typedef void (APIENTRYP GFX_COMPILESHADERPROC)            (GLuint);
 typedef void (APIENTRYP GFX_COPYBUFFERSUBDATAPROC)        (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr);
 typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)          (void);
 typedef GLuint (APIENTRYP GFX_CREATESHADERPROC)           (GLenum);
+typedef void (APIENTRYP GFX_CULLFACEPROC)                 (GLenum);
 typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)            (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEFRAMEBUFFERSPROC)       (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEPROGRAMPROC)            (GLuint);
@@ -70,12 +72,15 @@ typedef void (APIENTRYP GFX_DELETESHADERPROC)             (GLuint);
 typedef void (APIENTRYP GFX_DELETESYNCPROC)               (GLsync);
 typedef void (APIENTRYP GFX_DELETETEXTURESPROC)           (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEVERTEXARRAYSPROC)       (GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_DEPTHMASKPROC)                (GLboolean);
 typedef void (APIENTRYP GFX_DETACHSHADERPROC)             (GLuint, GLuint);
+typedef void (APIENTRYP GFX_DISABLEPROC)                  (GLenum);
 typedef void (APIENTRYP GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
 typedef void (APIENTRYP GFX_DRAWARRAYSPROC)               (GLenum, GLint, GLsizei);
 typedef void (APIENTRYP GFX_DRAWARRAYSINSTANCEDPROC)      (GLenum, GLint, GLsizei, GLsizei);
 typedef void (APIENTRYP GFX_DRAWELEMENTSPROC)             (GLenum, GLsizei, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei);
+typedef void (APIENTRYP GFX_ENABLEPROC)                   (GLenum);
 typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef GLsync (APIENTRYP GFX_FENCESYNCPROC)              (GLenum, GLbitfield);
 typedef void (APIENTRYP GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
@@ -114,7 +119,7 @@ typedef void (APIENTRYP GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum
 typedef void (APIENTRYP GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
 
 
-/** OpenGL extensions, a.k.a HardwareExtensions */
+/** OpenGL extensions, a.k.a actual OGL Context */
 typedef struct GFX_Extensions
 {
 	/* Hardware Extensions */
@@ -122,6 +127,9 @@ typedef struct GFX_Extensions
 
 	/* Hardware Limits */
 	int limits[GFX_LIM_COUNT];
+
+	/* OpenGL State */
+	GFXPipeState state;
 
 	/* OpenGL Extensions */
 	GFX_ACTIVETEXTUREPROC             ActiveTexture;
@@ -132,11 +140,13 @@ typedef struct GFX_Extensions
 	GFX_BINDVERTEXARRAYPROC           BindVertexArray;
 	GFX_BUFFERDATAPROC                BufferData;
 	GFX_BUFFERSUBDATAPROC             BufferSubData;
+	GFX_CLEARPROC                     Clear;
 	GFX_CLIENTWAITSYNCPROC            ClientWaitSync;
 	GFX_COMPILESHADERPROC             CompileShader;
 	GFX_COPYBUFFERSUBDATAPROC         CopyBufferSubData;
 	GFX_CREATEPROGRAMPROC             CreateProgram;
 	GFX_CREATESHADERPROC              CreateShader;
+	GFX_CULLFACEPROC                  CullFace;
 	GFX_DELETEBUFFERSPROC             DeleteBuffers;
 	GFX_DELETEFRAMEBUFFERSPROC        DeleteFramebuffers;
 	GFX_DELETEPROGRAMPROC             DeleteProgram;
@@ -144,12 +154,15 @@ typedef struct GFX_Extensions
 	GFX_DELETESYNCPROC                DeleteSync;
 	GFX_DELETETEXTURESPROC            DeleteTextures;
 	GFX_DELETEVERTEXARRAYSPROC        DeleteVertexArrays;
+	GFX_DEPTHMASKPROC                 DepthMask;
 	GFX_DETACHSHADERPROC              DetachShader;
+	GFX_DISABLEPROC                   Disable;
 	GFX_DISABLEVERTEXATTRIBARRAYPROC  DisableVertexAttribArray;
 	GFX_DRAWARRAYSPROC                DrawArrays;
 	GFX_DRAWARRAYSINSTANCEDPROC       DrawArraysInstanced;
 	GFX_DRAWELEMENTSPROC              DrawElements;
 	GFX_DRAWELEMENTSINSTANCEDPROC     DrawElementsInstanced;
+	GFX_ENABLEPROC                    Enable;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
 	GFX_FENCESYNCPROC                 FenceSync;
 	GFX_GENBUFFERSPROC                GenBuffers;
@@ -252,7 +265,7 @@ void _gfx_extensions_load(void);
  *******************************************************/
 
 /** Generic hardware object operator */
-typedef void (*GFX_Hardware_Object_Func) (void* object, const GFX_Extensions*);
+typedef void (*GFX_Hardware_Object_Func) (void* object, GFX_Extensions*);
 
 
 /** Hardware vtable, can all be NULL */
@@ -299,7 +312,7 @@ void _gfx_hardware_object_unregister(size_t id);
  * Thus this callback is NOT allowed to unregister the object.
  *
  */
-void _gfx_hardware_objects_free(const GFX_Extensions* ext);
+void _gfx_hardware_objects_free(GFX_Extensions* ext);
 
 /**
  * Issue save method of all hardware objects.
@@ -308,7 +321,7 @@ void _gfx_hardware_objects_free(const GFX_Extensions* ext);
  * It is guaranteed another context is still active, this is only meant for objects which can't be shared.
  *
  */
-void _gfx_hardware_objects_save(const GFX_Extensions* ext);
+void _gfx_hardware_objects_save(GFX_Extensions* ext);
 
 /**
  * Issue restore method of all hardware objects.
@@ -316,7 +329,7 @@ void _gfx_hardware_objects_save(const GFX_Extensions* ext);
  * During this operation, a new window and context is current.
  *
  */
-void _gfx_hardware_objects_restore(const GFX_Extensions* ext);
+void _gfx_hardware_objects_restore(GFX_Extensions* ext);
 
 
 /********************************************************

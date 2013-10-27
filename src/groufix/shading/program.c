@@ -36,7 +36,7 @@ struct GFX_Internal_Program
 };
 
 /******************************************************/
-static void _gfx_program_obj_free(void* object, const GFX_Extensions* ext)
+static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Program* program = (struct GFX_Internal_Program*)object;
 

@@ -19,14 +19,36 @@
  *
  */
 
-#ifndef GFX_PIPELINE_PIPES_H
-#define GFX_PIPELINE_PIPES_H
+#ifndef GFX_PIPELINE_INTERNAL_H
+#define GFX_PIPELINE_INTERNAL_H
 
-#include "groufix/pipeline.h"
+#include "groufix/internal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/********************************************************
+ * OpenGL State management
+ *******************************************************/
+
+/**
+ * Sets the state of a context.
+ *
+ * Note: this assumes the context is current.
+ *
+ */
+void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext);
+
+/**
+ * Forces all state fields of a context.
+ *
+ * This will reset all state fields, regardless of previous states.
+ * Note: this assumes the context is current.
+ *
+ */
+void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
+
 
 /********************************************************
  * Internal bucket creation & processing
@@ -59,4 +81,4 @@ void _gfx_bucket_process(GFXBucket* bucket);
 }
 #endif
 
-#endif // GFX_PIPES_H
+#endif // GFX_PIPELINE_INTERNAL_H

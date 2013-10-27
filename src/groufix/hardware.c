@@ -191,7 +191,7 @@ void _gfx_hardware_object_unregister(size_t id)
 }
 
 /******************************************************/
-void _gfx_hardware_objects_free(const GFX_Extensions* ext)
+void _gfx_hardware_objects_free(GFX_Extensions* ext)
 {
 	if(_gfx_hw_objects)
 	{
@@ -213,7 +213,7 @@ void _gfx_hardware_objects_free(const GFX_Extensions* ext)
 }
 
 /******************************************************/
-void _gfx_hardware_objects_save(const GFX_Extensions* ext)
+void _gfx_hardware_objects_save(GFX_Extensions* ext)
 {
 	/* Issue save method */
 	GFXVectorIterator it;
@@ -226,7 +226,7 @@ void _gfx_hardware_objects_save(const GFX_Extensions* ext)
 }
 
 /******************************************************/
-void _gfx_hardware_objects_restore(const GFX_Extensions* ext)
+void _gfx_hardware_objects_restore(GFX_Extensions* ext)
 {
 	/* Issue restore method */
 	GFXVectorIterator it;

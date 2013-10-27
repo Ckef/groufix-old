@@ -162,7 +162,7 @@ static GLint _gfx_texture_eval_internal_format(GFXTextureFormat format)
 }
 
 /******************************************************/
-static void _gfx_texture_obj_free(void* object, const GFX_Extensions* ext)
+static void _gfx_texture_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Texture* texture = (struct GFX_Internal_Texture*)object;
 

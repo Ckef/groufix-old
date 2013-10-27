@@ -20,7 +20,7 @@
  */
 
 #include "groufix/containers/deque.h"
-#include "groufix/pipeline/pipes.h"
+#include "groufix/pipeline/internal.h"
 #include "groufix/internal.h"
 
 #include <stdlib.h>
@@ -45,7 +45,7 @@ struct GFX_Internal_Pipeline
 	GFXDeque  pipes; /* Stores GFX_Internal_Pipe */
 
 	/* Not a shared resource */
-	const GFX_Extensions* ext;
+	GFX_Extensions* ext;
 };
 
 /******************************************************/
@@ -109,7 +109,7 @@ static GFXPipeState _gfx_pipeline_get_state(struct GFX_Internal_Pipeline* pipeli
 }
 
 /******************************************************/
-static void _gfx_pipeline_obj_free(void* object, const GFX_Extensions* ext)
+static void _gfx_pipeline_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Pipeline* pipeline = (struct GFX_Internal_Pipeline*)object;
 
@@ -122,7 +122,7 @@ static void _gfx_pipeline_obj_free(void* object, const GFX_Extensions* ext)
 }
 
 /******************************************************/
-static void _gfx_pipeline_obj_save(void* object, const GFX_Extensions* ext)
+static void _gfx_pipeline_obj_save(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Pipeline* pipeline = (struct GFX_Internal_Pipeline*)object;
 
@@ -134,7 +134,7 @@ static void _gfx_pipeline_obj_save(void* object, const GFX_Extensions* ext)
 }
 
 /******************************************************/
-static void _gfx_pipeline_obj_restore(void* object, const GFX_Extensions* ext)
+static void _gfx_pipeline_obj_restore(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Pipeline* pipeline = (struct GFX_Internal_Pipeline*)object;
 
@@ -350,6 +350,7 @@ unsigned short gfx_pipeline_pop(GFXPipeline* pipeline)
 void gfx_pipeline_execute(GFXPipeline* pipeline)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+	if(!internal->ext) return;
 
 	/* Iterate over all pipes */
 	GFXDequeIterator it;
@@ -357,6 +358,10 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 	{
 		struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)it;
 
+		/* Set states */
+		_gfx_states_set(pipe->state, internal->ext);
+
+		/* Process pipe */
 		if(pipe->process) pipe->process(pipe->pipe.data);
 		else _gfx_bucket_process(pipe->pipe.bucket);
 	}

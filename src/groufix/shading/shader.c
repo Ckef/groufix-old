@@ -73,7 +73,7 @@ static int _gfx_shader_eval_type(GFXShaderType type, const GFX_Extensions* ext)
 }
 
 /******************************************************/
-static void _gfx_shader_obj_free(void* object, const GFX_Extensions* ext)
+static void _gfx_shader_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Shader* shader = (struct GFX_Internal_Shader*)object;
 

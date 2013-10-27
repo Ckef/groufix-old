@@ -92,7 +92,7 @@ HEADERS_LIB = \
  $(DEPEND)/GLES3/gl3platform.h \
  $(DEPEND)/KHR/khrplatform.h \
  $(SRC)/groufix/memory/datatypes.h \
- $(SRC)/groufix/pipeline/pipes.h \
+ $(SRC)/groufix/pipeline/internal.h \
  $(SRC)/groufix/internal.h \
  $(SRC)/groufix/platform.h
 
@@ -137,7 +137,8 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/memory/formats.o \
  $(OUT)/unix-x11/groufix/memory/texture.o \
  $(OUT)/unix-x11/groufix/pipeline/bucket.o \
- $(OUT)/unix-x11/groufix/pipeline/pipeline.o \
+ $(OUT)/unix-x11/groufix/pipeline/pipes.o \
+ $(OUT)/unix-x11/groufix/pipeline/states.o \
  $(OUT)/unix-x11/groufix/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/platform/x11_screen.o \
@@ -197,7 +198,10 @@ $(OUT)/unix-x11/groufix/memory/texture.o: $(SRC)/groufix/memory/texture.c $(HEAD
 $(OUT)/unix-x11/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-$(OUT)/unix-x11/groufix/pipeline/pipeline.o: $(SRC)/groufix/pipeline/pipeline.c $(HEADERS_X11)
+$(OUT)/unix-x11/groufix/pipeline/pipes.o: $(SRC)/groufix/pipeline/pipes.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
+$(OUT)/unix-x11/groufix/pipeline/states.o: $(SRC)/groufix/pipeline/states.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/platform/x11_context.o: $(SRC)/groufix/platform/x11_context.c $(HEADERS_X11)
@@ -252,7 +256,8 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/memory/formats.o \
  $(OUT)/win32/groufix/memory/texture.o \
  $(OUT)/win32/groufix/pipeline/bucket.o \
- $(OUT)/win32/groufix/pipeline/pipeline.o \
+ $(OUT)/win32/groufix/pipeline/pipes.o \
+ $(OUT)/win32/groufix/pipeline/states.o \
  $(OUT)/win32/groufix/platform/win32_context.o \
  $(OUT)/win32/groufix/platform/win32_init.o \
  $(OUT)/win32/groufix/platform/win32_screen.o \
@@ -312,7 +317,10 @@ $(OUT)/win32/groufix/memory/texture.o: $(SRC)/groufix/memory/texture.c $(HEADERS
 $(OUT)/win32/groufix/pipeline/bucket.o: $(SRC)/groufix/pipeline/bucket.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/pipeline/pipeline.o: $(SRC)/groufix/pipeline/pipeline.c $(HEADERS_WIN32)
+$(OUT)/win32/groufix/pipeline/pipes.o: $(SRC)/groufix/pipeline/pipes.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/pipeline/states.o: $(SRC)/groufix/pipeline/states.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_context.o: $(SRC)/groufix/platform/win32_context.c $(HEADERS_WIN32)
