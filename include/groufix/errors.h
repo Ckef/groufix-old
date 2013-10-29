@@ -23,7 +23,7 @@
 #define GFX_ERRORS_H
 
 /* Default maximum */
-#define GFX_MAX_ERRORS_DEFAULT  64
+#define GFX_MAX_ERRORS_DEFAULT 64
 
 #ifdef __cplusplus
 extern "C" {

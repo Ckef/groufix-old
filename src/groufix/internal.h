@@ -54,6 +54,7 @@ typedef void (APIENTRYP GFX_ACTIVETEXTUREPROC)            (GLenum);
 typedef void (APIENTRYP GFX_ATTACHSHADERPROC)             (GLuint, GLuint);
 typedef void (APIENTRYP GFX_BINDATTRIBLOCATIONPROC)       (GLuint, GLuint, const GLchar*);
 typedef void (APIENTRYP GFX_BINDBUFFERPROC)               (GLenum, GLuint);
+typedef void (APIENTRYP GFX_BINDFRAMEBUFFERPROC)          (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDTEXTUREPROC)              (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDVERTEXARRAYPROC)          (GLuint);
 typedef void (APIENTRYP GFX_BUFFERDATAPROC)               (GLenum, GLsizeiptr, const GLvoid*, GLenum);
@@ -136,6 +137,7 @@ typedef struct GFX_Extensions
 	GFX_ATTACHSHADERPROC              AttachShader;
 	GFX_BINDATTRIBLOCATIONPROC        BindAttribLocation;
 	GFX_BINDBUFFERPROC                BindBuffer;
+	GFX_BINDFRAMEBUFFERPROC           BindFramebuffer;
 	GFX_BINDTEXTUREPROC               BindTexture;
 	GFX_BINDVERTEXARRAYPROC           BindVertexArray;
 	GFX_BUFFERDATAPROC                BufferData;

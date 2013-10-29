@@ -352,6 +352,9 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 	if(!internal->ext) return;
 
+	/* Bind as framebuffer */
+	internal->ext->BindFramebuffer(GL_FRAMEBUFFER, internal->fbo);
+
 	/* Iterate over all pipes */
 	GFXDequeIterator it;
 	for(it = internal->pipes.begin; it != internal->pipes.end; it = gfx_deque_next(&internal->pipes, it))

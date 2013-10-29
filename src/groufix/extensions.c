@@ -178,6 +178,7 @@ void _gfx_extensions_load(void)
 	ext->AttachShader             = glAttachShader;
 	ext->BindAttribLocation       = glBindAttribLocation;
 	ext->BindBuffer               = glBindBuffer;
+	ext->BindFramebuffer          = glBindFramebuffer;
 	ext->BindTexture              = glBindTexture;
 	ext->BindVertexArray          = glBindVertexArray;
 	ext->BufferData               = glBufferData;
@@ -262,6 +263,7 @@ void _gfx_extensions_load(void)
 	ext->AttachShader             = (PFNGLATTACHSHADERPROC)             _gfx_platform_get_proc_address("glAttachShader");
 	ext->BindAttribLocation       = (PFNGLBINDATTRIBLOCATIONPROC)       _gfx_platform_get_proc_address("glBindAttribLocation");
 	ext->BindBuffer               = (PFNGLBINDBUFFERPROC)               _gfx_platform_get_proc_address("glBindBuffer");
+	ext->BindFramebuffer          = (PFNGLBINDFRAMEBUFFERPROC)          _gfx_platform_get_proc_address("glBindFramebuffer");
 	ext->BindTexture              = (PFNGLBINDTEXTUREPROC)              glBindTexture;
 	ext->BindVertexArray          = (PFNGLBINDVERTEXARRAYPROC)          _gfx_platform_get_proc_address("glBindVertexArray");
 	ext->BufferData               = (PFNGLBUFFERDATAPROC)               _gfx_platform_get_proc_address("glBufferData");
