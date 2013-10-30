@@ -215,6 +215,18 @@ GLuint _gfx_texture_get_handle(const GFXTexture* texture)
 }
 
 /******************************************************/
+GLint _gfx_texture_get_internal_format(const GFXTexture* texture)
+{
+	return ((struct GFX_Internal_Texture*)texture)->format;
+}
+
+/******************************************************/
+GLuint _gfx_texture_get_internal_target(const GFXTexture* texture)
+{
+	return ((struct GFX_Internal_Texture*)texture)->target;
+}
+
+/******************************************************/
 GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int mipmaps, size_t width, size_t height, size_t depth)
 {
 	/* Get current window and context */

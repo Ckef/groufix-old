@@ -28,6 +28,49 @@
 extern "C" {
 #endif
 
+/********************************************************
+ * Format retrieval (of textures)
+ *******************************************************/
+
+/**
+ * Returns the internal format of a texture.
+ *
+ */
+GLint _gfx_texture_get_internal_format(const GFXTexture* texture);
+
+/**
+ * Returns the internal target of a texture (a.k.a type).
+ *
+ */
+GLuint _gfx_texture_get_internal_target(const GFXTexture* texture);
+
+
+/********************************************************
+ * Format converters
+ *******************************************************/
+
+/**
+ * Converts a texture format to a client pixel format.
+ *
+ * @return -1 on failure.
+ *
+ */
+GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format);
+
+/**
+ * Converts a texture format to an internal format.
+ *
+ * @return -1 on failure.
+ *
+ */
+GLint _gfx_texture_format_to_internal(GFXTextureFormat format);
+
+/**
+ * Converts an internal format to a texture format.
+ *
+ */
+GFXTextureFormat _gfx_texture_format_from_internal(GLint format);
+
 
 /********************************************************
  * Datatype helpers
@@ -101,33 +144,6 @@ inline unsigned char _gfx_sizeof_data_type(GFXDataType type)
 
 	return 0;
 }
-
-
-/********************************************************
- * Format converters
- *******************************************************/
-
-/**
- * Converts a texture format to a client pixel format.
- *
- * @return -1 on failure.
- *
- */
-GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format);
-
-/**
- * Converts a texture format to an internal format.
- *
- * @return -1 on failure.
- *
- */
-GLint _gfx_texture_format_to_internal(GFXTextureFormat format);
-
-/**
- * Converts an internal format to a texture format.
- *
- */
-GFXTextureFormat _gfx_texture_format_from_internal(GLint format);
 
 
 #ifdef __cplusplus

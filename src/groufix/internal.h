@@ -120,7 +120,7 @@ typedef void (APIENTRYP GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum
 typedef void (APIENTRYP GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
 
 
-/** OpenGL extensions, a.k.a actual OGL Context */
+/** OpenGL extensions & context states */
 typedef struct GFX_Extensions
 {
 	/* Hardware Extensions */

@@ -347,7 +347,7 @@ void gfx_window_free(GFXWindow* window)
 }
 
 /******************************************************/
-int gfx_window_is_open(GFXWindow* window)
+int gfx_window_is_open(const GFXWindow* window)
 {
 	return ((GFX_Internal_Window*)window)->handle ? 1 : 0;
 }
