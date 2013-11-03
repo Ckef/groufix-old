@@ -145,7 +145,6 @@ void _gfx_extensions_load(void)
 	glGetIntegerv(GL_MINOR_VERSION, &minor);
 
 	/* Settings */
-	glDepthRangef(0.0f, 1.0f);
 	glFrontFace(GL_CCW);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
@@ -158,6 +157,9 @@ void _gfx_extensions_load(void)
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,               ext->limits + GFX_LIM_MAX_VERTEX_ATTRIBS);
 
 #ifdef GFX_GLES
+
+	/* Settings */
+	glDepthRangef(0.0f, 1.0f);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	ext->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = 0;
@@ -246,6 +248,7 @@ void _gfx_extensions_load(void)
 #else
 
 	/* Settings */
+	glDepthRange(0.0, 1.0);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
