@@ -70,17 +70,6 @@ void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_get(int* major, int* minor)
-{
-	GLint ma, mi;
-	glGetIntegerv(GL_MAJOR_VERSION, &ma);
-	glGetIntegerv(GL_MINOR_VERSION, &mi);
-
-	*major = ma;
-	*minor = mi;
-}
-
-/******************************************************/
 void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num)
 {
 	if(_gfx_win32->extensions.SwapIntervalEXT)

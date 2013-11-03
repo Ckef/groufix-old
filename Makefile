@@ -138,6 +138,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/pipeline/bucket.o \
  $(OUT)/unix-x11/groufix/pipeline/pipes.o \
  $(OUT)/unix-x11/groufix/pipeline/states.o \
+ $(OUT)/unix-x11/groufix/platform/context.o \
  $(OUT)/unix-x11/groufix/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/platform/x11_screen.o \
@@ -203,6 +204,9 @@ $(OUT)/unix-x11/groufix/pipeline/pipes.o: $(SRC)/groufix/pipeline/pipes.c $(HEAD
 $(OUT)/unix-x11/groufix/pipeline/states.o: $(SRC)/groufix/pipeline/states.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/platform/context.o: $(SRC)/groufix/platform/context.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/platform/x11_context.o: $(SRC)/groufix/platform/x11_context.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -257,6 +261,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/pipeline/bucket.o \
  $(OUT)/win32/groufix/pipeline/pipes.o \
  $(OUT)/win32/groufix/pipeline/states.o \
+ $(OUT)/win32/groufix/platform/context.o \
  $(OUT)/win32/groufix/platform/win32_context.o \
  $(OUT)/win32/groufix/platform/win32_init.o \
  $(OUT)/win32/groufix/platform/win32_screen.o \
@@ -320,6 +325,9 @@ $(OUT)/win32/groufix/pipeline/pipes.o: $(SRC)/groufix/pipeline/pipes.c $(HEADERS
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/pipeline/states.o: $(SRC)/groufix/pipeline/states.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/platform/context.o: $(SRC)/groufix/platform/context.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_context.o: $(SRC)/groufix/platform/win32_context.c $(HEADERS_WIN32)
