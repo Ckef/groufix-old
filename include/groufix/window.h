@@ -24,17 +24,6 @@
 
 #include <stddef.h>
 
-/* Minimal supported context */
-#define GFX_CONTEXT_MAJOR_MIN 3
-#define GFX_CONTEXT_MINOR_MIN 2
-
-/* Maximal supported context */
-#define GFX_CONTEXT_MAJOR_MAX 4
-#define GFX_CONTEXT_MINOR_MAX 4
-
-/* Greatest minor version possible */
-#define GFX_CONTEXT_ALL_MINORS_MAX 4
-
 /* Default hardware ID width */
 #define GFX_HARDWARE_ID_WIDTH_DEFAULT 20
 

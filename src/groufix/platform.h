@@ -374,12 +374,9 @@ void _gfx_platform_poll_events(void);
  * Creates the OpenGL context of a window.
  *
  * @param major Major OpenGL (ES) version.
- * @param minor Minor OpenGL version.
+ * @param minor Minor OpenGL (ES) version.
  * @param share Window to share OpenGL resources with (can be NULL to not share).
  * @return Whether or not the context could be created.
- *
- * Both forward compatibility and the core profile should be used (only 3.2 or above).
- * If the platform uses OpenGL ES, round down to the nearest with an equal major version.
  *
  */
 int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share);

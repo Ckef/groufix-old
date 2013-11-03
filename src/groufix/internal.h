@@ -34,6 +34,35 @@
 	#include <GL/glcorearb.h>
 #endif
 
+/* Correct context versions */
+#ifdef GFX_GLES
+
+	/* Minimal supported context */
+	#define GFX_CONTEXT_MAJOR_MIN 3
+	#define GFX_CONTEXT_MINOR_MIN 0
+
+	/* Maximal supported context */
+	#define GFX_CONTEXT_MAJOR_MAX 3
+	#define GFX_CONTEXT_MINOR_MAX 0
+
+	/* Greatest minor version possible */
+	#define GFX_CONTEXT_ALL_MINORS_MAX 0
+
+#else
+
+	/* Minimal supported context */
+	#define GFX_CONTEXT_MAJOR_MIN 3
+	#define GFX_CONTEXT_MINOR_MIN 2
+
+	/* Maximal supported context */
+	#define GFX_CONTEXT_MAJOR_MAX 4
+	#define GFX_CONTEXT_MINOR_MAX 4
+
+	/* Greatest minor version possible */
+	#define GFX_CONTEXT_ALL_MINORS_MAX 4
+
+#endif
+
 #ifndef APIENTRY
 #define APIENTRY
 #endif
