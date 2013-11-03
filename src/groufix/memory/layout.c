@@ -19,7 +19,6 @@
  *
  */
 
-#include "groufix/containers/deque.h"
 #include "groufix/containers/vector.h"
 #include "groufix/memory/datatypes.h"
 
@@ -35,7 +34,6 @@ struct GFX_Internal_Layout
 	/* Hidden data */
 	GLuint     vao;        /* OpenGL handle */
 	GFXVector  attributes; /* Stores GFX_Internal_Attribute */
-	GFXDeque   drawCalls;  /* Stores GFXDrawCall */
 
 	/* Not a shared resource */
 	const GFX_Extensions* ext;
@@ -145,15 +143,19 @@ GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout)
 }
 
 /******************************************************/
-GFXVertexLayout* gfx_vertex_layout_create(void)
+GFXVertexLayout* gfx_vertex_layout_create(unsigned short drawCalls)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
-	if(!window) return NULL;
+	if(!window || !drawCalls) return NULL;
 
-	/* Create new layout */
-	struct GFX_Internal_Layout* layout = calloc(1, sizeof(struct GFX_Internal_Layout));
+	/* Create new layout, append draw calls to end of struct */
+	size_t size = sizeof(struct GFX_Internal_Layout) + drawCalls * sizeof(GFXDrawCall);
+
+	struct GFX_Internal_Layout* layout = calloc(1, size);
 	if(!layout) return NULL;
+
+	layout->layout.drawCalls = drawCalls;
 
 	/* Register as object */
 	layout->layout.id = _gfx_hardware_object_register(layout, &_gfx_layout_obj_funcs);
@@ -168,7 +170,6 @@ GFXVertexLayout* gfx_vertex_layout_create(void)
 	layout->ext->GenVertexArrays(1, &layout->vao);
 
 	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Internal_Attribute));
-	gfx_deque_init(&layout->drawCalls, sizeof(GFXDrawCall));
 
 	return (GFXVertexLayout*)layout;
 }
@@ -187,7 +188,6 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 		if(internal->ext) internal->ext->DeleteVertexArrays(1, &internal->vao);
 
 		gfx_vector_clear(&internal->attributes);
-		gfx_deque_clear(&internal->drawCalls);
 		free(layout);
 	}
 }
@@ -282,29 +282,14 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
 }
 
 /******************************************************/
-unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall* call)
-{
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
-
-	/* Check for overflow (jebus, how many draw calls is that?) */
-	unsigned short index = gfx_deque_get_size(&internal->drawCalls) + 1;
-	if(!index) return 0;
-
-	/* Return actual index + 1 */
-	return gfx_deque_push_back(&internal->drawCalls, call) == internal->drawCalls.end ? 0 : index;
-}
-
-/******************************************************/
 int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call)
 {
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
-
 	/* Check index */
-	unsigned short size = gfx_deque_get_size(&internal->drawCalls);
-	if(!index || index > size) return 0;
+	if(index >= layout->drawCalls) return 0;
 
 	/* Replace data */
-	*(GFXDrawCall*)gfx_deque_at(&internal->drawCalls, index - 1) = *call;
+	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	*(((GFXDrawCall*)(internal + 1)) + index) = *call;
 
 	return 1;
 }
@@ -312,30 +297,14 @@ int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const G
 /******************************************************/
 int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned short index, GFXDrawCall* call)
 {
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
-
 	/* Validate index */
-	size_t size = gfx_deque_get_size(&internal->drawCalls);
-	if(!index || index > size) return 0;
+	if(index >= layout->drawCalls) return 0;
 
 	/* Retrieve data */
-	*call = *(GFXDrawCall*)gfx_deque_at(&internal->drawCalls, index - 1);
+	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	*call = *(((GFXDrawCall*)(internal + 1)) + index);
 
 	return 1;
-}
-
-/******************************************************/
-unsigned short gfx_vertex_layout_pop(GFXVertexLayout* layout)
-{
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
-
-	/* Get index of last call */
-	unsigned short index = gfx_deque_get_size(&internal->drawCalls);
-
-	/* Try to pop the last element */
-	gfx_deque_pop_back(&internal->drawCalls);
-
-	return index;
 }
 
 /******************************************************/
@@ -347,13 +316,10 @@ void gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned short num, unsigne
 	internal->ext->BindVertexArray(internal->vao);
 
 	/* Render all calls */
-	GFXDequeIterator it = gfx_deque_at(&internal->drawCalls, startIndex - 1);
-	while(num--)
+	GFXDrawCall* call;
+	for(call = ((GFXDrawCall*)(internal + 1)) + startIndex; num--; ++call)
 	{
-		GFXDrawCall* call = (GFXDrawCall*)it;
 		internal->ext->DrawArrays(call->primitive, call->first, call->count);
-
-		it = gfx_deque_next(&internal->drawCalls, it);
 	}
 }
 
@@ -366,15 +332,11 @@ void gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned short num,
 	internal->ext->BindVertexArray(internal->vao);
 
 	/* Render all calls */
-	GFXDequeIterator it = gfx_deque_at(&internal->drawCalls, startIndex - 1);
-	while(num--)
+	GFXDrawCall* call;
+	for(call = ((GFXDrawCall*)(internal + 1)) + startIndex; num--; ++call)
 	{
-		GFXDrawCall* call = (GFXDrawCall*)it;
-
 		internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buffer_get_handle(call->buffer));
 		internal->ext->DrawElements(call->primitive, call->count, call->indexType, (GLvoid*)call->first);
-
-		it = gfx_deque_next(&internal->drawCalls, it);
 	}
 }
 
@@ -387,13 +349,10 @@ void gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned short nu
 	internal->ext->BindVertexArray(internal->vao);
 
 	/* Render all calls */
-	GFXDequeIterator it = gfx_deque_at(&internal->drawCalls, startIndex - 1);
-	while(num--)
+	GFXDrawCall* call;
+	for(call = ((GFXDrawCall*)(internal + 1)) + startIndex; num--; ++call)
 	{
-		GFXDrawCall* call = (GFXDrawCall*)it;
 		internal->ext->DrawArraysInstanced(call->primitive, call->first, call->count, inst);
-
-		it = gfx_deque_next(&internal->drawCalls, it);
 	}
 }
 
@@ -406,14 +365,10 @@ void gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned 
 	internal->ext->BindVertexArray(internal->vao);
 
 	/* Render all calls */
-	GFXDequeIterator it = gfx_deque_at(&internal->drawCalls, startIndex - 1);
-	while(num--)
+	GFXDrawCall* call;
+	for(call = ((GFXDrawCall*)(internal + 1)) + startIndex; num--; ++call)
 	{
-		GFXDrawCall* call = (GFXDrawCall*)it;
-
 		internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buffer_get_handle(call->buffer));
 		internal->ext->DrawElementsInstanced(call->primitive, call->count, call->indexType, (GLvoid*)call->first, inst);
-
-		it = gfx_deque_next(&internal->drawCalls, it);
 	}
 }

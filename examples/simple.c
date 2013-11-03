@@ -53,16 +53,15 @@ int main()
 	call.first     = 0;
 	call.count     = 3;
 
-	GFXVertexLayout* layout = gfx_vertex_layout_create();
+	GFXVertexLayout* layout = gfx_vertex_layout_create(1);
 	gfx_vertex_layout_set_attribute(layout, 0, &attr, buffer);
-	unsigned short index = gfx_vertex_layout_push(layout, &call);
-
+	gfx_vertex_layout_set(layout, 0, &call);
 
 	/* Setup a loop */
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{
 		/* Draw a triangle */
-		gfx_vertex_layout_draw(layout, 1, index);
+		gfx_vertex_layout_draw(layout, 1, 0);
 
 		gfx_window_swap_buffers(window1);
 		gfx_window_swap_buffers(window2);

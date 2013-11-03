@@ -29,7 +29,7 @@ static void _gfx_states_clear_buffers(GFXPipeState state, const GFX_Extensions* 
 	mask |= (state & GFX_CLEAR_DEPTH) ? GL_DEPTH_BUFFER_BIT : 0;
 	mask |= (state & GFX_CLEAR_STENCIL) ? GL_STENCIL_BUFFER_BIT : 0;
 
-	ext->Clear(mask);
+	if(mask) ext->Clear(mask);
 }
 
 /******************************************************/

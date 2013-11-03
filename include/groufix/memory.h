@@ -436,7 +436,8 @@ typedef struct GFXVertexAttribute
 /** Vertex Layout */
 typedef struct GFXVertexLayout
 {
-	size_t id; /* Hardware Object ID */
+	size_t          id;        /* Hardware Object ID */
+	unsigned short  drawCalls; /* Number of draw calls */
 
 } GFXVertexLayout;
 
@@ -444,10 +445,11 @@ typedef struct GFXVertexLayout
 /**
  * Creates a new vertex layout.
  *
+ * @param drawCalls Fixed number of draw calls associated with this layout.
  * @return NULL on failure.
  *
  */
-GFXVertexLayout* gfx_vertex_layout_create(void);
+GFXVertexLayout* gfx_vertex_layout_create(unsigned short drawCalls);
 
 /**
  * Makes sure the vertex layout is freed properly.
@@ -479,26 +481,15 @@ int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index,
 /**
  * Removes an attribute from a vertex layout.
  *
- * @param index  Index of the attribute to remove.
+ * @param index Index of the attribute to remove.
  *
  */
 void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int index);
 
 /**
- * Adds a draw call to the vertex layout.
- *
- * @return index of the draw call (0 on failure).
- *
- * A multi buffer swap will be properly updated as index buffer, unlike the vertex buffer used for attributes.
- * The index buffer can be NULL if never used.
- *
- */
-unsigned short gfx_vertex_layout_push(GFXVertexLayout* layout, const GFXDrawCall* call);
-
-/**
  * Changes a draw call of the vertex layout.
  *
- * @param index  Index of the draw call.
+ * @param index Index of the draw call (must be < layout->drawCalls).
  * @return Non-zero if the draw call could be changed.
  *
  */
@@ -507,19 +498,11 @@ int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const G
 /**
  * Retrieves a draw call from the vertex layout.
  *
- * @param index Index of the draw call to retrieve.
+ * @param index Index of the draw call to retrieve (must be < layout->drawCalls).
  * @return Zero on failure (nothing is written to the output parameters).
  *
  */
 int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned short index, GFXDrawCall* call);
-
-/**
- * Removes the last added draw call from the vertex layout.
- *
- * @return index of the removed draw call (0 if no calls were present).
- *
- */
-unsigned short gfx_vertex_layout_pop(GFXVertexLayout* layout);
 
 
 /********************************************************
