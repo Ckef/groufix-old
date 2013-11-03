@@ -91,7 +91,6 @@ typedef void (APIENTRYP GFX_GENTEXTURESPROC)              (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENVERTEXARRAYSPROC)          (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GETBUFFERSUBDATAPROC)         (GLenum, GLintptr, GLsizeiptr, GLvoid*);
 typedef GLenum (APIENTRYP GFX_GETERRORPROC)               (void);
-typedef void (APIENTRYP GFX_GETINTEGERVPROC)              (GLenum, GLint*);
 typedef void (APIENTRYP GFX_GETPROGRAMBINARYPROC)         (GLuint, GLsizei, GLsizei*, GLenum*, void*);
 typedef void (APIENTRYP GFX_GETPROGRAMINFOLOGPROC)        (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (APIENTRYP GFX_GETPROGRAMIVPROC)             (GLuint, GLenum, GLint*);
@@ -106,9 +105,9 @@ typedef void (APIENTRYP GFX_SHADERSOURCEPROC)             (GLuint, GLsizei, cons
 typedef void (APIENTRYP GFX_TEXBUFFERPROC)                (GLenum, GLenum, GLuint);
 typedef void (APIENTRYP GFX_TEXIMAGE1DPROC)               (GLenum, GLint, GLint, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXIMAGE2DPROC)               (GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
-typedef void (APIENTRYP GFX_TEXIMAGE2DMULTISAMPLEPROC)    (GLenum, GLsizei, GLint, GLsizei, GLsizei, GLboolean);
+typedef void (APIENTRYP GFX_TEXIMAGE2DMULTISAMPLEPROC)    (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLboolean);
 typedef void (APIENTRYP GFX_TEXIMAGE3DPROC)               (GLenum, GLint, GLint, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
-typedef void (APIENTRYP GFX_TEXIMAGE3DMULTISAMPLEPROC)    (GLenum, GLsizei, GLint, GLsizei, GLsizei, GLsizei, GLboolean);
+typedef void (APIENTRYP GFX_TEXIMAGE3DMULTISAMPLEPROC)    (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei, GLboolean);
 typedef void (APIENTRYP GFX_TEXPARAMETERIPROC)            (GLenum, GLenum, GLint);
 typedef void (APIENTRYP GFX_TEXSUBIMAGE1DPROC)            (GLenum, GLint, GLint, GLsizei, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXSUBIMAGE2DPROC)            (GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*);
@@ -174,7 +173,6 @@ typedef struct GFX_Extensions
 	GFX_GENVERTEXARRAYSPROC           GenVertexArrays;
 	GFX_GETBUFFERSUBDATAPROC          GetBufferSubData;
 	GFX_GETERRORPROC                  GetError;
-	GFX_GETINTEGERVPROC               GetIntegerv;
 	GFX_GETPROGRAMBINARYPROC          GetProgramBinary;       /* GFX_EXT_PROGRAM_BINARY */
 	GFX_GETPROGRAMINFOLOGPROC         GetProgramInfoLog;
 	GFX_GETPROGRAMIVPROC              GetProgramiv;

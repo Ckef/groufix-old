@@ -366,23 +366,15 @@ GFXScreen gfx_window_get_screen(const GFXWindow* window)
 GFXContext gfx_window_get_context(const GFXWindow* window)
 {
 	GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
+	GFXContext context = { 0,0 };
 
 	/* Check for zombie window */
-	GLint major = 0;
-	GLint minor = 0;
 	if(internal->handle)
 	{
 		_gfx_window_make_current(internal);
-		internal->extensions.GetIntegerv(GL_MAJOR_VERSION, &major);
-		internal->extensions.GetIntegerv(GL_MINOR_VERSION, &minor);
-
+		_gfx_platform_context_get(&context.major, &context.minor);
 		_gfx_window_make_current(_gfx_main_window);
 	}
-
-	GFXContext context;
-	context.major = major;
-	context.minor = minor;
-
 	return context;
 }
 

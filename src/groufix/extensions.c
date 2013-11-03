@@ -140,9 +140,8 @@ void _gfx_extensions_load(void)
 	GFX_Extensions* ext = &window->extensions;
 
 	/* Get OpenGL version */
-	GLint major, minor;
-	glGetIntegerv(GL_MAJOR_VERSION, &major);
-	glGetIntegerv(GL_MINOR_VERSION, &minor);
+	int major, minor;
+	_gfx_platform_context_get(&major, &minor);
 
 	/* Settings */
 	glFrontFace(GL_CCW);
@@ -217,7 +216,6 @@ void _gfx_extensions_load(void)
 	ext->GenVertexArrays          = glGenVertexArrays;
 	ext->GetBufferSubData         = _gfx_gles_get_buffer_sub_data;
 	ext->GetError                 = glGetError;
-	ext->GetIntegerv              = glGetIntegerv;
 	ext->GetProgramBinary         = glGetProgramBinary;
 	ext->GetProgramInfoLog        = glGetProgramInfoLog;
 	ext->GetProgramiv             = glGetProgramiv;
@@ -303,7 +301,6 @@ void _gfx_extensions_load(void)
 	ext->GenVertexArrays          = (PFNGLGENVERTEXARRAYSPROC)          _gfx_platform_get_proc_address("glGenVertexArrays");
 	ext->GetBufferSubData         = (PFNGLGETBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glGetBufferSubData");
 	ext->GetError                 = (PFNGLGETERRORPROC)                 glGetError;
-	ext->GetIntegerv              = (PFNGLGETINTEGERVPROC)              glGetIntegerv;
 	ext->GetProgramInfoLog        = (PFNGLGETPROGRAMINFOLOGPROC)        _gfx_platform_get_proc_address("glGetProgramInfoLog");
 	ext->GetProgramiv             = (PFNGLGETPROGRAMIVPROC)             _gfx_platform_get_proc_address("glGetProgramiv");
 	ext->GetShaderInfoLog         = (PFNGLGETSHADERINFOLOGPROC)         _gfx_platform_get_proc_address("glGetShaderInfoLog");

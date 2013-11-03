@@ -401,6 +401,15 @@ void _gfx_platform_context_free(GFX_Platform_Window handle);
 void _gfx_platform_context_make_current(GFX_Platform_Window handle);
 
 /**
+ * Returns the context version of the current window.
+ *
+ * @param major Return parameter for the major version, 0 on failure.
+ * @param minor Return parameter for the minor version, 0 on failure.
+ *
+ */
+void _gfx_platform_context_get(int* major, int* minor);
+
+/**
  * Sets the minimum number of video frame periods per buffer swap.
  *
  * A value of 1 effectively enables vsync, use 0 to disable.
