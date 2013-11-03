@@ -21,7 +21,6 @@
 
 #include "groufix/containers/deque.h"
 #include "groufix/pipeline/internal.h"
-#include "groufix/internal.h"
 
 #include <stdlib.h>
 

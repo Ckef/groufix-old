@@ -27,13 +27,13 @@
 
 	/* Define unsupported formats */
 	#define GL_R16_SNORM     -1
-	#define GL_R16           -1
-	#define GL_RG16_SNORM    -1
-	#define GL_RG16          -1
-	#define GL_RGB16_SNORM   -1
-	#define GL_RGB16         -1
-	#define GL_RGBA16_SNORM  -1
-	#define GL_RGBA16        -1
+	#define GL_R16           -2
+	#define GL_RG16_SNORM    -3
+	#define GL_RG16          -4
+	#define GL_RGB16_SNORM   -5
+	#define GL_RGB16         -6
+	#define GL_RGBA16_SNORM  -7
+	#define GL_RGBA16        -8
 
 #endif
 

@@ -52,7 +52,7 @@ GLuint _gfx_texture_get_internal_target(const GFXTexture* texture);
 /**
  * Converts a texture format to a client pixel format.
  *
- * @return -1 on failure.
+ * @return Negative on failure.
  *
  */
 GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format);
@@ -60,7 +60,7 @@ GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format);
 /**
  * Converts a texture format to an internal format.
  *
- * @return -1 on failure.
+ * @return Negative on failure.
  *
  */
 GLint _gfx_texture_format_to_internal(GFXTextureFormat format);
