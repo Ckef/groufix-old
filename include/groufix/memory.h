@@ -267,7 +267,7 @@ typedef struct GFXVertexAttribute
 	GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
 	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT */
 
-	size_t            stride;    /* Byte offset between consecutive attributes */
+	size_t            stride;    /* Byte offset between consecutive attributes, 0 is an alias for tightly packed */
 	size_t            offset;    /* Byte offset of the first occurrence of the attribute */
 	unsigned int      divisor;   /* Rate at which to advance, 0 for no instancing, requires GFX_EXT_INSTANCED_ATTRIBUTES */
 

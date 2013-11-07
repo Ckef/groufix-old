@@ -37,14 +37,18 @@ int main()
 
 
 	/* Specify a triangle */
-	float triangle[] = { -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f };
+	float triangle[] = {
+		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
+	};
 	GFXBuffer* buffer = gfx_buffer_create(GFX_BUFFER_WRITE, GFX_VERTEX_BUFFER, sizeof(triangle), triangle, 0, 0);
 
 	GFXVertexAttribute attr;
 	attr.size          = 3;
 	attr.type.unpacked = GFX_FLOAT;
 	attr.interpret     = GFX_INTERPRET_FLOAT;
-	attr.stride        = 0;
+	attr.stride        = sizeof(float) * 6;
 	attr.offset        = 0;
 	attr.divisor       = 0;
 
@@ -55,22 +59,27 @@ int main()
 
 	GFXVertexLayout* layout = gfx_vertex_layout_create(1);
 	gfx_vertex_layout_set_attribute(layout, 0, &attr, buffer);
+	attr.offset = sizeof(float) * 3;
+	gfx_vertex_layout_set_attribute(layout, 1, &attr, buffer);
 	gfx_vertex_layout_set(layout, 0, &call);
 
 
 	/* Shaders! */
 	const char* vertSrc =
 		"#version 150\n"
-		"in vec3 position;"
+		"in vec4 position;"
+		"in vec3 color;"
+		"out vec3 fragColor;"
 		"void main() {"
-		"gl_Position.xyz = position;"
-		"gl_Position.w = 1.0;"
+		"gl_Position = position;"
+		"fragColor = color;"
 		"}";
 	const char* fragSrc =
 		"#version 150\n"
-		"out vec3 color;"
+		"in vec3 fragColor;"
+		"out vec3 outColor;"
 		"void main() {"
-		"color = vec3(1,0,0);"
+		"outColor = fragColor;"
 		"}";
 
 	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
@@ -82,6 +91,7 @@ int main()
 
 	GFXProgram* program = gfx_program_create();
 	gfx_program_set_attribute(program, 0, "position");
+	gfx_program_set_attribute(program, 1, "color");
 	gfx_program_link(program, 2, shaders);
 
 	gfx_shader_free(vert);
@@ -122,6 +132,7 @@ int main()
 	/* Free all the things */
 	gfx_vertex_layout_free(layout);
 	gfx_buffer_free(buffer);
+	gfx_program_free(program);
 	gfx_pipeline_free(pipeline);
 
 	gfx_window_free(window1);
