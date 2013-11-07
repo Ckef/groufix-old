@@ -77,8 +77,14 @@ void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext);
 
 
 /********************************************************
- * Issue draw calls associated with a vertex layout
+ * Internal draw calls and program usage
  *******************************************************/
+
+/**
+ * Sets the program handle as currently in use.
+ *
+ */
+void _gfx_program_use(GLuint handle, const GFX_Extensions* ext);
 
 /**
  * Regular drawing using a given vertex layout.

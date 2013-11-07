@@ -25,6 +25,9 @@
 #include <stdlib.h>
 
 /******************************************************/
+/** Currently active VAO */
+static GLuint _gfx_current_vao = 0;
+
 /** Internal Vertex layout */
 struct GFX_Internal_Layout
 {
@@ -47,13 +50,24 @@ struct GFX_Internal_Attribute
 };
 
 /******************************************************/
+static inline void _gfx_layout_bind(GLuint vao, const GFX_Extensions* ext)
+{
+	/* Prevent binding it twice */
+	if(_gfx_current_vao != vao)
+	{
+		_gfx_current_vao = vao;
+		ext->BindVertexArray(vao);
+	}
+}
+
+/******************************************************/
 static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
 {
 	/* Validate attribute */
 	if(!attr->attr.size) return;
 
 	/* Set the attribute */
-	ext->BindVertexArray(vao);
+	_gfx_layout_bind(vao, ext);
 	ext->EnableVertexAttribArray(index);
 
 	ext->BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
@@ -277,7 +291,7 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
 	else gfx_vector_clear(&internal->attributes);
 
 	/* Send request to OpenGL */
-	internal->ext->BindVertexArray(internal->vao);
+	_gfx_layout_bind(internal->vao, internal->ext);
 	internal->ext->DisableVertexAttribArray(index);
 }
 
@@ -313,7 +327,7 @@ void _gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned char startIndex, 
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
 	/* Bind VAO */
-	internal->ext->BindVertexArray(internal->vao);
+	_gfx_layout_bind(internal->vao, internal->ext);
 
 	/* Render all calls */
 	GFXDrawCall* call;
@@ -329,7 +343,7 @@ void _gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned char star
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
 	/* Bind VAO */
-	internal->ext->BindVertexArray(internal->vao);
+	_gfx_layout_bind(internal->vao, internal->ext);
 
 	/* Render all calls */
 	GFXDrawCall* call;
@@ -346,7 +360,7 @@ void _gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned char st
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
 	/* Bind VAO */
-	internal->ext->BindVertexArray(internal->vao);
+	_gfx_layout_bind(internal->vao, internal->ext);
 
 	/* Render all calls */
 	GFXDrawCall* call;
@@ -362,7 +376,7 @@ void _gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
 	/* Bind VAO */
-	internal->ext->BindVertexArray(internal->vao);
+	_gfx_layout_bind(internal->vao, internal->ext);
 
 	/* Render all calls */
 	GFXDrawCall* call;

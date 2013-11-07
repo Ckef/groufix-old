@@ -100,7 +100,7 @@ int main()
 
 	/* Pipeline */
 	GFXPipeline* pipeline = gfx_pipeline_create();
-	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_VERTEX_LAYOUT);
+	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_PROGRAM | GFX_BUCKET_SORT_VERTEX_LAYOUT);
 
 	GFXPipe pipe;
 	gfx_pipeline_get(pipeline, i, NULL, NULL, &pipe);

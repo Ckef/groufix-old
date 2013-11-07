@@ -201,7 +201,8 @@ void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext)
 		struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)curr;
 
 		/* Bind shader program & draw */
-		ext->UseProgram(unit->program);
+		_gfx_program_use(unit->program, ext);
+
 		switch(unit->mode)
 		{
 			case GFX_BATCH_DIRECT :

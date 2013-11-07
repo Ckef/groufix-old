@@ -25,6 +25,9 @@
 #include <stdlib.h>
 
 /******************************************************/
+/** Currently active program */
+static GLuint _gfx_current_program = 0;
+
 /** Internal Program */
 struct GFX_Internal_Program
 {
@@ -34,6 +37,17 @@ struct GFX_Internal_Program
 	/* Hidden data */
 	GLuint  handle; /* OpenGL handle */
 };
+
+/******************************************************/
+void _gfx_program_use(GLuint handle, const GFX_Extensions* ext)
+{
+	/* Prevent binding it twice */
+	if(_gfx_current_program != handle)
+	{
+		_gfx_current_program = handle;
+		ext->UseProgram(handle);
+	}
+}
 
 /******************************************************/
 static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
@@ -47,12 +61,21 @@ static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 }
 
 /******************************************************/
+static void _gfx_program_obj_restore(void* object, GFX_Extensions* ext)
+{
+	struct GFX_Internal_Program* program = (struct GFX_Internal_Program*)object;
+
+	/* Rebind itself to the new context */
+	if(_gfx_current_program == program->handle) ext->UseProgram(program->handle);
+}
+
+/******************************************************/
 /* vtable for hardware part of the program */
 static GFX_Hardware_Funcs _gfx_program_obj_funcs =
 {
 	_gfx_program_obj_free,
 	NULL,
-	NULL
+	_gfx_program_obj_restore
 };
 
 /******************************************************/
