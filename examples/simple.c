@@ -57,11 +57,54 @@ int main()
 	gfx_vertex_layout_set_attribute(layout, 0, &attr, buffer);
 	gfx_vertex_layout_set(layout, 0, &call);
 
+
+	/* Shaders! */
+	const char* vertSrc =
+		"#version 150\n"
+		"in vec3 position;"
+		"void main() {"
+		"gl_Position.xyz = position;"
+		"gl_Position.w = 1.0;"
+		"}";
+	const char* fragSrc =
+		"#version 150\n"
+		"out vec3 color;"
+		"void main() {"
+		"color = vec3(1,0,0);"
+		"}";
+
+	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
+	gfx_shader_set_source(vert, 1, NULL, &vertSrc);
+	GFXShader* frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
+	gfx_shader_set_source(frag, 1, NULL, &fragSrc);
+
+	GFXShader* shaders[] = { vert, frag };
+
+	GFXProgram* program = gfx_program_create();
+	gfx_program_set_attribute(program, 0, "position");
+	gfx_program_link(program, 2, shaders);
+
+	gfx_shader_free(vert);
+	gfx_shader_free(frag);
+
+
+	/* Pipeline */
+	GFXPipeline* pipeline = gfx_pipeline_create();
+	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_VERTEX_LAYOUT);
+
+	GFXPipe pipe;
+	gfx_pipeline_get(pipeline, i, NULL, NULL, &pipe);
+
+	GFXBatchUnit* unit = gfx_bucket_insert(pipe.bucket, 0, layout, program);
+	gfx_bucket_set_mode(unit, GFX_BATCH_DIRECT, 0, 1, 0);
+
+
 	/* Setup a loop */
+	gfx_hardware_poll_errors(NULL);
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{
-		/* Draw a triangle */
-		gfx_vertex_layout_draw(layout, 1, 0);
+		/* Execute pipeline & swap buffers */
+		gfx_pipeline_execute(pipeline);
 
 		gfx_window_swap_buffers(window1);
 		gfx_window_swap_buffers(window2);
@@ -75,8 +118,11 @@ int main()
 		}
 	}
 
+
+	/* Free all the things */
 	gfx_vertex_layout_free(layout);
 	gfx_buffer_free(buffer);
+	gfx_pipeline_free(pipeline);
 
 	gfx_window_free(window1);
 	gfx_window_free(window2);

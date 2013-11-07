@@ -23,8 +23,8 @@
 #define GFX_PIPELINE_H
 
 #include "groufix/containers/list.h"
-
-#include <stdint.h>
+#include "groufix/memory.h"
+#include "groufix/shading.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,26 +46,33 @@ typedef GFXList GFXBatchUnit;
  * Buckets to hold batches
  *******************************************************/
 
-/** Process applied to batches */
-typedef void (*GFXBatchProcessFunc)(GFXBatchState, GFXBatchUnit*, GFXBatchUnit*);
-
-
 /** Bucket sort flags */
 typedef enum GFXBucketFlags
 {
-	GFX_BUCKET_SORT_PROGRAM        = 0x01,
-	GFX_BUCKET_SORT_VERTEX_LAYOUT  = 0x02,
-	GFX_BUCKET_SORT_BITS_LAST      = 0x04 /* Sort on manual state bits last */
+	GFX_BUCKET_SORT_PROGRAM        = 0x01, /* If not set, it assumes the program is the same for each unit */
+	GFX_BUCKET_SORT_VERTEX_LAYOUT  = 0x02, /* If not set, it assumes the layout is the same for each unit */
 
 } GFXBucketFlags;
+
+
+/** Batch draw flag */
+typedef enum GFXBatchMode
+{
+	GFX_BATCH_DIRECT,
+	GFX_BATCH_INDEXED,
+	GFX_BATCH_DIRECT_INSTANCED,
+	GFX_BATCH_INDEXED_INSTANCED,
+
+	GFX_BATCH_UNKNOWN
+
+} GFXBatchMode;
 
 
 /** Bucket to manage batches */
 typedef struct GFXBucket
 {
-	GFXBatchProcessFunc  process;
-	GFXBucketFlags       flags;
-	unsigned char        bits; /* Number of state bits that can be changed */
+	GFXBucketFlags  flags;
+	unsigned char   bits; /* Number of state bits that can be changed */
 
 } GFXBucket;
 
@@ -73,14 +80,23 @@ typedef struct GFXBucket
 /**
  * Insert a unit to be processed into the bucket.
  *
- * @param state    Manual bits of the state to associate this unit with.
- * @param dataSize Size of extra data to copy and attach.
+ * @param state Manual bits of the state to associate this unit with.
  * @return The inserted unit, NULL on failure.
  *
  * Note: this forces the bucket to have to preprocess.
  *
  */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize);
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVertexLayout* layout, GFXProgram* program);
+
+/**
+ * Sets the drawing mode of a unit.
+ *
+ * @param start First draw call to issue.
+ * @param num   Number of draw calls to issue starting at start.
+ * @param inst  Number of instances to draw.
+ *
+ */
+void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char start, unsigned char num, size_t inst);
 
 /**
  * Returns the manual bits of the state associated with a unit.
@@ -95,12 +111,6 @@ GFXBatchState gfx_bucket_get_state(const GFXBatchUnit* unit);
  *
  */
 void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
-
-/**
- * Returns a pointer to the data with previously requested uploaded data.
- *
- */
-void* gfx_bucket_get_data(GFXBatchUnit* unit);
 
 /**
  * Erases and frees a unit from its bucket.
@@ -187,12 +197,11 @@ void gfx_pipeline_free(GFXPipeline* pipeline);
 /**
  * Adds a bucket to the pipeline.
  *
- * @param bits    Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
- * @param process Process to apply to batches.
+ * @param bits Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
  * @return Index of the pipe (0 on failure).
  *
  */
-unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBatchProcessFunc proc, GFXBucketFlags flags);
+unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags);
 
 /**
  * Adds a process to the pipeline.
@@ -206,13 +215,12 @@ unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, GFXPipeProcessFu
 /**
  * Changes a pipe to be a bucket.
  *
- * @param index   Index to change.
- * @param bits    Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
- * @param process Process to apply to batches.
+ * @param index Index to change.
+ * @param bits  Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
  * @return Non-zero if the pipe could be changed.
  *
  */
-int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigned char bits, GFXBatchProcessFunc proc, GFXBucketFlags flags);
+int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigned char bits, GFXBucketFlags flags);
 
 /**
  * Changes a pipe to be a process.

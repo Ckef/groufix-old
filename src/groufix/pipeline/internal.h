@@ -57,12 +57,11 @@ void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
 /**
  * Creates a new bucket.
  *
- * @param bits    Number of manual bits to consider when sorting (LSB = 1st bit, 0 for all bits).
- * @param process Function to process batches with, cannot be NULL.
+ * @param bits Number of manual bits to consider when sorting (LSB = 1st bit, 0 for all bits).
  * @return NULL on failure.
  *
  */
-GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process, GFXBucketFlags flags);
+GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBucketFlags flags);
 
 /**
  * Makes sure the bucket is freed properly.
@@ -74,7 +73,36 @@ void _gfx_bucket_free(GFXBucket* bucket);
  * Processes the bucket, calling all batch processes.
  *
  */
-void _gfx_bucket_process(GFXBucket* bucket);
+void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext);
+
+
+/********************************************************
+ * Issue draw calls associated with a vertex layout
+ *******************************************************/
+
+/**
+ * Regular drawing using a given vertex layout.
+ *
+ */
+void _gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
+
+/**
+ * Indexed drawing using a given vertex layout.
+ *
+ */
+void _gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
+
+/**
+ * Instanced drawing using a given vertex layout.
+ *
+ */
+void _gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
+
+/**
+ * Indexed AND instanced drawing using a given vertex layout.
+ *
+ */
+void _gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
 
 
 #ifdef __cplusplus

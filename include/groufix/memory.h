@@ -281,8 +281,8 @@ typedef struct GFXVertexAttribute
 /** Vertex Layout */
 typedef struct GFXVertexLayout
 {
-	size_t          id;        /* Hardware Object ID */
-	unsigned short  drawCalls; /* Number of draw calls */
+	size_t         id;        /* Hardware Object ID */
+	unsigned char  drawCalls; /* Number of draw calls */
 
 } GFXVertexLayout;
 
@@ -294,7 +294,7 @@ typedef struct GFXVertexLayout
  * @return NULL on failure.
  *
  */
-GFXVertexLayout* gfx_vertex_layout_create(unsigned short drawCalls);
+GFXVertexLayout* gfx_vertex_layout_create(unsigned char drawCalls);
 
 /**
  * Makes sure the vertex layout is freed properly.
@@ -338,7 +338,7 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
  * @return Non-zero if the draw call could be changed.
  *
  */
-int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call);
+int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call);
 
 /**
  * Retrieves a draw call from the vertex layout.
@@ -347,36 +347,7 @@ int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const G
  * @return Zero on failure (nothing is written to the output parameters).
  *
  */
-int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned short index, GFXDrawCall* call);
-
-
-/********************************************************
- * Issue draw calls associated with a vertex layout
- *******************************************************/
-
-/**
- * Regular drawing using a given vertex layout.
- *
- */
-void gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex);
-
-/**
- * Indexed drawing using a given vertex layout.
- *
- */
-void gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex);
-
-/**
- * Instanced drawing using a given vertex layout.
- *
- */
-void gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex, size_t inst);
-
-/**
- * Indexed AND instanced drawing using a given vertex layout.
- *
- */
-void gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex, size_t inst);
+int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned char index, GFXDrawCall* call);
 
 
 /********************************************************

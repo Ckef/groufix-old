@@ -64,8 +64,6 @@ GFXShader* gfx_shader_create(GFXShaderType type);
 /**
  * Makes sure the shader is freed properly.
  *
- * If the shader is currently attached to a program, it will not be freed internally.
- *
  */
 void gfx_shader_free(GFXShader* shader);
 

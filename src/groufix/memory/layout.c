@@ -143,7 +143,7 @@ GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout)
 }
 
 /******************************************************/
-GFXVertexLayout* gfx_vertex_layout_create(unsigned short drawCalls)
+GFXVertexLayout* gfx_vertex_layout_create(unsigned char drawCalls)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -282,7 +282,7 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
 }
 
 /******************************************************/
-int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call)
+int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call)
 {
 	/* Check index */
 	if(index >= layout->drawCalls) return 0;
@@ -295,7 +295,7 @@ int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const G
 }
 
 /******************************************************/
-int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned short index, GFXDrawCall* call)
+int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned char index, GFXDrawCall* call)
 {
 	/* Validate index */
 	if(index >= layout->drawCalls) return 0;
@@ -308,7 +308,7 @@ int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned short index, GFXDraw
 }
 
 /******************************************************/
-void gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex)
+void _gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num)
 {
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
@@ -324,7 +324,7 @@ void gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned short num, unsigne
 }
 
 /******************************************************/
-void gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex)
+void _gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num)
 {
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
@@ -341,7 +341,7 @@ void gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned short num,
 }
 
 /******************************************************/
-void gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex, size_t inst)
+void _gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst)
 {
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
@@ -357,7 +357,7 @@ void gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned short nu
 }
 
 /******************************************************/
-void gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex, size_t inst)
+void _gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst)
 {
 	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
 
