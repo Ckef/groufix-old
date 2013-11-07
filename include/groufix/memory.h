@@ -230,6 +230,156 @@ void gfx_buffer_unmap(GFXBuffer* buffer);
 
 
 /********************************************************
+ * Vertex Layout metadata
+ *******************************************************/
+
+/** Primitive types */
+typedef enum GFXPrimitive
+{
+	GFX_POINTS          = 0x0000,
+	GFX_LINES           = 0x0001,
+	GFX_LINE_LOOP       = 0x0002,
+	GFX_LINE_STRIP      = 0x0003,
+	GFX_TRIANGLES       = 0x0004,
+	GFX_TRIANGLE_STRIP  = 0x0005,
+	GFX_TRIANGLE_FAN    = 0x0006
+
+} GFXPrimitive;
+
+
+/** Draw call */
+typedef struct GFXDrawCall
+{
+	GFXPrimitive     primitive;
+	uintptr_t        first;     /* First index (regular) or byte offset (indexed) */
+	size_t           count;     /* Number of vertices to draw */
+
+	GFXUnpackedType  indexType; /* Can only be an unsigned type */
+	GFXBuffer*       buffer;    /* Index buffer */
+
+} GFXDrawCall;
+
+
+/** Vertex Attribute */
+typedef struct GFXVertexAttribute
+{
+	unsigned char     size;      /* Number of elements */
+	GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
+	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT */
+
+	size_t            stride;    /* Byte offset between consecutive attributes */
+	size_t            offset;    /* Byte offset of the first occurrence of the attribute */
+	unsigned int      divisor;   /* Rate at which to advance, 0 for no instancing, requires GFX_EXT_INSTANCED_ATTRIBUTES */
+
+} GFXVertexAttribute;
+
+
+/********************************************************
+ * Vertex Layout (vertex specifications + draw calls)
+ *******************************************************/
+
+/** Vertex Layout */
+typedef struct GFXVertexLayout
+{
+	size_t          id;        /* Hardware Object ID */
+	unsigned short  drawCalls; /* Number of draw calls */
+
+} GFXVertexLayout;
+
+
+/**
+ * Creates a new vertex layout.
+ *
+ * @param drawCalls Fixed number of draw calls associated with this layout.
+ * @return NULL on failure.
+ *
+ */
+GFXVertexLayout* gfx_vertex_layout_create(unsigned short drawCalls);
+
+/**
+ * Makes sure the vertex layout is freed properly.
+ *
+ */
+void gfx_vertex_layout_free(GFXVertexLayout* layout);
+
+/**
+ * Sets an attribute of a vertex layout.
+ *
+ * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
+ * @param buffer Buffer to read this attribute from (cannot be NULL), a multi buffer swap will have no effect on the attribute.
+ * @return Zero on failure.
+ *
+ * The attribute's type can be unpacked or (UNSIGNED_)INT_10_10_10_2 if GFX_EXT_PACKED_ATTRIBUTES is supported.
+ *
+ */
+int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer);
+
+/**
+ * Retrieves an attribute from a vertex layout.
+ *
+ * @param index Index of the attribute to retrieve.
+ * @return Zero on failure (nothing is written to the output parameters).
+ *
+ */
+int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index, GFXVertexAttribute* attr);
+
+/**
+ * Removes an attribute from a vertex layout.
+ *
+ * @param index Index of the attribute to remove.
+ *
+ */
+void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int index);
+
+/**
+ * Changes a draw call of the vertex layout.
+ *
+ * @param index Index of the draw call (must be < layout->drawCalls).
+ * @return Non-zero if the draw call could be changed.
+ *
+ */
+int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call);
+
+/**
+ * Retrieves a draw call from the vertex layout.
+ *
+ * @param index Index of the draw call to retrieve (must be < layout->drawCalls).
+ * @return Zero on failure (nothing is written to the output parameters).
+ *
+ */
+int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned short index, GFXDrawCall* call);
+
+
+/********************************************************
+ * Issue draw calls associated with a vertex layout
+ *******************************************************/
+
+/**
+ * Regular drawing using a given vertex layout.
+ *
+ */
+void gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex);
+
+/**
+ * Indexed drawing using a given vertex layout.
+ *
+ */
+void gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex);
+
+/**
+ * Instanced drawing using a given vertex layout.
+ *
+ */
+void gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex, size_t inst);
+
+/**
+ * Indexed AND instanced drawing using a given vertex layout.
+ *
+ */
+void gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex, size_t inst);
+
+
+/********************************************************
  * Texture & Pixel metadata
  *******************************************************/
 
@@ -382,156 +532,6 @@ void gfx_texture_write_from_buffer(GFXTexture* texture, const GFXPixelTransfer* 
  *
  */
 void gfx_texture_generate_mipmaps(GFXTexture* texture);
-
-
-/********************************************************
- * Vertex Layout metadata
- *******************************************************/
-
-/** Primitive types */
-typedef enum GFXPrimitive
-{
-	GFX_POINTS          = 0x0000,
-	GFX_LINES           = 0x0001,
-	GFX_LINE_LOOP       = 0x0002,
-	GFX_LINE_STRIP      = 0x0003,
-	GFX_TRIANGLES       = 0x0004,
-	GFX_TRIANGLE_STRIP  = 0x0005,
-	GFX_TRIANGLE_FAN    = 0x0006
-
-} GFXPrimitive;
-
-
-/** Draw call */
-typedef struct GFXDrawCall
-{
-	GFXPrimitive     primitive;
-	uintptr_t        first;     /* First index (regular) or byte offset (indexed) */
-	size_t           count;     /* Number of vertices to draw */
-
-	GFXUnpackedType  indexType; /* Can only be an unsigned type */
-	GFXBuffer*       buffer;    /* Index buffer */
-
-} GFXDrawCall;
-
-
-/** Vertex Attribute */
-typedef struct GFXVertexAttribute
-{
-	unsigned char     size;      /* Number of elements */
-	GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
-	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT */
-
-	size_t            stride;    /* Byte offset between consecutive attributes */
-	size_t            offset;    /* Byte offset of the first occurrence of the attribute */
-	unsigned int      divisor;   /* Rate at which to advance, 0 for no instancing, requires GFX_EXT_INSTANCED_ATTRIBUTES */
-
-} GFXVertexAttribute;
-
-
-/********************************************************
- * Vertex Layout (vertex specifications + draw calls)
- *******************************************************/
-
-/** Vertex Layout */
-typedef struct GFXVertexLayout
-{
-	size_t          id;        /* Hardware Object ID */
-	unsigned short  drawCalls; /* Number of draw calls */
-
-} GFXVertexLayout;
-
-
-/**
- * Creates a new vertex layout.
- *
- * @param drawCalls Fixed number of draw calls associated with this layout.
- * @return NULL on failure.
- *
- */
-GFXVertexLayout* gfx_vertex_layout_create(unsigned short drawCalls);
-
-/**
- * Makes sure the vertex layout is freed properly.
- *
- */
-void gfx_vertex_layout_free(GFXVertexLayout* layout);
-
-/**
- * Sets an attribute of a vertex layout.
- *
- * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
- * @param buffer Buffer to read this attribute from (cannot be NULL), a multi buffer swap will have no effect on the attribute.
- * @return Zero on failure.
- *
- * The attribute's type can be unpacked or (UNSIGNED_)INT_10_10_10_2 if GFX_EXT_PACKED_ATTRIBUTES is supported.
- *
- */
-int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer);
-
-/**
- * Retrieves an attribute from a vertex layout.
- *
- * @param index Index of the attribute to retrieve.
- * @return Zero on failure (nothing is written to the output parameters).
- *
- */
-int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index, GFXVertexAttribute* attr);
-
-/**
- * Removes an attribute from a vertex layout.
- *
- * @param index Index of the attribute to remove.
- *
- */
-void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int index);
-
-/**
- * Changes a draw call of the vertex layout.
- *
- * @param index Index of the draw call (must be < layout->drawCalls).
- * @return Non-zero if the draw call could be changed.
- *
- */
-int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned short index, const GFXDrawCall* call);
-
-/**
- * Retrieves a draw call from the vertex layout.
- *
- * @param index Index of the draw call to retrieve (must be < layout->drawCalls).
- * @return Zero on failure (nothing is written to the output parameters).
- *
- */
-int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned short index, GFXDrawCall* call);
-
-
-/********************************************************
- * Issue draw calls associated with a vertex layout
- *******************************************************/
-
-/**
- * Regular drawing using a given vertex layout.
- *
- */
-void gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex);
-
-/**
- * Indexed drawing using a given vertex layout.
- *
- */
-void gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex);
-
-/**
- * Instanced drawing using a given vertex layout.
- *
- */
-void gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex, size_t inst);
-
-/**
- * Indexed AND instanced drawing using a given vertex layout.
- *
- */
-void gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned short num, unsigned short startIndex, size_t inst);
 
 
 #ifdef __cplusplus

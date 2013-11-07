@@ -19,8 +19,9 @@
  *
  */
 
-#include "groufix/pipeline.h"
 #include "groufix/containers/vector.h"
+#include "groufix/pipeline.h"
+#include "groufix/window.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -104,17 +105,58 @@ static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXB
 }
 
 /******************************************************/
-GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process)
+static GFXBatchState _gfx_bucket_add_manual_state(const struct GFX_Internal_Bucket* bucket, GFXBatchState state, GFXBatchState original)
+{
+	/* Get manual bit mask and factor in */
+	GFXBatchState mask;
+	if(!(bucket->bucket.flags & GFX_BUCKET_SORT_BITS_LAST))
+	{
+		/* Apply black magic to shift mask and state to the left */
+		unsigned char shifts = bucket->bit - (bucket->bucket.bits - 1);
+		mask = ~((1 << shifts) - 1);
+		state <<= shifts;
+	}
+	else mask = (1 << bucket->bucket.bits) - 1;
+
+	/* Sitch the masks together */
+	return (state & mask) | (original & ~mask);
+}
+
+/******************************************************/
+static GFXBatchState _gfx_bucket_get_manual_state(const struct GFX_Internal_Bucket* bucket, GFXBatchState state)
+{
+	/* Apply reverse black magic to unshift the state */
+	if(!(bucket->bucket.flags & GFX_BUCKET_SORT_BITS_LAST))
+		state >>= bucket->bit - (bucket->bucket.bits - 1);
+
+	/* Mask it out */
+	return state & ((1 << bucket->bucket.bits) - 1);
+}
+
+/******************************************************/
+GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process, GFXBucketFlags flags)
 {
 	/* Allocate bucket */
 	struct GFX_Internal_Bucket* bucket = calloc(1, sizeof(struct GFX_Internal_Bucket));
 	if(!bucket) return NULL;
 
+	/* Apply sorting flags & bits */
+	unsigned char maxID = gfx_hardware_get_max_id_width();
+	unsigned char intern = 0;
+	unsigned char manual = sizeof(GFXBatchState) << 3;
+
+	intern += (flags & GFX_BUCKET_SORT_PROGRAM) ? maxID : 0;
+	intern += (flags & GFX_BUCKET_SORT_VERTEX_LAYOUT) ? maxID : 0;
+	manual -= intern;
+
+	/* Subtract one to be able to use it as index */
+	bucket->bucket.bits = (bits > manual) ? manual : bits;
+	bucket->bit = intern + bucket->bucket.bits - 1;
+
 	/* Init bucket */
 	gfx_vector_init(&bucket->batches, sizeof(struct GFX_Internal_Batch));
-
-	bucket->bit = (bits ? bits : sizeof(GFXBatchState) << 3) - 1;
 	bucket->bucket.process = process;
+	bucket->bucket.flags = flags;
 
 	return (GFXBucket*)bucket;
 }
@@ -161,7 +203,7 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t d
 	struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)gfx_list_create(size);
 	if(!unit) return NULL;
 
-	unit->state = state;
+	unit->state = _gfx_bucket_add_manual_state(internal, state, 0);
 	unit->bucket = bucket;
 
 	/* Insert unit */
@@ -185,7 +227,10 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t d
 /******************************************************/
 GFXBatchState gfx_bucket_get_state(const GFXBatchUnit* unit)
 {
-	return ((struct GFX_Internal_Unit*)unit)->state;
+	const struct GFX_Internal_Unit* internal = (const struct GFX_Internal_Unit*)unit;
+	const struct GFX_Internal_Bucket* bucket = (const struct GFX_Internal_Bucket*)internal->bucket;
+
+	return _gfx_bucket_get_manual_state(bucket, internal->state);
 }
 
 /******************************************************/
@@ -195,6 +240,7 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state)
 	struct GFX_Internal_Bucket* bucket = (struct GFX_Internal_Bucket*)internal->bucket;
 
 	/* Detect equal states */
+	state = _gfx_bucket_add_manual_state(bucket, state, internal->state);
 	if(internal->state != state)
 	{
 		/* Force a re-sort */

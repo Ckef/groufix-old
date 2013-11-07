@@ -57,12 +57,12 @@ void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
 /**
  * Creates a new bucket.
  *
- * @param bits    Number of bits to consider when sorting (LSB = 1st bit, 0 for all bits).
+ * @param bits    Number of manual bits to consider when sorting (LSB = 1st bit, 0 for all bits).
  * @param process Function to process batches with, cannot be NULL.
  * @return NULL on failure.
  *
  */
-GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process);
+GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBatchProcessFunc process, GFXBucketFlags flags);
 
 /**
  * Makes sure the bucket is freed properly.

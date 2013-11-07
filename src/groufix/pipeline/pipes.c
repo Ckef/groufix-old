@@ -55,10 +55,10 @@ static void _gfx_pipe_free(struct GFX_Internal_Pipe* pipe)
 }
 
 /******************************************************/
-static int _gfx_pipe_create_bucket(struct GFX_Internal_Pipe* pipe, unsigned char bits, GFXBatchProcessFunc process)
+static int _gfx_pipe_create_bucket(struct GFX_Internal_Pipe* pipe, unsigned char bits, GFXBatchProcessFunc process, GFXBucketFlags flags)
 {
 	/* Create bucket */
-	GFXBucket* bucket = _gfx_bucket_create(bits, process);
+	GFXBucket* bucket = _gfx_bucket_create(bits, process, flags);
 	if(!bucket) return 0;
 
 	/* Fill the pipe */
@@ -209,7 +209,7 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 }
 
 /******************************************************/
-unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBatchProcessFunc process)
+unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBatchProcessFunc process, GFXBucketFlags flags)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 
@@ -220,7 +220,7 @@ unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bit
 	/* Create pipe */
 	struct GFX_Internal_Pipe pipe;
 
-	if(!_gfx_pipe_create_bucket(&pipe, bits, process)) return 0;
+	if(!_gfx_pipe_create_bucket(&pipe, bits, process, flags)) return 0;
 	pipe.state = _gfx_pipeline_get_state(internal, index - 1);
 
 	/* Insert and return actual index + 1 */
@@ -257,7 +257,7 @@ unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, GFXPipeProcessFu
 }
 
 /******************************************************/
-int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigned char bits, GFXBatchProcessFunc process)
+int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigned char bits, GFXBatchProcessFunc process, GFXBucketFlags flags)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 
@@ -267,7 +267,7 @@ int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigne
 
 	/* Create new pipe */
 	struct GFX_Internal_Pipe pipe;
-	if(!_gfx_pipe_create_bucket(&pipe, bits, process)) return 0;
+	if(!_gfx_pipe_create_bucket(&pipe, bits, process, flags)) return 0;
 
 	pipe.state = _gfx_pipeline_get_state(internal, index);
 	_gfx_pipeline_set_pipe(internal, pipe, index);

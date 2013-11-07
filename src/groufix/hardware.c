@@ -94,6 +94,12 @@ void gfx_hardware_set_max_id_width(unsigned char width)
 }
 
 /******************************************************/
+unsigned char gfx_hardware_get_max_id_width(void)
+{
+	return _gfx_hw_max_id;
+}
+
+/******************************************************/
 size_t gfx_hardware_get_max_id(void)
 {
 	return (1 << _gfx_hw_max_id);

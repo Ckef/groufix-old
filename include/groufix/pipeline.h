@@ -50,10 +50,22 @@ typedef GFXList GFXBatchUnit;
 typedef void (*GFXBatchProcessFunc)(GFXBatchState, GFXBatchUnit*, GFXBatchUnit*);
 
 
+/** Bucket sort flags */
+typedef enum GFXBucketFlags
+{
+	GFX_BUCKET_SORT_PROGRAM        = 0x01,
+	GFX_BUCKET_SORT_VERTEX_LAYOUT  = 0x02,
+	GFX_BUCKET_SORT_BITS_LAST      = 0x04 /* Sort on manual state bits last */
+
+} GFXBucketFlags;
+
+
 /** Bucket to manage batches */
 typedef struct GFXBucket
 {
-	GFXBatchProcessFunc process;
+	GFXBatchProcessFunc  process;
+	GFXBucketFlags       flags;
+	unsigned char        bits; /* Number of state bits that can be changed */
 
 } GFXBucket;
 
@@ -61,7 +73,7 @@ typedef struct GFXBucket
 /**
  * Insert a unit to be processed into the bucket.
  *
- * @param state    State to associate this unit with.
+ * @param state    Manual bits of the state to associate this unit with.
  * @param dataSize Size of extra data to copy and attach.
  * @return The inserted unit, NULL on failure.
  *
@@ -71,13 +83,13 @@ typedef struct GFXBucket
 GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, size_t dataSize);
 
 /**
- * Returns the state associated with a unit.
+ * Returns the manual bits of the state associated with a unit.
  *
  */
 GFXBatchState gfx_bucket_get_state(const GFXBatchUnit* unit);
 
 /**
- * Sets the state to associate a unit with.
+ * Sets the manual bits of the state to associate a unit with.
  *
  * Note: this forces the bucket to have to preprocess.
  *
@@ -175,12 +187,12 @@ void gfx_pipeline_free(GFXPipeline* pipeline);
 /**
  * Adds a bucket to the pipeline.
  *
- * @param bits    Number of bits to sort by.
+ * @param bits    Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
  * @param process Process to apply to batches.
  * @return Index of the pipe (0 on failure).
  *
  */
-unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBatchProcessFunc process);
+unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBatchProcessFunc proc, GFXBucketFlags flags);
 
 /**
  * Adds a process to the pipeline.
@@ -195,12 +207,12 @@ unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, GFXPipeProcessFu
  * Changes a pipe to be a bucket.
  *
  * @param index   Index to change.
- * @param bits    Number of bits to sort by.
+ * @param bits    Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
  * @param process Process to apply to batches.
  * @return Non-zero if the pipe could be changed.
  *
  */
-int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigned char bits, GFXBatchProcessFunc process);
+int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigned char bits, GFXBatchProcessFunc proc, GFXBucketFlags flags);
 
 /**
  * Changes a pipe to be a process.
