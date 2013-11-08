@@ -107,7 +107,7 @@ static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXB
 }
 
 /******************************************************/
-static GFXBatchState _gfx_bucket_add_manual_state(const struct GFX_Internal_Bucket* bucket, GFXBatchState state, GFXBatchState original)
+static inline GFXBatchState _gfx_bucket_add_manual_state(const struct GFX_Internal_Bucket* bucket, GFXBatchState state, GFXBatchState original)
 {
 	/* Apply black magic to shift mask and state */
 	unsigned char shifts = bucket->bit - (bucket->bucket.bits - 1);
@@ -119,7 +119,7 @@ static GFXBatchState _gfx_bucket_add_manual_state(const struct GFX_Internal_Buck
 }
 
 /******************************************************/
-static GFXBatchState _gfx_bucket_get_manual_state(const struct GFX_Internal_Bucket* bucket, GFXBatchState state)
+static inline GFXBatchState _gfx_bucket_get_manual_state(const struct GFX_Internal_Bucket* bucket, GFXBatchState state)
 {
 	/* Apply reverse black magic to unshift the state */
 	state >>= bucket->bit - (bucket->bucket.bits - 1);
@@ -220,8 +220,6 @@ void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext)
 			case GFX_BATCH_INDEXED_INSTANCED :
 				_gfx_vertex_layout_draw_indexed_instanced(unit->layout, unit->start, unit->num, unit->inst);
 				break;
-
-			case GFX_BATCH_UNKNOWN : break;
 		}
 	}
 }
@@ -239,7 +237,6 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVerte
 	unit->bucket  = bucket;
 	unit->layout  = layout;
 	unit->program = _gfx_program_get_handle(program);
-	unit->mode    = GFX_BATCH_UNKNOWN;
 
 	/* Insert unit */
 	if(!internal->first)

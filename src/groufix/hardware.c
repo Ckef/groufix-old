@@ -88,7 +88,7 @@ void gfx_hardware_set_max_id_width(unsigned char width)
 {
 	/* Clamp to maximum (max width - 1) */
 	unsigned char max = (sizeof(size_t) << 3) - 1;
-	width = max > width ? max : width;
+	width = width > max ? max : width;
 
 	_gfx_hw_max_id = width;
 }
