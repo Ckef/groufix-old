@@ -90,25 +90,25 @@ void _gfx_program_use(GLuint handle, const GFX_Extensions* ext);
  * Regular drawing using a given vertex layout.
  *
  */
-void _gfx_vertex_layout_draw(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
+void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
 
 /**
  * Indexed drawing using a given vertex layout.
  *
  */
-void _gfx_vertex_layout_draw_indexed(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
+void _gfx_vertex_layout_draw_indexed(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
 
 /**
  * Instanced drawing using a given vertex layout.
  *
  */
-void _gfx_vertex_layout_draw_instanced(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
+void _gfx_vertex_layout_draw_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
 
 /**
  * Indexed AND instanced drawing using a given vertex layout.
  *
  */
-void _gfx_vertex_layout_draw_indexed_instanced(GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
+void _gfx_vertex_layout_draw_indexed_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
 
 
 #ifdef __cplusplus

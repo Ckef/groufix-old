@@ -52,7 +52,7 @@ struct GFX_Internal_Texture
 
 /******************************************************/
 /* Calculates the number of mipmaps */
-static unsigned char _gfx_texture_get_num_mipmaps(size_t w, size_t h, size_t d)
+static inline unsigned char _gfx_texture_get_num_mipmaps(size_t w, size_t h, size_t d)
 {
 	size_t max = w > h ? (w > d ? w : d) : (h > d ? h : d);
 
@@ -64,7 +64,7 @@ static unsigned char _gfx_texture_get_num_mipmaps(size_t w, size_t h, size_t d)
 
 /******************************************************/
 /* Calculates the size of a given mipmap */
-static void _gfx_texture_get_mipmap_size(unsigned char mipmap, size_t* w, size_t* h, size_t* d)
+static inline void _gfx_texture_get_mipmap_size(unsigned char mipmap, size_t* w, size_t* h, size_t* d)
 {
 	size_t k = 1 << mipmap;
 	*w /= k;
@@ -140,7 +140,7 @@ static int _gfx_texture_eval_target(GLenum target, const GFX_Extensions* ext)
 }
 
 /******************************************************/
-static GLint _gfx_texture_eval_pixel_format(GFXTextureFormat format)
+static inline GLint _gfx_texture_eval_pixel_format(GFXTextureFormat format)
 {
 	GLint form = _gfx_texture_format_to_pixel_format(format);
 	if(form < 0) gfx_errors_push(
@@ -151,7 +151,7 @@ static GLint _gfx_texture_eval_pixel_format(GFXTextureFormat format)
 }
 
 /******************************************************/
-static GLint _gfx_texture_eval_internal_format(GFXTextureFormat format)
+static inline GLint _gfx_texture_eval_internal_format(GFXTextureFormat format)
 {
 	GLint form = _gfx_texture_format_to_internal(format);
 	if(form < 0) gfx_errors_push(

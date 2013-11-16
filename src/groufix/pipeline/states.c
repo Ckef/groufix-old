@@ -22,7 +22,7 @@
 #include "groufix/pipeline/internal.h"
 
 /******************************************************/
-static void _gfx_states_clear_buffers(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_states_clear_buffers(GFXPipeState state, const GFX_Extensions* ext)
 {
 	GLbitfield mask = 0;
 	mask |= (state & GFX_CLEAR_COLOR) ? GL_COLOR_BUFFER_BIT : 0;
@@ -33,21 +33,21 @@ static void _gfx_states_clear_buffers(GFXPipeState state, const GFX_Extensions* 
 }
 
 /******************************************************/
-static void _gfx_state_set_rasterizer(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_rasterizer(GFXPipeState state, const GFX_Extensions* ext)
 {
 	if(state & GFX_STATE_NO_RASTERIZER) ext->Enable(GL_RASTERIZER_DISCARD);
 	else ext->Disable(GL_RASTERIZER_DISCARD);
 }
 
 /******************************************************/
-static void _gfx_state_set_depth_test(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_depth_test(GFXPipeState state, const GFX_Extensions* ext)
 {
 	if(state & GFX_STATE_DEPTH_TEST) ext->Enable(GL_DEPTH_TEST);
 	else ext->Disable(GL_DEPTH_TEST);
 }
 
 /******************************************************/
-static void _gfx_state_set_cull_face(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_cull_face(GFXPipeState state, const GFX_Extensions* ext)
 {
 	if(state & (GFX_STATE_CULL_FRONT | GFX_STATE_CULL_BACK))
 	{
@@ -58,14 +58,14 @@ static void _gfx_state_set_cull_face(GFXPipeState state, const GFX_Extensions* e
 }
 
 /******************************************************/
-static void _gfx_state_set_blend(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_blend(GFXPipeState state, const GFX_Extensions* ext)
 {
 	if(state & GFX_STATE_BLEND) ext->Enable(GL_BLEND);
 	else ext->Disable(GL_BLEND);
 }
 
 /******************************************************/
-static void _gfx_state_set_stencil_test(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_stencil_test(GFXPipeState state, const GFX_Extensions* ext)
 {
 	if(state & GFX_STATE_STENCIL_TEST) ext->Enable(GL_STENCIL_TEST);
 	else ext->Disable(GL_STENCIL_TEST);

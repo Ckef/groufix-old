@@ -26,13 +26,6 @@
 #include <string.h>
 
 /******************************************************/
-/* Batch pair */
-struct GFX_Internal_Batch
-{
-	GFXBatchUnit* first;
-	GFXBatchUnit* last;
-};
-
 /* Internal bucket */
 struct GFX_Internal_Bucket
 {
@@ -44,6 +37,9 @@ struct GFX_Internal_Bucket
 	unsigned char  sort;  /* Non zero if a sort is required */
 	GFXBatchUnit*  first; /* Begin of units */
 	GFXBatchUnit*  last;  /* End of units */
+
+	/* All invisible units */
+	GFXBatchUnit*  invisible;
 };
 
 /* Internal batch unit */
@@ -177,6 +173,7 @@ void _gfx_bucket_free(GFXBucket* bucket)
 		struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
 		gfx_list_free(internal->first);
+		gfx_list_free(internal->invisible);
 		free(bucket);
 	}
 }
@@ -206,26 +203,44 @@ void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext)
 		switch(unit->mode)
 		{
 			case GFX_BATCH_DIRECT :
-				_gfx_vertex_layout_draw(unit->layout, unit->start, unit->num);
+				_gfx_vertex_layout_draw(
+					unit->layout,
+					unit->start,
+					unit->num
+				);
 				break;
 
 			case GFX_BATCH_INDEXED :
-				_gfx_vertex_layout_draw_indexed(unit->layout, unit->start, unit->num);
+				_gfx_vertex_layout_draw_indexed(
+					unit->layout,
+					unit->start,
+					unit->num
+				);
 				break;
 
 			case GFX_BATCH_DIRECT_INSTANCED :
-				_gfx_vertex_layout_draw_instanced(unit->layout, unit->start, unit->num, unit->inst);
+				_gfx_vertex_layout_draw_instanced(
+					unit->layout,
+					unit->start,
+					unit->num,
+					unit->inst
+				);
 				break;
 
 			case GFX_BATCH_INDEXED_INSTANCED :
-				_gfx_vertex_layout_draw_indexed_instanced(unit->layout, unit->start, unit->num, unit->inst);
+				_gfx_vertex_layout_draw_indexed_instanced(
+					unit->layout,
+					unit->start,
+					unit->num,
+					unit->inst
+				);
 				break;
 		}
 	}
 }
 
 /******************************************************/
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVertexLayout* layout, GFXProgram* program)
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVertexLayout* layout, GFXProgram* program, unsigned char visible)
 {
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
@@ -239,19 +254,7 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVerte
 	unit->program = _gfx_program_get_handle(program);
 
 	/* Insert unit */
-	if(!internal->first)
-	{
-		internal->first = (GFXBatchUnit*)unit;
-		internal->last = (GFXBatchUnit*)unit;
-	}
-	else
-	{
-		gfx_list_splice_before((GFXBatchUnit*)unit, internal->first);
-		internal->first = (GFXBatchUnit*)unit;
-	}
-
-	/* Force a re-sort */
-	internal->sort = 1;
+	gfx_bucket_set_visible((GFXBatchUnit*)unit, visible);
 
 	return (GFXBatchUnit*)unit;
 }
@@ -261,6 +264,25 @@ void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char st
 {
 	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
 
+	/* Disable instancing when only 1 instance */
+	if(inst < 2)
+	{
+		switch(mode)
+		{
+			case GFX_BATCH_DIRECT :
+			case GFX_BATCH_DIRECT_INSTANCED :
+				mode = GFX_BATCH_DIRECT;
+				break;
+
+			case GFX_BATCH_INDEXED :
+			case GFX_BATCH_INDEXED_INSTANCED :
+				mode = GFX_BATCH_INDEXED;
+				break;
+		}
+		inst = 1;
+	}
+
+	/* Set mode */
 	internal->mode  = mode;
 	internal->start = start;
 	internal->num   = num;
@@ -289,6 +311,39 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state)
 		/* Force a re-sort */
 		internal->state = state;
 		bucket->sort = 1;
+	}
+}
+
+/******************************************************/
+void gfx_bucket_set_visible(GFXBatchUnit* unit, unsigned char visible)
+{
+	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
+	struct GFX_Internal_Bucket* bucket = (struct GFX_Internal_Bucket*)internal->bucket;
+
+	/* First remove it from any list */
+	if(bucket->invisible == unit) bucket->invisible = unit->next;
+	if(bucket->first == unit) bucket->first = unit->next;
+	if(bucket->last == unit) bucket->last = unit->previous;
+
+	gfx_list_unsplice(unit, unit);
+
+	/* Insert into batch list */
+	if(visible)
+	{
+		if(!bucket->last) bucket->last = unit;
+		else gfx_list_splice_before(unit, bucket->first);
+
+		bucket->first = unit;
+
+		/* Force a re-sort */
+		bucket->sort = 1;
+	}
+
+	/* Insert into invisible list */
+	else
+	{
+		if(!bucket->invisible) bucket->invisible = unit;
+		else gfx_list_splice_after(unit, bucket->invisible);
 	}
 }
 

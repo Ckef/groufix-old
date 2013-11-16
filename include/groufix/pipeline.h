@@ -78,13 +78,16 @@ typedef struct GFXBucket
 /**
  * Insert a unit to be processed into the bucket.
  *
- * @param state Manual bits of the state to associate this unit with.
+ * @param state   Manual bits of the state to associate this unit with.
+ * @param layout  Vertex layout to use for this unit, cannot be NULL.
+ * @param program Program to use for this unit, cannot be NULL.
+ * @param visible Non-zero if visible, invisible otherwise.
  * @return The inserted unit, NULL on failure.
  *
  * Note: this forces the bucket to have to preprocess.
  *
  */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVertexLayout* layout, GFXProgram* program);
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVertexLayout* layout, GFXProgram* program, unsigned char visible);
 
 /**
  * Sets the drawing mode of a unit.
@@ -109,6 +112,16 @@ GFXBatchState gfx_bucket_get_state(const GFXBatchUnit* unit);
  *
  */
 void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
+
+/**
+ * Sets the visibility of a unit.
+ *
+ * @param visible Non-zero if visible, invisible otherwise.
+ *
+ * Note: making a unit visible is expensive regardless of its previous visibility.
+ *
+ */
+void gfx_bucket_set_visible(GFXBatchUnit* unit, unsigned char visible);
 
 /**
  * Erases and frees a unit from its bucket.
@@ -240,6 +253,15 @@ int gfx_pipeline_set_process(GFXPipeline* pipeline, unsigned short index, GFXPip
  *
  */
 int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeState state);
+
+/**
+ * Adds state bits to a pipe.
+ *
+ * @param index Index to add state bits to.
+ * @return Non-zero if the state could be changed.
+ *
+ */
+int gfx_pipeline_add_state(GFXPipeline* pipeline, unsigned short index, GFXPipeState state);
 
 /**
  * Returns the data associated with a pipe.

@@ -26,7 +26,7 @@
 #include <string.h>
 
 /******************************************************/
-static size_t _gfx_vector_get_max_capacity(size_t size)
+static inline size_t _gfx_vector_get_max_capacity(size_t size)
 {
 	size_t cap = 1;
 	while(cap < size) cap <<= 1;

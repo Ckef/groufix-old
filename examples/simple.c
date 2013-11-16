@@ -104,8 +104,9 @@ int main()
 
 	GFXPipe pipe;
 	gfx_pipeline_get(pipeline, i, NULL, NULL, &pipe);
+	gfx_pipeline_add_state(pipeline, i, GFX_CLEAR_COLOR);
 
-	GFXBatchUnit* unit = gfx_bucket_insert(pipe.bucket, 0, layout, program);
+	GFXBatchUnit* unit = gfx_bucket_insert(pipe.bucket, 0, layout, program, 1);
 	gfx_bucket_set_mode(unit, GFX_BATCH_DIRECT, 0, 1, 0);
 
 

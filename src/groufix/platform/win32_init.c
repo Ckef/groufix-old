@@ -205,7 +205,7 @@ static GFXKey _gfx_win32_get_key(int symbol)
 }
 
 /******************************************************/
-static void _gfx_win32_create_key_table(void)
+static inline void _gfx_win32_create_key_table(void)
 {
 	size_t i;
 	for(i = 0; i <= GFX_WIN32_MAX_KEYCODE; ++i)

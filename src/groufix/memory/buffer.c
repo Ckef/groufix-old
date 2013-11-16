@@ -40,7 +40,7 @@ struct GFX_Internal_Buffer
 };
 
 /******************************************************/
-static GLenum _gfx_buffer_get_usage(GFXBufferUsage usage)
+static inline GLenum _gfx_buffer_get_usage(GFXBufferUsage usage)
 {
 	/* Return appropriate OpenGL usage hint */
 	return usage & GFX_BUFFER_STREAM ?
@@ -53,7 +53,7 @@ static GLenum _gfx_buffer_get_usage(GFXBufferUsage usage)
 }
 
 /******************************************************/
-static void _gfx_buffer_sync(GLsync sync, const GFX_Extensions* ext)
+static inline void _gfx_buffer_sync(GLsync sync, const GFX_Extensions* ext)
 {
 	/* Force a synchronization */
 	GLenum status = GL_TIMEOUT_EXPIRED;
