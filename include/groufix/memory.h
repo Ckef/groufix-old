@@ -357,7 +357,7 @@ int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned char index, GFXDrawC
 /** Texture types */
 typedef enum GFXTextureType
 {
-	GFX_TEXTURE_1D, /* requires GFX_EXT_1D_TEXTURE (or implicitly GFX_EXT_BUFFER_TEXTURE) */
+	GFX_TEXTURE_1D, /* requires GFX_EXT_1D_TEXTURE */
 	GFX_TEXTURE_2D,
 	GFX_TEXTURE_3D,
 	GFX_CUBEMAP,
@@ -394,9 +394,6 @@ typedef struct GFXPixelTransfer
 	GFXTextureFormat  format;    /* Format of the client memory */
 	unsigned char     alignment; /* Row byte alignment of client memory, can be 1, 2, 4 or 8 */
 
-	unsigned char     mipmap;    /* Mipmap index to write to/read from */
-	GFXTextureFace    face;      /* Face of the cubemap to write to/read from */
-
 	unsigned int      xOffset;
 	unsigned int      yOffset;   /* Layer offset for 1D textures */
 	unsigned int      zOffset;   /* Layer offset for 2D textures */
@@ -424,6 +421,17 @@ typedef struct GFXTexture
 	size_t          depth;
 
 } GFXTexture;
+
+
+/** Single image of a texture */
+typedef struct GFXTextureImage
+{
+	GFXTexture*     texture;
+	GFXTextureFace  face;   /* Face of the cubemap */
+	unsigned char   mipmap; /* Mipmap index */
+	unsigned int    layer;  /* Index of an array texture */
+
+} GFXTextureImage;
 
 
 /**
@@ -484,7 +492,7 @@ GFXTextureFormat gfx_texture_get_format(GFXTexture* texture);
  * Note: if the texture is linked to a buffer, the client format must be equal to the texture format.
  *
  */
-void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, const void* data);
+void gfx_texture_write(GFXTextureImage image, const GFXPixelTransfer* transfer, const void* data);
 
 /**
  * Writes to the texture from a buffer.
@@ -493,7 +501,7 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
  * Note: if the texture is linked to a buffer, the client format must be equal to the texture format.
  *
  */
-void gfx_texture_write_from_buffer(GFXTexture* texture, const GFXPixelTransfer* transfer, const GFXBuffer* buffer, size_t offset);
+void gfx_texture_write_from_buffer(GFXTextureImage image, const GFXPixelTransfer* transfer, const GFXBuffer* buffer, size_t offset);
 
 /**
  * Auto generates all mipmap levels.

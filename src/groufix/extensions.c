@@ -28,6 +28,15 @@
 #ifdef GFX_GLES
 
 /******************************************************/
+static void _gfx_gles_framebuffer_texture_1d(GLenum target, GLenum attach, GLenum textarget, GLint texture, GLint level)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_1D_TEXTURE and GFX_EXT_BUFFER_TEXTURE are incompatible with this context."
+	);
+}
+
+/******************************************************/
 static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsizeiptr size, GLvoid* data)
 {
 	void* map = glMapBufferRange(target, offset, size, GL_MAP_READ_BIT);
@@ -145,6 +154,7 @@ void _gfx_extensions_load(void)
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, ext->limits + GFX_LIM_MAX_ACTIVE_TEXTURES);
+	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS,            ext->limits + GFX_LIM_MAX_COLOR_ATTACHMENTS);
 	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,        ext->limits + GFX_LIM_MAX_CUBEMAP_SIZE);
 	glGetIntegerv(GL_MAX_SAMPLES,                      ext->limits + GFX_LIM_MAX_SAMPLES);
 	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,              ext->limits + GFX_LIM_MAX_TEXTURE_3D_SIZE);
@@ -203,6 +213,9 @@ void _gfx_extensions_load(void)
 	ext->Enable                   = glEnable;
 	ext->EnableVertexAttribArray  = glEnableVertexAttribArray;
 	ext->FenceSync                = glFenceSync;
+	ext->FramebufferTexture1D     = _gfx_gles_framebuffer_texture_1d;
+	ext->FramebufferTexture2D     = glFramebufferTexture2D;
+	ext->FramebufferTextureLayer  = glFramebufferTextureLayer;
 	ext->GenBuffers               = glGenBuffers;
 	ext->GenerateMipmap           = glGenerateMipmap;
 	ext->GenFramebuffers          = glGenFramebuffers;
@@ -287,6 +300,9 @@ void _gfx_extensions_load(void)
 	ext->Enable                   = (PFNGLENABLEPROC)                   glEnable;
 	ext->EnableVertexAttribArray  = (PFNGLENABLEVERTEXATTRIBARRAYPROC)  _gfx_platform_get_proc_address("glEnableVertexAttribArray");
 	ext->FenceSync                = (PFNGLFENCESYNCPROC)                _gfx_platform_get_proc_address("glFenceSync");
+	ext->FramebufferTexture1D     = (PFNGLFRAMEBUFFERTEXTURE1DPROC)     _gfx_platform_get_proc_address("glFramebufferTexture1D");
+	ext->FramebufferTexture2D     = (PFNGLFRAMEBUFFERTEXTURE2DPROC)     _gfx_platform_get_proc_address("glFramebufferTexture2D");
+	ext->FramebufferTextureLayer  = (PFNGLFRAMEBUFFERTEXTURELAYERPROC)  _gfx_platform_get_proc_address("glFramebufferTextureLayer");
 	ext->GenBuffers               = (PFNGLGENBUFFERSPROC)               _gfx_platform_get_proc_address("glGenBuffers");
 	ext->GenerateMipmap           = (PFNGLGENERATEMIPMAPPROC)           _gfx_platform_get_proc_address("glGenerateMipmap");
 	ext->GenFramebuffers          = (PFNGLGENFRAMEBUFFERSPROC)          _gfx_platform_get_proc_address("glGenFramebuffers");

@@ -113,6 +113,9 @@ typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLen
 typedef void (APIENTRYP GFX_ENABLEPROC)                   (GLenum);
 typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)  (GLuint);
 typedef GLsync (APIENTRYP GFX_FENCESYNCPROC)              (GLenum, GLbitfield);
+typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURE1DPROC)     (GLenum, GLenum, GLenum, GLuint, GLint);
+typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURE2DPROC)     (GLenum, GLenum, GLenum, GLuint, GLint);
+typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURELAYERPROC)  (GLenum, GLenum, GLuint, GLint, GLint);
 typedef void (APIENTRYP GFX_GENBUFFERSPROC)               (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENERATEMIPMAPPROC)           (GLenum);
 typedef void (APIENTRYP GFX_GENFRAMEBUFFERSPROC)          (GLsizei, GLuint*);
@@ -195,6 +198,9 @@ typedef struct GFX_Extensions
 	GFX_ENABLEPROC                    Enable;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC   EnableVertexAttribArray;
 	GFX_FENCESYNCPROC                 FenceSync;
+	GFX_FRAMEBUFFERTEXTURE1DPROC      FramebufferTexture1D;   /* GFX_EXT_TEXTURE_1D or GFX_EXT_BUFFER_TEXTURE */
+	GFX_FRAMEBUFFERTEXTURE2DPROC      FramebufferTexture2D;
+	GFX_FRAMEBUFFERTEXTURELAYERPROC   FramebufferTextureLayer;
 	GFX_GENBUFFERSPROC                GenBuffers;
 	GFX_GENERATEMIPMAPPROC            GenerateMipmap;
 	GFX_GENFRAMEBUFFERSPROC           GenFramebuffers;
@@ -394,6 +400,12 @@ GLuint _gfx_shader_get_handle(const GFXShader* shader);
  *
  */
 GLuint _gfx_texture_get_handle(const GFXTexture* texture);
+
+/**
+ * Returns the buffer handle of a texture linked to a buffer.
+ *
+ */
+GLuint _gfx_texture_get_buffer_handle(const GFXTexture* texture);
 
 /**
  * Returns the VAO of a layout.

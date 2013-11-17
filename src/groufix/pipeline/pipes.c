@@ -20,6 +20,7 @@
  */
 
 #include "groufix/containers/deque.h"
+#include "groufix/memory/datatypes.h"
 #include "groufix/pipeline/internal.h"
 
 #include <stdlib.h>
@@ -222,6 +223,92 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 		gfx_deque_clear(&internal->pipes);
 		free(pipeline);
 	}
+}
+
+/******************************************************/
+int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelineAttachment attach, unsigned char index)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Check attachment limit */
+	if(attach != GFX_COLOR_ATTACHMENT) index = 0;
+	else if(index >= internal->ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS]) return 0;
+
+	attach += index;
+
+	/* Get texture and bind framebuffer */
+	GLuint handle = _gfx_texture_get_handle(image.texture);
+	internal->ext->BindFramebuffer(GL_DRAW_FRAMEBUFFER, internal->fbo);
+
+	/* Attach as texture buffer */
+	if(_gfx_texture_get_buffer_handle(image.texture))
+	{
+		internal->ext->FramebufferTexture1D(
+			GL_DRAW_FRAMEBUFFER,
+			attach,
+			GL_TEXTURE_BUFFER,
+			handle,
+			0
+		);
+	}
+
+	/* Attach as regular texture image */
+	else switch(_gfx_texture_get_internal_target(image.texture))
+	{
+		case GL_TEXTURE_1D :
+			internal->ext->FramebufferTexture1D(
+				GL_DRAW_FRAMEBUFFER,
+				attach,
+				GL_TEXTURE_1D,
+				handle,
+				image.mipmap
+			);
+			break;
+
+		case GL_TEXTURE_2D :
+			internal->ext->FramebufferTexture2D(
+				GL_DRAW_FRAMEBUFFER,
+				attach,
+				GL_TEXTURE_2D,
+				handle,
+				image.mipmap
+			);
+			break;
+
+		case GL_TEXTURE_3D :
+		case GL_TEXTURE_1D_ARRAY :
+		case GL_TEXTURE_2D_ARRAY :
+			internal->ext->FramebufferTextureLayer(
+				GL_DRAW_FRAMEBUFFER,
+				attach,
+				handle,
+				image.mipmap,
+				image.layer
+			);
+			break;
+
+		case GL_TEXTURE_CUBE_MAP :
+			internal->ext->FramebufferTexture2D(
+				GL_DRAW_FRAMEBUFFER,
+				attach,
+				image.face + GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+				handle,
+				image.mipmap
+			);
+			break;
+
+		case GL_TEXTURE_CUBE_MAP_ARRAY :
+			internal->ext->FramebufferTextureLayer(
+				GL_DRAW_FRAMEBUFFER,
+				attach,
+				handle,
+				image.mipmap,
+				(image.face * image.texture->depth) + image.layer
+			);
+			break;
+	}
+
+	return 1;
 }
 
 /******************************************************/

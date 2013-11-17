@@ -183,6 +183,16 @@ typedef union GFXPipe
  * Pipelines (execute arbitrary processes in order)
  *******************************************************/
 
+/** Pipeline attachments */
+typedef enum GFXPipelineAttachment
+{
+	GFX_COLOR_ATTACHMENT          = 0x8ce0,
+	GFX_DEPTH_ATTACHMENT          = 0x8d00,
+	GFX_DEPTH_STENCIL_ATTACHMENT  = 0x821a
+
+} GFXPipelineAttachment;
+
+
 /** Pipeline */
 typedef struct GFXPipeline
 {
@@ -204,6 +214,16 @@ GFXPipeline* gfx_pipeline_create(void);
  *
  */
 void gfx_pipeline_free(GFXPipeline* pipeline);
+
+/**
+ * Attaces a texture image to the pipeline as render target.
+ *
+ * @param attach Attachment point to attach to.
+ * @param index  Index of the attachment point (only relevant for color attachments).
+ * @return Non-zero on success.
+ *
+ */
+int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelineAttachment attach, unsigned char index);
 
 /**
  * Adds a bucket to the pipeline.

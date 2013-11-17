@@ -215,6 +215,12 @@ GLuint _gfx_texture_get_handle(const GFXTexture* texture)
 }
 
 /******************************************************/
+GLuint _gfx_texture_get_buffer_handle(const GFXTexture* texture)
+{
+	return ((struct GFX_Internal_Texture*)texture)->buffer;
+}
+
+/******************************************************/
 GLint _gfx_texture_get_internal_format(const GFXTexture* texture)
 {
 	return ((struct GFX_Internal_Texture*)texture)->format;
@@ -435,13 +441,13 @@ GFXTextureFormat gfx_texture_get_format(GFXTexture* texture)
 }
 
 /******************************************************/
-void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, const void* data)
+void gfx_texture_write(GFXTextureImage image, const GFXPixelTransfer* transfer, const void* data)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
 	if(!window) return;
 
-	struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)texture;
+	struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)image.texture;
 
 	if(internal->buffer)
 	{
@@ -466,7 +472,7 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 		{
 			case GL_TEXTURE_1D :
 				window->extensions.TexSubImage1D(internal->target,
-					transfer->mipmap,
+					image.mipmap,
 					transfer->xOffset,
 					transfer->width,
 					pixForm,
@@ -476,9 +482,21 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 				break;
 
 			case GL_TEXTURE_1D_ARRAY :
+				window->extensions.TexSubImage2D(internal->target,
+					image.mipmap,
+					transfer->xOffset,
+					transfer->yOffset + image.layer,
+					transfer->width,
+					transfer->height,
+					pixForm,
+					pixType,
+					data
+				);
+				break;
+
 			case GL_TEXTURE_2D :
 				window->extensions.TexSubImage2D(internal->target,
-					transfer->mipmap,
+					image.mipmap,
 					transfer->xOffset,
 					transfer->yOffset,
 					transfer->width,
@@ -490,9 +508,23 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 				break;
 
 			case GL_TEXTURE_2D_ARRAY :
+				window->extensions.TexSubImage3D(internal->target,
+					image.mipmap,
+					transfer->xOffset,
+					transfer->yOffset,
+					transfer->zOffset + image.layer,
+					transfer->width,
+					transfer->height,
+					transfer->depth,
+					pixForm,
+					pixType,
+					data
+				);
+				break;
+
 			case GL_TEXTURE_3D :
 				window->extensions.TexSubImage3D(internal->target,
-					transfer->mipmap,
+					image.mipmap,
 					transfer->xOffset,
 					transfer->yOffset,
 					transfer->zOffset,
@@ -506,8 +538,8 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 				break;
 
 			case GL_TEXTURE_CUBE_MAP :
-				window->extensions.TexSubImage2D(transfer->face + GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-					transfer->mipmap,
+				window->extensions.TexSubImage2D(image.face + GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+					image.mipmap,
 					transfer->xOffset,
 					transfer->yOffset,
 					transfer->width,
@@ -520,10 +552,10 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 
 			case GL_TEXTURE_CUBE_MAP_ARRAY :
 				window->extensions.TexSubImage3D(internal->target,
-					transfer->mipmap,
+					image.mipmap,
 					transfer->xOffset,
 					transfer->yOffset,
-					(transfer->face * texture->depth) + transfer->zOffset,
+					(image.face * image.texture->depth) + transfer->zOffset + image.layer,
 					transfer->width,
 					transfer->height,
 					transfer->depth,
@@ -537,13 +569,13 @@ void gfx_texture_write(GFXTexture* texture, const GFXPixelTransfer* transfer, co
 }
 
 /******************************************************/
-void gfx_texture_write_from_buffer(GFXTexture* texture, const GFXPixelTransfer* transfer, const GFXBuffer* buffer, size_t offset)
+void gfx_texture_write_from_buffer(GFXTextureImage image, const GFXPixelTransfer* transfer, const GFXBuffer* buffer, size_t offset)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
 	if(!window) return;
 
-	struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)texture;
+	struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)image.texture;
 
 	if(internal->buffer)
 	{
@@ -558,7 +590,7 @@ void gfx_texture_write_from_buffer(GFXTexture* texture, const GFXPixelTransfer* 
 	{
 		/* Bind buffer as unpack pixel buffer before performing the copy */
 		window->extensions.BindBuffer(GL_PIXEL_UNPACK_BUFFER, _gfx_buffer_get_handle(buffer));
-		gfx_texture_write(texture, transfer, GFX_UINT_TO_VOID(offset));
+		gfx_texture_write(image, transfer, GFX_UINT_TO_VOID(offset));
 
 		/* Also unbind for future transfers */
 		window->extensions.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
