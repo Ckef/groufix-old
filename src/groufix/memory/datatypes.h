@@ -42,7 +42,7 @@ GLint _gfx_texture_get_internal_format(const GFXTexture* texture);
  * Returns the internal target of a texture (a.k.a type).
  *
  */
-GLuint _gfx_texture_get_internal_target(const GFXTexture* texture);
+GLenum _gfx_texture_get_internal_target(const GFXTexture* texture);
 
 
 /********************************************************

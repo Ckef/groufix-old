@@ -229,6 +229,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderInfoLog         = glGetShaderInfoLog;
 	ext->GetShaderiv              = glGetShaderiv;
 	ext->GetShaderSource          = glGetShaderSource;
+	ext->IsTexture                = glIsTexture;
 	ext->LinkProgram              = glLinkProgram;
 	ext->MapBufferRange           = glMapBufferRange;
 	ext->PixelStorei              = glPixelStorei;
@@ -315,6 +316,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderInfoLog         = (PFNGLGETSHADERINFOLOGPROC)         _gfx_platform_get_proc_address("glGetShaderInfoLog");
 	ext->GetShaderiv              = (PFNGLGETSHADERIVPROC)              _gfx_platform_get_proc_address("glGetShaderiv");
 	ext->GetShaderSource          = (PFNGLGETSHADERSOURCEPROC)          _gfx_platform_get_proc_address("glGetShaderSource");
+	ext->IsTexture                = (PFNGLISTEXTUREPROC)                glIsTexture;
 	ext->LinkProgram              = (PFNGLLINKPROGRAMPROC)              _gfx_platform_get_proc_address("glLinkProgram");
 	ext->MapBufferRange           = (PFNGLMAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
 	ext->PixelStorei              = (PFNGLPIXELSTOREIPROC)              glPixelStorei;

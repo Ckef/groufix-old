@@ -129,6 +129,7 @@ typedef void (APIENTRYP GFX_GETPROGRAMIVPROC)             (GLuint, GLenum, GLint
 typedef void (APIENTRYP GFX_GETSHADERINFOLOGPROC)         (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (APIENTRYP GFX_GETSHADERIVPROC)              (GLuint, GLenum, GLint*);
 typedef void (APIENTRYP GFX_GETSHADERSOURCEPROC)          (GLuint, GLsizei, GLsizei*, GLchar*);
+typedef GLboolean (APIENTRYP GFX_ISTEXTUREPROC)           (GLuint);
 typedef void (APIENTRYP GFX_LINKPROGRAMPROC)              (GLuint);
 typedef void* (APIENTRYP GFX_MAPBUFFERRANGEPROC)          (GLenum, GLintptr, GLsizeiptr, GLbitfield);
 typedef void (APIENTRYP GFX_PIXELSTOREIPROC)              (GLenum, GLint);
@@ -214,6 +215,7 @@ typedef struct GFX_Extensions
 	GFX_GETSHADERINFOLOGPROC          GetShaderInfoLog;
 	GFX_GETSHADERIVPROC               GetShaderiv;
 	GFX_GETSHADERSOURCEPROC           GetShaderSource;
+	GFX_ISTEXTUREPROC                 IsTexture;
 	GFX_LINKPROGRAMPROC               LinkProgram;
 	GFX_MAPBUFFERRANGEPROC            MapBufferRange;
 	GFX_PIXELSTOREIPROC               PixelStorei;
