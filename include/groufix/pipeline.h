@@ -222,8 +222,22 @@ void gfx_pipeline_free(GFXPipeline* pipeline);
  * @param index  Index of the attachment point (only relevant for color attachments).
  * @return Non-zero on success.
  *
+ * Note: the index must be < GFX_LIM_MAX_COLOR_ATTACHMENTS.
+ *
  */
 int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelineAttachment attach, unsigned char index);
+
+/**
+ * Specifies what color attachments to draw to.
+ *
+ * @param indices Array (num length) of color attachment indices to draw to.
+ * @return Number of targets actually used.
+ *
+ * Use negative indices to discard the drawn values.
+ * Note: the number of indices must be < GFX_LIM_MAX_COLOR_TARGETS.
+ *
+ */
+size_t gfx_pipeline_target(GFXPipeline* pipeline, size_t num, const char* indices);
 
 /**
  * Adds a bucket to the pipeline.

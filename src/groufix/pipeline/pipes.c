@@ -54,6 +54,8 @@ struct GFX_Internal_Pipeline
 	/* Hidden data */
 	GLuint     fbo;         /* OpenGL handle */
 	GFXVector  attachments; /* Stores GFX_Internal_Attachment */
+	size_t     numTargets;
+	GLenum*    targets;     /* OpenGL draw buffers */
 	GFXDeque   pipes;       /* Stores GFX_Internal_Pipe */
 
 	/* Not a shared resource */
@@ -104,6 +106,7 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attach
 			case GL_TEXTURE_3D :
 			case GL_TEXTURE_1D_ARRAY :
 			case GL_TEXTURE_2D_ARRAY :
+			case GL_TEXTURE_CUBE_MAP_ARRAY :
 				ext->FramebufferTextureLayer(
 					GL_DRAW_FRAMEBUFFER,
 					attach->attachment,
@@ -120,16 +123,6 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attach
 					attach->layer,
 					attach->texture,
 					attach->mipmap
-				);
-				break;
-
-			case GL_TEXTURE_CUBE_MAP_ARRAY :
-				ext->FramebufferTextureLayer(
-					GL_DRAW_FRAMEBUFFER,
-					attach->attachment,
-					attach->texture,
-					attach->mipmap,
-					attach->layer
 				);
 				break;
 		}
@@ -252,6 +245,10 @@ static void _gfx_pipeline_obj_free(void* object, GFX_Extensions* ext)
 	pipeline->pipeline.id = 0;
 
 	gfx_vector_clear(&pipeline->attachments);
+	free(pipeline->targets);
+
+	pipeline->targets = NULL;
+	pipeline->numTargets = 0;
 }
 
 /******************************************************/
@@ -259,7 +256,7 @@ static void _gfx_pipeline_obj_save(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Pipeline* pipeline = (struct GFX_Internal_Pipeline*)object;
 
-	/* Don't clear the attachments vector */
+	/* Don't clear the attachments vector or target array */
 	ext->DeleteFramebuffers(1, &pipeline->fbo);
 
 	pipeline->ext = NULL;
@@ -281,6 +278,13 @@ static void _gfx_pipeline_obj_restore(void* object, GFX_Extensions* ext)
 	{
 		_gfx_pipeline_init_attachment(pipeline->fbo, (struct GFX_Internal_Attachment*)it, ext);
 		it = gfx_vector_next(&pipeline->attachments, it);
+	}
+
+	/* Restore targets */
+	if(pipeline->numTargets)
+	{
+		ext->BindFramebuffer(GL_FRAMEBUFFER, pipeline->fbo);
+		ext->DrawBuffers(pipeline->numTargets, pipeline->targets);
 	}
 }
 
@@ -307,7 +311,7 @@ GFXPipeline* gfx_pipeline_create(void)
 	if(!window) return NULL;
 
 	/* Create new pipeline */
-	struct GFX_Internal_Pipeline* pl = malloc(sizeof(struct GFX_Internal_Pipeline));
+	struct GFX_Internal_Pipeline* pl = calloc(1, sizeof(struct GFX_Internal_Pipeline));
 	if(!pl) return NULL;
 
 	/* Register as object */
@@ -348,6 +352,8 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 
 		gfx_vector_clear(&internal->attachments);
 		gfx_deque_clear(&internal->pipes);
+
+		free(internal->targets);
 		free(pipeline);
 	}
 }
@@ -398,6 +404,33 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 	_gfx_pipeline_init_attachment(internal->fbo, &att, internal->ext);
 
 	return 1;
+}
+
+/******************************************************/
+size_t gfx_pipeline_target(GFXPipeline* pipeline, size_t num, const char* indices)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+
+	/* Limit number of targets */
+	num = (num > internal->ext->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
+		internal->ext->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
+
+	/* Construct attachment buffer */
+	free(internal->targets);
+	internal->targets = malloc(sizeof(GLenum) * num);
+	internal->numTargets = num;
+
+	size_t i;
+	int max = internal->ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
+
+	for(i = 0; i < num; ++i) internal->targets[i] = (indices[i] < 0 || indices[i] >= max)
+		? GL_NONE : GFX_COLOR_ATTACHMENT + indices[i];
+
+	/* Pass to OGL */
+	internal->ext->BindFramebuffer(GL_FRAMEBUFFER, internal->fbo);
+	internal->ext->DrawBuffers(num, internal->targets);
+
+	return num;
 }
 
 /******************************************************/

@@ -108,6 +108,7 @@ typedef void (APIENTRYP GFX_DISABLEPROC)                  (GLenum);
 typedef void (APIENTRYP GFX_DISABLEVERTEXATTRIBARRAYPROC) (GLuint);
 typedef void (APIENTRYP GFX_DRAWARRAYSPROC)               (GLenum, GLint, GLsizei);
 typedef void (APIENTRYP GFX_DRAWARRAYSINSTANCEDPROC)      (GLenum, GLint, GLsizei, GLsizei);
+typedef void (APIENTRYP GFX_DRAWBUFFERSPROC)              (GLsizei, const GLenum*);
 typedef void (APIENTRYP GFX_DRAWELEMENTSPROC)             (GLenum, GLsizei, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDPROC)    (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei);
 typedef void (APIENTRYP GFX_ENABLEPROC)                   (GLenum);
@@ -194,6 +195,7 @@ typedef struct GFX_Extensions
 	GFX_DISABLEVERTEXATTRIBARRAYPROC  DisableVertexAttribArray;
 	GFX_DRAWARRAYSPROC                DrawArrays;
 	GFX_DRAWARRAYSINSTANCEDPROC       DrawArraysInstanced;
+	GFX_DRAWBUFFERSPROC               DrawBuffers;
 	GFX_DRAWELEMENTSPROC              DrawElements;
 	GFX_DRAWELEMENTSINSTANCEDPROC     DrawElementsInstanced;
 	GFX_ENABLEPROC                    Enable;

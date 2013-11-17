@@ -155,6 +155,7 @@ void _gfx_extensions_load(void)
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, ext->limits + GFX_LIM_MAX_ACTIVE_TEXTURES);
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS,            ext->limits + GFX_LIM_MAX_COLOR_ATTACHMENTS);
+	glGetIntegerv(GL_MAX_DRAW_BUFFERS,                 ext->limits + GFX_LIM_MAX_COLOR_TARGETS);
 	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,        ext->limits + GFX_LIM_MAX_CUBEMAP_SIZE);
 	glGetIntegerv(GL_MAX_SAMPLES,                      ext->limits + GFX_LIM_MAX_SAMPLES);
 	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,              ext->limits + GFX_LIM_MAX_TEXTURE_3D_SIZE);
@@ -208,6 +209,7 @@ void _gfx_extensions_load(void)
 	ext->DisableVertexAttribArray = glDisableVertexAttribArray;
 	ext->DrawArrays               = glDrawArrays;
 	ext->DrawArraysInstanced      = glDrawArraysInstanced;
+	ext->DrawBuffers              = glDrawBuffers;
 	ext->DrawElements             = glDrawElements;
 	ext->DrawElementsInstanced    = glDrawElementsInstanced;
 	ext->Enable                   = glEnable;
@@ -296,6 +298,7 @@ void _gfx_extensions_load(void)
 	ext->DisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC) _gfx_platform_get_proc_address("glDisableVertexAttribArray");
 	ext->DrawArrays               = (PFNGLDRAWARRAYSPROC)               glDrawArrays;
 	ext->DrawArraysInstanced      = (PFNGLDRAWARRAYSINSTANCEDPROC)      _gfx_platform_get_proc_address("glDrawArraysInstanced");
+	ext->DrawBuffers              = (PFNGLDRAWBUFFERSPROC)              _gfx_platform_get_proc_address("glDrawBuffers");
 	ext->DrawElements             = (PFNGLDRAWELEMENTSPROC)             glDrawElements;
 	ext->DrawElementsInstanced    = (PFNGLDRAWELEMENTSINSTANCEDPROC)    _gfx_platform_get_proc_address("glDrawElementsInstanced");
 	ext->Enable                   = (PFNGLENABLEPROC)                   glEnable;
