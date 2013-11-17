@@ -110,7 +110,7 @@ static inline GFXBatchState _gfx_bucket_add_manual_state(const struct GFX_Intern
 	GFXBatchState mask = (1 << shifts) - 1;
 	state <<= shifts;
 
-	/* Sitch the masks together */
+	/* Stitch the masks together */
 	return (state & ~mask) | (original & mask);
 }
 
@@ -357,9 +357,7 @@ void gfx_bucket_erase(GFXBatchUnit* unit)
 	GFXBatchUnit* new = gfx_list_erase(unit);
 
 	/* Replace first or last if necessary */
+	if(bucket->invisible == unit) bucket->invisible = new;
 	if(bucket->first == unit) bucket->first = new;
 	if(bucket->last == unit) bucket->last = new;
-
-	/* Force a re-sort */
-	bucket->sort = 1;
 }

@@ -157,8 +157,8 @@ static GFXVectorIterator _gfx_pipeline_find_attachment(struct GFX_Internal_Pipel
 			min = mid + 1;
 		else if(found > attach)
 			max = mid;
-		else
-			return it;
+
+		else return it;
 	}
 	return it;
 }
@@ -376,7 +376,7 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 			break;
 
 		case GL_TEXTURE_CUBE_MAP_ARRAY :
-			att.layer = (image.face * image.texture->depth) + image.layer;
+			att.layer = (image.layer * 6) + image.face;
 			break;
 
 		default :

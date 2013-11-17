@@ -396,10 +396,10 @@ typedef struct GFXPixelTransfer
 
 	unsigned int      xOffset;
 	unsigned int      yOffset;   /* Layer offset for 1D textures */
-	unsigned int      zOffset;   /* Layer offset for 2D textures */
+	unsigned int      zOffset;   /* Layer offset for 2D textures (including cube maps) */
 	size_t            width;
 	size_t            height;    /* Layer count for 1D textures */
-	size_t            depth;     /* Layer count for 2D textures */
+	size_t            depth;     /* Layer count for 2D textures (face count for cube maps) */
 
 } GFXPixelTransfer;
 
