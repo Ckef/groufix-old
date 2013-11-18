@@ -77,14 +77,44 @@ void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext);
 
 
 /********************************************************
+ * Window dependent vertex layouts
+ *******************************************************/
+
+/**
+ * Creates the vertex layout for the current window, if necessary.
+ *
+ */
+int _gfx_vertex_layout_window_create(void);
+
+/**
+ * Draws the window vertex layout.
+ *
+ * @param program Program to use for the current window (bound to the window's context)
+ *
+ */
+void _gfx_vertex_layout_window_draw(GLuint program);
+
+
+/********************************************************
  * Internal draw calls and program usage
  *******************************************************/
 
 /**
  * Sets the program handle as currently in use.
  *
+ * Note: DO NOT use for a window specific context,
+ * use _gfx_vertex_layout_window_draw instead.
+ *
  */
 void _gfx_program_use(GLuint handle, const GFX_Extensions* ext);
+
+/**
+ * Forces the next program to be bound no matter what.
+ *
+ * This method should be called when binding a program to a non-main context.
+ *
+ */
+void _gfx_program_force_reuse(void);
 
 /**
  * Regular drawing using a given vertex layout.

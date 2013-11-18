@@ -50,6 +50,12 @@ void _gfx_program_use(GLuint handle, const GFX_Extensions* ext)
 }
 
 /******************************************************/
+void _gfx_program_force_reuse(void)
+{
+	_gfx_current_program = 0;
+}
+
+/******************************************************/
 static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Program* program = (struct GFX_Internal_Program*)object;

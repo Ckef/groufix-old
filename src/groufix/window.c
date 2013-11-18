@@ -271,10 +271,14 @@ int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth
 	/* Save objects if main window and destroy old window */
 	_gfx_window_make_current(internal);
 	if(isMain) _gfx_hardware_objects_save(&internal->extensions);
+
+	gfx_vertex_layout_free(internal->layout);
 	_gfx_platform_window_free(internal->handle);
 
-	/* Load new extensions */
+	internal->layout = NULL;
 	internal->handle = handle;
+
+	/* Load new extensions */
 	_gfx_platform_context_make_current(handle);
 	_gfx_extensions_load();
 
@@ -292,6 +296,10 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 	{
 		/* Zombie window */
 		if(!window->handle) return;
+
+		/* Free its vertex layout */
+		_gfx_window_make_current(window);
+		gfx_vertex_layout_free(window->layout);
 
 		/* Erase from vector */
 		GFXVectorIterator it;
@@ -318,7 +326,6 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		/* If main window, save & restore hardware objects */
 		else if(_gfx_main_window == window)
 		{
-			_gfx_window_make_current(window);
 			_gfx_hardware_objects_save(&window->extensions);
 
 			/* Get new main window */

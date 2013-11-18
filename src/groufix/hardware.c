@@ -102,6 +102,8 @@ unsigned char gfx_hardware_get_max_id_width(void)
 /******************************************************/
 size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* funcs)
 {
+	if(!funcs) return 0;
+
 	/* Create internal object */
 	struct GFX_Internal_Hardware_Object internal;
 	internal.handle = object;
@@ -161,8 +163,23 @@ void _gfx_hardware_object_unregister(size_t id)
 			}
 
 			/* Add ID as empty ID and empty the actual data */
-			gfx_deque_push_back(_gfx_hw_ids, &id);
-			memset(gfx_vector_at(_gfx_hw_objects, id - 1), 0, sizeof(struct GFX_Internal_Hardware_Object));
+			struct GFX_Internal_Hardware_Object* obj = gfx_vector_at(_gfx_hw_objects, id - 1);
+			if(obj->funcs)
+			{
+				/* Only add ID when it wasn't empty yet */
+				gfx_deque_push_back(_gfx_hw_ids, &id);
+				memset(obj, 0, sizeof(struct GFX_Internal_Hardware_Object));
+
+				/* Erase both deque and vector */
+				if(size == gfx_deque_get_size(_gfx_hw_ids))
+				{
+					gfx_vector_free(_gfx_hw_objects);
+					gfx_deque_free(_gfx_hw_ids);
+
+					_gfx_hw_objects = NULL;
+					_gfx_hw_ids = NULL;
+				}
+			}
 		}
 		else if(id == size)
 		{
