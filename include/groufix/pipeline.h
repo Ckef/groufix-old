@@ -258,26 +258,6 @@ unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bit
 unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, GFXPipeProcessFunc process, size_t dataSize);
 
 /**
- * Changes a pipe to be a bucket.
- *
- * @param index Index to change.
- * @param bits  Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
- * @return Non-zero if the pipe could be changed.
- *
- */
-int gfx_pipeline_set_bucket(GFXPipeline* pipeline, unsigned short index, unsigned char bits, GFXBucketFlags flags);
-
-/**
- * Changes a pipe to be a process.
- *
- * @param index    Index to change.
- * @param dataSize Bytes of the data to pass to the process.
- * @return Non-zero if the pipe could be changed.
- *
- */
-int gfx_pipeline_set_process(GFXPipeline* pipeline, unsigned short index, GFXPipeProcessFunc process, size_t dataSize);
-
-/**
  * Sets the state of a pipe.
  *
  * @param index Index to set the state of.
@@ -287,15 +267,6 @@ int gfx_pipeline_set_process(GFXPipeline* pipeline, unsigned short index, GFXPip
  *
  */
 int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeState state);
-
-/**
- * Adds state bits to a pipe.
- *
- * @param index Index to add state bits to.
- * @return Non-zero if the state could be changed.
- *
- */
-int gfx_pipeline_add_state(GFXPipeline* pipeline, unsigned short index, GFXPipeState state);
 
 /**
  * Returns the data associated with a pipe.
