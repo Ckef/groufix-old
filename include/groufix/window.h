@@ -533,14 +533,6 @@ void gfx_hardware_set_max_id_width(unsigned char width);
  */
 unsigned char gfx_hardware_get_max_id_width(void);
 
-/**
- * Returns the maximum hardware ID (not the width!).
- *
- * Subtracting one will get an ID with all 1s for the given bit width.
- *
- */
-size_t gfx_hardware_get_max_id(void);
-
 
 #ifdef __cplusplus
 }

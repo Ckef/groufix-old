@@ -331,14 +331,6 @@ typedef struct GFX_Hardware_Funcs
 size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* funcs);
 
 /**
- * Returns the data associated with an id.
- *
- * This performs NO bound checking!
- *
- */
-void* _gfx_hardware_object_get(size_t id);
-
-/**
  * Unregisters a generic hardware object by identifier.
  *
  */
