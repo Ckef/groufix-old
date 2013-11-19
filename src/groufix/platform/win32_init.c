@@ -121,6 +121,8 @@ static int _gfx_win32_load_extensions(void)
 			(PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 		_gfx_win32->extensions.SwapIntervalEXT =
 			(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+		_gfx_win32->extensions.EXT_swap_control_tear =
+			_gfx_platform_is_extension_supported(NULL, "WGL_EXT_swap_control_tear") ? 1 : 0;
 
 		/* Check non-vital extensions */
 		if(!_gfx_platform_is_extension_supported(NULL, "WGL_EXT_swap_control"))

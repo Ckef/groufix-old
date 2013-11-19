@@ -79,6 +79,10 @@ void _gfx_platform_context_make_current(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num)
 {
+	/* Correct if adaptive vsync is not supported */
+	if(!_gfx_x11->extensions.EXT_swap_control_tear && num < 0)
+		num = -num;
+
 	if(_gfx_x11->extensions.SwapIntervalEXT)
 		_gfx_x11->extensions.SwapIntervalEXT(_gfx_x11->display, (Window)GFX_VOID_TO_UINT(handle), num);
 }

@@ -51,6 +51,7 @@ typedef enum GFXBucketFlags
 {
 	GFX_BUCKET_SORT_PROGRAM        = 0x01, /* If not set, it assumes the program is the same for each unit */
 	GFX_BUCKET_SORT_VERTEX_LAYOUT  = 0x02, /* If not set, it assumes the layout is the same for each unit */
+	GFX_BUCKET_SORT_ALL            = 0x03
 
 } GFXBucketFlags;
 
@@ -136,8 +137,12 @@ void gfx_bucket_erase(GFXBatchUnit* unit);
  * Pipe (processes to transfer between states)
  *******************************************************/
 
+/** Forward declerate */
+struct GFXPipeline;
+
+
 /** Process to push to a pipeline */
-typedef void (*GFXPipeProcessFunc)(void*);
+typedef void (*GFXPipeProcessFunc)(struct GFXPipeline*, void*);
 
 
 /** Pipe types */

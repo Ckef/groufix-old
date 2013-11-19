@@ -153,7 +153,7 @@ static void _gfx_layout_obj_save(void* object, GFX_Extensions* ext)
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
 
 	/* First unbind itself */
-	if(_gfx_current_vao == layout->vao) _gfx_layout_bind(0, ext);
+	if(_gfx_current_vao == layout->vao) _gfx_layout_force_rebind();
 
 	/* Just don't clear the attribute vector */
 	ext->DeleteVertexArrays(1, &layout->vao);

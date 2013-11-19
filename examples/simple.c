@@ -100,7 +100,7 @@ int main()
 
 	/* Pipeline */
 	GFXPipeline* pipeline = gfx_pipeline_create();
-	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_PROGRAM | GFX_BUCKET_SORT_VERTEX_LAYOUT);
+	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 
 	GFXPipe pipe;
 	gfx_pipeline_get(pipeline, i, NULL, NULL, &pipe);
@@ -112,8 +112,10 @@ int main()
 
 	/* Setup a loop */
 	gfx_hardware_poll_errors(NULL);
-	while(gfx_poll_events() && gfx_get_num_windows())
+	while(gfx_get_num_windows())
 	{
+		gfx_poll_events();
+
 		/* Execute pipeline & swap buffers */
 		gfx_pipeline_execute(pipeline);
 

@@ -410,8 +410,9 @@ void _gfx_platform_context_get(int* major, int* minor);
  * Sets the minimum number of video frame periods per buffer swap.
  *
  * A value of 1 effectively enables vsync, use 0 to disable.
- * A value of -1 enables adaptive vsync.
+ * A value of -1 enables adaptive vsync, if not supported, the function behaves as if -num was passed.
  *
+ * Note: a value > 1 or < -1 is allowed, depending on the implementation.
  * This method may make the window's context current.
  *
  */

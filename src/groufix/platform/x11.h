@@ -59,6 +59,7 @@ typedef struct GFX_X11_Extensions
 {
 	PFNGLXCREATECONTEXTATTRIBSARBPROC  CreateContextAttribsARB;
 	PFNGLXSWAPINTERVALEXTPROC          SwapIntervalEXT;
+	unsigned char                      EXT_swap_control_tear;
 
 } GFX_X11_Extensions;
 

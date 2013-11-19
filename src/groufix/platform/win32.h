@@ -60,6 +60,7 @@ typedef struct GFX_Win32_Extensions
 	PFNWGLCREATECONTEXTATTRIBSARBPROC  CreateContextAttribsARB;
 	PFNWGLGETEXTENSIONSSTRINGARBPROC   GetExtensionsStringARB;
 	PFNWGLSWAPINTERVALEXTPROC          SwapIntervalEXT;
+	unsigned char                      EXT_swap_control_tear;
 
 } GFX_Win32_Extensions;
 

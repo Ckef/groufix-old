@@ -74,6 +74,8 @@ static int _gfx_x11_load_extensions(void)
 		(PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
 	_gfx_x11->extensions.SwapIntervalEXT =
 		(PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalEXT");
+	_gfx_x11->extensions.EXT_swap_control_tear =
+		_gfx_x11_is_extension_supported(num, "GLX_EXT_swap_control_tear") ? 1 : 0;
 
 	/* Check non-vital extensions */
 	if(!_gfx_x11_is_extension_supported(num, "GLX_EXT_swap_control"))

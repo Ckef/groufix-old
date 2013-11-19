@@ -517,7 +517,7 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 		_gfx_states_set(pipe->state, internal->ext);
 
 		/* Process pipe */
-		if(pipe->process) pipe->process(pipe->pipe.data);
+		if(pipe->process) pipe->process(pipeline, pipe->pipe.data);
 		else _gfx_bucket_process(pipe->pipe.bucket, internal->ext);
 	}
 }
