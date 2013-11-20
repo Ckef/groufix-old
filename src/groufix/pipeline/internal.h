@@ -89,10 +89,8 @@ int _gfx_vertex_layout_window_create(void);
 /**
  * Draws the window vertex layout.
  *
- * @param program Program to use for the current window (bound to the window's context)
- *
  */
-void _gfx_vertex_layout_window_draw(GLuint program);
+void _gfx_vertex_layout_window_draw(void);
 
 
 /********************************************************
@@ -102,8 +100,7 @@ void _gfx_vertex_layout_window_draw(GLuint program);
 /**
  * Sets the program handle as currently in use.
  *
- * Note: DO NOT use for a window specific context,
- * use _gfx_vertex_layout_window_draw instead.
+ * Note: this is not context-safe, use _gfx_program_force_reuse to make sure it works cross-context.
  *
  */
 void _gfx_program_use(GLuint handle, const GFX_Extensions* ext);

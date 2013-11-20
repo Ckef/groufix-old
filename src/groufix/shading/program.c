@@ -67,12 +67,12 @@ static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 }
 
 /******************************************************/
-static void _gfx_program_obj_restore(void* object, GFX_Extensions* ext)
+static void _gfx_program_obj_save(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Program* program = (struct GFX_Internal_Program*)object;
 
-	/* Rebind itself to the new context */
-	if(_gfx_current_program == program->handle) ext->UseProgram(program->handle);
+	/* Unbind itself */
+	if(_gfx_current_program == program->handle) _gfx_program_force_reuse();
 }
 
 /******************************************************/
@@ -80,8 +80,8 @@ static void _gfx_program_obj_restore(void* object, GFX_Extensions* ext)
 static GFX_Hardware_Funcs _gfx_program_obj_funcs =
 {
 	_gfx_program_obj_free,
-	NULL,
-	_gfx_program_obj_restore
+	_gfx_program_obj_save,
+	NULL
 };
 
 /******************************************************/
@@ -148,6 +148,19 @@ int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const cha
 	window->extensions.BindAttribLocation(internal->handle, index, name);
 	
 	return 1;
+}
+
+/******************************************************/
+int gfx_program_get_uniform(GFXProgram* program, const char* name)
+{
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window) return -1;
+
+	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
+
+	/* Get the uniform location */
+	return window->extensions.GetUniformLocation(internal->handle, name);
 }
 
 /******************************************************/

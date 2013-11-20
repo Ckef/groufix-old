@@ -246,7 +246,7 @@ int _gfx_vertex_layout_window_create(void)
 		window->layout = (GFXVertexLayout*)_gfx_vertex_layout_create(1);
 		if(!window->layout)
 		{
-			gfx_buffer_free(_gfx_window_buffer);
+			if(!_gfx_window_buffer_count) gfx_buffer_free(_gfx_window_buffer);
 			_gfx_window_buffer = NULL;
 
 			return 0;
@@ -433,7 +433,7 @@ int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned char index, GFXDrawC
 }
 
 /******************************************************/
-void _gfx_vertex_layout_window_draw(GLuint program)
+void _gfx_vertex_layout_window_draw(void)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -442,11 +442,8 @@ void _gfx_vertex_layout_window_draw(GLuint program)
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)window->layout;
 	if(!layout) return;
 
-	/* Bind program and VAO */
-	_gfx_program_force_reuse();
+	/* Bind VAO */
 	_gfx_layout_force_rebind();
-
-	layout->ext->UseProgram(program);
 	layout->ext->BindVertexArray(layout->vao);
 
 	/* Draw the single call */
