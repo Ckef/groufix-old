@@ -134,7 +134,7 @@ void gfx_bucket_erase(GFXBatchUnit* unit);
 
 
 /********************************************************
- * Pipe (processes to transfer between states)
+ * Process to perform post-processing
  *******************************************************/
 
 /** Forward declerate */
@@ -144,6 +144,29 @@ struct GFXPipeline;
 /** Process to push to a pipeline */
 typedef void (*GFXPipeProcessFunc)(struct GFXPipeline*, void*);
 
+
+/** Process to perform post-processing */
+typedef struct GFXPipeProcess
+{
+	GFXPipeProcessFunc  process; /* Custom process to perform before post-processing */
+	GFXProgram*         program; /* Program to use for post-processing */
+
+} GFXPipeProcess;
+
+
+/**
+ * Returns a pointer to the custom data.
+ *
+ */
+inline void* gfx_pipe_process_get_data(GFXPipeProcess* process)
+{
+	return (void*)(process + 1);
+}
+
+
+/********************************************************
+ * Pipe (processes to transfer between states)
+ *******************************************************/
 
 /** Pipe types */
 typedef enum GFXPipeType
@@ -178,8 +201,8 @@ typedef enum GFXPipeState
 /** Individual pipe */
 typedef union GFXPipe
 {
-	GFXBucket*   bucket; /* Bucket to be processed */
-	void*        data;   /* Data associated with a process */
+	GFXBucket*       bucket;  /* Bucket to be processed */
+	GFXPipeProcess*  process; /* Process for post-processing */
 
 } GFXPipe;
 
@@ -221,7 +244,7 @@ GFXPipeline* gfx_pipeline_create(void);
 void gfx_pipeline_free(GFXPipeline* pipeline);
 
 /**
- * Attaces a texture image to the pipeline as render target.
+ * Attaches a texture image to the pipeline as render target.
  *
  * @param attach Attachment point to attach to.
  * @param index  Index of the attachment point (only relevant for color attachments).
@@ -260,7 +283,7 @@ unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bit
  * @return Index of the pipe (0 on failure).
  *
  */
-unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, GFXPipeProcessFunc process, size_t dataSize);
+unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, size_t dataSize);
 
 /**
  * Sets the state of a pipe.

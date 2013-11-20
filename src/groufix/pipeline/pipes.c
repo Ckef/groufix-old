@@ -40,9 +40,9 @@ struct GFX_Internal_Attachment
 /** Internal Pipe */
 struct GFX_Internal_Pipe
 {
-	GFXPipeProcessFunc  process;
-	GFXPipeState        state;
-	GFXPipe             pipe;
+	GFXPipeType   type;
+	GFXPipeState  state;
+	GFXPipe       pipe;
 };
 
 /** Internal Pipeline */
@@ -159,8 +159,16 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attach
 /******************************************************/
 static inline void _gfx_pipe_free(struct GFX_Internal_Pipe* pipe)
 {
-	if(pipe->process) free(pipe->pipe.data);
-	else _gfx_bucket_free(pipe->pipe.bucket);
+	switch(pipe->type)
+	{
+		case GFX_PIPE_BUCKET :
+			_gfx_bucket_free(pipe->pipe.bucket);
+			break;
+
+		case GFX_PIPE_PROCESS :
+			free(pipe->pipe.process);
+			break;
+	}
 }
 
 /******************************************************/
@@ -171,7 +179,7 @@ static int _gfx_pipe_create_bucket(struct GFX_Internal_Pipe* pipe, unsigned char
 	if(!bucket) return 0;
 
 	/* Fill the pipe */
-	pipe->process = NULL;
+	pipe->type = GFX_PIPE_BUCKET;
 	pipe->state = GFX_STATE_DEFAULT;
 	pipe->pipe.bucket = bucket;
 
@@ -179,20 +187,16 @@ static int _gfx_pipe_create_bucket(struct GFX_Internal_Pipe* pipe, unsigned char
 }
 
 /******************************************************/
-static int _gfx_pipe_create_process(struct GFX_Internal_Pipe* pipe, GFXPipeProcessFunc process, size_t dataSize)
+static int _gfx_pipe_create_process(struct GFX_Internal_Pipe* pipe, size_t dataSize)
 {
-	/* Allocate data */
-	void* data = NULL;
-	if(dataSize)
-	{
-		data = malloc(dataSize);
-		if(!data) return 0;
-	}
-
+	/* Allocate process */
+	void* process = calloc(1, sizeof(GFXPipeProcess) + dataSize);
+	if(!process) return 0;
+	
 	/* Fill the pipe */
-	pipe->process = process;
+	pipe->type = GFX_PIPE_PROCESS;
 	pipe->state = GFX_STATE_DEFAULT;
-	pipe->pipe.data = data;
+	pipe->pipe.process = process;
 
 	return 1;
 }
@@ -431,13 +435,13 @@ unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bit
 }
 
 /******************************************************/
-unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, GFXPipeProcessFunc process, size_t dataSize)
+unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, size_t dataSize)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 
 	/* Create pipe */
 	struct GFX_Internal_Pipe pipe;
-	if(!_gfx_pipe_create_process(&pipe, process, dataSize)) return 0;
+	if(!_gfx_pipe_create_process(&pipe, dataSize)) return 0;
 
 	/* Insert pipe */
 	unsigned short index = _gfx_pipeline_push_pipe(internal, &pipe);
@@ -473,7 +477,7 @@ int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* t
 	/* Retrieve data */
 	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
 
-	if(type) *type = p->process ? GFX_PIPE_PROCESS : GFX_PIPE_BUCKET;
+	if(type) *type = p->type;
 	if(state) *state = p->state;
 	if(pipe) *pipe = p->pipe;
 
@@ -517,7 +521,18 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 		_gfx_states_set(pipe->state, internal->ext);
 
 		/* Process pipe */
-		if(pipe->process) pipe->process(pipeline, pipe->pipe.data);
-		else _gfx_bucket_process(pipe->pipe.bucket, internal->ext);
+		switch(pipe->type)
+		{
+			case GFX_PIPE_BUCKET :
+				_gfx_bucket_process(pipe->pipe.bucket, internal->ext);
+				break;
+
+			case GFX_PIPE_PROCESS :
+				if(pipe->pipe.process->process) pipe->pipe.process->process(
+					pipeline, 
+					gfx_pipe_process_get_data(pipe->pipe.process)
+				);
+				break;
+		}
 	}
 }
