@@ -227,10 +227,10 @@ int _gfx_vertex_layout_window_create(void)
 		if(!_gfx_window_buffer)
 		{
 			char buff[] = {
-				-1, -1,
-				 1, -1,
-				 1,  1,
-				-1,  1
+				-1, -1, 0, 0,
+				 1, -1, 1, 0,
+				 1,  1, 1, 1,
+				-1,  1, 0, 1
 			};
 
 			_gfx_window_buffer = gfx_buffer_create(
@@ -260,11 +260,21 @@ int _gfx_vertex_layout_window_create(void)
 		attr.size          = 2;
 		attr.type.unpacked = GFX_BYTE;
 		attr.interpret     = GFX_INTERPRET_FLOAT;
-		attr.stride        = 0;
+		attr.stride        = sizeof(char) << 2;
 		attr.offset        = 0;
 		attr.divisor       = 0;
 
 		gfx_vertex_layout_set_attribute(window->layout, 0, &attr, _gfx_window_buffer);
+
+		/* Create the texture coord attribute */
+		attr.size          = 2;
+		attr.type.unpacked = GFX_BYTE;
+		attr.interpret     = GFX_INTERPRET_FLOAT;
+		attr.stride        = sizeof(char) << 2;
+		attr.offset        = sizeof(char) << 1;
+		attr.divisor       = 0;
+
+		gfx_vertex_layout_set_attribute(window->layout, 1, &attr, _gfx_window_buffer);
 
 		/* Create the draw call */
 		GFXDrawCall call;
@@ -430,6 +440,7 @@ void _gfx_vertex_layout_window_draw(GLuint program)
 	if(!window) return;
 
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)window->layout;
+	if(!layout) return;
 
 	/* Bind program and VAO */
 	_gfx_program_force_reuse();
