@@ -19,8 +19,8 @@
  *
  */
 
-#include "groufix/pipeline/internal.h"
 #include "groufix/containers/vector.h"
+#include "groufix/memory/internal.h"
 #include "groufix/errors.h"
 
 #include <stdlib.h>
@@ -225,8 +225,8 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	/* Load extensions of context and make sure to set the main window as current */
 	_gfx_window_make_current(window);
 	_gfx_extensions_load();
-
 	_gfx_vertex_layout_window_create();
+
 	_gfx_window_make_current(_gfx_main_window);
 
 	return (GFXWindow*)window;
@@ -283,6 +283,7 @@ int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth
 	/* Load new extensions */
 	_gfx_platform_context_make_current(handle);
 	_gfx_extensions_load();
+	_gfx_vertex_layout_window_create();
 
 	/* Restore hardware objects if main window & make sure the main window is current */
 	if(isMain) _gfx_hardware_objects_restore(&internal->extensions);

@@ -20,8 +20,7 @@
  */
 
 #include "groufix/containers/vector.h"
-#include "groufix/memory/datatypes.h"
-#include "groufix/pipeline/internal.h"
+#include "groufix/memory/internal.h"
 
 #include <stdlib.h>
 
@@ -304,7 +303,7 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 			internal->ext->DeleteVertexArrays(1, &internal->vao);
 
 			/* Decrement window buffer reference count */
-			if(!layout->id && _gfx_window_buffer_count)
+			if(!layout->id && internal->ext)
 				if(!(--_gfx_window_buffer_count))
 				{
 					gfx_buffer_free(_gfx_window_buffer);

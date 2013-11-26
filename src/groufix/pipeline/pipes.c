@@ -21,7 +21,7 @@
 
 #include "groufix/containers/deque.h"
 #include "groufix/containers/vector.h"
-#include "groufix/memory/datatypes.h"
+#include "groufix/memory/internal.h"
 #include "groufix/pipeline/internal.h"
 
 #include <stdlib.h>
@@ -172,37 +172,7 @@ static inline void _gfx_pipe_free(struct GFX_Internal_Pipe* pipe)
 }
 
 /******************************************************/
-static int _gfx_pipe_create_bucket(struct GFX_Internal_Pipe* pipe, unsigned char bits, GFXBucketFlags flags)
-{
-	/* Create bucket */
-	GFXBucket* bucket = _gfx_bucket_create(bits, flags);
-	if(!bucket) return 0;
-
-	/* Fill the pipe */
-	pipe->type = GFX_PIPE_BUCKET;
-	pipe->state = GFX_STATE_DEFAULT;
-	pipe->pipe.bucket = bucket;
-
-	return 1;
-}
-
-/******************************************************/
-static int _gfx_pipe_create_process(struct GFX_Internal_Pipe* pipe, size_t dataSize)
-{
-	/* Allocate process */
-	void* process = calloc(1, sizeof(GFXPipeProcess) + dataSize);
-	if(!process) return 0;
-	
-	/* Fill the pipe */
-	pipe->type = GFX_PIPE_PROCESS;
-	pipe->state = GFX_STATE_DEFAULT;
-	pipe->pipe.process = process;
-
-	return 1;
-}
-
-/******************************************************/
-static int _gfx_pipeline_push_pipe(struct GFX_Internal_Pipeline* pipeline, struct GFX_Internal_Pipe* pipe)
+static unsigned short _gfx_pipeline_push_pipe(struct GFX_Internal_Pipeline* pipeline, struct GFX_Internal_Pipe* pipe)
 {
 	/* Check for overflow (moar pipes!) */
 	unsigned short index = gfx_deque_get_size(&pipeline->pipes);
@@ -423,9 +393,15 @@ unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bit
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 
-	/* Create pipe */
+	/* Create bucket */
+	GFXBucket* bucket = _gfx_bucket_create(bits, flags);
+	if(!bucket) return 0;
+
+	/* Fill the pipe */
 	struct GFX_Internal_Pipe pipe;
-	if(!_gfx_pipe_create_bucket(&pipe, bits, flags)) return 0;
+	pipe.type = GFX_PIPE_BUCKET;
+	pipe.state = GFX_STATE_DEFAULT;
+	pipe.pipe.bucket = bucket;
 
 	/* Insert pipe */
 	unsigned short index = _gfx_pipeline_push_pipe(internal, &pipe);
@@ -439,9 +415,15 @@ unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, size_t dataSize)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 
-	/* Create pipe */
+	/* Allocate process */
+	void* process = calloc(1, sizeof(GFXPipeProcess) + dataSize);
+	if(!process) return 0;
+	
+	/* Fill the pipe */
 	struct GFX_Internal_Pipe pipe;
-	if(!_gfx_pipe_create_process(&pipe, dataSize)) return 0;
+	pipe.type = GFX_PIPE_PROCESS;
+	pipe.state = GFX_STATE_DEFAULT;
+	pipe.pipe.process = process;
 
 	/* Insert pipe */
 	unsigned short index = _gfx_pipeline_push_pipe(internal, &pipe);

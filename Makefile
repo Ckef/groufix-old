@@ -90,7 +90,7 @@ HEADERS_LIB = \
  $(DEPEND)/GLES3/gl3.h \
  $(DEPEND)/GLES3/gl3platform.h \
  $(DEPEND)/KHR/khrplatform.h \
- $(SRC)/groufix/memory/datatypes.h \
+ $(SRC)/groufix/memory/internal.h \
  $(SRC)/groufix/pipeline/internal.h \
  $(SRC)/groufix/internal.h \
  $(SRC)/groufix/platform.h

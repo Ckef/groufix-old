@@ -19,7 +19,7 @@
  *
  */
 
-#include "groufix/memory/datatypes.h"
+#include "groufix/memory/internal.h"
 #include "groufix/errors.h"
 
 #include <stdlib.h>

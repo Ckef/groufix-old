@@ -76,68 +76,6 @@ void _gfx_bucket_free(GFXBucket* bucket);
 void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext);
 
 
-/********************************************************
- * Window dependent vertex layouts
- *******************************************************/
-
-/**
- * Creates the vertex layout for the current window, if necessary.
- *
- */
-int _gfx_vertex_layout_window_create(void);
-
-/**
- * Draws the window vertex layout.
- *
- */
-void _gfx_vertex_layout_window_draw(void);
-
-
-/********************************************************
- * Internal draw calls and program usage
- *******************************************************/
-
-/**
- * Sets the program handle as currently in use.
- *
- * Note: this is not context-safe, use _gfx_program_force_reuse to make sure it works cross-context.
- *
- */
-void _gfx_program_use(GLuint handle, const GFX_Extensions* ext);
-
-/**
- * Forces the next program to be bound no matter what.
- *
- * This method should be called when binding a program to a non-main context.
- *
- */
-void _gfx_program_force_reuse(void);
-
-/**
- * Regular drawing using a given vertex layout.
- *
- */
-void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
-
-/**
- * Indexed drawing using a given vertex layout.
- *
- */
-void _gfx_vertex_layout_draw_indexed(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
-
-/**
- * Instanced drawing using a given vertex layout.
- *
- */
-void _gfx_vertex_layout_draw_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
-
-/**
- * Indexed AND instanced drawing using a given vertex layout.
- *
- */
-void _gfx_vertex_layout_draw_indexed_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
-
-
 #ifdef __cplusplus
 }
 #endif
