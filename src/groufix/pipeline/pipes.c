@@ -59,7 +59,7 @@ struct GFX_Internal_Pipeline
 	GFXDeque   pipes;       /* Stores GFX_Internal_Pipe */
 
 	/* Not a shared resource */
-	GFX_Extensions* ext;
+	GFX_Internal_Window* win;
 };
 
 /******************************************************/
@@ -166,7 +166,7 @@ static inline void _gfx_pipe_free(struct GFX_Internal_Pipe* pipe)
 			break;
 
 		case GFX_PIPE_PROCESS :
-			free(pipe->pipe.process);
+			_gfx_pipe_process_free(pipe->pipe.process);
 			break;
 	}
 }
@@ -194,7 +194,7 @@ static void _gfx_pipeline_obj_free(void* object, GFX_Extensions* ext)
 	/* Destroy framebuffer */
 	ext->DeleteFramebuffers(1, &pipeline->fbo);
 
-	pipeline->ext = NULL;
+	pipeline->win = NULL;
 	pipeline->fbo = 0;
 	pipeline->pipeline.id = 0;
 
@@ -213,7 +213,7 @@ static void _gfx_pipeline_obj_save(void* object, GFX_Extensions* ext)
 	/* Don't clear the attachments vector or target array */
 	ext->DeleteFramebuffers(1, &pipeline->fbo);
 
-	pipeline->ext = NULL;
+	pipeline->win = NULL;
 	pipeline->fbo = 0;
 }
 
@@ -223,7 +223,7 @@ static void _gfx_pipeline_obj_restore(void* object, GFX_Extensions* ext)
 	struct GFX_Internal_Pipeline* pipeline = (struct GFX_Internal_Pipeline*)object;
 
 	/* Create FBO */
-	pipeline->ext = ext;
+	pipeline->win = _gfx_window_get_current();
 	ext->GenFramebuffers(1, &pipeline->fbo);
 
 	/* Restore attachments */
@@ -277,8 +277,8 @@ GFXPipeline* gfx_pipeline_create(void)
 	}
 
 	/* Create OpenGL resources */
-	pl->ext = &window->extensions;
-	pl->ext->GenFramebuffers(1, &pl->fbo);
+	pl->win = window;
+	pl->win->extensions.GenFramebuffers(1, &pl->fbo);
 
 	gfx_vector_init(&pl->attachments, sizeof(struct GFX_Internal_Attachment));
 	gfx_deque_init(&pl->pipes, sizeof(struct GFX_Internal_Pipe));
@@ -302,7 +302,7 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 			_gfx_pipe_free((struct GFX_Internal_Pipe*)it);
 
 		/* Delete FBO */
-		if(internal->ext) internal->ext->DeleteFramebuffers(1, &internal->fbo);
+		if(internal->win) internal->win->extensions.DeleteFramebuffers(1, &internal->fbo);
 
 		gfx_vector_clear(&internal->attachments);
 		gfx_deque_clear(&internal->pipes);
@@ -316,10 +316,13 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelineAttachment attach, unsigned char index)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+	if(!internal->win) return 0;
+
+	GFX_Extensions* ext = &internal->win->extensions;
 
 	/* Check attachment limit */
 	if(attach != GFX_COLOR_ATTACHMENT) index = 0;
-	else if(index >= internal->ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS]) return 0;
+	else if(index >= ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS]) return 0;
 
 	/* Init attachment */
 	struct GFX_Internal_Attachment att;
@@ -355,7 +358,7 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 	else *((struct GFX_Internal_Attachment*)it) = att;
 
 	/* Send attachment to OGL */
-	_gfx_pipeline_init_attachment(internal->fbo, &att, internal->ext);
+	_gfx_pipeline_init_attachment(internal->fbo, &att, ext);
 
 	return 1;
 }
@@ -364,11 +367,13 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 size_t gfx_pipeline_target(GFXPipeline* pipeline, size_t num, const char* indices)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
-	if(!num) return 0;
+	if(!num || !internal->win) return 0;
+
+	GFX_Extensions* ext = &internal->win->extensions;
 
 	/* Limit number of targets */
-	num = (num > internal->ext->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
-		internal->ext->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
+	num = (num > ext->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
+		ext->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
 
 	/* Construct attachment buffer */
 	free(internal->targets);
@@ -376,14 +381,14 @@ size_t gfx_pipeline_target(GFXPipeline* pipeline, size_t num, const char* indice
 	internal->numTargets = num;
 
 	size_t i;
-	int max = internal->ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
+	int max = ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
 
 	for(i = 0; i < num; ++i) internal->targets[i] = (indices[i] < 0 || indices[i] >= max)
 		? GL_NONE : GFX_COLOR_ATTACHMENT + indices[i];
 
 	/* Pass to OGL */
-	internal->ext->BindFramebuffer(GL_FRAMEBUFFER, internal->fbo);
-	internal->ext->DrawBuffers(num, internal->targets);
+	ext->BindFramebuffer(GL_FRAMEBUFFER, internal->fbo);
+	ext->DrawBuffers(num, internal->targets);
 
 	return num;
 }
@@ -416,7 +421,7 @@ unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, size_t dataSize)
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 
 	/* Allocate process */
-	void* process = calloc(1, sizeof(GFXPipeProcess) + dataSize);
+	GFXPipeProcess* process = _gfx_pipe_process_create(dataSize);
 	if(!process) return 0;
 	
 	/* Fill the pipe */
@@ -487,11 +492,13 @@ unsigned short gfx_pipeline_pop(GFXPipeline* pipeline)
 void gfx_pipeline_execute(GFXPipeline* pipeline)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
-	if(!internal->ext) return;
+	if(!internal->win) return;
+
+	GFX_Extensions* ext = &internal->win->extensions;
 
 	/* Bind as framebuffer */
 	/* Temporarily disabled for testing purposes
-	internal->ext->BindFramebuffer(GL_FRAMEBUFFER, internal->fbo);*/
+	ext->BindFramebuffer(GL_FRAMEBUFFER, internal->fbo);*/
 
 	/* Iterate over all pipes */
 	GFXDequeIterator it;
@@ -500,20 +507,17 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 		struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)it;
 
 		/* Set states */
-		_gfx_states_set(pipe->state, internal->ext);
+		_gfx_states_set(pipe->state, ext);
 
 		/* Process pipe */
 		switch(pipe->type)
 		{
 			case GFX_PIPE_BUCKET :
-				_gfx_bucket_process(pipe->pipe.bucket, internal->ext);
+				_gfx_bucket_process(pipe->pipe.bucket, ext);
 				break;
 
 			case GFX_PIPE_PROCESS :
-				if(pipe->pipe.process->process) pipe->pipe.process->process(
-					pipeline, 
-					gfx_pipe_process_get_data(pipe->pipe.process)
-				);
+				_gfx_pipe_process_execute(pipe->pipe.process, pipeline, internal->win);
 				break;
 		}
 	}

@@ -148,8 +148,9 @@ typedef void (*GFXPipeProcessFunc)(struct GFXPipeline*, void*);
 /** Process to perform post-processing */
 typedef struct GFXPipeProcess
 {
-	GFXPipeProcessFunc  process; /* Custom process to perform before post-processing */
-	GFXProgram*         program; /* Program to use for post-processing */
+	GFXPipeProcessFunc  preprocess;  /* Custom process to perform before post-processing */
+	GFXProgram*         program;     /* Program to use for post-processing */
+	GFXPipeProcessFunc  postprocess; /* Custom process to perform after post-processing */
 
 } GFXPipeProcess;
 
@@ -158,10 +159,7 @@ typedef struct GFXPipeProcess
  * Returns a pointer to the custom data.
  *
  */
-inline void* gfx_pipe_process_get_data(GFXPipeProcess* process)
-{
-	return (void*)(process + 1);
-}
+void* gfx_pipe_process_get_data(GFXPipeProcess* process);
 
 
 /********************************************************

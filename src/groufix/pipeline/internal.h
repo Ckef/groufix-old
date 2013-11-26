@@ -76,6 +76,35 @@ void _gfx_bucket_free(GFXBucket* bucket);
 void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext);
 
 
+/********************************************************
+ * Internal pipe process creation & execution
+ *******************************************************/
+
+/**
+ * Creates a new process.
+ *
+ * @param dataSize Bytes of the data to pass to the process.
+ * @return NULL on failure.
+ *
+ */
+GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize);
+
+/**
+ * Makes sure the pipe process is freed properly.
+ *
+ */
+void _gfx_pipe_process_free(GFXPipeProcess* process);
+
+/**
+ * Executes the pipe process.
+ *
+ * @param pipeline Calling pipeline.
+ * @param fallback Window to make active after rendering to the target window.
+ *
+ */
+void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFX_Internal_Window* fallback);
+
+
 #ifdef __cplusplus
 }
 #endif
