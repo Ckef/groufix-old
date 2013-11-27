@@ -54,12 +54,12 @@ struct GFX_Internal_Unit
 	GFXBucket*        bucket;
 
 	/* Drawing data */
-	GFXVertexLayout*  layout;
 	GLuint            program;
-
-	GFXBatchMode      mode;
+	GFXVertexLayout*  layout;
 	unsigned char     start;
 	unsigned char     num;
+
+	GFXBatchMode      mode;
 	size_t            inst;
 };
 
@@ -104,6 +104,24 @@ static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXB
 }
 
 /******************************************************/
+static GFXBatchState _gfx_bucket_add_state(const struct GFX_Internal_Bucket* bucket, size_t layout, size_t program, GFXBatchState original)
+{
+	/* First sort on program, then layout */
+	GFXBatchState shifts = 0;
+	if(bucket->bucket.flags & GFX_BUCKET_SORT_VERTEX_LAYOUT)
+	{
+		original |= layout;
+		shifts = gfx_hardware_get_max_id_width();
+	}
+	if(bucket->bucket.flags & GFX_BUCKET_SORT_PROGRAM)
+	{
+		original |= (GFXBatchState)program << shifts;
+	}
+
+	return original;
+}
+
+/******************************************************/
 static inline GFXBatchState _gfx_bucket_add_manual_state(const struct GFX_Internal_Bucket* bucket, GFXBatchState state, GFXBatchState original)
 {
 	/* Apply black magic to shift mask and state */
@@ -123,23 +141,6 @@ static inline GFXBatchState _gfx_bucket_get_manual_state(const struct GFX_Intern
 
 	/* Mask it out */
 	return state & ((1 << bucket->bucket.bits) - 1);
-}
-
-/******************************************************/
-static GFXBatchState _gfx_bucket_compute_state(const struct GFX_Internal_Bucket* bucket, GFXBatchState state, size_t layout, size_t program)
-{
-	/* First sort on layout, then program */
-	GFXBatchState orig;
-	if(bucket->bucket.flags & GFX_BUCKET_SORT_VERTEX_LAYOUT)
-	{
-		/* Also, pretend it always sorts on program */
-		orig = layout;
-		orig |= (GFXBatchState)program << gfx_hardware_get_max_id_width();
-	}
-	else orig = program;
-
-	/* It will get masked away if not anyway */
-	return _gfx_bucket_add_manual_state(bucket, state, orig);
 }
 
 /******************************************************/
@@ -241,7 +242,7 @@ void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext)
 }
 
 /******************************************************/
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVertexLayout* layout, GFXProgram* program, unsigned char visible)
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, unsigned char visible)
 {
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
@@ -249,10 +250,8 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVerte
 	struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)gfx_list_create(sizeof(struct GFX_Internal_Unit));
 	if(!unit) return NULL;
 
-	unit->state   = _gfx_bucket_compute_state(internal, state, layout->id, program->id);
+	unit->state   = _gfx_bucket_add_manual_state(internal, state, 0);
 	unit->bucket  = bucket;
-	unit->layout  = layout;
-	unit->program = _gfx_program_get_handle(program);
 
 	/* Insert unit */
 	gfx_bucket_set_visible((GFXBatchUnit*)unit, visible);
@@ -261,7 +260,28 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVerte
 }
 
 /******************************************************/
-void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char start, unsigned char num, size_t inst)
+void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLayout* layout, unsigned char start, unsigned char num)
+{
+	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
+	struct GFX_Internal_Bucket* bucket = (struct GFX_Internal_Bucket*)internal->bucket;
+
+	internal->program = _gfx_program_get_handle(program);
+	internal->layout  = layout;
+	internal->start   = start;
+	internal->num     = num;
+
+	/* Detect equal states */
+	GFXBatchState state = _gfx_bucket_add_state(bucket, layout->id, program->id, internal->state);
+	if(internal->state != state)
+	{
+		/* Force a re-sort */
+		internal->state = state;
+		bucket->sort = 1;
+	}
+}
+
+/******************************************************/
+void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, size_t inst)
 {
 	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
 
@@ -285,8 +305,6 @@ void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char st
 
 	/* Set mode */
 	internal->mode  = mode;
-	internal->start = start;
-	internal->num   = num;
 	internal->inst  = inst;
 }
 

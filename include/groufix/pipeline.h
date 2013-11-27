@@ -80,25 +80,34 @@ typedef struct GFXBucket
  * Insert a unit to be processed into the bucket.
  *
  * @param state   Manual bits of the state to associate this unit with.
- * @param layout  Vertex layout to use for this unit, cannot be NULL.
- * @param program Program to use for this unit, cannot be NULL.
  * @param visible Non-zero if visible, invisible otherwise.
  * @return The inserted unit, NULL on failure.
  *
  * Note: this forces the bucket to have to preprocess.
  *
  */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, GFXVertexLayout* layout, GFXProgram* program, unsigned char visible);
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, unsigned char visible);
+
+/**
+ * Sets the sources the draw from for a unit.
+ *
+ * @param program Program to use for this unit, cannot be NULL.
+ * @param layout  Vertex layout to use for this unit, cannot be NULL.
+ * @param start   First draw call to issue.
+ * @param num     Number of draw calls to issue starting at start.
+ *
+ * Note: If this call is not called, execution of a pipeline has undefined behaviour!
+ *
+ */
+void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLayout* layout, unsigned char start, unsigned char num);
 
 /**
  * Sets the drawing mode of a unit.
  *
- * @param start First draw call to issue.
- * @param num   Number of draw calls to issue starting at start.
- * @param inst  Number of instances to draw.
+ * @param inst Number of instances to draw (only relevant when mode includes INSTANCED).
  *
  */
-void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char start, unsigned char num, size_t inst);
+void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, size_t inst);
 
 /**
  * Returns the manual bits of the state associated with a unit.
