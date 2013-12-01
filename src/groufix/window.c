@@ -110,7 +110,7 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
 /******************************************************/
 void _gfx_window_make_current(GFX_Internal_Window* window)
 {
-	if(window)
+	if(window && _gfx_current_window != window)
 	{
 		_gfx_platform_context_make_current(window->handle);
 		_gfx_current_window = window;
@@ -318,6 +318,7 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		{
 			/* Oh, also do a free request */
 			_gfx_hardware_objects_free(&window->extensions);
+			_gfx_platform_window_free(window->handle);
 
 			gfx_vector_free(_gfx_windows);
 			_gfx_windows = NULL;
@@ -330,6 +331,7 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		else if(_gfx_main_window == window)
 		{
 			_gfx_hardware_objects_save(&window->extensions);
+			_gfx_platform_window_free(window->handle);
 
 			/* Get new main window */
 			_gfx_main_window = *(GFX_Internal_Window**)_gfx_windows->begin;
@@ -337,10 +339,12 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 
 			_gfx_hardware_objects_restore(&_gfx_main_window->extensions);
 		}
-
-		/* Destroy window */
-		_gfx_platform_window_free(window->handle);
-		_gfx_window_make_current(_gfx_main_window);
+		else
+		{
+			/* Just, destroy it, thank you very much, also manually restore main context */
+			_gfx_platform_window_free(window->handle);
+			_gfx_platform_context_make_current(_gfx_main_window->handle);
+		}
 
 		window->handle = NULL;
 	}

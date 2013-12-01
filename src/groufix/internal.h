@@ -280,6 +280,7 @@ void _gfx_window_destroy(GFX_Internal_Window* window);
 /**
  * Sets the window as the current render target.
  *
+ * It will ignore NULL as argument.
  * Note: This SHOULD NOT be called unless you know damn well what you're doing.
  *
  */

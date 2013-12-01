@@ -245,9 +245,11 @@ int _gfx_vertex_layout_window_create(void)
 		window->layout = (GFXVertexLayout*)_gfx_vertex_layout_create(1);
 		if(!window->layout)
 		{
-			if(!_gfx_window_buffer_count) gfx_buffer_free(_gfx_window_buffer);
-			_gfx_window_buffer = NULL;
-
+			if(!_gfx_window_buffer_count)
+			{
+				gfx_buffer_free(_gfx_window_buffer);
+				_gfx_window_buffer = NULL;
+			}
 			return 0;
 		}
 
@@ -303,7 +305,7 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 			internal->ext->DeleteVertexArrays(1, &internal->vao);
 
 			/* Decrement window buffer reference count */
-			if(!layout->id && internal->ext)
+			if(!layout->id)
 				if(!(--_gfx_window_buffer_count))
 				{
 					gfx_buffer_free(_gfx_window_buffer);

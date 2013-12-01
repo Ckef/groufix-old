@@ -99,16 +99,21 @@ int main()
 
 
 	/* Pipeline */
-	GFXPipeline* pipeline = gfx_pipeline_create();
-	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
-
 	GFXPipe pipe;
+	GFXPipeline* pipeline = gfx_pipeline_create();
+
+	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	gfx_pipeline_get(pipeline, i, NULL, NULL, &pipe);
-	gfx_pipeline_set_state(pipeline, i, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
 	GFXBatchUnit* unit = gfx_bucket_insert(pipe.bucket, 0, 1);
 	gfx_bucket_set_source(unit, program, layout, 0, 1);
 	gfx_bucket_set_mode(unit, GFX_BATCH_DIRECT, 0);
+
+	unsigned short ip = gfx_pipeline_push_process(pipeline, 0);
+	gfx_pipeline_get(pipeline, ip, NULL, NULL, &pipe);
+
+	/* Clear buffers */
+	gfx_pipeline_set_state(pipeline, i, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
 
 	/* Setup a loop */

@@ -296,7 +296,8 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 /**
  * Destroys a window, freeing all its memory.
  *
- * This method should also destroy the context if it has one.
+ * This method is allowed to make all contexts inactive,
+ * as this method should also destroy the context if it has one.
  *
  */
 void _gfx_platform_window_free(GFX_Platform_Window handle);

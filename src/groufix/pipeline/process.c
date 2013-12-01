@@ -28,18 +28,14 @@
 struct GFX_Internal_Process
 {
 	/* Super class */
-	GFXPipeProcess       process;
-	GFX_Internal_Window  target;
+	GFXPipeProcess        process;
+	GFX_Internal_Window*  target;
 };
 
 /******************************************************/
 GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize)
 {
-	/* Allocate process */
-	struct GFX_Internal_Process* process = calloc(1, sizeof(struct GFX_Internal_Process) + dataSize);
-	if(!process) return NULL;
-
-	return (GFXPipeProcess*)process;
+	return (GFXPipeProcess*)calloc(1, sizeof(struct GFX_Internal_Process) + dataSize);
 }
 
 /******************************************************/
@@ -57,5 +53,16 @@ void* gfx_pipe_process_get_data(GFXPipeProcess* process)
 /******************************************************/
 void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFX_Internal_Window* fallback)
 {
-	/*void* data = (void*)(((struct GFX_Internal_Process*)process) + 1);*/
+	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
+
+	/* Execute custom pre-process */
+	void* data = (void*)(internal + 1);
+	if(process->preprocess) process->preprocess(pipeline, data);
+
+	/* Perform post-processing */
+	_gfx_window_make_current(internal->target);
+	_gfx_window_make_current(fallback);
+
+	/* Execute custom post-process */
+	if(process->postprocess) process->postprocess(pipeline, data);
 }
