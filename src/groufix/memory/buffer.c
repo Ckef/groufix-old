@@ -19,8 +19,8 @@
  *
  */
 
-#include "groufix/internal.h"
 #include "groufix/containers/vector.h"
+#include "groufix/internal.h"
 #include "groufix/errors.h"
 
 #include <stdlib.h>

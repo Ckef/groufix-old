@@ -22,9 +22,7 @@
 #ifndef GFX_INTERNAL_H
 #define GFX_INTERNAL_H
 
-#include "groufix/memory.h"
 #include "groufix/pipeline.h"
-#include "groufix/shading.h"
 #include "groufix/platform.h"
 
 /* Correct OGL header */
@@ -257,7 +255,6 @@ typedef struct GFX_Internal_Window
 	/* Hidden data */
 	GFX_Platform_Window  handle;
 	GFX_Extensions       extensions;
-	GFXVertexLayout*     layout;     /* Post-processing */
 
 } GFX_Internal_Window;
 

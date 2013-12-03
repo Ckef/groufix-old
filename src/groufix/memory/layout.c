@@ -28,13 +28,6 @@
 /** Currently active VAO */
 static GLuint _gfx_current_vao = 0;
 
-/** Window buffer (post-processing) */
-static GFXBuffer* _gfx_window_buffer = NULL;
-
-/** Window buffer reference count */
-static size_t _gfx_window_buffer_count = 0;
-
-/******************************************************/
 /** Internal Vertex layout */
 struct GFX_Internal_Layout
 {
@@ -109,29 +102,6 @@ static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct
 }
 
 /******************************************************/
-static struct GFX_Internal_Layout* _gfx_vertex_layout_create(unsigned char drawCalls)
-{
-	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
-	if(!window || !drawCalls) return NULL;
-
-	/* Create new layout, append draw calls to end of struct */
-	size_t size = sizeof(struct GFX_Internal_Layout) + drawCalls * sizeof(GFXDrawCall);
-
-	struct GFX_Internal_Layout* layout = calloc(1, size);
-	if(!layout) return NULL;
-
-	/* Create OpenGL resources */
-	layout->layout.drawCalls = drawCalls;
-	layout->ext = &window->extensions;
-	layout->ext->GenVertexArrays(1, &layout->vao);
-
-	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Internal_Attribute));
-
-	return layout;  
-}
-
-/******************************************************/
 static void _gfx_layout_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
@@ -198,8 +168,14 @@ GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout)
 /******************************************************/
 GFXVertexLayout* gfx_vertex_layout_create(unsigned char drawCalls)
 {
-	/* Create the vertex layout */
-	struct GFX_Internal_Layout* layout = _gfx_vertex_layout_create(drawCalls);
+	/* Get current window and context */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+	if(!window || !drawCalls) return NULL;
+
+	/* Create new layout, append draw calls to end of struct */
+	size_t size = sizeof(struct GFX_Internal_Layout) + drawCalls * sizeof(GFXDrawCall);
+
+	struct GFX_Internal_Layout* layout = calloc(1, size);
 	if(!layout) return NULL;
 
 	/* Register as object */
@@ -210,83 +186,14 @@ GFXVertexLayout* gfx_vertex_layout_create(unsigned char drawCalls)
 		return NULL;
 	}
 
+	/* Create OpenGL resources */
+	layout->layout.drawCalls = drawCalls;
+	layout->ext = &window->extensions;
+	layout->ext->GenVertexArrays(1, &layout->vao);
+
+	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Internal_Attribute));
+
 	return (GFXVertexLayout*)layout;
-}
-
-/******************************************************/
-int _gfx_vertex_layout_window_create(void)
-{
-	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
-	if(!window) return 0;
-
-	if(!window->layout)
-	{
-		/* Create window buffer */
-		if(!_gfx_window_buffer)
-		{
-			float buff[] = {
-				-1.f, -1.f, 0.f, 0.f,
-				 1.f, -1.f, 1.f, 0.f,
-				 1.f,  1.f, 1.f, 1.f,
-				-1.f,  1.f, 0.f, 1.f
-			};
-
-			_gfx_window_buffer = gfx_buffer_create(
-				GFX_BUFFER_WRITE,
-				GFX_VERTEX_BUFFER,
-				sizeof(buff),
-				buff, 0, 0
-			);
-			if(!_gfx_window_buffer) return 0;
-		}
-
-		/* Create the vertex layout */
-		window->layout = (GFXVertexLayout*)_gfx_vertex_layout_create(1);
-		if(!window->layout)
-		{
-			if(!_gfx_window_buffer_count)
-			{
-				gfx_buffer_free(_gfx_window_buffer);
-				_gfx_window_buffer = NULL;
-			}
-			return 0;
-		}
-
-		/* Don't forget to reference count */
-		++_gfx_window_buffer_count;
-
-		/* Create the position attribute */
-		GFXVertexAttribute attr;
-		attr.size          = 2;
-		attr.type.unpacked = GFX_FLOAT;
-		attr.interpret     = GFX_INTERPRET_FLOAT;
-		attr.stride        = sizeof(float) << 2;
-		attr.offset        = 0;
-		attr.divisor       = 0;
-
-		gfx_vertex_layout_set_attribute(window->layout, 0, &attr, _gfx_window_buffer);
-
-		/* Create the texture coord attribute */
-		attr.size          = 2;
-		attr.type.unpacked = GFX_FLOAT;
-		attr.interpret     = GFX_INTERPRET_FLOAT;
-		attr.stride        = sizeof(float) << 2;
-		attr.offset        = sizeof(float) << 1;
-		attr.divisor       = 0;
-
-		gfx_vertex_layout_set_attribute(window->layout, 1, &attr, _gfx_window_buffer);
-
-		/* Create the draw call */
-		GFXDrawCall call;
-		call.primitive = GFX_TRIANGLE_FAN;
-		call.first     = 0;
-		call.count     = 4;
-
-		gfx_vertex_layout_set(window->layout, 0, &call);
-	}
-
-	return 1;  
 }
 
 /******************************************************/
@@ -300,18 +207,7 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 		_gfx_hardware_object_unregister(layout->id);
 
 		/* Delete VAO */
-		if(internal->ext)
-		{
-			internal->ext->DeleteVertexArrays(1, &internal->vao);
-
-			/* Decrement window buffer reference count */
-			if(!layout->id)
-				if(!(--_gfx_window_buffer_count))
-				{
-					gfx_buffer_free(_gfx_window_buffer);
-					_gfx_window_buffer = NULL;
-				}
-		}
+		if(internal->ext) internal->ext->DeleteVertexArrays(1, &internal->vao);
 
 		gfx_vector_clear(&internal->attributes);
 		free(layout);
@@ -431,25 +327,6 @@ int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned char index, GFXDrawC
 	*call = *(((GFXDrawCall*)(internal + 1)) + index);
 
 	return 1;
-}
-
-/******************************************************/
-void _gfx_vertex_layout_window_draw(void)
-{
-	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
-	if(!window) return;
-
-	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)window->layout;
-	if(!layout) return;
-
-	/* Bind VAO */
-	_gfx_layout_force_rebind();
-	layout->ext->BindVertexArray(layout->vao);
-
-	/* Draw the single call */
-	GFXDrawCall* call = (GFXDrawCall*)(layout + 1);
-	layout->ext->DrawArrays(call->primitive, call->first, call->count);
 }
 
 /******************************************************/

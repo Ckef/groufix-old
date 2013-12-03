@@ -20,7 +20,6 @@
  */
 
 #include "groufix/containers/vector.h"
-#include "groufix/memory/internal.h"
 #include "groufix/pipeline/internal.h"
 #include "groufix/errors.h"
 
@@ -226,8 +225,6 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	/* Load extensions of context and make sure to set the main window as current */
 	_gfx_window_make_current(window);
 	_gfx_extensions_load();
-	_gfx_vertex_layout_window_create();
-
 	_gfx_window_make_current(_gfx_main_window);
 
 	return (GFXWindow*)window;
@@ -274,17 +271,12 @@ int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth
 	/* Save objects if main window and destroy old window */
 	_gfx_window_make_current(internal);
 	if(isMain) _gfx_hardware_objects_save(&internal->extensions);
-
-	gfx_vertex_layout_free(internal->layout);
 	_gfx_platform_window_free(internal->handle);
 
-	internal->layout = NULL;
-	internal->handle = handle;
-
 	/* Load new extensions */
+	internal->handle = handle;
 	_gfx_platform_context_make_current(handle);
 	_gfx_extensions_load();
-	_gfx_vertex_layout_window_create();
 
 	/* Restore hardware objects if main window & make sure the main window is current */
 	if(isMain) _gfx_hardware_objects_restore(&internal->extensions);
@@ -303,8 +295,6 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 
 		/* Free its vertex layout and untarget pipes */
 		_gfx_window_make_current(window);
-		gfx_vertex_layout_free(window->layout);
-
 		_gfx_pipe_process_untarget(window);
 
 		/* Erase from vector */

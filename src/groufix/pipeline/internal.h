@@ -51,6 +51,35 @@ void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
 
 
 /********************************************************
+ * Internal program usage
+ *******************************************************/
+
+/**
+ * Sets the program handle as currently in use.
+ *
+ * Note: this is not context-safe, use _gfx_program_force_reuse to make sure it works cross-context.
+ *
+ */
+void _gfx_program_use(GLuint handle, const GFX_Extensions* ext);
+
+/**
+ * Forces the next program to be bound no matter what.
+ *
+ * This method should be called when binding a program to a non-main context.
+ *
+ */
+void _gfx_program_force_reuse(void);
+
+/**
+ * Forces to set the program handle as currently in use.
+ *
+ * This acts as if _gfx_program_force_reuse is called before using.
+ *
+ */
+void _gfx_program_force_use(GLuint handle, const GFX_Extensions* ext);
+
+
+/********************************************************
  * Internal bucket creation & processing
  *******************************************************/
 
