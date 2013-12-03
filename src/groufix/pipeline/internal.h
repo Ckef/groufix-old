@@ -104,6 +104,12 @@ void _gfx_pipe_process_free(GFXPipeProcess* process);
  */
 void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFX_Internal_Window* fallback);
 
+/**
+ * Makes sure no pipe process targets the given window anymore.
+ *
+ */
+void _gfx_pipe_process_untarget(GFX_Internal_Window* target);
+
 
 #ifdef __cplusplus
 }

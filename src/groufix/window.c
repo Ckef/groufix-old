@@ -21,6 +21,7 @@
 
 #include "groufix/containers/vector.h"
 #include "groufix/memory/internal.h"
+#include "groufix/pipeline/internal.h"
 #include "groufix/errors.h"
 
 #include <stdlib.h>
@@ -300,9 +301,11 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		/* Zombie window */
 		if(!window->handle) return;
 
-		/* Free its vertex layout */
+		/* Free its vertex layout and untarget pipes */
 		_gfx_window_make_current(window);
 		gfx_vertex_layout_free(window->layout);
+
+		_gfx_pipe_process_untarget(window);
 
 		/* Erase from vector */
 		GFXVectorIterator it;
@@ -341,9 +344,9 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		}
 		else
 		{
-			/* Just, destroy it, thank you very much, also manually restore main context */
+			/* Just, destroy it, thank you very much */
 			_gfx_platform_window_free(window->handle);
-			_gfx_platform_context_make_current(_gfx_main_window->handle);
+			_gfx_window_make_current(_gfx_main_window);
 		}
 
 		window->handle = NULL;

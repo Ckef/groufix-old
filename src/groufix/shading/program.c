@@ -56,6 +56,13 @@ void _gfx_program_force_reuse(void)
 }
 
 /******************************************************/
+void _gfx_program_force_use(GLuint handle, const GFX_Extensions* ext)
+{
+	_gfx_current_program = handle;
+	ext->UseProgram(handle);
+}
+
+/******************************************************/
 static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Program* program = (struct GFX_Internal_Program*)object;
@@ -148,19 +155,6 @@ int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const cha
 	window->extensions.BindAttribLocation(internal->handle, index, name);
 	
 	return 1;
-}
-
-/******************************************************/
-int gfx_program_get_uniform(GFXProgram* program, const char* name)
-{
-	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
-	if(!window) return -1;
-
-	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
-
-	/* Get the uniform location */
-	return window->extensions.GetUniformLocation(internal->handle, name);
 }
 
 /******************************************************/

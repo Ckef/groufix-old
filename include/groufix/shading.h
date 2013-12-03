@@ -145,17 +145,6 @@ void gfx_program_free(GFXProgram* program);
 int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const char* name);
 
 /**
- * Returns the location of a named uniform within the program.
- *
- * @param name Name of the uniform in the shader (the string is copied).
- * @return The location of the uniform variable, < 0 if not found.
- *
- * This method can only be called after the program is linked.
- *
- */
-int gfx_program_get_uniform(GFXProgram* program, const char* name);
-
-/**
  * Links given shaders into a program.
  *
  * @shaders All shader objects to link into the program (cannot be NULL).

@@ -111,6 +111,7 @@ int main()
 
 	unsigned short ip = gfx_pipeline_push_process(pipeline, 0);
 	gfx_pipeline_get(pipeline, ip, NULL, NULL, &pipe);
+	gfx_pipe_process_set_target(pipe.process, program, window2);
 
 	/* Clear buffers */
 	gfx_pipeline_set_state(pipeline, i, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);

@@ -25,6 +25,7 @@
 #include "groufix/containers/list.h"
 #include "groufix/memory.h"
 #include "groufix/shading.h"
+#include "groufix/window.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -169,6 +170,15 @@ typedef struct GFXPipeProcess
  *
  */
 void* gfx_pipe_process_get_data(GFXPipeProcess* process);
+
+/**
+ * Sets the target window to render to.
+ *
+ * @param program Program to use for post processing.
+ * @param target  Target window, NULL to disable targeted window rendering.
+ *
+ */
+void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXProgram* program, GFXWindow* target);
 
 
 /********************************************************

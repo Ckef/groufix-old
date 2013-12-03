@@ -225,11 +225,11 @@ int _gfx_vertex_layout_window_create(void)
 		/* Create window buffer */
 		if(!_gfx_window_buffer)
 		{
-			char buff[] = {
-				-1, -1, 0, 0,
-				 1, -1, 1, 0,
-				 1,  1, 1, 1,
-				-1,  1, 0, 1
+			float buff[] = {
+				-1.f, -1.f, 0.f, 0.f,
+				 1.f, -1.f, 1.f, 0.f,
+				 1.f,  1.f, 1.f, 1.f,
+				-1.f,  1.f, 0.f, 1.f
 			};
 
 			_gfx_window_buffer = gfx_buffer_create(
@@ -259,9 +259,9 @@ int _gfx_vertex_layout_window_create(void)
 		/* Create the position attribute */
 		GFXVertexAttribute attr;
 		attr.size          = 2;
-		attr.type.unpacked = GFX_BYTE;
+		attr.type.unpacked = GFX_FLOAT;
 		attr.interpret     = GFX_INTERPRET_FLOAT;
-		attr.stride        = sizeof(char) << 2;
+		attr.stride        = sizeof(float) << 2;
 		attr.offset        = 0;
 		attr.divisor       = 0;
 
@@ -269,10 +269,10 @@ int _gfx_vertex_layout_window_create(void)
 
 		/* Create the texture coord attribute */
 		attr.size          = 2;
-		attr.type.unpacked = GFX_BYTE;
+		attr.type.unpacked = GFX_FLOAT;
 		attr.interpret     = GFX_INTERPRET_FLOAT;
-		attr.stride        = sizeof(char) << 2;
-		attr.offset        = sizeof(char) << 1;
+		attr.stride        = sizeof(float) << 2;
+		attr.offset        = sizeof(float) << 1;
 		attr.divisor       = 0;
 
 		gfx_vertex_layout_set_attribute(window->layout, 1, &attr, _gfx_window_buffer);
