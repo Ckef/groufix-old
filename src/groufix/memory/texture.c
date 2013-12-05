@@ -215,18 +215,6 @@ GLuint _gfx_texture_get_handle(const GFXTexture* texture)
 }
 
 /******************************************************/
-GLuint _gfx_texture_get_buffer_handle(const GFXTexture* texture)
-{
-	return ((struct GFX_Internal_Texture*)texture)->buffer;
-}
-
-/******************************************************/
-GLint _gfx_texture_get_internal_format(const GFXTexture* texture)
-{
-	return ((struct GFX_Internal_Texture*)texture)->format;
-}
-
-/******************************************************/
 GLenum _gfx_texture_get_internal_target(const GFXTexture* texture)
 {
 	return ((struct GFX_Internal_Texture*)texture)->target;

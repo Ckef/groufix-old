@@ -293,7 +293,7 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		/* Zombie window */
 		if(!window->handle) return;
 
-		/* Free its vertex layout and untarget pipes */
+		/* Untarget all pipe processes */
 		_gfx_window_make_current(window);
 		_gfx_pipe_process_untarget(window);
 

@@ -79,12 +79,6 @@ unsigned char _gfx_sizeof_data_type(GFXDataType type);
  *******************************************************/
 
 /**
- * Returns the internal format of a texture.
- *
- */
-GLint _gfx_texture_get_internal_format(const GFXTexture* texture);
-
-/**
  * Returns the internal target of a texture (a.k.a type).
  *
  */

@@ -399,12 +399,6 @@ GLuint _gfx_shader_get_handle(const GFXShader* shader);
 GLuint _gfx_texture_get_handle(const GFXTexture* texture);
 
 /**
- * Returns the buffer handle of a texture linked to a buffer.
- *
- */
-GLuint _gfx_texture_get_buffer_handle(const GFXTexture* texture);
-
-/**
  * Returns the VAO of a layout.
  *
  */

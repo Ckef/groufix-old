@@ -250,8 +250,8 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, unsigned
 	struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)gfx_list_create(sizeof(struct GFX_Internal_Unit));
 	if(!unit) return NULL;
 
-	unit->state   = _gfx_bucket_add_manual_state(internal, state, 0);
-	unit->bucket  = bucket;
+	unit->state = _gfx_bucket_add_manual_state(internal, state, 0);
+	unit->bucket = bucket;
 
 	/* Insert unit */
 	gfx_bucket_set_visible((GFXBatchUnit*)unit, visible);
@@ -266,9 +266,9 @@ void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLay
 	struct GFX_Internal_Bucket* bucket = (struct GFX_Internal_Bucket*)internal->bucket;
 
 	internal->program = _gfx_program_get_handle(program);
-	internal->layout  = layout;
-	internal->start   = start;
-	internal->num     = num;
+	internal->layout = layout;
+	internal->start = start;
+	internal->num = num;
 
 	/* Detect equal states */
 	GFXBatchState state = _gfx_bucket_add_state(bucket, layout->id, program->id, internal->state);
