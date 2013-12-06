@@ -136,6 +136,8 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, G
 /**
  * Makes sure no pipe process targets the given window anymore.
  *
+ * Note: the given target window should be current.
+ *
  */
 void _gfx_pipe_process_untarget(GFX_Internal_Window* target);
 

@@ -20,6 +20,7 @@
  */
 
 #include "groufix/containers/vector.h"
+#include "groufix/memory/internal.h"
 #include "groufix/pipeline/internal.h"
 
 #include <stdlib.h>
@@ -27,6 +28,9 @@
 /******************************************************/
 /* All pipe processes */
 static GFXVector* _gfx_pipes = NULL;
+
+/* Shared vertex buffer */
+static GFXBuffer* _gfx_process_buffer = NULL;
 
 /* Internal Pipe Process */
 struct GFX_Internal_Process
@@ -38,6 +42,52 @@ struct GFX_Internal_Process
 	GLuint                program;
 	GFX_Internal_Window*  target;
 };
+
+/******************************************************/
+static int _gfx_pipe_process_create_buffer(void)
+{
+	if(_gfx_process_buffer) return 1;
+
+	/* Create the buffer */
+	float data[] = {
+		-1.0f, -1.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, 1.0f, 0.0f,
+		 1.0f,  1.0f, 1.0f, 1.0f,
+		-1.0f,  1.0f, 0.0f, 1.0f
+	};
+	_gfx_process_buffer = gfx_buffer_create(GFX_BUFFER_WRITE, GFX_VERTEX_BUFFER, sizeof(data), data, 0, 0);
+
+	return _gfx_process_buffer ? 1 : 0;
+}
+
+/******************************************************/
+static void _gfx_pipe_process_create_layout(GFX_Internal_Window* target)
+{
+	if(!target->layout)
+	{
+		GFX_Extensions* ext = &target->extensions;
+
+		/* Make target current */
+		GFX_Internal_Window* fallback = _gfx_window_get_current();
+		_gfx_window_make_current(target);
+
+		/* Create layout */
+		ext->GenVertexArrays(1, &target->layout);
+		ext->BindVertexArray(target->layout);
+		_gfx_layout_force_rebind();
+
+		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_buffer_get_handle(_gfx_process_buffer));
+
+		ext->EnableVertexAttribArray(0);
+		ext->EnableVertexAttribArray(1);
+
+		ext->VertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) << 2, (GLvoid*)0);
+		ext->VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) << 2, (GLvoid*)(sizeof(float) << 1));
+
+		/* Switch back to previous window */
+		_gfx_window_make_current(fallback);
+	}
+}
 
 /******************************************************/
 void _gfx_pipe_process_untarget(GFX_Internal_Window* target)
@@ -56,6 +106,10 @@ void _gfx_pipe_process_untarget(GFX_Internal_Window* target)
 			}
 		}
 	}
+
+	/* Also, destroy layout while we're at it */
+	target->extensions.DeleteVertexArrays(1, &target->layout);
+	target->layout = 0;
 }
 
 /******************************************************/
@@ -63,6 +117,13 @@ GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize)
 {
 	/* Allocate */
 	struct GFX_Internal_Process* proc = calloc(1, sizeof(struct GFX_Internal_Process) + dataSize);
+	if(!proc) return NULL;
+
+	if(!_gfx_pipe_process_create_buffer())
+	{
+		free(proc);
+		return NULL;
+	}
 
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_pipes)
@@ -70,7 +131,11 @@ GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize)
 		_gfx_pipes = gfx_vector_create(sizeof(struct GFX_Internal_Process*));
 		if(!_gfx_pipes)
 		{
+			gfx_buffer_free(_gfx_process_buffer);
+			_gfx_process_buffer = NULL;
+
 			free(proc);
+
 			return NULL;
 		}
 	}
@@ -82,6 +147,9 @@ GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize)
 		{
 			gfx_vector_free(_gfx_pipes);
 			_gfx_pipes = NULL;
+
+			gfx_buffer_free(_gfx_process_buffer);
+			_gfx_process_buffer = NULL;
 		}
 		free(proc);
 
@@ -112,6 +180,9 @@ void _gfx_pipe_process_free(GFXPipeProcess* process)
 		{
 			gfx_vector_free(_gfx_pipes);
 			_gfx_pipes = NULL;
+
+			gfx_buffer_free(_gfx_process_buffer);
+			_gfx_process_buffer = NULL;
 		}
 	}
 }
@@ -131,6 +202,9 @@ void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXProgram* program, G
 	{
 		internal->program = _gfx_program_get_handle(program);
 		internal->target = (GFX_Internal_Window*)target;
+
+		/* Create layout */
+		_gfx_pipe_process_create_layout(internal->target);
 	}
 	else
 	{
@@ -151,7 +225,18 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, G
 	/* Perform post-processing */
 	if(internal->target)
 	{
+		/* Make target current */
 		_gfx_window_make_current(internal->target);
+
+		/* Use given program and draw using the target layout */
+		_gfx_program_force_use(internal->program, &internal->target->extensions);
+		_gfx_program_force_reuse();
+
+		internal->target->extensions.BindVertexArray(internal->target->layout);
+		internal->target->extensions.DrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		_gfx_layout_force_rebind();
+
+		/* Switch back to given fallback window */
 		_gfx_window_make_current(fallback);
 	}
 

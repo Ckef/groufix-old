@@ -255,6 +255,7 @@ typedef struct GFX_Internal_Window
 	/* Hidden data */
 	GFX_Platform_Window  handle;
 	GFX_Extensions       extensions;
+	GLuint               layout; /* Layout for post processing */
 
 } GFX_Internal_Window;
 

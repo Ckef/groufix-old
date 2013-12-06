@@ -61,7 +61,7 @@ static inline void _gfx_layout_bind(GLuint vao, const GFX_Extensions* ext)
 }
 
 /******************************************************/
-static inline void _gfx_layout_force_rebind(void)
+void _gfx_layout_force_rebind(void)
 {
 	_gfx_current_vao = 0;
 }

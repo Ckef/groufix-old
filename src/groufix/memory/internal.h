@@ -29,8 +29,16 @@ extern "C" {
 #endif
 
 /********************************************************
- * Internal draw calls
+ * Internal binding & draw calls
  *******************************************************/
+
+/**
+ * Forces the next layout to be bound no matter what.
+ *
+ * This method should be called when binding any layout outside of a GFXVertexLayout instance.
+ *
+ */
+void _gfx_layout_force_rebind(void);
 
 /**
  * Regular drawing using a given vertex layout.
