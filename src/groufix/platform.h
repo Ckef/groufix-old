@@ -422,6 +422,8 @@ void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num
 /** 
  * Swaps the internal buffers of a window.
  *
+ * This method is allowed to make the given context current.
+ *
  */
 void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle);
 

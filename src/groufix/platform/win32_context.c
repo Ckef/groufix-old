@@ -87,6 +87,7 @@ void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num
 /******************************************************/
 void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle)
 {
+	_gfx_platform_context_make_current(handle);
 	SwapBuffers(GetDC(handle));
 }
 

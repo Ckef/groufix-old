@@ -473,5 +473,10 @@ void gfx_window_swap_buffers(const GFXWindow* window)
 {
 	/* Check if zombie window */
 	GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
-	if(internal->handle) _gfx_platform_context_swap_buffers(internal->handle);
+	if(internal->handle)
+	{
+		_gfx_platform_context_swap_buffers(internal->handle);
+		if(internal != _gfx_main_window)
+			_gfx_platform_context_make_current(_gfx_main_window->handle);
+	}
 }
