@@ -39,6 +39,7 @@ struct GFX_Internal_Process
 	GFXPipeProcess process;
 
 	/* Post Processing */
+	char                  execute; /* Non-zero to post-process */
 	GLuint                program;
 	GFX_Internal_Window*  target;
 };
@@ -90,6 +91,29 @@ static void _gfx_pipe_process_create_layout(GFX_Internal_Window* target)
 }
 
 /******************************************************/
+void _gfx_pipe_process_target(GFX_Internal_Window* target)
+{
+	if(_gfx_pipes)
+	{
+		char found = 0;
+
+		GFXVectorIterator it;
+		for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
+		{
+			/* Check for equal target, if equal, re-establish post processing */
+			struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
+			if(target == proc->target)
+			{
+				proc->execute = 1;
+				found = 1;
+			}
+		}
+
+		if(found) _gfx_pipe_process_create_layout(target);
+	}
+}
+
+/******************************************************/
 void _gfx_pipe_process_untarget(GFX_Internal_Window* target)
 {
 	if(_gfx_pipes)
@@ -99,11 +123,7 @@ void _gfx_pipe_process_untarget(GFX_Internal_Window* target)
 		{
 			/* Check for equal target, if equal, reset post processing */
 			struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
-			if(target == proc->target)
-			{
-				proc->program = 0;
-				proc->target = NULL;
-			}
+			if(target == proc->target) proc->execute = 0;
 		}
 	}
 
@@ -197,13 +217,13 @@ void* gfx_pipe_process_get_data(GFXPipeProcess* process)
 void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXProgram* program, GFXWindow* target)
 {
 	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
+	internal->execute = (program && target) ? 1 : 0;
 
-	if(program && target)
+	if(internal->execute)
 	{
 		internal->program = _gfx_program_get_handle(program);
 		internal->target = (GFX_Internal_Window*)target;
 
-		/* Create layout */
 		_gfx_pipe_process_create_layout(internal->target);
 	}
 	else
@@ -223,7 +243,7 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, G
 	if(process->preprocess) process->preprocess(pipeline, data);
 
 	/* Perform post-processing */
-	if(internal->target)
+	if(internal->execute)
 	{
 		/* Make target current */
 		_gfx_window_make_current(internal->target);

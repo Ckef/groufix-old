@@ -271,12 +271,16 @@ int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth
 	/* Save objects if main window and destroy old window */
 	_gfx_window_make_current(internal);
 	if(isMain) _gfx_hardware_objects_save(&internal->extensions);
+
+	_gfx_pipe_process_untarget(internal);
 	_gfx_platform_window_free(internal->handle);
 
 	/* Load new extensions */
 	internal->handle = handle;
 	_gfx_platform_context_make_current(handle);
+
 	_gfx_extensions_load();
+	_gfx_pipe_process_target(internal);
 
 	/* Restore hardware objects if main window & make sure the main window is current */
 	if(isMain) _gfx_hardware_objects_restore(&internal->extensions);

@@ -87,7 +87,7 @@ static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXB
 			cur = next;
 		}
 
-		/* Implicitely sort the last unit */
+		/* Implicitly sort the last unit */
 		int nonZero = ((struct GFX_Internal_Unit*)mid)->state & bit;
 		bit >>= 1;
 

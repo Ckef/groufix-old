@@ -134,6 +134,16 @@ void _gfx_pipe_process_free(GFXPipeProcess* process);
 void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFX_Internal_Window* fallback);
 
 /**
+ * Re-establishes a target to a window when the window was previously untargeted.
+ *
+ * When a window was untargeted using _gfx_pipe_process_untarget
+ * and a pipe process is still pointing to it, this should be called
+ * to establish the render target again.
+ *
+ */
+void _gfx_pipe_process_target(GFX_Internal_Window* target);
+
+/**
  * Makes sure no pipe process targets the given window anymore.
  *
  * Note: the given target window should be current.
