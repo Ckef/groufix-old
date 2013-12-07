@@ -310,7 +310,8 @@ unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, size_t dataSize)
  * @param index Index to set the state of.
  * @return Non-zero if the state could be changed.
  *
- * The default is that of the previous pipe, the first pipe well have GFX_STATE_DEFAULT as default.
+ * The default is that of the previous pipe minus clearing bits,
+ * the first pipe will have GFX_STATE_DEFAULT as default.
  *
  */
 int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeState state);
@@ -318,7 +319,6 @@ int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeS
 /**
  * Returns the data associated with a pipe.
  *
- * @param index Index to return.
  * @param type  Returns the type of the pipe (can be NULL).
  * @param state Returns the state of the pipe (can be NULL).
  * @param pipe  Returns the pipe itself (can be NULL).

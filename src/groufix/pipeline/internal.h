@@ -102,7 +102,7 @@ void _gfx_bucket_free(GFXBucket* bucket);
  * Processes the bucket, calling all batch processes.
  *
  */
-void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext);
+void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* ext);
 
 
 /********************************************************
@@ -131,7 +131,7 @@ void _gfx_pipe_process_free(GFXPipeProcess* process);
  * @param fallback Window to make active after rendering to the target window.
  *
  */
-void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFX_Internal_Window* fallback);
+void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFXPipeState state, GFX_Internal_Window* fallback);
 
 /**
  * Re-establishes a target to a window when the window was previously untargeted.

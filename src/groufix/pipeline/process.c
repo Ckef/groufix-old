@@ -234,7 +234,7 @@ void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXProgram* program, G
 }
 
 /******************************************************/
-void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFX_Internal_Window* fallback)
+void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFXPipeState state, GFX_Internal_Window* fallback)
 {
 	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
 
@@ -245,15 +245,18 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, G
 	/* Perform post-processing */
 	if(internal->execute)
 	{
-		/* Make target current */
+		GFX_Extensions* ext = &internal->target->extensions;
+
+		/* Make target current & set its state */
 		_gfx_window_make_current(internal->target);
+		_gfx_states_set(state, ext);
 
 		/* Use given program and draw using the target layout */
-		_gfx_program_force_use(internal->program, &internal->target->extensions);
+		_gfx_program_force_use(internal->program, ext);
 		_gfx_program_force_reuse();
 
-		internal->target->extensions.BindVertexArray(internal->target->layout);
-		internal->target->extensions.DrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		ext->BindVertexArray(internal->target->layout);
+		ext->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
 		_gfx_layout_force_rebind();
 
 		/* Switch back to given fallback window */

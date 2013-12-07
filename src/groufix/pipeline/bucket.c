@@ -181,8 +181,11 @@ void _gfx_bucket_free(GFXBucket* bucket)
 }
 
 /******************************************************/
-void _gfx_bucket_process(GFXBucket* bucket, const GFX_Extensions* ext)
+void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* ext)
 {
+	/* Set state before anything else (you might be clearing) */
+	_gfx_states_set(state, ext);
+
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 	if(!internal->first) return;
 

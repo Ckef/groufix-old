@@ -178,9 +178,9 @@ static unsigned short _gfx_pipeline_push_pipe(struct GFX_Internal_Pipeline* pipe
 	unsigned short index = gfx_deque_get_size(&pipeline->pipes);
 	if(!(index + 1)) return 0;
 
-	/* Get state of the pipe */
+	/* Get state of the pipe, strip off clearing bits */
 	if(!index) pipe->state = GFX_STATE_DEFAULT;
-	else pipe->state = ((struct GFX_Internal_Pipe*)gfx_deque_at(&pipeline->pipes, index - 1))->state;
+	else pipe->state = ((struct GFX_Internal_Pipe*)gfx_deque_at(&pipeline->pipes, index - 1))->state & ~GFX_CLEAR_ALL;
 
 	/* Insert and return actual index + 1 */
 	return gfx_deque_push_back(&pipeline->pipes, pipe) == pipeline->pipes.end ? 0 : index + 1;
@@ -506,18 +506,15 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 	{
 		struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)it;
 
-		/* Set states */
-		_gfx_states_set(pipe->state, ext);
-
 		/* Process pipe */
 		switch(pipe->type)
 		{
 			case GFX_PIPE_BUCKET :
-				_gfx_bucket_process(pipe->pipe.bucket, ext);
+				_gfx_bucket_process(pipe->pipe.bucket, pipe->state, ext);
 				break;
 
 			case GFX_PIPE_PROCESS :
-				_gfx_pipe_process_execute(pipe->pipe.process, pipeline, internal->win);
+				_gfx_pipe_process_execute(pipe->pipe.process, pipeline, pipe->state, internal->win);
 				break;
 		}
 	}
