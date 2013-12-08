@@ -415,6 +415,7 @@ typedef struct GFXTexture
 
 	GFXTextureType  type;    /* Describes image arrangement and sampling */
 	unsigned char   mipmaps; /* Number of mipmaps (0 for none) */
+	unsigned char   samples; /* Number of samples for multisampled textures (1 for other textures) */
 
 	size_t          width;
 	size_t          height;
@@ -450,14 +451,14 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int
 /**
  * Creates a new multisampled 2D texture.
  *
- * @param layers Number of images within the texture, acts as an array of images (stored as depth).
+ * @param depth Number of images within the texture, acts as an array of images.
  * @return NULL on failure.
  *
  * When rendered to, this texture will be multisampled, but you cannot write to this texture.
  * Note: requires GFX_EXT_MULTISAMPLE_TEXTURE.
  *
  */
-GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char samples, size_t width, size_t height, size_t layers);
+GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char samples, size_t width, size_t height, size_t depth);
 
 /**
  * Creates a new texture associated with a 1D buffer.
@@ -502,6 +503,17 @@ void gfx_texture_write(GFXTextureImage image, const GFXPixelTransfer* transfer, 
  *
  */
 void gfx_texture_write_from_buffer(GFXTextureImage image, const GFXPixelTransfer* transfer, const GFXBuffer* buffer, size_t offset);
+
+/**
+ * Resizes the texture.
+ *
+ * @param height If 1D texture, acts as an array of images.
+ * @param depth  If 2D texture, acts as an array of images.
+ *
+ * Note: resizing a texture will wipe all current pixel data AND is rather expensive.
+ *
+ */
+void gfx_texture_resize(GFXTexture* texture, size_t width, size_t height, size_t depth);
 
 /**
  * Auto generates all mipmap levels.
