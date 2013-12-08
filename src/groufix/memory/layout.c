@@ -70,35 +70,36 @@ void _gfx_layout_force_rebind(void)
 static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
 {
 	/* Validate attribute */
-	if(!attr->attr.size) return;
+	if(attr->attr.size && ext->IsBuffer(attr->buffer))
+	{
+		/* Set the attribute */
+		_gfx_layout_bind(vao, ext);
+		ext->EnableVertexAttribArray(index);
 
-	/* Set the attribute */
-	_gfx_layout_bind(vao, ext);
-	ext->EnableVertexAttribArray(index);
+		ext->BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
 
-	ext->BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
+		/* Override if packed type */
+		int packed = _gfx_is_data_type_packed(attr->attr.type);
 
-	/* Override if packed type */
-	int packed = _gfx_is_data_type_packed(attr->attr.type);
+		if(!packed && attr->attr.interpret & GFX_INTERPRET_INTEGER) ext->VertexAttribIPointer(
+			index,
+			attr->attr.size,
+			attr->attr.type.unpacked,
+			attr->attr.stride,
+			(GLvoid*)attr->attr.offset
+		);
+		else ext->VertexAttribPointer(
+			index,
+			attr->attr.size,
+			packed ? attr->attr.type.packed : attr->attr.type.unpacked,
+			attr->attr.interpret & GFX_INTERPRET_NORMALIZED,
+			attr->attr.stride,
+			(GLvoid*)attr->attr.offset
+		);
 
-	if(!packed && attr->attr.interpret & GFX_INTERPRET_INTEGER) ext->VertexAttribIPointer(
-		index,
-		attr->attr.size,
-		attr->attr.type.unpacked,
-		attr->attr.stride,
-		(GLvoid*)attr->attr.offset
-	);
-	else ext->VertexAttribPointer(
-		index,
-		attr->attr.size,
-		packed ? attr->attr.type.packed : attr->attr.type.unpacked,
-		attr->attr.interpret & GFX_INTERPRET_NORMALIZED,
-		attr->attr.stride,
-		(GLvoid*)attr->attr.offset
-	);
-
-	/* Check if non-zero to avoid extension error */
-	if(attr->attr.divisor) ext->VertexAttribDivisor(index, attr->attr.divisor);
+		/* Check if non-zero to avoid extension error */
+		if(attr->attr.divisor) ext->VertexAttribDivisor(index, attr->attr.divisor);
+	}
 }
 
 /******************************************************/
