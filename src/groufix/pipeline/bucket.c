@@ -1,21 +1,23 @@
 /**
- * Groufix  :  Graphics Engine produced by Ckef Worx
- * www      :  http://www.ejb.ckef-worx.com
+ * Groufix  :  Graphics Engine produced by Ckef Worx.
+ * www      :  <http://www.ckef-worx.com>.
  *
- * Copyright (C) Stef Velzel :: All Rights Reserved
+ * This file is part of Groufix.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * Copyright (C) Stef Velzel :: All Rights Reserved.
+ *
+ * Groufix is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * Groufix is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Groufix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -183,11 +185,7 @@ void _gfx_bucket_free(GFXBucket* bucket)
 /******************************************************/
 void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* ext)
 {
-	/* Set state before anything else (you might be clearing) */
-	_gfx_states_set(state, ext);
-
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
-	if(!internal->first) return;
 
 	/* Check if sort is needed */
 	if(internal->sort)
@@ -195,6 +193,9 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 		_gfx_bucket_radix_sort(1 << internal->bit, &internal->first, &internal->last);
 		internal->sort = 0;
 	}
+
+	/* Set state before anything else (you might be clearing) */
+	_gfx_states_set(state, ext);
 
 	/* Process */
 	GFXBatchUnit* curr;
