@@ -25,6 +25,10 @@
 #include "groufix/internal.h"
 
 /******************************************************/
+/* Starting point of time */
+static double _gfx_time_start = 0.0;
+
+/******************************************************/
 int gfx_init(void)
 {
 	/* To make it clip against the maximum */
@@ -32,6 +36,9 @@ int gfx_init(void)
 
 	/* Initialize platform */
 	if(_gfx_platform_init()) return 1;
+
+	/* Get starting point of time */
+	_gfx_time_start = _gfx_platform_get_time();
 
 	return 0;
 }
@@ -46,6 +53,18 @@ int gfx_poll_events(void)
 	_gfx_platform_poll_events();
 
 	return 1;
+}
+
+/******************************************************/
+double gfx_get_time(void)
+{
+	return _gfx_platform_get_time() - _gfx_time_start;
+}
+
+/******************************************************/
+void gfx_set_time(double time)
+{
+	_gfx_time_start = _gfx_platform_get_time() - time;
 }
 
 /******************************************************/

@@ -78,6 +78,7 @@ HEADERS = \
  $(INCLUDE)/groufix/math/quat.h \
  $(INCLUDE)/groufix/math/vec.h \
  $(INCLUDE)/groufix/errors.h \
+ $(INCLUDE)/groufix/keys.h \
  $(INCLUDE)/groufix/math.h \
  $(INCLUDE)/groufix/memory.h \
  $(INCLUDE)/groufix/pipeline.h \
@@ -145,6 +146,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/platform/x11_screen.o \
+ $(OUT)/unix-x11/groufix/platform/x11_time.o \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
  $(OUT)/unix-x11/groufix/shading/program.o \
  $(OUT)/unix-x11/groufix/shading/shader.o \
@@ -168,7 +170,6 @@ unix-x11-simple: examples/simple.c unix-x11
 before-unix-x11:
 	mkdir -p $(BIN)/unix-x11
 	mkdir -p $(OUT)/unix-x11/groufix/containers
-	mkdir -p $(OUT)/unix-x11/groufix/geometry
 	mkdir -p $(OUT)/unix-x11/groufix/memory
 	mkdir -p $(OUT)/unix-x11/groufix/pipeline
 	mkdir -p $(OUT)/unix-x11/groufix/platform
@@ -222,6 +223,9 @@ $(OUT)/unix-x11/groufix/platform/x11_init.o: $(SRC)/groufix/platform/x11_init.c 
 $(OUT)/unix-x11/groufix/platform/x11_screen.o: $(SRC)/groufix/platform/x11_screen.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/platform/x11_time.o: $(SRC)/groufix/platform/x11_time.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_window.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -272,6 +276,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/platform/win32_context.o \
  $(OUT)/win32/groufix/platform/win32_init.o \
  $(OUT)/win32/groufix/platform/win32_screen.o \
+ $(OUT)/win32/groufix/platform/win32_time.o \
  $(OUT)/win32/groufix/platform/win32_window.o \
  $(OUT)/win32/groufix/shading/program.o \
  $(OUT)/win32/groufix/shading/shader.o \
@@ -295,7 +300,6 @@ win32-simple: examples/simple.c win32
 before-win32:
 	if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
 	if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
-	if not exist $(OUT)\win32\groufix\geometry\nul mkdir $(OUT)\win32\groufix\geometry
 	if not exist $(OUT)\win32\groufix\memory\nul mkdir $(OUT)\win32\groufix\memory
 	if not exist $(OUT)\win32\groufix\pipeline\nul mkdir $(OUT)\win32\groufix\pipeline
 	if not exist $(OUT)\win32\groufix\platform\nul mkdir $(OUT)\win32\groufix\platform
@@ -347,6 +351,9 @@ $(OUT)/win32/groufix/platform/win32_init.o: $(SRC)/groufix/platform/win32_init.c
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_screen.o: $(SRC)/groufix/platform/win32_screen.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/platform/win32_time.o: $(SRC)/groufix/platform/win32_time.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/platform/win32_window.o: $(SRC)/groufix/platform/win32_window.c $(HEADERS_WIN32)

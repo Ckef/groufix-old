@@ -21,42 +21,8 @@
  *
  */
 
-#define GL_GLEXT_PROTOTYPES
-#include "groufix/internal.h"
-
-#include <string.h>
-
 /******************************************************/
-void _gfx_platform_context_get(int* major, int* minor)
+double _gfx_platform_get_time(void)
 {
-	GLint ma, mi;
-	glGetIntegerv(GL_MAJOR_VERSION, &ma);
-	glGetIntegerv(GL_MINOR_VERSION, &mi);
-
-	*major = ma;
-	*minor = mi;
-}
-
-/******************************************************/
-int _gfx_extensions_is_in_string(const char* str, const char* ext)
-{
-	/* Get extension length */
-	size_t len = strlen(ext);
-	if(!len) return 0;
-
-	/* Try to find a complete match */
-	char* found = strstr(str, ext);
-	while(found)
-	{
-		char* end = found + len;
-		if(*end == ' ' || *end == '\0')
-		{
-			/* To avoid segfault */
-			if(found == str) return 1;
-			if(*(found - 1) == ' ') return 1;
-		}
-		found = strstr(end, ext);
-	}
-
-	return 0;
+	return 0.0;
 }

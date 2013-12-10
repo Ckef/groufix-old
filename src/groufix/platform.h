@@ -100,19 +100,6 @@ typedef struct GFX_Platform_Attributes
 
 
 /********************************************************
- * Extension helpers (not implemented by platform)
- *******************************************************/
-
-/**
- * Returns whether the OpenGL extension can be found in the space seperated string.
- *
- * This method is primarily used in the platform implementations.
- *
- */
-int _gfx_extensions_is_in_string(const char* str, const char* ext);
-
-
-/********************************************************
  * Event triggers (must be called manually by platform)
  *******************************************************/
 
@@ -245,6 +232,8 @@ int _gfx_platform_is_initialized(void);
 
 /**
  * Terminates the platform.
+ *
+ * If the platform was not yet initialized, this method should do nothing.
  *
  */
 void _gfx_platform_terminate(void);
@@ -442,6 +431,19 @@ int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char*
  *
  */
 GFXProcAddress _gfx_platform_get_proc_address(const char* proc);
+
+
+/********************************************************
+ * System timer
+ *******************************************************/
+
+/**
+ * Returns time in seconds since some unspecified starting point.
+ *
+ * The resolution is implementation dependent.
+ *
+ */
+double _gfx_platform_get_time(void);
 
 
 #ifdef __cplusplus

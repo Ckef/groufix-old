@@ -54,7 +54,25 @@ int gfx_init(void);
 int gfx_poll_events(void);
 
 /**
+ * Returns time in seconds since groufix was initialized.
+ *
+ * Note: when groufix is not initialized the return value is garbage.
+ *
+ */
+double gfx_get_time(void);
+
+/**
+ * Sets the time in seconds, changing the perceived time of initialization.
+ *
+ * Note: when groufix is not initialized behaviour is undefined
+ *
+ */
+void gfx_set_time(double time);
+
+/**
  * Terminates the Groufix engine.
+ *
+ * This has no effect when groufix is not initialized.
  *
  */
 void gfx_terminate(void);

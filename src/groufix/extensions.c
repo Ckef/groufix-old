@@ -25,8 +25,6 @@
 #include "groufix/pipeline/internal.h"
 #include "groufix/errors.h"
 
-#include <string.h>
-
 #ifdef GFX_GLES
 
 /******************************************************/
@@ -406,28 +404,4 @@ void _gfx_extensions_load(void)
 
 	/* Set default state */
 	_gfx_states_force_set(GFX_STATE_DEFAULT, ext);
-}
-
-/******************************************************/
-int _gfx_extensions_is_in_string(const char* str, const char* ext)
-{
-	/* Get extension length */
-	size_t len = strlen(ext);
-	if(!len) return 0;
-
-	/* Try to find a complete match */
-	char* found = strstr(str, ext);
-	while(found)
-	{
-		char* end = found + len;
-		if(*end == ' ' || *end == '\0')
-		{
-			/* To avoid segfault */
-			if(found == str) return 1;
-			if(*(found - 1) == ' ') return 1;
-		}
-		found = strstr(end, ext);
-	}
-
-	return 0;
 }
