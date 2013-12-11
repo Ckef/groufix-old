@@ -186,6 +186,68 @@ void* gfx_program_get_binary(GFXProgram* program, GFXProgramFormat* format, size
 int gfx_program_set_binary(GFXProgram* program, GFXProgramFormat format, size_t size, const void* data);
 
 
+/********************************************************
+ * Property Map (inputs associated with a program)
+ *******************************************************/
+
+/** Property type */
+typedef enum GFXPropertyType
+{
+	GFX_UNIFORM_PROPERTY,
+	GFX_BUFFER_PROPERTY
+
+} GFXPropertyType;
+
+
+/** Property map */
+typedef struct GFXPropertyMap
+{
+	GFXProgram*    program;
+	unsigned char  properties; /* Number of properties */
+
+} GFXPropertyMap;
+
+
+/**
+ * Creates a new property map.
+ *
+ * @param program    Program to set inputs for.
+ * @param properties Fixed number of property indices associated with this map.
+ * @return NULL on failure.
+ *
+ */
+GFXPropertyMap* gfx_property_map_create(GFXProgram* program, unsigned char properties);
+
+/**
+ * Makes sure the property map is freed properly.
+ *
+ */
+void gfx_property_map_free(GFXPropertyMap* map);
+
+/**
+ * Forwards data send to the given index to a given uniform name within the program.
+ *
+ * @param index Index of the property (must be < map->properties).
+ * @param type  Type of the index, must be of the same as the name is in the program.
+ * @param name  Name of the uniform in the program.
+ * @return Zero on failure.
+ *
+ * Note: the program of the map must be succesfully linked before calling this method.
+ *
+ */
+int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyType type, const char* name);
+
+/**
+ * Retrieves the type of a given property.
+ *
+ * @param index Index of the property to retrieve.
+ * @param type  Returns the type of the property, can be NULL.
+ * @return Non-zero if the property is assigned to any uniform name within the program (if zero, type is not returned).
+ *
+ */
+int gfx_property_map_get(GFXPropertyMap* map, unsigned char index, GFXPropertyType* type);
+
+
 #ifdef __cplusplus
 }
 #endif

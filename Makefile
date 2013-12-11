@@ -149,6 +149,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/platform/x11_time.o \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
  $(OUT)/unix-x11/groufix/shading/program.o \
+ $(OUT)/unix-x11/groufix/shading/properties.o \
  $(OUT)/unix-x11/groufix/shading/shader.o \
  $(OUT)/unix-x11/groufix/errors.o \
  $(OUT)/unix-x11/groufix/events.o \
@@ -232,6 +233,9 @@ $(OUT)/unix-x11/groufix/platform/x11_window.o: $(SRC)/groufix/platform/x11_windo
 $(OUT)/unix-x11/groufix/shading/program.o: $(SRC)/groufix/shading/program.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/shading/properties.o: $(SRC)/groufix/shading/properties.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/shading/shader.o: $(SRC)/groufix/shading/shader.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -279,6 +283,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/platform/win32_time.o \
  $(OUT)/win32/groufix/platform/win32_window.o \
  $(OUT)/win32/groufix/shading/program.o \
+ $(OUT)/win32/groufix/shading/properties.o \
  $(OUT)/win32/groufix/shading/shader.o \
  $(OUT)/win32/groufix/errors.o \
  $(OUT)/win32/groufix/events.o \
@@ -360,6 +365,9 @@ $(OUT)/win32/groufix/platform/win32_window.o: $(SRC)/groufix/platform/win32_wind
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/shading/program.o: $(SRC)/groufix/shading/program.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/shading/properties.o: $(SRC)/groufix/shading/properties.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/shading/shader.o: $(SRC)/groufix/shading/shader.c $(HEADERS_WIN32)

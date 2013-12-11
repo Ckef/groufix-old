@@ -231,6 +231,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderInfoLog         = glGetShaderInfoLog;
 	ext->GetShaderiv              = glGetShaderiv;
 	ext->GetShaderSource          = glGetShaderSource;
+	ext->GetUniformBlockIndex     = glGetUniformBlockIndex;
 	ext->GetUniformLocation       = glGetUniformLocation;
 	ext->IsBuffer                 = glIsBuffer;
 	ext->IsTexture                = glIsTexture;
@@ -321,6 +322,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderInfoLog         = (PFNGLGETSHADERINFOLOGPROC)         _gfx_platform_get_proc_address("glGetShaderInfoLog");
 	ext->GetShaderiv              = (PFNGLGETSHADERIVPROC)              _gfx_platform_get_proc_address("glGetShaderiv");
 	ext->GetShaderSource          = (PFNGLGETSHADERSOURCEPROC)          _gfx_platform_get_proc_address("glGetShaderSource");
+	ext->GetUniformBlockIndex     = (PFNGLGETUNIFORMBLOCKINDEXPROC)     _gfx_platform_get_proc_address("glGetUniformBlockIndex");
 	ext->GetUniformLocation       = (PFNGLGETUNIFORMLOCATIONPROC)       _gfx_platform_get_proc_address("glGetUniformLocation");
 	ext->IsBuffer                 = (PFNGLISBUFFERPROC)                 _gfx_platform_get_proc_address("glIsBuffer");
 	ext->IsTexture                = (PFNGLISTEXTUREPROC)                glIsTexture;
