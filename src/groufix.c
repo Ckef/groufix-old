@@ -31,16 +31,16 @@ static double _gfx_time_start = 0.0;
 /******************************************************/
 int gfx_init(void)
 {
+	/* Initialize platform */
+	if(!_gfx_platform_init()) return 0;
+
 	/* To make it clip against the maximum */
 	gfx_hardware_set_max_id_width(GFX_HARDWARE_ID_WIDTH_DEFAULT);
-
-	/* Initialize platform */
-	if(_gfx_platform_init()) return 1;
 
 	/* Get starting point of time */
 	_gfx_time_start = _gfx_platform_get_time();
 
-	return 0;
+	return 1;
 }
 
 /******************************************************/
