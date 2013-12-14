@@ -29,7 +29,7 @@
 #include <string.h>
 
 /******************************************************/
-/** Internal Buffer */
+/* Internal Buffer */
 struct GFX_Internal_Buffer
 {
 	/* Super class */

@@ -25,7 +25,6 @@
 #define GFX_PIPELINE_H
 
 #include "groufix/containers/list.h"
-#include "groufix/memory.h"
 #include "groufix/shading.h"
 #include "groufix/window.h"
 

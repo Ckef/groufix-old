@@ -29,7 +29,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/** Internal Attachment */
+/* Internal Attachment */
 struct GFX_Internal_Attachment
 {
 	GLenum         attachment; /* Key to sort on */
@@ -39,7 +39,7 @@ struct GFX_Internal_Attachment
 	unsigned int   layer;
 };
 
-/** Internal Pipe */
+/* Internal Pipe */
 struct GFX_Internal_Pipe
 {
 	GFXPipeType   type;
@@ -47,7 +47,7 @@ struct GFX_Internal_Pipe
 	GFXPipe       pipe;
 };
 
-/** Internal Pipeline */
+/* Internal Pipeline */
 struct GFX_Internal_Pipeline
 {
 	/* Super class */
@@ -378,8 +378,12 @@ size_t gfx_pipeline_target(GFXPipeline* pipeline, size_t num, const char* indice
 		ext->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
 
 	/* Construct attachment buffer */
-	free(internal->targets);
-	internal->targets = malloc(sizeof(GLenum) * num);
+	internal->targets = realloc(internal->targets, sizeof(GLenum) * num);
+	if(!internal->targets)
+	{
+		internal->numTargets = 0;
+		return 0;
+	}
 	internal->numTargets = num;
 
 	size_t i;

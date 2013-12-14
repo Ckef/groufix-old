@@ -27,7 +27,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/** Internal Shader */
+/* Internal Shader */
 struct GFX_Internal_Shader
 {
 	/* Super class */

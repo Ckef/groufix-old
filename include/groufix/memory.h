@@ -223,9 +223,9 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsa
 void* gfx_buffer_map_segment(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access);
 
 /**
- * Unmaps the buffer, invalidating the pointer returned by gfx_buffer_map.
+ * Unmaps the buffer, invalidating the pointer returned by gfx_buffer_map or gfx_buffer_map_segment.
  *
- * This method MUST be called immediately after gfx_buffer_map in order to continue using the buffer.
+ * This method MUST be called immediately after gfx_buffer_map* in order to continue using the buffer.
  *
  */
 void gfx_buffer_unmap(GFXBuffer* buffer);
@@ -468,6 +468,8 @@ GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned cha
  * @return NULL on failure.
  *
  * This texture will share memory with the buffer, the format cannot be packed or interpreted as depth.
+ * Also, a multi buffer swap will have no effect on the texture.
+ *
  * Note: requires GFX_EXT_BUFFER_TEXTURE.
  *
  */

@@ -24,6 +24,8 @@
 #ifndef GFX_SHADING_H
 #define GFX_SHADING_H
 
+#include "groufix/memory.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -195,8 +197,8 @@ typedef enum GFXPropertyType
 {
 	GFX_VECTOR_PROPERTY,
 	GFX_MATRIX_PROPERTY,
-	GFX_SAMPLER_PROPERTY,
 	GFX_BUFFER_PROPERTY,
+	GFX_SAMPLER_PROPERTY
 
 } GFXPropertyType;
 
@@ -214,8 +216,7 @@ typedef struct GFXProperty
 /** Property map */
 typedef struct GFXPropertyMap
 {
-	GFXProgram*    program;
-	unsigned char  properties; /* Number of properties */
+	unsigned char properties; /* Number of properties */
 
 } GFXPropertyMap;
 
@@ -280,6 +281,15 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
  *
  */
 int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size);
+
+/**
+ * Sets the value of a uniform sampler within the program.
+ *
+ * @param index Index of the property to set the value of.
+ * @return Non-zero on success.
+ *
+ */
+int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const GFXTexture* texture);
 
 
 #ifdef __cplusplus

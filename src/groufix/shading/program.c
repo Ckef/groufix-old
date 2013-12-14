@@ -27,7 +27,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/** Internal Program */
+/* Internal Program */
 struct GFX_Internal_Program
 {
 	/* Super class */

@@ -39,7 +39,7 @@
 #endif
 
 /******************************************************/
-/** Internal Texture */
+/* Internal Texture */
 struct GFX_Internal_Texture
 {
 	/* Super class */

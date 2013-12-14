@@ -27,11 +27,7 @@
 /* Core includes */
 #include "groufix/errors.h"
 #include "groufix/math.h"
-#include "groufix/memory.h"
 #include "groufix/pipeline.h"
-#include "groufix/shading.h"
-#include "groufix/utils.h"
-#include "groufix/window.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -27,7 +27,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/** Internal Vertex layout */
+/* Internal Vertex layout */
 struct GFX_Internal_Layout
 {
 	/* Super class */
@@ -41,7 +41,7 @@ struct GFX_Internal_Layout
 	GFX_Extensions* ext;
 };
 
-/** Internal vertex attribute */
+/* Internal vertex attribute */
 struct GFX_Internal_Attribute
 {
 	GFXVertexAttribute  attr;   /* Super class */
