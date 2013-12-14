@@ -73,7 +73,9 @@ int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 
 	switch(type)
 	{
-		case GFX_UNIFORM_PROPERTY :
+		case GFX_VECTOR_PROPERTY :
+		case GFX_MATRIX_PROPERTY :
+		case GFX_SAMPLER_PROPERTY :
 		{
 			GLint loc = window->extensions.GetUniformLocation(prog, name);
 			location = (loc < 0) ? GL_INVALID_INDEX : loc;
@@ -107,4 +109,17 @@ int gfx_property_map_get(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 	if(assigned && type) *type = prop->type;
 
 	return assigned;
+}
+
+/******************************************************/
+int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProperty value)
+{
+	return 0;
+}
+
+
+/******************************************************/
+int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size)
+{
+	return 0;
 }

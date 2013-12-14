@@ -76,8 +76,7 @@ static void _gfx_pipe_process_create_layout(GFX_Internal_Window* target)
 
 		/* Create layout */
 		ext->GenVertexArrays(1, &target->layout);
-		ext->BindVertexArray(target->layout);
-		_gfx_layout_force_rebind();
+		_gfx_layout_bind(target->layout, ext);
 
 		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_buffer_get_handle(_gfx_process_buffer));
 
@@ -254,12 +253,9 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, G
 		_gfx_states_set(state, ext);
 
 		/* Use given program and draw using the target layout */
-		_gfx_program_force_use(internal->program, ext);
-		_gfx_program_force_reuse();
-
-		ext->BindVertexArray(internal->target->layout);
+		_gfx_program_use(internal->program, ext);
+		_gfx_layout_bind(internal->target->layout, ext);
 		ext->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
-		_gfx_layout_force_rebind();
 
 		/* Switch back to given fallback window */
 		_gfx_window_make_current(fallback);

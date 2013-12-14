@@ -168,6 +168,10 @@ typedef struct GFX_Extensions
 	/* OpenGL State */
 	GFXPipeState state;
 
+	GLuint layout;  /* Currently bound VAO */
+	GLuint program; /* Currently used program */
+
+
 	/* OpenGL Extensions */
 	GFX_ACTIVETEXTUREPROC             ActiveTexture;
 	GFX_ATTACHSHADERPROC              AttachShader;

@@ -27,9 +27,6 @@
 #include <stdlib.h>
 
 /******************************************************/
-/** Currently active VAO */
-static GLuint _gfx_current_vao = 0;
-
 /** Internal Vertex layout */
 struct GFX_Internal_Layout
 {
@@ -41,7 +38,7 @@ struct GFX_Internal_Layout
 	GFXVector  attributes; /* Stores GFX_Internal_Attribute */
 
 	/* Not a shared resource */
-	const GFX_Extensions* ext;
+	GFX_Extensions* ext;
 };
 
 /** Internal vertex attribute */
@@ -52,24 +49,18 @@ struct GFX_Internal_Attribute
 };
 
 /******************************************************/
-static inline void _gfx_layout_bind(GLuint vao, const GFX_Extensions* ext)
+void _gfx_layout_bind(GLuint vao, GFX_Extensions* ext)
 {
 	/* Prevent binding it twice */
-	if(_gfx_current_vao != vao)
+	if(ext->layout != vao)
 	{
-		_gfx_current_vao = vao;
+		ext->layout = vao;
 		ext->BindVertexArray(vao);
 	}
 }
 
 /******************************************************/
-void _gfx_layout_force_rebind(void)
-{
-	_gfx_current_vao = 0;
-}
-
-/******************************************************/
-static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct GFX_Internal_Attribute* attr, const GFX_Extensions* ext)
+static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct GFX_Internal_Attribute* attr, GFX_Extensions* ext)
 {
 	/* Validate attribute */
 	if(attr->attr.size && ext->IsBuffer(attr->buffer))
@@ -123,9 +114,6 @@ static void _gfx_layout_obj_free(void* object, GFX_Extensions* ext)
 static void _gfx_layout_obj_save(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
-
-	/* First unbind itself */
-	if(_gfx_current_vao == layout->vao) _gfx_layout_force_rebind();
 
 	/* Just don't clear the attribute vector */
 	ext->DeleteVertexArrays(1, &layout->vao);

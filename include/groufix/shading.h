@@ -193,10 +193,22 @@ int gfx_program_set_binary(GFXProgram* program, GFXProgramFormat format, size_t 
 /** Property type */
 typedef enum GFXPropertyType
 {
-	GFX_UNIFORM_PROPERTY,
-	GFX_BUFFER_PROPERTY
+	GFX_VECTOR_PROPERTY,
+	GFX_MATRIX_PROPERTY,
+	GFX_SAMPLER_PROPERTY,
+	GFX_BUFFER_PROPERTY,
 
 } GFXPropertyType;
+
+
+/** Property */
+typedef struct GFXProperty
+{
+	unsigned char    components; /* Number of components */
+	GFXUnpackedType  type;       /* Data type of each component */
+	const void*      data;       /* Pointer for vector/matrix, GFXTexture* for sampler */
+
+} GFXProperty;
 
 
 /** Property map */
@@ -232,6 +244,9 @@ void gfx_property_map_free(GFXPropertyMap* map);
  * @param name  Name of the uniform in the program.
  * @return Zero on failure.
  *
+ * There can only be GFX_LIM_MAX_BUFFER_PROPERTIES number of properties with type GFX_BUFFER_PROPERTY active.
+ * If this requirement is not met, undefined behaviour is expected.
+ *
  * Note: the program of the map must be succesfully linked before calling this method.
  *
  */
@@ -246,6 +261,25 @@ int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
  *
  */
 int gfx_property_map_get(GFXPropertyMap* map, unsigned char index, GFXPropertyType* type);
+
+/**
+ * Sets the value of a uniform within the program.
+ *
+ * @param index Index of the property to set the value of.
+ * @param value Value to set it to, the content will be copied.
+ * @return Non-zero on success.
+ *
+ */
+int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProperty value);
+
+/**
+ * Sets the value of a uniform block within the program.
+ *
+ * @param index Index of the property to set the value of.
+ * @return Non-zero on success.
+ *
+ */
+int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size);
 
 
 #ifdef __cplusplus

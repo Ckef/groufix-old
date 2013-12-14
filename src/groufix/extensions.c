@@ -153,15 +153,15 @@ void _gfx_extensions_load(void)
 	_gfx_platform_context_get(&major, &minor);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, ext->limits + GFX_LIM_MAX_ACTIVE_TEXTURES);
-	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS,            ext->limits + GFX_LIM_MAX_COLOR_ATTACHMENTS);
-	glGetIntegerv(GL_MAX_DRAW_BUFFERS,                 ext->limits + GFX_LIM_MAX_COLOR_TARGETS);
-	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,        ext->limits + GFX_LIM_MAX_CUBEMAP_SIZE);
-	glGetIntegerv(GL_MAX_SAMPLES,                      ext->limits + GFX_LIM_MAX_SAMPLES);
-	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,              ext->limits + GFX_LIM_MAX_TEXTURE_3D_SIZE);
-	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,         ext->limits + GFX_LIM_MAX_TEXTURE_LAYERS);
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE,                 ext->limits + GFX_LIM_MAX_TEXTURE_SIZE);
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,               ext->limits + GFX_LIM_MAX_VERTEX_ATTRIBS);
+	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, ext->limits + GFX_LIM_MAX_BUFFER_PROPERTIES);
+	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS,       ext->limits + GFX_LIM_MAX_COLOR_ATTACHMENTS);
+	glGetIntegerv(GL_MAX_DRAW_BUFFERS,            ext->limits + GFX_LIM_MAX_COLOR_TARGETS);
+	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,   ext->limits + GFX_LIM_MAX_CUBEMAP_SIZE);
+	glGetIntegerv(GL_MAX_SAMPLES,                 ext->limits + GFX_LIM_MAX_SAMPLES);
+	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,         ext->limits + GFX_LIM_MAX_TEXTURE_3D_SIZE);
+	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,    ext->limits + GFX_LIM_MAX_TEXTURE_LAYERS);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE,            ext->limits + GFX_LIM_MAX_TEXTURE_SIZE);
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,          ext->limits + GFX_LIM_MAX_VERTEX_ATTRIBS);
 
 #ifdef GFX_GLES
 
@@ -346,7 +346,7 @@ void _gfx_extensions_load(void)
 	ext->VertexAttribPointer      = (PFNGLVERTEXATTRIBPOINTERPROC)      _gfx_platform_get_proc_address("glVertexAttribPointer");
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
-	if(major > 3 || minor > 2)
+	if(major > 3 || minor > 2) /* No, anything less than 3.2 will never be supported. */
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
@@ -363,7 +363,7 @@ void _gfx_extensions_load(void)
 	}
 
 	/* GFX_EXT_LAYERED_CUBEMAP */
-	if(major > 4 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_texture_cube_map_array"))
+	if(major > 3 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_texture_cube_map_array"))
 	{
 		ext->flags[GFX_EXT_LAYERED_CUBEMAP] = 1;
 	}
@@ -406,4 +406,7 @@ void _gfx_extensions_load(void)
 
 	/* Set default state */
 	_gfx_states_force_set(GFX_STATE_DEFAULT, ext);
+
+	ext->layout = 0;
+	ext->program = 0;
 }

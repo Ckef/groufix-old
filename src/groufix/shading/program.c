@@ -27,9 +27,6 @@
 #include <stdlib.h>
 
 /******************************************************/
-/** Currently active program */
-static GLuint _gfx_current_program = 0;
-
 /** Internal Program */
 struct GFX_Internal_Program
 {
@@ -41,27 +38,14 @@ struct GFX_Internal_Program
 };
 
 /******************************************************/
-void _gfx_program_use(GLuint handle, const GFX_Extensions* ext)
+void _gfx_program_use(GLuint handle, GFX_Extensions* ext)
 {
 	/* Prevent binding it twice */
-	if(_gfx_current_program != handle)
+	if(ext->program != handle)
 	{
-		_gfx_current_program = handle;
+		ext->program = handle;
 		ext->UseProgram(handle);
 	}
-}
-
-/******************************************************/
-void _gfx_program_force_reuse(void)
-{
-	_gfx_current_program = 0;
-}
-
-/******************************************************/
-void _gfx_program_force_use(GLuint handle, const GFX_Extensions* ext)
-{
-	_gfx_current_program = handle;
-	ext->UseProgram(handle);
 }
 
 /******************************************************/
@@ -76,20 +60,11 @@ static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 }
 
 /******************************************************/
-static void _gfx_program_obj_save(void* object, GFX_Extensions* ext)
-{
-	struct GFX_Internal_Program* program = (struct GFX_Internal_Program*)object;
-
-	/* Unbind itself */
-	if(_gfx_current_program == program->handle) _gfx_program_force_reuse();
-}
-
-/******************************************************/
 /* vtable for hardware part of the program */
 static GFX_Hardware_Funcs _gfx_program_obj_funcs =
 {
 	_gfx_program_obj_free,
-	_gfx_program_obj_save,
+	NULL,
 	NULL
 };
 
