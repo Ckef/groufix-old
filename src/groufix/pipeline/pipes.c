@@ -378,12 +378,11 @@ size_t gfx_pipeline_target(GFXPipeline* pipeline, size_t num, const char* indice
 		ext->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
 
 	/* Construct attachment buffer */
-	internal->targets = realloc(internal->targets, sizeof(GLenum) * num);
-	if(!internal->targets)
-	{
-		internal->numTargets = 0;
-		return 0;
-	}
+	GLenum* targets = malloc(sizeof(GLenum) * num);
+	if(!targets) return 0;
+
+	free(internal->targets);
+	internal->targets = targets;
 	internal->numTargets = num;
 
 	size_t i;

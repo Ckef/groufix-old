@@ -94,7 +94,19 @@ static int _gfx_window_insert(const GFX_Internal_Window* window)
 		_gfx_windows = gfx_vector_create(sizeof(GFX_Internal_Window*));
 		if(!_gfx_windows) return 0;
 	}
-	return gfx_vector_insert(_gfx_windows, &window, _gfx_windows->end) != _gfx_windows->end;
+
+	/* Try to insert, destroy on failure */
+	if(gfx_vector_insert(_gfx_windows, &window, _gfx_windows->end) == _gfx_windows->end)
+	{
+		if(_gfx_windows->begin == _gfx_windows->end)
+		{
+			gfx_vector_free(_gfx_windows);
+			_gfx_windows = NULL;
+		}
+		return 0;
+	}
+
+	return 1;
 }
 
 /******************************************************/
@@ -211,32 +223,37 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 		return NULL;
 	}
 
-	/* Create context and insert in the vector */
-	if(!_gfx_window_context_create(window->handle) || !_gfx_window_insert(window))
+	/* Create context */
+	if(_gfx_window_context_create(window->handle))
 	{
-		_gfx_platform_window_free(window->handle);
-		free(window);
+		/* Load extensions and try to prepare the window for post processing */
+		_gfx_window_make_current(window);
+		_gfx_extensions_load();
 
-		return NULL;
+		if(_gfx_pipe_process_prepare(window))
+		{
+			/* Finally attempt to insert the window into the vector */
+			if(_gfx_window_insert(window))
+			{
+				if(!_gfx_main_window) _gfx_main_window = window;
+				_gfx_window_make_current(_gfx_main_window);
+
+				return (GFXWindow*)window;
+			}
+
+			/* Failed, send failure to pipe processes */
+			_gfx_pipe_process_untarget(window, _gfx_windows ? 0 : 1);
+		}
+
+		/* Failed, fall back to main window */
+		_gfx_window_make_current(_gfx_main_window);
 	}
 
-	/* Load extensions of context and try to prepare it for post processing */
-	_gfx_window_make_current(window);
-	_gfx_extensions_load();
+	/* Destroy it */
+	_gfx_platform_window_free(window->handle);
+	free(window);
 
-	if(!_gfx_pipe_process_prepare(window))
-	{
-		_gfx_platform_window_free(window->handle);
-		free(window);
-
-		return NULL;
-	}
-
-	/* Evaluate main window */
-	if(!_gfx_main_window) _gfx_main_window = window;
-	_gfx_window_make_current(_gfx_main_window);
-
-	return (GFXWindow*)window;
+	return NULL;
 }
 
 /******************************************************/
