@@ -95,13 +95,21 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, unsigned
  *
  * @param program Program to use for this unit, cannot be NULL.
  * @param layout  Vertex layout to use for this unit, cannot be NULL.
- * @param start   First draw call to issue.
- * @param num     Number of draw calls to issue starting at start.
  *
  * Note: If this call is not called, execution of a pipeline has undefined behaviour!
+ * As a side note, it is a rather expensive operation, only calling it once is preferable.
  *
  */
-void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLayout* layout, unsigned char start, unsigned char num);
+void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLayout* layout);
+
+/**
+ * Sets the draw calls to issue from the source.
+ *
+ * @param start First draw call to issue.
+ * @param num   Number of draw calls to issue starting at start.
+ *
+ */
+void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, unsigned char start, unsigned char num);
 
 /**
  * Sets the drawing mode of a unit.
@@ -120,7 +128,7 @@ GFXBatchState gfx_bucket_get_state(const GFXBatchUnit* unit);
 /**
  * Sets the manual bits of the state to associate a unit with.
  *
- * Note: this forces the bucket to have to preprocess.
+ * Note: changing the state is a rather expensive operation if different from the previous state.
  *
  */
 void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
@@ -137,8 +145,6 @@ void gfx_bucket_set_visible(GFXBatchUnit* unit, unsigned char visible);
 
 /**
  * Erases and frees a unit from its bucket.
- *
- * Note: this DOES NOT cause the need to preprocess the bucket.
  *
  */
 void gfx_bucket_erase(GFXBatchUnit* unit);
@@ -173,15 +179,20 @@ typedef struct GFXPipeProcess
 void* gfx_pipe_process_get_data(GFXPipeProcess* process);
 
 /**
- * Sets the target window to render to.
+ * Sets the sources to use while drawing.
  *
- * @param program Program to use for post processing.
- * @param target  Target window.
- *
- * Note: to disable targeted window rendering either program or target should be NULL.
+ * @param program Program to use for this unit, NULL will disable the process.
  *
  */
-void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXProgram* program, GFXWindow* target);
+void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXProgram* program);
+
+/**
+ * Sets the target window to render to.
+ *
+ * @param window Target window to draw to, NULL will enable render to texture.
+ *
+ */
+void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXWindow* target);
 
 
 /********************************************************

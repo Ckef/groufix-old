@@ -264,15 +264,13 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, unsigned
 }
 
 /******************************************************/
-void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLayout* layout, unsigned char start, unsigned char num)
+void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLayout* layout)
 {
 	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
 	struct GFX_Internal_Bucket* bucket = (struct GFX_Internal_Bucket*)internal->bucket;
 
 	internal->program = _gfx_program_get_handle(program);
 	internal->layout = layout;
-	internal->start = start;
-	internal->num = num;
 
 	/* Detect equal states */
 	GFXBatchState state = _gfx_bucket_add_state(bucket, layout->id, program->id, internal->state);
@@ -282,6 +280,15 @@ void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLay
 		internal->state = state;
 		bucket->sort = 1;
 	}
+}
+
+/******************************************************/
+void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, unsigned char start, unsigned char num)
+{
+	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
+
+	internal->start = start;
+	internal->num = num;
 }
 
 /******************************************************/

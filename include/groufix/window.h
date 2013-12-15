@@ -185,12 +185,12 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
  *
  * @param screen New screen to use, NULL for default screen.
  * @param flags  Flags to apply to this window, full screen has precedence over all other flags.
- * @return zero on failure (old window is still functional).
+ * @return The new window on success, NULL on failure (old window is still functional).
  *
- * This method is to avoid destructing a window, thereby freeing hardware memory.
+ * This method is to avoid destroying a window, thereby freeing hardware memory.
  *
  */
-int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth depth, GFXWindowFlags flags);
+GFXWindow* gfx_window_recreate(GFXWindow* window, GFXScreen screen, GFXColorDepth depth, GFXWindowFlags flags);
 
 /**
  * Destroys and frees the window.

@@ -41,40 +41,42 @@ struct GFX_Internal_Process
 	GFXPipeProcess process;
 
 	/* Post Processing */
-	char                  execute; /* Non-zero to post-process */
 	GLuint                program;
 	GFX_Internal_Window*  target;
 };
 
 /******************************************************/
-static int _gfx_pipe_process_create_buffer(void)
+static inline void _gfx_pipe_process_draw(GFXPipeState state, GLuint program, GLuint layout, GFX_Extensions* ext)
 {
-	if(_gfx_process_buffer) return 1;
+	_gfx_states_set(state, ext);
+	_gfx_program_use(program, ext);
+	_gfx_layout_bind(layout, ext);
 
-	/* Create the buffer */
-	float data[] = {
-		-1.0f, -1.0f, 0.0f, 0.0f,
-		 1.0f, -1.0f, 1.0f, 0.0f,
-		 1.0f,  1.0f, 1.0f, 1.0f,
-		-1.0f,  1.0f, 0.0f, 1.0f
-	};
-	_gfx_process_buffer = gfx_buffer_create(GFX_BUFFER_WRITE, GFX_VERTEX_BUFFER, sizeof(data), data, 0, 0);
-
-	return _gfx_process_buffer ? 1 : 0;
+	ext->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
 /******************************************************/
-static void _gfx_pipe_process_create_layout(GFX_Internal_Window* target)
+int _gfx_pipe_process_prepare(GFX_Internal_Window* target)
 {
+	/* First make sure the buffer exists */
+	if(!_gfx_process_buffer)
+	{
+		float data[] = {
+			-1.0f, -1.0f, 0.0f, 0.0f,
+			 1.0f, -1.0f, 1.0f, 0.0f,
+			 1.0f,  1.0f, 1.0f, 1.0f,
+			-1.0f,  1.0f, 0.0f, 1.0f
+		};
+		_gfx_process_buffer = gfx_buffer_create(GFX_BUFFER_WRITE, GFX_VERTEX_BUFFER, sizeof(data), data, 0, 0);
+
+		if(!_gfx_process_buffer) return 0;
+	}
+
+	/* Next create the layout */
 	if(!target->layout)
 	{
 		GFX_Extensions* ext = &target->extensions;
 
-		/* Make target current */
-		GFX_Internal_Window* fallback = _gfx_window_get_current();
-		_gfx_window_make_current(target);
-
-		/* Create layout */
 		ext->GenVertexArrays(1, &target->layout);
 		_gfx_layout_bind(target->layout, ext);
 
@@ -86,46 +88,44 @@ static void _gfx_pipe_process_create_layout(GFX_Internal_Window* target)
 		ext->VertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) << 2, (GLvoid*)0);
 		ext->VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) << 2, (GLvoid*)(sizeof(float) << 1));
 
-		/* Switch back to previous window */
-		_gfx_window_make_current(fallback);
+		return target->layout ? 1 : 0;
+	}
+
+	return 1;
+}
+
+/******************************************************/
+void _gfx_pipe_process_retarget(GFX_Internal_Window* replace, GFX_Internal_Window* target)
+{
+	GFXVectorIterator it;
+	if(_gfx_pipes) for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
+	{
+		/* Check for equal target, if equal, retarget */
+		struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
+		if(replace == proc->target) proc->target = target;
 	}
 }
 
 /******************************************************/
-void _gfx_pipe_process_target(GFX_Internal_Window* target)
+void _gfx_pipe_process_untarget(GFX_Internal_Window* target, int last)
 {
-	if(_gfx_pipes)
+	/* Reset pipes if not retargeting */
+	GFXVectorIterator it;
+	if(_gfx_pipes) for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
 	{
-		char found = 0;
-
-		GFXVectorIterator it;
-		for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
+		/* Check for equal target, if equal, reset post processing */
+		struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
+		if(target == proc->target)
 		{
-			/* Check for equal target, if equal, re-establish post processing */
-			struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
-			if(target == proc->target)
-			{
-				proc->execute = 1;
-				found = 1;
-			}
+			proc->program = 0;
+			proc->target = NULL;
 		}
-
-		if(found) _gfx_pipe_process_create_layout(target);
 	}
-}
-
-/******************************************************/
-void _gfx_pipe_process_untarget(GFX_Internal_Window* target)
-{
-	if(_gfx_pipes)
+	if(last)
 	{
-		GFXVectorIterator it;
-		for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
-		{
-			/* Check for equal target, if equal, reset post processing */
-			struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
-			if(target == proc->target) proc->execute = 0;
-		}
+		/* If last, destroy buffer as well */
+		gfx_buffer_free(_gfx_process_buffer);
+		_gfx_process_buffer = NULL;
 	}
 
 	/* Also, destroy layout while we're at it */
@@ -140,23 +140,13 @@ GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize)
 	struct GFX_Internal_Process* proc = calloc(1, sizeof(struct GFX_Internal_Process) + dataSize);
 	if(!proc) return NULL;
 
-	if(!_gfx_pipe_process_create_buffer())
-	{
-		free(proc);
-		return NULL;
-	}
-
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_pipes)
 	{
 		_gfx_pipes = gfx_vector_create(sizeof(struct GFX_Internal_Process*));
 		if(!_gfx_pipes)
 		{
-			gfx_buffer_free(_gfx_process_buffer);
-			_gfx_process_buffer = NULL;
-
 			free(proc);
-
 			return NULL;
 		}
 	}
@@ -168,9 +158,6 @@ GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize)
 		{
 			gfx_vector_free(_gfx_pipes);
 			_gfx_pipes = NULL;
-
-			gfx_buffer_free(_gfx_process_buffer);
-			_gfx_process_buffer = NULL;
 		}
 		free(proc);
 
@@ -201,9 +188,6 @@ void _gfx_pipe_process_free(GFXPipeProcess* process)
 		{
 			gfx_vector_free(_gfx_pipes);
 			_gfx_pipes = NULL;
-
-			gfx_buffer_free(_gfx_process_buffer);
-			_gfx_process_buffer = NULL;
 		}
 	}
 }
@@ -215,27 +199,26 @@ void* gfx_pipe_process_get_data(GFXPipeProcess* process)
 }
 
 /******************************************************/
-void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXProgram* program, GFXWindow* target)
+void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXProgram* program)
 {
 	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
-	internal->execute = (program && target) ? 1 : 0;
 
-	if(internal->execute)
-	{
-		internal->program = _gfx_program_get_handle(program);
-		internal->target = (GFX_Internal_Window*)target;
-
-		_gfx_pipe_process_create_layout(internal->target);
-	}
-	else
-	{
-		internal->program = 0;
-		internal->target = NULL;
-	}
+	/* Set the actual source */
+	if(!program) internal->program = 0;
+	else internal->program = _gfx_program_get_handle(program);
 }
 
 /******************************************************/
-void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFXPipeState state, GFX_Internal_Window* fallback)
+void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXWindow* target)
+{
+	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
+
+	if(!target) internal->target = NULL;
+	else internal->target = (GFX_Internal_Window*)target;
+}
+
+/******************************************************/
+void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFXPipeState state, GFX_Internal_Window* active)
 {
 	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
 
@@ -244,21 +227,18 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, G
 	if(process->preprocess) process->preprocess(pipeline, data);
 
 	/* Perform post-processing */
-	if(internal->execute)
+	if(internal->program)
 	{
-		GFX_Extensions* ext = &internal->target->extensions;
+		if(internal->target)
+		{
+			/* Make target current, draw, and switch back to previously active */
+			_gfx_window_make_current(internal->target);
+			_gfx_pipe_process_draw(state, internal->program, internal->target->layout, &internal->target->extensions);
+			_gfx_window_make_current(active);
+		}
 
-		/* Make target current & set its state */
-		_gfx_window_make_current(internal->target);
-		_gfx_states_set(state, ext);
-
-		/* Use given program and draw using the target layout */
-		_gfx_program_use(internal->program, ext);
-		_gfx_layout_bind(internal->target->layout, ext);
-		ext->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-		/* Switch back to given fallback window */
-		_gfx_window_make_current(fallback);
+		/* If no windowed rendering, just draw */
+		else _gfx_pipe_process_draw(state, internal->program, active->layout, &active->extensions);
 	}
 
 	/* Execute custom post-process */

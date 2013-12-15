@@ -107,12 +107,14 @@ int main()
 	gfx_pipeline_set_state(pipeline, i, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
 	GFXBatchUnit* unit = gfx_bucket_insert(pipe.bucket, 0, 1);
-	gfx_bucket_set_source(unit, program, layout, 0, 1);
+	gfx_bucket_set_source(unit, program, layout);
+	gfx_bucket_set_draw_calls(unit, 0, 1);
 	gfx_bucket_set_mode(unit, GFX_BATCH_DIRECT, 0);
 
 	unsigned short ip = gfx_pipeline_push_process(pipeline, 0);
 	gfx_pipeline_get(pipeline, ip, NULL, NULL, &pipe);
-	gfx_pipe_process_set_target(pipe.process, program, window2);
+	gfx_pipe_process_set_source(pipe.process, program);
+	gfx_pipe_process_set_target(pipe.process, window2);
 
 
 	/* Setup a loop */

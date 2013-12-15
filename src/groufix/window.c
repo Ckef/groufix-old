@@ -113,10 +113,9 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle)
 void _gfx_window_make_current(GFX_Internal_Window* window)
 {
 	if(window && _gfx_current_window != window)
-	{
 		_gfx_platform_context_make_current(window->handle);
-		_gfx_current_window = window;
-	}
+
+	_gfx_current_window = window;
 }
 
 /******************************************************/
@@ -221,74 +220,56 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 		return NULL;
 	}
 
-	/* Evaluate main window */
-	if(!_gfx_main_window) _gfx_main_window = window;
-
-	/* Load extensions of context and make sure to set the main window as current */
+	/* Load extensions of context and try to prepare it for post processing */
 	_gfx_window_make_current(window);
 	_gfx_extensions_load();
+
+	if(!_gfx_pipe_process_prepare(window))
+	{
+		_gfx_platform_window_free(window->handle);
+		free(window);
+
+		return NULL;
+	}
+
+	/* Evaluate main window */
+	if(!_gfx_main_window) _gfx_main_window = window;
 	_gfx_window_make_current(_gfx_main_window);
 
 	return (GFXWindow*)window;
 }
 
 /******************************************************/
-int gfx_window_recreate(const GFXWindow* window, GFXScreen screen, GFXColorDepth depth, GFXWindowFlags flags)
+GFXWindow* gfx_window_recreate(GFXWindow* window, GFXScreen screen, GFXColorDepth depth, GFXWindowFlags flags)
 {
 	/* Check if zombie window */
 	GFX_Internal_Window* internal = (GFX_Internal_Window*)window;
-	if(!internal->handle) return 0;
+	if(!internal->handle) return NULL;
 
-	/* Get screen */
-	GFX_Platform_Screen scr;
-	if(screen) scr = (GFX_Platform_Screen)screen;
-	else scr = _gfx_platform_get_default_screen();
-
-	/* Create platform window */
+	/* Create new window */
 	char* name = _gfx_platform_window_get_name(internal->handle);
 
-	GFX_Platform_Attributes attr;
-	attr.screen = scr;
-	attr.name   = name;
-	attr.depth  = depth;
-	attr.flags  = flags;
+	unsigned int width;
+	unsigned int height;
+	int x;
+	int y;
 
-	_gfx_platform_window_get_size(internal->handle, &attr.width, &attr.height);
-	_gfx_platform_window_get_position(internal->handle, &attr.x, &attr.y);
+	_gfx_platform_window_get_size(internal->handle, &width, &height);
+	_gfx_platform_window_get_position(internal->handle, &x, &y);
 
-	GFX_Platform_Window handle = _gfx_platform_window_create(&attr);
-
+	GFXWindow* new = gfx_window_create(screen, depth, name, width, height, flags);
 	free(name);
-	if(!handle) return 0;
 
-	/* Create context */
-	if(!_gfx_window_context_create(handle))
-	{
-		_gfx_platform_window_free(handle);
-		return 0;
-	}
+	if(!new) return NULL;
 
-	int isMain = (internal == _gfx_main_window);
+	/* Also set its position! */
+	_gfx_platform_window_set_position(((GFX_Internal_Window*)new)->handle, x, y);
 
-	/* Save objects if main window and destroy old window */
-	_gfx_window_make_current(internal);
-	if(isMain) _gfx_hardware_objects_save(&internal->extensions);
+	/* Destroy old window and retarget the window */
+	_gfx_pipe_process_retarget(internal, (GFX_Internal_Window*)new);
+	gfx_window_free(window);
 
-	_gfx_pipe_process_untarget(internal);
-	_gfx_platform_window_free(internal->handle);
-
-	/* Load new extensions */
-	internal->handle = handle;
-	_gfx_platform_context_make_current(handle);
-
-	_gfx_extensions_load();
-	_gfx_pipe_process_target(internal);
-
-	/* Restore hardware objects if main window & make sure the main window is current */
-	if(isMain) _gfx_hardware_objects_restore(&internal->extensions);
-	else _gfx_window_make_current(_gfx_main_window);
-
-	return 1;
+	return new;
 }
 
 /******************************************************/
@@ -298,10 +279,7 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 	{
 		/* Zombie window */
 		if(!window->handle) return;
-
-		/* Untarget all pipe processes */
 		_gfx_window_make_current(window);
-		_gfx_pipe_process_untarget(window);
 
 		/* Erase from vector */
 		GFXVectorIterator it;
@@ -316,6 +294,7 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		if(_gfx_windows->begin == _gfx_windows->end)
 		{
 			/* Oh, also do a free request */
+			_gfx_pipe_process_untarget(window, 1);
 			_gfx_hardware_objects_free(&window->extensions);
 			_gfx_platform_window_free(window->handle);
 
@@ -329,6 +308,7 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		/* If main window, save & restore hardware objects */
 		else if(_gfx_main_window == window)
 		{
+			_gfx_pipe_process_untarget(window, 0);
 			_gfx_hardware_objects_save(&window->extensions);
 			_gfx_platform_window_free(window->handle);
 
@@ -341,6 +321,7 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		else
 		{
 			/* Just, destroy it, thank you very much */
+			_gfx_pipe_process_untarget(window, 0);
 			_gfx_platform_window_free(window->handle);
 			_gfx_window_make_current(_gfx_main_window);
 		}

@@ -113,28 +113,41 @@ void _gfx_pipe_process_free(GFXPipeProcess* process);
  * Executes the pipe process.
  *
  * @param pipeline Calling pipeline.
- * @param fallback Window to make active after rendering to the target window.
+ * @param active Currently active window.
  *
  */
-void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFXPipeState state, GFX_Internal_Window* fallback);
+void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFXPipeState state, GFX_Internal_Window* active);
 
 /**
- * Re-establishes a target to a window when the window was previously untargeted.
+ * Prepares a window for render to texture.
  *
- * When a window was untargeted using _gfx_pipe_process_untarget
- * and a pipe process is still pointing to it, this should be called
- * to establish the render target again.
+ * @return Non-zero on success.
+ *
+ * If a window was never prepared, it would mean it cannot be used in post processing in any way.
+ * Note: the given target window should be current.
  *
  */
-void _gfx_pipe_process_target(GFX_Internal_Window* target);
+int _gfx_pipe_process_prepare(GFX_Internal_Window* target);
 
 /**
- * Makes sure no pipe process targets the given window anymore.
+ * Replaces a specific target with a new one.
+ *
+ * @param replace Target to be replaced.
+ * @param target  New target to replace the old target with.
+ *
+ */
+void _gfx_pipe_process_retarget(GFX_Internal_Window* replace, GFX_Internal_Window* target);
+
+/**
+ * Makes sure no pipe process targets the given window anymore, ever.
+ *
+ * @param target Window to be untargeted.
+ * @param last   Non-zero if this is the last window to be untargeted.
  *
  * Note: the given target window should be current.
  *
  */
-void _gfx_pipe_process_untarget(GFX_Internal_Window* target);
+void _gfx_pipe_process_untarget(GFX_Internal_Window* target, int last);
 
 
 #ifdef __cplusplus
