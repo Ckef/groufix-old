@@ -32,8 +32,10 @@ struct GFX_Internal_Map
 	/* Super Class */
 	GFXPropertyMap map;
 
-	/* OpenGL program handle */
-	GLuint program;
+	/* Hidden data */
+	GLuint         program;  /* OpenGL program handle */
+	unsigned char  buffers;  /* Number of buffer properties */
+	unsigned char  samplers; /* Number of sampler properties */
 };
 
 /* Internal property */
@@ -54,6 +56,29 @@ static inline struct GFX_Internal_Property* _gfx_property_map_get_at(struct GFX_
 }
 
 /******************************************************/
+static inline void _gfx_property_init(struct GFX_Internal_Property* prop)
+{
+	prop->type = GFX_VECTOR_PROPERTY; /* Anything but a sampler or buffer property */
+	prop->location = GL_INVALID_INDEX;
+}
+
+/******************************************************/
+static void _gfx_property_disable(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop)
+{
+	if(prop->value)
+	{
+		/* Check if any buffers or samplers are being removed */
+		if(prop->type == GFX_BUFFER_PROPERTY) --map->buffers;
+		else if(prop->type == GFX_SAMPLER_PROPERTY) --map->samplers;
+
+		free(prop->value);
+		prop->value = NULL;
+	}
+
+	_gfx_property_init(prop);
+}
+
+/******************************************************/
 GFXPropertyMap* gfx_property_map_create(GFXProgram* program, unsigned char properties)
 {
 	/* Create new property map, append properties to end of struct */
@@ -69,7 +94,7 @@ GFXPropertyMap* gfx_property_map_create(GFXProgram* program, unsigned char prope
 	struct GFX_Internal_Property* prop;
 
 	for(prop = (struct GFX_Internal_Property*)(map + 1); properties--; ++prop)
-		prop->location = GL_INVALID_INDEX;
+		_gfx_property_init(prop);
 
 	return (GFXPropertyMap*)map;
 }
@@ -124,23 +149,21 @@ int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 	/* Validate index */
 	if(loc == GL_INVALID_INDEX) return 0;
 
-	prop->type = type;
-	prop->location = loc;
-
 	/* Disable previous property with equal location */
 	struct GFX_Internal_Property* it;
 	unsigned char properties = map->properties;
 
 	for(it = (struct GFX_Internal_Property*)(internal + 1); properties--; ++it)
-		if(it->location == prop->location && it != prop)
+		if(it->location == loc)
 		{
-			it->location = GL_INVALID_INDEX;
-
-			free(it->value);
-			it->value = NULL;
-
+			_gfx_property_disable(internal, it);
 			break;
 		}
+
+	/* Reset property */
+	_gfx_property_disable(internal, prop);
+	prop->type = type;
+	prop->location = loc;
 
 	return 1;
 }
@@ -171,33 +194,49 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
 
 	if(prop->type != GFX_VECTOR_PROPERTY && prop->type != GFX_MATRIX_PROPERTY) return 0;
 
-	return 0;
+	return 1;
 }
 
 /******************************************************/
 int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size)
 {
+	/* Get current window, context and property */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+
 	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
-
-	/* Get property and check type */
 	struct GFX_Internal_Property* prop = _gfx_property_map_get_at(internal, index);
-	if(!prop) return 0;
 
-	if(prop->type != GFX_BUFFER_PROPERTY) return 0;
+	if(!window || !prop) return 0;
 
-	return 0;
+	/* Check number of buffers and type */
+	char buffDiff = !prop->value ? 1 : 0;
+
+	if(internal->buffers + buffDiff > window->extensions.limits[GFX_LIM_MAX_BUFFER_PROPERTIES]
+		|| prop->type != GFX_BUFFER_PROPERTY) return 0;
+
+	internal->buffers += buffDiff;
+
+	return 1;
 }
 
 /******************************************************/
 int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const GFXTexture* texture)
 {
+	/* Get current window, context and property */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+
 	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
-
-	/* Get property and check type */
 	struct GFX_Internal_Property* prop = _gfx_property_map_get_at(internal, index);
-	if(!prop) return 0;
 
-	if(prop->type != GFX_SAMPLER_PROPERTY) return 0;
+	if(!window || !prop) return 0;
 
-	return 0;
+	/* Check number of samplers and type */
+	char sampDiff = !prop->value ? 1 : 0;
+
+	if(internal->samplers + sampDiff > window->extensions.limits[GFX_LIM_MAX_SAMPLER_PROPERTIES]
+		|| prop->type != GFX_SAMPLER_PROPERTY) return 0;
+
+	internal->samplers += sampDiff;
+
+	return 1;
 }

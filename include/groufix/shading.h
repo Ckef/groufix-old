@@ -245,9 +245,6 @@ void gfx_property_map_free(GFXPropertyMap* map);
  * @param name  Name of the uniform in the program.
  * @return Zero on failure.
  *
- * There can only be GFX_LIM_MAX_BUFFER_PROPERTIES number of properties with type GFX_BUFFER_PROPERTY active.
- * If this requirement is not met, undefined behaviour is expected.
- *
  * Note: the program of the map must be succesfully linked before calling this method.
  *
  */
@@ -279,6 +276,8 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
  * @param index Index of the property to set the value of.
  * @return Non-zero on success.
  *
+ * Note: There can only be GFX_LIM_MAX_BUFFER_PROPERTIES number of properties with type GFX_BUFFER_PROPERTY active.
+ *
  */
 int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size);
 
@@ -287,6 +286,8 @@ int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const 
  *
  * @param index Index of the property to set the value of.
  * @return Non-zero on success.
+ *
+ * Note: There can only be GFX_LIM_MAX_SAMPLER_PROPERTIES number of properties with type GFX_SAMPLER_PROPERTY active.
  *
  */
 int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const GFXTexture* texture);

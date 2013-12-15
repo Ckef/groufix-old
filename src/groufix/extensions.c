@@ -153,15 +153,16 @@ void _gfx_extensions_load(void)
 	_gfx_platform_context_get(&major, &minor);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, ext->limits + GFX_LIM_MAX_BUFFER_PROPERTIES);
-	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS,       ext->limits + GFX_LIM_MAX_COLOR_ATTACHMENTS);
-	glGetIntegerv(GL_MAX_DRAW_BUFFERS,            ext->limits + GFX_LIM_MAX_COLOR_TARGETS);
-	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,   ext->limits + GFX_LIM_MAX_CUBEMAP_SIZE);
-	glGetIntegerv(GL_MAX_SAMPLES,                 ext->limits + GFX_LIM_MAX_SAMPLES);
-	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,         ext->limits + GFX_LIM_MAX_TEXTURE_3D_SIZE);
-	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,    ext->limits + GFX_LIM_MAX_TEXTURE_LAYERS);
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE,            ext->limits + GFX_LIM_MAX_TEXTURE_SIZE);
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,          ext->limits + GFX_LIM_MAX_VERTEX_ATTRIBS);
+	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS,      ext->limits + GFX_LIM_MAX_BUFFER_PROPERTIES);
+	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS,            ext->limits + GFX_LIM_MAX_COLOR_ATTACHMENTS);
+	glGetIntegerv(GL_MAX_DRAW_BUFFERS,                 ext->limits + GFX_LIM_MAX_COLOR_TARGETS);
+	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE,        ext->limits + GFX_LIM_MAX_CUBEMAP_SIZE);
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, ext->limits + GFX_LIM_MAX_SAMPLER_PROPERTIES);
+	glGetIntegerv(GL_MAX_SAMPLES,                      ext->limits + GFX_LIM_MAX_SAMPLES);
+	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE,              ext->limits + GFX_LIM_MAX_TEXTURE_3D_SIZE);
+	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS,         ext->limits + GFX_LIM_MAX_TEXTURE_LAYERS);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE,                 ext->limits + GFX_LIM_MAX_TEXTURE_SIZE);
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,               ext->limits + GFX_LIM_MAX_VERTEX_ATTRIBS);
 
 #ifdef GFX_GLES
 
