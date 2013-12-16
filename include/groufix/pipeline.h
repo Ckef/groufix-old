@@ -93,14 +93,14 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, unsigned
 /**
  * Sets the sources the draw from for a unit.
  *
- * @param program Program to use for this unit, cannot be NULL.
- * @param layout  Vertex layout to use for this unit, cannot be NULL.
+ * @param map    Property Map (and thus program) to use for this unit, cannot be NULL.
+ * @param layout Vertex layout to use for this unit, cannot be NULL.
  *
  * Note: If this call is not called, execution of a pipeline has undefined behaviour!
  * As a side note, it is a rather expensive operation, only calling it once is preferable.
  *
  */
-void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLayout* layout);
+void gfx_bucket_set_source(GFXBatchUnit* unit, GFXPropertyMap* map, GFXVertexLayout* layout);
 
 /**
  * Sets the draw calls to issue from the source.
@@ -181,10 +181,10 @@ void* gfx_pipe_process_get_data(GFXPipeProcess* process);
 /**
  * Sets the sources to use while drawing.
  *
- * @param program Program to use for this unit, NULL will disable the process.
+ * @param map Property Map (and thus program) to use for the process, NULL will disable the process.
  *
  */
-void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXProgram* program);
+void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXPropertyMap* map);
 
 /**
  * Sets the target window to render to.

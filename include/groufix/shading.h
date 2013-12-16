@@ -216,7 +216,8 @@ typedef struct GFXProperty
 /** Property map */
 typedef struct GFXPropertyMap
 {
-	unsigned char properties; /* Number of properties */
+	GFXProgram*    program;    /* Program it refernces (cannot be changed or freed while the map is alive) */
+	unsigned char  properties; /* Number of properties */
 
 } GFXPropertyMap;
 

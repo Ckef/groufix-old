@@ -98,6 +98,10 @@ int main()
 	gfx_shader_free(frag);
 
 
+	/* Propety map */
+	GFXPropertyMap* map = gfx_property_map_create(program, 0);
+
+
 	/* Pipeline */
 	GFXPipe pipe;
 	GFXPipeline* pipeline = gfx_pipeline_create();
@@ -107,13 +111,13 @@ int main()
 	gfx_pipeline_set_state(pipeline, i, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
 	GFXBatchUnit* unit = gfx_bucket_insert(pipe.bucket, 0, 1);
-	gfx_bucket_set_source(unit, program, layout);
+	gfx_bucket_set_source(unit, map, layout);
 	gfx_bucket_set_draw_calls(unit, 0, 1);
 	gfx_bucket_set_mode(unit, GFX_BATCH_DIRECT, 0);
 
 	unsigned short ip = gfx_pipeline_push_process(pipeline, 0);
 	gfx_pipeline_get(pipeline, ip, NULL, NULL, &pipe);
-	gfx_pipe_process_set_source(pipe.process, program);
+	gfx_pipe_process_set_source(pipe.process, map);
 	gfx_pipe_process_set_target(pipe.process, window2);
 
 

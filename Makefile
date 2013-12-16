@@ -95,6 +95,7 @@ HEADERS_LIB = \
  $(DEPEND)/KHR/khrplatform.h \
  $(SRC)/groufix/memory/internal.h \
  $(SRC)/groufix/pipeline/internal.h \
+ $(SRC)/groufix/shading/internal.h \
  $(SRC)/groufix/internal.h \
  $(SRC)/groufix/platform.h
 

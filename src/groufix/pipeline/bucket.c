@@ -24,6 +24,7 @@
 #include "groufix/containers/vector.h"
 #include "groufix/memory/internal.h"
 #include "groufix/pipeline/internal.h"
+#include "groufix/shading/internal.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -56,7 +57,7 @@ struct GFX_Internal_Unit
 	GFXBucket*        bucket;
 
 	/* Drawing data */
-	GLuint            program;
+	GFXPropertyMap*   map;
 	GFXVertexLayout*  layout;
 	unsigned char     start;
 	unsigned char     num;
@@ -204,7 +205,7 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 		struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)curr;
 
 		/* Bind shader program & draw */
-		_gfx_program_use(unit->program, ext);
+		_gfx_property_map_use(unit->map, ext);
 
 		switch(unit->mode)
 		{
@@ -264,16 +265,16 @@ GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, unsigned
 }
 
 /******************************************************/
-void gfx_bucket_set_source(GFXBatchUnit* unit, GFXProgram* program, GFXVertexLayout* layout)
+void gfx_bucket_set_source(GFXBatchUnit* unit, GFXPropertyMap* map, GFXVertexLayout* layout)
 {
 	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
 	struct GFX_Internal_Bucket* bucket = (struct GFX_Internal_Bucket*)internal->bucket;
 
-	internal->program = _gfx_program_get_handle(program);
+	internal->map = map;
 	internal->layout = layout;
 
 	/* Detect equal states */
-	GFXBatchState state = _gfx_bucket_add_state(bucket, layout->id, program->id, internal->state);
+	GFXBatchState state = _gfx_bucket_add_state(bucket, layout->id, map->program->id, internal->state);
 	if(internal->state != state)
 	{
 		/* Force a re-sort */

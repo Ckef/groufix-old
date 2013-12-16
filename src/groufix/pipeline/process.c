@@ -24,6 +24,7 @@
 #include "groufix/containers/vector.h"
 #include "groufix/memory/internal.h"
 #include "groufix/pipeline/internal.h"
+#include "groufix/shading/internal.h"
 
 #include <stdlib.h>
 
@@ -41,15 +42,15 @@ struct GFX_Internal_Process
 	GFXPipeProcess process;
 
 	/* Post Processing */
-	GLuint                program;
+	GFXPropertyMap*       map;
 	GFX_Internal_Window*  target;
 };
 
 /******************************************************/
-static inline void _gfx_pipe_process_draw(GFXPipeState state, GLuint program, GLuint layout, GFX_Extensions* ext)
+static inline void _gfx_pipe_process_draw(GFXPipeState state, GFXPropertyMap* map, GLuint layout, GFX_Extensions* ext)
 {
 	_gfx_states_set(state, ext);
-	_gfx_program_use(program, ext);
+	_gfx_property_map_use(map, ext);
 	_gfx_layout_bind(layout, ext);
 
 	ext->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -117,7 +118,7 @@ void _gfx_pipe_process_untarget(GFX_Internal_Window* target, int last)
 		struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
 		if(target == proc->target)
 		{
-			proc->program = 0;
+			proc->map = NULL;
 			proc->target = NULL;
 		}
 	}
@@ -199,13 +200,9 @@ void* gfx_pipe_process_get_data(GFXPipeProcess* process)
 }
 
 /******************************************************/
-void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXProgram* program)
+void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXPropertyMap* map)
 {
-	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
-
-	/* Set the actual source */
-	if(!program) internal->program = 0;
-	else internal->program = _gfx_program_get_handle(program);
+	((struct GFX_Internal_Process*)process)->map = map;
 }
 
 /******************************************************/
@@ -227,18 +224,18 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, G
 	if(process->preprocess) process->preprocess(pipeline, data);
 
 	/* Perform post-processing */
-	if(internal->program)
+	if(internal->map)
 	{
 		if(internal->target)
 		{
 			/* Make target current, draw, and switch back to previously active */
 			_gfx_window_make_current(internal->target);
-			_gfx_pipe_process_draw(state, internal->program, internal->target->layout, &internal->target->extensions);
+			_gfx_pipe_process_draw(state, internal->map, internal->target->layout, &internal->target->extensions);
 			_gfx_window_make_current(active);
 		}
 
 		/* If no windowed rendering, just draw */
-		else _gfx_pipe_process_draw(state, internal->program, active->layout, &active->extensions);
+		else _gfx_pipe_process_draw(state, internal->map, active->layout, &active->extensions);
 	}
 
 	/* Execute custom post-process */

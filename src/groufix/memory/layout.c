@@ -198,7 +198,11 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 		_gfx_hardware_object_unregister(layout->id);
 
 		/* Delete VAO */
-		if(internal->ext) internal->ext->DeleteVertexArrays(1, &internal->vao);
+		if(internal->ext)
+		{
+			if(internal->ext->layout == internal->vao) internal->ext->layout = 0;
+			internal->ext->DeleteVertexArrays(1, &internal->vao);
+		}
 
 		gfx_vector_clear(&internal->attributes);
 		free(layout);

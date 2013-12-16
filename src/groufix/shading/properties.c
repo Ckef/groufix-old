@@ -33,7 +33,7 @@ struct GFX_Internal_Map
 	GFXPropertyMap map;
 
 	/* Hidden data */
-	GLuint         program;  /* OpenGL program handle */
+	GLuint         handle;   /* OpenGL program handle */
 	unsigned char  buffers;  /* Number of buffer properties */
 	unsigned char  samplers; /* Number of sampler properties */
 };
@@ -45,6 +45,19 @@ struct GFX_Internal_Property
 	GLuint           location; /* Block index or uniform location */
 	void*            value;
 };
+
+/******************************************************/
+void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext)
+{
+	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
+
+	/* Prevent binding it twice */
+	if(ext->program != internal->handle)
+	{
+		ext->program = internal->handle;
+		ext->UseProgram(internal->handle);
+	}
+}
 
 /******************************************************/
 static inline struct GFX_Internal_Property* _gfx_property_map_get_at(struct GFX_Internal_Map* map, unsigned char index)
@@ -87,8 +100,9 @@ GFXPropertyMap* gfx_property_map_create(GFXProgram* program, unsigned char prope
 	struct GFX_Internal_Map* map = calloc(1, size);
 	if(!map) return NULL;
 
-	map->program = _gfx_program_get_handle(program);
+	map->map.program = program;
 	map->map.properties = properties;
+	map->handle = _gfx_program_get_handle(program);
 
 	/* Initialize all properties */
 	struct GFX_Internal_Property* prop;
@@ -135,13 +149,13 @@ int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 		case GFX_MATRIX_PROPERTY :
 		case GFX_SAMPLER_PROPERTY :
 		{
-			GLint l = window->extensions.GetUniformLocation(internal->program, name);
+			GLint l = window->extensions.GetUniformLocation(internal->handle, name);
 			loc = (l < 0) ? loc : l;
 			break;
 		}
 		case GFX_BUFFER_PROPERTY :
 		{
-			loc = window->extensions.GetUniformBlockIndex(internal->program, name);
+			loc = window->extensions.GetUniformBlockIndex(internal->handle, name);
 			break;
 		}
 	}

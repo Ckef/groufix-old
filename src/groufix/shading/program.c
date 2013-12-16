@@ -38,17 +38,6 @@ struct GFX_Internal_Program
 };
 
 /******************************************************/
-void _gfx_program_use(GLuint handle, GFX_Extensions* ext)
-{
-	/* Prevent binding it twice */
-	if(ext->program != handle)
-	{
-		ext->program = handle;
-		ext->UseProgram(handle);
-	}
-}
-
-/******************************************************/
 static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Program* program = (struct GFX_Internal_Program*)object;
@@ -111,7 +100,12 @@ void gfx_program_free(GFXProgram* program)
 
 		/* Get current window and context */
 		GFX_Internal_Window* window = _gfx_window_get_current();
-		if(window) window->extensions.DeleteProgram(internal->handle);
+		if(window)
+		{
+			window->extensions.DeleteProgram(internal->handle);
+			if(window->extensions.program == internal->handle)
+				window->extensions.program = 0;
+		}
 
 		free(program);
 	}

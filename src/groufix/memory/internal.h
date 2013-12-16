@@ -35,6 +35,12 @@ extern "C" {
  *******************************************************/
 
 /**
+ * Sets the layout handle as currently bound for the given context.
+ *
+ */
+void _gfx_layout_bind(GLuint handle, GFX_Extensions* ext);
+
+/**
  * Regular drawing using a given vertex layout.
  *
  */
