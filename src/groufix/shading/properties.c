@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/containers/vector.h"
 #include "groufix/internal.h"
 
 #include <stdlib.h>
@@ -36,6 +37,7 @@ struct GFX_Internal_Map
 	GLuint         handle;   /* OpenGL program handle */
 	unsigned char  buffers;  /* Number of buffer properties */
 	unsigned char  samplers; /* Number of sampler properties */
+	GFXVector      values;   /* Values of all properties */
 };
 
 /* Internal property */
@@ -43,7 +45,8 @@ struct GFX_Internal_Property
 {
 	GFXPropertyType  type;
 	GLuint           location; /* Block index or uniform location */
-	void*            value;
+	unsigned char    size;     /* In bytes */
+	unsigned short   index;    /* Of value in value vector */
 };
 
 /******************************************************/
@@ -71,23 +74,23 @@ static inline struct GFX_Internal_Property* _gfx_property_map_get_at(struct GFX_
 /******************************************************/
 static inline void _gfx_property_init(struct GFX_Internal_Property* prop)
 {
-	prop->type = GFX_VECTOR_PROPERTY; /* Anything but a sampler or buffer property */
+	prop->type     = GFX_VECTOR_PROPERTY; /* Anything but a sampler or buffer property */
 	prop->location = GL_INVALID_INDEX;
+	prop->size     = 0;
+	prop->index    = 0;
 }
 
 /******************************************************/
 static void _gfx_property_disable(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop)
 {
-	if(prop->value)
+	if(prop->size)
 	{
 		/* Check if any buffers or samplers are being removed */
 		if(prop->type == GFX_BUFFER_PROPERTY) --map->buffers;
 		else if(prop->type == GFX_SAMPLER_PROPERTY) --map->samplers;
 
-		free(prop->value);
-		prop->value = NULL;
+		/* TODO: remove from value vector */
 	}
-
 	_gfx_property_init(prop);
 }
 
@@ -110,6 +113,8 @@ GFXPropertyMap* gfx_property_map_create(GFXProgram* program, unsigned char prope
 	for(prop = (struct GFX_Internal_Property*)(map + 1); properties--; ++prop)
 		_gfx_property_init(prop);
 
+	gfx_vector_init(&map->values, 1);
+
 	return (GFXPropertyMap*)map;
 }
 
@@ -120,12 +125,7 @@ void gfx_property_map_free(GFXPropertyMap* map)
 	{
 		struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
 
-		/* Free all properties */
-		struct GFX_Internal_Property* prop;
-
-		for(prop = (struct GFX_Internal_Property*)(internal + 1); map->properties--; ++prop)
-			free(prop->value);
-
+		gfx_vector_clear(&internal->values);
 		free(map);
 	}
 }
@@ -223,7 +223,7 @@ int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const 
 	if(!window || !prop) return 0;
 
 	/* Check number of buffers and type */
-	char buffDiff = !prop->value ? 1 : 0;
+	char buffDiff = !prop->size ? 1 : 0;
 
 	if(internal->buffers + buffDiff > window->extensions.limits[GFX_LIM_MAX_BUFFER_PROPERTIES]
 		|| prop->type != GFX_BUFFER_PROPERTY) return 0;
@@ -245,7 +245,7 @@ int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const
 	if(!window || !prop) return 0;
 
 	/* Check number of samplers and type */
-	char sampDiff = !prop->value ? 1 : 0;
+	char sampDiff = !prop->size ? 1 : 0;
 
 	if(internal->samplers + sampDiff > window->extensions.limits[GFX_LIM_MAX_SAMPLER_PROPERTIES]
 		|| prop->type != GFX_SAMPLER_PROPERTY) return 0;
