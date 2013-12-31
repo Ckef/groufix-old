@@ -65,6 +65,17 @@ struct GFX_Internal_Pipeline
 };
 
 /******************************************************/
+void _gfx_pipeline_bind(GLuint fbo, GFX_Extensions* ext)
+{
+	/* Prevent binding it twice */
+	if(ext->pipeline != fbo)
+	{
+		ext->pipeline = fbo;
+		ext->BindFramebuffer(GL_FRAMEBUFFER, fbo);
+	}
+}
+
+/******************************************************/
 static GFXVectorIterator _gfx_pipeline_find_attachment(struct GFX_Internal_Pipeline* pipeline, GLenum attach)
 {
 	/* Binary search for the attachment */
@@ -92,19 +103,19 @@ static GFXVectorIterator _gfx_pipeline_find_attachment(struct GFX_Internal_Pipel
 }
 
 /******************************************************/
-static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attachment* attach, const GFX_Extensions* ext)
+static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attachment* attach, GFX_Extensions* ext)
 {
 	/* Check texture handle */
 	if(ext->IsTexture(attach->texture))
 	{
 		/* Bind framebuffer and attach texture */
-		ext->BindFramebuffer(GL_FRAMEBUFFER, fbo);
+		_gfx_pipeline_bind(fbo, ext);
 
 		switch(attach->target)
 		{
 			case GL_TEXTURE_BUFFER :
 				ext->FramebufferTexture1D(
-					GL_DRAW_FRAMEBUFFER,
+					GL_FRAMEBUFFER,
 					attach->attachment,
 					GL_TEXTURE_BUFFER,
 					attach->texture,
@@ -114,7 +125,7 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attach
 
 			case GL_TEXTURE_1D :
 				ext->FramebufferTexture1D(
-					GL_DRAW_FRAMEBUFFER,
+					GL_FRAMEBUFFER,
 					attach->attachment,
 					GL_TEXTURE_1D,
 					attach->texture,
@@ -124,7 +135,7 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attach
 
 			case GL_TEXTURE_2D :
 				ext->FramebufferTexture2D(
-					GL_DRAW_FRAMEBUFFER,
+					GL_FRAMEBUFFER,
 					attach->attachment,
 					GL_TEXTURE_2D,
 					attach->texture,
@@ -137,7 +148,7 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attach
 			case GL_TEXTURE_2D_ARRAY :
 			case GL_TEXTURE_CUBE_MAP_ARRAY :
 				ext->FramebufferTextureLayer(
-					GL_DRAW_FRAMEBUFFER,
+					GL_FRAMEBUFFER,
 					attach->attachment,
 					attach->texture,
 					attach->mipmap,
@@ -147,7 +158,7 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attach
 
 			case GL_TEXTURE_CUBE_MAP :
 				ext->FramebufferTexture2D(
-					GL_DRAW_FRAMEBUFFER,
+					GL_FRAMEBUFFER,
 					attach->attachment,
 					attach->layer,
 					attach->texture,
@@ -239,7 +250,7 @@ static void _gfx_pipeline_obj_restore(void* object, GFX_Extensions* ext)
 	/* Restore targets */
 	if(pipeline->numTargets)
 	{
-		ext->BindFramebuffer(GL_FRAMEBUFFER, pipeline->fbo);
+		_gfx_pipeline_bind(pipeline->fbo, ext);
 		ext->DrawBuffers(pipeline->numTargets, pipeline->targets);
 	}
 }
@@ -392,7 +403,7 @@ size_t gfx_pipeline_target(GFXPipeline* pipeline, size_t num, const char* indice
 		? GL_NONE : GFX_COLOR_ATTACHMENT + indices[i];
 
 	/* Pass to OGL */
-	ext->BindFramebuffer(GL_FRAMEBUFFER, internal->fbo);
+	_gfx_pipeline_bind(internal->fbo, ext);
 	ext->DrawBuffers(num, internal->targets);
 
 	return num;
@@ -503,7 +514,7 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 
 	/* Bind as framebuffer */
 	/* Temporarily disabled for testing purposes
-	ext->BindFramebuffer(GL_FRAMEBUFFER, internal->fbo);*/
+	_gfx_pipeline_bind(internal->fbo, ext);*/
 
 	/* Iterate over all pipes */
 	GFXDequeIterator it;

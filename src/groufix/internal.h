@@ -166,10 +166,10 @@ typedef struct GFX_Extensions
 	int limits[GFX_LIM_COUNT];
 
 	/* OpenGL State */
-	GFXPipeState state;
-
-	GLuint layout;  /* Currently bound VAO */
-	GLuint program; /* Currently used program */
+	GFXPipeState  state;    /* All per-context states */
+	GLuint        pipeline; /* Currently bound FBO */
+	GLuint        layout;   /* Currently bound VAO */
+	GLuint        program;  /* Currently used program */
 
 
 	/* OpenGL Extensions */

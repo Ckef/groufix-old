@@ -51,6 +51,12 @@ void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext);
  */
 void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
 
+/**
+ * Sets the framebuffer handle associated with a pipeline as current for the given context.
+ *
+ */
+void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
+
 
 /********************************************************
  * Internal bucket creation & processing

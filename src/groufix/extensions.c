@@ -408,6 +408,7 @@ void _gfx_extensions_load(void)
 	/* Set default state */
 	_gfx_states_force_set(GFX_STATE_DEFAULT, ext);
 
+	ext->pipeline = 0;
 	ext->layout = 0;
 	ext->program = 0;
 }
