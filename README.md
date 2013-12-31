@@ -33,7 +33,7 @@ This being said, the core engine, and only the _core_ engine is thread affine. A
 
 Even though the core engine is designed to run on a single thread, there are components which aren't thread affine. They are still not thread safe, but they can be used across multiple threads. All core features exhibiting this behaviour are listed below.
 
-* __Buffer Mapping__, `gfx_buffer_map` and `gfx_buffer_map_segment` both return a pointer which may be used from within any location in the program, as long as it is not unmapped.
+* __Buffer Mapping__, `gfx_buffer_map` returns a pointer which may be used from within any location in the program, as long as it is not unmapped.
 
 * __Error Handling__, all functionality in `groufix/errors.h` can be issued from within any thread. Note: hardware errors should be polled using `gfx_hardware_poll_errors` in order to receive them, which is still thread affine.
 
@@ -43,7 +43,7 @@ Even though the core engine is designed to run on a single thread, there are com
 
 As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all hardware (GPU) and window manager related resources. This means the connection to both the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
 
-_It will not free any other resources_. All user allocated resources must be freed by the user. To make sure everything is freed properly, every create method must be followed up by the appropriate free method and every init method must be followed up by the appropriate clear method. On a side note, any free method can take NULL as parameter and it will do nothing.
+_It will not free any other resources_. All user allocated resources must be freed by the user. To make sure everything is freed properly, every _create_ method must be followed up by the appropriate _free_ method and every _init_ method must be followed up by the appropriate _clear_ method. On a side note, any free method can take NULL as parameter and it will do nothing.
 
 ## Acknowledgements
 
