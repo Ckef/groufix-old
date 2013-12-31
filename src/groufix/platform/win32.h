@@ -20,16 +20,20 @@
  * along with Groufix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #ifndef GFX_PLATFORM_WIN32_H
 #define GFX_PLATFORM_WIN32_H
 
 /* Validate platform */
-#ifdef GFX_GLES
-	#error "Cannot compile Win32 platform using GL ES"
+#include "groufix/platform.h"
+
+#if defined(GFX_GLES)
+	#error "Cannot compile Win32 target using GL ES"
+#elif !defined(GFX_WIN32)
+	#error "Cannot compile Win32 target on this platform"
 #endif
 
 /* Includes */
-#include "groufix/platform.h"
 #include "groufix/containers/vector.h"
 
 #include <wchar.h>
