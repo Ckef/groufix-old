@@ -208,7 +208,7 @@ typedef struct GFXProperty
 {
 	unsigned char    components; /* Number of components */
 	GFXUnpackedType  type;       /* Data type of each component */
-	const void*      data;       /* Pointer for vector/matrix, GFXTexture* for sampler */
+	const void*      data;       /* Pointer to vector/matrix */
 
 } GFXProperty;
 

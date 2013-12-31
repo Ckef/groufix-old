@@ -166,7 +166,6 @@ typedef void (*GFXPipeProcessFunc)(struct GFXPipeline*, void*);
 typedef struct GFXPipeProcess
 {
 	GFXPipeProcessFunc  preprocess;  /* Custom process to perform before post-processing */
-	GFXProgram*         program;     /* Program to use for post-processing */
 	GFXPipeProcessFunc  postprocess; /* Custom process to perform after post-processing */
 
 } GFXPipeProcess;

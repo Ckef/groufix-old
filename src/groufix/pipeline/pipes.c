@@ -98,7 +98,7 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attach
 	if(ext->IsTexture(attach->texture))
 	{
 		/* Bind framebuffer and attach texture */
-		ext->BindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+		ext->BindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 		switch(attach->target)
 		{

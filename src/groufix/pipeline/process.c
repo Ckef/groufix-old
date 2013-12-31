@@ -208,10 +208,7 @@ void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXPropertyMap* map)
 /******************************************************/
 void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXWindow* target)
 {
-	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
-
-	if(!target) internal->target = NULL;
-	else internal->target = (GFX_Internal_Window*)target;
+	((struct GFX_Internal_Process*)process)->target = (GFX_Internal_Window*)target;
 }
 
 /******************************************************/
