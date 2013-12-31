@@ -55,11 +55,13 @@ static inline GLenum _gfx_buffer_get_usage(GFXBufferUsage usage)
 }
 
 /******************************************************/
-static inline void _gfx_buffer_sync(GLsync sync, const GFX_Extensions* ext)
+static inline int _gfx_buffer_sync(GLsync sync, const GFX_Extensions* ext)
 {
 	/* Force a synchronization */
 	GLenum status = GL_TIMEOUT_EXPIRED;
 	while(status == GL_TIMEOUT_EXPIRED) status = ext->ClientWaitSync(sync, 0, 0);
+
+	return (status == GL_WAIT_FAILED) ? 0 : 1;
 }
 
 /******************************************************/
@@ -346,39 +348,23 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsa
 
 	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
 
-	/* Strip access bitfield */
+	/* Do the actual mapping */
 	access &= GFX_BUFFER_READ | GFX_BUFFER_WRITE;
-	access |= !(access & GFX_BUFFER_WRITE) ? GL_MAP_UNSYNCHRONIZED_BIT : 0;
 
-	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)gfx_vector_at(&internal->handles, internal->current));
-
-	return window->extensions.MapBufferRange(GL_ARRAY_BUFFER, offset, size, access);
-}
-
-/******************************************************/
-void* gfx_buffer_map_segment(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access)
-{
-	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
-	if(!window) return NULL;
-
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
-
-	/* Sync the client with the previous fence object */
 	GFXVectorIterator it = gfx_vector_at(&internal->handles, internal->current);
 	GLsync* sync = ((GLsync*)(((GLuint*)it) + 1)) + internal->currentSeg;
 
-	if(*sync && (access & GFX_BUFFER_WRITE)) _gfx_buffer_sync(*sync, &window->extensions);
+	/* Sync the client with the previous fence object */
+	if(*sync && (access & GFX_BUFFER_WRITE))
+		access |= _gfx_buffer_sync(*sync, &window->extensions) ? GL_MAP_UNSYNCHRONIZED_BIT : 0;
 
-	/* Do the actual mapping */
-	access &= GFX_BUFFER_READ | GFX_BUFFER_WRITE;
 	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)it);
 
 	return window->extensions.MapBufferRange(
 		GL_ARRAY_BUFFER,
 		internal->currentSeg * buffer->segSize + offset,
 		size,
-		access | GL_MAP_UNSYNCHRONIZED_BIT
+		access
 	);
 }
 

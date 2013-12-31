@@ -202,15 +202,6 @@ void gfx_buffer_write(GFXBuffer* buffer, size_t size, const void* data, size_t o
 void gfx_buffer_read(GFXBuffer* buffer, size_t size, void* data, size_t offset);
 
 /**
- * Maps the buffer and returns a pointer to the mapped data.
- *
- * @param access Access rules to optimize (which must be followed by the client).
- * @return A pointer in client address space (NULL on failure).
- *
- */
-void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access);
-
-/**
  * Maps the buffer's current segment and returns a pointer to the mapped data.
  *
  * @param access Access rules to optimize (which must be followed by the client).
@@ -220,7 +211,7 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsa
  * This method will automatically try to asynchronously upload.
  *
  */
-void* gfx_buffer_map_segment(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access);
+void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access);
 
 /**
  * Unmaps the buffer, invalidating the pointer returned by gfx_buffer_map or gfx_buffer_map_segment.
