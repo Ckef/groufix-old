@@ -61,7 +61,7 @@ int main()
 	gfx_vertex_layout_set_attribute(layout, 0, &attr, buffer);
 	attr.offset = sizeof(float) * 3;
 	gfx_vertex_layout_set_attribute(layout, 1, &attr, buffer);
-	gfx_vertex_layout_set(layout, 0, &call);
+	gfx_vertex_layout_set_draw_call(layout, 0, &call);
 
 
 	/* Shaders! */
@@ -147,6 +147,7 @@ int main()
 	gfx_vertex_layout_free(layout);
 	gfx_buffer_free(buffer);
 	gfx_program_free(program);
+	gfx_property_map_free(map);
 	gfx_pipeline_free(pipeline);
 
 	gfx_window_free(window1);

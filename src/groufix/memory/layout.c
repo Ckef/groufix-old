@@ -299,7 +299,7 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
 }
 
 /******************************************************/
-int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call)
+int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call)
 {
 	/* Check index */
 	if(index >= layout->drawCalls) return 0;
@@ -312,7 +312,7 @@ int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned char index, const GF
 }
 
 /******************************************************/
-int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned char index, GFXDrawCall* call)
+int gfx_vertex_layout_get_draw_call(GFXVertexLayout* layout, unsigned char index, GFXDrawCall* call)
 {
 	/* Validate index */
 	if(index >= layout->drawCalls) return 0;

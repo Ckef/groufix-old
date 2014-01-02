@@ -331,7 +331,7 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
  * @return Non-zero if the draw call could be changed.
  *
  */
-int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call);
+int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call);
 
 /**
  * Retrieves a draw call from the vertex layout.
@@ -340,7 +340,7 @@ int gfx_vertex_layout_set(GFXVertexLayout* layout, unsigned char index, const GF
  * @return Zero on failure (nothing is written to the output parameters).
  *
  */
-int gfx_vertex_layout_get(GFXVertexLayout* layout, unsigned char index, GFXDrawCall* call);
+int gfx_vertex_layout_get_draw_call(GFXVertexLayout* layout, unsigned char index, GFXDrawCall* call);
 
 
 /********************************************************

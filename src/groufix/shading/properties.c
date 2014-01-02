@@ -22,7 +22,7 @@
  */
 
 #include "groufix/containers/vector.h"
-#include "groufix/internal.h"
+#include "groufix/shading/internal.h"
 
 #include <stdlib.h>
 

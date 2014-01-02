@@ -25,19 +25,201 @@
 
 #include <string.h>
 
-#ifdef GFX_GLES
 
-	/* Define unsupported formats */
-	#define GL_R16_SNORM     -1
-	#define GL_R16           -2
-	#define GL_RG16_SNORM    -3
-	#define GL_RG16          -4
-	#define GL_RGB16_SNORM   -5
-	#define GL_RGB16         -6
-	#define GL_RGBA16_SNORM  -7
-	#define GL_RGBA16        -8
+/* Define unkown format */
+#define _GFX_UNKNOWN_FORMAT         -0x0001
 
+
+/* Define unsupported packed formats */
+#ifndef GL_RGB565
+	#define GL_RGB565              -0x0002
 #endif
+#ifndef GL_RGBA4
+	#define GL_RGBA4               -0x0003
+#endif
+#ifndef GL_RGB5_A1
+	#define GL_RGB5_A1             -0x0004
+#endif
+#ifndef GL_RGB10_A2
+	#define GL_RGB10_A2            -0x0005
+#endif
+#ifndef GL_RGB10_A2UI
+	#define GL_RGB10_A2UI          -0x0006
+#endif
+#ifndef GL_R11F_G11F_B10F
+	#define GL_R11F_G11F_B10F      -0x0007
+#endif
+#ifndef GL_RGB9_E5
+	#define GL_RGB9_E5             -0x0008
+#endif
+#ifndef GL_DEPTH24_STENCIL8
+	#define GL_DEPTH24_STENCIL8    -0x0009
+#endif
+#ifndef GL_DEPTH32F_STENCIL8
+	#define GL_DEPTH32F_STENCIL8   -0x000a
+#endif
+
+/* Define unsupported floating point formats */
+#ifndef GL_R16F
+	#define GL_R16F                -0x000b
+#endif
+#ifndef GL_R32F
+	#define GL_R32F                -0x000c
+#endif
+#ifndef GL_RG16F
+	#define GL_RG16F               -0x000d
+#endif
+#ifndef GL_RG32F
+	#define GL_RG32F               -0x000e
+#endif
+#ifndef GL_RGB16F
+	#define GL_RGB16F              -0x000f
+#endif
+#ifndef GL_RGB32F
+	#define GL_RGB32F              -0x0010
+#endif
+#ifndef GL_RGBA16F
+	#define GL_RGBA16F             -0x0011
+#endif
+#ifndef GL_RGBA32F
+	#define GL_RGBA32F             -0x0012
+#endif
+
+/* Define unsupported unpacked normalized formats */
+#ifndef GL_R8_SNORM
+	#define GL_R8_SNORM            -0x0013
+#endif
+#ifndef GL_R8
+	#define GL_R8                  -0x0014
+#endif
+#ifndef GL_R16_SNORM
+	#define GL_R16_SNORM           -0x0015
+#endif
+#ifndef GL_R16
+	#define GL_R16                 -0x0016
+#endif
+#ifndef GL_RG8_SNORM
+	#define GL_RG8_SNORM           -0x0017
+#endif
+#ifndef GL_RG8
+	#define GL_RG8                 -0x0018
+#endif
+#ifndef GL_RG16_SNORM
+	#define GL_RG16_SNORM          -0x0019
+#endif
+#ifndef GL_RG16
+	#define GL_RG16                -0x001a
+#endif
+#ifndef GL_RGB8_SNORM
+	#define GL_RGB8_SNORM          -0x001b
+#endif
+#ifndef GL_RGB8
+	#define GL_RGB8                -0x001c
+#endif
+#ifndef GL_RGB16_SNORM
+	#define GL_RGB16_SNORM         -0x001d
+#endif
+#ifndef GL_RGB16
+	#define GL_RGB16               -0x001e
+#endif
+#ifndef GL_RGBA8_SNORM
+	#define GL_RGBA8_SNORM         -0x001f
+#endif
+#ifndef GL_RGBA8
+	#define GL_RGBA8               -0x0020
+#endif
+#ifndef GL_RGBA16_SNORM
+	#define GL_RGBA16_SNORM        -0x0021
+#endif
+#ifndef GL_RGBA16
+	#define GL_RGBA16              -0x0022
+#endif
+
+/* Define unsupported unpacked integral formats */
+#ifndef GL_R8I
+	#define GL_R8I                 -0x0023
+#endif
+#ifndef GL_R8UI
+	#define GL_R8UI                -0x0024
+#endif
+#ifndef GL_R16I
+	#define GL_R16I                -0x0025
+#endif
+#ifndef GL_R16UI
+	#define GL_R16UI               -0x0026
+#endif
+#ifndef GL_R32I
+	#define GL_R32I                -0x0027
+#endif
+#ifndef GL_R32UI
+	#define GL_R32UI               -0x0028
+#endif
+#ifndef GL_RG8I
+	#define GL_RG8I                -0x0029
+#endif
+#ifndef GL_RG8UI
+	#define GL_RG8UI               -0x002a
+#endif
+#ifndef GL_RG16I
+	#define GL_RG16I               -0x002b
+#endif
+#ifndef GL_RG16UI
+	#define GL_RG16UI              -0x002c
+#endif
+#ifndef GL_RG32I
+	#define GL_RG32I               -0x002d
+#endif
+#ifndef GL_RG32UI
+	#define GL_RG32UI              -0x002e
+#endif
+#ifndef GL_RGB8I
+	#define GL_RGB8I               -0x002f
+#endif
+#ifndef GL_RGB8UI
+	#define GL_RGB8UI              -0x0030
+#endif
+#ifndef GL_RGB16I
+	#define GL_RGB16I              -0x0031
+#endif
+#ifndef GL_RGB16UI
+	#define GL_RGB16UI             -0x0032
+#endif
+#ifndef GL_RGB32I
+	#define GL_RGB32I              -0x0033
+#endif
+#ifndef GL_RGB32UI
+	#define GL_RGB32UI             -0x0034
+#endif
+#ifndef GL_RGBA8I
+	#define GL_RGBA8I              -0x0035
+#endif
+#ifndef GL_RGBA8UI
+	#define GL_RGBA8UI             -0x0036
+#endif
+#ifndef GL_RGBA16I
+	#define GL_RGBA16I             -0x0037
+#endif
+#ifndef GL_RGBA16UI
+	#define GL_RGBA16UI            -0x0038
+#endif
+#ifndef GL_RGBA32I
+	#define GL_RGBA32I             -0x0039
+#endif
+#ifndef GL_RGBA32UI
+	#define GL_RGBA32UI            -0x003a
+#endif
+
+/* Define unsupported depth formats */
+#ifndef GL_DEPTH_COMPONENT16
+	#define GL_DEPTH_COMPONENT16   -0x003b
+#endif
+#ifndef GL_DEPTH_COMPONENT24
+	#define GL_DEPTH_COMPONENT24   -0x003c
+#endif
+#ifndef GL_DEPTH_COMPONENT32F
+	#define GL_DEPTH_COMPONENT32F  -0x003d
+#endif
+
 
 /******************************************************/
 int _gfx_is_data_type_packed(GFXDataType type)
@@ -129,14 +311,14 @@ GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format)
 			case 2 : return GL_RG_INTEGER;
 			case 3 : return GL_RGB_INTEGER;
 			case 4 : return GL_RGBA_INTEGER;
-			default : return -1;
+			default : return _GFX_UNKNOWN_FORMAT;
 		}
 
 		/* Depth format */
 		case GFX_INTERPRET_DEPTH : switch(format.components)
 		{
 			case 1 : return GL_DEPTH_COMPONENT;
-			default : return -1;
+			default : return _GFX_UNKNOWN_FORMAT;
 		}
 
 		/* Floating point and normalized formats */
@@ -146,7 +328,7 @@ GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format)
 			case 2 : return GL_RG;
 			case 3 : return GL_RGB;
 			case 4 : return GL_RGBA;
-			default : return -1;
+			default : return _GFX_UNKNOWN_FORMAT;
 		}
 	}
 }
@@ -178,27 +360,27 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 			{
 				case GFX_HALF_FLOAT : return GL_R16F;
 				case GFX_FLOAT      : return GL_R32F;
-				default             : return -1;
+				default             : return _GFX_UNKNOWN_FORMAT;
 			}
 			case 2 : switch(format.type.unpacked)
 			{
 				case GFX_HALF_FLOAT : return GL_RG16F;
 				case GFX_FLOAT      : return GL_RG32F;
-				default             : return -1;
+				default             : return _GFX_UNKNOWN_FORMAT;
 			}
 			case 3 : switch(format.type.unpacked)
 			{
 				case GFX_HALF_FLOAT : return GL_RGB16F;
 				case GFX_FLOAT      : return GL_RGB32F;
-				default             : return -1;
+				default             : return _GFX_UNKNOWN_FORMAT;
 			}
 			case 4 : switch(format.type.unpacked)
 			{
 				case GFX_HALF_FLOAT : return GL_RGBA16F;
 				case GFX_FLOAT      : return GL_RGBA32F;
-				default             : return -1;
+				default             : return _GFX_UNKNOWN_FORMAT;
 			}
-			default : return -1;
+			default : return _GFX_UNKNOWN_FORMAT;
 		}
 
 		/* Normalized format */
@@ -210,7 +392,7 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 				case GFX_UNSIGNED_BYTE  : return GL_R8;
 				case GFX_SHORT          : return GL_R16_SNORM;
 				case GFX_UNSIGNED_SHORT : return GL_R16;
-				default                 : return -1;
+				default                 : return _GFX_UNKNOWN_FORMAT;
 			}
 			case 2 : switch(format.type.unpacked)
 			{
@@ -218,7 +400,7 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 				case GFX_UNSIGNED_BYTE  : return GL_RG8;
 				case GFX_SHORT          : return GL_RG16_SNORM;
 				case GFX_UNSIGNED_SHORT : return GL_RG16;
-				default                 : return -1;
+				default                 : return _GFX_UNKNOWN_FORMAT;
 			}
 			case 3 : switch(format.type.unpacked)
 			{
@@ -226,7 +408,7 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 				case GFX_UNSIGNED_BYTE  : return GL_RGB8;
 				case GFX_SHORT          : return GL_RGB16_SNORM;
 				case GFX_UNSIGNED_SHORT : return GL_RGB16;
-				default                 : return -1;
+				default                 : return _GFX_UNKNOWN_FORMAT;
 			}
 			case 4 : switch(format.type.unpacked)
 			{
@@ -234,9 +416,9 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 				case GFX_UNSIGNED_BYTE  : return GL_RGBA8;
 				case GFX_SHORT          : return GL_RGBA16_SNORM;
 				case GFX_UNSIGNED_SHORT : return GL_RGBA16;
-				default                 : return -1;
+				default                 : return _GFX_UNKNOWN_FORMAT;
 			}
-			default : return -1;
+			default : return _GFX_UNKNOWN_FORMAT;
 		}
 
 		/* Integral format */
@@ -250,7 +432,7 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 				case GFX_UNSIGNED_SHORT : return GL_R16UI;
 				case GFX_INT            : return GL_R32I;
 				case GFX_UNSIGNED_INT   : return GL_R32UI;
-				default                 : return -1;
+				default                 : return _GFX_UNKNOWN_FORMAT;
 			}
 			case 2 : switch(format.type.unpacked)
 			{
@@ -260,7 +442,7 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 				case GFX_UNSIGNED_SHORT : return GL_RG16UI;
 				case GFX_INT            : return GL_RG32I;
 				case GFX_UNSIGNED_INT   : return GL_RG32UI;
-				default                 : return -1;
+				default                 : return _GFX_UNKNOWN_FORMAT;
 			}
 			case 3 : switch(format.type.unpacked)
 			{
@@ -270,7 +452,7 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 				case GFX_UNSIGNED_SHORT : return GL_RGB16UI;
 				case GFX_INT            : return GL_RGB32I;
 				case GFX_UNSIGNED_INT   : return GL_RGB32UI;
-				default                 : return -1;
+				default                 : return _GFX_UNKNOWN_FORMAT;
 			}
 			case 4 : switch(format.type.unpacked)
 			{
@@ -280,9 +462,9 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 				case GFX_UNSIGNED_SHORT : return GL_RGBA16UI;
 				case GFX_INT            : return GL_RGBA32I;
 				case GFX_UNSIGNED_INT   : return GL_RGBA32UI;
-				default                 : return -1;
+				default                 : return _GFX_UNKNOWN_FORMAT;
 			}
-			default : return -1;
+			default : return _GFX_UNKNOWN_FORMAT;
 		}
 
 		/* Depth formats */
@@ -293,9 +475,9 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 				case GFX_UNSIGNED_SHORT : return GL_DEPTH_COMPONENT16;
 				case GFX_UNSIGNED_INT   : return GL_DEPTH_COMPONENT24;
 				case GFX_FLOAT          : return GL_DEPTH_COMPONENT32F;
-				default                 : return -1;
+				default                 : return _GFX_UNKNOWN_FORMAT;
 			}
-			default : return -1;
+			default : return _GFX_UNKNOWN_FORMAT;
 		}
 	}
 
