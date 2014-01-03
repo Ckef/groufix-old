@@ -86,7 +86,11 @@ static void _gfx_property_disable(struct GFX_Internal_Map* map, struct GFX_Inter
 	if(prop->size)
 	{
 		/* Check if any buffers or samplers are being removed */
-		if(prop->type == GFX_BUFFER_PROPERTY) --map->buffers;
+		if(prop->type == GFX_BUFFER_PROPERTY)
+		{
+			_gfx_binder_reference(-1);
+			--map->buffers;
+		}
 		else if(prop->type == GFX_SAMPLER_PROPERTY) --map->samplers;
 
 		/* TODO: remove from value vector */
@@ -125,6 +129,12 @@ void gfx_property_map_free(GFXPropertyMap* map)
 	{
 		struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
 
+		/* Disable all properties */
+		struct GFX_Internal_Property* prop;
+
+		for(prop = (struct GFX_Internal_Property*)(internal + 1); map->properties--; ++prop)
+			_gfx_property_disable(internal, prop);
+
 		gfx_vector_clear(&internal->values);
 		free(map);
 	}
@@ -151,11 +161,16 @@ int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 		{
 			GLint l = window->extensions.GetUniformLocation(internal->handle, name);
 			loc = (l < 0) ? loc : l;
+
 			break;
 		}
 		case GFX_BUFFER_PROPERTY :
 		{
 			loc = window->extensions.GetUniformBlockIndex(internal->handle, name);
+
+			/* Increase binder reference for buffers */
+			if(!_gfx_binder_reference(1)) return 0;
+
 			break;
 		}
 	}

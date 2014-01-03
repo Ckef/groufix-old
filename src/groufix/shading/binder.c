@@ -21,37 +21,18 @@
  *
  */
 
-#ifndef GFX_SHADING_INTERNAL_H
-#define GFX_SHADING_INTERNAL_H
-
 #include "groufix/internal.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/******************************************************/
+/* Reference count */
+static size_t _gfx_binder_ref_count = 0;
 
-/********************************************************
- * Internal unit binding & property map usage
- *******************************************************/
+/******************************************************/
+int _gfx_binder_reference(int ref)
+{
+	/* Don't subtract too much */
+	ref = (_gfx_binder_ref_count < -ref) ? -_gfx_binder_ref_count : ref;
+	_gfx_binder_ref_count += ref;
 
-/**
- * Changes reference count for the binder.
- *
- * @param ref Number to increase/decrease reference count with.
- * @return Zero if increasing failed or already at 0.
- *
- */
-int _gfx_binder_reference(int ref);
-
-/**
- * Sets the program handle as currently in use for the given context.
- *
- */
-void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext);
-
-
-#ifdef __cplusplus
+	return ref;
 }
-#endif
-
-#endif // GFX_SHADING_INTERNAL_H

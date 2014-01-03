@@ -22,6 +22,7 @@
  */
 
 #include "groufix/memory/internal.h"
+#include "groufix/shading/internal.h"
 #include "groufix/errors.h"
 
 #include <stdlib.h>
@@ -211,11 +212,20 @@ static struct GFX_Internal_Texture* _gfx_texture_alloc(GLenum target, GFXTexture
 	struct GFX_Internal_Texture* tex = calloc(1, sizeof(struct GFX_Internal_Texture));
 	if(!tex) return NULL;
 
+	/* Increase binder reference for textures */
+	if(!_gfx_binder_reference(1))
+	{
+		free(tex);
+		return NULL;
+	}
+
 	/* Register as object */
 	tex->texture.id = _gfx_hardware_object_register(tex, &_gfx_texture_obj_funcs);
 	if(!tex->texture.id)
 	{
+		_gfx_binder_reference(-1);
 		free(tex);
+
 		return NULL;
 	}
 
@@ -447,6 +457,9 @@ void gfx_texture_free(GFXTexture* texture)
 	if(texture)
 	{
 		struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)texture;
+
+		/* Decrease binder reference */
+		_gfx_binder_reference(-1);
 
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(texture->id);
