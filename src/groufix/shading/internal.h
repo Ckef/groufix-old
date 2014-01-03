@@ -38,10 +38,11 @@ extern "C" {
  * Changes reference count for the binder.
  *
  * @param ref Number to increase/decrease reference count with.
- * @return Zero if increasing failed or already at 0.
+ *
+ * Note: this call is needed to initialize and clear memory.
  *
  */
-int _gfx_binder_reference(int ref);
+void _gfx_binder_reference(int ref);
 
 /**
  * Sets the program handle as currently in use for the given context.

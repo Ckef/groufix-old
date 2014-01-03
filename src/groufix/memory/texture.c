@@ -212,20 +212,11 @@ static struct GFX_Internal_Texture* _gfx_texture_alloc(GLenum target, GFXTexture
 	struct GFX_Internal_Texture* tex = calloc(1, sizeof(struct GFX_Internal_Texture));
 	if(!tex) return NULL;
 
-	/* Increase binder reference for textures */
-	if(!_gfx_binder_reference(1))
-	{
-		free(tex);
-		return NULL;
-	}
-
 	/* Register as object */
 	tex->texture.id = _gfx_hardware_object_register(tex, &_gfx_texture_obj_funcs);
 	if(!tex->texture.id)
 	{
-		_gfx_binder_reference(-1);
 		free(tex);
-
 		return NULL;
 	}
 
@@ -234,6 +225,9 @@ static struct GFX_Internal_Texture* _gfx_texture_alloc(GLenum target, GFXTexture
 	tex->format = form;
 
 	tex->texture.samples = 1;
+
+	/* Increase binder reference for textures */
+	_gfx_binder_reference(1);
 
 	return tex;
 }

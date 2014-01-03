@@ -228,8 +228,7 @@ GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVecto
 /**
  * Erases a range of elements at a given index.
  *
- * @param num   Number of elements to erase.
- * @param start The start of the range.
+ * @param num Number of elements to erase.
  * @return The iterator to the element taking its place.
  *
  */

@@ -21,18 +21,58 @@
  *
  */
 
+#include "groufix/containers/vector.h"
 #include "groufix/internal.h"
 
 /******************************************************/
 /* Reference count */
 static size_t _gfx_binder_ref_count = 0;
 
-/******************************************************/
-int _gfx_binder_reference(int ref)
+/* Texture Unit & Buffer binder */
+static struct GFX_Internal_Binder
 {
-	/* Don't subtract too much */
-	ref = (_gfx_binder_ref_count < -ref) ? -_gfx_binder_ref_count : ref;
-	_gfx_binder_ref_count += ref;
+	GFXVector uniformBuffers; /* Stores unsigned char + GFX_Internal_UniformBuffer */
+	GFXVector textureUnits;   /* Stores unsigned char + GFX_Internal_TextureUnit */
 
-	return ref;
+} _gfx_binder;
+
+/* Uniform buffer key */
+struct GFX_Internal_UniformBuffer
+{
+	GLuint      buffer;
+	GLintptr    offset;
+	GLsizeiptr  size;
+};
+
+/* Texture unit key */
+struct GFX_Internal_TextureUnit
+{
+	GLuint texture;
+};
+
+/******************************************************/
+void _gfx_binder_reference(int ref)
+{
+	/* Clear vector */
+	if(_gfx_binder_ref_count <= -ref)
+	{
+		/* Make sure they were initialized */
+		if(!_gfx_binder_ref_count) return;
+
+		gfx_vector_clear(&_gfx_binder.uniformBuffers);
+		gfx_vector_clear(&_gfx_binder.textureUnits);
+
+		ref = -_gfx_binder_ref_count;
+	}
+
+	/* Initialize vectors */
+	else if(!_gfx_binder_ref_count && ref)
+	{
+		gfx_vector_init(&_gfx_binder.uniformBuffers,
+			sizeof(unsigned char) + sizeof(struct GFX_Internal_UniformBuffer));
+		gfx_vector_init(&_gfx_binder.textureUnits,
+			sizeof(unsigned char) + sizeof(struct GFX_Internal_TextureUnit));
+	}
+
+	_gfx_binder_ref_count += ref;
 }

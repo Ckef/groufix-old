@@ -81,6 +81,46 @@ static inline void _gfx_property_init(struct GFX_Internal_Property* prop)
 }
 
 /******************************************************/
+static int _gfx_property_enable(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop, size_t size, const GFX_Extensions* ext)
+{
+	/* Nothing to enable */
+	if(prop->location == GL_INVALID_INDEX || !size) return 0;
+
+	if(!prop->size)
+	{
+		/* Check limits */
+		char buffDiff = 0;
+		char sampDiff = 0;
+
+		if(prop->type == GFX_BUFFER_PROPERTY)
+		{
+			buffDiff = 1;
+			if(map->buffers + buffDiff > ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES]) return 0;
+		}
+		else if(prop->type == GFX_SAMPLER_PROPERTY)
+		{
+			sampDiff = 1;
+			if(map->samplers + sampDiff > ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES]) return 0;
+		}
+
+		/* Insert into value vector */
+		size_t index = gfx_vector_get_size(&map->values);
+		if(gfx_vector_insert_range(&map->values, size, NULL, map->values.end) == map->values.end) return 0;
+
+		prop->size = size;
+		prop->index = index;
+
+		/* Also reference the binder for uniform buffers */
+		if(buffDiff) _gfx_binder_reference(1);
+
+		map->buffers += buffDiff;
+		map->samplers += sampDiff;
+	}
+
+	return (prop->size == size);
+}
+
+/******************************************************/
 static void _gfx_property_disable(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop)
 {
 	if(prop->size)
@@ -88,13 +128,15 @@ static void _gfx_property_disable(struct GFX_Internal_Map* map, struct GFX_Inter
 		/* Check if any buffers or samplers are being removed */
 		if(prop->type == GFX_BUFFER_PROPERTY)
 		{
-			_gfx_binder_reference(-1);
 			--map->buffers;
+			_gfx_binder_reference(-1);
 		}
 		else if(prop->type == GFX_SAMPLER_PROPERTY) --map->samplers;
 
-		/* TODO: remove from value vector */
+		/* Erase from value vector */
+		gfx_vector_erase_range_at(&map->values, prop->size, prop->index);
 	}
+
 	_gfx_property_init(prop);
 }
 
@@ -161,16 +203,11 @@ int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 		{
 			GLint l = window->extensions.GetUniformLocation(internal->handle, name);
 			loc = (l < 0) ? loc : l;
-
 			break;
 		}
 		case GFX_BUFFER_PROPERTY :
 		{
 			loc = window->extensions.GetUniformBlockIndex(internal->handle, name);
-
-			/* Increase binder reference for buffers */
-			if(!_gfx_binder_reference(1)) return 0;
-
 			break;
 		}
 	}
@@ -215,13 +252,19 @@ int gfx_property_map_get(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 /******************************************************/
 int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProperty value)
 {
+	/* Get current window, context and property */
+	GFX_Internal_Window* window = _gfx_window_get_current();
+
 	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
-
-	/* Get property and check type */
 	struct GFX_Internal_Property* prop = _gfx_property_map_get_at(internal, index);
-	if(!prop) return 0;
 
+	if(!window || !prop) return 0;
+
+	/* Check type */
 	if(prop->type != GFX_VECTOR_PROPERTY && prop->type != GFX_MATRIX_PROPERTY) return 0;
+
+	/* Make sure it is enabled */
+	if(!_gfx_property_enable(internal, prop, 0, &window->extensions)) return 0;
 
 	return 1;
 }
@@ -237,13 +280,11 @@ int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const 
 
 	if(!window || !prop) return 0;
 
-	/* Check number of buffers and type */
-	char buffDiff = !prop->size ? 1 : 0;
+	/* Check type */
+	if(prop->type != GFX_BUFFER_PROPERTY) return 0;
 
-	if(internal->buffers + buffDiff > window->extensions.limits[GFX_LIM_MAX_BUFFER_PROPERTIES]
-		|| prop->type != GFX_BUFFER_PROPERTY) return 0;
-
-	internal->buffers += buffDiff;
+	/* Make sure it is enabled */
+	if(!_gfx_property_enable(internal, prop, 0, &window->extensions)) return 0;
 
 	return 1;
 }
@@ -259,13 +300,11 @@ int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const
 
 	if(!window || !prop) return 0;
 
-	/* Check number of samplers and type */
-	char sampDiff = !prop->size ? 1 : 0;
+	/* Check type */
+	if(prop->type != GFX_SAMPLER_PROPERTY) return 0;
 
-	if(internal->samplers + sampDiff > window->extensions.limits[GFX_LIM_MAX_SAMPLER_PROPERTIES]
-		|| prop->type != GFX_SAMPLER_PROPERTY) return 0;
-
-	internal->samplers += sampDiff;
+	/* Make sure it is enabled */
+	if(!_gfx_property_enable(internal, prop, 0, &window->extensions)) return 0;
 
 	return 1;
 }
