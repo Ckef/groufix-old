@@ -81,17 +81,42 @@ static inline void _gfx_property_init(struct GFX_Internal_Property* prop)
 }
 
 /******************************************************/
+static void _gfx_property_erase(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop)
+{
+	if(prop->size)
+	{
+		/* Check if any buffers or samplers are being removed */
+		if(prop->type == GFX_BUFFER_PROPERTY)
+		{
+			--map->buffers;
+			_gfx_binder_reference(-1);
+		}
+		else if(prop->type == GFX_SAMPLER_PROPERTY) --map->samplers;
+
+		/* Erase from value vector */
+		gfx_vector_erase_range_at(&map->values, prop->size, prop->index);
+
+		prop->size = 0;
+		prop->index = 0;
+	}
+}
+
+/******************************************************/
 static int _gfx_property_enable(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop, size_t size, const GFX_Extensions* ext)
 {
 	/* Nothing to enable */
 	if(prop->location == GL_INVALID_INDEX || !size) return 0;
 
+	/* First erase if different size */
+	if(prop->size != size) _gfx_property_erase(map, prop);
+
+	/* Allocate the value */
 	if(!prop->size)
 	{
-		/* Check limits */
 		char buffDiff = 0;
 		char sampDiff = 0;
 
+		/* Check limits */
 		if(prop->type == GFX_BUFFER_PROPERTY)
 		{
 			buffDiff = 1;
@@ -117,26 +142,13 @@ static int _gfx_property_enable(struct GFX_Internal_Map* map, struct GFX_Interna
 		map->samplers += sampDiff;
 	}
 
-	return (prop->size == size);
+	return 1;
 }
 
 /******************************************************/
-static void _gfx_property_disable(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop)
+static inline void _gfx_property_disable(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop)
 {
-	if(prop->size)
-	{
-		/* Check if any buffers or samplers are being removed */
-		if(prop->type == GFX_BUFFER_PROPERTY)
-		{
-			--map->buffers;
-			_gfx_binder_reference(-1);
-		}
-		else if(prop->type == GFX_SAMPLER_PROPERTY) --map->samplers;
-
-		/* Erase from value vector */
-		gfx_vector_erase_range_at(&map->values, prop->size, prop->index);
-	}
-
+	_gfx_property_erase(map, prop);
 	_gfx_property_init(prop);
 }
 
@@ -171,11 +183,11 @@ void gfx_property_map_free(GFXPropertyMap* map)
 	{
 		struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
 
-		/* Disable all properties */
+		/* Erase all properties */
 		struct GFX_Internal_Property* prop;
 
 		for(prop = (struct GFX_Internal_Property*)(internal + 1); map->properties--; ++prop)
-			_gfx_property_disable(internal, prop);
+			_gfx_property_erase(internal, prop);
 
 		gfx_vector_clear(&internal->values);
 		free(map);
