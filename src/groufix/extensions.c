@@ -253,7 +253,6 @@ void _gfx_extensions_load(void)
 	ext->TexSubImage2D            = glTexSubImage2D;
 	ext->TexSubImage3D            = glTexSubImage3D;
 	ext->Uniform1fv               = glUniform1fv;
-	ext->Uniform1i                = glUniform1i;
 	ext->Uniform1iv               = glUniform1iv;
 	ext->Uniform1uiv              = glUniform1uiv;
 	ext->Uniform2fv               = glUniform2fv;
@@ -361,7 +360,6 @@ void _gfx_extensions_load(void)
 	ext->TexSubImage2D            = (PFNGLTEXSUBIMAGE2DPROC)            glTexSubImage2D;
 	ext->TexSubImage3D            = (PFNGLTEXSUBIMAGE3DPROC)            _gfx_platform_get_proc_address("glTexSubImage3D");
 	ext->Uniform1fv               = (PFNGLUNIFORM1FVPROC)               _gfx_platform_get_proc_address("glUniform1fv");
-	ext->Uniform1i                = (PFNGLUNIFORM1IPROC)                _gfx_platform_get_proc_address("glUniform1i");
 	ext->Uniform1iv               = (PFNGLUNIFORM1IVPROC)               _gfx_platform_get_proc_address("glUniform1iv");
 	ext->Uniform1uiv              = (PFNGLUNIFORM1UIVPROC)              _gfx_platform_get_proc_address("glUniform1uiv");
 	ext->Uniform2fv               = (PFNGLUNIFORM2FVPROC)               _gfx_platform_get_proc_address("glUniform2fv");

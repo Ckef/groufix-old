@@ -275,7 +275,10 @@ GFXWindow* gfx_window_recreate(GFXWindow* window, GFXScreen screen, GFXColorDept
 	_gfx_platform_window_get_size(internal->handle, &width, &height);
 	_gfx_platform_window_get_position(internal->handle, &x, &y);
 
+	/* Make sure to copy callbacks to the new window */
 	GFXWindow* new = gfx_window_create(screen, depth, name, width, height, flags);
+	*new = *window;
+
 	free(name);
 
 	if(!new) return NULL;

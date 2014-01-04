@@ -39,7 +39,6 @@ static struct GFX_Internal_Binder
 
 } _gfx_binder;
 
-/******************************************************/
 /* Uniform buffer key */
 struct GFX_Internal_UniformBuffer
 {

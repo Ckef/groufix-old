@@ -51,7 +51,6 @@ struct GFX_Internal_Property
 	size_t           index;    /* Of value in value vector */
 };
 
-/******************************************************/
 /* Internal value property */
 struct GFX_Internal_Value
 {
@@ -76,6 +75,103 @@ struct GFX_Internal_Sampler
 };
 
 /******************************************************/
+static void _gfx_property_set(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop, const GFX_Extensions* ext)
+{
+	const void* data = gfx_vector_at(&map->values, prop->index);
+
+	/* Check if it has a value */
+	if(prop->size) switch(prop->type)
+	{
+		/* Bind the uniform vector */
+		case GFX_VECTOR_PROPERTY :
+		{
+			const struct GFX_Internal_Value* val = (const struct GFX_Internal_Value*)data;
+			const void* value = (const void*)(val + 1);
+
+			switch(val->type)
+			{
+				case GFX_FLOAT : switch(val->components)
+				{
+					case 1 : ext->Uniform1fv(prop->location, val->count, value); break;
+					case 2 : ext->Uniform2fv(prop->location, val->count, value); break;
+					case 3 : ext->Uniform3fv(prop->location, val->count, value); break;
+					case 4 : ext->Uniform4fv(prop->location, val->count, value); break;
+				}
+				break;
+
+				case GFX_INT : switch(val->components)
+				{
+					case 1 : ext->Uniform1iv(prop->location, val->count, value); break;
+					case 2 : ext->Uniform2iv(prop->location, val->count, value); break;
+					case 3 : ext->Uniform3iv(prop->location, val->count, value); break;
+					case 4 : ext->Uniform4iv(prop->location, val->count, value); break;
+				}
+				break;
+
+				case GFX_UNSIGNED_INT : switch(val->components)
+				{
+					case 1 : ext->Uniform1uiv(prop->location, val->count, value); break;
+					case 2 : ext->Uniform2uiv(prop->location, val->count, value); break;
+					case 3 : ext->Uniform3uiv(prop->location, val->count, value); break;
+					case 4 : ext->Uniform4uiv(prop->location, val->count, value); break;
+				}
+				break;
+
+				/* Herp */
+				default : break;
+			}
+
+			break;
+		}
+
+		/* Bind the uniform matrix */
+		case GFX_MATRIX_PROPERTY :
+		{
+			const struct GFX_Internal_Value* val = (const struct GFX_Internal_Value*)data;
+			const void* value = (const void*)(val + 1);
+
+			switch(val->type)
+			{
+				case GFX_FLOAT : switch(val->components)
+				{
+					case 4  : ext->UniformMatrix2fv(prop->location, val->count, GL_FALSE, value); break;
+					case 9  : ext->UniformMatrix3fv(prop->location, val->count, GL_FALSE, value); break;
+					case 16 : ext->UniformMatrix4fv(prop->location, val->count, GL_FALSE, value); break;
+				}
+				break;
+
+				/* Derp */
+				default : break;
+			}
+
+			break;
+		}
+
+		/* Bind uniform block to uniform buffer index */
+		case GFX_BUFFER_PROPERTY :
+		{
+			const struct GFX_Internal_Buffer* buff = (const struct GFX_Internal_Buffer*)data;
+			size_t index = _gfx_binder_bind_uniform_buffer(buff->buffer, buff->offset, buff->size, 1, ext);
+
+			ext->UniformBlockBinding(map->handle, prop->location, index);
+
+			break;
+		}
+
+		/* Set sampler uniform to texture unit */
+		case GFX_SAMPLER_PROPERTY :
+		{
+			const struct GFX_Internal_Sampler* samp = (const struct GFX_Internal_Sampler*)data;
+			GLint unit = _gfx_binder_bind_texture(samp->texture, samp->target, 1, ext);
+
+			ext->Uniform1iv(prop->location, 1, &unit);
+
+			break;
+		}
+	}
+}
+
+/******************************************************/
 void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext)
 {
 	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
@@ -92,101 +188,7 @@ void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext)
 	unsigned char properties = map->properties;
 
 	for(prop = (struct GFX_Internal_Property*)(internal + 1); properties--; ++prop)
-	{
-		/* Skip */
-		if(!prop->size) continue;
-		const void* data = gfx_vector_at(&internal->values, prop->index);
-
-		switch(prop->type)
-		{
-			/* Bind the uniform vector */
-			case GFX_VECTOR_PROPERTY :
-			{
-				const struct GFX_Internal_Value* val = (const struct GFX_Internal_Value*)data;
-				const void* value = (const void*)(val + 1);
-
-				switch(val->type)
-				{
-					case GFX_FLOAT : switch(val->components)
-					{
-						case 1 : ext->Uniform1fv(prop->location, val->count, value); break;
-						case 2 : ext->Uniform2fv(prop->location, val->count, value); break;
-						case 3 : ext->Uniform3fv(prop->location, val->count, value); break;
-						case 4 : ext->Uniform4fv(prop->location, val->count, value); break;
-					}
-					break;
-
-					case GFX_INT : switch(val->components)
-					{
-						case 1 : ext->Uniform1iv(prop->location, val->count, value); break;
-						case 2 : ext->Uniform2iv(prop->location, val->count, value); break;
-						case 3 : ext->Uniform3iv(prop->location, val->count, value); break;
-						case 4 : ext->Uniform4iv(prop->location, val->count, value); break;
-					}
-					break;
-
-					case GFX_UNSIGNED_INT : switch(val->components)
-					{
-						case 1 : ext->Uniform1uiv(prop->location, val->count, value); break;
-						case 2 : ext->Uniform2uiv(prop->location, val->count, value); break;
-						case 3 : ext->Uniform3uiv(prop->location, val->count, value); break;
-						case 4 : ext->Uniform4uiv(prop->location, val->count, value); break;
-					}
-					break;
-
-					/* Herp */
-					default : break;
-				}
-
-				break;
-			}
-
-			/* Bind the uniform matrix */
-			case GFX_MATRIX_PROPERTY :
-			{
-				const struct GFX_Internal_Value* val = (const struct GFX_Internal_Value*)data;
-				const void* value = (const void*)(val + 1);
-
-				switch(val->type)
-				{
-					case GFX_FLOAT : switch(val->components)
-					{
-						case 4  : ext->UniformMatrix2fv(prop->location, val->count, GL_FALSE, value); break;
-						case 9  : ext->UniformMatrix3fv(prop->location, val->count, GL_FALSE, value); break;
-						case 16 : ext->UniformMatrix4fv(prop->location, val->count, GL_FALSE, value); break;
-					}
-					break;
-
-					/* Derp */
-					default : break;
-				}
-
-				break;
-			}
-
-			/* Bind uniform block to uniform buffer index */
-			case GFX_BUFFER_PROPERTY :
-			{
-				const struct GFX_Internal_Buffer* buff = (const struct GFX_Internal_Buffer*)data;
-				size_t index = _gfx_binder_bind_uniform_buffer(buff->buffer, buff->offset, buff->size, 1, ext);
-
-				ext->UniformBlockBinding(internal->handle, prop->location, index);
-
-				break;
-			}
-
-			/* Set sampler uniform to texture unit */
-			case GFX_SAMPLER_PROPERTY :
-			{
-				const struct GFX_Internal_Sampler* samp = (const struct GFX_Internal_Sampler*)data;
-				size_t unit = _gfx_binder_bind_texture(samp->texture, samp->target, 1, ext);
-
-				ext->Uniform1i(prop->location, unit);
-
-				break;
-			}
-		}
-	}
+		_gfx_property_set(internal, prop, ext);
 }
 
 /******************************************************/

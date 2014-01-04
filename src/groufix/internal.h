@@ -151,7 +151,6 @@ typedef void (APIENTRYP GFX_TEXSUBIMAGE1DPROC)            (GLenum, GLint, GLint,
 typedef void (APIENTRYP GFX_TEXSUBIMAGE2DPROC)            (GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXSUBIMAGE3DPROC)            (GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_UNIFORM1FVPROC)               (GLint, GLsizei, const GLfloat*);
-typedef void (APIENTRYP GFX_UNIFORM1IPROC)                (GLint, GLint);
 typedef void (APIENTRYP GFX_UNIFORM1IVPROC)               (GLint, GLsizei, const GLint*);
 typedef void (APIENTRYP GFX_UNIFORM1UIVPROC)              (GLint, GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_UNIFORM2FVPROC)               (GLint, GLsizei, const GLfloat*);
@@ -263,7 +262,6 @@ typedef struct GFX_Extensions
 	GFX_TEXSUBIMAGE2DPROC             TexSubImage2D;
 	GFX_TEXSUBIMAGE3DPROC             TexSubImage3D;
 	GFX_UNIFORM1FVPROC                Uniform1fv;
-	GFX_UNIFORM1IPROC                 Uniform1i;
 	GFX_UNIFORM1IVPROC                Uniform1iv;
 	GFX_UNIFORM1UIVPROC               Uniform1uiv;
 	GFX_UNIFORM2FVPROC                Uniform2fv;
