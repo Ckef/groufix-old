@@ -208,6 +208,8 @@ typedef struct GFXProperty
 {
 	unsigned char    components; /* Number of components */
 	GFXUnpackedType  type;       /* Data type of each component */
+
+	unsigned char    count;      /* Number of elements to upload at once (0 equals 1) */
 	const void*      data;       /* Pointer to vector/matrix */
 
 } GFXProperty;

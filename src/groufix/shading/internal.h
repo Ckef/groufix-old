@@ -31,8 +31,14 @@ extern "C" {
 #endif
 
 /********************************************************
- * Internal unit binding & property map usage
+ * Internal property map usage & unit binding
  *******************************************************/
+
+/**
+ * Sets the program handle as currently in use for the given context.
+ *
+ */
+void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext);
 
 /**
  * Changes reference count for the binder.
@@ -62,12 +68,6 @@ size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeipt
  *
  */
 size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, const GFX_Extensions* ext);
-
-/**
- * Sets the program handle as currently in use for the given context.
- *
- */
-void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext);
 
 
 #ifdef __cplusplus

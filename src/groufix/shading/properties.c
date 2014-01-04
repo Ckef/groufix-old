@@ -55,6 +55,7 @@ struct GFX_Internal_Property
 /* Internal value property */
 struct GFX_Internal_Value
 {
+	unsigned char    count;
 	unsigned char    components;
 	GFXUnpackedType  type;
 };
@@ -108,28 +109,28 @@ void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext)
 				{
 					case GFX_FLOAT : switch(val->components)
 					{
-						case 1 : ext->Uniform1fv(prop->location, 1, value); break;
-						case 2 : ext->Uniform2fv(prop->location, 1, value); break;
-						case 3 : ext->Uniform3fv(prop->location, 1, value); break;
-						case 4 : ext->Uniform4fv(prop->location, 1, value); break;
+						case 1 : ext->Uniform1fv(prop->location, val->count, value); break;
+						case 2 : ext->Uniform2fv(prop->location, val->count, value); break;
+						case 3 : ext->Uniform3fv(prop->location, val->count, value); break;
+						case 4 : ext->Uniform4fv(prop->location, val->count, value); break;
 					}
 					break;
 
 					case GFX_INT : switch(val->components)
 					{
-						case 1 : ext->Uniform1iv(prop->location, 1, value); break;
-						case 2 : ext->Uniform2iv(prop->location, 1, value); break;
-						case 3 : ext->Uniform3iv(prop->location, 1, value); break;
-						case 4 : ext->Uniform4iv(prop->location, 1, value); break;
+						case 1 : ext->Uniform1iv(prop->location, val->count, value); break;
+						case 2 : ext->Uniform2iv(prop->location, val->count, value); break;
+						case 3 : ext->Uniform3iv(prop->location, val->count, value); break;
+						case 4 : ext->Uniform4iv(prop->location, val->count, value); break;
 					}
 					break;
 
 					case GFX_UNSIGNED_INT : switch(val->components)
 					{
-						case 1 : ext->Uniform1uiv(prop->location, 1, value); break;
-						case 2 : ext->Uniform2uiv(prop->location, 1, value); break;
-						case 3 : ext->Uniform3uiv(prop->location, 1, value); break;
-						case 4 : ext->Uniform4uiv(prop->location, 1, value); break;
+						case 1 : ext->Uniform1uiv(prop->location, val->count, value); break;
+						case 2 : ext->Uniform2uiv(prop->location, val->count, value); break;
+						case 3 : ext->Uniform3uiv(prop->location, val->count, value); break;
+						case 4 : ext->Uniform4uiv(prop->location, val->count, value); break;
 					}
 					break;
 
@@ -150,9 +151,9 @@ void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext)
 				{
 					case GFX_FLOAT : switch(val->components)
 					{
-						case 4  : ext->UniformMatrix2fv(prop->location, 1, GL_FALSE, value); break;
-						case 9  : ext->UniformMatrix3fv(prop->location, 1, GL_FALSE, value); break;
-						case 16 : ext->UniformMatrix4fv(prop->location, 1, GL_FALSE, value); break;
+						case 4  : ext->UniformMatrix2fv(prop->location, val->count, GL_FALSE, value); break;
+						case 9  : ext->UniformMatrix3fv(prop->location, val->count, GL_FALSE, value); break;
+						case 16 : ext->UniformMatrix4fv(prop->location, val->count, GL_FALSE, value); break;
 					}
 					break;
 
@@ -405,7 +406,8 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
 	GFXDataType type;
 	type.unpacked = value.type;
 
-	size_t size = value.components * _gfx_sizeof_data_type(type);
+	value.count = value.count ? value.count : 1;
+	size_t size = (size_t)value.components * (size_t)_gfx_sizeof_data_type(type) * (size_t)value.count;
 
 	if(!_gfx_property_enable(
 		internal,
@@ -416,8 +418,10 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
 	/* Set value */
 	struct GFX_Internal_Value* val = gfx_vector_at(&internal->values, prop->index);
 
+	val->count      = value.count;
 	val->components = value.components;
-	val->type = value.type;
+	val->type       = value.type;
+
 	memcpy(val + 1, value.data, size);
 
 	return 1;

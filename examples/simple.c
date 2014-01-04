@@ -103,8 +103,9 @@ int main()
 	float color[] = { 1.0f, 0.0f, 0.0f };
 	GFXProperty val;
 	val.components = 3;
-	val.type = GFX_FLOAT;
-	val.data = color;
+	val.type       = GFX_FLOAT;
+	val.count      = 0;
+	val.data       = color;
 
 	GFXPropertyMap* map = gfx_property_map_create(program, 1);
 	gfx_property_map_set(map, 0, GFX_VECTOR_PROPERTY, "fragColor");
