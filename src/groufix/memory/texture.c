@@ -278,7 +278,7 @@ static void _gfx_texture_set_size(struct GFX_Internal_Texture* tex, size_t width
 		format.type.packed :
 		format.type.unpacked;
 
-	ext->BindTexture(tex->target, tex->handle);
+	_gfx_binder_bind_texture(tex->handle, tex->target, 0, ext);
 
 	/* Allocate all mipmaps */
 	unsigned char m;
@@ -380,7 +380,7 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int
 	tex->texture.mipmaps = mipmaps;
 
 	/* Allocate OpenGL resources */
-	window->extensions.BindTexture(tex->target, tex->handle);
+	_gfx_binder_bind_texture(tex->handle, tex->target, 0, &window->extensions);
 	window->extensions.TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
 	window->extensions.TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
 
@@ -439,7 +439,7 @@ GFXTexture* gfx_texture_create_buffer_link(GFXTextureFormat format, const GFXBuf
 	tex->texture.depth  = 1;
 
 	/* Link buffer */
-	window->extensions.BindTexture(tex->target, tex->handle);
+	_gfx_binder_bind_texture(tex->handle, tex->target, 0, &window->extensions);
 	window->extensions.TexBuffer(tex->target, tex->format, tex->buffer);
 
 	return (GFXTexture*)tex;
@@ -494,8 +494,8 @@ void gfx_texture_write(GFXTextureImage image, const GFXPixelTransfer* transfer, 
 	else
 	{
 		/* Upload texture data */
+		_gfx_binder_bind_texture(internal->handle, internal->target, 0, &window->extensions);
 		window->extensions.PixelStorei(GL_UNPACK_ALIGNMENT, transfer->alignment);
-		window->extensions.BindTexture(internal->target, internal->handle);
 
 		GLint pixForm = _gfx_texture_eval_pixel_format(transfer->format);
 		GLenum pixType = _gfx_is_data_type_packed(transfer->format.type) ?
@@ -650,6 +650,6 @@ void gfx_texture_generate_mipmaps(GFXTexture* texture)
 
 	struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)texture;
 
-	window->extensions.BindTexture(internal->target, internal->handle);
+	_gfx_binder_bind_texture(internal->handle, internal->target, 0, &window->extensions);
 	window->extensions.GenerateMipmap(internal->target);
 }

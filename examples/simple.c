@@ -69,14 +69,15 @@ int main()
 		"#version 150\n"
 		"in vec4 position;"
 		"in vec3 color;"
-		"out vec3 fragColor;"
+		//"out vec3 fragColor;"
 		"void main() {"
 		"gl_Position = position;"
-		"fragColor = color;"
+		//"fragColor = color;"
 		"}";
 	const char* fragSrc =
 		"#version 150\n"
-		"in vec3 fragColor;"
+		//"in vec3 fragColor;"
+		"uniform vec3 fragColor;"
 		"out vec3 outColor;"
 		"void main() {"
 		"outColor = fragColor;"
@@ -99,7 +100,20 @@ int main()
 
 
 	/* Propety map */
-	GFXPropertyMap* map = gfx_property_map_create(program, 0);
+	float color[] = { 1.0f, 0.0f, 0.0f };
+	GFXProperty val;
+	val.components = 3;
+	val.type = GFX_FLOAT;
+	val.data = color;
+
+	GFXPropertyMap* map = gfx_property_map_create(program, 1);
+	gfx_property_map_set(map, 0, GFX_VECTOR_PROPERTY, "fragColor");
+	gfx_property_map_set_value(map, 0, val);
+
+	color[2] = 1.0f;
+	GFXPropertyMap* map2 = gfx_property_map_create(program, 1);
+	gfx_property_map_set(map2, 0, GFX_VECTOR_PROPERTY, "fragColor");
+	gfx_property_map_set_value(map2, 0, val);
 
 
 	/* Pipeline */
@@ -117,7 +131,7 @@ int main()
 
 	unsigned short ip = gfx_pipeline_push_process(pipeline, 0);
 	gfx_pipeline_get(pipeline, ip, NULL, NULL, &pipe);
-	gfx_pipe_process_set_source(pipe.process, map);
+	gfx_pipe_process_set_source(pipe.process, map2);
 	gfx_pipe_process_set_target(pipe.process, window2);
 
 
@@ -148,6 +162,7 @@ int main()
 	gfx_buffer_free(buffer);
 	gfx_program_free(program);
 	gfx_property_map_free(map);
+	gfx_property_map_free(map2);
 	gfx_pipeline_free(pipeline);
 
 	gfx_window_free(window1);

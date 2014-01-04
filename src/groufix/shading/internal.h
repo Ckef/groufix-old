@@ -45,6 +45,25 @@ extern "C" {
 void _gfx_binder_reference(int ref);
 
 /**
+ * Binds a buffer to the appropriate uniform buffer index.
+ *
+ * @param prioritize Non-zero signifies this buffer must stay bound as long as possible.
+ * @return the uniform buffer index it was bound to.
+ *
+ */
+size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeiptr size, int prioritize, const GFX_Extensions* ext);
+
+/**
+ * Binds a texture to the appropriate unit.
+ *
+ * @param target     Internal target of the texture.
+ * @param prioritize Non-zero signifies this texture must stay bound as long as possible.
+ * @return the texture unit it was bound to.
+ *
+ */
+size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, const GFX_Extensions* ext);
+
+/**
  * Sets the program handle as currently in use for the given context.
  *
  */

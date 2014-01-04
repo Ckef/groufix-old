@@ -22,9 +22,11 @@
  */
 
 #include "groufix/containers/vector.h"
+#include "groufix/memory/internal.h"
 #include "groufix/shading/internal.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
 /* Internal property map */
@@ -46,7 +48,30 @@ struct GFX_Internal_Property
 	GFXPropertyType  type;
 	GLuint           location; /* Block index or uniform location */
 	unsigned char    size;     /* In bytes */
-	unsigned short   index;    /* Of value in value vector */
+	size_t           index;    /* Of value in value vector */
+};
+
+/******************************************************/
+/* Internal value property */
+struct GFX_Internal_Value
+{
+	unsigned char    components;
+	GFXUnpackedType  type;
+};
+
+/* Internal buffer property */
+struct GFX_Internal_Buffer
+{
+	GLuint      buffer;
+	GLintptr    offset;
+	GLsizeiptr  size;
+};
+
+/* Internal sampler property */
+struct GFX_Internal_Sampler
+{
+	GLuint texture;
+	GLuint target;
 };
 
 /******************************************************/
@@ -59,6 +84,107 @@ void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext)
 	{
 		ext->program = internal->handle;
 		ext->UseProgram(internal->handle);
+	}
+
+	/* Set all properties */
+	struct GFX_Internal_Property* prop;
+	unsigned char properties = map->properties;
+
+	for(prop = (struct GFX_Internal_Property*)(internal + 1); properties--; ++prop)
+	{
+		/* Skip */
+		if(!prop->size) continue;
+		const void* data = gfx_vector_at(&internal->values, prop->index);
+
+		switch(prop->type)
+		{
+			/* Bind the uniform vector */
+			case GFX_VECTOR_PROPERTY :
+			{
+				const struct GFX_Internal_Value* val = (const struct GFX_Internal_Value*)data;
+				const void* value = (const void*)(val + 1);
+
+				switch(val->type)
+				{
+					case GFX_FLOAT : switch(val->components)
+					{
+						case 1 : ext->Uniform1fv(prop->location, 1, value); break;
+						case 2 : ext->Uniform2fv(prop->location, 1, value); break;
+						case 3 : ext->Uniform3fv(prop->location, 1, value); break;
+						case 4 : ext->Uniform4fv(prop->location, 1, value); break;
+					}
+					break;
+
+					case GFX_INT : switch(val->components)
+					{
+						case 1 : ext->Uniform1iv(prop->location, 1, value); break;
+						case 2 : ext->Uniform2iv(prop->location, 1, value); break;
+						case 3 : ext->Uniform3iv(prop->location, 1, value); break;
+						case 4 : ext->Uniform4iv(prop->location, 1, value); break;
+					}
+					break;
+
+					case GFX_UNSIGNED_INT : switch(val->components)
+					{
+						case 1 : ext->Uniform1uiv(prop->location, 1, value); break;
+						case 2 : ext->Uniform2uiv(prop->location, 1, value); break;
+						case 3 : ext->Uniform3uiv(prop->location, 1, value); break;
+						case 4 : ext->Uniform4uiv(prop->location, 1, value); break;
+					}
+					break;
+
+					/* Herp */
+					default : break;
+				}
+
+				break;
+			}
+
+			/* Bind the uniform matrix */
+			case GFX_MATRIX_PROPERTY :
+			{
+				const struct GFX_Internal_Value* val = (const struct GFX_Internal_Value*)data;
+				const void* value = (const void*)(val + 1);
+
+				switch(val->type)
+				{
+					case GFX_FLOAT : switch(val->components)
+					{
+						case 4  : ext->UniformMatrix2fv(prop->location, 1, GL_FALSE, value); break;
+						case 9  : ext->UniformMatrix3fv(prop->location, 1, GL_FALSE, value); break;
+						case 16 : ext->UniformMatrix4fv(prop->location, 1, GL_FALSE, value); break;
+					}
+					break;
+
+					/* Derp */
+					default : break;
+				}
+
+				break;
+			}
+
+			/* Bind uniform block to uniform buffer index */
+			case GFX_BUFFER_PROPERTY :
+			{
+				const struct GFX_Internal_Buffer* buff = (const struct GFX_Internal_Buffer*)data;
+				size_t index = _gfx_binder_bind_uniform_buffer(buff->buffer, buff->offset, buff->size, 1, ext);
+
+				ext->UniformBlockBinding(internal->handle, prop->location, index);
+
+				break;
+			}
+
+			/* Set sampler uniform to texture unit */
+			case GFX_SAMPLER_PROPERTY :
+			{
+				const struct GFX_Internal_Sampler* samp = (const struct GFX_Internal_Sampler*)data;
+				size_t unit = _gfx_binder_bind_texture(samp->texture, samp->target, 1, ext);
+
+				ext->Uniform1i(prop->location, unit);
+
+				break;
+			}
+		}
 	}
 }
 
@@ -276,7 +402,23 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
 	if(prop->type != GFX_VECTOR_PROPERTY && prop->type != GFX_MATRIX_PROPERTY) return 0;
 
 	/* Make sure it is enabled */
-	if(!_gfx_property_enable(internal, prop, 0, &window->extensions)) return 0;
+	GFXDataType type;
+	type.unpacked = value.type;
+
+	size_t size = value.components * _gfx_sizeof_data_type(type);
+
+	if(!_gfx_property_enable(
+		internal,
+		prop,
+		sizeof(struct GFX_Internal_Value) + size,
+		&window->extensions)) return 0;
+
+	/* Set value */
+	struct GFX_Internal_Value* val = gfx_vector_at(&internal->values, prop->index);
+
+	val->components = value.components;
+	val->type = value.type;
+	memcpy(val + 1, value.data, size);
 
 	return 1;
 }
@@ -296,7 +438,18 @@ int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const 
 	if(prop->type != GFX_BUFFER_PROPERTY) return 0;
 
 	/* Make sure it is enabled */
-	if(!_gfx_property_enable(internal, prop, 0, &window->extensions)) return 0;
+	if(!_gfx_property_enable(
+		internal,
+		prop,
+		sizeof(struct GFX_Internal_Buffer),
+		&window->extensions)) return 0;
+
+	/* Set buffer */
+	struct GFX_Internal_Buffer* buff = gfx_vector_at(&internal->values, prop->index);
+
+	buff->buffer = _gfx_buffer_get_handle(buffer);
+	buff->offset = offset;
+	buff->size = size;
 
 	return 1;
 }
@@ -316,7 +469,17 @@ int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const
 	if(prop->type != GFX_SAMPLER_PROPERTY) return 0;
 
 	/* Make sure it is enabled */
-	if(!_gfx_property_enable(internal, prop, 0, &window->extensions)) return 0;
+	if(!_gfx_property_enable(
+		internal,
+		prop,
+		sizeof(struct GFX_Internal_Sampler),
+		&window->extensions)) return 0;
+
+	/* Set sampler */
+	struct GFX_Internal_Sampler* samp = gfx_vector_at(&internal->values, prop->index);
+
+	samp->texture = _gfx_texture_get_handle(texture);
+	samp->target = _gfx_texture_get_internal_target(texture);
 
 	return 1;
 }

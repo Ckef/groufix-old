@@ -195,8 +195,8 @@ int gfx_program_set_binary(GFXProgram* program, GFXProgramFormat format, size_t 
 /** Property type */
 typedef enum GFXPropertyType
 {
-	GFX_VECTOR_PROPERTY,
-	GFX_MATRIX_PROPERTY,
+	GFX_VECTOR_PROPERTY, /* Can only be of type GFX_FLOAT, GFX_INT or GFX_UNSIGNED_INT */
+	GFX_MATRIX_PROPERTY, /* Can only be of type GFX_FLOAT */
 	GFX_BUFFER_PROPERTY,
 	GFX_SAMPLER_PROPERTY
 
