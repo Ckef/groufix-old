@@ -176,11 +176,13 @@ typedef void (APIENTRYP GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum
 /** OpenGL extensions & context states */
 typedef struct GFX_Extensions
 {
-	/* Hardware Extensions */
-	unsigned char flags[GFX_EXT_COUNT];
+	/* Hardware Extensions & Limits */
+	unsigned char  flags[GFX_EXT_COUNT];
+	int            limits[GFX_LIM_COUNT];
 
-	/* Hardware Limits */
-	int limits[GFX_LIM_COUNT];
+	/* Binding points */
+	void* uniformBuffers;
+	void* textureUnits;
 
 	/* OpenGL State */
 	GFXPipeState  state;    /* All per-context states */

@@ -225,9 +225,16 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, G
 	{
 		if(internal->target)
 		{
+			GFX_Extensions* ext = &internal->target->extensions;
+			GLuint fbo = ext->pipeline;
+
 			/* Make target current, draw, and switch back to previously active */
 			_gfx_window_make_current(internal->target);
-			_gfx_pipe_process_draw(state, internal->map, internal->target->layout, &internal->target->extensions);
+			_gfx_pipeline_bind(0, ext);
+
+			_gfx_pipe_process_draw(state, internal->map, internal->target->layout, ext);
+
+			_gfx_pipeline_bind(fbo, ext);
 			_gfx_window_make_current(active);
 		}
 

@@ -20,7 +20,7 @@ int main()
 	}
 
 
-	/* Setup 2 windows and fetch the OpenGL context version */
+	/* Setup 2 windows */
 	GFXColorDepth depth;
 	depth.redBits   = 8;
 	depth.greenBits = 8;
@@ -28,12 +28,6 @@ int main()
 
 	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 800, 600, GFX_WINDOW_RESIZABLE);
 	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 800, 600, 0);
-
-	GFXContext context = gfx_window_get_context(window1);
-	printf("%i.%i\n", context.major, context.minor);
-
-	context = gfx_window_get_context(window2);
-	printf("%i.%i\n", context.major, context.minor);
 
 
 	/* Specify a triangle */
@@ -64,28 +58,68 @@ int main()
 	gfx_vertex_layout_set_draw_call(layout, 0, &call);
 
 
+	/* Texture */
+	GFXTextureFormat format;
+	format.components    = 3;
+	format.type.unpacked = GFX_UNSIGNED_BYTE;
+	format.interpret     = GFX_INTERPRET_NORMALIZED;
+
+	GFXTexture* tex = gfx_texture_create(GFX_TEXTURE_2D, format, 0, 800, 600, 1);
+
+	GFXTextureImage image;
+	image.texture = tex;
+	image.mipmap  = 0;
+	image.layer   = 0;
+
+
 	/* Shaders! */
 	const char* vertSrc =
 		"#version 150\n"
 		"in vec4 position;"
 		"in vec3 color;"
-		//"out vec3 fragColor;"
+		"out vec3 fragColor;"
 		"void main() {"
 		"gl_Position = position;"
-		//"fragColor = color;"
+		"fragColor = color;"
 		"}";
 	const char* fragSrc =
 		"#version 150\n"
-		//"in vec3 fragColor;"
-		"uniform vec3 fragColor;"
+		"in vec3 fragColor;"
 		"out vec3 outColor;"
 		"void main() {"
 		"outColor = fragColor;"
 		"}";
 
+	const char* vertSrc2 =
+		"#version 150\n"
+		"in vec4 position;"
+		"in vec2 texcoord;"
+		"out vec2 coord;"
+		"void main() {"
+		"gl_Position = position;"
+		"coord = texcoord;"
+		"}";
+	const char* fragSrc2 =
+		"#version 150\n"
+		"in vec2 coord;"
+		"out vec3 color;"
+		"uniform sampler2D tex;"
+		"void main() {"
+		"color = vec3(1.0f) - texture(tex, coord).rgb;"
+		"}";
+
+	const char* fragSrc3 =
+		"#version 150\n"
+		"in vec2 coord;"
+		"out vec3 color;"
+		"uniform sampler2D tex;"
+		"void main() {"
+		"color = texture(tex, coord).rgb;"
+		"}";
+
 	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
-	gfx_shader_set_source(vert, 1, NULL, &vertSrc);
 	GFXShader* frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
+	gfx_shader_set_source(vert, 1, NULL, &vertSrc);
 	gfx_shader_set_source(frag, 1, NULL, &fragSrc);
 
 	GFXShader* shaders[] = { vert, frag };
@@ -95,31 +129,42 @@ int main()
 	gfx_program_set_attribute(program, 1, "color");
 	gfx_program_link(program, 2, shaders);
 
+	gfx_shader_set_source(vert, 1, NULL, &vertSrc2);
+	gfx_shader_set_source(frag, 1, NULL, &fragSrc2);
+
+	GFXProgram* program2 = gfx_program_create();
+	gfx_program_set_attribute(program2, 0, "position");
+	gfx_program_set_attribute(program2, 1, "texcoord");
+	gfx_program_link(program2, 2, shaders);
+
+	gfx_shader_set_source(frag, 1, NULL, &fragSrc3);
+
+	GFXProgram* program3 = gfx_program_create();
+	gfx_program_set_attribute(program3, 0, "position");
+	gfx_program_set_attribute(program3, 1, "texcoord");
+	gfx_program_link(program3, 2, shaders);
+
 	gfx_shader_free(vert);
 	gfx_shader_free(frag);
 
 
 	/* Propety map */
-	float color[] = { 1.0f, 0.0f, 0.0f };
-	GFXProperty val;
-	val.components = 3;
-	val.type       = GFX_FLOAT;
-	val.count      = 0;
-	val.data       = color;
-
-	GFXPropertyMap* map = gfx_property_map_create(program, 1);
-	gfx_property_map_set(map, 0, GFX_VECTOR_PROPERTY, "fragColor");
-	gfx_property_map_set_value(map, 0, val);
-
-	color[2] = 1.0f;
-	GFXPropertyMap* map2 = gfx_property_map_create(program, 1);
-	gfx_property_map_set(map2, 0, GFX_VECTOR_PROPERTY, "fragColor");
-	gfx_property_map_set_value(map2, 0, val);
+	GFXPropertyMap* map = gfx_property_map_create(program, 0);
+	GFXPropertyMap* map2 = gfx_property_map_create(program2, 1);
+	GFXPropertyMap* map3 = gfx_property_map_create(program3, 1);
+	gfx_property_map_set(map2, 0, GFX_SAMPLER_PROPERTY, "tex");
+	gfx_property_map_set_sampler(map2, 0, tex);
+	gfx_property_map_set(map3, 0, GFX_SAMPLER_PROPERTY, "tex");
+	gfx_property_map_set_sampler(map3, 0, tex);
 
 
 	/* Pipeline */
 	GFXPipe pipe;
 	GFXPipeline* pipeline = gfx_pipeline_create();
+
+	char targets[] = { 0 };
+	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);
+	gfx_pipeline_target(pipeline, 1, targets);
 
 	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	gfx_pipeline_get(pipeline, i, NULL, NULL, &pipe);
@@ -133,6 +178,11 @@ int main()
 	unsigned short ip = gfx_pipeline_push_process(pipeline, 0);
 	gfx_pipeline_get(pipeline, ip, NULL, NULL, &pipe);
 	gfx_pipe_process_set_source(pipe.process, map2);
+	gfx_pipe_process_set_target(pipe.process, window1);
+
+	ip = gfx_pipeline_push_process(pipeline, 0);
+	gfx_pipeline_get(pipeline, ip, NULL, NULL, &pipe);
+	gfx_pipe_process_set_source(pipe.process, map3);
 	gfx_pipe_process_set_target(pipe.process, window2);
 
 
@@ -162,8 +212,12 @@ int main()
 	gfx_vertex_layout_free(layout);
 	gfx_buffer_free(buffer);
 	gfx_program_free(program);
+	gfx_program_free(program2);
+	gfx_program_free(program3);
 	gfx_property_map_free(map);
 	gfx_property_map_free(map2);
+	gfx_property_map_free(map3);
+	gfx_texture_free(tex);
 	gfx_pipeline_free(pipeline);
 
 	gfx_window_free(window1);

@@ -510,11 +510,9 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 	if(!internal->win) return;
 
-	GFX_Extensions* ext = &internal->win->extensions;
-
 	/* Bind as framebuffer */
-	/* Temporarily disabled for testing purposes
-	_gfx_pipeline_bind(internal->fbo, ext);*/
+	GFX_Extensions* ext = &internal->win->extensions;
+	_gfx_pipeline_bind(internal->fbo, ext);
 
 	/* Iterate over all pipes */
 	GFXDequeIterator it;

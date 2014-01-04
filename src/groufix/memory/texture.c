@@ -226,9 +226,6 @@ static struct GFX_Internal_Texture* _gfx_texture_alloc(GLenum target, GFXTexture
 
 	tex->texture.samples = 1;
 
-	/* Increase binder reference for textures */
-	_gfx_binder_reference(1);
-
 	return tex;
 }
 
@@ -451,9 +448,6 @@ void gfx_texture_free(GFXTexture* texture)
 	if(texture)
 	{
 		struct GFX_Internal_Texture* internal = (struct GFX_Internal_Texture*)texture;
-
-		/* Decrease binder reference */
-		_gfx_binder_reference(-1);
 
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(texture->id);

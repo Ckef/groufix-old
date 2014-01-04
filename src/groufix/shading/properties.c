@@ -75,7 +75,7 @@ struct GFX_Internal_Sampler
 };
 
 /******************************************************/
-static void _gfx_property_set(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop, const GFX_Extensions* ext)
+static void _gfx_property_set(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop, GFX_Extensions* ext)
 {
 	const void* data = gfx_vector_at(&map->values, prop->index);
 
@@ -215,11 +215,7 @@ static void _gfx_property_erase(struct GFX_Internal_Map* map, struct GFX_Interna
 	if(prop->size)
 	{
 		/* Check if any buffers or samplers are being removed */
-		if(prop->type == GFX_BUFFER_PROPERTY)
-		{
-			--map->buffers;
-			_gfx_binder_reference(-1);
-		}
+		if(prop->type == GFX_BUFFER_PROPERTY) --map->buffers;
 		else if(prop->type == GFX_SAMPLER_PROPERTY) --map->samplers;
 
 		/* Erase from value vector */
@@ -263,9 +259,6 @@ static int _gfx_property_enable(struct GFX_Internal_Map* map, struct GFX_Interna
 
 		prop->size = size;
 		prop->index = index;
-
-		/* Also reference the binder for uniform buffers */
-		if(buffDiff) _gfx_binder_reference(1);
 
 		map->buffers += buffDiff;
 		map->samplers += sampDiff;

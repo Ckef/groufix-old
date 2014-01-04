@@ -347,6 +347,10 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 			_gfx_window_make_current(_gfx_main_window);
 		}
 
+		/* Free binding points */
+		free(window->extensions.uniformBuffers);
+		free(window->extensions.textureUnits);
+
 		window->handle = NULL;
 	}
 }

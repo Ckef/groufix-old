@@ -41,16 +41,6 @@ extern "C" {
 void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext);
 
 /**
- * Changes reference count for the binder.
- *
- * @param ref Number to increase/decrease reference count with.
- *
- * Note: this call is needed to initialize and clear memory.
- *
- */
-void _gfx_binder_reference(int ref);
-
-/**
  * Binds a buffer to the appropriate uniform buffer index.
  *
  * @param prioritize Non-zero signifies this buffer must stay bound as long as possible.

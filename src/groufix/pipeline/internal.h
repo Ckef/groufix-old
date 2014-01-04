@@ -109,6 +109,8 @@ void _gfx_pipe_process_free(GFXPipeProcess* process);
  * @param pipeline Calling pipeline.
  * @param active Currently active window.
  *
+ * Note: this might unbind the current pipeline of the current context.
+ *
  */
 void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFXPipeState state, GFX_Internal_Window* active);
 

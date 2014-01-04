@@ -21,23 +21,23 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/internal.h"
 
 #include <limits.h>
+#include <stdlib.h>
 #include <string.h>
 
+/* Counter limits */
+#define GFX_BINDER_COUNTER_EMPTY  UCHAR_MAX
+#define GFX_BINDER_COUNTER_MIN    0
+#define GFX_BINDER_COUNTER_MAX    (GFX_BINDER_COUNTER_EMPTY - 1)
+
 /******************************************************/
-/* Reference count */
-static size_t _gfx_binder_ref_count = 0;
-
-/* Texture Unit & Buffer binder */
-static struct GFX_Internal_Binder
+/* Binder unit */
+struct GFX_Internal_Unit
 {
-	GFXVector uniformBuffers; /* Stores unsigned char + GFX_Internal_UniformBuffer */
-	GFXVector textureUnits;   /* Stores unsigned char + GFX_Internal_TextureUnit */
-
-} _gfx_binder;
+	unsigned char counter;
+};
 
 /* Uniform buffer key */
 struct GFX_Internal_UniformBuffer
@@ -54,104 +54,110 @@ struct GFX_Internal_TextureUnit
 };
 
 /******************************************************/
-static void _gfx_binder_increase(GFXVector* vector)
+static void* _gfx_binder_init(size_t num, size_t size)
 {
-	/* First increase all counters */
-	GFXVectorIterator it;
-	for(it = vector->begin; it != vector->end; it = gfx_vector_next(vector, it))
-	{
-		unsigned char* cnt = (unsigned char*)it;
+	size_t unitSize = sizeof(struct GFX_Internal_Unit) + size;
 
-		++(*cnt);
-		*cnt = !(*cnt) ? UCHAR_MAX : *cnt;
+	/* Allocate */
+	void* data = malloc(unitSize * num);
+	if(!data) return NULL;
+
+	void* bindings = data;
+
+	/* Iterate and set to empty */
+	while(num--)
+	{
+		struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)bindings;
+		unit->counter = GFX_BINDER_COUNTER_EMPTY;
+
+		/* Next unit */
+		bindings = GFX_PTR_ADD_BYTES(bindings, unitSize);
+	}
+
+	return data;
+}
+
+/******************************************************/
+static void _gfx_binder_increase(void* bindings, size_t num, size_t size)
+{
+	size_t unitSize = sizeof(struct GFX_Internal_Unit) + size;
+
+	/* Iterate and increase */
+	while(num--)
+	{
+		struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)bindings;
+
+		++unit->counter;
+		unit->counter =
+			!(unit->counter) ? GFX_BINDER_COUNTER_EMPTY :
+			(unit->counter == GFX_BINDER_COUNTER_EMPTY) ? GFX_BINDER_COUNTER_MAX :
+			unit->counter;
+
+		/* Next unit */
+		bindings = GFX_PTR_ADD_BYTES(bindings, unitSize);
 	}
 }
 
 /******************************************************/
-/* maxUnits is presumed to be > 0 */
-static size_t _gfx_binder_request(GFXVector* vector, const void* data, int prioritize, int maxUnits, int* new)
+static size_t _gfx_binder_request(void* bindings, size_t num, size_t size, const void* data, int prioritize, int* new)
 {
-	GFXVectorIterator pos = vector->end;
 	*new = 1;
 
-	size_t size = vector->elementSize - sizeof(unsigned char);
-	size_t elem = gfx_vector_get_size(vector);
+	/* Erm, nothing to find */
+	if(!bindings) return 0;
 
 	/* First increase all counters */
-	if(prioritize) _gfx_binder_increase(vector);
+	if(prioritize) _gfx_binder_increase(bindings, num, size);
+
+	struct GFX_Internal_Unit* pos = NULL;
+	size_t unitSize = sizeof(struct GFX_Internal_Unit) + size;
 
 	/* Find highest or equal entry */
-	GFXVectorIterator high = vector->end;
-	short highCnt = -1;
+	struct GFX_Internal_Unit* high = (struct GFX_Internal_Unit*)bindings;
+	struct GFX_Internal_Unit* curr = high;
 
-	GFXVectorIterator it;
-	for(it = vector->begin; it != vector->end; it = gfx_vector_next(vector, it))
+	while(num--)
 	{
-		unsigned char* cnt = (unsigned char*)it;
-
-		/* Check if equal */
-		if(!memcmp(data, cnt + 1, size))
+		/* Check for empty */
+		if(curr->counter == GFX_BINDER_COUNTER_EMPTY)
 		{
-			pos = it;
+			pos = curr;
+			break;
+		}
+
+		/* Check if equal & find highest */
+		if(!memcmp(data, curr + 1, size))
+		{
+			pos = curr;
 			*new = 0;
 
 			break;
 		}
+		high = (high->counter < curr->counter) ? curr : high;
 
-		/* Find highest */
-		if(highCnt < (short)(*cnt))
-		{
-			high = it;
-			highCnt = *cnt;
-		}
+		/* Next unit */
+		curr = GFX_PTR_ADD_BYTES(curr, unitSize);
 	}
 
 	/* Get new position */
-	if(*new)
-	{
-		if(elem >= maxUnits) pos = high;
-		else pos = gfx_vector_insert(vector, NULL, vector->end);
-	}
+	pos = pos ? pos : high;
 
 	/* Prioritize itself and copy data */
-	unsigned char* cnt = (unsigned char*)pos;
-	*cnt = prioritize ? 0 : UCHAR_MAX;
+	pos->counter = prioritize ? GFX_BINDER_COUNTER_MIN : GFX_BINDER_COUNTER_MAX;
+	memcpy(pos + 1, data, size);
 
-	memcpy(cnt + 1, data, size);
-
-	return gfx_vector_get_index(vector, pos);
+	return GFX_PTR_DIFF(bindings, pos) / unitSize;
 }
 
 /******************************************************/
-void _gfx_binder_reference(int ref)
+size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeiptr size, int prioritize, GFX_Extensions* ext)
 {
-	/* Clear vector */
-	if(_gfx_binder_ref_count <= -ref)
-	{
-		/* Make sure they were initialized */
-		if(!_gfx_binder_ref_count) return;
+	/* Allocate binding points */
+	if(!ext->uniformBuffers) ext->uniformBuffers = _gfx_binder_init(
+		ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+		sizeof(struct GFX_Internal_UniformBuffer)
+	);
 
-		gfx_vector_clear(&_gfx_binder.uniformBuffers);
-		gfx_vector_clear(&_gfx_binder.textureUnits);
-
-		ref = -_gfx_binder_ref_count;
-	}
-
-	/* Initialize vectors */
-	else if(!_gfx_binder_ref_count && ref)
-	{
-		gfx_vector_init(&_gfx_binder.uniformBuffers,
-			sizeof(unsigned char) + sizeof(struct GFX_Internal_UniformBuffer));
-		gfx_vector_init(&_gfx_binder.textureUnits,
-			sizeof(unsigned char) + sizeof(struct GFX_Internal_TextureUnit));
-	}
-
-	_gfx_binder_ref_count += ref;
-}
-
-/******************************************************/
-size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeiptr size, int prioritize, const GFX_Extensions* ext)
-{
 	/* Get unit to bind it to */
 	struct GFX_Internal_UniformBuffer buff;
 	buff.buffer = buffer;
@@ -160,10 +166,11 @@ size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeipt
 
 	int new;
 	size_t bind = _gfx_binder_request(
-		&_gfx_binder.uniformBuffers,
+		ext->uniformBuffers,
+		ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+		sizeof(struct GFX_Internal_UniformBuffer),
 		&buff,
 		prioritize,
-		ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
 		&new
 	);
 
@@ -174,18 +181,25 @@ size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeipt
 }
 
 /******************************************************/
-size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, const GFX_Extensions* ext)
+size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, GFX_Extensions* ext)
 {
+	/* Allocate binding points */
+	if(!ext->textureUnits) ext->textureUnits = _gfx_binder_init(
+		ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+		sizeof(struct GFX_Internal_TextureUnit)
+	);
+
 	/* Get unit to bind it to */
 	struct GFX_Internal_TextureUnit unit;
 	unit.texture = texture;
 
 	int new;
 	size_t bind = _gfx_binder_request(
-		&_gfx_binder.textureUnits,
+		ext->textureUnits,
+		ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+		sizeof(struct GFX_Internal_TextureUnit),
 		&unit,
 		prioritize,
-		ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 		&new
 	);
 
