@@ -469,22 +469,25 @@ int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeS
 }
 
 /******************************************************/
-int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type, GFXPipeState* state, GFXPipe* pipe)
+GFXPipe gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 
 	/* Validate index */
 	size_t size = gfx_deque_get_size(&internal->pipes);
-	if(!index || index > size) return 0;
+	if(!index || index > size)
+	{
+		GFXPipe pipe;
+		pipe.process = NULL;
+
+		return pipe;
+	}
 
 	/* Retrieve data */
 	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
-
 	if(type) *type = p->type;
-	if(state) *state = p->state;
-	if(pipe) *pipe = p->pipe;
 
-	return 1;
+	return p->pipe;
 }
 
 /******************************************************/
@@ -528,7 +531,7 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 				break;
 
 			case GFX_PIPE_PROCESS :
-				_gfx_pipe_process_execute(pipe->pipe.process, pipeline, pipe->state, internal->win);
+				_gfx_pipe_process_execute(pipe->pipe.process, pipe->state, pipeline, internal->win);
 				break;
 		}
 	}

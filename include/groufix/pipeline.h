@@ -88,7 +88,7 @@ typedef struct GFXBucket
  * Note: this forces the bucket to have to preprocess.
  *
  */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, unsigned char visible);
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, int visible);
 
 /**
  * Sets the sources the draw from for a unit.
@@ -107,17 +107,10 @@ void gfx_bucket_set_source(GFXBatchUnit* unit, GFXPropertyMap* map, GFXVertexLay
  *
  * @param start First draw call to issue.
  * @param num   Number of draw calls to issue starting at start.
+ * @param inst  Number of instances to draw (only relevant when mode includes INSTANCED).
  *
  */
-void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, unsigned char start, unsigned char num);
-
-/**
- * Sets the drawing mode of a unit.
- *
- * @param inst Number of instances to draw (only relevant when mode includes INSTANCED).
- *
- */
-void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, size_t inst);
+void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char start, unsigned char num, size_t inst);
 
 /**
  * Returns the manual bits of the state associated with a unit.
@@ -141,7 +134,7 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
  * Note: making a unit visible is expensive regardless of its previous visibility.
  *
  */
-void gfx_bucket_set_visible(GFXBatchUnit* unit, unsigned char visible);
+void gfx_bucket_set_visible(GFXBatchUnit* unit, int visible);
 
 /**
  * Erases and frees a unit from its bucket.
@@ -331,12 +324,10 @@ int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeS
  * Returns the data associated with a pipe.
  *
  * @param type  Returns the type of the pipe (can be NULL).
- * @param state Returns the state of the pipe (can be NULL).
- * @param pipe  Returns the pipe itself (can be NULL).
- * @return Non-zero on success.
+ * @return The pipe itself, its members are NULL on failure.
  *
  */
-int gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type, GFXPipeState* state, GFXPipe* pipe);
+GFXPipe gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type);
 
 /**
  * Removes the last added pipe.

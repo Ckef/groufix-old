@@ -212,7 +212,7 @@ void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXWindow* target)
 }
 
 /******************************************************/
-void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFXPipeState state, GFX_Internal_Window* active)
+void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeState state, GFXPipeline* pipeline, GFX_Internal_Window* active)
 {
 	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
 

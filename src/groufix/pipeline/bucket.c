@@ -59,9 +59,9 @@ struct GFX_Internal_Unit
 	/* Drawing data */
 	GFXPropertyMap*   map;
 	GFXVertexLayout*  layout;
+
 	unsigned char     start;
 	unsigned char     num;
-
 	GFXBatchMode      mode;
 	size_t            inst;
 };
@@ -247,7 +247,7 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 }
 
 /******************************************************/
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, unsigned char visible)
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, int visible)
 {
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
 
@@ -284,16 +284,7 @@ void gfx_bucket_set_source(GFXBatchUnit* unit, GFXPropertyMap* map, GFXVertexLay
 }
 
 /******************************************************/
-void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, unsigned char start, unsigned char num)
-{
-	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
-
-	internal->start = start;
-	internal->num = num;
-}
-
-/******************************************************/
-void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, size_t inst)
+void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char start, unsigned char num, size_t inst)
 {
 	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
 
@@ -315,7 +306,8 @@ void gfx_bucket_set_mode(GFXBatchUnit* unit, GFXBatchMode mode, size_t inst)
 		inst = 1;
 	}
 
-	/* Set mode */
+	internal->start = start;
+	internal->num = num;
 	internal->mode  = mode;
 	internal->inst  = inst;
 }
@@ -346,7 +338,7 @@ void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state)
 }
 
 /******************************************************/
-void gfx_bucket_set_visible(GFXBatchUnit* unit, unsigned char visible)
+void gfx_bucket_set_visible(GFXBatchUnit* unit, int visible)
 {
 	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
 	struct GFX_Internal_Bucket* bucket = (struct GFX_Internal_Bucket*)internal->bucket;

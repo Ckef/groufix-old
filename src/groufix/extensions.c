@@ -273,6 +273,7 @@ void _gfx_extensions_load(void)
 	ext->VertexAttribDivisor      = glVertexAttribDivisor;
 	ext->VertexAttribIPointer     = glVertexAttribIPointer;
 	ext->VertexAttribPointer      = glVertexAttribPointer;
+	ext->Viewport                 = glViewport;
 
 #else
 
@@ -379,6 +380,7 @@ void _gfx_extensions_load(void)
 	ext->UseProgram               = (PFNGLUSEPROGRAMPROC)               _gfx_platform_get_proc_address("glUseProgram");
 	ext->VertexAttribIPointer     = (PFNGLVERTEXATTRIBIPOINTERPROC)     _gfx_platform_get_proc_address("glVertexAttribIPointer");
 	ext->VertexAttribPointer      = (PFNGLVERTEXATTRIBPOINTERPROC)      _gfx_platform_get_proc_address("glVertexAttribPointer");
+	ext->Viewport                 = (PFNGLVIEWPORTPROC)                 glViewport;
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(major > 3 || minor > 2) /* No, anything less than 3.2 will never be supported. */

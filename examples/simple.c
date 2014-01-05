@@ -167,21 +167,20 @@ int main()
 	gfx_pipeline_target(pipeline, 1, targets);
 
 	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
-	gfx_pipeline_get(pipeline, i, NULL, NULL, &pipe);
+	pipe = gfx_pipeline_get(pipeline, i, NULL);
 	gfx_pipeline_set_state(pipeline, i, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
 	GFXBatchUnit* unit = gfx_bucket_insert(pipe.bucket, 0, 1);
 	gfx_bucket_set_source(unit, map, layout);
-	gfx_bucket_set_draw_calls(unit, 0, 1);
-	gfx_bucket_set_mode(unit, GFX_BATCH_DIRECT, 0);
+	gfx_bucket_set_draw_calls(unit, GFX_BATCH_DIRECT, 0, 1, 1);
 
 	unsigned short ip = gfx_pipeline_push_process(pipeline, 0);
-	gfx_pipeline_get(pipeline, ip, NULL, NULL, &pipe);
+	pipe = gfx_pipeline_get(pipeline, ip, NULL);
 	gfx_pipe_process_set_source(pipe.process, map2);
 	gfx_pipe_process_set_target(pipe.process, window1);
 
 	ip = gfx_pipeline_push_process(pipeline, 0);
-	gfx_pipeline_get(pipeline, ip, NULL, NULL, &pipe);
+	pipe = gfx_pipeline_get(pipeline, ip, NULL);
 	gfx_pipe_process_set_source(pipe.process, map3);
 	gfx_pipe_process_set_target(pipe.process, window2);
 

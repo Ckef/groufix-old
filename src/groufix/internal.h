@@ -171,6 +171,7 @@ typedef void (APIENTRYP GFX_USEPROGRAMPROC)               (GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBDIVISORPROC)      (GLuint, GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBIPOINTERPROC)     (GLuint, GLint, GLenum, GLsizei, const GLvoid*);
 typedef void (APIENTRYP GFX_VERTEXATTRIBPOINTERPROC)      (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
+typedef void (APIENTRYP GFX_VIEWPORTPROC)                 (GLint, GLint, GLsizei, GLsizei);
 
 
 /** OpenGL extensions & context states */
@@ -284,6 +285,7 @@ typedef struct GFX_Extensions
 	GFX_VERTEXATTRIBDIVISORPROC       VertexAttribDivisor;    /* GFX_EXT_INSTANCED_ATTRIBUTES */
 	GFX_VERTEXATTRIBIPOINTERPROC      VertexAttribIPointer;
 	GFX_VERTEXATTRIBPOINTERPROC       VertexAttribPointer;
+	GFX_VIEWPORTPROC                  Viewport;
 
 } GFX_Extensions;
 

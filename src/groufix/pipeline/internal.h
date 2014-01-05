@@ -35,6 +35,12 @@ extern "C" {
  *******************************************************/
 
 /**
+ * Sets the framebuffer handle associated with a pipeline as current for the given context.
+ *
+ */
+void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
+
+/**
  * Sets the state of a context.
  *
  * Note: this assumes the context is current.
@@ -50,12 +56,6 @@ void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext);
  *
  */
 void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
-
-/**
- * Sets the framebuffer handle associated with a pipeline as current for the given context.
- *
- */
-void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
 
 
 /********************************************************
@@ -109,10 +109,8 @@ void _gfx_pipe_process_free(GFXPipeProcess* process);
  * @param pipeline Calling pipeline.
  * @param active Currently active window.
  *
- * Note: this might unbind the current pipeline of the current context.
- *
  */
-void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeline* pipeline, GFXPipeState state, GFX_Internal_Window* active);
+void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeState state, GFXPipeline* pipeline, GFX_Internal_Window* active);
 
 /**
  * Prepares a window for render to texture.

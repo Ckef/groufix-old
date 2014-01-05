@@ -351,6 +351,9 @@ void _gfx_window_destroy(GFX_Internal_Window* window)
 		free(window->extensions.uniformBuffers);
 		free(window->extensions.textureUnits);
 
+		window->extensions.uniformBuffers = NULL;
+		window->extensions.textureUnits = NULL;
+
 		window->handle = NULL;
 	}
 }
