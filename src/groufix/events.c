@@ -21,15 +21,15 @@
  *
  */
 
-#include "groufix/internal.h"
+#include "groufix/pipeline/internal.h"
 
 /******************************************************/
 void _gfx_event_window_close(GFX_Platform_Window handle)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.windowClose) window->callbacks.windowClose(window);
 
 	/* Destroy window if it has no callback */
+	if(window->callbacks.windowClose) window->callbacks.windowClose(window);
 	else _gfx_window_destroy((GFX_Internal_Window*)window);
 }
 
@@ -44,6 +44,9 @@ void _gfx_event_window_move(GFX_Platform_Window handle, int x, int y)
 void _gfx_event_window_resize(GFX_Platform_Window handle, unsigned int width, unsigned int height)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
+
+	/* Resize all processes */
+	_gfx_pipe_process_resize((GFX_Internal_Window*)window, width, height);
 	if(window->callbacks.windowResize) window->callbacks.windowResize(window, width, height);
 }
 

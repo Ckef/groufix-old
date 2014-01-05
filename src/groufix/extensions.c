@@ -149,8 +149,7 @@ void _gfx_extensions_load(void)
 	GFX_Extensions* ext = &window->extensions;
 
 	/* Get OpenGL version */
-	int major, minor;
-	_gfx_platform_context_get(&major, &minor);
+	_gfx_platform_context_get(&window->context.major, &window->context.minor);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS,      ext->limits + GFX_LIM_MAX_BUFFER_PROPERTIES);
@@ -383,7 +382,7 @@ void _gfx_extensions_load(void)
 	ext->Viewport                 = (PFNGLVIEWPORTPROC)                 glViewport;
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
-	if(major > 3 || minor > 2) /* No, anything less than 3.2 will never be supported. */
+	if(window->context.major > 3 || window->context.minor > 2) /* No, anything less than 3.2 will never be supported. */
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
@@ -400,7 +399,7 @@ void _gfx_extensions_load(void)
 	}
 
 	/* GFX_EXT_LAYERED_CUBEMAP */
-	if(major > 3 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_texture_cube_map_array"))
+	if(window->context.major > 3 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_texture_cube_map_array"))
 	{
 		ext->flags[GFX_EXT_LAYERED_CUBEMAP] = 1;
 	}
@@ -410,7 +409,7 @@ void _gfx_extensions_load(void)
 	}
 
 	/* GFX_EXT_PROGRAM_BINARY */
-	if(major > 4 || (major == 4 && minor > 0))
+	if(window->context.major > 4 || (window->context.major == 4 && window->context.minor > 0))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
@@ -430,7 +429,7 @@ void _gfx_extensions_load(void)
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
-	if(major > 3 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
+	if(window->context.major > 3 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
 	{
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
 	}
@@ -450,4 +449,7 @@ void _gfx_extensions_load(void)
 	ext->pipeline = 0;
 	ext->layout = 0;
 	ext->program = 0;
+
+	/* Get viewport size */
+	_gfx_platform_window_get_size(window->handle, &ext->width, &ext->height);
 }

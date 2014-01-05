@@ -267,6 +267,20 @@ GFXPipeline* gfx_pipeline_create(void);
 void gfx_pipeline_free(GFXPipeline* pipeline);
 
 /**
+ * Specifies what color attachments to draw to.
+ *
+ * @param width   Width of the drawn area.
+ * @param height  Height of the draw area.
+ * @param indices Array (num length) of color attachment indices to draw to.
+ * @return Number of targets actually used.
+ *
+ * Use negative indices to discard the drawn values.
+ * Note: the number of indices must be < GFX_LIM_MAX_COLOR_TARGETS.
+ *
+ */
+size_t gfx_pipeline_target(GFXPipeline* pipeline, unsigned int width, unsigned int height, size_t num, const char* indices);
+
+/**
  * Attaches a texture image to the pipeline as render target.
  *
  * @param attach Attachment point to attach to.
@@ -277,18 +291,6 @@ void gfx_pipeline_free(GFXPipeline* pipeline);
  *
  */
 int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelineAttachment attach, unsigned char index);
-
-/**
- * Specifies what color attachments to draw to.
- *
- * @param indices Array (num length) of color attachment indices to draw to.
- * @return Number of targets actually used.
- *
- * Use negative indices to discard the drawn values.
- * Note: the number of indices must be < GFX_LIM_MAX_COLOR_TARGETS.
- *
- */
-size_t gfx_pipeline_target(GFXPipeline* pipeline, size_t num, const char* indices);
 
 /**
  * Adds a bucket to the pipeline.

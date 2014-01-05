@@ -229,7 +229,6 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 		/* Load extensions and try to prepare the window for post processing */
 		_gfx_window_make_current(window);
 		_gfx_extensions_load();
-		_gfx_platform_context_get(&window->context.major, &window->context.minor);
 
 		if(_gfx_pipe_process_prepare(window))
 		{

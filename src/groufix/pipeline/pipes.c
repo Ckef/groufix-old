@@ -60,6 +60,10 @@ struct GFX_Internal_Pipeline
 	GLenum*    targets;     /* OpenGL draw buffers */
 	GFXDeque   pipes;       /* Stores GFX_Internal_Pipe */
 
+	/* Viewport */
+	unsigned int width;
+	unsigned int height;
+
 	/* Not a shared resource */
 	GFX_Internal_Window* win;
 };
@@ -296,6 +300,9 @@ GFXPipeline* gfx_pipeline_create(void)
 	gfx_vector_init(&pl->attachments, sizeof(struct GFX_Internal_Attachment));
 	gfx_deque_init(&pl->pipes, sizeof(struct GFX_Internal_Pipe));
 
+	pl->width = 0;
+	pl->height = 0;
+
 	return (GFXPipeline*)pl;
 }
 
@@ -323,6 +330,42 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 		free(internal->targets);
 		free(pipeline);
 	}
+}
+
+/******************************************************/
+size_t gfx_pipeline_target(GFXPipeline* pipeline, unsigned int width, unsigned int height, size_t num, const char* indices)
+{
+	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+	if(!num || !internal->win) return 0;
+
+	GFX_Extensions* ext = &internal->win->extensions;
+
+	/* Limit number of targets */
+	num = (num > ext->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
+		ext->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
+
+	/* Construct attachment buffer */
+	GLenum* targets = malloc(sizeof(GLenum) * num);
+	if(!targets) return 0;
+
+	free(internal->targets);
+	internal->targets = targets;
+	internal->numTargets = num;
+
+	size_t i;
+	int max = ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
+
+	for(i = 0; i < num; ++i) internal->targets[i] = (indices[i] < 0 || indices[i] >= max)
+		? GL_NONE : GFX_COLOR_ATTACHMENT + indices[i];
+
+	/* Pass to OGL */
+	_gfx_pipeline_bind(internal->fbo, ext);
+	ext->DrawBuffers(num, internal->targets);
+
+	internal->width = width;
+	internal->height = height;
+
+	return num;
 }
 
 /******************************************************/
@@ -374,39 +417,6 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 	_gfx_pipeline_init_attachment(internal->fbo, &att, ext);
 
 	return 1;
-}
-
-/******************************************************/
-size_t gfx_pipeline_target(GFXPipeline* pipeline, size_t num, const char* indices)
-{
-	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
-	if(!num || !internal->win) return 0;
-
-	GFX_Extensions* ext = &internal->win->extensions;
-
-	/* Limit number of targets */
-	num = (num > ext->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
-		ext->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
-
-	/* Construct attachment buffer */
-	GLenum* targets = malloc(sizeof(GLenum) * num);
-	if(!targets) return 0;
-
-	free(internal->targets);
-	internal->targets = targets;
-	internal->numTargets = num;
-
-	size_t i;
-	int max = ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
-
-	for(i = 0; i < num; ++i) internal->targets[i] = (indices[i] < 0 || indices[i] >= max)
-		? GL_NONE : GFX_COLOR_ATTACHMENT + indices[i];
-
-	/* Pass to OGL */
-	_gfx_pipeline_bind(internal->fbo, ext);
-	ext->DrawBuffers(num, internal->targets);
-
-	return num;
 }
 
 /******************************************************/
@@ -522,6 +532,9 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 	for(it = internal->pipes.begin; it != internal->pipes.end; it = gfx_deque_next(&internal->pipes, it))
 	{
 		struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)it;
+
+		/* Set viewport */
+		_gfx_states_set_viewport(internal->width, internal->height, ext);
 
 		/* Process pipe */
 		switch(pipe->type)

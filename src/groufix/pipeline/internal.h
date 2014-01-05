@@ -57,6 +57,14 @@ void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext);
  */
 void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
 
+/**
+ * Sets the viewport size of the context.
+ *
+ * Note: this assumes the context is current.
+ *
+ */
+void _gfx_states_set_viewport(unsigned int width, unsigned int height, GFX_Extensions* ext);
+
 
 /********************************************************
  * Internal bucket creation & processing
@@ -122,6 +130,16 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeState state, GFXP
  *
  */
 int _gfx_pipe_process_prepare(GFX_Internal_Window* target);
+
+/**
+ * Forwards a new size of a window to all processes.
+ *
+ * @target Window which was resized.
+ * @width  New width.
+ * @height New height.
+ *
+ */
+void _gfx_pipe_process_resize(GFX_Internal_Window* target, unsigned int width, unsigned int height);
 
 /**
  * Replaces a specific target with a new one.

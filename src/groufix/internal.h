@@ -182,14 +182,18 @@ typedef struct GFX_Extensions
 	int            limits[GFX_LIM_COUNT];
 
 	/* Binding points */
-	void* uniformBuffers;
-	void* textureUnits;
+	void*          uniformBuffers;
+	void*          textureUnits;
 
 	/* OpenGL State */
-	GFXPipeState  state;    /* All per-context states */
-	GLuint        pipeline; /* Currently bound FBO */
-	GLuint        layout;   /* Currently bound VAO */
-	GLuint        program;  /* Currently used program */
+	GFXPipeState   state;    /* All per-context states */
+	GLuint         pipeline; /* Currently bound FBO */
+	GLuint         layout;   /* Currently bound VAO */
+	GLuint         program;  /* Currently used program */
+
+	/* Viewport */
+	unsigned int   width;
+	unsigned int   height;
 
 
 	/* OpenGL Extensions */

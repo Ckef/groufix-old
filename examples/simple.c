@@ -27,7 +27,7 @@ int main()
 	depth.blueBits  = 8;
 
 	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 800, 600, GFX_WINDOW_RESIZABLE);
-	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 800, 600, 0);
+	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 800, 600, GFX_WINDOW_RESIZABLE);
 
 
 	/* Specify a triangle */
@@ -163,8 +163,8 @@ int main()
 	GFXPipeline* pipeline = gfx_pipeline_create();
 
 	char targets[] = { 0 };
+	gfx_pipeline_target(pipeline, 800, 600, 1, targets);
 	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);
-	gfx_pipeline_target(pipeline, 1, targets);
 
 	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	pipe = gfx_pipeline_get(pipeline, i, NULL);

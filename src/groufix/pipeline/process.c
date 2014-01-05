@@ -44,6 +44,10 @@ struct GFX_Internal_Process
 	/* Post Processing */
 	GFXPropertyMap*       map;
 	GFX_Internal_Window*  target;
+
+	/* Viewport */
+	unsigned int width;
+	unsigned int height;
 };
 
 /******************************************************/
@@ -93,6 +97,22 @@ int _gfx_pipe_process_prepare(GFX_Internal_Window* target)
 	}
 
 	return 1;
+}
+
+/******************************************************/
+void _gfx_pipe_process_resize(GFX_Internal_Window* target, unsigned int width, unsigned int height)
+{
+	GFXVectorIterator it;
+	if(_gfx_pipes) for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
+	{
+		/* Check for equal target, if equal, resize! */
+		struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
+		if(target == proc->target)
+		{
+			proc->width = width;
+			proc->height = height;
+		}
+	}
 }
 
 /******************************************************/
@@ -208,7 +228,11 @@ void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXPropertyMap* map)
 /******************************************************/
 void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXWindow* target)
 {
-	((struct GFX_Internal_Process*)process)->target = (GFX_Internal_Window*)target;
+	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
+	internal->target = (GFX_Internal_Window*)target;
+
+	/* Set viewport */
+	if(target) gfx_window_get_size(target, &internal->width, &internal->height);
 }
 
 /******************************************************/
@@ -232,6 +256,7 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeState state, GFXP
 			_gfx_window_make_current(internal->target);
 			_gfx_pipeline_bind(0, ext);
 
+			_gfx_states_set_viewport(internal->width, internal->height, ext);
 			_gfx_pipe_process_draw(state, internal->map, internal->target->layout, ext);
 
 			_gfx_pipeline_bind(fbo, ext);

@@ -118,3 +118,14 @@ void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext)
 	_gfx_state_set_blend(state, ext);
 	_gfx_state_set_stencil_test(state, ext);
 }
+
+/******************************************************/
+void _gfx_states_set_viewport(unsigned int width, unsigned int height, GFX_Extensions* ext)
+{
+	if(ext->width != width || ext->height != height)
+	{
+		ext->Viewport(0, 0, width, height);
+		ext->width = width;
+		ext->height = height;
+	}
+}
