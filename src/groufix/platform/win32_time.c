@@ -21,21 +21,48 @@
  *
  */
 
-#include <stdint.h>
+#include "groufix/platform/win32.h"
+
+#include <Mmsystem.h>
+
+/******************************************************/
+/* Whether the performance counter is used */
+static unsigned char _gfx_timer_pc = 0;
+
+/* Time resolution */
+static double _gfx_timer_resolution = 1e-3;
 
 /******************************************************/
 void _gfx_platform_init_timer(void)
 {
+	LARGE_INTEGER freq;
+
+	/* Check whether the performance counter is available */
+	if(QueryPerformanceFrequency(&freq))
+	{
+		_gfx_timer_pc = 1;
+		_gfx_timer_resolution = 1.0 / (double)freq.QuadPart;
+	}
 }
 
 /******************************************************/
 uint64_t _gfx_platform_get_time(void)
 {
-	return 0;
+	if(_gfx_timer_pc)
+	{
+		LARGE_INTEGER cnt;
+		QueryPerformanceCounter(&cnt);
+
+		return cnt.QuadPart;
+	}
+	else
+	{
+		return timeGetTime();
+	}
 }
 
 /******************************************************/
 double _gfx_platform_get_time_resolution(void)
 {
-	return 0.0;
+	return _gfx_timer_resolution;
 }

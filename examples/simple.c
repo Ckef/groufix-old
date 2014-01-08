@@ -148,7 +148,7 @@ int main()
 	gfx_shader_free(frag);
 
 
-	/* Propety map */
+	/* Property map */
 	GFXPropertyMap* map = gfx_property_map_create(program, 0);
 	GFXPropertyMap* map2 = gfx_property_map_create(program2, 1);
 	GFXPropertyMap* map3 = gfx_property_map_create(program3, 1);
