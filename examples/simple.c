@@ -197,6 +197,12 @@ int main()
 		gfx_window_swap_buffers(window1);
 		gfx_window_swap_buffers(window2);
 
+		/* Print time */
+		double time = gfx_get_time();
+		gfx_set_time(0.0);
+
+		printf("%f\n", 1.0 / time);
+
 		/* Print all the errors! */
 		GFXError error;
 		while(gfx_errors_peek(&error))

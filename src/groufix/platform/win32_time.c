@@ -21,8 +21,21 @@
  *
  */
 
+#include <stdint.h>
+
 /******************************************************/
-double _gfx_platform_get_time(void)
+void _gfx_platform_init_timer(void)
+{
+}
+
+/******************************************************/
+uint64_t _gfx_platform_get_time(void)
+{
+	return 0;
+}
+
+/******************************************************/
+double _gfx_platform_get_time_resolution(void)
 {
 	return 0.0;
 }

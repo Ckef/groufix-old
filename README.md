@@ -39,6 +39,8 @@ Even though the core engine is designed to run on a single thread, there are com
 
 * __Hardware Extension & Limit fetching__, `gfx_hardware_is_extension_supported` and `gfx_hardware_get_limit` are two functions which make use of prefetched data and can be issued from within any thread.
 
+* __Property Map value setting__, setting the value of a property in a property map using `gfx_property_map_set_*` defers any transfers to the GPU, which makes it suitable for usage across threads.
+
 ### Termination
 
 As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all hardware (GPU) and window manager related resources. This means the connection to both the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant.

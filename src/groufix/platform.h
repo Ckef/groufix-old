@@ -240,6 +240,33 @@ void _gfx_platform_terminate(void);
 
 
 /********************************************************
+ * System timer
+ *******************************************************/
+
+/**
+ * Initializes the timer.
+ *
+ */
+void _gfx_platform_init_timer(void);
+
+/**
+ * Returns time since some unspecified starting point.
+ *
+ * The resolution is implementation dependent.
+ *
+ */
+uint64_t _gfx_platform_get_time(void);
+
+/**
+ * Returns the resolution of the system timer.
+ *
+ * This acts as a factor to multiply the time by to get time in seconds.
+ *
+ */
+double _gfx_platform_get_time_resolution(void);
+
+
+/********************************************************
  * Screen retrieval
  *******************************************************/
 
@@ -431,19 +458,6 @@ int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char*
  *
  */
 GFXProcAddress _gfx_platform_get_proc_address(const char* proc);
-
-
-/********************************************************
- * System timer
- *******************************************************/
-
-/**
- * Returns time in seconds since some unspecified starting point.
- *
- * The resolution is implementation dependent.
- *
- */
-double _gfx_platform_get_time(void);
 
 
 #ifdef __cplusplus

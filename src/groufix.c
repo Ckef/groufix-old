@@ -26,7 +26,7 @@
 
 /******************************************************/
 /* Starting point of time */
-static double _gfx_time_start = 0.0;
+static uint64_t _gfx_time_start = 0;
 
 /******************************************************/
 int gfx_init(void)
@@ -38,6 +38,7 @@ int gfx_init(void)
 	gfx_hardware_set_max_id_width(GFX_HARDWARE_ID_WIDTH_DEFAULT);
 
 	/* Get starting point of time */
+	_gfx_platform_init_timer();
 	_gfx_time_start = _gfx_platform_get_time();
 
 	return 1;
@@ -58,13 +59,15 @@ int gfx_poll_events(void)
 /******************************************************/
 double gfx_get_time(void)
 {
-	return _gfx_platform_get_time() - _gfx_time_start;
+	return (double)(_gfx_platform_get_time() - _gfx_time_start) *
+		_gfx_platform_get_time_resolution();
 }
 
 /******************************************************/
 void gfx_set_time(double time)
 {
-	_gfx_time_start = _gfx_platform_get_time() - time;
+	_gfx_time_start = _gfx_platform_get_time() -
+		(uint64_t)(time / _gfx_platform_get_time_resolution());
 }
 
 /******************************************************/
