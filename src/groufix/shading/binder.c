@@ -219,13 +219,19 @@ size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeipt
 /******************************************************/
 void _gfx_binder_unbind_uniform_buffer(GLuint buffer, GFX_Extensions* ext)
 {
-	if(ext->uniformBuffers) _gfx_binder_unbind(
-		ext->uniformBuffers,
-		ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
-		sizeof(struct GFX_Internal_UniformBuffer),
-		sizeof(GLuint),
-		&buffer
-	);
+	if(ext->uniformBuffers)
+	{
+		struct GFX_Internal_UniformBuffer buff;
+		buff.buffer = buffer;
+
+		_gfx_binder_unbind(
+			ext->uniformBuffers,
+			ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+			sizeof(struct GFX_Internal_UniformBuffer),
+			offsetof(struct GFX_Internal_UniformBuffer, buffer) + sizeof(GLuint),
+			&buff
+		);
+	}
 }
 
 /******************************************************/
@@ -261,11 +267,17 @@ size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, G
 /******************************************************/
 void _gfx_binder_unbind_texture(GLuint texture, GFX_Extensions* ext)
 {
-	if(ext->textureUnits) _gfx_binder_unbind(
-		ext->textureUnits,
-		ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
-		sizeof(struct GFX_Internal_TextureUnit),
-		sizeof(GLuint),
-		&texture
-	);
+	if(ext->textureUnits)
+	{
+		struct GFX_Internal_TextureUnit unit;
+		unit.texture = texture;
+
+		_gfx_binder_unbind(
+			ext->textureUnits,
+			ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+			sizeof(struct GFX_Internal_TextureUnit),
+			offsetof(struct GFX_Internal_TextureUnit, texture) + sizeof(GLuint),
+			&unit
+		);
+	}
 }
