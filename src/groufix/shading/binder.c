@@ -68,6 +68,8 @@ static void* _gfx_binder_init(size_t num, size_t size)
 	while(num--)
 	{
 		struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)bindings;
+
+		memset(unit, 0, unitSize);
 		unit->counter = GFX_BINDER_COUNTER_EMPTY;
 
 		/* Next unit */
@@ -126,6 +128,8 @@ static void _gfx_binder_unbind(void* bindings, size_t num, size_t size, size_t c
 		if(!memcmp(curr + 1, cmp, cmpSize))
 		{
 			_gfx_binder_increase(-1, curr->counter, bindings, num, size);
+
+			memset(curr, 0, unitSize);
 			curr->counter = GFX_BINDER_COUNTER_EMPTY;
 		}
 
