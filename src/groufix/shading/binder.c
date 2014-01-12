@@ -113,6 +113,28 @@ static void _gfx_binder_increase(int sign, unsigned char min, void* bindings, si
 }
 
 /******************************************************/
+static void _gfx_binder_unbind(void* bindings, size_t num, size_t size, size_t cmpSize, const void* cmp)
+{
+	struct GFX_Internal_Unit* curr = bindings;
+	size_t unitSize = sizeof(struct GFX_Internal_Unit) + size;
+
+	/* Iterate */
+	size_t i;
+	for(i = 0; i < num; ++i)
+	{
+		/* Empty current unit */
+		if(!memcmp(curr + 1, cmp, cmpSize))
+		{
+			_gfx_binder_increase(-1, curr->counter, bindings, num, size);
+			curr->counter = GFX_BINDER_COUNTER_EMPTY;
+		}
+
+		/* Next unit */
+		curr = GFX_PTR_ADD_BYTES(curr, unitSize);
+	}
+}
+
+/******************************************************/
 static size_t _gfx_binder_request(void* bindings, size_t num, size_t size, const void* data, int prioritize, int* new)
 {
 	*new = 1;
@@ -197,33 +219,13 @@ size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeipt
 /******************************************************/
 void _gfx_binder_unbind_uniform_buffer(GLuint buffer, GFX_Extensions* ext)
 {
-	if(ext->uniformBuffers)
-	{
-		/* Iterate */
-		struct GFX_Internal_Unit* bindings = ext->uniformBuffers;
-
-		size_t size = sizeof(struct GFX_Internal_Unit) + sizeof(struct GFX_Internal_UniformBuffer);
-		size_t num = ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES];
-
-		while(num--)
-		{
-			/* Empty target buffers */
-			if(((struct GFX_Internal_UniformBuffer*)(bindings + 1))->buffer == buffer)
-			{
-				_gfx_binder_increase(
-					-1,
-					bindings->counter,
-					ext->uniformBuffers,
-					ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
-					sizeof(struct GFX_Internal_UniformBuffer)
-				);
-				bindings->counter = GFX_BINDER_COUNTER_EMPTY;
-			}
-
-			/* Next unit */
-			bindings = GFX_PTR_ADD_BYTES(bindings, size);
-		}
-	}
+	if(ext->uniformBuffers) _gfx_binder_unbind(
+		ext->uniformBuffers,
+		ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+		sizeof(struct GFX_Internal_UniformBuffer),
+		sizeof(GLuint),
+		&buffer
+	);
 }
 
 /******************************************************/
@@ -259,31 +261,11 @@ size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, G
 /******************************************************/
 void _gfx_binder_unbind_texture(GLuint texture, GFX_Extensions* ext)
 {
-	if(ext->textureUnits)
-	{
-		/* Iterate */
-		struct GFX_Internal_Unit* bindings = ext->textureUnits;
-
-		size_t size = sizeof(struct GFX_Internal_Unit) + sizeof(struct GFX_Internal_TextureUnit);
-		size_t num = ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES];
-
-		while(num--)
-		{
-			/* Empty target buffers */
-			if(((struct GFX_Internal_TextureUnit*)(bindings + 1))->texture == texture)
-			{
-				_gfx_binder_increase(
-					-1,
-					bindings->counter,
-					ext->textureUnits,
-					ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
-					sizeof(struct GFX_Internal_TextureUnit)
-				);
-				bindings->counter = GFX_BINDER_COUNTER_EMPTY;
-			}
-
-			/* Next unit */
-			bindings = GFX_PTR_ADD_BYTES(bindings, size);
-		}
-	}
+	if(ext->textureUnits) _gfx_binder_unbind(
+		ext->textureUnits,
+		ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+		sizeof(struct GFX_Internal_TextureUnit),
+		sizeof(GLuint),
+		&texture
+	);
 }

@@ -105,9 +105,9 @@ static void _gfx_buffer_delete_buffers(struct GFX_Internal_Buffer* buffer, GFXVe
 
 		/* Copy handle and advance */
 		handles[i] = *(GLuint*)it;
-		it = gfx_vector_next(&buffer->handles, it);
-
 		_gfx_binder_unbind_uniform_buffer(handles[i], ext);
+
+		it = gfx_vector_next(&buffer->handles, it);
 	}
 
 	/* And deallocate all buffers */
