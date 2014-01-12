@@ -230,7 +230,7 @@ static struct GFX_Internal_Texture* _gfx_texture_alloc(GLenum target, GFXTexture
 }
 
 /******************************************************/
-static void _gfx_texture_set_size(struct GFX_Internal_Texture* tex, size_t width, size_t height, size_t depth, const GFX_Extensions* ext)
+static void _gfx_texture_set_size(struct GFX_Internal_Texture* tex, size_t width, size_t height, size_t depth, GFX_Extensions* ext)
 {
 	/* Get texture dimensions */
 	size_t w = width;
@@ -454,7 +454,11 @@ void gfx_texture_free(GFXTexture* texture)
 
 		/* Get current window and context */
 		GFX_Internal_Window* window = _gfx_window_get_current();
-		if(window) window->extensions.DeleteTextures(1, &internal->handle);
+		if(window)
+		{
+			_gfx_binder_unbind_texture(internal->handle, &window->extensions);
+			window->extensions.DeleteTextures(1, &internal->handle);
+		}
 
 		free(texture);
 	}

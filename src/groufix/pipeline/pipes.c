@@ -322,7 +322,13 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 			_gfx_pipe_free((struct GFX_Internal_Pipe*)it);
 
 		/* Delete FBO */
-		if(internal->win) internal->win->extensions.DeleteFramebuffers(1, &internal->fbo);
+		if(internal->win)
+		{
+			if(internal->win->extensions.program == internal->fbo)
+				internal->win->extensions.program = 0;
+
+			internal->win->extensions.DeleteFramebuffers(1, &internal->fbo);
+		}
 
 		gfx_vector_clear(&internal->attachments);
 		gfx_deque_clear(&internal->pipes);

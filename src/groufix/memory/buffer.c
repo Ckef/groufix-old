@@ -22,7 +22,7 @@
  */
 
 #include "groufix/containers/vector.h"
-#include "groufix/internal.h"
+#include "groufix/shading/internal.h"
 #include "groufix/errors.h"
 
 #include <stdlib.h>
@@ -66,7 +66,7 @@ static inline int _gfx_buffer_sync(GLsync sync, const GFX_Extensions* ext)
 
 /******************************************************/
 /* Create buffers in existing vector */
-static void _gfx_buffer_alloc_buffers(struct GFX_Internal_Buffer* buffer, GFXVectorIterator it, unsigned char num, const void* data, const GFX_Extensions* ext)
+static void _gfx_buffer_alloc_buffers(struct GFX_Internal_Buffer* buffer, GFXVectorIterator it, unsigned char num, const void* data, GFX_Extensions* ext)
 {	
 	/* Allocate buffers */
 	GLuint handles[num];
@@ -90,7 +90,7 @@ static void _gfx_buffer_alloc_buffers(struct GFX_Internal_Buffer* buffer, GFXVec
 
 /******************************************************/
 /* Entirely delete buffers, but don't remove vector entry */
-static void _gfx_buffer_delete_buffers(struct GFX_Internal_Buffer* buffer, GFXVectorIterator it, unsigned char num, const GFX_Extensions* ext)
+static void _gfx_buffer_delete_buffers(struct GFX_Internal_Buffer* buffer, GFXVectorIterator it, unsigned char num, GFX_Extensions* ext)
 {
 	GLuint handles[num];
 	unsigned char segs = buffer->buffer.size / buffer->buffer.segSize;
@@ -106,6 +106,8 @@ static void _gfx_buffer_delete_buffers(struct GFX_Internal_Buffer* buffer, GFXVe
 		/* Copy handle and advance */
 		handles[i] = *(GLuint*)it;
 		it = gfx_vector_next(&buffer->handles, it);
+
+		_gfx_binder_unbind_uniform_buffer(handles[i], ext);
 	}
 
 	/* And deallocate all buffers */

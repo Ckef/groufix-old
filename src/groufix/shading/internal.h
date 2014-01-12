@@ -47,7 +47,13 @@ void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext);
  * @return the uniform buffer index it was bound to.
  *
  */
-size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeiptr size, int prioritize, const GFX_Extensions* ext);
+size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeiptr size, int prioritize, GFX_Extensions* ext);
+
+/**
+ * Makes sure a buffer is unbound from any uniform buffer index.
+ *
+ */
+void _gfx_binder_unbind_uniform_buffer(GLuint buffer, GFX_Extensions* ext);
 
 /**
  * Binds a texture to the appropriate unit.
@@ -57,7 +63,13 @@ size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeipt
  * @return the texture unit it was bound to.
  *
  */
-size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, const GFX_Extensions* ext);
+size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, GFX_Extensions* ext);
+
+/**
+ * Makes sure a texture is unbound from any unit.
+ *
+ */
+void _gfx_binder_unbind_texture(GLuint texture, GFX_Extensions* ext);
 
 
 #ifdef __cplusplus
