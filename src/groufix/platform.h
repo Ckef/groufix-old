@@ -426,6 +426,16 @@ void _gfx_platform_context_make_current(GFX_Platform_Window handle);
 void _gfx_platform_context_get(int* major, int* minor);
 
 /**
+ * Returns a string representing the GLSL version of the given context version.
+ *
+ * @return Null terminated string representing the GLSL version, NULL if not supported.
+ *
+ * Note: the string is formatted to be used for the #version preprocessor.
+ *
+ */
+const char* _gfx_platform_context_get_glsl(int major, int minor);
+
+/**
  * Sets the minimum number of video frame periods per buffer swap.
  *
  * A value of 1 effectively enables vsync, use 0 to disable.

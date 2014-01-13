@@ -74,7 +74,6 @@ int main()
 
 	/* Shaders! */
 	const char* vertSrc =
-		"#version 150\n"
 		"in vec4 position;"
 		"in vec3 color;"
 		"out vec3 fragColor;"
@@ -83,7 +82,6 @@ int main()
 		"fragColor = color;"
 		"}";
 	const char* fragSrc =
-		"#version 150\n"
 		"in vec3 fragColor;"
 		"out vec3 outColor;"
 		"void main() {"
@@ -91,7 +89,6 @@ int main()
 		"}";
 
 	const char* vertSrc2 =
-		"#version 150\n"
 		"in vec4 position;"
 		"in vec2 texcoord;"
 		"out vec2 coord;"
@@ -100,7 +97,6 @@ int main()
 		"coord = texcoord;"
 		"}";
 	const char* fragSrc2 =
-		"#version 150\n"
 		"in vec2 coord;"
 		"out vec3 color;"
 		"uniform sampler2D tex;"
@@ -109,7 +105,6 @@ int main()
 		"}";
 
 	const char* fragSrc3 =
-		"#version 150\n"
 		"in vec2 coord;"
 		"out vec3 color;"
 		"uniform sampler2D tex;"

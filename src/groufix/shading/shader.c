@@ -25,6 +25,7 @@
 #include "groufix/errors.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
 /* Internal Shader */
@@ -72,6 +73,21 @@ static int _gfx_shader_eval_type(GFXShaderType type, const GFX_Extensions* ext)
 		/* Everything else */
 		default : return 1;
 	}
+}
+
+/******************************************************/
+static const char* _gfx_shader_eval_glsl(int major, int minor)
+{
+	const char* glsl = _gfx_platform_context_get_glsl(major, minor);
+	if(!glsl)
+	{
+		gfx_errors_push(
+			GFX_ERROR_PLATFORM_ERROR,
+			"GLSL version could not be resolved for a shader."
+		);
+	}
+
+	return glsl;
 }
 
 /******************************************************/
@@ -148,17 +164,89 @@ void gfx_shader_free(GFXShader* shader)
 }
 
 /******************************************************/
-void gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, const char** src)
+int gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, const char** src)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
-	if(!window) return;
+	if(!window || !num) return 0;
 
 	struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
 
+	size_t newNum = num;
+	int*   newLen = NULL;
+	char** newSrc = NULL;
+
+	/* Search for #version preprocessor */
+	const char* vers = "#version";
+	size_t n;
+
+	for(n = 0; n < num; ++n)
+		if(strstr(src[n], vers)) break;
+
+	/* Append it if not found */
+	n = (n >= num) ? 1 : 0;
+	if(n)
+	{
+		/* Fetch version string */
+		const char* glsl = _gfx_shader_eval_glsl(window->context.major, window->context.minor);
+		if(!glsl) return 0;
+
+		size_t size = strlen(glsl);
+
+		/* Allocate new lengths */
+		++newNum;
+		if(length)
+		{
+			newLen = malloc(sizeof(int) * newNum);
+			if(!newLen) return 0;
+
+			memcpy(newLen + 1, length, sizeof(int) * num);
+			*newLen = -1;
+		}
+
+		/* Allocate new sources */
+		newSrc = malloc(sizeof(char*) * newNum);
+		if(!newSrc)
+		{
+			free(newLen);
+			return 0;
+		}
+		memcpy(newSrc + 1, src, sizeof(char*) * num);
+
+		/* Construct preprocessor */
+		*newSrc = malloc(sizeof(char) * (11 + size));
+		if(!*newSrc)
+		{
+			free(newLen);
+			free(newSrc);
+
+			return 0;
+		}
+
+		(*newSrc)[8] = ' ';
+		(*newSrc)[9 + size] = '\n';
+		(*newSrc)[10 + size] = '\0';
+
+		memcpy(*newSrc, vers, sizeof(char) << 3);
+		memcpy(*newSrc + 9, glsl, sizeof(char) * size);
+	}
+
 	/* Set the source */
-	window->extensions.ShaderSource(internal->handle, num, src, length);
+	window->extensions.ShaderSource(
+		internal->handle,
+		newNum,
+		n ? (const char**)newSrc : src,
+		n ? (const int*)newLen : length
+	);
 	shader->compiled = 0;
+
+	/* Deallocate new data */
+	if(newSrc) free(*newSrc);
+
+	free(newLen);
+	free(newSrc);
+
+	return 1;
 }
 
 /******************************************************/

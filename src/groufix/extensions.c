@@ -382,7 +382,7 @@ void _gfx_extensions_load(void)
 	ext->Viewport                 = (PFNGLVIEWPORTPROC)                 glViewport;
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
-	if(window->context.major > 3 || window->context.minor > 2) /* No, anything less than 3.2 will never be supported. */
+	if(window->context.major > 3 || (window->context.major == 3 && window->context.minor > 2))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");

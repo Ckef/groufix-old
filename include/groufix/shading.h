@@ -76,12 +76,13 @@ void gfx_shader_free(GFXShader* shader);
  *
  * @param length Array containing the lengths of the sources, NULL or negative for null-terminated.
  * @param src    Array containing the sources to append to each other.
+ * @return Non-zero on success.
  *
  * Note: This will entirely replace a source set by a previous call to the method.
  * The source strings will be copied.
  *
  */
-void gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, const char** src);
+int gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, const char** src);
 
 /**
  * Returns the source of a shader (null terminated string).

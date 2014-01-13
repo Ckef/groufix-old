@@ -27,6 +27,19 @@
 #include <string.h>
 
 /******************************************************/
+/* GLSL version strings */
+static const char* _gfx_glsl_versions[] =
+{
+	"150\0",
+	"330\0",
+	"400\0",
+	"410\0",
+	"420\0",
+	"430\0",
+	"440\0"
+};
+
+/******************************************************/
 void _gfx_platform_context_get(int* major, int* minor)
 {
 	GLint ma, mi;
@@ -35,6 +48,32 @@ void _gfx_platform_context_get(int* major, int* minor)
 
 	*major = ma;
 	*minor = mi;
+}
+
+/******************************************************/
+const char* _gfx_platform_context_get_glsl(int major, int minor)
+{
+	switch(major)
+	{
+		case 3 : switch(minor)
+		{
+			case 2 : return _gfx_glsl_versions[0];
+			case 3 : return _gfx_glsl_versions[1];
+			default : return NULL;
+		}
+		case 4 : switch(minor)
+		{
+			case 0 : return _gfx_glsl_versions[2];
+			case 1 : return _gfx_glsl_versions[3];
+			case 2 : return _gfx_glsl_versions[4];
+			case 3 : return _gfx_glsl_versions[5];
+			case 4 : return _gfx_glsl_versions[6];
+			default : return NULL;
+		}
+
+		/* Good luck */
+		default : return NULL;
+	}
 }
 
 /******************************************************/
