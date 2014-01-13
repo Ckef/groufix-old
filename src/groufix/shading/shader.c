@@ -164,7 +164,7 @@ void gfx_shader_free(GFXShader* shader)
 }
 
 /******************************************************/
-int gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, const char** src)
+int gfx_shader_set_source(GFXShader* shader, size_t num, const char** src)
 {
 	/* Get current window and context */
 	GFX_Internal_Window* window = _gfx_window_get_current();
@@ -173,7 +173,6 @@ int gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, cons
 	struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
 
 	size_t newNum = num;
-	int*   newLen = NULL;
 	char** newSrc = NULL;
 
 	/* Search for #version preprocessor */
@@ -192,34 +191,19 @@ int gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, cons
 		if(!glsl) return 0;
 
 		size_t size = strlen(glsl);
-
-		/* Allocate new lengths */
 		++newNum;
-		if(length)
-		{
-			newLen = malloc(sizeof(int) * newNum);
-			if(!newLen) return 0;
-
-			memcpy(newLen + 1, length, sizeof(int) * num);
-			*newLen = -1;
-		}
 
 		/* Allocate new sources */
 		newSrc = malloc(sizeof(char*) * newNum);
-		if(!newSrc)
-		{
-			free(newLen);
-			return 0;
-		}
+		if(!newSrc) return 0;
+
 		memcpy(newSrc + 1, src, sizeof(char*) * num);
 
 		/* Construct preprocessor */
 		*newSrc = malloc(sizeof(char) * (11 + size));
 		if(!*newSrc)
 		{
-			free(newLen);
 			free(newSrc);
-
 			return 0;
 		}
 
@@ -236,15 +220,16 @@ int gfx_shader_set_source(GFXShader* shader, size_t num, const int* length, cons
 		internal->handle,
 		newNum,
 		n ? (const char**)newSrc : src,
-		n ? (const int*)newLen : length
+		NULL
 	);
 	shader->compiled = 0;
 
 	/* Deallocate new data */
-	if(newSrc) free(*newSrc);
-
-	free(newLen);
-	free(newSrc);
+	if(newSrc)
+	{
+		free(*newSrc);
+		free(newSrc);
+	}
 
 	return 1;
 }

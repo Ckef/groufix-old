@@ -114,8 +114,8 @@ int main()
 
 	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
 	GFXShader* frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
-	gfx_shader_set_source(vert, 1, NULL, &vertSrc);
-	gfx_shader_set_source(frag, 1, NULL, &fragSrc);
+	gfx_shader_set_source(vert, 1, &vertSrc);
+	gfx_shader_set_source(frag, 1, &fragSrc);
 
 	GFXShader* shaders[] = { vert, frag };
 
@@ -124,15 +124,15 @@ int main()
 	gfx_program_set_attribute(program, 1, "color");
 	gfx_program_link(program, 2, shaders);
 
-	gfx_shader_set_source(vert, 1, NULL, &vertSrc2);
-	gfx_shader_set_source(frag, 1, NULL, &fragSrc2);
+	gfx_shader_set_source(vert, 1, &vertSrc2);
+	gfx_shader_set_source(frag, 1, &fragSrc2);
 
 	GFXProgram* program2 = gfx_program_create();
 	gfx_program_set_attribute(program2, 0, "position");
 	gfx_program_set_attribute(program2, 1, "texcoord");
 	gfx_program_link(program2, 2, shaders);
 
-	gfx_shader_set_source(frag, 1, NULL, &fragSrc3);
+	gfx_shader_set_source(frag, 1, &fragSrc3);
 
 	GFXProgram* program3 = gfx_program_create();
 	gfx_program_set_attribute(program3, 0, "position");
