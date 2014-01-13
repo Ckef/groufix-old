@@ -87,26 +87,16 @@ static void _gfx_binder_increase(int sign, unsigned char min, void* bindings, si
 	/* Iterate and increase */
 	while(num--)
 	{
-		/* Check against minimum and increase according to sign */
 		struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)bindings;
+
+		/* Check against minimum and increase according to sign */
 		if(unit->counter >= min)
 		{
-			if(sign >= 0)
-			{
-				++unit->counter;
-				unit->counter =
-					(unit->counter == GFX_BINDER_COUNTER_MIN) ? GFX_BINDER_COUNTER_EMPTY :
-					(unit->counter == GFX_BINDER_COUNTER_EMPTY) ? GFX_BINDER_COUNTER_MAX :
-					unit->counter;
-			}
-			else
-			{
-				--unit->counter;
-				unit->counter =
-					(unit->counter == GFX_BINDER_COUNTER_EMPTY) ? GFX_BINDER_COUNTER_MIN :
-					(unit->counter == GFX_BINDER_COUNTER_MAX) ? GFX_BINDER_COUNTER_EMPTY :
-					unit->counter;
-			}
+			if(sign >= 0) unit->counter = (unit->counter != GFX_BINDER_COUNTER_MAX) ?
+				unit->counter + 1 : unit->counter;
+
+			else unit->counter = (unit->counter != GFX_BINDER_COUNTER_MIN) ?
+				unit->counter - 1 : unit->counter;
 		}
 
 		/* Next unit */

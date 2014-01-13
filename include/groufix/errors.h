@@ -24,6 +24,8 @@
 #ifndef GFX_ERRORS_H
 #define GFX_ERRORS_H
 
+#include <stddef.h>
+
 /* Default maximum */
 #define GFX_MAX_ERRORS_DEFAULT 64
 
@@ -111,7 +113,7 @@ void gfx_errors_empty(void);
  * Sets the maximum number of errors stored.
  *
  */
-void gfx_errors_set_maximum(unsigned int max);
+void gfx_errors_set_maximum(size_t max);
 
 
 #ifdef __cplusplus
