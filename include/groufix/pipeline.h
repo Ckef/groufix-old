@@ -82,13 +82,12 @@ typedef struct GFXBucket
  * Insert a unit to be processed into the bucket.
  *
  * @param state   Manual bits of the state to associate this unit with.
- * @param visible Non-zero if visible, invisible otherwise.
  * @return The inserted unit, NULL on failure.
  *
- * Note: this forces the bucket to have to preprocess.
+ * Note: the unit is invisible by default, only once it has a source can it be made visible.
  *
  */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state, int visible);
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state);
 
 /**
  * Sets the sources the draw from for a unit.
@@ -107,10 +106,17 @@ void gfx_bucket_set_source(GFXBatchUnit* unit, GFXPropertyMap* map, GFXVertexLay
  *
  * @param start First draw call to issue.
  * @param num   Number of draw calls to issue starting at start.
- * @param inst  Number of instances to draw (only relevant when mode includes INSTANCED).
  *
  */
-void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char start, unsigned char num, size_t inst);
+void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char start, unsigned char num);
+
+/**
+ * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
+ *
+ * Note: if the mode includes INSTANCED but only 1 instance is drawn, a performance hit might be expected.
+ *
+ */
+void gfx_bucket_set_instances(GFXBatchUnit* unit, size_t instances);
 
 /**
  * Returns the manual bits of the state associated with a unit.
