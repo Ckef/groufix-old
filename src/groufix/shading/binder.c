@@ -59,7 +59,7 @@ static void* _gfx_binder_init(size_t num, size_t size)
 	size_t unitSize = sizeof(struct GFX_Internal_Unit) + size;
 
 	/* Allocate */
-	void* data = malloc(unitSize * num);
+	void* data = calloc(num, unitSize);
 	if(!data) return NULL;
 
 	void* bindings = data;
@@ -68,8 +68,6 @@ static void* _gfx_binder_init(size_t num, size_t size)
 	while(num--)
 	{
 		struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)bindings;
-
-		memset(unit, 0, unitSize);
 		unit->counter = GFX_BINDER_COUNTER_EMPTY;
 
 		/* Next unit */
