@@ -33,6 +33,8 @@ This being said, the core engine, and only the _core_ engine is thread affine. A
 
 Even though the core engine is designed to run on a single thread, there are components which aren't thread affine. They are still not thread safe, but they can be used across multiple threads. All core features exhibiting this behaviour are listed below.
 
+* __Bucket interface__, when pushing a bucket onto a pipeline and fetching it, all operations performed directly on the bucket exclusively modify the state in which rendering will occur when the pipeline is executed. All these operations can be issued from multiple threads. However, executing the pipeline is still thread affine.
+
 * __Buffer Mapping__, `gfx_buffer_map` returns a pointer which may be used from within any location in the program, as long as it is not unmapped.
 
 * __Error Handling__, all functionality in `groufix/errors.h` can be issued from within any thread. Note: hardware errors should be polled using `gfx_hardware_poll_errors` in order to receive them, which is still thread affine.
