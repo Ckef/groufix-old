@@ -37,6 +37,8 @@ struct GFX_Internal_Bucket
 	GFXBucket bucket;
 
 	/* Hidden data */
+	GFXVector      sources;
+
 	unsigned char  bit;   /* Index of the max bit to sort by */
 	unsigned char  sort;  /* Non zero if a sort is required */
 	GFXBatchUnit*  first; /* Begin of units */
@@ -46,6 +48,17 @@ struct GFX_Internal_Bucket
 	GFXBatchUnit*  invisible;
 };
 
+/* Internal batch */
+struct GFX_Internal_Source
+{
+	GFXPropertyMap*   map;
+	GFXVertexLayout*  layout;
+
+	GFXBatchMode      mode;
+	unsigned char     start;
+	unsigned char     num;
+};
+
 /* Internal batch unit */
 struct GFX_Internal_Unit
 {
@@ -53,18 +66,17 @@ struct GFX_Internal_Unit
 	GFXBatchUnit unit;
 
 	/* Hidden data */
-	GFXBatchState     state;
-	GFXBucket*        bucket;
-
-	/* Drawing data */
-	GFXPropertyMap*   map;
-	GFXVertexLayout*  layout;
-
-	unsigned char     start;
-	unsigned char     num;
-	GFXBatchMode      mode;
-	size_t            inst;
+	GFXBatchState  state;
+	GFXBucket*     bucket;
+	size_t         src;  /* Source of the bucket to use (ID - 1) */
+	size_t         inst; /* Number of instances */
 };
+
+/******************************************************/
+static inline struct GFX_Internal_Source* _gfx_bucket_get_source(struct GFX_Internal_Bucket* bucket, size_t index)
+{
+	return (struct GFX_Internal_Source*)gfx_vector_at(&bucket->sources, index);
+}
 
 /******************************************************/
 static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXBatchUnit** last)
@@ -107,21 +119,23 @@ static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXB
 }
 
 /******************************************************/
-static GFXBatchState _gfx_bucket_add_state(const struct GFX_Internal_Bucket* bucket, size_t layout, size_t program, GFXBatchState original)
+static GFXBatchState _gfx_bucket_get_state(const struct GFX_Internal_Bucket* bucket, size_t layout, size_t program)
 {
+	GFXBatchState state = 0;
+
 	/* First sort on program, then layout */
 	GFXBatchState shifts = 0;
 	if(bucket->bucket.flags & GFX_BUCKET_SORT_VERTEX_LAYOUT)
 	{
-		original |= layout;
+		state |= layout;
 		shifts = gfx_hardware_get_max_id_width();
 	}
 	if(bucket->bucket.flags & GFX_BUCKET_SORT_PROGRAM)
 	{
-		original |= (GFXBatchState)program << shifts;
+		state |= (GFXBatchState)program << shifts;
 	}
 
-	return original;
+	return state;
 }
 
 /******************************************************/
@@ -167,6 +181,8 @@ GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBucketFlags flags)
 	bucket->bucket.bits = (bits > manual) ? manual : bits;
 	bucket->bit = intern + bucket->bucket.bits - 1;
 
+	gfx_vector_init(&bucket->sources, sizeof(struct GFX_Internal_Source));
+
 	return (GFXBucket*)bucket;
 }
 
@@ -176,6 +192,8 @@ void _gfx_bucket_free(GFXBucket* bucket)
 	if(bucket)
 	{
 		struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
+
+		gfx_vector_clear(&internal->sources);
 
 		gfx_list_free(internal->first);
 		gfx_list_free(internal->invisible);
@@ -203,42 +221,43 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 	for(curr = internal->first; curr; curr = curr->next)
 	{
 		struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)curr;
+		struct GFX_Internal_Source* src = _gfx_bucket_get_source(internal, unit->src);
 
 		/* Bind shader program & draw */
-		_gfx_property_map_use(unit->map, ext);
+		_gfx_property_map_use(src->map, ext);
 
-		switch(unit->mode)
+		switch(src->mode)
 		{
 			case GFX_BATCH_DIRECT :
 				_gfx_vertex_layout_draw(
-					unit->layout,
-					unit->start,
-					unit->num
+					src->layout,
+					src->start,
+					src->num
 				);
 				break;
 
 			case GFX_BATCH_INDEXED :
 				_gfx_vertex_layout_draw_indexed(
-					unit->layout,
-					unit->start,
-					unit->num
+					src->layout,
+					src->start,
+					src->num
 				);
 				break;
 
 			case GFX_BATCH_DIRECT_INSTANCED :
 				_gfx_vertex_layout_draw_instanced(
-					unit->layout,
-					unit->start,
-					unit->num,
+					src->layout,
+					src->start,
+					src->num,
 					unit->inst
 				);
 				break;
 
 			case GFX_BATCH_INDEXED_INSTANCED :
 				_gfx_vertex_layout_draw_indexed_instanced(
-					unit->layout,
-					unit->start,
-					unit->num,
+					src->layout,
+					src->start,
+					src->num,
 					unit->inst
 				);
 				break;
@@ -247,51 +266,59 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 }
 
 /******************************************************/
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state)
+size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLayout* layout)
+{
+	/* Derp */
+	if(!map || !layout) return 0;
+
+	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
+
+	/* Create source */
+	struct GFX_Internal_Source src;
+	src.map    = map;
+	src.layout = layout;
+	src.start  = 0;
+	src.num    = 0;
+
+	if(gfx_vector_insert(&internal->sources, &src, internal->sources.end) == internal->sources.end)
+		return 0;
+
+	/* Return its index + 1 */
+	return gfx_vector_get_size(&internal->sources);
+}
+
+/******************************************************/
+void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, GFXBatchMode mode, unsigned char start, unsigned char num)
 {
 	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
+	struct GFX_Internal_Source* source = _gfx_bucket_get_source(internal, src - 1);
+
+	source->mode = mode;
+	source->start = start;
+	source->num = num;
+}
+
+/******************************************************/
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible)
+{
+	struct GFX_Internal_Bucket* internal = (struct GFX_Internal_Bucket*)bucket;
+	struct GFX_Internal_Source* source = _gfx_bucket_get_source(internal, src - 1);
 
 	/* Create unit */
 	struct GFX_Internal_Unit* unit = (struct GFX_Internal_Unit*)gfx_list_create(sizeof(struct GFX_Internal_Unit));
 	if(!unit) return NULL;
 
-	unit->state = _gfx_bucket_add_manual_state(internal, state, 0);
+	unit->state = _gfx_bucket_get_state(internal, source->layout->id, source->map->program->id);
+	unit->state = _gfx_bucket_add_manual_state(internal, state, unit->state);
 	unit->bucket = bucket;
+
+	unit->src = src - 1;
 	unit->inst = 1;
 
 	/* Insert unit */
-	gfx_bucket_set_visible((GFXBatchUnit*)unit, 0);
+	gfx_bucket_set_visible((GFXBatchUnit*)unit, visible);
 
 	return (GFXBatchUnit*)unit;
-}
-
-/******************************************************/
-void gfx_bucket_set_source(GFXBatchUnit* unit, GFXPropertyMap* map, GFXVertexLayout* layout)
-{
-	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
-	struct GFX_Internal_Bucket* bucket = (struct GFX_Internal_Bucket*)internal->bucket;
-
-	internal->map = map;
-	internal->layout = layout;
-
-	/* Detect equal states */
-	GFXBatchState state = _gfx_bucket_add_state(bucket, layout->id, map->program->id, internal->state);
-	if(internal->state != state)
-	{
-		/* Force a re-sort */
-		internal->state = state;
-		bucket->sort = 1;
-	}
-}
-
-/******************************************************/
-void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char start, unsigned char num)
-{
-	struct GFX_Internal_Unit* internal = (struct GFX_Internal_Unit*)unit;
-
-	internal->mode = mode;
-	internal->start = start;
-	internal->num = num;
 }
 
 /******************************************************/
@@ -338,8 +365,7 @@ void gfx_bucket_set_visible(GFXBatchUnit* unit, int visible)
 
 	gfx_list_unsplice(unit, unit);
 
-	/* Force invisible when no source is present */
-	if(visible && internal->map && internal->layout)
+	if(visible)
 	{
 		/* Insert into batch list */
 		if(!bucket->last) bucket->last = unit;

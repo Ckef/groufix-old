@@ -40,7 +40,7 @@ extern "C" {
 typedef uint64_t GFXBatchState;
 
 
-/** Unit to batch */
+/** Unit in a batch */
 typedef GFXList GFXBatchUnit;
 
 
@@ -79,41 +79,40 @@ typedef struct GFXBucket
 
 
 /**
- * Insert a unit to be processed into the bucket.
+ * Adds a new source to the bucket.
  *
- * @param state   Manual bits of the state to associate this unit with.
- * @return The inserted unit, NULL on failure.
- *
- * Note: the unit is invisible by default, only once it has a source can it be made visible.
- *
- */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, GFXBatchState state);
-
-/**
- * Sets the sources the draw from for a unit.
- *
- * @param map    Property Map (and thus program) to use for this unit, cannot be NULL.
- * @param layout Vertex layout to use for this unit, cannot be NULL.
- *
- * Note: If this call is not called, execution of a pipeline has undefined behaviour!
- * As a side note, it is a rather expensive operation, only calling it once is preferable.
+ * @param map    Property map (and thus program) to use for this unit, cannot be NULL.
+ * @param layout Vertex layout to use for this batch, cannot be NULL.
+ * @return The ID of the source, 0 on failure.
  *
  */
-void gfx_bucket_set_source(GFXBatchUnit* unit, GFXPropertyMap* map, GFXVertexLayout* layout);
+size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLayout* layout);
 
 /**
  * Sets the draw calls to issue from the source.
  *
+ * @param src   The ID of the source.
  * @param start First draw call to issue.
  * @param num   Number of draw calls to issue starting at start.
  *
  */
-void gfx_bucket_set_draw_calls(GFXBatchUnit* unit, GFXBatchMode mode, unsigned char start, unsigned char num);
+void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, GFXBatchMode mode, unsigned char start, unsigned char num);
+
+/**
+ * Insert a unit to be processed into the bucket.
+ *
+ * @param src     ID of the source to use for this unit.
+ * @param state   Manual bits of the state to associate this unit with.
+ * @param visible Non-zero if visible, invisible otherwise.
+ * @return The inserted unit, NULL on failure.
+ *
+ */
+GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible);
 
 /**
  * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
  *
- * Note: if the mode includes INSTANCED but only 1 instance is drawn, a performance hit might be expected.
+ * Note: if the source mode includes INSTANCED but only 1 instance is drawn, a performance hit might be expected.
  *
  */
 void gfx_bucket_set_instances(GFXBatchUnit* unit, size_t instances);

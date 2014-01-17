@@ -165,10 +165,9 @@ int main()
 	pipe = gfx_pipeline_get(pipeline, i, NULL);
 	gfx_pipeline_set_state(pipeline, i, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
-	GFXBatchUnit* unit = gfx_bucket_insert(pipe.bucket, 0);
-	gfx_bucket_set_source(unit, map, layout);
-	gfx_bucket_set_draw_calls(unit, GFX_BATCH_DIRECT, 0, 1);
-	gfx_bucket_set_visible(unit, 1);
+	size_t src = gfx_bucket_add_source(pipe.bucket, map, layout);
+	gfx_bucket_set_draw_calls(pipe.bucket, src, GFX_BATCH_DIRECT, 0, 1);
+	gfx_bucket_insert(pipe.bucket, src, 0, 1);
 
 	unsigned short ip = gfx_pipeline_push_process(pipeline, 0);
 	pipe = gfx_pipeline_get(pipeline, ip, NULL);
