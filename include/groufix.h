@@ -44,15 +44,17 @@ int gfx_init(void);
 /**
  * Polls events of all windows.
  *
- * @return Whether or not the engine is still active.
+ * Note: this must be called on the same thread gfx_init was called on.
  *
  */
-int gfx_poll_events(void);
+void gfx_poll_events(void);
 
 /**
  * Returns time in seconds since groufix was initialized.
  *
- * Note: when groufix is not initialized the return value is garbage.
+ * @return Time in seconds, this might be unreliable across threads depending on the platform.
+ *
+ * Note: when groufix is not initialized it is relative to some arbitrary point in time.
  *
  */
 double gfx_get_time(void);
@@ -60,7 +62,7 @@ double gfx_get_time(void);
 /**
  * Sets the time in seconds, changing the perceived time of initialization.
  *
- * Note: when groufix is not initialized behaviour is undefined
+ * Note: this might be unreliable across threads depending on the platform.
  *
  */
 void gfx_set_time(double time);
@@ -69,6 +71,7 @@ void gfx_set_time(double time);
  * Terminates the Groufix engine.
  *
  * This has no effect when groufix is not initialized.
+ * Note: this must be called on the same thread gfx_init was called on.
  *
  */
 void gfx_terminate(void);

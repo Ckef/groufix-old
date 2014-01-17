@@ -45,15 +45,9 @@ int gfx_init(void)
 }
 
 /******************************************************/
-int gfx_poll_events(void)
+void gfx_poll_events(void)
 {
-	/* Check if platform is initialized */
-	if(!_gfx_platform_is_initialized()) return 0;
-
-	/* If so, poll events! */
 	_gfx_platform_poll_events();
-
-	return 1;
 }
 
 /******************************************************/

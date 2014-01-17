@@ -100,6 +100,33 @@ typedef struct GFX_Platform_Attributes
 
 
 /********************************************************
+ * System timer
+ *******************************************************/
+
+/**
+ * Initializes the timer.
+ *
+ */
+void _gfx_platform_init_timer(void);
+
+/**
+ * Returns time since some unspecified starting point.
+ *
+ * The resolution is implementation dependent.
+ *
+ */
+uint64_t _gfx_platform_get_time(void);
+
+/**
+ * Returns the resolution of the system timer.
+ *
+ * This acts as a factor to multiply the time by to get time in seconds.
+ *
+ */
+double _gfx_platform_get_time_resolution(void);
+
+
+/********************************************************
  * Event triggers (must be called manually by platform)
  *******************************************************/
 
@@ -237,33 +264,6 @@ int _gfx_platform_is_initialized(void);
  *
  */
 void _gfx_platform_terminate(void);
-
-
-/********************************************************
- * System timer
- *******************************************************/
-
-/**
- * Initializes the timer.
- *
- */
-void _gfx_platform_init_timer(void);
-
-/**
- * Returns time since some unspecified starting point.
- *
- * The resolution is implementation dependent.
- *
- */
-uint64_t _gfx_platform_get_time(void);
-
-/**
- * Returns the resolution of the system timer.
- *
- * This acts as a factor to multiply the time by to get time in seconds.
- *
- */
-double _gfx_platform_get_time_resolution(void);
 
 
 /********************************************************
