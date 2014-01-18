@@ -152,28 +152,9 @@ void gfx_bucket_erase(GFXBatchUnit* unit);
  * Process to perform post-processing
  *******************************************************/
 
-/** Forward declerate */
-struct GFXPipeline;
-
-
-/** Process to push to a pipeline */
-typedef void (*GFXPipeProcessFunc)(struct GFXPipeline*, void*);
-
-
 /** Process to perform post-processing */
-typedef struct GFXPipeProcess
-{
-	GFXPipeProcessFunc  preprocess;  /* Custom process to perform before post-processing */
-	GFXPipeProcessFunc  postprocess; /* Custom process to perform after post-processing */
+typedef void* GFXPipeProcess;
 
-} GFXPipeProcess;
-
-
-/**
- * Returns a pointer to the custom data.
- *
- */
-void* gfx_pipe_process_get_data(GFXPipeProcess* process);
 
 /**
  * Sets the sources to use while drawing.
@@ -181,7 +162,7 @@ void* gfx_pipe_process_get_data(GFXPipeProcess* process);
  * @param map Property Map (and thus program) to use for the process, NULL will disable the process.
  *
  */
-void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXPropertyMap* map);
+void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map);
 
 /**
  * Sets the target window to render to.
@@ -189,7 +170,7 @@ void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXPropertyMap* map);
  * @param window Target window to draw to, NULL will enable render to texture.
  *
  */
-void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXWindow* target);
+void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target);
 
 
 /********************************************************
@@ -229,8 +210,8 @@ typedef enum GFXPipeState
 /** Individual pipe */
 typedef union GFXPipe
 {
-	GFXBucket*       bucket;  /* Bucket to be processed */
-	GFXPipeProcess*  process; /* Process for post-processing */
+	GFXBucket*      bucket;  /* Bucket to be processed */
+	GFXPipeProcess  process; /* Process for post-processing */
 
 } GFXPipe;
 
@@ -309,11 +290,10 @@ unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bit
 /**
  * Adds a process to the pipeline.
  *
- * @param dataSize Bytes of the data to pass to the process.
  * @return Index of the pipe (0 on failure).
  *
  */
-unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, size_t dataSize);
+unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline);
 
 /**
  * Sets the state of a pipe.

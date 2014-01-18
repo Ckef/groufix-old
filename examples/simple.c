@@ -169,12 +169,12 @@ int main()
 	gfx_bucket_set_draw_calls(pipe.bucket, src, GFX_BATCH_DIRECT, 0, 1);
 	gfx_bucket_insert(pipe.bucket, src, 0, 1);
 
-	unsigned short ip = gfx_pipeline_push_process(pipeline, 0);
+	unsigned short ip = gfx_pipeline_push_process(pipeline);
 	pipe = gfx_pipeline_get(pipeline, ip, NULL);
 	gfx_pipe_process_set_source(pipe.process, map2);
 	gfx_pipe_process_set_target(pipe.process, window1);
 
-	ip = gfx_pipeline_push_process(pipeline, 0);
+	ip = gfx_pipeline_push_process(pipeline);
 	pipe = gfx_pipeline_get(pipeline, ip, NULL);
 	gfx_pipe_process_set_source(pipe.process, map3);
 	gfx_pipe_process_set_target(pipe.process, window2);

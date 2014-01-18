@@ -38,9 +38,6 @@ static GFXBuffer* _gfx_process_buffer = NULL;
 /* Internal Pipe Process */
 struct GFX_Internal_Process
 {
-	/* Super class */
-	GFXPipeProcess process;
-
 	/* Post Processing */
 	GFXPropertyMap*       map;
 	GFX_Internal_Window*  target;
@@ -155,16 +152,16 @@ void _gfx_pipe_process_untarget(GFX_Internal_Window* target, int last)
 }
 
 /******************************************************/
-GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize)
+GFXPipeProcess _gfx_pipe_process_create(void)
 {
 	/* Allocate */
-	struct GFX_Internal_Process* proc = calloc(1, sizeof(struct GFX_Internal_Process) + dataSize);
+	struct GFX_Internal_Process* proc = calloc(1, sizeof(struct GFX_Internal_Process));
 	if(!proc) return NULL;
 
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_pipes)
 	{
-		_gfx_pipes = gfx_vector_create(sizeof(struct GFX_Internal_Process*));
+		_gfx_pipes = gfx_vector_create(sizeof(GFXPipeProcess));
 		if(!_gfx_pipes)
 		{
 			free(proc);
@@ -185,11 +182,11 @@ GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize)
 		return NULL;
 	}
 
-	return (GFXPipeProcess*)proc;
+	return proc;
 }
 
 /******************************************************/
-void _gfx_pipe_process_free(GFXPipeProcess* process)
+void _gfx_pipe_process_free(GFXPipeProcess process)
 {
 	if(process)
 	{
@@ -198,7 +195,7 @@ void _gfx_pipe_process_free(GFXPipeProcess* process)
 		/* Erase self from vector */
 		GFXVectorIterator it;
 		for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
-			if(process == *(GFXPipeProcess**)it)
+			if(process == *(GFXPipeProcess*)it)
 			{
 				gfx_vector_erase(_gfx_pipes, it);
 				break;
@@ -214,19 +211,13 @@ void _gfx_pipe_process_free(GFXPipeProcess* process)
 }
 
 /******************************************************/
-void* gfx_pipe_process_get_data(GFXPipeProcess* process)
-{
-	return (void*)(((struct GFX_Internal_Process*)process) + 1);
-}
-
-/******************************************************/
-void gfx_pipe_process_set_source(GFXPipeProcess* process, GFXPropertyMap* map)
+void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map)
 {
 	((struct GFX_Internal_Process*)process)->map = map;
 }
 
 /******************************************************/
-void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXWindow* target)
+void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target)
 {
 	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
 	internal->target = (GFX_Internal_Window*)target;
@@ -236,13 +227,9 @@ void gfx_pipe_process_set_target(GFXPipeProcess* process, GFXWindow* target)
 }
 
 /******************************************************/
-void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeState state, GFXPipeline* pipeline, GFX_Internal_Window* active)
+void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_Internal_Window* active)
 {
 	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
-
-	/* Execute custom pre-process */
-	void* data = (void*)(internal + 1);
-	if(process->preprocess) process->preprocess(pipeline, data);
 
 	/* Perform post-processing */
 	if(internal->map)
@@ -266,7 +253,4 @@ void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeState state, GFXP
 		/* If no windowed rendering, just draw */
 		else _gfx_pipe_process_draw(state, internal->map, active->layout, &active->extensions);
 	}
-
-	/* Execute custom post-process */
-	if(process->postprocess) process->postprocess(pipeline, data);
 }

@@ -99,17 +99,16 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 /**
  * Creates a new process.
  *
- * @param dataSize Bytes of the data to pass to the process.
  * @return NULL on failure.
  *
  */
-GFXPipeProcess* _gfx_pipe_process_create(size_t dataSize);
+GFXPipeProcess _gfx_pipe_process_create(void);
 
 /**
  * Makes sure the pipe process is freed properly.
  *
  */
-void _gfx_pipe_process_free(GFXPipeProcess* process);
+void _gfx_pipe_process_free(GFXPipeProcess process);
 
 /**
  * Executes the pipe process.
@@ -118,7 +117,7 @@ void _gfx_pipe_process_free(GFXPipeProcess* process);
  * @param active Currently active window.
  *
  */
-void _gfx_pipe_process_execute(GFXPipeProcess* process, GFXPipeState state, GFXPipeline* pipeline, GFX_Internal_Window* active);
+void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_Internal_Window* active);
 
 /**
  * Prepares a window for render to texture.

@@ -448,12 +448,12 @@ unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bit
 }
 
 /******************************************************/
-unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline, size_t dataSize)
+unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline)
 {
 	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
 
 	/* Allocate process */
-	GFXPipeProcess* process = _gfx_pipe_process_create(dataSize);
+	GFXPipeProcess process = _gfx_pipe_process_create();
 	if(!process) return 0;
 	
 	/* Fill the pipe */
@@ -550,7 +550,7 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 				break;
 
 			case GFX_PIPE_PROCESS :
-				_gfx_pipe_process_execute(pipe->pipe.process, pipe->state, pipeline, internal->win);
+				_gfx_pipe_process_execute(pipe->pipe.process, pipe->state, internal->win);
 				break;
 		}
 	}

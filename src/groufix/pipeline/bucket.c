@@ -48,7 +48,7 @@ struct GFX_Internal_Bucket
 	GFXBatchUnit*  invisible;
 };
 
-/* Internal batch */
+/* Internal source */
 struct GFX_Internal_Source
 {
 	GFXPropertyMap*   map;
