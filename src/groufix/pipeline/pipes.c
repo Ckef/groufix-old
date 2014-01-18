@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/containers/deque.h"
 #include "groufix/containers/vector.h"
 #include "groufix/memory/internal.h"
 #include "groufix/pipeline/internal.h"
@@ -42,9 +41,15 @@ struct GFX_Internal_Attachment
 /* Internal Pipe */
 struct GFX_Internal_Pipe
 {
+	/* Super class */
+	GFXList node;
+
 	GFXPipeType   type;
 	GFXPipeState  state;
 	GFXPipe       pipe;
+
+	/* Associated pipeline */
+	GFXPipeline*  pipeline;
 };
 
 /* Internal Pipeline */
@@ -53,12 +58,15 @@ struct GFX_Internal_Pipeline
 	/* Super class */
 	GFXPipeline pipeline;
 
-	/* Hidden data */
+	/* Framebuffer */
 	GLuint     fbo;         /* OpenGL handle */
 	GFXVector  attachments; /* Stores GFX_Internal_Attachment */
 	size_t     numTargets;
 	GLenum*    targets;     /* OpenGL draw buffers */
-	GFXDeque   pipes;       /* Stores GFX_Internal_Pipe */
+
+	/* Pipes */
+	struct GFX_Internal_Pipe* first;
+	struct GFX_Internal_Pipe* last;
 
 	/* Viewport */
 	unsigned int width;
@@ -174,33 +182,23 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Internal_Attach
 }
 
 /******************************************************/
-static inline void _gfx_pipe_free(struct GFX_Internal_Pipe* pipe)
+static void _gfx_pipeline_push_pipe(struct GFX_Internal_Pipe* pipe)
 {
-	switch(pipe->type)
+	struct GFX_Internal_Pipeline* pipeline = (struct GFX_Internal_Pipeline*)pipe->pipeline;
+
+	if(!pipeline->first)
 	{
-		case GFX_PIPE_BUCKET :
-			_gfx_bucket_free(pipe->pipe.bucket);
-			break;
-
-		case GFX_PIPE_PROCESS :
-			_gfx_pipe_process_free(pipe->pipe.process);
-			break;
+		/* Default state, first pipe */
+		pipeline->first = pipe;
+		pipe->state = GFX_STATE_DEFAULT;
 	}
-}
-
-/******************************************************/
-static unsigned short _gfx_pipeline_push_pipe(struct GFX_Internal_Pipeline* pipeline, struct GFX_Internal_Pipe* pipe)
-{
-	/* Check for overflow (moar pipes!) */
-	unsigned short index = gfx_deque_get_size(&pipeline->pipes);
-	if(!(index + 1)) return 0;
-
-	/* Get state of the pipe, strip off clearing bits */
-	if(!index) pipe->state = GFX_STATE_DEFAULT;
-	else pipe->state = ((struct GFX_Internal_Pipe*)gfx_deque_at(&pipeline->pipes, index - 1))->state & ~GFX_CLEAR_ALL;
-
-	/* Insert and return actual index + 1 */
-	return gfx_deque_push_back(&pipeline->pipes, pipe) == pipeline->pipes.end ? 0 : index + 1;
+	else 
+	{
+		/* Strip off clearing bits, put at end */
+		gfx_list_splice_after((GFXList*)pipe, (GFXList*)pipeline->last);
+		pipe->state = pipeline->last->state & ~GFX_CLEAR_ALL;
+	}
+	pipeline->last = pipe;
 }
 
 /******************************************************/
@@ -296,12 +294,10 @@ GFXPipeline* gfx_pipeline_create(void)
 	/* Create OpenGL resources */
 	pl->win = window;
 	pl->win->extensions.GenFramebuffers(1, &pl->fbo);
-
-	gfx_vector_init(&pl->attachments, sizeof(struct GFX_Internal_Attachment));
-	gfx_deque_init(&pl->pipes, sizeof(struct GFX_Internal_Pipe));
-
 	pl->width = 0;
 	pl->height = 0;
+
+	gfx_vector_init(&pl->attachments, sizeof(struct GFX_Internal_Attachment));
 
 	return (GFXPipeline*)pl;
 }
@@ -316,11 +312,6 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(pipeline->id);
 
-		/* Free all pipes */
-		GFXDequeIterator it;
-		for(it = internal->pipes.begin; it != internal->pipes.end; it = gfx_deque_next(&internal->pipes, it))
-			_gfx_pipe_free((struct GFX_Internal_Pipe*)it);
-
 		/* Delete FBO */
 		if(internal->win)
 		{
@@ -330,10 +321,13 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 			internal->win->extensions.DeleteFramebuffers(1, &internal->fbo);
 		}
 
-		gfx_vector_clear(&internal->attachments);
-		gfx_deque_clear(&internal->pipes);
+		/* Free all pipes */
+		while(internal->first) gfx_pipe_remove(&internal->first->pipe);
 
+		/* Free pipeline */
+		gfx_vector_clear(&internal->attachments);
 		free(internal->targets);
+
 		free(pipeline);
 	}
 }
@@ -426,101 +420,96 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 }
 
 /******************************************************/
-unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags)
+GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags)
 {
-	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+	/* Create the pipe */
+	struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)gfx_list_create(sizeof(struct GFX_Internal_Pipe));
+	if(!pipe) return 0;
 
 	/* Create bucket */
 	GFXBucket* bucket = _gfx_bucket_create(bits, flags);
-	if(!bucket) return 0;
+	if(!bucket)
+	{
+		gfx_list_free((GFXList*)pipe);
+		return 0;
+	}
 
-	/* Fill the pipe */
-	struct GFX_Internal_Pipe pipe;
-	pipe.type = GFX_PIPE_BUCKET;
-	pipe.state = GFX_STATE_DEFAULT;
-	pipe.pipe.bucket = bucket;
+	/* Initialize and push */
+	pipe->type = GFX_PIPE_BUCKET;
+	pipe->pipe.bucket = bucket;
+	pipe->pipeline = pipeline;
 
-	/* Insert pipe */
-	unsigned short index = _gfx_pipeline_push_pipe(internal, &pipe);
-	if(!index) _gfx_pipe_free(&pipe);
+	_gfx_pipeline_push_pipe(pipe);
 
-	return index;
+	return &pipe->pipe;
 }
 
 /******************************************************/
-unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline)
+GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline)
 {
-	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+	/* Create the pipe */
+	struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)gfx_list_create(sizeof(struct GFX_Internal_Pipe));
+	if(!pipe) return 0;
 
 	/* Allocate process */
 	GFXPipeProcess process = _gfx_pipe_process_create();
-	if(!process) return 0;
-	
-	/* Fill the pipe */
-	struct GFX_Internal_Pipe pipe;
-	pipe.type = GFX_PIPE_PROCESS;
-	pipe.state = GFX_STATE_DEFAULT;
-	pipe.pipe.process = process;
-
-	/* Insert pipe */
-	unsigned short index = _gfx_pipeline_push_pipe(internal, &pipe);
-	if(!index) _gfx_pipe_free(&pipe);
-
-	return index;
-}
-
-/******************************************************/
-int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeState state)
-{
-	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
-
-	/* Validate index */
-	size_t size = gfx_deque_get_size(&internal->pipes);
-	if(!index || index > size) return 0;
-
-	/* Set state of pipe */
-	((struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1))->state = state;
-
-	return 1;
-}
-
-/******************************************************/
-GFXPipe gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type)
-{
-	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
-
-	/* Validate index */
-	size_t size = gfx_deque_get_size(&internal->pipes);
-	if(!index || index > size)
+	if(!process)
 	{
-		GFXPipe pipe;
-		pipe.process = NULL;
-
-		return pipe;
+		gfx_list_free((GFXList*)pipe);
+		return 0;
 	}
 
-	/* Retrieve data */
-	struct GFX_Internal_Pipe* p = (struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1);
-	if(type) *type = p->type;
+	/* Initialize and push */
+	pipe->type = GFX_PIPE_PROCESS;
+	pipe->pipe.process = process;
+	pipe->pipeline = pipeline;
 
-	return p->pipe;
+	_gfx_pipeline_push_pipe(pipe);
+
+	return &pipe->pipe;
 }
 
 /******************************************************/
-unsigned short gfx_pipeline_pop(GFXPipeline* pipeline)
+GFXPipeType gfx_pipe_get_type(GFXPipe* pipe)
 {
-	struct GFX_Internal_Pipeline* internal = (struct GFX_Internal_Pipeline*)pipeline;
+	return ((struct GFX_Internal_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(struct GFX_Internal_Pipe, pipe)))->type;
+}
 
-	/* Get index of last call */
-	unsigned short index = gfx_deque_get_size(&internal->pipes);
+/******************************************************/
+GFXPipeState gfx_pipe_get_state(GFXPipe* pipe)
+{
+	return ((struct GFX_Internal_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(struct GFX_Internal_Pipe, pipe)))->state;
+}
 
-	/* Free the pipe */
-	_gfx_pipe_free((struct GFX_Internal_Pipe*)gfx_deque_at(&internal->pipes, index - 1));
+/******************************************************/
+void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state)
+{
+	((struct GFX_Internal_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(struct GFX_Internal_Pipe, pipe)))->state = state;
+}
 
-	/* Try to pop the last element */
-	gfx_deque_pop_back(&internal->pipes);
+/******************************************************/
+void gfx_pipe_remove(GFXPipe* pipe)
+{
+	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(struct GFX_Internal_Pipe, pipe));
 
-	return index;
+	/* Free the actual pipe */
+	switch(internal->type)
+	{
+		case GFX_PIPE_BUCKET :
+			_gfx_bucket_free(pipe->bucket);
+			break;
+
+		case GFX_PIPE_PROCESS :
+			_gfx_pipe_process_free(pipe->process);
+			break;
+	}
+
+	/* Erase it and replace if necessary */
+	struct GFX_Internal_Pipeline* pipeline = (struct GFX_Internal_Pipeline*)internal->pipeline;
+	struct GFX_Internal_Pipe* new = (struct GFX_Internal_Pipe*)gfx_list_erase((GFXList*)internal);
+
+	if(pipeline->first == internal) pipeline->first = new;
+	if(pipeline->last == internal) pipeline->last = new;
 }
 
 /******************************************************/
@@ -534,11 +523,9 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 	_gfx_pipeline_bind(internal->fbo, ext);
 
 	/* Iterate over all pipes */
-	GFXDequeIterator it;
-	for(it = internal->pipes.begin; it != internal->pipes.end; it = gfx_deque_next(&internal->pipes, it))
+	struct GFX_Internal_Pipe* pipe;
+	for(pipe = internal->first; pipe; pipe = (struct GFX_Internal_Pipe*)pipe->node.next)
 	{
-		struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)it;
-
 		/* Set viewport */
 		_gfx_states_set_viewport(internal->width, internal->height, ext);
 

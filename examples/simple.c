@@ -154,30 +154,26 @@ int main()
 
 
 	/* Pipeline */
-	GFXPipe pipe;
 	GFXPipeline* pipeline = gfx_pipeline_create();
 
 	char targets[] = { 0 };
 	gfx_pipeline_target(pipeline, 800, 600, 1, targets);
 	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);
 
-	unsigned short i = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
-	pipe = gfx_pipeline_get(pipeline, i, NULL);
-	gfx_pipeline_set_state(pipeline, i, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
+	GFXPipe* pipe = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
+	gfx_pipe_set_state(pipe, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
-	size_t src = gfx_bucket_add_source(pipe.bucket, map, layout);
-	gfx_bucket_set_draw_calls(pipe.bucket, src, GFX_BATCH_DIRECT, 0, 1);
-	gfx_bucket_insert(pipe.bucket, src, 0, 1);
+	size_t src = gfx_bucket_add_source(pipe->bucket, map, layout);
+	gfx_bucket_set_draw_calls(pipe->bucket, src, GFX_BATCH_DIRECT, 0, 1);
+	gfx_bucket_insert(pipe->bucket, src, 0, 1);
 
-	unsigned short ip = gfx_pipeline_push_process(pipeline);
-	pipe = gfx_pipeline_get(pipeline, ip, NULL);
-	gfx_pipe_process_set_source(pipe.process, map2);
-	gfx_pipe_process_set_target(pipe.process, window1);
+	pipe = gfx_pipeline_push_process(pipeline);
+	gfx_pipe_process_set_source(pipe->process, map2);
+	gfx_pipe_process_set_target(pipe->process, window1);
 
-	ip = gfx_pipeline_push_process(pipeline);
-	pipe = gfx_pipeline_get(pipeline, ip, NULL);
-	gfx_pipe_process_set_source(pipe.process, map3);
-	gfx_pipe_process_set_target(pipe.process, window2);
+	pipe = gfx_pipeline_push_process(pipeline);
+	gfx_pipe_process_set_source(pipe->process, map3);
+	gfx_pipe_process_set_target(pipe->process, window2);
 
 
 	/* Setup a loop */

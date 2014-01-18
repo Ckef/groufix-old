@@ -282,47 +282,45 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
  * Adds a bucket to the pipeline.
  *
  * @param bits Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
- * @return Index of the pipe (0 on failure).
+ * @return The new pipe (NULL on failure).
  *
  */
-unsigned short gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags);
+GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags);
 
 /**
  * Adds a process to the pipeline.
  *
- * @return Index of the pipe (0 on failure).
+ * @return The new pipe (NULL on failure).
  *
  */
-unsigned short gfx_pipeline_push_process(GFXPipeline* pipeline);
+GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline);
 
 /**
- * Sets the state of a pipe.
+ * Returns the type of a pipe.
  *
- * @param index Index to set the state of.
- * @return Non-zero if the state could be changed.
+ */
+GFXPipeType gfx_pipe_get_type(GFXPipe* pipe);
+
+/**
+ * Returns the state of a pipe.
  *
  * The default is that of the previous pipe minus clearing bits,
  * the first pipe will have GFX_STATE_DEFAULT as default.
  *
  */
-int gfx_pipeline_set_state(GFXPipeline* pipeline, unsigned short index, GFXPipeState state);
+GFXPipeState gfx_pipe_get_state(GFXPipe* pipe);
 
 /**
- * Returns the data associated with a pipe.
- *
- * @param type  Returns the type of the pipe (can be NULL).
- * @return The pipe itself, its members are NULL on failure.
+ * Sets the state of a pipe.
  *
  */
-GFXPipe gfx_pipeline_get(GFXPipeline* pipeline, unsigned short index, GFXPipeType* type);
+void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state);
 
 /**
- * Removes the last added pipe.
- *
- * @return Index of the removed pipe (0 if no pipes were present).
+ * Removes a pipe from a pipeline.
  *
  */
-unsigned short gfx_pipeline_pop(GFXPipeline* pipeline);
+void gfx_pipe_remove(GFXPipe* pipe);
 
 /**
  * Executes all pipes in order.
