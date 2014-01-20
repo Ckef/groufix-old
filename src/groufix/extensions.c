@@ -143,7 +143,7 @@ static void _gfx_gl_program_binary(GLuint program, GLenum binaryFormat, const vo
 void _gfx_extensions_load(void)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return;
 
 	GFX_Extensions* ext = &window->extensions;

@@ -117,7 +117,7 @@ static GFXKeyState _gfx_win32_get_key_state(void)
 static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	/* Get window */
-	GFX_Platform_Window window = (GFX_Platform_Window)handle;
+	GFX_PlatformWindow window = (GFX_PlatformWindow)handle;
 
 	switch(msg)
 	{
@@ -350,7 +350,7 @@ static int _gfx_win32_register_window_class(void)
 }
 
 /******************************************************/
-GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* attributes)
+GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* attributes)
 {
 	/* Make sure to register the window class */
 	if(!_gfx_win32_register_window_class()) return NULL;
@@ -430,7 +430,7 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 }
 
 /******************************************************/
-void _gfx_platform_window_free(GFX_Platform_Window handle)
+void _gfx_platform_window_free(GFX_PlatformWindow handle)
 {
 	if(_gfx_win32)
 	{
@@ -445,7 +445,7 @@ void _gfx_platform_window_free(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle)
+GFX_PlatformScreen _gfx_platform_window_get_screen(GFX_PlatformWindow handle)
 {
 	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
 	if(it) return it->monitor;
@@ -454,7 +454,7 @@ GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
+char* _gfx_platform_window_get_name(GFX_PlatformWindow handle)
 {
 	/* Check if it has a name */
 	int len = GetWindowTextLength(handle);
@@ -471,7 +471,7 @@ char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* width, unsigned int* height)
+void _gfx_platform_window_get_size(GFX_PlatformWindow handle, unsigned int* width, unsigned int* height)
 {
 	RECT rect;
 	ZeroMemory(&rect, sizeof(RECT));
@@ -482,7 +482,7 @@ void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* wid
 }
 
 /******************************************************/
-void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* y)
+void _gfx_platform_window_get_position(GFX_PlatformWindow handle, int* x, int* y)
 {
 	/* Get window's monitor position */
 	HMONITOR monitor = _gfx_platform_window_get_screen(handle);
@@ -497,7 +497,7 @@ void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* 
 }
 
 /******************************************************/
-void _gfx_platform_window_set_name(GFX_Platform_Window handle, const char* name)
+void _gfx_platform_window_set_name(GFX_PlatformWindow handle, const char* name)
 {
 	/* Make sure to convert to wide character */
 	wchar_t* wchar = utf8_to_wchar(name);
@@ -506,13 +506,13 @@ void _gfx_platform_window_set_name(GFX_Platform_Window handle, const char* name)
 }
 
 /******************************************************/
-void _gfx_platform_window_set_size(GFX_Platform_Window handle, unsigned int width, unsigned int height)
+void _gfx_platform_window_set_size(GFX_PlatformWindow handle, unsigned int width, unsigned int height)
 {
 	SetWindowPos(handle, NULL, 0, 0, width, height, SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOZORDER);
 }
 
 /******************************************************/
-void _gfx_platform_window_set_position(GFX_Platform_Window handle, int x, int y)
+void _gfx_platform_window_set_position(GFX_PlatformWindow handle, int x, int y)
 {
 	/* Get window's monitor position */
 	int xM = 0;
@@ -525,13 +525,13 @@ void _gfx_platform_window_set_position(GFX_Platform_Window handle, int x, int y)
 }
 
 /******************************************************/
-void _gfx_platform_window_show(GFX_Platform_Window handle)
+void _gfx_platform_window_show(GFX_PlatformWindow handle)
 {
 	ShowWindow(handle, SW_SHOW);
 }
 
 /******************************************************/
-void _gfx_platform_window_hide(GFX_Platform_Window handle)
+void _gfx_platform_window_hide(GFX_PlatformWindow handle)
 {
 	ShowWindow(handle, SW_HIDE);
 }

@@ -28,19 +28,19 @@
 
 /******************************************************/
 /* Internal Program */
-struct GFX_Internal_Program
+struct GFX_Program
 {
 	/* Super class */
 	GFXProgram program;
 
 	/* Hidden data */
-	GLuint  handle; /* OpenGL handle */
+	GLuint handle; /* OpenGL handle */
 };
 
 /******************************************************/
 static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 {
-	struct GFX_Internal_Program* program = (struct GFX_Internal_Program*)object;
+	struct GFX_Program* program = (struct GFX_Program*)object;
 
 	ext->DeleteProgram(program->handle);
 	program->handle = 0;
@@ -50,7 +50,7 @@ static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 
 /******************************************************/
 /* vtable for hardware part of the program */
-static GFX_Hardware_Funcs _gfx_program_obj_funcs =
+static GFX_HardwareFuncs _gfx_program_obj_funcs =
 {
 	_gfx_program_obj_free,
 	NULL,
@@ -60,18 +60,18 @@ static GFX_Hardware_Funcs _gfx_program_obj_funcs =
 /******************************************************/
 GLuint _gfx_program_get_handle(const GFXProgram* program)
 {
-	return ((struct GFX_Internal_Program*)program)->handle;
+	return ((struct GFX_Program*)program)->handle;
 }
 
 /******************************************************/
 GFXProgram* gfx_program_create(void)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return NULL;
 
 	/* Create new program */
-	struct GFX_Internal_Program* prog = calloc(1, sizeof(struct GFX_Internal_Program));
+	struct GFX_Program* prog = calloc(1, sizeof(struct GFX_Program));
 	if(!prog) return NULL;
 
 	/* Register as object */
@@ -93,13 +93,13 @@ void gfx_program_free(GFXProgram* program)
 {
 	if(program)
 	{
-		struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
+		struct GFX_Program* internal = (struct GFX_Program*)program;
 
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(program->id);
 
 		/* Get current window and context */
-		GFX_Internal_Window* window = _gfx_window_get_current();
+		GFX_Window* window = _gfx_window_get_current();
 		if(window)
 		{
 			window->extensions.DeleteProgram(internal->handle);
@@ -115,12 +115,12 @@ void gfx_program_free(GFXProgram* program)
 int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const char* name)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 	
 	if(index >= window->extensions.limits[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
 
-	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
 	
 	/* Set the attribute */
 	window->extensions.BindAttribLocation(internal->handle, index, name);
@@ -132,10 +132,10 @@ int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const cha
 int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 
-	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
 
 	/* Compile and attach all shaders */
 	size_t i = 0;
@@ -187,14 +187,14 @@ int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders)
 void* gfx_program_get_binary(GFXProgram* program, GFXProgramFormat* format, size_t* size)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window)
 	{
 		*size = 0;
 		return NULL;
 	}
 
-	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
 
 	/* Get data byte size */
 	GLint bytes;
@@ -214,10 +214,10 @@ void* gfx_program_get_binary(GFXProgram* program, GFXProgramFormat* format, size
 int gfx_program_set_binary(GFXProgram* program, GFXProgramFormat format, size_t size, const void* data)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 
-	struct GFX_Internal_Program* internal = (struct GFX_Internal_Program*)program;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
 
 	/* Set binary representation */
 	GLint status;

@@ -39,16 +39,16 @@ static GFXVector* _gfx_hw_objects = NULL;
 static GFXDeque* _gfx_hw_ids = NULL;
 
 /* Actual object storage */
-struct GFX_Internal_Hardware_Object
+struct GFX_HardwareObject
 {
 	void* handle;
-	const GFX_Hardware_Funcs* funcs;
+	const GFX_HardwareFuncs* funcs;
 };
 
 /******************************************************/
 int gfx_hardware_is_extension_supported(GFXExtension extension)
 {
-	GFX_Internal_Window* wind = _gfx_window_get_current();
+	GFX_Window* wind = _gfx_window_get_current();
 	if(!wind) return 0;
 
 	return wind->extensions.flags[extension];
@@ -57,7 +57,7 @@ int gfx_hardware_is_extension_supported(GFXExtension extension)
 /******************************************************/
 int gfx_hardware_get_limit(GFXLimit limit)
 {
-	GFX_Internal_Window* wind = _gfx_window_get_current();
+	GFX_Window* wind = _gfx_window_get_current();
 	if(!wind) return -1;
 
 	return wind->extensions.limits[limit];
@@ -69,7 +69,7 @@ unsigned int gfx_hardware_poll_errors(const char* description)
 	unsigned int count = 0;
 
 	/* Check if there is a context */
-	GFX_Internal_Window* wind = _gfx_window_get_current();
+	GFX_Window* wind = _gfx_window_get_current();
 	if(wind)
 	{
 		/* Loop over all errors */
@@ -102,12 +102,12 @@ unsigned char gfx_hardware_get_max_id_width(void)
 }
 
 /******************************************************/
-size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* funcs)
+size_t _gfx_hardware_object_register(void* object, const GFX_HardwareFuncs* funcs)
 {
 	if(!funcs) return 0;
 
 	/* Create internal object */
-	struct GFX_Internal_Hardware_Object internal;
+	struct GFX_HardwareObject internal;
 	internal.handle = object;
 	internal.funcs = funcs;
 
@@ -119,7 +119,7 @@ size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* fun
 		id = *(size_t*)_gfx_hw_ids->begin;
 		gfx_deque_pop_front(_gfx_hw_ids);
 
-		*(struct GFX_Internal_Hardware_Object*)gfx_vector_at(_gfx_hw_objects, id - 1) = internal;
+		*(struct GFX_HardwareObject*)gfx_vector_at(_gfx_hw_objects, id - 1) = internal;
 
 		/* Erase deque */
 		if(_gfx_hw_ids->begin == _gfx_hw_ids->end)
@@ -133,7 +133,7 @@ size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* fun
 		if(!_gfx_hw_objects)
 		{
 			/* Create vector if it doesn't exist yet */
-			_gfx_hw_objects = gfx_vector_create(sizeof(struct GFX_Internal_Hardware_Object));
+			_gfx_hw_objects = gfx_vector_create(sizeof(struct GFX_HardwareObject));
 			if(!_gfx_hw_objects) return 0;
 		}
 
@@ -180,12 +180,12 @@ void _gfx_hardware_object_unregister(size_t id)
 			}
 
 			/* Add ID as empty ID and empty the actual data */
-			struct GFX_Internal_Hardware_Object* obj = gfx_vector_at(_gfx_hw_objects, id - 1);
+			struct GFX_HardwareObject* obj = gfx_vector_at(_gfx_hw_objects, id - 1);
 			if(obj->funcs)
 			{
 				/* Only add ID when it wasn't empty yet */
 				gfx_deque_push_back(_gfx_hw_ids, &id);
-				memset(obj, 0, sizeof(struct GFX_Internal_Hardware_Object));
+				memset(obj, 0, sizeof(struct GFX_HardwareObject));
 
 				/* Erase both deque and vector */
 				if(size == gfx_deque_get_size(_gfx_hw_ids))
@@ -222,7 +222,7 @@ void _gfx_hardware_objects_free(GFX_Extensions* ext)
 		GFXVectorIterator it;
 		for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = gfx_vector_next(_gfx_hw_objects, it))
 		{
-			struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)it;
+			struct GFX_HardwareObject* obj = (struct GFX_HardwareObject*)it;
 			if(obj->funcs) if(obj->funcs->free) obj->funcs->free(obj->handle, ext);
 		}
 
@@ -243,7 +243,7 @@ void _gfx_hardware_objects_save(GFX_Extensions* ext)
 	if(_gfx_hw_objects) for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = gfx_vector_next(_gfx_hw_objects, it))
 	{
 		/* Store pointer to arbitrary storage */
-		struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)it;
+		struct GFX_HardwareObject* obj = (struct GFX_HardwareObject*)it;
 		if(obj->funcs) if(obj->funcs->save) obj->funcs->save(obj->handle, ext);
 	}
 }
@@ -256,7 +256,7 @@ void _gfx_hardware_objects_restore(GFX_Extensions* ext)
 	if(_gfx_hw_objects) for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = gfx_vector_next(_gfx_hw_objects, it))
 	{
 		/* Restore from pointer if given */
-		struct GFX_Internal_Hardware_Object* obj = (struct GFX_Internal_Hardware_Object*)it;
+		struct GFX_HardwareObject* obj = (struct GFX_HardwareObject*)it;
 		if(obj->funcs) if(obj->funcs->restore) obj->funcs->restore(obj->handle, ext);
 	}
 }

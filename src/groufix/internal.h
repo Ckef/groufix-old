@@ -299,26 +299,26 @@ typedef struct GFX_Extensions
  *******************************************************/
 
 /** Internal window */
-typedef struct GFX_Internal_Window
+typedef struct GFX_Window
 {
 	/* Super class */
 	GFXWindow window;
 
 	/* Hidden data */
-	GFX_Platform_Window  handle;
+	GFX_PlatformWindow  handle;
 
-	GFXContext           context;    /* Context version */
-	GFX_Extensions       extensions; /* Context extensions and state */
-	GLuint               layout;     /* Layout for post processing */
+	GFXContext          context;    /* Context version */
+	GFX_Extensions      extensions; /* Context extensions and state */
+	GLuint              layout;     /* Layout for post processing */
 
-} GFX_Internal_Window;
+} GFX_Window;
 
 
 /**
  * Returns the top level window associated with a platform window.
  *
  */
-GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle);
+GFX_Window* _gfx_window_get_from_handle(GFX_PlatformWindow handle);
 
 /**
  * Destroys the server side window.
@@ -327,7 +327,7 @@ GFX_Internal_Window* _gfx_window_get_from_handle(GFX_Platform_Window handle);
  * Thus, it must still be freed.
  *
  */
-void _gfx_window_destroy(GFX_Internal_Window* window);
+void _gfx_window_destroy(GFX_Window* window);
 
 /**
  * Sets the window as the current render target.
@@ -336,7 +336,7 @@ void _gfx_window_destroy(GFX_Internal_Window* window);
  * Note: This SHOULD NOT be called unless you know damn well what you're doing.
  *
  */
-void _gfx_window_make_current(GFX_Internal_Window* window);
+void _gfx_window_make_current(GFX_Window* window);
 
 /**
  * Returns the current window.
@@ -344,7 +344,7 @@ void _gfx_window_make_current(GFX_Internal_Window* window);
  * Returns NULL if no window is active.
  *
  */
-GFX_Internal_Window* _gfx_window_get_current(void);
+GFX_Window* _gfx_window_get_current(void);
 
 /**
  * Loads all extensions for the current window's context.
@@ -360,17 +360,17 @@ void _gfx_extensions_load(void);
  *******************************************************/
 
 /** Generic hardware object operator */
-typedef void (*GFX_Hardware_Object_Func) (void* object, GFX_Extensions*);
+typedef void (*GFX_HardwareObjectFunc) (void* object, GFX_Extensions*);
 
 
 /** Hardware vtable, can all be NULL */
-typedef struct GFX_Hardware_Funcs
+typedef struct GFX_HardwareFuncs
 {
-	GFX_Hardware_Object_Func free;    /* GPU free request */
-	GFX_Hardware_Object_Func save;    /* Prepare for context destruction */
-	GFX_Hardware_Object_Func restore; /* Restore for new context */
+	GFX_HardwareObjectFunc free;    /* GPU free request */
+	GFX_HardwareObjectFunc save;    /* Prepare for context destruction */
+	GFX_HardwareObjectFunc restore; /* Restore for new context */
 
-} GFX_Hardware_Funcs;
+} GFX_HardwareFuncs;
 
 
 /**
@@ -384,7 +384,7 @@ typedef struct GFX_Hardware_Funcs
  * or reconstructed when the main context is destroyed.
  *
  */
-size_t _gfx_hardware_object_register(void* object, const GFX_Hardware_Funcs* funcs);
+size_t _gfx_hardware_object_register(void* object, const GFX_HardwareFuncs* funcs);
 
 /**
  * Unregisters a generic hardware object by identifier.

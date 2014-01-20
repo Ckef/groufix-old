@@ -31,7 +31,7 @@ unsigned int _gfx_platform_get_num_screens(void)
 }
 
 /******************************************************/
-GFX_Platform_Screen _gfx_platform_get_screen(unsigned int num)
+GFX_PlatformScreen _gfx_platform_get_screen(unsigned int num)
 {
 	if(!_gfx_win32) return NULL;
 
@@ -41,14 +41,14 @@ GFX_Platform_Screen _gfx_platform_get_screen(unsigned int num)
 }
 
 /******************************************************/
-GFX_Platform_Screen _gfx_platform_get_default_screen(void)
+GFX_PlatformScreen _gfx_platform_get_default_screen(void)
 {
 	POINT zero = { 0,0 };
 	return MonitorFromPoint(zero, MONITOR_DEFAULTTOPRIMARY);
 }
 
 /******************************************************/
-void _gfx_platform_screen_get_size(GFX_Platform_Screen handle, unsigned int* width, unsigned int* height)
+void _gfx_platform_screen_get_size(GFX_PlatformScreen handle, unsigned int* width, unsigned int* height)
 {
 	MONITORINFO info;
 	ZeroMemory(&info, sizeof(MONITORINFO));

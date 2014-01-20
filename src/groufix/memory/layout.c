@@ -28,21 +28,21 @@
 
 /******************************************************/
 /* Internal Vertex layout */
-struct GFX_Internal_Layout
+struct GFX_Layout
 {
 	/* Super class */
 	GFXVertexLayout layout;
 
 	/* Hidden data */
 	GLuint     vao;        /* OpenGL handle */
-	GFXVector  attributes; /* Stores GFX_Internal_Attribute */
+	GFXVector  attributes; /* Stores GFX_Attribute */
 
 	/* Not a shared resource */
 	GFX_Extensions* ext;
 };
 
 /* Internal vertex attribute */
-struct GFX_Internal_Attribute
+struct GFX_Attribute
 {
 	GFXVertexAttribute  attr;   /* Super class */
 	GLuint              buffer; /* Vertex buffer */
@@ -60,7 +60,7 @@ void _gfx_layout_bind(GLuint vao, GFX_Extensions* ext)
 }
 
 /******************************************************/
-static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct GFX_Internal_Attribute* attr, GFX_Extensions* ext)
+static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct GFX_Attribute* attr, GFX_Extensions* ext)
 {
 	/* Validate attribute */
 	if(attr->attr.size && ext->IsBuffer(attr->buffer))
@@ -98,7 +98,7 @@ static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct
 /******************************************************/
 static void _gfx_layout_obj_free(void* object, GFX_Extensions* ext)
 {
-	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
+	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Destroy layout itself */
 	ext->DeleteVertexArrays(1, &layout->vao);
@@ -113,7 +113,7 @@ static void _gfx_layout_obj_free(void* object, GFX_Extensions* ext)
 /******************************************************/
 static void _gfx_layout_obj_save(void* object, GFX_Extensions* ext)
 {
-	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
+	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Just don't clear the attribute vector */
 	ext->DeleteVertexArrays(1, &layout->vao);
@@ -125,7 +125,7 @@ static void _gfx_layout_obj_save(void* object, GFX_Extensions* ext)
 /******************************************************/
 static void _gfx_layout_obj_restore(void* object, GFX_Extensions* ext)
 {
-	struct GFX_Internal_Layout* layout = (struct GFX_Internal_Layout*)object;
+	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Create VAO */
 	layout->ext = ext;
@@ -136,14 +136,14 @@ static void _gfx_layout_obj_restore(void* object, GFX_Extensions* ext)
 	GFXVectorIterator it = layout->attributes.begin;
 	while(it != layout->attributes.end)
 	{
-		_gfx_layout_init_attrib(layout->vao, i++, (struct GFX_Internal_Attribute*)it, ext);
+		_gfx_layout_init_attrib(layout->vao, i++, (struct GFX_Attribute*)it, ext);
 		it = gfx_vector_next(&layout->attributes, it);
 	}
 }
 
 /******************************************************/
 /* vtable for hardware part of the layout */
-static GFX_Hardware_Funcs _gfx_layout_obj_funcs =
+static GFX_HardwareFuncs _gfx_layout_obj_funcs =
 {
 	_gfx_layout_obj_free,
 	_gfx_layout_obj_save,
@@ -153,20 +153,20 @@ static GFX_Hardware_Funcs _gfx_layout_obj_funcs =
 /******************************************************/
 GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout)
 {
-	return ((struct GFX_Internal_Layout*)layout)->vao;
+	return ((struct GFX_Layout*)layout)->vao;
 }
 
 /******************************************************/
 GFXVertexLayout* gfx_vertex_layout_create(unsigned char drawCalls)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window || !drawCalls) return NULL;
 
 	/* Create new layout, append draw calls to end of struct */
-	size_t size = sizeof(struct GFX_Internal_Layout) + drawCalls * sizeof(GFXDrawCall);
+	size_t size = sizeof(struct GFX_Layout) + drawCalls * sizeof(GFXDrawCall);
 
-	struct GFX_Internal_Layout* layout = calloc(1, size);
+	struct GFX_Layout* layout = calloc(1, size);
 	if(!layout) return NULL;
 
 	/* Register as object */
@@ -182,7 +182,7 @@ GFXVertexLayout* gfx_vertex_layout_create(unsigned char drawCalls)
 	layout->ext = &window->extensions;
 	layout->ext->GenVertexArrays(1, &layout->vao);
 
-	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Internal_Attribute));
+	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Attribute));
 
 	return (GFXVertexLayout*)layout;
 }
@@ -192,7 +192,7 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 {
 	if(layout)
 	{
-		struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+		struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(layout->id);
@@ -212,7 +212,7 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 /******************************************************/
 int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer)
 {
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	if(!internal->ext) return 0;
 
 	/* Check index */
@@ -228,13 +228,13 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index,
 		while(it != internal->attributes.end)
 		{
 			/* Initialize size to 0 so the attributes will be ignored */
-			((struct GFX_Internal_Attribute*)it)->attr.size = 0;
+			((struct GFX_Attribute*)it)->attr.size = 0;
 			it = gfx_vector_next(&internal->attributes, it);
 		}
 	}
 
 	/* Set attribute */
-	struct GFX_Internal_Attribute* set = (struct GFX_Internal_Attribute*)gfx_vector_at(&internal->attributes, index);
+	struct GFX_Attribute* set = (struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
 	set->attr = *attr;
 	set->buffer = _gfx_buffer_get_handle(buffer);
 
@@ -247,14 +247,14 @@ int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index,
 /******************************************************/
 int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index, GFXVertexAttribute* attr)
 {
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Validate index */
 	size_t size = gfx_vector_get_size(&internal->attributes);
 	if(index >= size) return 0;
 
 	/* Retrieve data */
-	struct GFX_Internal_Attribute* get = (struct GFX_Internal_Attribute*)gfx_vector_at(&internal->attributes, index);
+	struct GFX_Attribute* get = (struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
 	*attr = get->attr;
 
 	/* Retrieve size for validity */
@@ -264,7 +264,7 @@ int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index,
 /******************************************************/
 void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int index)
 {
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	if(!internal->ext) return;
 
 	/* Check what index is being removed */
@@ -274,7 +274,7 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
 	if(size > 1)
 	{
 		/* Mark attribute as 'empty' */
-		((struct GFX_Internal_Attribute*)gfx_vector_at(&internal->attributes, index))->attr.size = 0;
+		((struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index))->attr.size = 0;
 
 		/* Deallocate all empty attributes at the end */
 		unsigned int num;
@@ -283,7 +283,7 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
 		for(num = 0; num < size; ++num)
 		{
 			GFXVectorIterator prev = gfx_vector_previous(&internal->attributes, beg);
-			if(((struct GFX_Internal_Attribute*)prev)->attr.size) break;
+			if(((struct GFX_Attribute*)prev)->attr.size) break;
 
 			beg = prev;
 		}
@@ -305,7 +305,7 @@ int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index
 	if(index >= layout->drawCalls) return 0;
 
 	/* Replace data */
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	*(((GFXDrawCall*)(internal + 1)) + index) = *call;
 
 	return 1;
@@ -318,7 +318,7 @@ int gfx_vertex_layout_get_draw_call(GFXVertexLayout* layout, unsigned char index
 	if(index >= layout->drawCalls) return 0;
 
 	/* Retrieve data */
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	*call = *(((GFXDrawCall*)(internal + 1)) + index);
 
 	return 1;
@@ -327,7 +327,7 @@ int gfx_vertex_layout_get_draw_call(GFXVertexLayout* layout, unsigned char index
 /******************************************************/
 void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num)
 {
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Bind VAO */
 	_gfx_layout_bind(internal->vao, internal->ext);
@@ -343,7 +343,7 @@ void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startI
 /******************************************************/
 void _gfx_vertex_layout_draw_indexed(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num)
 {
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Bind VAO */
 	_gfx_layout_bind(internal->vao, internal->ext);
@@ -360,7 +360,7 @@ void _gfx_vertex_layout_draw_indexed(const GFXVertexLayout* layout, unsigned cha
 /******************************************************/
 void _gfx_vertex_layout_draw_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst)
 {
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Bind VAO */
 	_gfx_layout_bind(internal->vao, internal->ext);
@@ -376,7 +376,7 @@ void _gfx_vertex_layout_draw_instanced(const GFXVertexLayout* layout, unsigned c
 /******************************************************/
 void _gfx_vertex_layout_draw_indexed_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst)
 {
-	struct GFX_Internal_Layout* internal = (struct GFX_Internal_Layout*)layout;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Bind VAO */
 	_gfx_layout_bind(internal->vao, internal->ext);

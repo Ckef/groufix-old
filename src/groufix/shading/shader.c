@@ -29,13 +29,13 @@
 
 /******************************************************/
 /* Internal Shader */
-struct GFX_Internal_Shader
+struct GFX_Shader
 {
 	/* Super class */
 	GFXShader shader;
 
 	/* Hidden data */
-	GLuint  handle; /* OpenGL handle */
+	GLuint handle; /* OpenGL handle */
 };
 
 /******************************************************/
@@ -93,7 +93,7 @@ static const char* _gfx_shader_eval_glsl(int major, int minor)
 /******************************************************/
 static void _gfx_shader_obj_free(void* object, GFX_Extensions* ext)
 {
-	struct GFX_Internal_Shader* shader = (struct GFX_Internal_Shader*)object;
+	struct GFX_Shader* shader = (struct GFX_Shader*)object;
 
 	ext->DeleteShader(shader->handle);
 	shader->handle = 0;
@@ -104,7 +104,7 @@ static void _gfx_shader_obj_free(void* object, GFX_Extensions* ext)
 
 /******************************************************/
 /* vtable for hardware part of the shader */
-static GFX_Hardware_Funcs _gfx_shader_obj_funcs =
+static GFX_HardwareFuncs _gfx_shader_obj_funcs =
 {
 	_gfx_shader_obj_free,
 	NULL,
@@ -114,20 +114,20 @@ static GFX_Hardware_Funcs _gfx_shader_obj_funcs =
 /******************************************************/
 GLuint _gfx_shader_get_handle(const GFXShader* shader)
 {
-	return ((struct GFX_Internal_Shader*)shader)->handle;
+	return ((struct GFX_Shader*)shader)->handle;
 }
 
 /******************************************************/
 GFXShader* gfx_shader_create(GFXShaderType type)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return NULL;
 
 	if(!_gfx_shader_eval_type(type, &window->extensions)) return NULL;
 
 	/* Create new shader */
-	struct GFX_Internal_Shader* shader = calloc(1, sizeof(struct GFX_Internal_Shader));
+	struct GFX_Shader* shader = calloc(1, sizeof(struct GFX_Shader));
 	if(!shader) return NULL;
 
 	/* Register as object */
@@ -150,13 +150,13 @@ void gfx_shader_free(GFXShader* shader)
 {
 	if(shader)
 	{
-		struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
+		struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(shader->id);
 
 		/* Get current window and context */
-		GFX_Internal_Window* window = _gfx_window_get_current();
+		GFX_Window* window = _gfx_window_get_current();
 		if(window) window->extensions.DeleteShader(internal->handle);
 
 		free(shader);
@@ -167,10 +167,10 @@ void gfx_shader_free(GFXShader* shader)
 int gfx_shader_set_source(GFXShader* shader, size_t num, const char** src)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window || !num) return 0;
 
-	struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
+	struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
 	size_t newNum = num;
 	char** newSrc = NULL;
@@ -238,14 +238,14 @@ int gfx_shader_set_source(GFXShader* shader, size_t num, const char** src)
 char* gfx_shader_get_source(GFXShader* shader, size_t* length)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window)
 	{
 		if(length) *length = 0;
 		return NULL;
 	}
 
-	struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
+	struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
 	/* Get source length */
 	GLint len;
@@ -272,10 +272,10 @@ int gfx_shader_compile(GFXShader* shader)
 	if(!shader->compiled)
 	{
 		/* Get current window and context */
-		GFX_Internal_Window* window = _gfx_window_get_current();
+		GFX_Window* window = _gfx_window_get_current();
 		if(!window) return 0;
 
-		struct GFX_Internal_Shader* internal = (struct GFX_Internal_Shader*)shader;
+		struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
 		/* Try to compile */
 		GLint status;

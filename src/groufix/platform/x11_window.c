@@ -98,7 +98,7 @@ static GFXKeyState _gfx_x11_get_key_state(unsigned int state)
 static void _gfx_x11_event_proc(XEvent* event)
 {
 	/* Get window */
-	GFX_Platform_Window window = GFX_UINT_TO_VOID(event->xany.window);
+	GFX_PlatformWindow window = GFX_UINT_TO_VOID(event->xany.window);
 
 	switch(event->type)
 	{
@@ -238,7 +238,7 @@ static void _gfx_x11_event_proc(XEvent* event)
 }
 
 /******************************************************/
-GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* attributes)
+GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* attributes)
 {
 	/* Get FB Config */
 	GLXFBConfig* config = _gfx_x11_get_config(attributes->screen, &attributes->depth);
@@ -340,7 +340,7 @@ GFX_Platform_Window _gfx_platform_window_create(const GFX_Platform_Attributes* a
 }
 
 /******************************************************/
-void _gfx_platform_window_free(GFX_Platform_Window handle)
+void _gfx_platform_window_free(GFX_PlatformWindow handle)
 {
 	if(_gfx_x11)
 	{
@@ -365,7 +365,7 @@ void _gfx_platform_window_free(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle)
+GFX_PlatformScreen _gfx_platform_window_get_screen(GFX_PlatformWindow handle)
 {
 	if(!_gfx_x11) return NULL;
 
@@ -377,7 +377,7 @@ GFX_Platform_Screen _gfx_platform_window_get_screen(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
+char* _gfx_platform_window_get_name(GFX_PlatformWindow handle)
 {
 	if(!_gfx_x11) return NULL;
 
@@ -396,7 +396,7 @@ char* _gfx_platform_window_get_name(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* width, unsigned int* height)
+void _gfx_platform_window_get_size(GFX_PlatformWindow handle, unsigned int* width, unsigned int* height)
 {
 	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 	if(!internal)
@@ -412,7 +412,7 @@ void _gfx_platform_window_get_size(GFX_Platform_Window handle, unsigned int* wid
 }
 
 /******************************************************/
-void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* y)
+void _gfx_platform_window_get_position(GFX_PlatformWindow handle, int* x, int* y)
 {
 	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 	if(!internal)
@@ -428,31 +428,31 @@ void _gfx_platform_window_get_position(GFX_Platform_Window handle, int* x, int* 
 }
 
 /******************************************************/
-void _gfx_platform_window_set_name(GFX_Platform_Window handle, const char* name)
+void _gfx_platform_window_set_name(GFX_PlatformWindow handle, const char* name)
 {
 	if(_gfx_x11) XStoreName(_gfx_x11->display, GFX_VOID_TO_UINT(handle), name);
 }
 
 /******************************************************/
-void _gfx_platform_window_set_size(GFX_Platform_Window handle, unsigned int width, unsigned int height)
+void _gfx_platform_window_set_size(GFX_PlatformWindow handle, unsigned int width, unsigned int height)
 {
 	if(_gfx_x11) XResizeWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle), width, height);
 }
 
 /******************************************************/
-void _gfx_platform_window_set_position(GFX_Platform_Window handle, int x, int y)
+void _gfx_platform_window_set_position(GFX_PlatformWindow handle, int x, int y)
 {
 	if(_gfx_x11) XMoveWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle), x, y);
 }
 
 /******************************************************/
-void _gfx_platform_window_show(GFX_Platform_Window handle)
+void _gfx_platform_window_show(GFX_PlatformWindow handle)
 {
 	if(_gfx_x11) XMapWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle));
 }
 
 /******************************************************/
-void _gfx_platform_window_hide(GFX_Platform_Window handle)
+void _gfx_platform_window_hide(GFX_PlatformWindow handle)
 {
 	if(_gfx_x11) XUnmapWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle));
 }

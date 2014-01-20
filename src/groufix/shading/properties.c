@@ -30,7 +30,7 @@
 
 /******************************************************/
 /* Internal property map */
-struct GFX_Internal_Map
+struct GFX_Map
 {
 	/* Super Class */
 	GFXPropertyMap map;
@@ -43,7 +43,7 @@ struct GFX_Internal_Map
 };
 
 /* Internal property */
-struct GFX_Internal_Property
+struct GFX_Property
 {
 	GFXPropertyType  type;
 	GLuint           location; /* Block index or uniform location */
@@ -52,7 +52,7 @@ struct GFX_Internal_Property
 };
 
 /* Internal value property */
-struct GFX_Internal_Value
+struct GFX_Value
 {
 	unsigned char    count;
 	unsigned char    components;
@@ -60,7 +60,7 @@ struct GFX_Internal_Value
 };
 
 /* Internal buffer property */
-struct GFX_Internal_Buffer
+struct GFX_Buffer
 {
 	GLuint      buffer;
 	GLintptr    offset;
@@ -68,14 +68,14 @@ struct GFX_Internal_Buffer
 };
 
 /* Internal sampler property */
-struct GFX_Internal_Sampler
+struct GFX_Sampler
 {
 	GLuint texture;
 	GLuint target;
 };
 
 /******************************************************/
-static void _gfx_property_set(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop, GFX_Extensions* ext)
+static void _gfx_property_set(struct GFX_Map* map, struct GFX_Property* prop, GFX_Extensions* ext)
 {
 	const void* data = gfx_vector_at(&map->values, prop->index);
 
@@ -85,7 +85,7 @@ static void _gfx_property_set(struct GFX_Internal_Map* map, struct GFX_Internal_
 		/* Bind the uniform vector */
 		case GFX_VECTOR_PROPERTY :
 		{
-			const struct GFX_Internal_Value* val = (const struct GFX_Internal_Value*)data;
+			const struct GFX_Value* val = (const struct GFX_Value*)data;
 			const void* value = (const void*)(val + 1);
 
 			switch(val->type)
@@ -127,7 +127,7 @@ static void _gfx_property_set(struct GFX_Internal_Map* map, struct GFX_Internal_
 		/* Bind the uniform matrix */
 		case GFX_MATRIX_PROPERTY :
 		{
-			const struct GFX_Internal_Value* val = (const struct GFX_Internal_Value*)data;
+			const struct GFX_Value* val = (const struct GFX_Value*)data;
 			const void* value = (const void*)(val + 1);
 
 			switch(val->type)
@@ -150,7 +150,7 @@ static void _gfx_property_set(struct GFX_Internal_Map* map, struct GFX_Internal_
 		/* Bind uniform block to uniform buffer index */
 		case GFX_BUFFER_PROPERTY :
 		{
-			const struct GFX_Internal_Buffer* buff = (const struct GFX_Internal_Buffer*)data;
+			const struct GFX_Buffer* buff = (const struct GFX_Buffer*)data;
 			size_t index = _gfx_binder_bind_uniform_buffer(buff->buffer, buff->offset, buff->size, 1, ext);
 
 			ext->UniformBlockBinding(map->handle, prop->location, index);
@@ -161,7 +161,7 @@ static void _gfx_property_set(struct GFX_Internal_Map* map, struct GFX_Internal_
 		/* Set sampler uniform to texture unit */
 		case GFX_SAMPLER_PROPERTY :
 		{
-			const struct GFX_Internal_Sampler* samp = (const struct GFX_Internal_Sampler*)data;
+			const struct GFX_Sampler* samp = (const struct GFX_Sampler*)data;
 			GLint unit = _gfx_binder_bind_texture(samp->texture, samp->target, 1, ext);
 
 			ext->Uniform1iv(prop->location, 1, &unit);
@@ -174,7 +174,7 @@ static void _gfx_property_set(struct GFX_Internal_Map* map, struct GFX_Internal_
 /******************************************************/
 void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext)
 {
-	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
+	struct GFX_Map* internal = (struct GFX_Map*)map;
 
 	/* Prevent binding it twice */
 	if(ext->program != internal->handle)
@@ -184,24 +184,24 @@ void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext)
 	}
 
 	/* Set all properties */
-	struct GFX_Internal_Property* prop;
+	struct GFX_Property* prop;
 	unsigned char properties = map->properties;
 
-	for(prop = (struct GFX_Internal_Property*)(internal + 1); properties--; ++prop)
+	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
 		_gfx_property_set(internal, prop, ext);
 }
 
 /******************************************************/
-static inline struct GFX_Internal_Property* _gfx_property_map_get_at(struct GFX_Internal_Map* map, unsigned char index)
+static inline struct GFX_Property* _gfx_property_map_get_at(struct GFX_Map* map, unsigned char index)
 {
 	/* Check index */
 	if(index >= map->map.properties) return NULL;
 
-	return ((struct GFX_Internal_Property*)(map + 1)) + index;
+	return ((struct GFX_Property*)(map + 1)) + index;
 }
 
 /******************************************************/
-static inline void _gfx_property_init(struct GFX_Internal_Property* prop)
+static inline void _gfx_property_init(struct GFX_Property* prop)
 {
 	prop->type     = GFX_VECTOR_PROPERTY; /* Anything but a sampler or buffer property */
 	prop->location = GL_INVALID_INDEX;
@@ -210,7 +210,7 @@ static inline void _gfx_property_init(struct GFX_Internal_Property* prop)
 }
 
 /******************************************************/
-static void _gfx_property_erase(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop)
+static void _gfx_property_erase(struct GFX_Map* map, struct GFX_Property* prop)
 {
 	if(prop->size)
 	{
@@ -227,7 +227,7 @@ static void _gfx_property_erase(struct GFX_Internal_Map* map, struct GFX_Interna
 }
 
 /******************************************************/
-static int _gfx_property_enable(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop, size_t size, const GFX_Extensions* ext)
+static int _gfx_property_enable(struct GFX_Map* map, struct GFX_Property* prop, size_t size, const GFX_Extensions* ext)
 {
 	/* Nothing to enable */
 	if(prop->location == GL_INVALID_INDEX || !size) return 0;
@@ -268,7 +268,7 @@ static int _gfx_property_enable(struct GFX_Internal_Map* map, struct GFX_Interna
 }
 
 /******************************************************/
-static inline void _gfx_property_disable(struct GFX_Internal_Map* map, struct GFX_Internal_Property* prop)
+static inline void _gfx_property_disable(struct GFX_Map* map, struct GFX_Property* prop)
 {
 	_gfx_property_erase(map, prop);
 	_gfx_property_init(prop);
@@ -278,9 +278,9 @@ static inline void _gfx_property_disable(struct GFX_Internal_Map* map, struct GF
 GFXPropertyMap* gfx_property_map_create(GFXProgram* program, unsigned char properties)
 {
 	/* Create new property map, append properties to end of struct */
-	size_t size = sizeof(struct GFX_Internal_Map) + properties * sizeof(struct GFX_Internal_Property);
+	size_t size = sizeof(struct GFX_Map) + properties * sizeof(struct GFX_Property);
 
-	struct GFX_Internal_Map* map = calloc(1, size);
+	struct GFX_Map* map = calloc(1, size);
 	if(!map) return NULL;
 
 	map->map.program = program;
@@ -288,9 +288,9 @@ GFXPropertyMap* gfx_property_map_create(GFXProgram* program, unsigned char prope
 	map->handle = _gfx_program_get_handle(program);
 
 	/* Initialize all properties */
-	struct GFX_Internal_Property* prop;
+	struct GFX_Property* prop;
 
-	for(prop = (struct GFX_Internal_Property*)(map + 1); properties--; ++prop)
+	for(prop = (struct GFX_Property*)(map + 1); properties--; ++prop)
 		_gfx_property_init(prop);
 
 	gfx_vector_init(&map->values, 1);
@@ -303,12 +303,12 @@ void gfx_property_map_free(GFXPropertyMap* map)
 {
 	if(map)
 	{
-		struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
+		struct GFX_Map* internal = (struct GFX_Map*)map;
 
 		/* Erase all properties */
-		struct GFX_Internal_Property* prop;
+		struct GFX_Property* prop;
 
-		for(prop = (struct GFX_Internal_Property*)(internal + 1); map->properties--; ++prop)
+		for(prop = (struct GFX_Property*)(internal + 1); map->properties--; ++prop)
 			_gfx_property_erase(internal, prop);
 
 		gfx_vector_clear(&internal->values);
@@ -320,10 +320,10 @@ void gfx_property_map_free(GFXPropertyMap* map)
 int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyType type, const char* name)
 {
 	/* Get current window, context and property */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 
-	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
-	struct GFX_Internal_Property* prop = _gfx_property_map_get_at(internal, index);
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
 
 	if(!window || !prop) return 0;
 
@@ -350,10 +350,10 @@ int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 	if(loc == GL_INVALID_INDEX) return 0;
 
 	/* Disable previous property with equal location */
-	struct GFX_Internal_Property* it;
+	struct GFX_Property* it;
 	unsigned char properties = map->properties;
 
-	for(it = (struct GFX_Internal_Property*)(internal + 1); properties--; ++it)
+	for(it = (struct GFX_Property*)(internal + 1); properties--; ++it)
 		if(it->location == loc)
 		{
 			_gfx_property_disable(internal, it);
@@ -371,10 +371,10 @@ int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 /******************************************************/
 int gfx_property_map_get(GFXPropertyMap* map, unsigned char index, GFXPropertyType* type)
 {
-	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
+	struct GFX_Map* internal = (struct GFX_Map*)map;
 
 	/* Get property */
-	struct GFX_Internal_Property* prop = _gfx_property_map_get_at(internal, index);
+	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
 	if(!prop) return 0;
 
 	int assigned = (prop->location != GL_INVALID_INDEX) ? 1 : 0;
@@ -387,10 +387,10 @@ int gfx_property_map_get(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProperty value)
 {
 	/* Get current window, context and property */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 
-	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
-	struct GFX_Internal_Property* prop = _gfx_property_map_get_at(internal, index);
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
 
 	if(!window || !prop) return 0;
 
@@ -407,11 +407,11 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
 	if(!_gfx_property_enable(
 		internal,
 		prop,
-		sizeof(struct GFX_Internal_Value) + size,
+		sizeof(struct GFX_Value) + size,
 		&window->extensions)) return 0;
 
 	/* Set value */
-	struct GFX_Internal_Value* val = gfx_vector_at(&internal->values, prop->index);
+	struct GFX_Value* val = gfx_vector_at(&internal->values, prop->index);
 
 	val->count      = value.count;
 	val->components = value.components;
@@ -426,10 +426,10 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
 int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size)
 {
 	/* Get current window, context and property */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 
-	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
-	struct GFX_Internal_Property* prop = _gfx_property_map_get_at(internal, index);
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
 
 	if(!window || !prop) return 0;
 
@@ -440,11 +440,11 @@ int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const 
 	if(!_gfx_property_enable(
 		internal,
 		prop,
-		sizeof(struct GFX_Internal_Buffer),
+		sizeof(struct GFX_Buffer),
 		&window->extensions)) return 0;
 
 	/* Set buffer */
-	struct GFX_Internal_Buffer* buff = gfx_vector_at(&internal->values, prop->index);
+	struct GFX_Buffer* buff = gfx_vector_at(&internal->values, prop->index);
 
 	buff->buffer = _gfx_buffer_get_handle(buffer);
 	buff->offset = offset;
@@ -457,10 +457,10 @@ int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const 
 int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const GFXTexture* texture)
 {
 	/* Get current window, context and property */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 
-	struct GFX_Internal_Map* internal = (struct GFX_Internal_Map*)map;
-	struct GFX_Internal_Property* prop = _gfx_property_map_get_at(internal, index);
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
 
 	if(!window || !prop) return 0;
 
@@ -471,11 +471,11 @@ int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const
 	if(!_gfx_property_enable(
 		internal,
 		prop,
-		sizeof(struct GFX_Internal_Sampler),
+		sizeof(struct GFX_Sampler),
 		&window->extensions)) return 0;
 
 	/* Set sampler */
-	struct GFX_Internal_Sampler* samp = gfx_vector_at(&internal->values, prop->index);
+	struct GFX_Sampler* samp = gfx_vector_at(&internal->values, prop->index);
 
 	samp->texture = _gfx_texture_get_handle(texture);
 	samp->target = _gfx_texture_get_internal_target(texture);

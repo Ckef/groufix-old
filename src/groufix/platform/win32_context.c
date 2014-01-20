@@ -24,7 +24,7 @@
 #include "groufix/platform/win32.h"
 
 /******************************************************/
-int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
+int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor, GFX_PlatformWindow share)
 {
 	/* Get the windows */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
@@ -53,7 +53,7 @@ int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int mino
 }
 
 /******************************************************/
-void _gfx_platform_context_free(GFX_Platform_Window handle)
+void _gfx_platform_context_free(GFX_PlatformWindow handle)
 {
 	/* Get the window and destroy its context */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
@@ -65,14 +65,14 @@ void _gfx_platform_context_free(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_make_current(GFX_Platform_Window handle)
+void _gfx_platform_context_make_current(GFX_PlatformWindow handle)
 {
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
 	if(window) wglMakeCurrent(GetDC(handle), window->context);
 }
 
 /******************************************************/
-void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num)
+void _gfx_platform_context_set_swap_interval(GFX_PlatformWindow handle, int num)
 {
 	/* Correct if adaptive vsync is not supported */
 	if(!_gfx_win32->extensions.EXT_swap_control_tear && num < 0)
@@ -87,14 +87,14 @@ void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num
 }
 
 /******************************************************/
-void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle)
+void _gfx_platform_context_swap_buffers(GFX_PlatformWindow handle)
 {
 	_gfx_platform_context_make_current(handle);
 	SwapBuffers(GetDC(handle));
 }
 
 /******************************************************/
-int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char* ext)
+int _gfx_platform_is_extension_supported(GFX_PlatformWindow handle, const char* ext)
 {
 	if(!_gfx_win32) return 0;
 

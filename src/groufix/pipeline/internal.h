@@ -117,7 +117,7 @@ void _gfx_pipe_process_free(GFXPipeProcess process);
  * @param active Currently active window.
  *
  */
-void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_Internal_Window* active);
+void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_Window* active);
 
 /**
  * Prepares a window for render to texture.
@@ -128,7 +128,7 @@ void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_I
  * Note: the given target window should be current.
  *
  */
-int _gfx_pipe_process_prepare(GFX_Internal_Window* target);
+int _gfx_pipe_process_prepare(GFX_Window* target);
 
 /**
  * Forwards a new size of a window to all processes.
@@ -138,7 +138,7 @@ int _gfx_pipe_process_prepare(GFX_Internal_Window* target);
  * @height New height.
  *
  */
-void _gfx_pipe_process_resize(GFX_Internal_Window* target, unsigned int width, unsigned int height);
+void _gfx_pipe_process_resize(GFX_Window* target, unsigned int width, unsigned int height);
 
 /**
  * Replaces a specific target with a new one.
@@ -147,7 +147,7 @@ void _gfx_pipe_process_resize(GFX_Internal_Window* target, unsigned int width, u
  * @param target  New target to replace the old target with.
  *
  */
-void _gfx_pipe_process_retarget(GFX_Internal_Window* replace, GFX_Internal_Window* target);
+void _gfx_pipe_process_retarget(GFX_Window* replace, GFX_Window* target);
 
 /**
  * Makes sure no pipe process targets the given window anymore, ever.
@@ -158,7 +158,7 @@ void _gfx_pipe_process_retarget(GFX_Internal_Window* replace, GFX_Internal_Windo
  * Note: the given target window should be current.
  *
  */
-void _gfx_pipe_process_untarget(GFX_Internal_Window* target, int last);
+void _gfx_pipe_process_untarget(GFX_Window* target, int last);
 
 
 #ifdef __cplusplus

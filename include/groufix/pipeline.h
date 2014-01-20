@@ -121,7 +121,7 @@ void gfx_bucket_set_instances(GFXBatchUnit* unit, size_t instances);
  * Returns the manual bits of the state associated with a unit.
  *
  */
-GFXBatchState gfx_bucket_get_state(const GFXBatchUnit* unit);
+GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
 
 /**
  * Sets the manual bits of the state to associate a unit with.

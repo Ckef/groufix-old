@@ -36,11 +36,11 @@ static GFXVector* _gfx_pipes = NULL;
 static GFXBuffer* _gfx_process_buffer = NULL;
 
 /* Internal Pipe Process */
-struct GFX_Internal_Process
+struct GFX_Process
 {
 	/* Post Processing */
-	GFXPropertyMap*       map;
-	GFX_Internal_Window*  target;
+	GFXPropertyMap*  map;
+	GFX_Window*      target;
 
 	/* Viewport */
 	unsigned int width;
@@ -58,7 +58,7 @@ static inline void _gfx_pipe_process_draw(GFXPipeState state, GFXPropertyMap* ma
 }
 
 /******************************************************/
-int _gfx_pipe_process_prepare(GFX_Internal_Window* target)
+int _gfx_pipe_process_prepare(GFX_Window* target)
 {
 	/* First make sure the buffer exists */
 	if(!_gfx_process_buffer)
@@ -97,13 +97,13 @@ int _gfx_pipe_process_prepare(GFX_Internal_Window* target)
 }
 
 /******************************************************/
-void _gfx_pipe_process_resize(GFX_Internal_Window* target, unsigned int width, unsigned int height)
+void _gfx_pipe_process_resize(GFX_Window* target, unsigned int width, unsigned int height)
 {
 	GFXVectorIterator it;
 	if(_gfx_pipes) for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, resize! */
-		struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
+		struct GFX_Process* proc = *(struct GFX_Process**)it;
 		if(target == proc->target)
 		{
 			proc->width = width;
@@ -113,26 +113,26 @@ void _gfx_pipe_process_resize(GFX_Internal_Window* target, unsigned int width, u
 }
 
 /******************************************************/
-void _gfx_pipe_process_retarget(GFX_Internal_Window* replace, GFX_Internal_Window* target)
+void _gfx_pipe_process_retarget(GFX_Window* replace, GFX_Window* target)
 {
 	GFXVectorIterator it;
 	if(_gfx_pipes) for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, retarget */
-		struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
+		struct GFX_Process* proc = *(struct GFX_Process**)it;
 		if(replace == proc->target) proc->target = target;
 	}
 }
 
 /******************************************************/
-void _gfx_pipe_process_untarget(GFX_Internal_Window* target, int last)
+void _gfx_pipe_process_untarget(GFX_Window* target, int last)
 {
 	/* Reset pipes if not retargeting */
 	GFXVectorIterator it;
 	if(_gfx_pipes) for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, reset post processing */
-		struct GFX_Internal_Process* proc = *(struct GFX_Internal_Process**)it;
+		struct GFX_Process* proc = *(struct GFX_Process**)it;
 		if(target == proc->target)
 		{
 			proc->map = NULL;
@@ -155,7 +155,7 @@ void _gfx_pipe_process_untarget(GFX_Internal_Window* target, int last)
 GFXPipeProcess _gfx_pipe_process_create(void)
 {
 	/* Allocate */
-	struct GFX_Internal_Process* proc = calloc(1, sizeof(struct GFX_Internal_Process));
+	struct GFX_Process* proc = calloc(1, sizeof(struct GFX_Process));
 	if(!proc) return NULL;
 
 	/* Create vector if it doesn't exist yet */
@@ -213,23 +213,23 @@ void _gfx_pipe_process_free(GFXPipeProcess process)
 /******************************************************/
 void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map)
 {
-	((struct GFX_Internal_Process*)process)->map = map;
+	((struct GFX_Process*)process)->map = map;
 }
 
 /******************************************************/
 void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target)
 {
-	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
-	internal->target = (GFX_Internal_Window*)target;
+	struct GFX_Process* internal = (struct GFX_Process*)process;
+	internal->target = (GFX_Window*)target;
 
 	/* Set viewport */
 	if(target) gfx_window_get_size(target, &internal->width, &internal->height);
 }
 
 /******************************************************/
-void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_Internal_Window* active)
+void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_Window* active)
 {
-	struct GFX_Internal_Process* internal = (struct GFX_Internal_Process*)process;
+	struct GFX_Process* internal = (struct GFX_Process*)process;
 
 	/* Perform post-processing */
 	if(internal->map)

@@ -24,7 +24,7 @@
 #include "groufix/platform/x11.h"
 
 /******************************************************/
-int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int minor, GFX_Platform_Window share)
+int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor, GFX_PlatformWindow share)
 {
 	/* Get the windows */
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
@@ -58,7 +58,7 @@ int _gfx_platform_context_create(GFX_Platform_Window handle, int major, int mino
 }
 
 /******************************************************/
-void _gfx_platform_context_free(GFX_Platform_Window handle)
+void _gfx_platform_context_free(GFX_PlatformWindow handle)
 {
 	/* Get the window and destroy its context */
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
@@ -72,14 +72,14 @@ void _gfx_platform_context_free(GFX_Platform_Window handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_make_current(GFX_Platform_Window handle)
+void _gfx_platform_context_make_current(GFX_PlatformWindow handle)
 {
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 	if(window) glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
 }
 
 /******************************************************/
-void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num)
+void _gfx_platform_context_set_swap_interval(GFX_PlatformWindow handle, int num)
 {
 	/* Correct if adaptive vsync is not supported */
 	if(!_gfx_x11->extensions.EXT_swap_control_tear && num < 0)
@@ -90,13 +90,13 @@ void _gfx_platform_context_set_swap_interval(GFX_Platform_Window handle, int num
 }
 
 /******************************************************/
-void _gfx_platform_context_swap_buffers(GFX_Platform_Window handle)
+void _gfx_platform_context_swap_buffers(GFX_PlatformWindow handle)
 {
 	if(_gfx_x11) glXSwapBuffers(_gfx_x11->display, (Window)GFX_VOID_TO_UINT(handle));
 }
 
 /******************************************************/
-int _gfx_platform_is_extension_supported(GFX_Platform_Window handle, const char* ext)
+int _gfx_platform_is_extension_supported(GFX_PlatformWindow handle, const char* ext)
 {
 	/* Get screen */
 	Screen* screen = (Screen*)_gfx_platform_window_get_screen(handle);

@@ -30,7 +30,7 @@
 
 /******************************************************/
 /* Internal Buffer */
-struct GFX_Internal_Buffer
+struct GFX_Buffer
 {
 	/* Super class */
 	GFXBuffer buffer;
@@ -66,7 +66,7 @@ static inline int _gfx_buffer_sync(GLsync sync, const GFX_Extensions* ext)
 
 /******************************************************/
 /* Create buffers in existing vector */
-static void _gfx_buffer_alloc_buffers(struct GFX_Internal_Buffer* buffer, GFXVectorIterator it, unsigned char num, const void* data, GFX_Extensions* ext)
+static void _gfx_buffer_alloc_buffers(struct GFX_Buffer* buffer, GFXVectorIterator it, unsigned char num, const void* data, GFX_Extensions* ext)
 {	
 	/* Allocate buffers */
 	GLuint handles[num];
@@ -90,7 +90,7 @@ static void _gfx_buffer_alloc_buffers(struct GFX_Internal_Buffer* buffer, GFXVec
 
 /******************************************************/
 /* Entirely delete buffers, but don't remove vector entry */
-static void _gfx_buffer_delete_buffers(struct GFX_Internal_Buffer* buffer, GFXVectorIterator it, unsigned char num, GFX_Extensions* ext)
+static void _gfx_buffer_delete_buffers(struct GFX_Buffer* buffer, GFXVectorIterator it, unsigned char num, GFX_Extensions* ext)
 {
 	GLuint handles[num];
 	unsigned char segs = buffer->buffer.size / buffer->buffer.segSize;
@@ -117,7 +117,7 @@ static void _gfx_buffer_delete_buffers(struct GFX_Internal_Buffer* buffer, GFXVe
 /******************************************************/
 static void _gfx_buffer_obj_free(void* object, GFX_Extensions* ext)
 {
-	struct GFX_Internal_Buffer* buffer = (struct GFX_Internal_Buffer*)object;
+	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
 	
 	unsigned char num = buffer->buffer.multi + 1;
 
@@ -130,7 +130,7 @@ static void _gfx_buffer_obj_free(void* object, GFX_Extensions* ext)
 
 /******************************************************/
 /* vtable for hardware part of the buffer */
-static GFX_Hardware_Funcs _gfx_buffer_obj_funcs =
+static GFX_HardwareFuncs _gfx_buffer_obj_funcs =
 {
 	_gfx_buffer_obj_free,
 	NULL,
@@ -140,7 +140,7 @@ static GFX_Hardware_Funcs _gfx_buffer_obj_funcs =
 /******************************************************/
 GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer)
 {
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	return *(GLuint*)gfx_vector_at(&internal->handles, internal->current);
 }
@@ -149,11 +149,11 @@ GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer)
 GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_t size, const void* data, unsigned char multi, unsigned char segments)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return NULL;
 
 	/* Create new buffer */
-	struct GFX_Internal_Buffer* buffer = calloc(1, sizeof(struct GFX_Internal_Buffer));
+	struct GFX_Buffer* buffer = calloc(1, sizeof(struct GFX_Buffer));
 	if(!buffer) return NULL;
 
 	/* Register as object */
@@ -210,13 +210,13 @@ void gfx_buffer_free(GFXBuffer* buffer)
 {
 	if(buffer)
 	{
-		struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+		struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(buffer->id);
 
 		/* Get current window and context */
-		GFX_Internal_Window* window = _gfx_window_get_current();
+		GFX_Window* window = _gfx_window_get_current();
 		if(window) _gfx_buffer_delete_buffers(internal, internal->handles.begin, buffer->multi + 1, &window->extensions);
 
 		gfx_vector_clear(&internal->handles);
@@ -228,10 +228,10 @@ void gfx_buffer_free(GFXBuffer* buffer)
 int gfx_buffer_expand(GFXBuffer* buffer, unsigned char num)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window || !num) return 0;
 
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	/* Allocate new handles */
 	GFXVectorIterator it = gfx_vector_insert_range(&internal->handles, num, NULL, internal->handles.end);
@@ -248,10 +248,10 @@ int gfx_buffer_expand(GFXBuffer* buffer, unsigned char num)
 int gfx_buffer_shrink(GFXBuffer* buffer, unsigned char num)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	/* Get where to remove buffers */
 	unsigned char rem = num > buffer->multi ? buffer->multi : num;
@@ -286,10 +286,10 @@ int gfx_buffer_shrink(GFXBuffer* buffer, unsigned char num)
 int gfx_buffer_swap(GFXBuffer* buffer)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	/* Create a sync object */
 	GFXVectorIterator it = gfx_vector_at(&internal->handles, internal->current);
@@ -319,10 +319,10 @@ int gfx_buffer_swap(GFXBuffer* buffer)
 void gfx_buffer_write(GFXBuffer* buffer, size_t size, const void* data, size_t offset)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return;
 
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 	window->extensions.BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
@@ -332,10 +332,10 @@ void gfx_buffer_write(GFXBuffer* buffer, size_t size, const void* data, size_t o
 void gfx_buffer_read(GFXBuffer* buffer, size_t size, void* data, size_t offset)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return;
 
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 	window->extensions.GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
@@ -345,10 +345,10 @@ void gfx_buffer_read(GFXBuffer* buffer, size_t size, void* data, size_t offset)
 void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return NULL;
 
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	/* Do the actual mapping */
 	access &= GFX_BUFFER_READ | GFX_BUFFER_WRITE;
@@ -374,10 +374,10 @@ void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsa
 void gfx_buffer_unmap(GFXBuffer* buffer)
 {
 	/* Get current window and context */
-	GFX_Internal_Window* window = _gfx_window_get_current();
+	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return;
 
-	struct GFX_Internal_Buffer* internal = (struct GFX_Internal_Buffer*)buffer;
+	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 
