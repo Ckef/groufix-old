@@ -27,21 +27,7 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 ### Threading
 
-_The core library is thread affine_. All windowing and hardware functonality should should be executed from the same thread at all times. Due to the complex nature of GPU interaction and windowing on most platforms is it faster and safer to execute all graphics related operations on the same thread. The engine itself might or might not thread its internal workings, but the _core_ external interface can be viewed as if it is executed on the calling thread. It is the calling application's responsibility to execute the engine in a dedicated thread if this is necessary.
-
-This being said, the core engine, and only the _core_ engine is thread affine. All other functionality is thread safe. In practice this means a clean seperation between the graphics thread and all other threads. It is advisable to have a thread running to handle all core graphics, and communicate with it using the non-core functionality. `groufix.h` only includes core functionality, all other functionality should be included manually.
-
-Even though the core engine is designed to run on a single thread, there are components which aren't thread affine. They are still not thread safe, but they can be used across multiple threads. All core features exhibiting this behaviour are listed below.
-
-* __Bucket interface__, when pushing a bucket onto a pipeline and fetching it, all operations performed directly on the bucket exclusively modify the state in which rendering will occur when the pipeline is executed. All these operations can be issued from multiple threads. However, executing the pipeline is still thread affine.
-
-* __Buffer Mapping__, `gfx_buffer_map` returns a pointer which may be used from within any location in the program, as long as it is not unmapped.
-
-* __Error Handling__, all functionality in `groufix/errors.h` can be issued from within any thread. Note: hardware errors should be polled using `gfx_hardware_poll_errors` in order to receive them, which is still thread affine.
-
-* __Hardware Extension & Limit fetching__, `gfx_hardware_is_extension_supported` and `gfx_hardware_get_limit` are two functions which make use of prefetched data and can be issued from within any thread.
-
-* __Property Map value setting__, setting the value of a property in a property map using `gfx_property_map_set_*` defers any transfers to the GPU, which makes it suitable for usage across threads.
+_The library is thread affine_. All functonality should should be executed from the same thread at all times. Due to the complex nature of GPU interaction and windowing on most platforms is it faster and safer to execute all graphics related operations on the same thread. The engine itself might or might not thread its internal workings, but the external interface can be viewed as if it is executed on the calling thread. It is the calling application's responsibility to execute the engine in a dedicated thread if this is necessary.
 
 ### Termination
 
