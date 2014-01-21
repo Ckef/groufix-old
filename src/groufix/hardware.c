@@ -172,43 +172,45 @@ void _gfx_hardware_object_unregister(size_t id)
 		size_t size = gfx_vector_get_size(_gfx_hw_objects);
 		if(id < size)
 		{
+			/* Check if it is already empty */
+			struct GFX_HardwareObject* obj = gfx_vector_at(_gfx_hw_objects, id - 1);
+			if(!obj->funcs) return;
+
+			memset(obj, 0, sizeof(struct GFX_HardwareObject));
+
+			/* Save ID */
 			if(!_gfx_hw_ids)
 			{
 				/* Create deque if it doesn't exist yet */
 				_gfx_hw_ids = gfx_deque_create(sizeof(size_t));
 				if(!_gfx_hw_ids) return;
 			}
-
-			/* Add ID as empty ID and empty the actual data */
-			struct GFX_HardwareObject* obj = gfx_vector_at(_gfx_hw_objects, id - 1);
-			if(obj->funcs)
-			{
-				/* Only add ID when it wasn't empty yet */
-				gfx_deque_push_back(_gfx_hw_ids, &id);
-				memset(obj, 0, sizeof(struct GFX_HardwareObject));
-
-				/* Erase both deque and vector */
-				if(size == gfx_deque_get_size(_gfx_hw_ids))
-				{
-					gfx_vector_free(_gfx_hw_objects);
-					gfx_deque_free(_gfx_hw_ids);
-
-					_gfx_hw_objects = NULL;
-					_gfx_hw_ids = NULL;
-				}
-			}
+			gfx_deque_push_back(_gfx_hw_ids, &id);
 		}
 		else if(id == size)
 		{
-			/* Remove last element */
-			gfx_vector_erase_at(_gfx_hw_objects, id - 1);
+			/* Get trailing empty elements */
+			GFXVectorIterator obj = gfx_vector_at(_gfx_hw_objects, id - 1);
+			size_t del = 1;
+
+			while(obj != _gfx_hw_objects->begin)
+			{
+				GFXVectorIterator prev = gfx_vector_previous(_gfx_hw_objects, obj);
+				if(((struct GFX_HardwareObject*)prev)->funcs) break;
+
+				obj = prev;
+				++del;
+			}
 
 			/* Erase vector */
-			if(_gfx_hw_objects->begin == _gfx_hw_objects->end)
+			if(del == size)
 			{
 				gfx_vector_free(_gfx_hw_objects);
 				_gfx_hw_objects = NULL;
 			}
+
+			/* Remove trailing elements */
+			else gfx_vector_erase_range(_gfx_hw_objects, del, obj);
 		}
 	}
 }

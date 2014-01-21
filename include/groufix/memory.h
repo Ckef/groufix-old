@@ -90,12 +90,13 @@ typedef union GFXDataType
  * Buffer (arbitrary GPU storage)
  *******************************************************/
 
-/** Buffer usage hint */
+/** Buffer usage bitflag */
 typedef enum GFXBufferUsage
 {
-	GFX_BUFFER_READ    = 0x01,
-	GFX_BUFFER_WRITE   = 0x02,
-	GFX_BUFFER_STREAM  = 0x04
+	GFX_BUFFER_READ     = 0x01,
+	GFX_BUFFER_WRITE    = 0x02,
+	GFX_BUFFER_STREAM   = 0x04,
+	GFX_BUFFER_DYNAMIC  = 0x08
 
 } GFXBufferUsage;
 

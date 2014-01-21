@@ -44,14 +44,23 @@ struct GFX_Buffer
 /******************************************************/
 static inline GLenum _gfx_buffer_get_usage(GFXBufferUsage usage)
 {
-	/* Return appropriate OpenGL usage hint */
-	return usage & GFX_BUFFER_STREAM ?
+	return
 
-		(usage & GFX_BUFFER_WRITE) ? GL_STREAM_DRAW :
-		(usage & GFX_BUFFER_READ) ? GL_STREAM_READ : GL_STREAM_COPY :
+		/* Dynamic */
+		usage & GFX_BUFFER_DYNAMIC ?
 
-		(usage & GFX_BUFFER_WRITE) ? GL_STATIC_DRAW :
-		(usage & GFX_BUFFER_READ) ? GL_STATIC_READ : GL_STATIC_COPY;
+		((usage & GFX_BUFFER_WRITE) ? GL_DYNAMIC_DRAW :
+		((usage & GFX_BUFFER_READ) ? GL_DYNAMIC_READ : GL_DYNAMIC_COPY)) :
+
+		/* Stream */
+		usage & GFX_BUFFER_STREAM ?
+
+		((usage & GFX_BUFFER_WRITE) ? GL_STREAM_DRAW :
+		((usage & GFX_BUFFER_READ) ? GL_STREAM_READ : GL_STREAM_COPY)) :
+
+		/* Static */
+		((usage & GFX_BUFFER_WRITE) ? GL_STATIC_DRAW :
+		((usage & GFX_BUFFER_READ) ? GL_STATIC_READ : GL_STATIC_COPY));
 }
 
 /******************************************************/
@@ -164,8 +173,9 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
 		return NULL;
 	}
 
-	/* Force stream when multi buffering and/or segmenting */
-	usage |= (multi | segments) ? GFX_BUFFER_STREAM : 0;
+	/* Force at least dynamic when multi buffering and/or segmenting */
+	if(!(usage & (GFX_BUFFER_STREAM | GFX_BUFFER_DYNAMIC)) && (multi | segments))
+		usage |= GFX_BUFFER_DYNAMIC;
 
 	/* Calculate segment size, force at least one segment */
 	buffer->buffer.segSize = size / ++segments;
