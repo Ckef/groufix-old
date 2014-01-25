@@ -57,7 +57,7 @@
 	#define VC_EXTRALEAN
 	#endif
 	
-	/* To avoid redifinitions */
+	/* To avoid redefinitions */
 	#include <windows.h>
 
 #endif
@@ -70,7 +70,7 @@ extern "C" {
  * Platform definitions
  *******************************************************/
 
-/** Proc Address */
+/** Process Address */
 typedef void (*GFXProcAddress)(void);
 
 

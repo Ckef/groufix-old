@@ -10,7 +10,7 @@ int main()
 	depth.greenBits = 8;
 	depth.blueBits  = 8;
 
-	GFXWindow* window = gfx_window_create(NULL, depth, "Groufix Window", 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow* window = gfx_window_create(NULL, depth, "Groufix Window", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
 
 	while(gfx_window_is_open(window))
 	{

@@ -408,7 +408,7 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 	int new;
 
 	if(it == internal->attachments.end) new = 1;
-	else new = ((struct GFX_Attachment*)it)->attachment != att.attachment ? 1 : 0;
+	else new = ((struct GFX_Attachment*)it)->attachment != att.attachment;
 
 	if(new) gfx_vector_insert(&internal->attachments, &att, it);
 	else *((struct GFX_Attachment*)it) = att;

@@ -60,6 +60,8 @@ extern "C" {
 /********************************************************
  * Vital X11 Extensions
  *******************************************************/
+
+/** X11 Extensions */
 typedef struct GFX_X11_Extensions
 {
 	PFNGLXCREATECONTEXTATTRIBSARBPROC  CreateContextAttribsARB;
@@ -72,6 +74,8 @@ typedef struct GFX_X11_Extensions
 /********************************************************
  * X11 Window
  *******************************************************/
+
+/** X11 Window */
 typedef struct GFX_X11_Window
 {
 	Window        handle;  /* Given to the outside world */
@@ -89,6 +93,8 @@ typedef struct GFX_X11_Window
 /********************************************************
  * X11 Connection
  *******************************************************/
+
+/** X11 Connection & data */
 typedef struct GFX_X11_Connection
 {
 	/* X Display and Windows */

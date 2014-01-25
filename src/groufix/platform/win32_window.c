@@ -26,20 +26,41 @@
 #include <stdlib.h>
 
 /******************************************************/
+static int _gfx_win32_set_fullscreen(int x, int y, unsigned int width, unsigned int height, const GFXColorDepth* depth)
+{
+	/* Construct position */
+	POINTL pos;
+	pos.x = x;
+	pos.y = y;
+
+	/* Change display settings, minimum of 32 bits */
+	DEVMODE mode;
+	ZeroMemory(&mode, sizeof(DEVMODE));
+
+	mode.dmSize       = sizeof(DEVMODE);
+	mode.dmBitsPerPel = depth->redBits + depth->greenBits + depth->blueBits;
+	mode.dmBitsPerPel = mode.dmBitsPerPel < 32 ? 32 : mode.dmBitsPerPel;
+	mode.dmPelsWidth  = width;
+	mode.dmPelsHeight = height;
+	mode.dmPosition   = pos;
+	mode.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_POSITION;
+
+	/* Actual call */
+	return ChangeDisplaySettings(&mode, CDS_FULLSCREEN) == DISP_CHANGE_SUCCESSFUL;
+}
+
+/******************************************************/
 void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth)
 {
 	PIXELFORMATDESCRIPTOR format;
 	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
 
-	format.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
-	format.nVersion     = 1;
-	format.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	format.iPixelType   = PFD_TYPE_RGBA;
-	format.cColorBits   = depth->redBits + depth->greenBits + depth->blueBits;
-	format.cRedBits     = depth->redBits;
-	format.cGreenBits   = depth->greenBits;
-	format.cBlueBits    = depth->blueBits;
-	format.iLayerType   = PFD_MAIN_PLANE;
+	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
+	format.nVersion   = 1;
+	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	format.iPixelType = PFD_TYPE_RGBA;
+	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
+	format.iLayerType = PFD_MAIN_PLANE;
 
 	HDC context = GetDC(handle);
 
@@ -189,9 +210,9 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 
 			/* Check mouse enter event */
 			GFX_Win32_Window* internal = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
-			if(!internal->mouseInside)
+			if(!(internal->flags & GFX_WIN32_MOUSEINSIDE))
 			{
-				internal->mouseInside = 1;
+				internal->flags |= GFX_WIN32_MOUSEINSIDE;
 				_gfx_win32_track_mouse(handle);
 
 				_gfx_event_mouse_enter(window, x, y, state);
@@ -204,7 +225,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 		case WM_MOUSELEAVE :
 		{
 			GFX_Win32_Window* internal = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
-			internal->mouseInside = 0;
+			internal->flags &= ~GFX_WIN32_MOUSEINSIDE;
 
 			/* Untrack */
 			TRACKMOUSEEVENT track;
@@ -359,61 +380,99 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 	GFX_Win32_Window window;
 	window.monitor = attributes->screen;
 	window.context = NULL;
-	window.mouseInside = 0;
+	window.flags = 0;
 
 	/* Get monitor information */
 	MONITORINFO info;
 	info.cbSize = sizeof(MONITORINFO);
 	GetMonitorInfo(attributes->screen, &info);
 
+	/* Style and window rectangle */
+	DWORD styleEx;
+	DWORD style;
+
+	RECT rect;
+	rect.right = attributes->width;
+	rect.bottom = attributes->height;
+
+	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
+	{
+		/* Change to fullscreen */
+		if(!_gfx_win32_set_fullscreen(
+			info.rcMonitor.left,
+			info.rcMonitor.top,
+			attributes->width,
+			attributes->height,
+			&attributes->depth)) return NULL;
+
+		window.flags |= GFX_WIN32_FULLSCREEN;
+
+		/* Style and rectangle */
+		styleEx = 0;
+		style = WS_POPUP;
+
+		rect.left = info.rcMonitor.left;
+		rect.top = info.rcMonitor.top;
+		rect.right += rect.left;
+		rect.bottom += rect.top;
+	}
+	else
+	{
+		/* Create window style */
+		styleEx =
+			WS_EX_WINDOWEDGE;
+
+		style =
+			WS_CAPTION |
+			WS_MINIMIZEBOX |
+			WS_OVERLAPPED |
+			WS_SYSMENU;
+
+		if(attributes->flags & GFX_WINDOW_RESIZABLE) style |=
+			WS_MAXIMIZEBOX |
+			WS_SIZEBOX;
+
+		/* Rectangle */
+		rect.left = attributes->x + info.rcMonitor.left;
+		rect.top = attributes->y + info.rcMonitor.top;
+		rect.right += rect.left;
+		rect.bottom += rect.top;
+
+		AdjustWindowRectEx(&rect, style, FALSE, styleEx);
+	}
+
 	/* Make sure to convert to wide character */
 	wchar_t* name = utf8_to_wchar(attributes->name);
 
-	/* Create window style */
-	DWORD style =
-		WS_CAPTION |
-		WS_CLIPCHILDREN |
-		WS_CLIPSIBLINGS |
-		WS_MINIMIZEBOX |
-		WS_OVERLAPPED |
-		WS_SYSMENU;
-
-	if(attributes->flags & GFX_WINDOW_RESIZABLE) style |=
-		WS_MAXIMIZEBOX |
-		WS_SIZEBOX;
-
-	GFXWindowFlags fullscreen = attributes->flags & GFX_WINDOW_FULLSCREEN;
-	if(fullscreen) style = (style & ~(
-		WS_CAPTION |
-		WS_MINIMIZEBOX |
-		WS_MAXIMIZEBOX |
-		WS_SYSMENU |
-		WS_SIZEBOX)) |
-		WS_POPUP;
-
 	/* Create the actual window */
 	window.handle = CreateWindowEx(
-		0,
+		styleEx | WS_EX_APPWINDOW,
 		GFX_WIN32_WND_CLASS,
 		name,
-		style,
-		fullscreen ? info.rcMonitor.left : attributes->x + info.rcMonitor.left,
-		fullscreen ? info.rcMonitor.top : attributes->y + info.rcMonitor.top,
-		fullscreen ? info.rcMonitor.right - info.rcMonitor.left : attributes->width,
-		fullscreen ? info.rcMonitor.bottom - info.rcMonitor.top : attributes->height,
+		style | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		rect.left,
+		rect.top,
+		rect.right - rect.left,
+		rect.bottom - rect.top,
 		NULL,
 		NULL,
 		GetModuleHandle(NULL),
 		NULL
 	);
-
 	free(name);
-	if(!window.handle) return NULL;
+
+	if(!window.handle)
+	{
+		if(window.flags & GFX_WIN32_FULLSCREEN) ChangeDisplaySettings(NULL, 0);
+		return NULL;
+	}
 
 	/* Add window to vector */
 	if(gfx_vector_insert(&_gfx_win32->windows, &window, _gfx_win32->windows.end) == _gfx_win32->windows.end)
 	{
+		if(window.flags & GFX_WIN32_FULLSCREEN) ChangeDisplaySettings(NULL, 0);
 		DestroyWindow(window.handle);
+
 		return NULL;
 	}
 
@@ -434,12 +493,15 @@ void _gfx_platform_window_free(GFX_PlatformWindow handle)
 {
 	if(_gfx_win32)
 	{
+		/* Make sure to disable fullscreen */
+		GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+		if(it->flags & GFX_WIN32_FULLSCREEN) ChangeDisplaySettings(NULL, 0);
+
 		/* Destroy the context and window */
 		_gfx_platform_context_free(handle);
 		DestroyWindow(handle);
 
 		/* Remove from vector */
-		GFXVectorIterator it = _gfx_win32_get_window_from_handle(handle);
 		gfx_vector_erase(&_gfx_win32->windows, it);
 	}
 }

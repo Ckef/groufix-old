@@ -26,8 +26,8 @@ int main()
 	depth.greenBits = 8;
 	depth.blueBits  = 8;
 
-	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 800, 600, GFX_WINDOW_RESIZABLE);
-	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
 
 
 	/* Specify a triangle */

@@ -70,7 +70,7 @@ static inline int _gfx_buffer_sync(GLsync sync, const GFX_Extensions* ext)
 	GLenum status = GL_TIMEOUT_EXPIRED;
 	while(status == GL_TIMEOUT_EXPIRED) status = ext->ClientWaitSync(sync, 0, 0);
 
-	return (status == GL_WAIT_FAILED) ? 0 : 1;
+	return status != GL_WAIT_FAILED;
 }
 
 /******************************************************/

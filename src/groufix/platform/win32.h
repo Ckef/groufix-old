@@ -60,6 +60,8 @@ extern "C" {
 /********************************************************
  * Vital Win32 Extensions
  *******************************************************/
+
+/** Win32 Extensions */
 typedef struct GFX_Win32_Extensions
 {
 	PFNWGLCREATECONTEXTATTRIBSARBPROC  CreateContextAttribsARB;
@@ -73,12 +75,23 @@ typedef struct GFX_Win32_Extensions
 /********************************************************
  * Win32 Window
  *******************************************************/
+
+/** Win32 Window Flags */
+typedef enum GFX_Win32_Flags
+{
+	GFX_WIN32_MOUSEINSIDE  = 0x01,
+	GFX_WIN32_FULLSCREEN   = 0x02
+
+} GFX_Win32_Flags;
+
+
+/** Win32 Window */
 typedef struct GFX_Win32_Window
 {
-	HWND      handle;      /* Given to the outside world */
-	HMONITOR  monitor;
-	HGLRC     context;
-	char      mouseInside; /* Non-zero if in window */
+	HWND             handle; /* Given to the outside world */
+	HMONITOR         monitor;
+	HGLRC            context;
+	GFX_Win32_Flags  flags;
 
 } GFX_Win32_Window;
 
@@ -86,6 +99,8 @@ typedef struct GFX_Win32_Window
 /********************************************************
  * Win32 Instance
  *******************************************************/
+
+/** Win32 Instance & data */
 typedef struct GFX_Win32_Instance
 {
 	/* Monitors and Windows */

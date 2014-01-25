@@ -194,7 +194,7 @@ GFXWindow* gfx_get_window(unsigned int num)
 }
 
 /******************************************************/
-GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int w, unsigned int h, GFXWindowFlags flags)
+GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, int x, int y, unsigned int w, unsigned int h, GFXWindowFlags flags)
 {
 	/* Setup top level window */
 	GFX_Window* window = calloc(1, sizeof(GFX_Window));
@@ -211,8 +211,8 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 	attr.name   = name;
 	attr.width  = w;
 	attr.height = h;
-	attr.x      = 0;
-	attr.y      = 0;
+	attr.x      = x;
+	attr.y      = y;
 	attr.depth  = depth;
 	attr.flags  = flags;
 
@@ -275,15 +275,12 @@ GFXWindow* gfx_window_recreate(GFXWindow* window, GFXScreen screen, GFXColorDept
 	_gfx_platform_window_get_position(internal->handle, &x, &y);
 
 	/* Make sure to copy callbacks to the new window */
-	GFXWindow* new = gfx_window_create(screen, depth, name, width, height, flags);
+	GFXWindow* new = gfx_window_create(screen, depth, name, x, y, width, height, flags);
 	*new = *window;
 
 	free(name);
 
 	if(!new) return NULL;
-
-	/* Also set its position! */
-	_gfx_platform_window_set_position(((GFX_Window*)new)->handle, x, y);
 
 	/* Destroy old window and retarget the window */
 	_gfx_pipe_process_retarget(internal, (GFX_Window*)new);

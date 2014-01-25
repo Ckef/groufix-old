@@ -90,7 +90,7 @@ int _gfx_pipe_process_prepare(GFX_Window* target)
 		ext->VertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) << 2, (GLvoid*)0);
 		ext->VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) << 2, (GLvoid*)(sizeof(float) << 1));
 
-		return target->layout ? 1 : 0;
+		return target->layout;
 	}
 
 	return 1;

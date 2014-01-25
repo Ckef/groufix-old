@@ -377,7 +377,7 @@ int gfx_property_map_get(GFXPropertyMap* map, unsigned char index, GFXPropertyTy
 	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
 	if(!prop) return 0;
 
-	int assigned = (prop->location != GL_INVALID_INDEX) ? 1 : 0;
+	int assigned = prop->location != GL_INVALID_INDEX;
 	if(assigned && type) *type = prop->type;
 
 	return assigned;

@@ -183,7 +183,7 @@ int gfx_shader_set_source(GFXShader* shader, size_t num, const char** src)
 		if(strstr(src[n], vers)) break;
 
 	/* Append it if not found */
-	n = (n >= num) ? 1 : 0;
+	n = n >= num;
 	if(n)
 	{
 		/* Fetch version string */

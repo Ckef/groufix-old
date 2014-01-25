@@ -172,13 +172,15 @@ GFXWindow* gfx_get_window(unsigned int num);
  * Creates a new window.
  *
  * @param screen Screen to use, NULL for default screen.
+ * @param x      X position of the window.
+ * @param y      Y position of the window.
  * @param w      Width of the window.
  * @param h      Height of the window.
  * @param flags  Flags to apply to this window, full screen has precedence over all other flags.
  * @return NULL on failure.
  * 
  */
-GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, unsigned int w, unsigned int h, GFXWindowFlags flags);
+GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, int x, int y, unsigned int w, unsigned int h, GFXWindowFlags flags);
 
 /**
  * Recreates a window.
