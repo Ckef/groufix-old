@@ -33,19 +33,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * Units to batch using a state key
- *******************************************************/
-
-/** Key representing a state */
-typedef uint64_t GFXBatchState;
-
-
-/** Unit in a batch */
-typedef GFXList GFXBatchUnit;
-
-
-/********************************************************
- * Buckets to hold batches
+ * Bucket and batch metadata
  *******************************************************/
 
 /** Bucket sort flags */
@@ -69,6 +57,10 @@ typedef enum GFXBatchMode
 } GFXBatchMode;
 
 
+/********************************************************
+ * Buckets to hold batch units
+ *******************************************************/
+
 /** Bucket to manage batches */
 typedef struct GFXBucket
 {
@@ -76,6 +68,14 @@ typedef struct GFXBucket
 	unsigned char   bits; /* Number of state bits that can be changed */
 
 } GFXBucket;
+
+
+/** Key representing a state */
+typedef uint64_t GFXBatchState;
+
+
+/** Unit in a batch */
+typedef GFXList GFXBatchUnit;
 
 
 /**
@@ -110,18 +110,24 @@ void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, GFXBatchMode mode,
 GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible);
 
 /**
- * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
- *
- * Note: if the source mode includes INSTANCED but only 1 instance is drawn, a performance hit might be expected.
+ * Returns the number of instances to draw.
  *
  */
-void gfx_bucket_set_instances(GFXBatchUnit* unit, size_t instances);
+size_t gfx_bucket_get_instances(GFXBatchUnit* unit);
 
 /**
  * Returns the manual bits of the state associated with a unit.
  *
  */
 GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
+
+/**
+ * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
+ *
+ * Note: if the source mode includes INSTANCED but only 1 instance is drawn, a performance hit might be expected.
+ *
+ */
+void gfx_bucket_set_instances(GFXBatchUnit* unit, size_t instances);
 
 /**
  * Sets the manual bits of the state to associate a unit with.

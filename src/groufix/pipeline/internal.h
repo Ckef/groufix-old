@@ -86,7 +86,7 @@ GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBucketFlags flags);
 void _gfx_bucket_free(GFXBucket* bucket);
 
 /**
- * Processes the bucket, calling all batch processes.
+ * Processes the bucket, drawing all batches.
  *
  */
 void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* ext);
