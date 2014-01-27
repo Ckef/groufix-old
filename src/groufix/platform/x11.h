@@ -134,7 +134,7 @@ int _gfx_x11_is_extension_supported(int screenNumber, const char* ext);
 GFXVectorIterator _gfx_x11_get_window_from_handle(Window handle);
 
 /**
- * Returns whether the OpenGL extension can be found in the space seperated string.
+ * Returns whether the OpenGL extension can be found in the space separated string.
  *
  * This method is primarily used in the platform implementations.
  *

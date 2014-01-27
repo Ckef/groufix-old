@@ -362,7 +362,7 @@ unsigned int gfx_hardware_poll_errors(const char* description);
  *
  * This determines how many objects with an hardware ID can be alive at the same time.
  * The actual width is one bit extra,
- * as you can always subract 1 to get an ID of the passed width (0 is not a valid ID).
+ * as you can always subtract 1 to get an ID of the passed width (0 is not a valid ID).
  *
  * Note: in order for this call to have any effect,
  * it should be called before hardware objects are created.

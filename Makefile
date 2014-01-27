@@ -160,6 +160,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/extensions.o \
  $(OUT)/unix-x11/groufix/hardware.o \
  $(OUT)/unix-x11/groufix/math.o \
+ $(OUT)/unix-x11/groufix/screen.o \
  $(OUT)/unix-x11/groufix/window.o \
  $(OUT)/unix-x11/groufix.o
 
@@ -261,6 +262,9 @@ $(OUT)/unix-x11/groufix/hardware.o: $(SRC)/groufix/hardware.c $(HEADERS_X11)
 $(OUT)/unix-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -298,6 +302,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/extensions.o \
  $(OUT)/win32/groufix/hardware.o \
  $(OUT)/win32/groufix/math.o \
+ $(OUT)/win32/groufix/screen.o \
  $(OUT)/win32/groufix/window.o \
  $(OUT)/win32/groufix.o
 
@@ -397,6 +402,9 @@ $(OUT)/win32/groufix/hardware.o: $(SRC)/groufix/hardware.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/screen.o: $(SRC)/groufix/screen.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/window.o: $(SRC)/groufix/window.c $(HEADERS_WIN32)

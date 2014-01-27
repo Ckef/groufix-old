@@ -432,7 +432,7 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 	AdjustWindowRectEx(&rect, style, FALSE, styleEx);
 
 	/* Make sure to convert to wide character */
-	wchar_t* name = utf8_to_wchar(attributes->name);
+	wchar_t* name = _gfx_win32_utf8_to_wchar(attributes->name);
 
 	/* Create the actual window */
 	window.handle = CreateWindowEx(
@@ -516,7 +516,7 @@ char* _gfx_platform_window_get_name(GFX_PlatformWindow handle)
 	if(!GetWindowText(handle, buff, len)) return NULL;
 
 	/* Make sure to convert to utf-8 */
-	char* utf8 = wchar_to_utf8(buff);
+	char* utf8 = _gfx_win32_wchar_to_utf8(buff);
 	free(buff);
 
 	return utf8;
@@ -552,7 +552,7 @@ void _gfx_platform_window_get_position(GFX_PlatformWindow handle, int* x, int* y
 void _gfx_platform_window_set_name(GFX_PlatformWindow handle, const char* name)
 {
 	/* Make sure to convert to wide character */
-	wchar_t* wchar = utf8_to_wchar(name);
+	wchar_t* wchar = _gfx_win32_utf8_to_wchar(name);
 	SetWindowText(handle, wchar);
 	free(wchar);
 }

@@ -162,7 +162,7 @@ GFXVectorIterator _gfx_win32_get_window_from_handle(HWND handle);
  * If the returned pointer is not NULL, it should be freed manually.
  *
  */
-wchar_t* utf8_to_wchar(const char* str);
+wchar_t* _gfx_win32_utf8_to_wchar(const char* str);
 
 /**
  * Converts a wide string to a UTF-8 string.
@@ -170,10 +170,10 @@ wchar_t* utf8_to_wchar(const char* str);
  * If the returned pointer is not NULL, it should be freed manually.
  *
  */
-char* wchar_to_utf8(const wchar_t* str);
+char* _gfx_win32_wchar_to_utf8(const wchar_t* str);
 
 /**
- * Returns whether the OpenGL extension can be found in the space seperated string.
+ * Returns whether the OpenGL extension can be found in the space separated string.
  *
  * This method is primarily used in the platform implementations.
  *

@@ -42,7 +42,7 @@ GFXVectorIterator _gfx_win32_get_window_from_handle(HWND handle)
 }
 
 /******************************************************/
-wchar_t* utf8_to_wchar(const char* str)
+wchar_t* _gfx_win32_utf8_to_wchar(const char* str)
 {
 	/* First get the required length in characters */
 	int length = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
@@ -58,7 +58,7 @@ wchar_t* utf8_to_wchar(const char* str)
 }
 
 /******************************************************/
-char* wchar_to_utf8(const wchar_t* str)
+char* _gfx_win32_wchar_to_utf8(const wchar_t* str)
 {
 	/* First get the required length in bytes */
 	int length = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
