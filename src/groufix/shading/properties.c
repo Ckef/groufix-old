@@ -183,12 +183,15 @@ void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext)
 		ext->UseProgram(internal->handle);
 	}
 
-	/* Set all properties */
-	struct GFX_Property* prop;
-	unsigned char properties = map->properties;
+	/* Secondly, prevent setting properties twice */
+	if(_gfx_program_target(map->program, map))
+	{
+		struct GFX_Property* prop;
+		unsigned char properties = map->properties;
 
-	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
-		_gfx_property_set(internal, prop, ext);
+		for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
+			_gfx_property_set(internal, prop, ext);
+	}
 }
 
 /******************************************************/
@@ -304,6 +307,9 @@ void gfx_property_map_free(GFXPropertyMap* map)
 	if(map)
 	{
 		struct GFX_Map* internal = (struct GFX_Map*)map;
+
+		/* Make sure to untarget its program */
+		_gfx_program_untarget(map->program, map);
 
 		/* Erase all properties */
 		struct GFX_Property* prop;

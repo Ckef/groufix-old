@@ -34,7 +34,8 @@ struct GFX_Program
 	GFXProgram program;
 
 	/* Hidden data */
-	GLuint handle; /* OpenGL handle */
+	GLuint           handle; /* OpenGL handle */
+	GFXPropertyMap*  map;    /* Last used map on this program, not used internally */
 };
 
 /******************************************************/
@@ -56,6 +57,25 @@ static GFX_HardwareFuncs _gfx_program_obj_funcs =
 	NULL,
 	NULL
 };
+
+/******************************************************/
+int _gfx_program_target(GFXProgram* program, GFXPropertyMap* map)
+{
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	if(internal->map == map) return 0;
+	internal->map = map;
+
+	return 1;
+}
+
+/******************************************************/
+void _gfx_program_untarget(GFXProgram* program, GFXPropertyMap* map)
+{
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	if(internal->map == map) internal->map = NULL;
+}
 
 /******************************************************/
 GLuint _gfx_program_get_handle(const GFXProgram* program)

@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * Internal property map usage & unit binding
+ * Internal program & property map usage
  *******************************************************/
 
 /**
@@ -39,6 +39,29 @@ extern "C" {
  *
  */
 void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext);
+
+/**
+ * Signals a program it is going to be used with a property map.
+ *
+ * @return Zero if the property map is already in use with this program.
+ *
+ * Note: this should only be called from within the property map.
+ *
+ */
+int _gfx_program_target(GFXProgram* program, GFXPropertyMap* map);
+
+/**
+ * Makes sure the program is not targeted by the given property map.
+ *
+ * Note: this should only be called from within the property map.
+ *
+ */
+void _gfx_program_untarget(GFXProgram* program, GFXPropertyMap* map);
+
+
+/********************************************************
+ * Internal unit binding
+ *******************************************************/
 
 /**
  * Binds a buffer to the appropriate uniform buffer index.
