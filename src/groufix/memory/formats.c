@@ -26,7 +26,7 @@
 #include <string.h>
 
 
-/* Define unkown format */
+/* Define unknown format */
 #define _GFX_UNKNOWN_FORMAT         -0x0001
 
 

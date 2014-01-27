@@ -41,9 +41,17 @@
 #include <GL/gl.h>
 #include <GL/wglext.h>
 
-/* Windows apparently does not define this everywhere... */
+/* Yeah these are missing */
+#ifndef DISPLAY_DEVICE_ACTIVE
+	#define DISPLAY_DEVICE_ACTIVE 0x001
+#endif
+
+#ifndef EDS_ROTATEMODE
+	#define EDS_ROTATEMODE 0x004
+#endif
+
 #ifndef WM_MOUSEHWHEEL
-#define WM_MOUSEHWHEEL 0x020e
+	#define WM_MOUSEHWHEEL 0x020e
 #endif
 
 /* Maximum key code lookup */
@@ -71,6 +79,19 @@ typedef struct GFX_Win32_Extensions
 
 } GFX_Win32_Extensions;
 
+/********************************************************
+ * Win32 Screen (a.k.a Display Device)
+ *******************************************************/
+
+/** Win32 Screen */
+typedef struct GFX_Win32_Screen
+{
+	TCHAR  name[32];
+	int    width;  /* Actual width, not virtual */
+	int    height; /* Actual height, not virtual */
+
+} GFX_Win32_Screen;
+
 
 /********************************************************
  * Win32 Window
@@ -88,10 +109,10 @@ typedef enum GFX_Win32_Flags
 /** Win32 Window */
 typedef struct GFX_Win32_Window
 {
-	HWND             handle; /* Given to the outside world */
-	HMONITOR         monitor;
-	HGLRC            context;
-	GFX_Win32_Flags  flags;
+	HWND               handle; /* Given to the outside world */
+	GFX_Win32_Screen*  screen;
+	HGLRC              context;
+	GFX_Win32_Flags    flags;
 
 } GFX_Win32_Window;
 
@@ -104,7 +125,7 @@ typedef struct GFX_Win32_Window
 typedef struct GFX_Win32_Instance
 {
 	/* Monitors and Windows */
-	GFXVector  monitors;        /* Stores HMONITOR */
+	GFXVector  screens;         /* Stores GFX_Win32_Screen */
 	GFXVector  windows;         /* Stores GFX_Win32_Window */
 	char       classRegistered; /* Whether or not the window class is registered */
 

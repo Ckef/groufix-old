@@ -217,13 +217,6 @@ static inline void _gfx_win32_create_key_table(void)
 }
 
 /******************************************************/
-static BOOL CALLBACK _gfx_win32_monitor_proc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data)
-{
-	/* Simply store the monitor handle */
-	return gfx_vector_insert(&_gfx_win32->monitors, &handle, _gfx_win32->monitors.end) != _gfx_win32->monitors.end;
-}
-
-/******************************************************/
 int _gfx_platform_init(void)
 {
 	if(!_gfx_win32)
@@ -238,11 +231,46 @@ int _gfx_platform_init(void)
 			free(_gfx_win32);
 			return 0;
 		}
-		gfx_vector_init(&_gfx_win32->monitors, sizeof(HMONITOR));
+		gfx_vector_init(&_gfx_win32->screens, sizeof(GFX_Win32_Screen));
 		gfx_vector_init(&_gfx_win32->windows, sizeof(GFX_Win32_Window));
 
-		/* Enumerate all monitors */
-		if(!EnumDisplayMonitors(NULL, NULL, _gfx_win32_monitor_proc, 0))
+		/* Enumerate all display adapters */
+		DISPLAY_DEVICE adapter;
+		ZeroMemory(&adapter, sizeof(DISPLAY_DEVICE));
+		adapter.cb = sizeof(DISPLAY_DEVICE);
+
+		DWORD i = 0;
+		while(EnumDisplayDevices(NULL, i++, &adapter, 0))
+		{
+			/* Validate adapter */
+			if(!(adapter.StateFlags & DISPLAY_DEVICE_ACTIVE) ||
+				adapter.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
+
+			/* Get display device (screen) */
+			DISPLAY_DEVICE display;
+			ZeroMemory(&display, sizeof(DISPLAY_DEVICE));
+			display.cb = sizeof(DISPLAY_DEVICE);
+
+			EnumDisplayDevices(adapter.DeviceName, 0, &display, 0);
+
+			/* Create new screen */
+			GFX_Win32_Screen screen;
+			memcpy(screen.name, adapter.DeviceName, sizeof(screen.name));
+
+			HDC dc = CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
+			screen.width = GetDeviceCaps(dc, HORZRES);
+			screen.height = GetDeviceCaps(dc, VERTRES);
+			DeleteDC(dc);
+
+			/* Insert at beginning if primary */
+			GFXVectorIterator scrPos = (adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) ?
+				_gfx_win32->screens.begin : _gfx_win32->screens.end;
+
+			gfx_vector_insert(&_gfx_win32->screens, &screen, scrPos);
+		}
+
+		/* Need at least one screen */
+		if(_gfx_win32->screens.begin == _gfx_win32->screens.end)
 		{
 			_gfx_platform_terminate();
 			return 0;
@@ -272,7 +300,7 @@ void _gfx_platform_terminate(void)
 			GFXVectorIterator it = gfx_vector_previous(&_gfx_win32->windows, _gfx_win32->windows.end);
 			_gfx_platform_window_free(((GFX_Win32_Window*)it)->handle);
 		}
-		gfx_vector_clear(&_gfx_win32->monitors);
+		gfx_vector_clear(&_gfx_win32->screens);
 		gfx_vector_clear(&_gfx_win32->windows);
 
 		/* Unregister window class */
