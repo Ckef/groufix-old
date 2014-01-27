@@ -154,7 +154,11 @@ static void _gfx_bucket_create_batches(struct GFX_Bucket* bucket)
 	}
 
 	/* Insert last batch */
-	if(batch.inst) gfx_vector_insert(&bucket->batches, &batch, bucket->batches.end);
+	if(batch.inst)
+	{
+		batch.src = ((struct GFX_Unit*)beg)->src;
+		gfx_vector_insert(&bucket->batches, &batch, bucket->batches.end);
+	}
 }
 
 /******************************************************/
