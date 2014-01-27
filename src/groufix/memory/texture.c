@@ -27,18 +27,6 @@
 
 #include <stdlib.h>
 
-#ifdef GFX_GLES
-
-	/* Some defines to be compatible */
-	#define GL_TEXTURE_1D                    0x0de0
-	#define GL_TEXTURE_1D_ARRAY              0x8c18
-	#define GL_TEXTURE_2D_MULTISAMPLE        0x9100
-	#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY  0x9102
-	#define GL_TEXTURE_BUFFER                0x8c2a
-	#define GL_TEXTURE_CUBE_MAP_ARRAY        0x9009
-
-#endif
-
 /******************************************************/
 /* Internal Texture */
 struct GFX_Texture

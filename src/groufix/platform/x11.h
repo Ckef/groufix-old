@@ -43,8 +43,13 @@
 #include <GL/glxext.h>
 
 /* More of them buttons! */
-#define Button6  6
-#define Button7  7
+#ifndef Button6
+	#define Button6  6
+#endif
+
+#ifndef Button7
+	#define Button7  7
+#endif
 
 /* Maximum key code lookup */
 #define GFX_X11_MAX_KEYCODE   0x0ff

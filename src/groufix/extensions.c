@@ -25,10 +25,12 @@
 #include "groufix/pipeline/internal.h"
 #include "groufix/errors.h"
 
+#include <string.h>
+
 #ifdef GFX_GLES
 
 /******************************************************/
-static void _gfx_gles_framebuffer_texture_1d(GLenum target, GLenum attach, GLenum textarget, GLint texture, GLint level)
+static void _gfx_gles_framebuffer_texture_1d(GLenum target, GLenum attach, GLenum textarget, GLuint texture, GLint level)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -98,13 +100,13 @@ static void _gfx_gles_polygon_mode(GLenum face, GLenum mode)
 }
 
 /******************************************************/
-static void _gfx_gles_tex_image_2d_multisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei w, GLsizei h, GLboolean f)
+static void _gfx_gles_tex_image_2d_multisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei w, GLsizei h, GLboolean f)
 {
 	_gfx_gles_multisample_tex_error();
 }
 
 /******************************************************/
-static void _gfx_gles_tex_image_3d_multisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei w, GLsizei h, GLsizei d, GLboolean f)
+static void _gfx_gles_tex_image_3d_multisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei w, GLsizei h, GLsizei d, GLboolean f)
 {
 	_gfx_gles_multisample_tex_error();
 }

@@ -26,6 +26,26 @@
 
 #include "groufix/internal.h"
 
+/* Compatibility defines */
+#ifndef GL_TEXTURE_1D
+	#define GL_TEXTURE_1D                    0x0de0
+#endif
+#ifndef GL_TEXTURE_1D_ARRAY
+	#define GL_TEXTURE_1D_ARRAY              0x8c18
+#endif
+#ifndef GL_TEXTURE_2D_MULTISAMPLE
+	#define GL_TEXTURE_2D_MULTISAMPLE        0x9100
+#endif
+#ifndef GL_TEXTURE_2D_MULTISAMPLE_ARRAY
+	#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY  0x9102
+#endif
+#ifndef GL_TEXTURE_BUFFER
+	#define GL_TEXTURE_BUFFER                0x8c2a
+#endif
+#ifndef GL_TEXTURE_CUBE_MAP_ARRAY
+	#define GL_TEXTURE_CUBE_MAP_ARRAY        0x9009
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
