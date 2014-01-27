@@ -92,6 +92,12 @@ static void _gfx_gles_multisample_tex_error(void)
 }
 
 /******************************************************/
+static void _gfx_gles_polygon_mode(GLenum face, GLenum mode)
+{
+	/* Just ignore the call */
+}
+
+/******************************************************/
 static void _gfx_gles_tex_image_2d_multisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei w, GLsizei h, GLboolean f)
 {
 	_gfx_gles_multisample_tex_error();
@@ -174,6 +180,7 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 	ext->flags[GFX_EXT_LAYERED_CUBEMAP]      = 0;
 	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE]  = 0;
+	ext->flags[GFX_EXT_POLYGON_STATE]        = 0;
 	ext->flags[GFX_EXT_PROGRAM_BINARY]       = 1;
 	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]     = 0;
 	ext->flags[GFX_EXT_TESSELLATION_SHADER]  = 0;
@@ -239,6 +246,7 @@ void _gfx_extensions_load(void)
 	ext->LinkProgram              = glLinkProgram;
 	ext->MapBufferRange           = glMapBufferRange;
 	ext->PixelStorei              = glPixelStorei;
+	ext->PolygonMode              = _gfx_gles_polygon_mode;
 	ext->ProgramBinary            = glProgramBinary;
 	ext->ShaderSource             = glShaderSource;
 	ext->TexBuffer                = _gfx_gles_tex_buffer;
@@ -286,6 +294,7 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]      = 1;
 	ext->flags[GFX_EXT_GEOMETRY_SHADER]     = 1;
 	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
+	ext->flags[GFX_EXT_POLYGON_STATE]       = 1;
 	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]    = 1;
 	ext->flags[GFX_EXT_TEXTURE_1D]          = 1;
 
@@ -348,6 +357,7 @@ void _gfx_extensions_load(void)
 	ext->LinkProgram              = (PFNGLLINKPROGRAMPROC)              _gfx_platform_get_proc_address("glLinkProgram");
 	ext->MapBufferRange           = (PFNGLMAPBUFFERRANGEPROC)           _gfx_platform_get_proc_address("glMapBufferRange");
 	ext->PixelStorei              = (PFNGLPIXELSTOREIPROC)              glPixelStorei;
+	ext->PolygonMode              = (PFNGLPOLYGONMODEPROC)              glPolygonMode;
 	ext->ShaderSource             = (PFNGLSHADERSOURCEPROC)             _gfx_platform_get_proc_address("glShaderSource");
 	ext->TexBuffer                = (PFNGLTEXBUFFERPROC)                _gfx_platform_get_proc_address("glTexBuffer");
 	ext->TexImage1D               = (PFNGLTEXIMAGE1DPROC)               glTexImage1D;

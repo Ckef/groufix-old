@@ -35,6 +35,15 @@ static inline void _gfx_states_clear_buffers(GFXPipeState state, const GFX_Exten
 }
 
 /******************************************************/
+static inline void _gfx_state_set_polygon_mode(GFXPipeState state, const GFX_Extensions* ext)
+{
+	if(state & GFX_STATE_WIREFRAME) ext->PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else if(state & GFX_STATE_POINTCLOUD) ext->PolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+
+	else ext->PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+/******************************************************/
 static inline void _gfx_state_set_rasterizer(GFXPipeState state, const GFX_Extensions* ext)
 {
 	if(state & GFX_STATE_NO_RASTERIZER) ext->Enable(GL_RASTERIZER_DISCARD);
@@ -86,6 +95,8 @@ void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext)
 	if(diff)
 	{
 		/* Set all states */
+		if(diff & (GFX_STATE_WIREFRAME | GFX_STATE_POINTCLOUD))
+			_gfx_state_set_polygon_mode(state, ext);
 		if(diff & GFX_STATE_NO_RASTERIZER)
 			_gfx_state_set_rasterizer(state, ext);
 		if(diff & GFX_STATE_DEPTH_WRITE)
@@ -111,6 +122,7 @@ void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext)
 	ext->state = state;
 
 	/* Set all states */
+	_gfx_state_set_polygon_mode(state, ext);
 	_gfx_state_set_rasterizer(state, ext);
 	ext->DepthMask(state & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
 	_gfx_state_set_depth_test(state, ext);
