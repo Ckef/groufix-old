@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/containers/list.h"
 #include "groufix/containers/vector.h"
 #include "groufix/memory/internal.h"
 #include "groufix/pipeline/internal.h"

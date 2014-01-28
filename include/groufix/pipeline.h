@@ -24,7 +24,6 @@
 #ifndef GFX_PIPELINE_H
 #define GFX_PIPELINE_H
 
-#include "groufix/containers/list.h"
 #include "groufix/shading.h"
 #include "groufix/window.h"
 
@@ -74,10 +73,6 @@ typedef struct GFXBucket
 typedef uint64_t GFXBatchState;
 
 
-/** Unit in a batch */
-typedef GFXList GFXBatchUnit;
-
-
 /**
  * Adds a new source to the bucket.
  *
@@ -91,7 +86,6 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLa
 /**
  * Sets the draw calls to issue from the source.
  *
- * @param src   The ID of the source.
  * @param start First draw call to issue.
  * @param num   Number of draw calls to issue starting at start.
  *
@@ -101,57 +95,73 @@ void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, GFXBatchMode mode,
 /**
  * Insert a unit to be processed into the bucket.
  *
- * @param src     ID of the source to use for this unit.
  * @param state   Manual bits of the state to associate this unit with.
  * @param visible Non-zero if visible, invisible otherwise.
- * @return The inserted unit, NULL on failure.
+ * @return The ID of the inserted unit, 0 on failure.
  *
  */
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible);
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible);
 
 /**
  * Returns the number of instances to draw.
  *
+ * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
+ *
  */
-size_t gfx_bucket_get_instances(GFXBatchUnit* unit);
+size_t gfx_bucket_get_instances(GFXBucket* bucket, size_t unit);
 
 /**
  * Returns the manual bits of the state associated with a unit.
  *
+ * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
+ *
  */
-GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit);
+GFXBatchState gfx_bucket_get_state(GFXBucket* bucket, size_t unit);
+
+/**
+ * Returns whether a unit is visible or not.
+ *
+ * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
+ *
+ */
+int gfx_bucket_is_visible(GFXBucket* bucket, size_t unit);
 
 /**
  * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
  *
+ * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
+ *
  * Note: if the source mode includes INSTANCED but only 1 instance is drawn, a performance hit might be expected.
  *
  */
-void gfx_bucket_set_instances(GFXBatchUnit* unit, size_t instances);
+void gfx_bucket_set_instances(GFXBucket* bucket, size_t unit, size_t instances);
 
 /**
  * Sets the manual bits of the state to associate a unit with.
  *
- * Note: changing the state is a rather expensive operation if different from the previous state.
+ * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
  *
  */
-void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state);
+void gfx_bucket_set_state(GFXBucket* bucket, size_t unit, GFXBatchState state);
 
 /**
  * Sets the visibility of a unit.
  *
+ * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
  * @param visible Non-zero if visible, invisible otherwise.
  *
  * Note: making a unit visible is expensive regardless of its previous visibility.
  *
  */
-void gfx_bucket_set_visible(GFXBatchUnit* unit, int visible);
+void gfx_bucket_set_visible(GFXBucket* bucket, size_t unit, int visible);
 
 /**
  * Erases and frees a unit from its bucket.
  *
+ * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
+ *
  */
-void gfx_bucket_erase(GFXBatchUnit* unit);
+void gfx_bucket_erase(GFXBucket* bucket, size_t unit);
 
 
 /********************************************************

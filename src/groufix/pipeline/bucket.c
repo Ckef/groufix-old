@@ -30,8 +30,13 @@
 #include <string.h>
 
 /* Internal bucket flags */
-#define GFX_INT_BUCKET_SORT   0x01
-#define GFX_INT_BUCKET_BATCH  0x02
+#define GFX_INT_BUCKET_PROCESS_UNITS  0x01
+#define GFX_INT_BUCKET_SORT           0x02
+
+/* Internal unit action (for processing) */
+#define GFX_INT_UNIT_VISIBLE    0
+#define GFX_INT_UNIT_INVISIBLE  1
+#define GFX_INT_UNIT_ERASE      2
 
 /******************************************************/
 /* Internal bucket */
@@ -41,16 +46,14 @@ struct GFX_Bucket
 	GFXBucket bucket;
 
 	/* Hidden data */
-	unsigned char  bit;       /* Index of the max bit to sort by */
-	unsigned char  flags;
+	unsigned char      bit;     /* Index of the max bit to sort by */
+	unsigned char      flags;
 
-	GFXBatchUnit*  first;     /* Begin of units */
-	GFXBatchUnit*  last;      /* End of units */
-	GFXBatchUnit*  invisible; /* All invisible units */
+	GFXVector          sources; /* Stores GFX_Source */
+	GFXVector          refs;    /* References to units (units[refs[ID - 1] - 1] = unit, 0 is empty) */
 
-	/* Drawing data */
-	GFXVector      sources;
-	GFXVector      batches;
+	GFXVector          units;   /* Stores GFX_Unit */
+	GFXVectorIterator  visible; /* Everything after is not visible */
 };
 
 /* Internal source */
@@ -64,100 +67,144 @@ struct GFX_Source
 	unsigned char     num;
 };
 
-/* Internal batch */
-struct GFX_Batch
-{
-	size_t src;  /* Source of the bucket to use (ID - 1) */
-	size_t inst; /* Number of instances */
-};
-
 /* Internal batch unit */
 struct GFX_Unit
 {
-	/* Super class */
-	GFXBatchUnit unit;
-
-	/* Hidden data */
 	GFXBatchState  state;
-	GFXBucket*     bucket;
+	unsigned char  action;
+	size_t         ref;  /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
 	size_t         src;  /* Source of the bucket to use (ID - 1) */
 	size_t         inst; /* Number of instances */
 };
 
 /******************************************************/
-static void _gfx_bucket_radix_sort(GFXBatchState bit, GFXBatchUnit** first, GFXBatchUnit** last)
+static size_t _gfx_bucket_insert_ref(struct GFX_Bucket* bucket, size_t unitIndex)
 {
-	/* Nothing to sort */
-	if(*first != *last && bit)
+	++unitIndex;
+
+	/* Search for an empty reference */
+	GFXVectorIterator it;
+	for(it = bucket->refs.begin; it != bucket->refs.end; it = gfx_vector_next(&bucket->refs, it))
+		if(!(*(size_t*)it)) *(size_t*)it = unitIndex;
+
+	/* Insert a new one */
+	if(it == bucket->refs.end) it = gfx_vector_insert(&bucket->refs, &unitIndex, bucket->refs.end);
+
+	/* Return index + 1, 0 would be a failure */
+	return (it == bucket->refs.end) ? 0 : gfx_vector_get_index(&bucket->refs, it) + 1;
+}
+
+/******************************************************/
+static inline struct GFX_Unit* _gfx_bucket_ref_get(struct GFX_Bucket* bucket, size_t id)
+{
+	return gfx_vector_at(&bucket->units, *(size_t*)gfx_vector_at(&bucket->refs, id - 1) - 1);
+}
+
+/******************************************************/
+static void _gfx_bucket_erase_ref(struct GFX_Bucket* bucket, struct GFX_Unit* unit)
+{
+	GFXVectorIterator it = gfx_vector_at(&bucket->refs, unit->ref);
+	*(size_t*)it = 0;
+
+	/* Erase trailing zeros */
+	if(unit->ref + 1 >= gfx_vector_get_size(&bucket->refs))
 	{
-		/* Loop over all entries */
-		GFXBatchUnit* mid = *last; /* last to iterate to */
-		GFXBatchUnit* cur = *first;
-
-		while(cur != mid)
+		size_t del = 1;
+		while(it != bucket->refs.begin)
 		{
-			GFXBatchUnit* next = cur->next;
+			GFXVectorIterator prev = gfx_vector_previous(&bucket->refs, it);
+			if(*(size_t*)prev) break;
 
-			/* If 1, put in 1 bucket */
-			if(((struct GFX_Unit*)cur)->state & bit)
-			{
-				*first = (*first == cur) ? next : *first;
-				gfx_list_splice_after(cur, *last);
-				*last = cur;
-			}
-			cur = next;
+			it = prev;
+			++del;
 		}
 
-		/* Implicitly sort the last unit */
-		int nonZero = ((struct GFX_Unit*)mid)->state & bit;
-		bit >>= 1;
-
-		if(mid != (nonZero ? *first : *last))
-		{
-			/* Force it to first sort the 0s bucket, so batches are in order */
-			mid = nonZero ? mid : mid->next;
-
-			_gfx_bucket_radix_sort(bit, first, &mid->previous);
-			_gfx_bucket_radix_sort(bit, &mid, last);
-		}
-		else _gfx_bucket_radix_sort(bit, first, last);
+		gfx_vector_erase_range(&bucket->refs, del, it);
 	}
 }
 
 /******************************************************/
-static void _gfx_bucket_create_batches(struct GFX_Bucket* bucket)
+static void _gfx_bucket_swap_units(struct GFX_Bucket* bucket, struct GFX_Unit* unit1, struct GFX_Unit* unit2)
 {
-	/* Empty all */
-	gfx_vector_clear(&bucket->batches);
+	struct GFX_Unit temp = *unit1;
+	*unit1 = *unit2;
+	*unit2 = temp;
 
-	/* Iterate over all units */
-	GFXBatchUnit* beg = bucket->first;
-	GFXBatchUnit* cur = bucket->first;
+	/* Correct references */
+	*(size_t*)gfx_vector_at(&bucket->refs, unit1->ref) = gfx_vector_get_index(&bucket->units, unit1) + 1;
+	*(size_t*)gfx_vector_at(&bucket->refs, unit2->ref) = gfx_vector_get_index(&bucket->units, unit2) + 1;
+}
 
-	struct GFX_Batch batch;
-	batch.inst = 0;
+/******************************************************/
+static void _gfx_bucket_process_units(struct GFX_Bucket* bucket)
+{
+	/* Iterate and filter visible */
+	GFXVectorIterator end = bucket->units.end;
+	GFXVectorIterator it = bucket->units.begin;
+	size_t visible = 0;
 
-	while(cur)
+	while(it != end)
 	{
-		/* Create new batch and reset */
-		if(((struct GFX_Unit*)cur)->src != ((struct GFX_Unit*)beg)->src)
+		/* Swap out if not visible */
+		if(((struct GFX_Unit*)it)->action != GFX_INT_UNIT_VISIBLE)
 		{
-			batch.src = ((struct GFX_Unit*)beg)->src;
-			gfx_vector_insert(&bucket->batches, &batch, bucket->batches.end);
-
-			batch.inst = 0;
+			end = gfx_vector_previous(&bucket->units, end);
+			_gfx_bucket_swap_units(bucket, it, end);
 		}
-
-		/* Increase instances and continue */
-		batch.inst += ((struct GFX_Unit*)cur)->inst;
-		cur = cur->next;
+		else
+		{
+			it = gfx_vector_next(&bucket->units, it);
+			++visible;
+		}
 	}
 
-	/* Insert last batch */
-	if(batch.inst)
+	/* Iterate again and filter the ones to be erased */
+	end = bucket->units.end;
+	size_t erased = 0;
+
+	while(it != end)
 	{
-		batch.src = ((struct GFX_Unit*)beg)->src;
-		gfx_vector_insert(&bucket->batches, &batch, bucket->batches.end);
+		/* Swap out if it should be erased */
+		if(((struct GFX_Unit*)it)->action == GFX_INT_UNIT_ERASE)
+		{
+			end = gfx_vector_previous(&bucket->units, end);
+			_gfx_bucket_swap_units(bucket, it, end);
+
+			/* Erase precautions */
+			_gfx_bucket_erase_ref(bucket, end);
+			++erased;
+		}
+		else it = gfx_vector_next(&bucket->units, it);
+	}
+
+	/* Erase the ones to be erased :D */
+	gfx_vector_erase_range(&bucket->units, erased, it);
+	bucket->visible = gfx_vector_advance(&bucket->units, bucket->units.begin, visible);
+}
+
+/******************************************************/
+static void _gfx_bucket_radix_sort(struct GFX_Bucket* bucket, GFXBatchState bit, GFXVectorIterator begin, GFXVectorIterator end)
+{
+	/* Loop over all units */
+	GFXVectorIterator mid = end;
+	GFXVectorIterator it = begin;
+
+	while(it != mid)
+	{
+		/* If 1, put in 1 bucket */
+		if(((struct GFX_Unit*)it)->state & bit)
+		{
+			mid = gfx_vector_previous(&bucket->units, mid);
+			_gfx_bucket_swap_units(bucket, it, mid);
+		}
+		else it = gfx_vector_next(&bucket->units, it);
+	}
+
+	/* Sort both buckets */
+	if(bit >>= 1)
+	{
+		if(begin != mid) _gfx_bucket_radix_sort(bucket, bit, begin, mid);
+		if(mid != end) _gfx_bucket_radix_sort(bucket, bit, mid, end);
 	}
 }
 
@@ -167,21 +214,26 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 
 	/* Handle the flags */
-	if(internal->flags & GFX_INT_BUCKET_SORT)
-		_gfx_bucket_radix_sort(1 << internal->bit, &internal->first, &internal->last);
+	if(internal->flags & GFX_INT_BUCKET_PROCESS_UNITS)
+		_gfx_bucket_process_units(internal);
 
-	if(internal->flags & GFX_INT_BUCKET_BATCH)
-		_gfx_bucket_create_batches(internal);
+	if(internal->flags & GFX_INT_BUCKET_SORT)
+		_gfx_bucket_radix_sort(
+			internal,
+			(GFXBatchState)1 << internal->bit,
+			internal->units.begin,
+			internal->visible
+		);
 
 	internal->flags = 0;
 
 	/* Set states and process */
 	_gfx_states_set(state, ext);
 
-	struct GFX_Batch* batch;
-	for(batch = internal->batches.begin; batch != internal->batches.end; batch = gfx_vector_next(&internal->batches, batch))
+	struct GFX_Unit* unit;
+	for(unit = internal->units.begin; unit != internal->visible; unit = gfx_vector_next(&internal->units, unit))
 	{
-		struct GFX_Source* src = (struct GFX_Source*)gfx_vector_at(&internal->sources, batch->src);
+		struct GFX_Source* src = gfx_vector_at(&internal->sources, unit->src);
 
 		/* Bind shader program & draw */
 		_gfx_property_map_use(src->map, ext);
@@ -209,7 +261,7 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 					src->layout,
 					src->start,
 					src->num,
-					batch->inst
+					unit->inst
 				);
 				break;
 
@@ -218,7 +270,7 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 					src->layout,
 					src->start,
 					src->num,
-					batch->inst
+					unit->inst
 				);
 				break;
 		}
@@ -289,7 +341,10 @@ GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBucketFlags flags)
 	bucket->bit = intern + bucket->bucket.bits - 1;
 
 	gfx_vector_init(&bucket->sources, sizeof(struct GFX_Source));
-	gfx_vector_init(&bucket->batches, sizeof(struct GFX_Batch));
+	gfx_vector_init(&bucket->refs, sizeof(size_t));
+	gfx_vector_init(&bucket->units, sizeof(struct GFX_Unit));
+
+	bucket->visible = bucket->units.end;
 
 	return (GFXBucket*)bucket;
 }
@@ -302,10 +357,8 @@ void _gfx_bucket_free(GFXBucket* bucket)
 		struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 
 		gfx_vector_clear(&internal->sources);
-		gfx_vector_clear(&internal->batches);
-
-		gfx_list_free(internal->first);
-		gfx_list_free(internal->invisible);
+		gfx_vector_clear(&internal->refs);
+		gfx_vector_clear(&internal->units);
 
 		free(bucket);
 	}
@@ -336,125 +389,122 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLa
 /******************************************************/
 void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, GFXBatchMode mode, unsigned char start, unsigned char num)
 {
+	/* Validate index */
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
-	struct GFX_Source* source = (struct GFX_Source*)gfx_vector_at(&internal->sources, src - 1);
+	size_t cnt = gfx_vector_get_size(&internal->sources);
 
-	source->mode = mode;
-	source->start = start;
-	source->num = num;
+	if(src <= cnt)
+	{
+		struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
+
+		source->mode = mode;
+		source->start = start;
+		source->num = num;
+	}
 }
 
 /******************************************************/
-GFXBatchUnit* gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible)
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible)
+{
+	/* Validate index */
+	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+	size_t cnt = gfx_vector_get_size(&internal->sources);
+
+	if(src > cnt) return 0;
+
+	struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
+
+	/* Insert the new unit */
+	struct GFX_Unit unit;
+
+	unit.state  = _gfx_bucket_get_state(internal, source->layout->id, source->map->program->id);
+	unit.state  = _gfx_bucket_add_manual_state(internal, state, unit.state);
+	unit.action = visible ? GFX_INT_UNIT_VISIBLE : GFX_INT_UNIT_INVISIBLE;
+	unit.src    = src - 1;
+	unit.inst   = 1;
+
+	GFXVectorIterator it = gfx_vector_insert(&internal->units, &unit, internal->units.end);
+	if(it == internal->units.end) return 0;
+
+	/* Insert a reference for it */
+	size_t id = _gfx_bucket_insert_ref(internal, gfx_vector_get_index(&internal->units, it));
+	if(!id)
+	{
+		/* Erase it */
+		gfx_vector_erase(&internal->units, it);
+		return 0;
+	}
+	((struct GFX_Unit*)it)->ref = id - 1;
+
+	/* Force to process and sort if necessary */
+	internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS;
+	if(visible) internal->flags |= GFX_INT_BUCKET_SORT;
+
+	return id;
+}
+
+/******************************************************/
+size_t gfx_bucket_get_instances(GFXBucket* bucket, size_t unit)
+{
+	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->inst;
+}
+
+/******************************************************/
+GFXBatchState gfx_bucket_get_state(GFXBucket* bucket, size_t unit)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
-	struct GFX_Source* source = (struct GFX_Source*)gfx_vector_at(&internal->sources, src - 1);
-
-	/* Create unit */
-	struct GFX_Unit* unit = (struct GFX_Unit*)gfx_list_create(sizeof(struct GFX_Unit));
-	if(!unit) return NULL;
-
-	unit->state = _gfx_bucket_get_state(internal, source->layout->id, source->map->program->id);
-	unit->state = _gfx_bucket_add_manual_state(internal, state, unit->state);
-	unit->bucket = bucket;
-
-	unit->src = src - 1;
-	unit->inst = 1;
-
-	/* Insert unit */
-	gfx_bucket_set_visible((GFXBatchUnit*)unit, visible);
-
-	return (GFXBatchUnit*)unit;
+	return _gfx_bucket_get_manual_state(internal, _gfx_bucket_ref_get(internal, unit)->state);
 }
 
 /******************************************************/
-size_t gfx_bucket_get_instances(GFXBatchUnit* unit)
+int gfx_bucket_is_visible(GFXBucket* bucket, size_t unit)
 {
-	return ((struct GFX_Unit*)unit)->inst;
+	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->action == GFX_INT_UNIT_VISIBLE;
 }
 
 /******************************************************/
-GFXBatchState gfx_bucket_get_state(GFXBatchUnit* unit)
+void gfx_bucket_set_instances(GFXBucket* bucket, size_t unit, size_t instances)
 {
-	struct GFX_Unit* internal = (struct GFX_Unit*)unit;
-	struct GFX_Bucket* bucket = (struct GFX_Bucket*)internal->bucket;
-
-	return _gfx_bucket_get_manual_state(bucket, internal->state);
+	_gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->inst = instances > 0 ? instances : 1;
 }
 
 /******************************************************/
-void gfx_bucket_set_instances(GFXBatchUnit* unit, size_t instances)
+void gfx_bucket_set_state(GFXBucket* bucket, size_t unit, GFXBatchState state)
 {
-	struct GFX_Unit* internal = (struct GFX_Unit*)unit;
-	struct GFX_Bucket* bucket = (struct GFX_Bucket*)internal->bucket;
-
-	internal->inst = instances > 0 ? instances : 1;
-	bucket->flags |= GFX_INT_BUCKET_BATCH;
-}
-
-/******************************************************/
-void gfx_bucket_set_state(GFXBatchUnit* unit, GFXBatchState state)
-{
-	struct GFX_Unit* internal = (struct GFX_Unit*)unit;
-	struct GFX_Bucket* bucket = (struct GFX_Bucket*)internal->bucket;
+	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
 
 	/* Detect equal states */
-	state = _gfx_bucket_add_manual_state(bucket, state, internal->state);
-	if(internal->state != state)
+	state = _gfx_bucket_add_manual_state(internal, state, un->state);
+	if(un->state != state && un->action == GFX_INT_UNIT_VISIBLE)
 	{
-		/* Force a re-sort */
-		internal->state = state;
-		bucket->flags |= GFX_INT_BUCKET_SORT | GFX_INT_BUCKET_BATCH;
+		/* Force a re-sort if visible */
+		internal->flags |= GFX_INT_BUCKET_SORT;
 	}
+	un->state = state;
 }
 
 /******************************************************/
-void gfx_bucket_set_visible(GFXBatchUnit* unit, int visible)
+void gfx_bucket_set_visible(GFXBucket* bucket, size_t unit, int visible)
 {
-	struct GFX_Unit* internal = (struct GFX_Unit*)unit;
-	struct GFX_Bucket* bucket = (struct GFX_Bucket*)internal->bucket;
+	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
 
-	/* First remove it from any list */
-	if(bucket->invisible == unit) bucket->invisible = unit->next;
-	if(bucket->first == unit) bucket->first = unit->next;
-	if(bucket->last == unit) bucket->last = unit->previous;
+	visible = visible ? 1 : 0;
+	int cur = (un->action == GFX_INT_UNIT_VISIBLE) ? 1 : 0;
 
-	gfx_list_unsplice(unit, unit);
-
-	if(visible)
-	{
-		/* Insert into batch list */
-		if(!bucket->last) bucket->last = unit;
-		else gfx_list_splice_before(unit, bucket->first);
-
-		bucket->first = unit;
-
-		/* Force a re-sort */
-		bucket->flags |= GFX_INT_BUCKET_SORT;
-	}
-	else
-	{
-		/* Insert into invisible list */
-		if(!bucket->invisible) bucket->invisible = unit;
-		else gfx_list_splice_after(unit, bucket->invisible);
-	}
-
-	bucket->flags |= GFX_INT_BUCKET_BATCH;
+	if(visible != cur) internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS | GFX_INT_BUCKET_SORT;
+	un->action = visible ? GFX_INT_UNIT_VISIBLE : GFX_INT_UNIT_INVISIBLE;
 }
 
 /******************************************************/
-void gfx_bucket_erase(GFXBatchUnit* unit)
+void gfx_bucket_erase(GFXBucket* bucket, size_t unit)
 {
-	struct GFX_Unit* internal = (struct GFX_Unit*)unit;
-	struct GFX_Bucket* bucket = (struct GFX_Bucket*)internal->bucket;
+	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
 
-	/* Erase it */
-	GFXBatchUnit* new = gfx_list_erase(unit);
+	internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS;
+	if(un->action == GFX_INT_UNIT_VISIBLE) internal->flags |= GFX_INT_BUCKET_SORT;
 
-	/* Replace first or last if necessary */
-	if(bucket->invisible == unit) bucket->invisible = new;
-	if(bucket->first == unit) bucket->first = new;
-	if(bucket->last == unit) bucket->last = new;
-
-	bucket->flags |= GFX_INT_BUCKET_BATCH;
+	un->action = GFX_INT_UNIT_ERASE;
 }
