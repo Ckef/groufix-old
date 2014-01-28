@@ -22,6 +22,7 @@
  */
 
 #include "groufix/platform/win32.h"
+#include "groufix.h"
 
 #include <stdlib.h>
 
@@ -602,6 +603,6 @@ void _gfx_platform_poll_events(void)
 		}
 
 		/* Terminate properly on WM_QUIT */
-		else _gfx_platform_terminate();
+		else gfx_terminate();
 	}
 }
