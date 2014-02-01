@@ -450,6 +450,12 @@ GLuint _gfx_program_get_handle(const GFXProgram* program);
 GLuint _gfx_shader_get_handle(const GFXShader* shader);
 
 /**
+ * Returns the handle of a shared buffer.
+ *
+ */
+GLuint _gfx_shared_buffer_get_handle(const GFXSharedBuffer* buffer);
+
+/**
  * Returns the handle of a texture.
  *
  */

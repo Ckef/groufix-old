@@ -140,6 +140,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/memory/buffer.o \
  $(OUT)/unix-x11/groufix/memory/formats.o \
  $(OUT)/unix-x11/groufix/memory/layout.o \
+ $(OUT)/unix-x11/groufix/memory/shared_buffer.o \
  $(OUT)/unix-x11/groufix/memory/texture.o \
  $(OUT)/unix-x11/groufix/pipeline/bucket.o \
  $(OUT)/unix-x11/groufix/pipeline/pipes.o \
@@ -153,7 +154,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/platform/x11_window.o \
  $(OUT)/unix-x11/groufix/shading/binder.o \
  $(OUT)/unix-x11/groufix/shading/program.o \
- $(OUT)/unix-x11/groufix/shading/properties.o \
+ $(OUT)/unix-x11/groufix/shading/property_map.o \
  $(OUT)/unix-x11/groufix/shading/shader.o \
  $(OUT)/unix-x11/groufix/errors.o \
  $(OUT)/unix-x11/groufix/events.o \
@@ -202,6 +203,9 @@ $(OUT)/unix-x11/groufix/memory/formats.o: $(SRC)/groufix/memory/formats.c $(HEAD
 $(OUT)/unix-x11/groufix/memory/layout.o: $(SRC)/groufix/memory/layout.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/memory/shared_buffer.o: $(SRC)/groufix/memory/shared_buffer.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/memory/texture.o: $(SRC)/groufix/memory/texture.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -241,7 +245,7 @@ $(OUT)/unix-x11/groufix/shading/binder.o: $(SRC)/groufix/shading/binder.c $(HEAD
 $(OUT)/unix-x11/groufix/shading/program.o: $(SRC)/groufix/shading/program.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-$(OUT)/unix-x11/groufix/shading/properties.o: $(SRC)/groufix/shading/properties.c $(HEADERS_X11)
+$(OUT)/unix-x11/groufix/shading/property_map.o: $(SRC)/groufix/shading/property_map.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/shading/shader.o: $(SRC)/groufix/shading/shader.c $(HEADERS_X11)
@@ -282,6 +286,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/memory/buffer.o \
  $(OUT)/win32/groufix/memory/formats.o \
  $(OUT)/win32/groufix/memory/layout.o \
+ $(OUT)/win32/groufix/memory/shared_buffer.o \
  $(OUT)/win32/groufix/memory/texture.o \
  $(OUT)/win32/groufix/pipeline/bucket.o \
  $(OUT)/win32/groufix/pipeline/pipes.o \
@@ -295,7 +300,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/platform/win32_window.o \
  $(OUT)/win32/groufix/shading/binder.o \
  $(OUT)/win32/groufix/shading/program.o \
- $(OUT)/win32/groufix/shading/properties.o \
+ $(OUT)/win32/groufix/shading/property_map.o \
  $(OUT)/win32/groufix/shading/shader.o \
  $(OUT)/win32/groufix/errors.o \
  $(OUT)/win32/groufix/events.o \
@@ -344,6 +349,9 @@ $(OUT)/win32/groufix/memory/formats.o: $(SRC)/groufix/memory/formats.c $(HEADERS
 $(OUT)/win32/groufix/memory/layout.o: $(SRC)/groufix/memory/layout.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
+$(OUT)/win32/groufix/memory/shared_buffer.o: $(SRC)/groufix/memory/shared_buffer.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
 $(OUT)/win32/groufix/memory/texture.o: $(SRC)/groufix/memory/texture.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
@@ -383,7 +391,7 @@ $(OUT)/win32/groufix/shading/binder.o: $(SRC)/groufix/shading/binder.c $(HEADERS
 $(OUT)/win32/groufix/shading/program.o: $(SRC)/groufix/shading/program.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/shading/properties.o: $(SRC)/groufix/shading/properties.c $(HEADERS_WIN32)
+$(OUT)/win32/groufix/shading/property_map.o: $(SRC)/groufix/shading/property_map.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/shading/shader.o: $(SRC)/groufix/shading/shader.c $(HEADERS_WIN32)

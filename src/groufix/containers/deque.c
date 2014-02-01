@@ -24,12 +24,17 @@
 #include "groufix/containers/deque.h"
 #include "groufix/utils.h"
 
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define GFX_DEQUE_MSB (~(SIZE_MAX >> 1))
 
 /******************************************************/
 static inline size_t _gfx_deque_get_max_capacity(size_t size)
 {
+	if(size > GFX_DEQUE_MSB) return size;
+
 	size_t cap = 1;
 	while(cap < size) cap <<= 1;
 

@@ -51,6 +51,17 @@ extern "C" {
 #endif
 
 /********************************************************
+ * Internal buffer functions
+ *******************************************************/
+
+/**
+ * Evaluates the target of a buffer and prints an error if necessary.
+ *
+ */
+int _gfx_buffer_eval_target(GFXBufferTarget target, const GFX_Extensions* ext);
+
+
+/********************************************************
  * Internal binding & draw calls
  *******************************************************/
 

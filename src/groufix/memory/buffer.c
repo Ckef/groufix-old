@@ -42,6 +42,29 @@ struct GFX_Buffer
 };
 
 /******************************************************/
+int _gfx_buffer_eval_target(GFXBufferTarget target, const GFX_Extensions* ext)
+{
+	switch(target)
+	{
+		/* GFX_EXT_BUFFER_TEXTURE */
+		case GFX_TEXTURE_BUFFER :
+
+			if(!ext->flags[GFX_EXT_BUFFER_TEXTURE])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"GFX_EXT_BUFFER_TEXTURE is incompatible with this context."
+				);
+				return 0;
+			}
+			return 1;
+
+		/* Everything else */
+		default : return 1;
+	}
+}
+
+/******************************************************/
 static inline GLenum _gfx_buffer_get_usage(GFXBufferUsage usage)
 {
 	return
@@ -157,9 +180,11 @@ GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer)
 /******************************************************/
 GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_t size, const void* data, unsigned char multi, unsigned char segments)
 {
-	/* Get current window and context */
+	/* Get current window and context & validate target */
 	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return NULL;
+
+	if(!_gfx_buffer_eval_target(target, &window->extensions)) return NULL;
 
 	/* Create new buffer */
 	struct GFX_Buffer* buffer = calloc(1, sizeof(struct GFX_Buffer));

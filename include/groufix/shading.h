@@ -276,7 +276,9 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
 /**
  * Sets the value of a uniform block within the program.
  *
- * @param index Index of the property to set the value of.
+ * @param index  Index of the property to set the value of.
+ * @param offset Offset in the buffer in bytes.
+ * @param size   Size of the data in bytes.
  * @return Non-zero on success.
  *
  * Note: There can only be GFX_LIM_MAX_BUFFER_PROPERTIES number of properties with type GFX_BUFFER_PROPERTY active.

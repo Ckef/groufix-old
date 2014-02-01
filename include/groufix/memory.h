@@ -27,6 +27,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/* Default shared buffer pool size (8 MB) */
+#define GFX_SHARED_BUFFER_SIZE_DEFAULT  0x800000
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -104,8 +107,10 @@ typedef enum GFXBufferUsage
 /** Buffer target */
 typedef enum GFXBufferTarget
 {
-	GFX_VERTEX_BUFFER  = 0x8892,
-	GFX_INDEX_BUFFER   = 0x8893
+	GFX_INDEX_BUFFER     = 0x8893,
+	GFX_PROPERTY_BUFFER  = 0x8a11,
+	GFX_TEXTURE_BUFFER   = 0x8c2a, /* Requires GFX_EXT_BUFFER_TEXTURE */
+	GFX_VERTEX_BUFFER    = 0x8892
 
 } GFXBufferTarget;
 
@@ -224,6 +229,43 @@ void gfx_buffer_unmap(GFXBuffer* buffer);
 
 
 /********************************************************
+ * Shared Buffer (pooled arbitrary GPU storage)
+ *******************************************************/
+
+/** Shared buffer */
+typedef struct GFXSharedBuffer
+{
+	void*   reference;
+	size_t  offset;
+
+} GFXSharedBuffer;
+
+
+/**
+ * Requests a new size if a new buffer pool needs to be created.
+ *
+ * @param size Pool size in bytes, the default is GFX_SHARED_BUFFER_SIZE_DEFAULT.
+ *
+ */
+void gfx_shared_buffer_request_size(unsigned long size);
+
+/**
+ * Initializes a shared buffer.
+ *
+ * @param target Storage type the buffer is targeted for.
+ * @return Non-zero on success.
+ *
+ */
+int gfx_shared_buffer_init(GFXSharedBuffer* buffer, GFXBufferTarget target, size_t size, const void* data);
+
+/**
+ * Clears a shared buffer, freeing the internal data.
+ *
+ */
+void gfx_shared_buffer_clear(GFXSharedBuffer* buffer);
+
+
+/********************************************************
  * Vertex Layout metadata
  *******************************************************/
 
@@ -247,9 +289,7 @@ typedef struct GFXDrawCall
 	GFXPrimitive     primitive;
 	uintptr_t        first;     /* First index (regular) or byte offset (indexed) */
 	size_t           count;     /* Number of vertices to draw */
-
 	GFXUnpackedType  indexType; /* Can only be an unsigned type */
-	GFXBuffer*       buffer;    /* Index buffer */
 
 } GFXDrawCall;
 
@@ -309,10 +349,22 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout);
 int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer);
 
 /**
+ * Sets an attribute of a vertex layout.
+ *
+ * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
+ * @param buffer Shared buffer to read this attribute from (cannot be NULL).
+ * @return Zero on failure.
+ *
+ */
+int gfx_vertex_layout_set_attribute_shared(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXSharedBuffer* buffer);
+
+/**
  * Retrieves an attribute from a vertex layout.
  *
  * @param index Index of the attribute to retrieve.
  * @return Zero on failure (nothing is written to the output parameters).
+ *
+ * If a shared buffer was used, attr->offset will be the given offset + the shared buffer offset.
  *
  */
 int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index, GFXVertexAttribute* attr);
@@ -328,17 +380,30 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
 /**
  * Changes a draw call of the vertex layout.
  *
- * @param index Index of the draw call (must be < layout->drawCalls).
+ * @param index  Index of the draw call (must be < layout->drawCalls).
+ * @param buffer Buffer to use as index buffer (can be NULL for non-indexed rendering), a multi buffer swap will have no effect on the draw call.
  * @return Non-zero if the draw call could be changed.
  *
  */
-int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call);
+int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call, const GFXBuffer* buffer);
+
+/**
+ * Changes a draw call of the vertex layout.
+ *
+ * @param index  Index of the draw call (must be < layout->drawCalls).
+ * @param buffer Shared buffer to use as index buffer (can be NULL for non-indexed rendering).
+ * @return Non-zero if the draw call could be changed.
+ *
+ */
+int gfx_vertex_layout_set_draw_call_shared(GFXVertexLayout* layout, unsigned char idnex, const GFXDrawCall* call, const GFXSharedBuffer* buffer);
 
 /**
  * Retrieves a draw call from the vertex layout.
  *
  * @param index Index of the draw call to retrieve (must be < layout->drawCalls).
  * @return Zero on failure (nothing is written to the output parameters).
+ *
+ * If a shared buffer was used, call->first will be the given offset + the shared buffer offset.
  *
  */
 int gfx_vertex_layout_get_draw_call(GFXVertexLayout* layout, unsigned char index, GFXDrawCall* call);

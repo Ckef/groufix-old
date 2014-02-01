@@ -55,7 +55,7 @@ int main()
 	gfx_vertex_layout_set_attribute(layout, 0, &attr, buffer);
 	attr.offset = sizeof(float) * 3;
 	gfx_vertex_layout_set_attribute(layout, 1, &attr, buffer);
-	gfx_vertex_layout_set_draw_call(layout, 0, &call);
+	gfx_vertex_layout_set_draw_call(layout, 0, &call, NULL);
 
 
 	/* Texture */

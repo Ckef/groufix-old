@@ -393,7 +393,7 @@ void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, GFXBatchMode mode,
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	size_t cnt = gfx_vector_get_size(&internal->sources);
 
-	if(src <= cnt)
+	if(src && src <= cnt)
 	{
 		struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
 
@@ -410,7 +410,7 @@ size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	size_t cnt = gfx_vector_get_size(&internal->sources);
 
-	if(src > cnt) return 0;
+	if(!src || src > cnt) return 0;
 
 	struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
 
