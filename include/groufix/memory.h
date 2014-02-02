@@ -27,8 +27,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* Default shared buffer pool size (8 MB) */
-#define GFX_SHARED_BUFFER_SIZE_DEFAULT  0x800000
+/* Default shared buffer pool size (4 MB) */
+#define GFX_SHARED_BUFFER_SIZE_DEFAULT  0x400000
 
 #ifdef __cplusplus
 extern "C" {
@@ -107,6 +107,7 @@ typedef enum GFXBufferUsage
 /** Buffer target */
 typedef enum GFXBufferTarget
 {
+	GFX_FEEDBACK_BUFFER  = 0x8c8e,
 	GFX_INDEX_BUFFER     = 0x8893,
 	GFX_PROPERTY_BUFFER  = 0x8a11,
 	GFX_TEXTURE_BUFFER   = 0x8c2a, /* Requires GFX_EXT_BUFFER_TEXTURE */

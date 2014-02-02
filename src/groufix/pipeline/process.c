@@ -33,7 +33,7 @@
 static GFXVector* _gfx_pipes = NULL;
 
 /* Shared vertex buffer */
-static GFXSharedBuffer _gfx_process_buffer = { NULL, 0 };
+static GLuint _gfx_process_buffer = 0;
 
 /* Internal Pipe Process */
 struct GFX_Process
@@ -60,8 +60,10 @@ static inline void _gfx_pipe_process_draw(GFXPipeState state, GFXPropertyMap* ma
 /******************************************************/
 int _gfx_pipe_process_prepare(GFX_Window* target)
 {
+	GFX_Extensions* ext = &target->extensions;
+
 	/* First make sure the buffer exists */
-	if(!_gfx_process_buffer.reference)
+	if(!_gfx_process_buffer)
 	{
 		float data[] = {
 			-1.0f, -1.0f, 0.0f, 0.0f,
@@ -69,18 +71,21 @@ int _gfx_pipe_process_prepare(GFX_Window* target)
 			 1.0f,  1.0f, 1.0f, 1.0f,
 			-1.0f,  1.0f, 0.0f, 1.0f
 		};
-		if(!gfx_shared_buffer_init(&_gfx_process_buffer, GFX_VERTEX_BUFFER, sizeof(data), data)) return 0;
+
+		ext->GenBuffers(1, &_gfx_process_buffer);
+		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
+		ext->BufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+
+		if(!_gfx_process_buffer) return 0;
 	}
 
 	/* Next create the layout */
 	if(!target->layout)
 	{
-		GFX_Extensions* ext = &target->extensions;
-
 		ext->GenVertexArrays(1, &target->layout);
 		_gfx_layout_bind(target->layout, ext);
 
-		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_shared_buffer_get_handle(&_gfx_process_buffer));
+		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
 
 		ext->EnableVertexAttribArray(0);
 		ext->EnableVertexAttribArray(1);
@@ -91,14 +96,14 @@ int _gfx_pipe_process_prepare(GFX_Window* target)
 			GL_FLOAT,
 			GL_FALSE,
 			sizeof(float) << 2,
-			(GLvoid*)(_gfx_process_buffer.offset)
+			(GLvoid*)0
 		);
 		ext->VertexAttribPointer(
 			1, 2,
 			GL_FLOAT,
 			GL_FALSE,
 			sizeof(float) << 2,
-			(GLvoid*)(_gfx_process_buffer.offset + (sizeof(float) << 1))
+			(GLvoid*)(sizeof(float) << 1)
 		);
 
 		return target->layout;
@@ -153,9 +158,8 @@ void _gfx_pipe_process_untarget(GFX_Window* target, int last)
 	if(last)
 	{
 		/* If last, destroy buffer as well */
-		gfx_shared_buffer_clear(&_gfx_process_buffer);
-		_gfx_process_buffer.reference = NULL;
-		_gfx_process_buffer.offset = 0;
+		target->extensions.DeleteBuffers(1, &_gfx_process_buffer);
+		_gfx_process_buffer = 0;
 	}
 
 	/* Also, destroy layout while we're at it */

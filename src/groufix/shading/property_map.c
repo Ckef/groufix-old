@@ -206,7 +206,7 @@ static inline struct GFX_Property* _gfx_property_map_get_at(struct GFX_Map* map,
 /******************************************************/
 static inline void _gfx_property_init(struct GFX_Property* prop)
 {
-	prop->type     = GFX_VECTOR_PROPERTY; /* Anything but a sampler or buffer property */
+	prop->type     = GFX_VECTOR_PROPERTY;
 	prop->location = GL_INVALID_INDEX;
 	prop->size     = 0;
 	prop->index    = 0;
@@ -220,6 +220,13 @@ static void _gfx_property_erase(struct GFX_Map* map, struct GFX_Property* prop)
 		/* Check if any buffers or samplers are being removed */
 		if(prop->type == GFX_BUFFER_PROPERTY) --map->buffers;
 		else if(prop->type == GFX_SAMPLER_PROPERTY) --map->samplers;
+
+		/* Adjust value index of all properties */
+		struct GFX_Property* it;
+		unsigned char properties = map->map.properties;
+
+		for(it = (struct GFX_Property*)(map + 1); properties--; ++it)
+			if(it->index > prop->index) it->index -= prop->size;
 
 		/* Erase from value vector */
 		gfx_vector_erase_range_at(&map->values, prop->size, prop->index);
@@ -311,10 +318,10 @@ void gfx_property_map_free(GFXPropertyMap* map)
 		/* Make sure to untarget its program */
 		_gfx_program_untarget(map->program, map);
 
-		/* Erase all properties */
+		/* Erase all properties, start at end as it most likely has its values at the end */
 		struct GFX_Property* prop;
 
-		for(prop = (struct GFX_Property*)(internal + 1); map->properties--; ++prop)
+		for(prop = (struct GFX_Property*)(internal + 1) + (map->properties - 1); map->properties--; --prop)
 			_gfx_property_erase(internal, prop);
 
 		gfx_vector_clear(&internal->values);
