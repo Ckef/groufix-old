@@ -88,11 +88,14 @@ unsigned int gfx_hardware_poll_errors(const char* description)
 /******************************************************/
 void gfx_hardware_set_max_id_width(unsigned char width)
 {
-	/* Clamp to maximum (max width - 1) */
-	unsigned char max = (sizeof(size_t) << 3) - 1;
-	width = width > max ? max : width;
+	if(!_gfx_hw_objects)
+	{
+		/* Clamp to maximum (max width - 1) */
+		unsigned char max = (sizeof(size_t) << 3) - 1;
+		width = width > max ? max : width;
 
-	_gfx_hw_max_id = width;
+		_gfx_hw_max_id = width;
+	}
 }
 
 /******************************************************/
