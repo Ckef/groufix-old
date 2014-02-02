@@ -429,13 +429,11 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
 }
 
 /******************************************************/
-int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size)
+static int _gfx_property_map_set_buffer(struct GFX_Map* map, unsigned char index, GLuint buffer, size_t offset, size_t size)
 {
 	/* Get current window, context and property */
 	GFX_Window* window = _gfx_window_get_current();
-
-	struct GFX_Map* internal = (struct GFX_Map*)map;
-	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
+	struct GFX_Property* prop = _gfx_property_map_get_at(map, index);
 
 	if(!window || !prop) return 0;
 
@@ -444,19 +442,33 @@ int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const 
 
 	/* Make sure it is enabled */
 	if(!_gfx_property_enable(
-		internal,
+		map,
 		prop,
 		sizeof(struct GFX_Buffer),
 		&window->extensions)) return 0;
 
 	/* Set buffer */
-	struct GFX_Buffer* buff = gfx_vector_at(&internal->values, prop->index);
+	struct GFX_Buffer* buff = gfx_vector_at(&map->values, prop->index);
 
-	buff->buffer = _gfx_buffer_get_handle(buffer);
+	buff->buffer = buffer;
 	buff->offset = offset;
 	buff->size = size;
 
 	return 1;
+}
+
+/******************************************************/
+int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size)
+{
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	return _gfx_property_map_set_buffer(internal, index, _gfx_buffer_get_handle(buffer), offset, size);
+}
+
+/******************************************************/
+int gfx_property_map_set_shared_buffer(GFXPropertyMap* map, unsigned char index, const GFXSharedBuffer* buffer, size_t offset, size_t size)
+{
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	return _gfx_property_map_set_buffer(internal, index, _gfx_shared_buffer_get_handle(buffer), offset + buffer->offset, size);
 }
 
 /******************************************************/

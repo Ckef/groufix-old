@@ -287,6 +287,17 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProp
 int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size);
 
 /**
+ * Sets the value of a uniform block within the program.
+ *
+ * @param index  Index of the property to set the value of.
+ * @param offset Offset in the shared buffer in bytes.
+ * @param size   Size of the data in bytes.
+ * @return Non-zero on success.
+ *
+ */
+int gfx_property_map_set_shared_buffer(GFXPropertyMap* map, unsigned char index, const GFXSharedBuffer* buffer, size_t offset, size_t size);
+
+/**
  * Sets the value of a uniform sampler within the program.
  *
  * @param index Index of the property to set the value of.
