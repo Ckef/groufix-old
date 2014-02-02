@@ -32,33 +32,18 @@ extern "C" {
 #endif
 
 /********************************************************
- * Bucket and batch metadata
+ * Buckets to hold batch units
  *******************************************************/
 
 /** Bucket sort flags */
 typedef enum GFXBucketFlags
 {
-	GFX_BUCKET_SORT_PROGRAM        = 0x01, /* If not set, it assumes the program is the same for each unit */
-	GFX_BUCKET_SORT_VERTEX_LAYOUT  = 0x02, /* If not set, it assumes the layout is the same for each unit */
+	GFX_BUCKET_SORT_PROGRAM        = 0x01,
+	GFX_BUCKET_SORT_VERTEX_LAYOUT  = 0x02,
 	GFX_BUCKET_SORT_ALL            = 0x03
 
 } GFXBucketFlags;
 
-
-/** Batch draw flag */
-typedef enum GFXBatchMode
-{
-	GFX_BATCH_DIRECT,
-	GFX_BATCH_INDEXED,
-	GFX_BATCH_DIRECT_INSTANCED,
-	GFX_BATCH_INDEXED_INSTANCED,
-
-} GFXBatchMode;
-
-
-/********************************************************
- * Buckets to hold batch units
- *******************************************************/
 
 /** Bucket to manage batches */
 typedef struct GFXBucket
@@ -90,7 +75,7 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLa
  * @param num   Number of draw calls to issue starting at start.
  *
  */
-void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, GFXBatchMode mode, unsigned char start, unsigned char num);
+void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num);
 
 /**
  * Insert a unit to be processed into the bucket.

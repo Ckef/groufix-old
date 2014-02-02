@@ -383,26 +383,16 @@ void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startI
 
 	/* Render all calls */
 	struct GFX_DrawCall* call;
-	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call)
+	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call) switch(call->buffer)
 	{
-		internal->ext->DrawArrays(call->call.primitive, call->call.first, call->call.count);
-	}
-}
+		case 0 :
+			internal->ext->DrawArrays(call->call.primitive, call->call.first, call->call.count);
+			break;
 
-/******************************************************/
-void _gfx_vertex_layout_draw_indexed(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num)
-{
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-
-	/* Bind VAO */
-	_gfx_layout_bind(internal->vao, internal->ext);
-
-	/* Render all calls */
-	struct GFX_DrawCall* call;
-	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call)
-	{
-		internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
-		internal->ext->DrawElements(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first);
+		default :
+			internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
+			internal->ext->DrawElements(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first);
+			break;
 	}
 }
 
@@ -416,25 +406,15 @@ void _gfx_vertex_layout_draw_instanced(const GFXVertexLayout* layout, unsigned c
 
 	/* Render all calls */
 	struct GFX_DrawCall* call;
-	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call)
+	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call) switch(call->buffer)
 	{
-		internal->ext->DrawArraysInstanced(call->call.primitive, call->call.first, call->call.count, inst);
-	}
-}
+		case 0 :
+			internal->ext->DrawArraysInstanced(call->call.primitive, call->call.first, call->call.count, inst);
+			break;
 
-/******************************************************/
-void _gfx_vertex_layout_draw_indexed_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst)
-{
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-
-	/* Bind VAO */
-	_gfx_layout_bind(internal->vao, internal->ext);
-
-	/* Render all calls */
-	struct GFX_DrawCall* call;
-	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call)
-	{
-		internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
-		internal->ext->DrawElementsInstanced(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first, inst);
+		default :
+			internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
+			internal->ext->DrawElementsInstanced(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first, inst);
+			break;
 	}
 }

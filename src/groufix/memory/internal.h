@@ -78,22 +78,10 @@ void _gfx_layout_bind(GLuint handle, GFX_Extensions* ext);
 void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
 
 /**
- * Indexed drawing using a given vertex layout.
- *
- */
-void _gfx_vertex_layout_draw_indexed(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num);
-
-/**
  * Instanced drawing using a given vertex layout.
  *
  */
 void _gfx_vertex_layout_draw_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
-
-/**
- * Indexed AND instanced drawing using a given vertex layout.
- *
- */
-void _gfx_vertex_layout_draw_indexed_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
 
 
 /********************************************************

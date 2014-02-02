@@ -61,8 +61,6 @@ struct GFX_Source
 {
 	GFXPropertyMap*   map;
 	GFXVertexLayout*  layout;
-
-	GFXBatchMode      mode;
 	unsigned char     start;
 	unsigned char     num;
 };
@@ -238,9 +236,9 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 		/* Bind shader program & draw */
 		_gfx_property_map_use(src->map, ext);
 
-		switch(src->mode)
+		switch(unit->inst)
 		{
-			case GFX_BATCH_DIRECT :
+			case 1 :
 				_gfx_vertex_layout_draw(
 					src->layout,
 					src->start,
@@ -248,25 +246,8 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 				);
 				break;
 
-			case GFX_BATCH_INDEXED :
-				_gfx_vertex_layout_draw_indexed(
-					src->layout,
-					src->start,
-					src->num
-				);
-				break;
-
-			case GFX_BATCH_DIRECT_INSTANCED :
+			default :
 				_gfx_vertex_layout_draw_instanced(
-					src->layout,
-					src->start,
-					src->num,
-					unit->inst
-				);
-				break;
-
-			case GFX_BATCH_INDEXED_INSTANCED :
-				_gfx_vertex_layout_draw_indexed_instanced(
 					src->layout,
 					src->start,
 					src->num,
@@ -387,7 +368,7 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLa
 }
 
 /******************************************************/
-void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, GFXBatchMode mode, unsigned char start, unsigned char num)
+void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num)
 {
 	/* Validate index */
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
@@ -396,8 +377,6 @@ void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, GFXBatchMode mode,
 	if(src && src <= cnt)
 	{
 		struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
-
-		source->mode = mode;
 		source->start = start;
 		source->num = num;
 	}
@@ -465,7 +444,7 @@ int gfx_bucket_is_visible(GFXBucket* bucket, size_t unit)
 /******************************************************/
 void gfx_bucket_set_instances(GFXBucket* bucket, size_t unit, size_t instances)
 {
-	_gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->inst = instances > 0 ? instances : 1;
+	_gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->inst = instances;
 }
 
 /******************************************************/
