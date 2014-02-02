@@ -538,11 +538,14 @@ void gfx_bucket_set_visible(GFXBucket* bucket, size_t unit, int visible)
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
 
-	visible = visible ? 1 : 0;
-	int cur = (un->action == GFX_INT_UNIT_VISIBLE) ? 1 : 0;
+	if(un->action != GFX_INT_UNIT_ERASE)
+	{
+		visible = visible ? 1 : 0;
+		int cur = (un->action == GFX_INT_UNIT_VISIBLE) ? 1 : 0;
 
-	if(visible != cur) internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS | GFX_INT_BUCKET_SORT;
-	un->action = visible ? GFX_INT_UNIT_VISIBLE : GFX_INT_UNIT_INVISIBLE;
+		if(visible != cur) internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS | GFX_INT_BUCKET_SORT;
+		un->action = visible ? GFX_INT_UNIT_VISIBLE : GFX_INT_UNIT_INVISIBLE;
+	}
 }
 
 /******************************************************/
