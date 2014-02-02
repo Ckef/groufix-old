@@ -69,6 +69,14 @@ typedef uint64_t GFXBatchState;
 size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLayout* layout);
 
 /**
+ * Removes a source from the bucket.
+ *
+ * Any units using the source will be erased from the buket.
+ *
+ */
+void gfx_bucket_remove_source(GFXBucket* bucket, size_t src);
+
+/**
  * Sets the draw calls to issue from the source.
  *
  * @param start First draw call to issue.
