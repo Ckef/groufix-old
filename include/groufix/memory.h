@@ -253,7 +253,7 @@ void gfx_shared_buffer_request_size(unsigned long size);
  * Initializes a shared buffer.
  *
  * @param target Storage type the buffer is targeted for.
- * @return Non-zero on success.
+ * @return Non-zero on success (it will not touch buffer on failure).
  *
  */
 int gfx_shared_buffer_init(GFXSharedBuffer* buffer, GFXBufferTarget target, size_t size, const void* data);

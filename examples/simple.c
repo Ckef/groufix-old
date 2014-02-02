@@ -36,7 +36,9 @@ int main()
 		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
 		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};
-	GFXBuffer* buffer = gfx_buffer_create(GFX_BUFFER_WRITE, GFX_VERTEX_BUFFER, sizeof(triangle), triangle, 0, 0);
+
+	GFXSharedBuffer buffer;
+	gfx_shared_buffer_init(&buffer, GFX_VERTEX_BUFFER, sizeof(triangle), triangle);
 
 	GFXVertexAttribute attr;
 	attr.size          = 3;
@@ -52,9 +54,9 @@ int main()
 	call.count     = 3;
 
 	GFXVertexLayout* layout = gfx_vertex_layout_create(1);
-	gfx_vertex_layout_set_attribute(layout, 0, &attr, buffer);
+	gfx_vertex_layout_set_attribute_shared(layout, 0, &attr, &buffer);
 	attr.offset = sizeof(float) * 3;
-	gfx_vertex_layout_set_attribute(layout, 1, &attr, buffer);
+	gfx_vertex_layout_set_attribute_shared(layout, 1, &attr, &buffer);
 	gfx_vertex_layout_set_draw_call(layout, 0, &call, NULL);
 
 
@@ -206,7 +208,7 @@ int main()
 
 	/* Free all the things */
 	gfx_vertex_layout_free(layout);
-	gfx_buffer_free(buffer);
+	gfx_shared_buffer_clear(&buffer);
 	gfx_program_free(program);
 	gfx_program_free(program2);
 	gfx_program_free(program3);

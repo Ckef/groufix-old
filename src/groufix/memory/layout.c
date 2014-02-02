@@ -386,12 +386,21 @@ void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startI
 	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call) switch(call->buffer)
 	{
 		case 0 :
-			internal->ext->DrawArrays(call->call.primitive, call->call.first, call->call.count);
+			internal->ext->DrawArrays(
+				call->call.primitive,
+				call->call.first,
+				call->call.count
+			);
 			break;
 
 		default :
 			internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
-			internal->ext->DrawElements(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first);
+			internal->ext->DrawElements(
+				call->call.primitive,
+				call->call.count,
+				call->call.indexType,
+				(GLvoid*)call->call.first
+			);
 			break;
 	}
 }
@@ -409,12 +418,23 @@ void _gfx_vertex_layout_draw_instanced(const GFXVertexLayout* layout, unsigned c
 	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call) switch(call->buffer)
 	{
 		case 0 :
-			internal->ext->DrawArraysInstanced(call->call.primitive, call->call.first, call->call.count, inst);
+			internal->ext->DrawArraysInstanced(
+				call->call.primitive,
+				call->call.first,
+				call->call.count,
+				inst
+			);
 			break;
 
 		default :
 			internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
-			internal->ext->DrawElementsInstanced(call->call.primitive, call->call.count, call->call.indexType, (GLvoid*)call->call.first, inst);
+			internal->ext->DrawElementsInstanced(
+				call->call.primitive,
+				call->call.count,
+				call->call.indexType,
+				(GLvoid*)call->call.first,
+				inst
+			);
 			break;
 	}
 }

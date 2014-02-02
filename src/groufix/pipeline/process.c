@@ -33,7 +33,7 @@
 static GFXVector* _gfx_pipes = NULL;
 
 /* Shared vertex buffer */
-static GFXBuffer* _gfx_process_buffer = NULL;
+static GFXSharedBuffer _gfx_process_buffer = { NULL, 0 };
 
 /* Internal Pipe Process */
 struct GFX_Process
@@ -61,7 +61,7 @@ static inline void _gfx_pipe_process_draw(GFXPipeState state, GFXPropertyMap* ma
 int _gfx_pipe_process_prepare(GFX_Window* target)
 {
 	/* First make sure the buffer exists */
-	if(!_gfx_process_buffer)
+	if(!_gfx_process_buffer.reference)
 	{
 		float data[] = {
 			-1.0f, -1.0f, 0.0f, 0.0f,
@@ -69,9 +69,7 @@ int _gfx_pipe_process_prepare(GFX_Window* target)
 			 1.0f,  1.0f, 1.0f, 1.0f,
 			-1.0f,  1.0f, 0.0f, 1.0f
 		};
-		_gfx_process_buffer = gfx_buffer_create(GFX_BUFFER_WRITE, GFX_VERTEX_BUFFER, sizeof(data), data, 0, 0);
-
-		if(!_gfx_process_buffer) return 0;
+		if(!gfx_shared_buffer_init(&_gfx_process_buffer, GFX_VERTEX_BUFFER, sizeof(data), data)) return 0;
 	}
 
 	/* Next create the layout */
@@ -82,13 +80,26 @@ int _gfx_pipe_process_prepare(GFX_Window* target)
 		ext->GenVertexArrays(1, &target->layout);
 		_gfx_layout_bind(target->layout, ext);
 
-		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_buffer_get_handle(_gfx_process_buffer));
+		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_shared_buffer_get_handle(&_gfx_process_buffer));
 
 		ext->EnableVertexAttribArray(0);
 		ext->EnableVertexAttribArray(1);
 
-		ext->VertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) << 2, (GLvoid*)0);
-		ext->VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) << 2, (GLvoid*)(sizeof(float) << 1));
+		/* Specify where the triangle is */
+		ext->VertexAttribPointer(
+			0, 2,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(float) << 2,
+			(GLvoid*)(_gfx_process_buffer.offset)
+		);
+		ext->VertexAttribPointer(
+			1, 2,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(float) << 2,
+			(GLvoid*)(_gfx_process_buffer.offset + (sizeof(float) << 1))
+		);
 
 		return target->layout;
 	}
@@ -142,8 +153,9 @@ void _gfx_pipe_process_untarget(GFX_Window* target, int last)
 	if(last)
 	{
 		/* If last, destroy buffer as well */
-		gfx_buffer_free(_gfx_process_buffer);
-		_gfx_process_buffer = NULL;
+		gfx_shared_buffer_clear(&_gfx_process_buffer);
+		_gfx_process_buffer.reference = NULL;
+		_gfx_process_buffer.offset = 0;
 	}
 
 	/* Also, destroy layout while we're at it */
