@@ -60,7 +60,7 @@ struct GFX_Layout
 	GFXVector             attributes; /* Stores GFX_Attribute */
 	size_t                numBuffers;
 	struct GFX_TFBuffer*  buffers;    /* Transform Feedback buffers */
-	GFXPrimitive          primitive;  /* Feedback output primitie */
+	GFXPrimitive          primitive;  /* Feedback output primitive */
 
 	/* Not a shared resource */
 	GFX_Extensions* ext;
@@ -427,31 +427,37 @@ int gfx_vertex_layout_get_draw_call(GFXVertexLayout* layout, unsigned char index
 }
 
 /******************************************************/
-void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst, int feedback)
+void _gfx_vertex_layout_draw_begin(const GFXVertexLayout* layout, unsigned char startFeedback, unsigned char num)
 {
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	struct GFX_DrawCall* call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex;
 
 	/* Bind VAO */
 	_gfx_layout_bind(internal->vao, internal->ext);
 
-	if(feedback)
+	/* Bind feedback buffers */
+	size_t i;
+	for(i = 0; i < num; ++i)
 	{
-		/* Bind feedback buffers and begin transform */
-		size_t i;
-		for(i = 0; i < internal->numBuffers; ++i)
-		{
-			internal->ext->BindBufferRange(
-				GL_TRANSFORM_FEEDBACK_BUFFER,
-				i,
-				internal->buffers[i].buffer,
-				internal->buffers[i].offset,
-				internal->buffers[i].size
-			);
-		}
+		size_t j = i + startFeedback;
 
-		internal->ext->BeginTransformFeedback(internal->primitive);
+		internal->ext->BindBufferRange(
+			GL_TRANSFORM_FEEDBACK_BUFFER,
+			i,
+			internal->buffers[j].buffer,
+			internal->buffers[j].offset,
+			internal->buffers[j].size
+		);
 	}
+
+	/* Begin transform feedback */
+	if(num) internal->ext->BeginTransformFeedback(internal->primitive);
+}
+
+/******************************************************/
+void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst)
+{
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	struct GFX_DrawCall* call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex;
 
 	/* Render all calls */
 	switch(inst)
@@ -508,7 +514,15 @@ void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startI
 			}
 			break;
 	}
+}
 
-	/* End transform */
-	if(feedback) internal->ext->EndTransformFeedback();
+/******************************************************/
+void _gfx_vertex_layout_draw_end(const GFXVertexLayout* layout, unsigned char numFeedback)
+{
+	/* Just end it */
+	if(numFeedback)
+	{
+		struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+		internal->ext->EndTransformFeedback();
+	}
 }

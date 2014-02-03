@@ -72,10 +72,22 @@ int _gfx_buffer_eval_target(GFXBufferTarget target, const GFX_Extensions* ext);
 void _gfx_layout_bind(GLuint handle, GFX_Extensions* ext);
 
 /**
+ * Start a number of draw calls using a given vertex layout.
+ *
+ */
+void _gfx_vertex_layout_draw_begin(const GFXVertexLayout* layout, unsigned char startFeedback, unsigned char num);
+
+/**
  * Regular drawing using a given vertex layout.
  *
  */
-void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst, int feedback);
+void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
+
+/**
+ * Ends draw calls of a given vertex layout.
+ *
+ */
+void _gfx_vertex_layout_draw_end(const GFXVertexLayout* layout, unsigned char numFeedback);
 
 
 /********************************************************

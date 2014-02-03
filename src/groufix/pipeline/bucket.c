@@ -36,7 +36,6 @@
 /* Internal unit action (for processing) */
 #define GFX_INT_UNIT_VISIBLE          0x01
 #define GFX_INT_UNIT_ERASE            0x02
-#define GFX_INT_UNIT_FEEDBACK         0x04
 
 /******************************************************/
 /* Internal bucket */
@@ -61,8 +60,14 @@ struct GFX_Source
 {
 	GFXPropertyMap*   map;
 	GFXVertexLayout*  layout;
-	unsigned char     start;
-	unsigned char     num;
+
+	/* Draw calls */
+	unsigned char     startDraw;
+	unsigned char     numDraw;
+
+	/* Feedback buffers */
+	unsigned char     startFeedback;
+	unsigned char     numFeedback;
 };
 
 /* Internal batch unit */
@@ -248,12 +253,21 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 
 		/* Bind shader program & draw */
 		_gfx_property_map_use(src->map, ext);
+
+		_gfx_vertex_layout_draw_begin(
+			src->layout,
+			src->startFeedback,
+			src->numFeedback
+		);
 		_gfx_vertex_layout_draw(
 			src->layout,
-			src->start,
-			src->num,
-			unit->inst,
-			unit->action & GFX_INT_UNIT_FEEDBACK
+			src->startDraw,
+			src->numDraw,
+			unit->inst
+		);
+		_gfx_vertex_layout_draw_end(
+			src->layout,
+			src->numFeedback
 		);
 	}
 }
@@ -355,10 +369,12 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLa
 
 	/* Create source */
 	struct GFX_Source src;
-	src.map    = map;
-	src.layout = layout;
-	src.start  = 0;
-	src.num    = 0;
+	src.map           = map;
+	src.layout        = layout;
+	src.startDraw     = 0;
+	src.numDraw       = 0;
+	src.startFeedback = 0;
+	src.numFeedback   = 0;
 
 	/* Find disabled source to replace */
 	GFXVectorIterator it;
@@ -390,13 +406,19 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src)
 
 	if(src < cnt)
 	{
-		/* Disable source and any unit using it */
+		/* Disable source */
 		struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
-		source->map    = NULL;
-		source->layout = NULL;
-		source->start  = 0;
-		source->num    = 0;
 
+		source->map           = NULL;
+		source->layout        = NULL;
+
+		source->startDraw     = 0;
+		source->numDraw       = 0;
+
+		source->startFeedback = 0;
+		source->numFeedback   = 0;
+
+		/* Disable any unit using the source */
 		struct GFX_Unit* unit;
 		for(unit = internal->units.begin; unit != internal->units.end; unit = gfx_vector_next(&internal->units, unit))
 			if(unit->src == src) _gfx_bucket_erase_unit(internal, unit);
@@ -431,14 +453,32 @@ void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char star
 		struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
 		if(source->map && source->layout)
 		{
-			source->start = start;
-			source->num = num;
+			source->startDraw = start;
+			source->numDraw = num;
 		}
 	}
 }
 
 /******************************************************/
-size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible, int feedback)
+void gfx_bucket_set_feedback(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num)
+{
+	/* Validate index */
+	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+	size_t cnt = gfx_vector_get_size(&internal->sources);
+
+	if(src && src <= cnt)
+	{
+		struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
+		if(source->map && source->layout)
+		{
+			source->startFeedback = start;
+			source->numFeedback = num;
+		}
+	}
+}
+
+/******************************************************/
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible)
 {
 	/* Validate index & source */
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
@@ -454,12 +494,9 @@ size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int
 
 	unit.state  = _gfx_bucket_get_state(internal, source->layout->id, source->map->program->id);
 	unit.state  = _gfx_bucket_add_manual_state(internal, state, unit.state);
-	unit.action = 0;
+	unit.action = visible ? GFX_INT_UNIT_VISIBLE : 0;
 	unit.src    = src - 1;
 	unit.inst   = 1;
-
-	unit.action |= visible ? GFX_INT_UNIT_VISIBLE : 0;
-	unit.action |= feedback ? GFX_INT_UNIT_FEEDBACK : 0;
 
 	GFXVectorIterator it = gfx_vector_insert(&internal->units, &unit, internal->units.end);
 	if(it == internal->units.end) return 0;
@@ -498,12 +535,6 @@ GFXBatchState gfx_bucket_get_state(GFXBucket* bucket, size_t unit)
 int gfx_bucket_is_visible(GFXBucket* bucket, size_t unit)
 {
 	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->action & GFX_INT_UNIT_VISIBLE;
-}
-
-/******************************************************/
-int gfx_bucket_feedback_active(GFXBucket* bucket, size_t unit)
-{
-	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->action & GFX_INT_UNIT_FEEDBACK;
 }
 
 /******************************************************/
@@ -547,16 +578,6 @@ void gfx_bucket_set_visible(GFXBucket* bucket, size_t unit, int visible)
 		if(visible) un->action |= GFX_INT_UNIT_VISIBLE;
 		else un->action &= ~GFX_INT_UNIT_VISIBLE;
 	}
-}
-
-/******************************************************/
-void gfx_bucket_set_feedback(GFXBucket* bucket, size_t unit, int feedback)
-{
-	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
-	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
-
-	if(feedback) un->action |= GFX_INT_UNIT_FEEDBACK;
-	else un->action &= ~GFX_INT_UNIT_FEEDBACK;
 }
 
 /******************************************************/

@@ -79,22 +79,30 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src);
 /**
  * Sets the draw calls to issue from the source.
  *
- * @param start    First draw call to issue.
- * @param num      Number of draw calls to issue starting at start.
+ * @param start First draw call to issue.
+ * @param num   Number of draw calls to issue starting at start.
  *
  */
 void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num);
+
+/**
+ * Sets the active buffers to use for feedback.
+ *
+ * @param start First buffer to to use.
+ * @param num   Number of buffers to sequentially use.
+ *
+ */
+void gfx_bucket_set_feedback(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num);
 
 /**
  * Insert a unit to be processed into the bucket.
  *
  * @param state    Manual bits of the state to associate this unit with.
  * @param visible  Non-zero if visible, invisible otherwise.
- * @param feedback If non-zero, a feedback will be active.
  * @return The ID of the inserted unit, 0 on failure.
  *
  */
-size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible, int feedback);
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible);
 
 /**
  * Returns the number of instances to draw.
@@ -115,12 +123,6 @@ GFXBatchState gfx_bucket_get_state(GFXBucket* bucket, size_t unit);
  *
  */
 int gfx_bucket_is_visible(GFXBucket* bucket, size_t unit);
-
-/**
- * Returns whether a feedback is active or not.
- *
- */
-int gfx_bucket_feedback_active(GFXBucket* bucket, size_t unit);
 
 /**
  * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
@@ -145,14 +147,6 @@ void gfx_bucket_set_state(GFXBucket* bucket, size_t unit, GFXBatchState state);
  *
  */
 void gfx_bucket_set_visible(GFXBucket* bucket, size_t unit, int visible);
-
-/**
- * Sets whether a feedback will be active or not.
- *
- * @param feedback Non-zero to activate, deactivate otherwise.
- *
- */
-void gfx_bucket_set_feedback(GFXBucket* bucket, size_t unit, int feedback);
 
 /**
  * Erases and frees a unit from its bucket.
