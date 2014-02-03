@@ -166,7 +166,7 @@ int main()
 	gfx_pipe_set_state(pipe, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
 	size_t src = gfx_bucket_add_source(pipe->bucket, map, layout);
-	gfx_bucket_set_draw_calls(pipe->bucket, src, 0, 1);
+	gfx_bucket_set_draw_calls(pipe->bucket, src, 0, 1, 0);
 	gfx_bucket_insert(pipe->bucket, src, 0, 1);
 
 	pipe = gfx_pipeline_push_process(pipeline);

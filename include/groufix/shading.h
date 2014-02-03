@@ -113,6 +113,15 @@ int gfx_shader_compile(GFXShader* shader);
 typedef unsigned int GFXProgramFormat;
 
 
+/** Feedback Mode */
+typedef enum GFXFeedbackMode
+{
+	GFX_FEEDBACK_INTERLEAVED  = 0x8c8c,
+	GFX_FEEDBACK_SEPARATE     = 0x8c8d
+
+} GFXFeedbackMode;
+
+
 /** Program */
 typedef struct GFXProgram
 {
@@ -142,11 +151,25 @@ void gfx_program_free(GFXProgram* program);
  * @param name  Name of the attribute in the shaders (the string is copied).
  * @return Zero on failure.
  *
- * This method only takes effect once the program is linked.
+ * This method takes effect once the program is linked, not after.
  * Note: an index can be forwarded to multiple names.
  *
  */
 int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const char* name);
+
+/**
+ * Forwards data received from output attributes to a given index.
+ *
+ * @param num   Size of names, must be <= GFX_LIM_MAX_FEEDBACK_BUFFERS.
+ * @param names Array containing the names of the output attributes in the shader (the strings are copied).
+ * @param mode  Feedback mode to use, INTERLEAVED to write to a single buffer, SEPARATE to write to multiple buffers.
+ * @return Zero on failure.
+ *
+ * This method takes effect once the program is linked, not after.
+ * Note: any name cannot occur twice in names.
+ *
+ */
+int gfx_program_set_feedback(GFXProgram* program, size_t num, const char** names, GFXFeedbackMode mode);
 
 /**
  * Links given shaders into a program.

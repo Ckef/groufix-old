@@ -151,8 +151,13 @@ static void _gfx_property_set(struct GFX_Map* map, struct GFX_Property* prop, GF
 		case GFX_BUFFER_PROPERTY :
 		{
 			const struct GFX_Buffer* buff = (const struct GFX_Buffer*)data;
-			size_t index = _gfx_binder_bind_uniform_buffer(buff->buffer, buff->offset, buff->size, 1, ext);
 
+			size_t index = _gfx_binder_bind_uniform_buffer(
+				buff->buffer,
+				buff->offset,
+				buff->size,
+				1, ext
+			);
 			ext->UniformBlockBinding(map->handle, prop->location, index);
 
 			break;
@@ -162,8 +167,12 @@ static void _gfx_property_set(struct GFX_Map* map, struct GFX_Property* prop, GF
 		case GFX_SAMPLER_PROPERTY :
 		{
 			const struct GFX_Sampler* samp = (const struct GFX_Sampler*)data;
-			GLint unit = _gfx_binder_bind_texture(samp->texture, samp->target, 1, ext);
 
+			GLint unit = _gfx_binder_bind_texture(
+				samp->texture,
+				samp->target,
+				1, ext
+			);
 			ext->Uniform1iv(prop->location, 1, &unit);
 
 			break;

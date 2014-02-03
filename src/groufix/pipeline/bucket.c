@@ -63,6 +63,7 @@ struct GFX_Source
 	GFXVertexLayout*  layout;
 	unsigned char     start;
 	unsigned char     num;
+	unsigned char     feedback;
 };
 
 /* Internal batch unit */
@@ -255,7 +256,8 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 				_gfx_vertex_layout_draw(
 					src->layout,
 					src->start,
-					src->num
+					src->num,
+					src->feedback
 				);
 				break;
 
@@ -264,6 +266,7 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 					src->layout,
 					src->start,
 					src->num,
+					src->feedback,
 					unit->inst
 				);
 				break;
@@ -368,10 +371,11 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLa
 
 	/* Create source */
 	struct GFX_Source src;
-	src.map    = map;
-	src.layout = layout;
-	src.start  = 0;
-	src.num    = 0;
+	src.map      = map;
+	src.layout   = layout;
+	src.start    = 0;
+	src.num      = 0;
+	src.feedback = 0;
 
 	/* Find disabled source to replace */
 	GFXVectorIterator it;
@@ -405,10 +409,11 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src)
 	{
 		/* Disable source and any unit using it */
 		struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
-		source->map    = NULL;
-		source->layout = NULL;
-		source->start  = 0;
-		source->num    = 0;
+		source->map      = NULL;
+		source->layout   = NULL;
+		source->start    = 0;
+		source->num      = 0;
+		source->feedback = 0;
 	
 		struct GFX_Unit* unit;
 		for(unit = internal->units.begin; unit != internal->units.end; unit = gfx_vector_next(&internal->units, unit))
@@ -433,7 +438,7 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src)
 }
 
 /******************************************************/
-void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num)
+void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num, int feedback)
 {
 	/* Validate index */
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
@@ -446,6 +451,7 @@ void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char star
 		{
 			source->start = start;
 			source->num = num;
+			source->feedback = feedback ? 1 : 0;
 		}
 	}
 }

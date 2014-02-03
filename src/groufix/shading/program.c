@@ -149,6 +149,24 @@ int gfx_program_set_attribute(GFXProgram* program, unsigned int index, const cha
 }
 
 /******************************************************/
+int gfx_program_set_feedback(GFXProgram* program, size_t num, const char** names, GFXFeedbackMode mode)
+{
+	/* Get current window and context */
+	GFX_Window* window = _gfx_window_get_current();
+	if(!window) return 0;
+
+	if(num > window->extensions.limits[GFX_LIM_MAX_FEEDBACK_BUFFERS] &&
+		mode == GFX_FEEDBACK_SEPARATE) return 0;
+
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	/* Specify transform feedback */
+	window->extensions.TransformFeedbackVaryings(internal->handle, num, names, mode);
+
+	return 1;
+}
+
+/******************************************************/
 int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders)
 {
 	/* Get current window and context */

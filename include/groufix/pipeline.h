@@ -79,11 +79,12 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src);
 /**
  * Sets the draw calls to issue from the source.
  *
- * @param start First draw call to issue.
- * @param num   Number of draw calls to issue starting at start.
+ * @param start    First draw call to issue.
+ * @param num      Number of draw calls to issue starting at start.
+ * @param feedback If non-zero, a transform feedback will be active.
  *
  */
-void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num);
+void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num, int feedback);
 
 /**
  * Insert a unit to be processed into the bucket.

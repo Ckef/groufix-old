@@ -195,7 +195,9 @@ int gfx_buffer_swap(GFXBuffer* buffer);
 /**
  * Writes data to the buffer synchronously.
  *
- * @param data Data to write to the buffer, cannot be NULL.
+ * @param size   Size of the data to write, in bytes.
+ * @param data   Data to write to the buffer, cannot be NULL.
+ * @param offset Byte offset in the buffer to begin writing at.
  *
  */
 void gfx_buffer_write(GFXBuffer* buffer, size_t size, const void* data, size_t offset);
@@ -203,7 +205,9 @@ void gfx_buffer_write(GFXBuffer* buffer, size_t size, const void* data, size_t o
 /**
  * Reads data from the buffer synchronously.
  *
- * @param data Pointer to write to, cannot be NULL.
+ * @param size   Size of the data to read, in bytes.
+ * @param data   Pointer to write to, cannot be NULL.
+ * @param offset Byte offset in the buffer to begin reading at.
  *
  */
 void gfx_buffer_read(GFXBuffer* buffer, size_t size, void* data, size_t offset);
@@ -284,17 +288,6 @@ typedef enum GFXPrimitive
 } GFXPrimitive;
 
 
-/** Draw call */
-typedef struct GFXDrawCall
-{
-	GFXPrimitive     primitive;
-	uintptr_t        first;     /* First index (regular) or byte offset (indexed) */
-	size_t           count;     /* Number of vertices to draw */
-	GFXUnpackedType  indexType; /* Can only be an unsigned type */
-
-} GFXDrawCall;
-
-
 /** Vertex Attribute */
 typedef struct GFXVertexAttribute
 {
@@ -307,6 +300,27 @@ typedef struct GFXVertexAttribute
 	unsigned int      divisor;   /* Rate at which to advance, 0 for no instancing, requires GFX_EXT_INSTANCED_ATTRIBUTES */
 
 } GFXVertexAttribute;
+
+
+/** Feedback buffer argument */
+typedef struct GFXFeedbackBuffer
+{
+	GFXBuffer*  buffer;
+	size_t      offset; /* Must be 4-byte aligned */
+	size_t      size;
+
+} GFXFeedbackBuffer;
+
+
+/** Draw call */
+typedef struct GFXDrawCall
+{
+	GFXPrimitive     primitive;
+	uintptr_t        first;     /* First index (regular) or byte offset (indexed) */
+	size_t           count;     /* Number of vertices to draw */
+	GFXUnpackedType  indexType; /* Can only be an unsigned type */
+
+} GFXDrawCall;
 
 
 /********************************************************
@@ -377,6 +391,18 @@ int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index,
  *
  */
 void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int index);
+
+/**
+ * Sets a feedback attribute of a vertex layout.
+ *
+ * @param primitive Primitive to output to the buffers, can only be GFX_POINTS, GFX_LINES or GFX_TRIANGLES.
+ * @param num       Size of buffers, must be <= GFX_LIM_MAX_FEEDBACK_BUFFERS.
+ * @param buffers   Array of buffers to receive program feedback from.
+ *
+ * Note: any two given buffer ranges cannot overlap.
+ *
+ */
+int gfx_vertex_layout_set_feedback(GFXVertexLayout* layout, GFXPrimitive primitive, size_t num, const GFXFeedbackBuffer* buffers); 
 
 /**
  * Changes a draw call of the vertex layout.
