@@ -81,20 +81,20 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src);
  *
  * @param start    First draw call to issue.
  * @param num      Number of draw calls to issue starting at start.
- * @param feedback If non-zero, a transform feedback will be active.
  *
  */
-void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num, int feedback);
+void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num);
 
 /**
  * Insert a unit to be processed into the bucket.
  *
- * @param state   Manual bits of the state to associate this unit with.
- * @param visible Non-zero if visible, invisible otherwise.
+ * @param state    Manual bits of the state to associate this unit with.
+ * @param visible  Non-zero if visible, invisible otherwise.
+ * @param feedback If non-zero, a feedback will be active.
  * @return The ID of the inserted unit, 0 on failure.
  *
  */
-size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible);
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible, int feedback);
 
 /**
  * Returns the number of instances to draw.
@@ -107,23 +107,23 @@ size_t gfx_bucket_get_instances(GFXBucket* bucket, size_t unit);
 /**
  * Returns the manual bits of the state associated with a unit.
  *
- * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
- *
  */
 GFXBatchState gfx_bucket_get_state(GFXBucket* bucket, size_t unit);
 
 /**
  * Returns whether a unit is visible or not.
  *
- * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
- *
  */
 int gfx_bucket_is_visible(GFXBucket* bucket, size_t unit);
 
 /**
- * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
+ * Returns whether a feedback is active or not.
  *
- * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
+ */
+int gfx_bucket_feedback_active(GFXBucket* bucket, size_t unit);
+
+/**
+ * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
  *
  * Note: if the source mode includes INSTANCED but only 1 instance is drawn, a performance hit might be expected.
  *
@@ -133,15 +133,12 @@ void gfx_bucket_set_instances(GFXBucket* bucket, size_t unit, size_t instances);
 /**
  * Sets the manual bits of the state to associate a unit with.
  *
- * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
- *
  */
 void gfx_bucket_set_state(GFXBucket* bucket, size_t unit, GFXBatchState state);
 
 /**
  * Sets the visibility of a unit.
  *
- * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
  * @param visible Non-zero if visible, invisible otherwise.
  *
  * Note: making a unit visible is expensive regardless of its previous visibility.
@@ -150,9 +147,15 @@ void gfx_bucket_set_state(GFXBucket* bucket, size_t unit, GFXBatchState state);
 void gfx_bucket_set_visible(GFXBucket* bucket, size_t unit, int visible);
 
 /**
- * Erases and frees a unit from its bucket.
+ * Sets whether a feedback will be active or not.
  *
- * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
+ * @param feedback Non-zero to activate, deactivate otherwise.
+ *
+ */
+void gfx_bucket_set_feedback(GFXBucket* bucket, size_t unit, int feedback);
+
+/**
+ * Erases and frees a unit from its bucket.
  *
  */
 void gfx_bucket_erase(GFXBucket* bucket, size_t unit);
