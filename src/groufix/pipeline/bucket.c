@@ -248,28 +248,13 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 
 		/* Bind shader program & draw */
 		_gfx_property_map_use(src->map, ext);
-
-		switch(unit->inst)
-		{
-			case 1 :
-				_gfx_vertex_layout_draw(
-					src->layout,
-					src->start,
-					src->num,
-					unit->action & GFX_INT_UNIT_FEEDBACK
-				);
-				break;
-
-			default :
-				_gfx_vertex_layout_draw_instanced(
-					src->layout,
-					src->start,
-					src->num,
-					unit->action & GFX_INT_UNIT_FEEDBACK,
-					unit->inst
-				);
-				break;
-		}
+		_gfx_vertex_layout_draw(
+			src->layout,
+			src->start,
+			src->num,
+			unit->inst,
+			unit->action & GFX_INT_UNIT_FEEDBACK
+		);
 	}
 }
 

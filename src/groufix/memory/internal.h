@@ -75,13 +75,7 @@ void _gfx_layout_bind(GLuint handle, GFX_Extensions* ext);
  * Regular drawing using a given vertex layout.
  *
  */
-void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, int feedback);
-
-/**
- * Instanced drawing using a given vertex layout.
- *
- */
-void _gfx_vertex_layout_draw_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, int feedback, size_t inst);
+void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst, int feedback);
 
 
 /********************************************************

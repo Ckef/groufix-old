@@ -114,22 +114,6 @@ static void _gfx_layout_init_attrib(GLuint vao, unsigned int index, const struct
 }
 
 /******************************************************/
-static void _gfx_layout_bind_feedback(struct GFX_Layout* layout)
-{
-	size_t i;
-	for(i = 0; i < layout->numBuffers; ++i)
-	{
-		layout->ext->BindBufferRange(
-			GL_TRANSFORM_FEEDBACK_BUFFER,
-			i,
-			layout->buffers[i].buffer,
-			layout->buffers[i].offset,
-			layout->buffers[i].size
-		);
-	}
-}
-
-/******************************************************/
 static void _gfx_layout_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
@@ -443,81 +427,88 @@ int gfx_vertex_layout_get_draw_call(GFXVertexLayout* layout, unsigned char index
 }
 
 /******************************************************/
-void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, int feedback)
+void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst, int feedback)
 {
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	struct GFX_DrawCall* call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex;
 
 	/* Bind VAO */
 	_gfx_layout_bind(internal->vao, internal->ext);
+
 	if(feedback)
 	{
-		_gfx_layout_bind_feedback(internal);
+		/* Bind feedback buffers and begin transform */
+		size_t i;
+		for(i = 0; i < internal->numBuffers; ++i)
+		{
+			internal->ext->BindBufferRange(
+				GL_TRANSFORM_FEEDBACK_BUFFER,
+				i,
+				internal->buffers[i].buffer,
+				internal->buffers[i].offset,
+				internal->buffers[i].size
+			);
+		}
+
 		internal->ext->BeginTransformFeedback(internal->primitive);
 	}
 
 	/* Render all calls */
-	struct GFX_DrawCall* call;
-	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call) switch(call->buffer)
+	switch(inst)
 	{
-		case 0 :
-			internal->ext->DrawArrays(
-				call->call.primitive,
-				call->call.first,
-				call->call.count
-			);
+		case 1 :
+
+			/* Regular drawing */
+			for(; num--; ++call) switch(call->buffer)
+			{
+				case 0 :
+					internal->ext->DrawArrays(
+						call->call.primitive,
+						call->call.first,
+						call->call.count
+					);
+					break;
+
+				default :
+					internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
+					internal->ext->DrawElements(
+						call->call.primitive,
+						call->call.count,
+						call->call.indexType,
+						(GLvoid*)call->call.first
+					);
+					break;
+			}
 			break;
 
 		default :
-			internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
-			internal->ext->DrawElements(
-				call->call.primitive,
-				call->call.count,
-				call->call.indexType,
-				(GLvoid*)call->call.first
-			);
+
+			/* Instanced drawing */
+			for(; num--; ++call) switch(call->buffer)
+			{
+				case 0 :
+					internal->ext->DrawArraysInstanced(
+						call->call.primitive,
+						call->call.first,
+						call->call.count,
+						inst
+					);
+					break;
+
+				default :
+					internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
+					internal->ext->DrawElementsInstanced(
+						call->call.primitive,
+						call->call.count,
+						call->call.indexType,
+						(GLvoid*)call->call.first,
+						inst
+					);
+					break;
+			}
 			break;
 	}
 
-	if(feedback) internal->ext->EndTransformFeedback();
-}
-
-/******************************************************/
-void _gfx_vertex_layout_draw_instanced(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, int feedback, size_t inst)
-{
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-
-	/* Bind VAO */
-	_gfx_layout_bind(internal->vao, internal->ext);
-	if(feedback)
-	{
-		_gfx_layout_bind_feedback(internal);
-		internal->ext->BeginTransformFeedback(internal->primitive);
-	}
-
-	/* Render all calls */
-	struct GFX_DrawCall* call;
-	for(call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex; num--; ++call) switch(call->buffer)
-	{
-		case 0 :
-			internal->ext->DrawArraysInstanced(
-				call->call.primitive,
-				call->call.first,
-				call->call.count,
-				inst
-			);
-			break;
-
-		default :
-			internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
-			internal->ext->DrawElementsInstanced(
-				call->call.primitive,
-				call->call.count,
-				call->call.indexType,
-				(GLvoid*)call->call.first,
-				inst
-			);
-			break;
-	}
-
+	/* End transform */
 	if(feedback) internal->ext->EndTransformFeedback();
 }
