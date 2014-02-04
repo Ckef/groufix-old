@@ -201,26 +201,27 @@ static void _gfx_bucket_process_units(struct GFX_Bucket* bucket)
 /******************************************************/
 static void _gfx_bucket_radix_sort(struct GFX_Bucket* bucket, GFXBatchState bit, GFXVectorIterator begin, GFXVectorIterator end)
 {
-	/* Loop over all units */
-	GFXVectorIterator mid = end;
-	GFXVectorIterator it = begin;
-
-	while(it != mid)
+	/* Skip on range of 1 or no bit */
+	if(GFX_PTR_DIFF(begin, end) > sizeof(struct GFX_Unit) && bit)
 	{
-		/* If 1, put in 1 bucket */
-		if(((struct GFX_Unit*)it)->state & bit)
+		GFXVectorIterator mid = end;
+		GFXVectorIterator it = begin;
+
+		while(it != mid)
 		{
-			mid = gfx_vector_previous(&bucket->units, mid);
-			_gfx_bucket_swap_units(bucket, it, mid);
+			/* If 1, put in 1 bucket */
+			if(((struct GFX_Unit*)it)->state & bit)
+			{
+				mid = gfx_vector_previous(&bucket->units, mid);
+				_gfx_bucket_swap_units(bucket, it, mid);
+			}
+			else it = gfx_vector_next(&bucket->units, it);
 		}
-		else it = gfx_vector_next(&bucket->units, it);
-	}
 
-	/* Sort both buckets */
-	if(bit >>= 1)
-	{
-		if(begin != mid) _gfx_bucket_radix_sort(bucket, bit, begin, mid);
-		if(mid != end) _gfx_bucket_radix_sort(bucket, bit, mid, end);
+		/* Sort both buckets */
+		bit >>= 1;
+		_gfx_bucket_radix_sort(bucket, bit, begin, mid);
+		_gfx_bucket_radix_sort(bucket, bit, mid, end);
 	}
 }
 

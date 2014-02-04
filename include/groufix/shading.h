@@ -331,6 +331,14 @@ int gfx_property_map_set_shared_buffer(GFXPropertyMap* map, unsigned char index,
  */
 int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const GFXTexture* texture);
 
+/**
+ * Swaps the value of two properties.
+ *
+ * @return Non-zero on success.
+ *
+ */
+int gfx_property_map_swap(GFXPropertyMap* map, unsigned char index1, unsigned char index2);
+
 
 #ifdef __cplusplus
 }

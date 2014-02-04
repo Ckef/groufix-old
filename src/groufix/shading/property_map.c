@@ -516,3 +516,24 @@ int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const
 
 	return 1;
 }
+
+/******************************************************/
+int gfx_property_map_swap(GFXPropertyMap* map, unsigned char index1, unsigned char index2)
+{
+	/* Get properties */
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	struct GFX_Property* prop1 = _gfx_property_map_get_at(internal, index1);
+	struct GFX_Property* prop2 = _gfx_property_map_get_at(internal, index2);
+
+	if(!prop1 || !prop2) return 0;
+
+	/* Check if they can be swapped */
+	if(prop1->size != prop2->size) return 0;
+
+	/* Swap indices to values */
+	size_t temp = prop1->index;
+	prop1->index = prop2->index;
+	prop2->index = temp;
+
+	return 1;
+}
