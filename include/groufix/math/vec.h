@@ -59,35 +59,51 @@ typedef unsigned int uint;
 #elif !defined(GFX_VEC_TYPE)
 
 	#define GFX_VEC_TYPE char
+	#define GFX_VEC_DATA int8_t
 	#include "groufix/math/vec.h"
+	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
 	#define GFX_VEC_TYPE uchar
+	#define GFX_VEC_DATA uint8_t
 	#include "groufix/math/vec.h"
+	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
 	#define GFX_VEC_TYPE short
+	#define GFX_VEC_DATA int16_t
 	#include "groufix/math/vec.h"
+	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
 	#define GFX_VEC_TYPE ushort
+	#define GFX_VEC_DATA uint16_t
 	#include "groufix/math/vec.h"
+	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
 	#define GFX_VEC_TYPE int
+	#define GFX_VEC_DATA int32_t
 	#include "groufix/math/vec.h"
+	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
 	#define GFX_VEC_TYPE uint
+	#define GFX_VEC_DATA uint32_t
 	#include "groufix/math/vec.h"
+	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
 	#define GFX_VEC_TYPE float
+	#define GFX_VEC_DATA float
 	#include "groufix/math/vec.h"
+	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
 	#define GFX_VEC_TYPE double
+	#define GFX_VEC_DATA double
 	#include "groufix/math/vec.h"
+	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
 #else
@@ -104,14 +120,31 @@ extern "C" {
 #define GFX_VEC_NAME GFX_VEC_CREATE_NAME(GFX_VEC_SIZE, GFX_VEC_TYPE)
 #define GFX_VEC_FUNC(postfix) GFX_VEC_CREATE_FUNC(GFX_VEC_SIZE, GFX_VEC_TYPE, postfix)
 
+/* Alignment */
+#if GFX_VEC_SIZE == 4 && GFX_VEC_TYPE == int
+	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
+
+#elif GFX_VEC_SIZE == 4 && GFX_VEC_TYPE == uint
+	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
+
+#elif GFX_VEC_SIZE == 4 && GFX_VEC_TYPE == float
+	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
+
+#elif GFX_VEC_SIZE == 2 && GFX_VEC_TYPE == double
+	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
+
+#else
+	#define GFX_VEC_ALIGN
+#endif
+
 
 /********************************************************
  * Vector Template
  *******************************************************/
-typedef struct
+typedef struct GFX_VEC_ALIGN
 {
 	/** Components */
-	GFX_VEC_TYPE data[GFX_VEC_SIZE];
+	GFX_VEC_DATA data[GFX_VEC_SIZE];
 
 } GFX_VEC_NAME;
 
@@ -120,7 +153,7 @@ typedef struct
  * Returns a value of the vector.
  *
  */
-inline GFX_VEC_TYPE* GFX_VEC_FUNC(get)(GFX_VEC_NAME* a, size_t component)
+inline GFX_VEC_DATA* GFX_VEC_FUNC(get)(GFX_VEC_NAME* a, size_t component)
 {
 	return a->data + component;
 }
@@ -187,7 +220,7 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(mult)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(scale)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_TYPE scalar)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(scale)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_DATA scalar)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
@@ -200,9 +233,10 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(scale)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GF
  * Take the dot product of two vectors.
  *
  */
-inline GFX_VEC_TYPE GFX_VEC_FUNC(dot)(GFX_VEC_NAME* a, GFX_VEC_NAME* b)
+inline GFX_VEC_DATA GFX_VEC_FUNC(dot)(GFX_VEC_NAME* a, GFX_VEC_NAME* b)
 {
-	GFX_VEC_TYPE dot = 0;
+	GFX_VEC_DATA dot = 0;
+
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
 		dot += a->data[i] * b->data[i];
@@ -234,13 +268,14 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(cross)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GF
  * Take the squared magnitude of a vector.
  *
  */
-inline GFX_VEC_TYPE GFX_VEC_FUNC(magnitude_squared)(GFX_VEC_NAME* a)
+inline GFX_VEC_DATA GFX_VEC_FUNC(magnitude_squared)(GFX_VEC_NAME* a)
 {
-	GFX_VEC_TYPE dot = 0;
+	GFX_VEC_DATA dot = 0;
+
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
 	{
-		GFX_VEC_TYPE *val = a->data + i;
+		GFX_VEC_DATA *val = a->data + i;
 		dot += (*val) * (*val);
 	}
 	return dot;
@@ -264,7 +299,7 @@ inline double GFX_VEC_FUNC(magnitude)(GFX_VEC_NAME* a)
 inline GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a)
 {
 	double mag = GFX_VEC_FUNC(magnitude)(a);
-	GFX_VEC_TYPE scale = (GFX_VEC_TYPE)(mag ? 1.0 / mag : 0.0);
+	GFX_VEC_DATA scale = (GFX_VEC_DATA)(mag ? 1.0 / mag : 0.0);
 
 	return GFX_VEC_FUNC(scale)(dest, a, scale);
 }
@@ -286,6 +321,7 @@ inline int GFX_VEC_FUNC(is_zero)(GFX_VEC_NAME* a)
 
 #undef GFX_VEC_NAME
 #undef GFX_VEC_FUNC
+#undef GFX_VEC_ALIGN
 
 #ifdef __cplusplus
 }

@@ -39,11 +39,15 @@
 #if !defined(GFX_QUAT_TYPE)
 
 	#define GFX_QUAT_TYPE float
+	#define GFX_QUAT_DATA float
 	#include "groufix/math/quat.h"
+	#undef GFX_QUAT_DATA
 	#undef GFX_QUAT_TYPE
 
 	#define GFX_QUAT_TYPE double
+	#define GFX_QUAT_DATA double
 	#include "groufix/math/quat.h"
+	#undef GFX_QUAT_DATA
 	#undef GFX_QUAT_TYPE
 
 #else
@@ -60,6 +64,13 @@ extern "C" {
 #define GFX_QUAT_NAME GFX_QUAT_CREATE_NAME(GFX_QUAT_TYPE)
 #define GFX_QUAT_FUNC(postfix) GFX_QUAT_CREATE_FUNC(GFX_QUAT_TYPE, postfix)
 
+/* Alignment */
+#if GFX_QUAT_TYPE == float
+	#define GFX_QUAT_ALIGN GFX_SSE_ALIGN
+#else
+	#define GFX_QUAT_ALIGN
+#endif
+
 /* Matrix specific */
 #ifdef GFX_QUAT_USE_MAT
 	#ifndef GFX_MATH_MAT_H
@@ -68,7 +79,7 @@ extern "C" {
 	#define GFX_MAT_NAME GFX_MAT_CREATE_NAME(3, GFX_QUAT_TYPE)
 #endif
 
-/*  Vector specific */
+/* Vector specific */
 #ifdef GFX_QUAT_USE_VEC
 	#ifndef GFX_MATH_VEC_H
 		#error "Need to include groufix/math/vec.h to use GFX_QUAT_USE_VEC"
@@ -80,10 +91,10 @@ extern "C" {
 /********************************************************
  * Quaternion Template
  *******************************************************/
-typedef struct
+typedef struct GFX_QUAT_ALIGN
 {
 	/** Components */
-	GFX_QUAT_TYPE data[4];
+	GFX_QUAT_DATA data[4];
 
 } GFX_QUAT_NAME;
 
@@ -92,7 +103,7 @@ typedef struct
  * Returns a value of the quaternion.
  *
  */
-inline GFX_QUAT_TYPE* GFX_QUAT_FUNC(get)(GFX_QUAT_NAME* a, size_t component)
+inline GFX_QUAT_DATA* GFX_QUAT_FUNC(get)(GFX_QUAT_NAME* a, size_t component)
 {
 	return a->data + component;
 }
@@ -163,7 +174,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(mult)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a,
  * @param dest Destination quaternion.
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(scale)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a, GFX_QUAT_TYPE scalar)
+inline GFX_QUAT_NAME* GFX_QUAT_FUNC(scale)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a, GFX_QUAT_DATA scalar)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -192,13 +203,14 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(conjugate)(GFX_QUAT_NAME* dest, GFX_QUAT_NAM
  * Take the squared norm of a quaternion.
  *
  */
-inline GFX_QUAT_TYPE GFX_QUAT_FUNC(norm_squared)(GFX_QUAT_NAME* a)
+inline GFX_QUAT_DATA GFX_QUAT_FUNC(norm_squared)(GFX_QUAT_NAME* a)
 {
-	GFX_QUAT_TYPE norm = 0;
+	GFX_QUAT_DATA norm = 0;
+
 	size_t i;
 	for(i = 0; i < 4; ++i)
 	{
-		GFX_QUAT_TYPE *val = a->data + i;
+		GFX_QUAT_DATA *val = a->data + i;
 		norm += (*val) * (*val);
 	}
 	return norm;
@@ -222,7 +234,7 @@ inline double GFX_QUAT_FUNC(norm)(GFX_QUAT_NAME* a)
 inline GFX_QUAT_NAME* GFX_QUAT_FUNC(normalize)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a)
 {
 	double norm = GFX_QUAT_FUNC(norm)(a);
-	GFX_QUAT_TYPE scale = (GFX_QUAT_TYPE)(norm ? 1.0 / norm : 0.0);
+	GFX_QUAT_DATA scale = (GFX_QUAT_DATA)(norm ? 1.0 / norm : 0.0);
 
 	return GFX_QUAT_FUNC(scale)(dest, a, scale);
 }
@@ -236,7 +248,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(normalize)(GFX_QUAT_NAME* dest, GFX_QUAT_NAM
 inline GFX_QUAT_NAME* GFX_QUAT_FUNC(inverse)(GFX_QUAT_NAME* dest, GFX_QUAT_NAME* a)
 {
 	double normSq = GFX_QUAT_FUNC(norm_squared)(a);
-	GFX_QUAT_TYPE scale = (GFX_QUAT_TYPE)(normSq ? 1.0f / normSq : 0.0);
+	GFX_QUAT_DATA scale = (GFX_QUAT_DATA)(normSq ? 1.0f / normSq : 0.0);
 
 	GFX_QUAT_FUNC(conjugate)(dest, a);
 	return GFX_QUAT_FUNC(scale)(dest, dest, scale);
@@ -368,6 +380,7 @@ inline GFX_MAT_NAME* GFX_QUAT_FUNC(to_matrix)(GFX_MAT_NAME* dest, GFX_QUAT_NAME*
 
 #undef GFX_QUAT_NAME
 #undef GFX_QUAT_FUNC
+#undef GFX_QUAT_ALIGN
 
 #undef GFX_MAT_NAME
 #undef GFX_VEC_NAME

@@ -56,11 +56,15 @@
 #elif !defined(GFX_MAT_TYPE)
 
 	#define GFX_MAT_TYPE float
+	#define GFX_MAT_DATA float
 	#include "groufix/math/mat.h"
+	#undef GFX_MAT_DATA
 	#undef GFX_MAT_TYPE
 
 	#define GFX_MAT_TYPE double
+	#define GFX_MAT_DATA double
 	#include "groufix/math/mat.h"
+	#undef GFX_MAT_DATA
 	#undef GFX_MAT_TYPE
 
 #else
@@ -78,6 +82,17 @@ extern "C" {
 #define GFX_MAT_FUNC(postfix) GFX_MAT_CREATE_FUNC(GFX_MAT_SIZE, GFX_MAT_TYPE, postfix)
 #define GFX_MAT_STORE (GFX_MAT_SIZE * GFX_MAT_SIZE)
 
+/* Alignment */
+#if GFX_MAT_SIZE == 4 && GFX_MAT_TYPE == float
+	#define GFX_MAT_ALIGN GFX_SSE_ALIGN
+
+#elif GFX_MAT_SIZE == 2 && GFX_MAT_TYPE == double
+	#define GFX_MAT_ALIGN GFX_SSE_ALIGN
+
+#else
+	#define GFX_MAT_ALIGN
+#endif
+
 /* Vector specific */
 #ifdef GFX_MAT_USE_VEC
 	#ifndef GFX_MATH_VEC_H
@@ -91,10 +106,10 @@ extern "C" {
 /********************************************************
  * Matrix Template
  *******************************************************/
-typedef struct
+typedef struct GFX_MAT_ALIGN
 {
 	/** Components */
-	GFX_MAT_TYPE data[GFX_MAT_STORE];
+	GFX_MAT_DATA data[GFX_MAT_STORE];
 
 } GFX_MAT_NAME;
 
@@ -103,7 +118,7 @@ typedef struct
  * Returns a value of the matrix.
  *
  */
-inline GFX_MAT_TYPE* GFX_MAT_FUNC(get)(GFX_MAT_NAME* a, size_t row, size_t column)
+inline GFX_MAT_DATA* GFX_MAT_FUNC(get)(GFX_MAT_NAME* a, size_t row, size_t column)
 {
 	return a->data + (row + GFX_MAT_SIZE * column);
 }
@@ -164,7 +179,7 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(mult)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX
 	for(c = 0; c < GFX_MAT_STORE; c += GFX_MAT_SIZE)
 		for(r = 0; r < GFX_MAT_SIZE; ++r)
 		{
-			GFX_MAT_TYPE *val = res.data + (r + c);
+			GFX_MAT_DATA* val = res.data + (r + c);
 			for(k = 0; k < GFX_MAT_SIZE; ++k)
 				*val += a->data[r + k * GFX_MAT_SIZE] * b->data[k + c];
 		}
@@ -179,7 +194,7 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(mult)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX_MAT_TYPE scalar)
+inline GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX_MAT_DATA scalar)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -197,6 +212,7 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(GFX_MAT_NAME* dest, GFX_MAT_NAME*
 inline GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
 {
 	GFX_MAT_NAME res;
+
 	size_t r, c, c2;
 	for(c = 0, c2 = 0; c < GFX_MAT_SIZE; ++c, c2 += GFX_MAT_SIZE)
 		for(r = 0; r < GFX_MAT_SIZE; ++r)
@@ -226,7 +242,7 @@ inline int GFX_MAT_FUNC(is_zero)(GFX_MAT_NAME* a)
  * Computes the determinant of a matrix.
  *
  */
-inline GFX_MAT_TYPE GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
+inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
 {
 	return a->data[0] * a->data[3] - a->data[2] * a->data[1];
 }
@@ -260,7 +276,7 @@ inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
  * Computes the determinant of a matrix.
  *
  */
-inline GFX_MAT_TYPE GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
+inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
 {
 	return
 		a->data[0] * a->data[4] * a->data[8] +
@@ -311,7 +327,7 @@ inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
  * Computes the determinant of a matrix.
  *
  */
-inline GFX_MAT_TYPE GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
+inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
 {
 	/* Determinants of 2x2 submatrices */
 	GFX_MAT_TYPE S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
@@ -408,7 +424,7 @@ inline GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(GFX_VEC_NAME* dest, GFX_MAT_NAME* a,
 	size_t r, c;
 	for(r = 0; r < GFX_MAT_SIZE; ++r)
 	{
-		GFX_MAT_TYPE *val = res.data + r;
+		GFX_MAT_DATA* val = res.data + r;
 		for(c = 0; c < GFX_MAT_SIZE; ++c)
 			*val += a->data[r + c * GFX_MAT_SIZE] * b->data[c];
 	}
@@ -421,6 +437,7 @@ inline GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(GFX_VEC_NAME* dest, GFX_MAT_NAME* a,
 #undef GFX_MAT_NAME
 #undef GFX_MAT_FUNC
 #undef GFX_MAT_STORE
+#undef GFX_MAT_ALIGN
 
 #undef GFX_VEC_NAME
 #undef GFX_VEC_FUNC

@@ -52,4 +52,12 @@
 #define GFX_UINT_TO_VOID(x) ((void*)(uintptr_t)(x))
 #define GFX_VOID_TO_UINT(x) ((uintptr_t)(x))
 
+/* SSE Math */
+#ifdef GFX_NO_SSE
+	#define GFX_SSE_ALIGN
+#else
+	#define GFX_SSE_ALIGN __attribute__ ((aligned(16)))
+#endif
+
+
 #endif // GFX_UTILS_H
