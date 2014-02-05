@@ -345,7 +345,7 @@ int gfx_buffer_swap(GFXBuffer* buffer)
 		++internal->current;
 		internal->current = internal->current > buffer->multi ? 0 : internal->current;
 
-		return buffer->multi;
+		return buffer->multi || offset > buffer->segSize;
 	}
 	return 1;
 }

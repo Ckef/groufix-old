@@ -401,8 +401,8 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 		window.flags |= GFX_WIN32_FULLSCREEN;
 
 		/* Style and rectangle */
-		styleEx = 0;
-		style = WS_POPUP;
+		styleEx = WS_EX_TOPMOST;
+		style = WS_POPUP | WS_VISIBLE;
 
 		rect.left = xS;
 		rect.top = yS;
@@ -454,6 +454,13 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 
 	if(window.handle)
 	{
+		/* Some fullscreen options */
+		if(attributes->flags & GFX_WINDOW_FULLSCREEN)
+		{
+			SetWindowPos(window.handle, HWND_TOPMOST, 0,0,0,0, SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE);
+			ShowWindow(window.handle, SW_MAXIMIZE);
+		}
+
 		/* Add window to vector */
 		if(gfx_vector_insert(&_gfx_win32->windows, &window, _gfx_win32->windows.end) != _gfx_win32->windows.end)
 		{
