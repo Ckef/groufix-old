@@ -72,12 +72,13 @@ struct GFX_Sampler
 {
 	GLuint texture;
 	GLuint target;
+	GLint  unit;
 };
 
 /******************************************************/
 static void _gfx_property_set(struct GFX_Map* map, struct GFX_Property* prop, GFX_Extensions* ext)
 {
-	const void* data = gfx_vector_at(&map->values, prop->index);
+	void* data = gfx_vector_at(&map->values, prop->index);
 
 	/* Check if it has a value */
 	if(prop->size) switch(prop->type)
@@ -85,8 +86,8 @@ static void _gfx_property_set(struct GFX_Map* map, struct GFX_Property* prop, GF
 		/* Bind the uniform vector */
 		case GFX_VECTOR_PROPERTY :
 		{
-			const struct GFX_Value* val = (const struct GFX_Value*)data;
-			const void* value = (const void*)(val + 1);
+			struct GFX_Value* val = (struct GFX_Value*)data;
+			void* value = val + 1;
 
 			switch(val->type)
 			{
@@ -127,8 +128,8 @@ static void _gfx_property_set(struct GFX_Map* map, struct GFX_Property* prop, GF
 		/* Bind the uniform matrix */
 		case GFX_MATRIX_PROPERTY :
 		{
-			const struct GFX_Value* val = (const struct GFX_Value*)data;
-			const void* value = (const void*)(val + 1);
+			struct GFX_Value* val = (struct GFX_Value*)data;
+			void* value = val + 1;
 
 			switch(val->type)
 			{
@@ -150,7 +151,7 @@ static void _gfx_property_set(struct GFX_Map* map, struct GFX_Property* prop, GF
 		/* Bind uniform block to uniform buffer index */
 		case GFX_BUFFER_PROPERTY :
 		{
-			const struct GFX_Buffer* buff = (const struct GFX_Buffer*)data;
+			struct GFX_Buffer* buff = (struct GFX_Buffer*)data;
 
 			size_t index = _gfx_binder_bind_uniform_buffer(
 				buff->buffer,
@@ -166,14 +167,18 @@ static void _gfx_property_set(struct GFX_Map* map, struct GFX_Property* prop, GF
 		/* Set sampler uniform to texture unit */
 		case GFX_SAMPLER_PROPERTY :
 		{
-			const struct GFX_Sampler* samp = (const struct GFX_Sampler*)data;
+			struct GFX_Sampler* samp = (struct GFX_Sampler*)data;
 
 			GLint unit = _gfx_binder_bind_texture(
 				samp->texture,
 				samp->target,
 				1, ext
 			);
-			ext->Uniform1iv(prop->location, 1, &unit);
+			if(unit != samp->unit)
+			{
+				samp->unit = unit;
+				ext->Uniform1iv(prop->location, 1, &unit);
+			}
 
 			break;
 		}
@@ -513,6 +518,7 @@ int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const
 
 	samp->texture = _gfx_texture_get_handle(texture);
 	samp->target = _gfx_texture_get_internal_target(texture);
+	samp->unit = -1;
 
 	return 1;
 }

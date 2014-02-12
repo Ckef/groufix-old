@@ -190,7 +190,7 @@ static GFX_HardwareFuncs _gfx_texture_obj_funcs =
 };
 
 /******************************************************/
-static struct GFX_Texture* _gfx_texture_alloc(GLenum target, GFXTextureFormat format, const GFX_Extensions* ext)
+static struct GFX_Texture* _gfx_texture_alloc(GLenum target, GFXTextureFormat format, unsigned char mipmaps, GFX_Extensions* ext)
 {
 	/* Validate type & format */
 	GLint form = _gfx_texture_eval_internal_format(format);
@@ -208,11 +208,17 @@ static struct GFX_Texture* _gfx_texture_alloc(GLenum target, GFXTextureFormat fo
 		return NULL;
 	}
 
-	ext->GenTextures(1, &tex->handle);
 	tex->target = target;
 	tex->format = form;
 
+	tex->texture.mipmaps = mipmaps;
 	tex->texture.samples = 1;
+
+	/* Allocate OGL resources and parameters */
+	ext->GenTextures(1, &tex->handle);
+	_gfx_binder_bind_texture(tex->handle, target, 0, ext);
+	ext->TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
+	ext->TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
 
 	return tex;
 }
@@ -251,6 +257,7 @@ static void _gfx_texture_set_size(struct GFX_Texture* tex, size_t width, size_t 
 		case GL_TEXTURE_BUFFER : return;
 	}
 
+	/* Remember dimensions + layers */
 	tex->texture.width  = width;
 	tex->texture.height = height;
 	tex->texture.depth  = depth;
@@ -353,22 +360,15 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int
 		default : return NULL;
 	}
 
-	/* Allocate texture */
-	struct GFX_Texture* tex = _gfx_texture_alloc(target, format, &window->extensions);
-	if(!tex) return NULL;
-
 	/* Limit mipmaps */
 	unsigned char maxMips = _gfx_texture_get_num_mipmaps(type, width, height, depth);
 	mipmaps = (mipmaps < 0 || mipmaps > maxMips) ? maxMips : mipmaps;
 
+	/* Allocate texture */
+	struct GFX_Texture* tex = _gfx_texture_alloc(target, format, mipmaps, &window->extensions);
+	if(!tex) return NULL;
+
 	tex->texture.type = type;
-	tex->texture.mipmaps = mipmaps;
-
-	/* Allocate OpenGL resources */
-	_gfx_binder_bind_texture(tex->handle, tex->target, 0, &window->extensions);
-	window->extensions.TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
-	window->extensions.TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
-
 	_gfx_texture_set_size(tex, width, height, depth, &window->extensions);
 
 	return (GFXTexture*)tex;
@@ -384,7 +384,7 @@ GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned cha
 	GLenum target = (depth > 1) ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
 
 	/* Allocate texture */
-	struct GFX_Texture* tex = _gfx_texture_alloc(target, format, &window->extensions);
+	struct GFX_Texture* tex = _gfx_texture_alloc(target, format, 0, &window->extensions);
 	if(!tex) return NULL;
 
 	/* Limit samples */
@@ -392,8 +392,6 @@ GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned cha
 	
 	tex->texture.type = GFX_TEXTURE_2D;
 	tex->texture.samples = samples > maxSamples ? maxSamples : (samples < 2 ? 2 : samples);
-
-	/* Allocate OpenGL resources */
 	_gfx_texture_set_size(tex, width, height, depth, &window->extensions);
 
 	return (GFXTexture*)tex;
@@ -407,7 +405,7 @@ GFXTexture* gfx_texture_create_buffer_link(GFXTextureFormat format, const GFXBuf
 	if(!window || _gfx_is_data_type_packed(format.type) || format.interpret == GFX_INTERPRET_DEPTH) return NULL;
 
 	/* Allocate texture */
-	struct GFX_Texture* tex = _gfx_texture_alloc(GL_TEXTURE_BUFFER, format, &window->extensions);
+	struct GFX_Texture* tex = _gfx_texture_alloc(GL_TEXTURE_BUFFER, format, 0, &window->extensions);
 	if(!tex) return NULL;
 
 	tex->buffer = _gfx_buffer_get_handle(buffer);

@@ -504,8 +504,8 @@ typedef struct GFXTexture
 	unsigned char   samples; /* Number of samples for multisampled textures (1 for other textures) */
 
 	size_t          width;
-	size_t          height;
-	size_t          depth;
+	size_t          height;  /* Layer count for 1D textures */
+	size_t          depth;   /* Layer count for 2D textures */
 
 } GFXTexture;
 
