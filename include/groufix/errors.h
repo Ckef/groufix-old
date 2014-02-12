@@ -34,8 +34,10 @@ extern "C" {
 #endif
 
 /********************************************************
- * Platform independent error code
+ * Platform independent error metadata
  *******************************************************/
+
+/** Error code */
 typedef enum GFXErrorCode
 {
 	GFX_ERROR_UNKNOWN                  = 0x0000,
@@ -55,9 +57,22 @@ typedef enum GFXErrorCode
 } GFXErrorCode;
 
 
+/** Error mode */
+typedef enum GFXErrorMode
+{
+	GFX_ERROR_MODE_NORMAL,
+	GFX_ERROR_MODE_DEBUG,
+
+	GFX_ERROR_MODE_DEFAULT = GFX_ERROR_MODE_NORMAL
+
+} GFXErrorMode;
+
+
 /********************************************************
- * Error structure
+ * Error handling
  *******************************************************/
+
+/** Error */
 typedef struct GFXError
 {
 	GFXErrorCode  code;
@@ -65,6 +80,26 @@ typedef struct GFXError
 
 } GFXError;
 
+
+/**
+ * Sets the error mode.
+ *
+ * @param mode The error mode to use, debug reports hardware (OpenGL) errors as well.
+ *
+ */
+void gfx_set_error_mode(GFXErrorMode mode);
+
+/**
+ * Returns the current error mode.
+ *
+ */
+GFXErrorMode gfx_get_error_mode(void);
+
+/**
+ * Returns the number of errors in the queue.
+ *
+ */
+unsigned int gfx_get_num_errors(void);
 
 /**
  * Returns the last error without removing it.

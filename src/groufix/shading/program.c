@@ -43,9 +43,7 @@ static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Program* program = (struct GFX_Program*)object;
 
-	ext->DeleteProgram(program->handle);
 	program->handle = 0;
-
 	program->program.id = 0;
 }
 

@@ -127,6 +127,7 @@ typedef struct GFX_Win32_Instance
 	/* Monitors and Windows */
 	GFXVector  screens;         /* Stores GFX_Win32_Screen */
 	GFXVector  windows;         /* Stores GFX_Win32_Window */
+	HDC        current;
 	char       classRegistered; /* Whether or not the window class is registered */
 
 	/* Key table */

@@ -153,10 +153,8 @@ static void _gfx_buffer_obj_free(void* object, GFX_Extensions* ext)
 	
 	unsigned char num = buffer->buffer.multi + 1;
 
-	/* Delete buffers and reset memory */
-	_gfx_buffer_delete_buffers(buffer, buffer->handles.begin, num, ext);
+	/* Reset memory */
 	memset(buffer->handles.begin, 0, buffer->handles.elementSize * num);
-
 	buffer->buffer.id = 0;
 }
 

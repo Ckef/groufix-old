@@ -28,6 +28,9 @@
 #include <string.h>
 
 /******************************************************/
+/* Error mode */
+static GFXErrorMode _gfx_error_mode = GFX_ERROR_MODE_DEFAULT;
+
 /* Maximum number of errors stored */
 static size_t _gfx_errors_maximum = GFX_MAX_ERRORS_DEFAULT;
 
@@ -41,6 +44,25 @@ static GFXError* _gfx_errors_last(void)
 
 	if(_gfx_errors->begin == _gfx_errors->end) return NULL;
 	return (GFXError*)_gfx_errors->begin;
+}
+
+/******************************************************/
+void gfx_set_error_mode(GFXErrorMode mode)
+{
+	_gfx_error_mode = mode;
+}
+
+/******************************************************/
+GFXErrorMode gfx_get_error_mode(void)
+{
+	return _gfx_error_mode;
+}
+
+/******************************************************/
+unsigned int gfx_get_num_errors(void)
+{
+	if(!_gfx_errors) return 0;
+	return gfx_deque_get_size(_gfx_errors);
 }
 
 /******************************************************/

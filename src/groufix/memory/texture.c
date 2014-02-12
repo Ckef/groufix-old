@@ -173,7 +173,6 @@ static void _gfx_texture_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Texture* texture = (struct GFX_Texture*)object;
 
-	ext->DeleteTextures(1, &texture->handle);
 	texture->handle = 0;
 	texture->buffer = 0;
 
@@ -208,17 +207,14 @@ static struct GFX_Texture* _gfx_texture_alloc(GLenum target, GFXTextureFormat fo
 		return NULL;
 	}
 
+	/* Allocate OGL resources */
+	ext->GenTextures(1, &tex->handle);
+
 	tex->target = target;
 	tex->format = form;
 
 	tex->texture.mipmaps = mipmaps;
 	tex->texture.samples = 1;
-
-	/* Allocate OGL resources and parameters */
-	ext->GenTextures(1, &tex->handle);
-	_gfx_binder_bind_texture(tex->handle, target, 0, ext);
-	ext->TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
-	ext->TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
 
 	return tex;
 }
@@ -369,6 +365,12 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int
 	if(!tex) return NULL;
 
 	tex->texture.type = type;
+
+	/* Set parameters and allocate data */
+	_gfx_binder_bind_texture(tex->handle, target, 0, &window->extensions);
+	window->extensions.TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
+	window->extensions.TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
+
 	_gfx_texture_set_size(tex, width, height, depth, &window->extensions);
 
 	return (GFXTexture*)tex;

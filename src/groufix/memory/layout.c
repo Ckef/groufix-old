@@ -118,9 +118,6 @@ static void _gfx_layout_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
-	/* Destroy layout itself */
-	ext->DeleteVertexArrays(1, &layout->vao);
-
 	layout->ext = NULL;
 	layout->vao = 0;
 	layout->layout.id = 0;

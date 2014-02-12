@@ -207,9 +207,6 @@ static void _gfx_pipeline_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
-	/* Destroy framebuffer */
-	ext->DeleteFramebuffers(1, &pipeline->fbo);
-
 	pipeline->win = NULL;
 	pipeline->fbo = 0;
 	pipeline->pipeline.id = 0;

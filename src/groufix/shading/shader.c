@@ -95,10 +95,8 @@ static void _gfx_shader_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_Shader* shader = (struct GFX_Shader*)object;
 
-	ext->DeleteShader(shader->handle);
 	shader->handle = 0;
 	shader->shader.compiled = 0;
-
 	shader->shader.id = 0;
 }
 

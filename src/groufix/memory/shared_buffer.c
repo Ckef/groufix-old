@@ -55,13 +55,11 @@ struct GFX_Segment
 };
 
 /******************************************************/
-static void _gfx_shared_buffer_free_obj(void* object, GFX_Extensions* ext)
+static void _gfx_shared_buffer_obj_free(void* object, GFX_Extensions* ext)
 {
 	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
 
-	ext->DeleteBuffers(1, &buff->handle);
 	buff->handle = 0;
-
 	buff->size = 0;
 	buff->id = 0;
 }
@@ -69,7 +67,7 @@ static void _gfx_shared_buffer_free_obj(void* object, GFX_Extensions* ext)
 /******************************************************/
 static GFX_HardwareFuncs _gfx_shared_buffer_obj_funcs =
 {
-	_gfx_shared_buffer_free_obj,
+	_gfx_shared_buffer_obj_free,
 	NULL,
 	NULL
 };

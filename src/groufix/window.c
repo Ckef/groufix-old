@@ -86,6 +86,14 @@ static int _gfx_window_context_create(GFX_PlatformWindow window)
 }
 
 /******************************************************/
+static inline void _gfx_window_swap(void)
+{
+	/* Swap buffers and poll errors while it's current */
+	_gfx_platform_context_swap_buffers();
+	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG) _gfx_window_poll_errors();
+}
+
+/******************************************************/
 static int _gfx_window_insert(const GFX_Window* window)
 {
 	/* Create vector if it doesn't exist yet */
@@ -134,6 +142,27 @@ void _gfx_window_make_current(GFX_Window* window)
 GFX_Window* _gfx_window_get_current(void)
 {
 	return _gfx_current_window;
+}
+
+/******************************************************/
+unsigned int _gfx_window_poll_errors(void)
+{
+	unsigned int count = 0;
+
+	/* Check if there is a context */
+	if(_gfx_current_window)
+	{
+		/* Loop over all errors */
+		GLenum err = _gfx_current_window->extensions.GetError();
+		while(err != GL_NO_ERROR)
+		{
+			gfx_errors_push(err, "An OpenGL error occurred.");
+			err = _gfx_current_window->extensions.GetError();
+
+			++count;
+		}
+	}
+	return count;
 }
 
 /******************************************************/
@@ -448,8 +477,13 @@ void gfx_window_swap_buffers(const GFXWindow* window)
 	const GFX_Window* internal = (GFX_Window*)window;
 	if(internal->handle)
 	{
-		_gfx_platform_context_swap_buffers(internal->handle);
 		if(internal != _gfx_main_window)
+		{
+			/* Also switch back to main window */
+			_gfx_platform_context_make_current(internal->handle);
+			_gfx_window_swap();
 			_gfx_platform_context_make_current(_gfx_main_window->handle);
+		}
+		else _gfx_window_swap();
 	}
 }

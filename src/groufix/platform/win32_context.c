@@ -46,8 +46,11 @@ int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor
 	HGLRC shareCont = NULL;
 	if(shareWind) shareCont = shareWind->context;
 
-	HDC dc = GetDC(handle);
-	window->context = _gfx_win32->extensions.CreateContextAttribsARB(dc, shareCont, bufferAttr);
+	_gfx_win32->current = GetDC(handle);
+	window->context = _gfx_win32->extensions.CreateContextAttribsARB(_gfx_win32->current, shareCont, bufferAttr);
+
+	/* Make it current */
+	wglMakeCurrent(_gfx_win32->current, window->context);
 
 	return window->context ? 1 : 0;
 }
@@ -68,7 +71,11 @@ void _gfx_platform_context_free(GFX_PlatformWindow handle)
 void _gfx_platform_context_make_current(GFX_PlatformWindow handle)
 {
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
-	if(window) wglMakeCurrent(GetDC(handle), window->context);
+	if(window)
+	{
+		_gfx_win32->current = GetDC(handle);
+		wglMakeCurrent(_gfx_win32->current, window->context);
+	}
 }
 
 /******************************************************/
@@ -87,10 +94,9 @@ void _gfx_platform_context_set_swap_interval(GFX_PlatformWindow handle, int num)
 }
 
 /******************************************************/
-void _gfx_platform_context_swap_buffers(GFX_PlatformWindow handle)
+void _gfx_platform_context_swap_buffers(void)
 {
-	_gfx_platform_context_make_current(handle);
-	SwapBuffers(GetDC(handle));
+	if(_gfx_win32) SwapBuffers(_gfx_win32->current);
 }
 
 /******************************************************/

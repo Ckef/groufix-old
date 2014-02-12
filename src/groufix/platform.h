@@ -390,7 +390,7 @@ void _gfx_platform_poll_events(void);
  *******************************************************/
 
 /**
- * Creates the OpenGL context of a window.
+ * Creates the OpenGL context of a window and makes it current.
  *
  * @param major Major OpenGL (ES) version.
  * @param minor Minor OpenGL (ES) version.
@@ -448,12 +448,10 @@ const char* _gfx_platform_context_get_glsl(int major, int minor);
 void _gfx_platform_context_set_swap_interval(GFX_PlatformWindow handle, int num);
 
 /** 
- * Swaps the internal buffers of a window.
- *
- * This method is allowed to make the given context current.
+ * Swaps the internal buffers of the current context.
  *
  */
-void _gfx_platform_context_swap_buffers(GFX_PlatformWindow handle);
+void _gfx_platform_context_swap_buffers(void);
 
 /**
  * Returns whether an extension is supported for a given window.

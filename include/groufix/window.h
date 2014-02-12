@@ -351,15 +351,6 @@ int gfx_hardware_is_extension_supported(GFXExtension extension);
 int gfx_hardware_get_limit(GFXLimit limit);
 
 /**
- * Polls all OpenGL errors at any given time.
- *
- * @param description A description to attach to each error (can be NULL).
- * @return The number of errors encountered.
- * 
- */
-unsigned int gfx_hardware_poll_errors(const char* description);
-
-/**
  * Sets the maximum bit width of any hardware ID.
  *
  * This determines how many objects with an hardware ID can be alive at the same time.

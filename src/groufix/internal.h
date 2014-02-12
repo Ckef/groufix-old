@@ -349,10 +349,18 @@ void _gfx_window_make_current(GFX_Window* window);
 /**
  * Returns the current window.
  *
- * Returns NULL if no window is active.
+ * @return NULL if no window is active.
  *
  */
 GFX_Window* _gfx_window_get_current(void);
+
+/**
+ * Polls all errors associated with the current window.
+ *
+ * @return Number of errors reported.
+ *
+ */
+unsigned int _gfx_window_poll_errors(void);
 
 /**
  * Loads all extensions for the current window's context.
@@ -401,7 +409,7 @@ size_t _gfx_hardware_object_register(void* object, const GFX_HardwareFuncs* func
 void _gfx_hardware_object_unregister(size_t id);
 
 /**
- * Issue free request of all hardware objects.
+ * Issue free request of all hardware objects, this happens when its parent context is destroyed.
  *
  * This will issue the free request and unregister ALL objects.
  * Thus this callback is NOT allowed to unregister the object.

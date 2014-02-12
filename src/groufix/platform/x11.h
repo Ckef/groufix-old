@@ -105,6 +105,7 @@ typedef struct GFX_X11_Connection
 	/* X Display and Windows */
 	Display*   display;
 	GFXVector  windows;           /* Stores GFX_X11_Window */
+	Window     current;
 
 	/* Atoms */
 	Atom       wmDeleteWindow;    /* WM_DELETE_WINDOW */

@@ -64,28 +64,6 @@ int gfx_hardware_get_limit(GFXLimit limit)
 }
 
 /******************************************************/
-unsigned int gfx_hardware_poll_errors(const char* description)
-{
-	unsigned int count = 0;
-
-	/* Check if there is a context */
-	GFX_Window* wind = _gfx_window_get_current();
-	if(wind)
-	{
-		/* Loop over all errors */
-		GLenum err = wind->extensions.GetError();
-		while(err != GL_NO_ERROR)
-		{
-			gfx_errors_push(err, description);
-			err = wind->extensions.GetError();
-
-			++count;
-		}
-	}
-	return count;
-}
-
-/******************************************************/
 void gfx_hardware_set_max_id_width(unsigned char width)
 {
 	if(!_gfx_hw_objects)

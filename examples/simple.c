@@ -179,7 +179,6 @@ int main()
 
 
 	/* Setup a loop */
-	gfx_hardware_poll_errors(NULL);
 	while(gfx_get_num_windows())
 	{
 		gfx_poll_events();

@@ -24,6 +24,10 @@
 #include "groufix/platform/x11.h"
 
 /******************************************************/
+/* Current context */
+static Window _gfx_x11
+
+/******************************************************/
 int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor, GFX_PlatformWindow share)
 {
 	/* Get the windows */
@@ -54,6 +58,10 @@ int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor
 		bufferAttr
 	);
 
+	/* Make it current */
+	glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
+	_gfx_x11->current = window->handle;
+
 	return window->context ? 1 : 0;
 }
 
@@ -75,7 +83,11 @@ void _gfx_platform_context_free(GFX_PlatformWindow handle)
 void _gfx_platform_context_make_current(GFX_PlatformWindow handle)
 {
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
-	if(window) glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
+	if(window)
+	{
+		glXMakeCurrent(_gfx_x11->display, handle, window->context);
+		_gfx_x11->current = handle;
+	}
 }
 
 /******************************************************/
@@ -90,9 +102,9 @@ void _gfx_platform_context_set_swap_interval(GFX_PlatformWindow handle, int num)
 }
 
 /******************************************************/
-void _gfx_platform_context_swap_buffers(GFX_PlatformWindow handle)
+void _gfx_platform_context_swap_buffers(void)
 {
-	if(_gfx_x11) glXSwapBuffers(_gfx_x11->display, (Window)GFX_VOID_TO_UINT(handle));
+	if(_gfx_x11) glXSwapBuffers(_gfx_x11->display, _gfx_x11->current);
 }
 
 /******************************************************/
