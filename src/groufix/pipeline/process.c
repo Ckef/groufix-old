@@ -41,6 +41,7 @@ struct GFX_Process
 	/* Post Processing */
 	GFXPropertyMap*  map;
 	GFX_Window*      target;
+	unsigned char    swap; /* Whether to swap window buffers or not */
 
 	/* Viewport */
 	unsigned int width;
@@ -233,13 +234,17 @@ void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map)
 }
 
 /******************************************************/
-void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target)
+void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target, int swap)
 {
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 	internal->target = (GFX_Window*)target;
 
-	/* Set viewport */
-	if(target) gfx_window_get_size(target, &internal->width, &internal->height);
+	/* Set viewport & swap buffers */
+	if(target)
+	{
+		gfx_window_get_size(target, &internal->width, &internal->height);
+		internal->swap = swap ? 1 : 0;
+	}
 }
 
 /******************************************************/
@@ -255,12 +260,13 @@ void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_W
 			GFX_Extensions* ext = &internal->target->extensions;
 			GLuint fbo = ext->pipeline;
 
-			/* Make target current, draw, and switch back to previously active */
+			/* Make target current, draw, swap, and switch back to previously active */
 			_gfx_window_make_current(internal->target);
 			_gfx_pipeline_bind(0, ext);
 
 			_gfx_states_set_viewport(internal->width, internal->height, ext);
 			_gfx_pipe_process_draw(state, internal->map, internal->target->layout, ext);
+			if(internal->swap) _gfx_window_swap_buffers();
 
 			_gfx_pipeline_bind(fbo, ext);
 			_gfx_window_make_current(active);

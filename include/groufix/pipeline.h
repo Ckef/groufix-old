@@ -175,9 +175,10 @@ void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map);
  * Sets the target window to render to.
  *
  * @param window Target window to draw to, NULL will enable render to texture.
+ * @param swap   Whether to swap the window's internal buffers afterwards or not.
  *
  */
-void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target);
+void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target, int swap);
 
 
 /********************************************************

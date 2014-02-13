@@ -354,6 +354,12 @@ void _gfx_window_make_current(GFX_Window* window);
  */
 GFX_Window* _gfx_window_get_current(void);
 
+/** 
+ * Swaps the internal buffers of the current window.
+ *
+ */
+void _gfx_window_swap_buffers(void);
+
 /**
  * Polls all errors associated with the current window.
  *

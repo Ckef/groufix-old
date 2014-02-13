@@ -171,11 +171,11 @@ int main()
 
 	pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, map2);
-	gfx_pipe_process_set_target(pipe->process, window1);
+	gfx_pipe_process_set_target(pipe->process, window1, 1);
 
 	pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, map3);
-	gfx_pipe_process_set_target(pipe->process, window2);
+	gfx_pipe_process_set_target(pipe->process, window2, 1);
 
 
 	/* Setup a loop */
@@ -185,9 +185,6 @@ int main()
 
 		/* Execute pipeline & swap buffers */
 		gfx_pipeline_execute(pipeline);
-
-		gfx_window_swap_buffers(window1);
-		gfx_window_swap_buffers(window2);
 
 		/* Print time */
 		double time = gfx_get_time();

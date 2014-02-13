@@ -86,14 +86,6 @@ static int _gfx_window_context_create(GFX_PlatformWindow window)
 }
 
 /******************************************************/
-static inline void _gfx_window_swap(void)
-{
-	/* Swap buffers and poll errors while it's current */
-	_gfx_platform_context_swap_buffers();
-	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG) _gfx_window_poll_errors();
-}
-
-/******************************************************/
 static int _gfx_window_insert(const GFX_Window* window)
 {
 	/* Create vector if it doesn't exist yet */
@@ -142,6 +134,14 @@ void _gfx_window_make_current(GFX_Window* window)
 GFX_Window* _gfx_window_get_current(void)
 {
 	return _gfx_current_window;
+}
+
+/******************************************************/
+void _gfx_window_swap_buffers(void)
+{
+	/* Swap buffers and poll errors while it's current */
+	_gfx_platform_context_swap_buffers();
+	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG) _gfx_window_poll_errors();
 }
 
 /******************************************************/
@@ -467,23 +467,5 @@ void gfx_window_set_swap_interval(const GFXWindow* window, int num)
 		/* Again make sure the main window is current afterwards */
 		_gfx_platform_context_set_swap_interval(internal->handle, num);
 		_gfx_window_make_current(_gfx_main_window);
-	}
-}
-
-/******************************************************/
-void gfx_window_swap_buffers(const GFXWindow* window)
-{
-	/* Check if zombie window */
-	const GFX_Window* internal = (GFX_Window*)window;
-	if(internal->handle)
-	{
-		if(internal != _gfx_main_window)
-		{
-			/* Also switch back to main window */
-			_gfx_platform_context_make_current(internal->handle);
-			_gfx_window_swap();
-			_gfx_platform_context_make_current(_gfx_main_window->handle);
-		}
-		else _gfx_window_swap();
 	}
 }

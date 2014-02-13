@@ -283,12 +283,6 @@ void gfx_window_hide(const GFXWindow* window);
  */
 void gfx_window_set_swap_interval(const GFXWindow* window, int num);
 
-/** 
- * Swaps the internal buffers of a window.
- *
- */
-void gfx_window_swap_buffers(const GFXWindow* window);
-
 
 /********************************************************
  * Top level context & extension handling
