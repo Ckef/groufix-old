@@ -24,10 +24,6 @@
 #include "groufix/platform/x11.h"
 
 /******************************************************/
-/* Current context */
-static Window _gfx_x11
-
-/******************************************************/
 int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor, GFX_PlatformWindow share)
 {
 	/* Get the windows */
@@ -59,10 +55,14 @@ int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor
 	);
 
 	/* Make it current */
-	glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
-	_gfx_x11->current = window->handle;
+	if(window->context)
+	{
+		glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
+		_gfx_x11->current = window->handle;
 
-	return window->context ? 1 : 0;
+		return 1;
+	}
+	return 0;
 }
 
 /******************************************************/
@@ -85,8 +85,8 @@ void _gfx_platform_context_make_current(GFX_PlatformWindow handle)
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 	if(window)
 	{
-		glXMakeCurrent(_gfx_x11->display, handle, window->context);
-		_gfx_x11->current = handle;
+		glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
+		_gfx_x11->current = window->handle;
 	}
 }
 

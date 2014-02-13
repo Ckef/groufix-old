@@ -50,9 +50,12 @@ int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor
 	window->context = _gfx_win32->extensions.CreateContextAttribsARB(_gfx_win32->current, shareCont, bufferAttr);
 
 	/* Make it current */
-	wglMakeCurrent(_gfx_win32->current, window->context);
-
-	return window->context ? 1 : 0;
+	if(window->context)
+	{
+		wglMakeCurrent(_gfx_win32->current, window->context);
+		return 1;
+	}
+	return 0;
 }
 
 /******************************************************/
