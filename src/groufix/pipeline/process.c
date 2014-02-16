@@ -66,11 +66,11 @@ int _gfx_pipe_process_prepare(GFX_Window* target)
 	/* First make sure the buffer exists */
 	if(!_gfx_process_buffer)
 	{
-		float data[] = {
-			-1.0f, -1.0f, 0.0f, 0.0f,
-			 1.0f, -1.0f, 1.0f, 0.0f,
-			 1.0f,  1.0f, 1.0f, 1.0f,
-			-1.0f,  1.0f, 0.0f, 1.0f
+		char data[] = {
+			-1, -1, 0, 0,
+			 1, -1, 1, 0,
+			 1,  1, 1, 1,
+			-1,  1, 0, 1
 		};
 
 		ext->GenBuffers(1, &_gfx_process_buffer);
@@ -87,25 +87,8 @@ int _gfx_pipe_process_prepare(GFX_Window* target)
 		_gfx_layout_bind(target->layout, ext);
 
 		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
-
 		ext->EnableVertexAttribArray(0);
-		ext->EnableVertexAttribArray(1);
-
-		/* Specify where the triangle is */
-		ext->VertexAttribPointer(
-			0, 2,
-			GL_FLOAT,
-			GL_FALSE,
-			sizeof(float) << 2,
-			(GLvoid*)0
-		);
-		ext->VertexAttribPointer(
-			1, 2,
-			GL_FLOAT,
-			GL_FALSE,
-			sizeof(float) << 2,
-			(GLvoid*)(sizeof(float) << 1)
-		);
+		ext->VertexAttribIPointer(0, 4, GL_BYTE, 0, (GLvoid*)0);
 
 		return target->layout;
 	}

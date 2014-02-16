@@ -18,6 +18,7 @@ int main()
 
 		return 0;
 	}
+	gfx_set_error_mode(GFX_ERROR_MODE_DEBUG);
 
 
 	/* Setup 2 windows */
@@ -91,12 +92,11 @@ int main()
 		"}";
 
 	const char* vertSrc2 =
-		"in vec4 position;"
-		"in vec2 texcoord;"
+		"in ivec4 data;"
 		"out vec2 coord;"
 		"void main() {"
-		"gl_Position = position;"
-		"coord = texcoord;"
+		"gl_Position = vec4(data.xy, 0, 1);"
+		"coord = data.zw;"
 		"}";
 	const char* fragSrc2 =
 		"in vec2 coord;"
@@ -130,15 +130,13 @@ int main()
 	gfx_shader_set_source(frag, 1, &fragSrc2);
 
 	GFXProgram* program2 = gfx_program_create();
-	gfx_program_set_attribute(program2, 0, "position");
-	gfx_program_set_attribute(program2, 1, "texcoord");
+	gfx_program_set_attribute(program2, 0, "data");
 	gfx_program_link(program2, 2, shaders);
 
 	gfx_shader_set_source(frag, 1, &fragSrc3);
 
 	GFXProgram* program3 = gfx_program_create();
-	gfx_program_set_attribute(program3, 0, "position");
-	gfx_program_set_attribute(program3, 1, "texcoord");
+	gfx_program_set_attribute(program3, 0, "data");
 	gfx_program_link(program3, 2, shaders);
 
 	gfx_shader_free(vert);

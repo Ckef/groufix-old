@@ -189,7 +189,7 @@ static GFX_HardwareFuncs _gfx_texture_obj_funcs =
 };
 
 /******************************************************/
-static struct GFX_Texture* _gfx_texture_alloc(GLenum target, GFXTextureFormat format, unsigned char mipmaps, GFX_Extensions* ext)
+static struct GFX_Texture* _gfx_texture_alloc(GLenum target, GFXTextureFormat format, GFX_Extensions* ext)
 {
 	/* Validate type & format */
 	GLint form = _gfx_texture_eval_internal_format(format);
@@ -212,8 +212,6 @@ static struct GFX_Texture* _gfx_texture_alloc(GLenum target, GFXTextureFormat fo
 
 	tex->target = target;
 	tex->format = form;
-
-	tex->texture.mipmaps = mipmaps;
 	tex->texture.samples = 1;
 
 	return tex;
@@ -356,15 +354,16 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int
 		default : return NULL;
 	}
 
+	/* Allocate texture */
+	struct GFX_Texture* tex = _gfx_texture_alloc(target, format, &window->extensions);
+	if(!tex) return NULL;
+
 	/* Limit mipmaps */
 	unsigned char maxMips = _gfx_texture_get_num_mipmaps(type, width, height, depth);
 	mipmaps = (mipmaps < 0 || mipmaps > maxMips) ? maxMips : mipmaps;
 
-	/* Allocate texture */
-	struct GFX_Texture* tex = _gfx_texture_alloc(target, format, mipmaps, &window->extensions);
-	if(!tex) return NULL;
-
 	tex->texture.type = type;
+	tex->texture.mipmaps = mipmaps;
 
 	/* Set parameters and allocate data */
 	_gfx_binder_bind_texture(tex->handle, target, 0, &window->extensions);
@@ -386,7 +385,7 @@ GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned cha
 	GLenum target = (depth > 1) ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
 
 	/* Allocate texture */
-	struct GFX_Texture* tex = _gfx_texture_alloc(target, format, 0, &window->extensions);
+	struct GFX_Texture* tex = _gfx_texture_alloc(target, format, &window->extensions);
 	if(!tex) return NULL;
 
 	/* Limit samples */
@@ -407,7 +406,7 @@ GFXTexture* gfx_texture_create_buffer_link(GFXTextureFormat format, const GFXBuf
 	if(!window || _gfx_is_data_type_packed(format.type) || format.interpret == GFX_INTERPRET_DEPTH) return NULL;
 
 	/* Allocate texture */
-	struct GFX_Texture* tex = _gfx_texture_alloc(GL_TEXTURE_BUFFER, format, 0, &window->extensions);
+	struct GFX_Texture* tex = _gfx_texture_alloc(GL_TEXTURE_BUFFER, format, &window->extensions);
 	if(!tex) return NULL;
 
 	tex->buffer = _gfx_buffer_get_handle(buffer);
