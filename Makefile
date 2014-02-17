@@ -53,9 +53,10 @@ OUT     = obj
 DEPEND  = depend
 INCLUDE = include
 SRC     = src
+SSE     = YES
 
 # Flags for all compiler calls
-CFLAGS            = -Os -O2 -Wall -pedantic -I$(INCLUDE)
+CFLAGS            = -Os -O2 -Wall -pedantic -I$(INCLUDE) -DGFX_$(SSE)_SSE
 CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32      = $(CFLAGS) -std=c99
 
