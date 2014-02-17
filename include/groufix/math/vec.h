@@ -29,18 +29,22 @@
 #include <math.h>
 #include <string.h>
 
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-
-#define GFX_VEC_CREATE_NAME(size,type) GFX_NAME(GFX_CAT(gfx_vec, size), type)
+#define GFX_VEC_CREATE_NAME(size,type) GFX_NAME(gfx, GFX_CAT(GFX_CAT(type, vec), size))
 #define GFX_VEC_CREATE_FUNC(size,type,postfix) GFX_NAME(GFX_VEC_CREATE_NAME(size, type), postfix)
 
 #endif // GFX_MATH_VEC_H
 
 
+/* Invalid defines */
+#if !defined(GFX_VEC_TYPE) && defined(GFX_VEC_DATA)
+	#error "Missing define for GFX_VEC_TYPE"
+
+#elif !defined(GFX_VEC_DATA) && defined(GFX_VEC_TYPE)
+	#error "Missing define for GFX_VEC_DATA"
+
+
 /* Load all default sizes */
-#if !defined(GFX_VEC_SIZE)
+#elif !defined(GFX_VEC_SIZE)
 
 	#define GFX_VEC_SIZE 2
 	#include "groufix/math/vec.h"
@@ -58,49 +62,49 @@ typedef unsigned int uint;
 /* Load all default datatypes */
 #elif !defined(GFX_VEC_TYPE)
 
-	#define GFX_VEC_TYPE char
+	#define GFX_VEC_TYPE c
 	#define GFX_VEC_DATA int8_t
 	#include "groufix/math/vec.h"
 	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
-	#define GFX_VEC_TYPE uchar
+	#define GFX_VEC_TYPE uc
 	#define GFX_VEC_DATA uint8_t
 	#include "groufix/math/vec.h"
 	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
-	#define GFX_VEC_TYPE short
+	#define GFX_VEC_TYPE s
 	#define GFX_VEC_DATA int16_t
 	#include "groufix/math/vec.h"
 	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
-	#define GFX_VEC_TYPE ushort
+	#define GFX_VEC_TYPE us
 	#define GFX_VEC_DATA uint16_t
 	#include "groufix/math/vec.h"
 	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
-	#define GFX_VEC_TYPE int
+	#define GFX_VEC_TYPE i
 	#define GFX_VEC_DATA int32_t
 	#include "groufix/math/vec.h"
 	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
-	#define GFX_VEC_TYPE uint
+	#define GFX_VEC_TYPE u
 	#define GFX_VEC_DATA uint32_t
 	#include "groufix/math/vec.h"
 	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
-	#define GFX_VEC_TYPE float
+	#define GFX_VEC_TYPE
 	#define GFX_VEC_DATA float
 	#include "groufix/math/vec.h"
 	#undef GFX_VEC_DATA
 	#undef GFX_VEC_TYPE
 
-	#define GFX_VEC_TYPE double
+	#define GFX_VEC_TYPE d
 	#define GFX_VEC_DATA double
 	#include "groufix/math/vec.h"
 	#undef GFX_VEC_DATA
@@ -121,16 +125,16 @@ extern "C" {
 #define GFX_VEC_FUNC(postfix) GFX_VEC_CREATE_FUNC(GFX_VEC_SIZE, GFX_VEC_TYPE, postfix)
 
 /* Alignment */
-#if GFX_VEC_SIZE == 4 && GFX_VEC_TYPE == int
+#if GFX_VEC_SIZE == 4 && GFX_VEC_DATA == int32_t
 	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
 
-#elif GFX_VEC_SIZE == 4 && GFX_VEC_TYPE == uint
+#elif GFX_VEC_SIZE == 4 && GFX_VEC_DATA == uint32_t
 	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
 
-#elif GFX_VEC_SIZE == 4 && GFX_VEC_TYPE == float
+#elif GFX_VEC_SIZE == 4 && GFX_VEC_DATA == float
 	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
 
-#elif GFX_VEC_SIZE == 2 && GFX_VEC_TYPE == double
+#elif GFX_VEC_SIZE == 2 && GFX_VEC_DATA == double
 	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
 
 #else

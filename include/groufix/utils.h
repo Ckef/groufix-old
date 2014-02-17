@@ -35,6 +35,10 @@
 #define _UNICODE
 #endif
 
+/* Stringification */
+#define GFX_STRIFY_BAD(x) #x
+#define GFX_STRIFY(x) GFX_STRIFY_BAD(x)
+
 /* Concatenation */
 #define GFX_CAT_BAD(x,y) x ## y
 #define GFX_CAT(x,y) GFX_CAT_BAD(x,y)

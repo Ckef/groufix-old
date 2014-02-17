@@ -29,22 +29,30 @@
 #include <math.h>
 #include <string.h>
 
-#define GFX_QUAT_CREATE_NAME(type) GFX_NAME(gfx_quat, type)
+#define GFX_QUAT_CREATE_NAME(type) GFX_NAME(gfx, GFX_CAT(type, quat))
 #define GFX_QUAT_CREATE_FUNC(type,postfix) GFX_NAME(GFX_QUAT_CREATE_NAME(type), postfix)
 
 #endif // GFX_MATH_QUAT_H
 
 
-/* Load all default datatypes */
-#if !defined(GFX_QUAT_TYPE)
+/* Invalid defines */
+#if !defined(GFX_QUAT_TYPE) && defined(GFX_QUAT_DATA)
+	#error "Missing define for GFX_QUAT_TYPE"
 
-	#define GFX_QUAT_TYPE float
+#elif !defined(GFX_QUAT_DATA) && defined(GFX_QUAT_TYPE)
+	#error "Missing define for GFX_QUAT_DATA"
+
+
+/* Load all default datatypes */
+#elif !defined(GFX_QUAT_TYPE)
+
+	#define GFX_QUAT_TYPE
 	#define GFX_QUAT_DATA float
 	#include "groufix/math/quat.h"
 	#undef GFX_QUAT_DATA
 	#undef GFX_QUAT_TYPE
 
-	#define GFX_QUAT_TYPE double
+	#define GFX_QUAT_TYPE d
 	#define GFX_QUAT_DATA double
 	#include "groufix/math/quat.h"
 	#undef GFX_QUAT_DATA
@@ -65,7 +73,7 @@ extern "C" {
 #define GFX_QUAT_FUNC(postfix) GFX_QUAT_CREATE_FUNC(GFX_QUAT_TYPE, postfix)
 
 /* Alignment */
-#if GFX_QUAT_TYPE == float
+#if GFX_QUAT_DATA == float
 	#define GFX_QUAT_ALIGN GFX_SSE_ALIGN
 #else
 	#define GFX_QUAT_ALIGN
@@ -356,19 +364,19 @@ inline GFX_VEC_NAME* GFX_QUAT_FUNC(mult_vec)(GFX_VEC_NAME* dest, GFX_QUAT_NAME* 
  */
 inline GFX_MAT_NAME* GFX_QUAT_FUNC(to_matrix)(GFX_MAT_NAME* dest, GFX_QUAT_NAME* a)
 {
-	GFX_QUAT_TYPE x2 = a->data[1] + a->data[1];
-	GFX_QUAT_TYPE y2 = a->data[2] + a->data[2];
-	GFX_QUAT_TYPE z2 = a->data[3] + a->data[3];
+	GFX_QUAT_DATA x2 = a->data[1] + a->data[1];
+	GFX_QUAT_DATA y2 = a->data[2] + a->data[2];
+	GFX_QUAT_DATA z2 = a->data[3] + a->data[3];
 
-	GFX_QUAT_TYPE wx = x2 * a->data[0];
-	GFX_QUAT_TYPE wy = y2 * a->data[0];
-	GFX_QUAT_TYPE wz = z2 * a->data[0];
-	GFX_QUAT_TYPE xx = x2 * a->data[1];
-	GFX_QUAT_TYPE xy = y2 * a->data[1];
-	GFX_QUAT_TYPE xz = z2 * a->data[1];
-	GFX_QUAT_TYPE yy = y2 * a->data[2];
-	GFX_QUAT_TYPE yz = z2 * a->data[2];
-	GFX_QUAT_TYPE zz = z2 * a->data[3];
+	GFX_QUAT_DATA wx = x2 * a->data[0];
+	GFX_QUAT_DATA wy = y2 * a->data[0];
+	GFX_QUAT_DATA wz = z2 * a->data[0];
+	GFX_QUAT_DATA xx = x2 * a->data[1];
+	GFX_QUAT_DATA xy = y2 * a->data[1];
+	GFX_QUAT_DATA xz = z2 * a->data[1];
+	GFX_QUAT_DATA yy = y2 * a->data[2];
+	GFX_QUAT_DATA yz = z2 * a->data[2];
+	GFX_QUAT_DATA zz = z2 * a->data[3];
 
 	dest->data[0] = 1 - yy - zz; dest->data[3] = xy - wz; dest->data[6] = xz + wy;
 	dest->data[1] = xy + wz; dest->data[4] = 1 - xx - zz; dest->data[7] = yz - wx;

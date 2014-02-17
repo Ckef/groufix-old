@@ -30,14 +30,22 @@
 #include <math.h>
 #include <string.h>
 
-#define GFX_MAT_CREATE_NAME(size,type) GFX_NAME(GFX_CAT(gfx_mat, size), type)
+#define GFX_MAT_CREATE_NAME(size,type) GFX_NAME(gfx, GFX_CAT(GFX_CAT(type, mat), size))
 #define GFX_MAT_CREATE_FUNC(size,type,postfix) GFX_NAME(GFX_MAT_CREATE_NAME(size, type), postfix)
 
 #endif // GFX_MATH_MAT_H
 
 
+/* Invalid defines */
+#if !defined(GFX_MAT_TYPE) && defined(GFX_MAT_DATA)
+	#error "Missing define for GFX_MAT_TYPE"
+
+#elif !defined(GFX_MAT_DATA) && defined(GFX_MAT_TYPE)
+	#error "Missing define for GFX_MAT_DATA"
+
+
 /* Load all default sizes */
-#if !defined(GFX_MAT_SIZE)
+#elif !defined(GFX_MAT_SIZE)
 
 	#define GFX_MAT_SIZE 2
 	#include "groufix/math/mat.h"
@@ -55,13 +63,13 @@
 /* Load all default datatypes */
 #elif !defined(GFX_MAT_TYPE)
 
-	#define GFX_MAT_TYPE float
+	#define GFX_MAT_TYPE
 	#define GFX_MAT_DATA float
 	#include "groufix/math/mat.h"
 	#undef GFX_MAT_DATA
 	#undef GFX_MAT_TYPE
 
-	#define GFX_MAT_TYPE double
+	#define GFX_MAT_TYPE d
 	#define GFX_MAT_DATA double
 	#include "groufix/math/mat.h"
 	#undef GFX_MAT_DATA
@@ -83,10 +91,10 @@ extern "C" {
 #define GFX_MAT_STORE (GFX_MAT_SIZE * GFX_MAT_SIZE)
 
 /* Alignment */
-#if GFX_MAT_SIZE == 4 && GFX_MAT_TYPE == float
+#if GFX_MAT_SIZE == 4 && GFX_MAT_DATA == float
 	#define GFX_MAT_ALIGN GFX_SSE_ALIGN
 
-#elif GFX_MAT_SIZE == 2 && GFX_MAT_TYPE == double
+#elif GFX_MAT_SIZE == 2 && GFX_MAT_DATA == double
 	#define GFX_MAT_ALIGN GFX_SSE_ALIGN
 
 #else
@@ -330,19 +338,19 @@ inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
 inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
 {
 	/* Determinants of 2x2 submatrices */
-	GFX_MAT_TYPE S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
-	GFX_MAT_TYPE S1 = a->data[0] * a->data[9]  - a->data[8]  * a->data[1];
-	GFX_MAT_TYPE S2 = a->data[0] * a->data[13] - a->data[12] * a->data[1];
-	GFX_MAT_TYPE S3 = a->data[4] * a->data[9]  - a->data[8]  * a->data[5];
-	GFX_MAT_TYPE S4 = a->data[4] * a->data[13] - a->data[12] * a->data[5];
-	GFX_MAT_TYPE S5 = a->data[8] * a->data[13] - a->data[12] * a->data[9];
+	GFX_MAT_DATA S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
+	GFX_MAT_DATA S1 = a->data[0] * a->data[9]  - a->data[8]  * a->data[1];
+	GFX_MAT_DATA S2 = a->data[0] * a->data[13] - a->data[12] * a->data[1];
+	GFX_MAT_DATA S3 = a->data[4] * a->data[9]  - a->data[8]  * a->data[5];
+	GFX_MAT_DATA S4 = a->data[4] * a->data[13] - a->data[12] * a->data[5];
+	GFX_MAT_DATA S5 = a->data[8] * a->data[13] - a->data[12] * a->data[9];
 
-	GFX_MAT_TYPE C5 = a->data[10] * a->data[15] - a->data[14] * a->data[11];
-	GFX_MAT_TYPE C4 = a->data[6]  * a->data[15] - a->data[14] * a->data[7];
-	GFX_MAT_TYPE C3 = a->data[6]  * a->data[11] - a->data[10] * a->data[7];
-	GFX_MAT_TYPE C2 = a->data[2]  * a->data[15] - a->data[14] * a->data[3];
-	GFX_MAT_TYPE C1 = a->data[2]  * a->data[11] - a->data[10] * a->data[3];
-	GFX_MAT_TYPE C0 = a->data[2]  * a->data[7]  - a->data[6]  * a->data[3];
+	GFX_MAT_DATA C5 = a->data[10] * a->data[15] - a->data[14] * a->data[11];
+	GFX_MAT_DATA C4 = a->data[6]  * a->data[15] - a->data[14] * a->data[7];
+	GFX_MAT_DATA C3 = a->data[6]  * a->data[11] - a->data[10] * a->data[7];
+	GFX_MAT_DATA C2 = a->data[2]  * a->data[15] - a->data[14] * a->data[3];
+	GFX_MAT_DATA C1 = a->data[2]  * a->data[11] - a->data[10] * a->data[3];
+	GFX_MAT_DATA C0 = a->data[2]  * a->data[7]  - a->data[6]  * a->data[3];
 
 	return S0 * C5 - S1 * C4 + S2 * C3 + S3 * C2 - S4 * C1 + S5 * C0;
 }
@@ -357,19 +365,19 @@ inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
 inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
 {
 	/* Determinants of 2x2 submatrices */
-	GFX_MAT_TYPE S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
-	GFX_MAT_TYPE S1 = a->data[0] * a->data[9]  - a->data[8]  * a->data[1];
-	GFX_MAT_TYPE S2 = a->data[0] * a->data[13] - a->data[12] * a->data[1];
-	GFX_MAT_TYPE S3 = a->data[4] * a->data[9]  - a->data[8]  * a->data[5];
-	GFX_MAT_TYPE S4 = a->data[4] * a->data[13] - a->data[12] * a->data[5];
-	GFX_MAT_TYPE S5 = a->data[8] * a->data[13] - a->data[12] * a->data[9];
+	GFX_MAT_DATA S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
+	GFX_MAT_DATA S1 = a->data[0] * a->data[9]  - a->data[8]  * a->data[1];
+	GFX_MAT_DATA S2 = a->data[0] * a->data[13] - a->data[12] * a->data[1];
+	GFX_MAT_DATA S3 = a->data[4] * a->data[9]  - a->data[8]  * a->data[5];
+	GFX_MAT_DATA S4 = a->data[4] * a->data[13] - a->data[12] * a->data[5];
+	GFX_MAT_DATA S5 = a->data[8] * a->data[13] - a->data[12] * a->data[9];
 
-	GFX_MAT_TYPE C5 = a->data[10] * a->data[15] - a->data[14] * a->data[11];
-	GFX_MAT_TYPE C4 = a->data[6]  * a->data[15] - a->data[14] * a->data[7];
-	GFX_MAT_TYPE C3 = a->data[6]  * a->data[11] - a->data[10] * a->data[7];
-	GFX_MAT_TYPE C2 = a->data[2]  * a->data[15] - a->data[14] * a->data[3];
-	GFX_MAT_TYPE C1 = a->data[2]  * a->data[11] - a->data[10] * a->data[3];
-	GFX_MAT_TYPE C0 = a->data[2]  * a->data[7]  - a->data[6]  * a->data[3];
+	GFX_MAT_DATA C5 = a->data[10] * a->data[15] - a->data[14] * a->data[11];
+	GFX_MAT_DATA C4 = a->data[6]  * a->data[15] - a->data[14] * a->data[7];
+	GFX_MAT_DATA C3 = a->data[6]  * a->data[11] - a->data[10] * a->data[7];
+	GFX_MAT_DATA C2 = a->data[2]  * a->data[15] - a->data[14] * a->data[3];
+	GFX_MAT_DATA C1 = a->data[2]  * a->data[11] - a->data[10] * a->data[3];
+	GFX_MAT_DATA C0 = a->data[2]  * a->data[7]  - a->data[6]  * a->data[3];
 
 	/* Check if determinant is non-zero */
 	double det = S0 * C5 - S1 * C4 + S2 * C3 + S3 * C2 - S4 * C1 + S5 * C0;
