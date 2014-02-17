@@ -66,7 +66,7 @@ int _gfx_pipe_process_prepare(GFX_Window* target)
 	/* First make sure the buffer exists */
 	if(!_gfx_process_buffer)
 	{
-		char data[] = {
+		GLbyte data[] = {
 			-1, -1, 0, 0,
 			 1, -1, 1, 0,
 			 1,  1, 1, 1,

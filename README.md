@@ -19,6 +19,8 @@ A Makefile is shipped with the project, run make without a target to view all bu
 
 To compile Groufix, you need the standard headers for your platform and OpenGL. These headers should come with the appropriate GPU drivers. When developing for OGL ES, the library should be built specifically for it, `GFX_GLES` should be defined by the compiler to compile the correct extension loading mechanism (in most cases this is done automatically through the build target).
 
+Groufix will compile certain functions using SSE instructions. To disable this feature `GFX_NO_SSE` should be defined by the compiler to compile using ordinary instructions instead of SSE ones.
+
 ## Usage
 
 Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All _core_ functionality will be made available through that file. Make sure the include directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library. Before using the engine, it should be intialized with a call to `gfx_init`. After being done with the engine, it should be terminated with a call to `gfx_terminate`.
