@@ -46,7 +46,6 @@ int main()
 	attr.type.unpacked = GFX_FLOAT;
 	attr.interpret     = GFX_INTERPRET_FLOAT;
 	attr.stride        = sizeof(float) * 6;
-	attr.offset        = 0;
 	attr.divisor       = 0;
 
 	GFXDrawCall call;
@@ -55,10 +54,11 @@ int main()
 	call.count     = 3;
 
 	GFXVertexLayout* layout = gfx_vertex_layout_create(1);
-	gfx_vertex_layout_set_attribute_shared(layout, 0, &attr, &buffer);
-	attr.offset = sizeof(float) * 3;
-	gfx_vertex_layout_set_attribute_shared(layout, 1, &attr, &buffer);
-	gfx_vertex_layout_set_draw_call(layout, 0, &call, NULL);
+	gfx_vertex_layout_set_attribute(layout, 0, &attr);
+	gfx_vertex_layout_set_attribute(layout, 1, &attr);
+	gfx_vertex_layout_set_attribute_shared_buffer(layout, 0, &buffer, 0);
+	gfx_vertex_layout_set_attribute_shared_buffer(layout, 1, &buffer, sizeof(float) * 3);
+	gfx_vertex_layout_set_draw_call(layout, 0, &call);
 
 
 	/* Texture */

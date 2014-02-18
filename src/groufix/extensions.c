@@ -246,7 +246,6 @@ void _gfx_extensions_load(void)
 	ext->GetShaderSource           = glGetShaderSource;
 	ext->GetUniformBlockIndex      = glGetUniformBlockIndex;
 	ext->GetUniformLocation        = glGetUniformLocation;
-	ext->IsBuffer                  = glIsBuffer;
 	ext->IsTexture                 = glIsTexture;
 	ext->LinkProgram               = glLinkProgram;
 	ext->MapBufferRange            = glMapBufferRange;
@@ -360,7 +359,6 @@ void _gfx_extensions_load(void)
 	ext->GetShaderSource           = (PFNGLGETSHADERSOURCEPROC)           _gfx_platform_get_proc_address("glGetShaderSource");
 	ext->GetUniformBlockIndex      = (PFNGLGETUNIFORMBLOCKINDEXPROC)      _gfx_platform_get_proc_address("glGetUniformBlockIndex");
 	ext->GetUniformLocation        = (PFNGLGETUNIFORMLOCATIONPROC)        _gfx_platform_get_proc_address("glGetUniformLocation");
-	ext->IsBuffer                  = (PFNGLISBUFFERPROC)                  _gfx_platform_get_proc_address("glIsBuffer");
 	ext->IsTexture                 = (PFNGLISTEXTUREPROC)                 glIsTexture;
 	ext->LinkProgram               = (PFNGLLINKPROGRAMPROC)               _gfx_platform_get_proc_address("glLinkProgram");
 	ext->MapBufferRange            = (PFNGLMAPBUFFERRANGEPROC)            _gfx_platform_get_proc_address("glMapBufferRange");

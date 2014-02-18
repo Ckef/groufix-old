@@ -29,7 +29,7 @@
 #include <stddef.h>
 
 /* Default hardware ID width */
-#define GFX_HARDWARE_ID_WIDTH_DEFAULT 20
+#define GFX_HARDWARE_ID_WIDTH_DEFAULT 24
 
 #ifdef __cplusplus
 extern "C" {

@@ -316,7 +316,7 @@ int gfx_buffer_shrink(GFXBuffer* buffer, unsigned char num)
 }
 
 /******************************************************/
-int gfx_buffer_swap(GFXBuffer* buffer)
+size_t gfx_buffer_swap(GFXBuffer* buffer)
 {
 	/* Get current window and context */
 	GFX_Window* window = _gfx_window_get_current();
@@ -339,13 +339,13 @@ int gfx_buffer_swap(GFXBuffer* buffer)
 	{
 		/* Swap buffer if out of bounds */
 		internal->currentSeg = 0;
+		offset = 0;
 
 		++internal->current;
 		internal->current = internal->current > buffer->multi ? 0 : internal->current;
-
-		return buffer->multi || offset > buffer->segSize;
 	}
-	return 1;
+
+	return offset;
 }
 
 /******************************************************/

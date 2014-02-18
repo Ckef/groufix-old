@@ -136,8 +136,9 @@ typedef struct GFXBuffer
  *
  * @param usage    Usage bitflag, how the buffer is intended to be used.
  * @param target   Storage type the buffer is targeted for.
- * @param multi    Number of extra buffers to allocate (> 0 for multi buffering, 0 for regular buffering).
- * @param segments Number of extra segments per buffer (> 0 for segmentation, 0 for one big segment).
+ * @param size     Size of each individual backbuffer, segments will be a fraction of this.
+ * @param multi    Number of extra backbuffers to allocate (> 0 for multi buffering, 0 for regular buffering).
+ * @param segments Number of extra segments per backbuffer (> 0 for segmentation, 0 for one big segment).
  * @return NULL on failure.
  *
  * Note: if data is not NULL, this data is NOT copied to any extra buffers.
@@ -152,7 +153,7 @@ GFXBuffer* gfx_buffer_create(GFXBufferUsage usage, GFXBufferTarget target, size_
  * @param target Storage type the buffer is targeted for.
  * @return Non-zero on success.
  *
- * Note: only copies the current buffer when multi buffering.
+ * Note: only copies the current backbuffer when multi buffering.
  *
  */
 GFXBuffer* gfx_buffer_create_copy(GFXBuffer* src, GFXBufferUsage usage, GFXBufferTarget target);
@@ -164,7 +165,7 @@ GFXBuffer* gfx_buffer_create_copy(GFXBuffer* src, GFXBufferUsage usage, GFXBuffe
 void gfx_buffer_free(GFXBuffer* buffer);
 
 /**
- * Allocates more buffers for multibuffering.
+ * Allocates more backbuffers for multibuffering.
  *
  * @param num Number of extra buffers to allocate.
  * @return Non-zero on success.
@@ -173,7 +174,7 @@ void gfx_buffer_free(GFXBuffer* buffer);
 int gfx_buffer_expand(GFXBuffer* buffer, unsigned char num);
 
 /**
- * Deallocates buffers from multibuffering.
+ * Deallocates backbuffers from multibuffering.
  *
  * @param num Number of buffers to remove.
  * @return Number of buffers actually removed.
@@ -184,16 +185,16 @@ int gfx_buffer_shrink(GFXBuffer* buffer, unsigned char num);
 /**
  * Advances to the next segment and/or backbuffer.
  *
- * @return Zero if this buffer is not multi buffered or segmented (and thus no swap occurred).
+ * @return The byte offset of the now current segment in the now current backbuffer.
  *
  * Additionally, this is the command which issues a fence sync.
  * It is appropriate to call this immediately after writing/reading to/from the segment is done.
  *
  */
-int gfx_buffer_swap(GFXBuffer* buffer);
+size_t gfx_buffer_swap(GFXBuffer* buffer);
 
 /**
- * Writes data to the buffer synchronously.
+ * Writes data to the current backbuffer synchronously.
  *
  * @param size   Size of the data to write, in bytes.
  * @param data   Data to write to the buffer, cannot be NULL.
@@ -203,7 +204,7 @@ int gfx_buffer_swap(GFXBuffer* buffer);
 void gfx_buffer_write(GFXBuffer* buffer, size_t size, const void* data, size_t offset);
 
 /**
- * Reads data from the buffer synchronously.
+ * Reads data from the current backbuffer synchronously.
  *
  * @param size   Size of the data to read, in bytes.
  * @param data   Pointer to write to, cannot be NULL.
@@ -219,7 +220,7 @@ void gfx_buffer_read(GFXBuffer* buffer, size_t size, void* data, size_t offset);
  * @param offset Offset within the segment.
  * @return A pointer in client address space (NULL on failure).
  *
- * This method will automatically try to asynchronously upload.
+ * This method will automatically try to asynchronously upload to the current backbuffer.
  *
  */
 void* gfx_buffer_map(GFXBuffer* buffer, size_t size, size_t offset, GFXBufferUsage access);
@@ -241,7 +242,7 @@ void gfx_buffer_unmap(GFXBuffer* buffer);
 typedef struct GFXSharedBuffer
 {
 	void*   reference;
-	size_t  offset;
+	size_t  offset; /* In bytes */
 
 } GFXSharedBuffer;
 
@@ -294,9 +295,7 @@ typedef struct GFXVertexAttribute
 	unsigned char     size;      /* Number of elements */
 	GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
 	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT */
-
 	size_t            stride;    /* Byte offset between consecutive attributes, 0 is an alias for tightly packed */
-	size_t            offset;    /* Byte offset of the first occurrence of the attribute */
 	unsigned int      divisor;   /* Rate at which to advance, 0 for no instancing, requires GFX_EXT_INSTANCED_ATTRIBUTES */
 
 } GFXVertexAttribute;
@@ -316,7 +315,7 @@ typedef struct GFXFeedbackBuffer
 typedef struct GFXDrawCall
 {
 	GFXPrimitive     primitive;
-	uintptr_t        first;     /* First index (regular) or byte offset (indexed) */
+	uintptr_t        first;     /* First index (or byte offset if an index buffer was given) */
 	size_t           count;     /* Number of vertices to draw */
 	GFXUnpackedType  indexType; /* Can only be an unsigned type */
 
@@ -352,37 +351,39 @@ GFXVertexLayout* gfx_vertex_layout_create(unsigned char drawCalls);
 void gfx_vertex_layout_free(GFXVertexLayout* layout);
 
 /**
- * Sets an attribute of a vertex layout.
+ * Adds/sets an attribute of a vertex layout.
  *
- * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
- * @param buffer Buffer to read this attribute from (cannot be NULL), a multi buffer swap will have no effect on the attribute.
+ * @param index Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
+ * @param attr  Attribute parameters (cannot be NULL).
  * @return Zero on failure.
  *
- * The attribute's type can be unpacked or (UNSIGNED_)INT_10_10_10_2 if GFX_EXT_PACKED_ATTRIBUTES is supported.
+ * The attribute's type can be unpacked, or, (UNSIGNED_)INT_10_10_10_2 if GFX_EXT_PACKED_ATTRIBUTES is supported.
+ * Note: for the attribute to have any effect it should be given a buffer.
  *
  */
-int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXBuffer* buffer);
+int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr);
 
 /**
- * Sets an attribute of a vertex layout.
+ * Sets the vertex buffer source of an existing attribute.
  *
- * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
- * @param buffer Shared buffer to read this attribute from (cannot be NULL).
- * @return Zero on failure.
+ * @param index  Index of the attribute to set the source of.
+ * @param buffer Buffer to read this attribute from, only the current backbuffer of a multi buffer will be used (can be NULL to disable).
+ * @param offset Byte offset within the buffer to start reading at.
+ * @return Zero if the attribute does not exist.
  *
  */
-int gfx_vertex_layout_set_attribute_shared(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr, const GFXSharedBuffer* buffer);
+int gfx_vertex_layout_set_attribute_buffer(GFXVertexLayout* layout, unsigned int index, const GFXBuffer* buffer, size_t offset);
 
 /**
- * Retrieves an attribute from a vertex layout.
+ * Sets the (shared) vertex buffer source of an existing attribute.
  *
- * @param index Index of the attribute to retrieve.
- * @return Zero on failure (nothing is written to the output parameters).
- *
- * If a shared buffer was used, attr->offset will be the given offset + the shared buffer offset.
+ * @param index  Index of the attribute to set the source of.
+ * @param buffer Shared buffer to read this attribute from (can be NULL to disable).
+ * @param offset Byte offset within the buffer to start reading at.
+ * @return Zero if the attribute does not exist.
  *
  */
-int gfx_vertex_layout_get_attribute(GFXVertexLayout* layout, unsigned int index, GFXVertexAttribute* attr);
+int gfx_vertex_layout_set_attribute_shared_buffer(GFXVertexLayout* layout, unsigned int index, const GFXSharedBuffer* buffer, size_t offset);
 
 /**
  * Removes an attribute from a vertex layout.
@@ -398,6 +399,7 @@ void gfx_vertex_layout_remove_attribute(GFXVertexLayout* layout, unsigned int in
  * @param primitive Primitive to output to the buffers, can only be GFX_POINTS, GFX_LINES or GFX_TRIANGLES.
  * @param num       Size of buffers, must be <= GFX_LIM_MAX_FEEDBACK_BUFFERS.
  * @param buffers   Array of buffers to receive program feedback from.
+ * @return Zero on failure.
  *
  * Note: any two given buffer ranges cannot overlap.
  *
@@ -407,22 +409,34 @@ int gfx_vertex_layout_set_feedback(GFXVertexLayout* layout, GFXPrimitive primiti
 /**
  * Changes a draw call of the vertex layout.
  *
- * @param index  Index of the draw call (must be < layout->drawCalls).
- * @param buffer Buffer to use as index buffer (can be NULL for non-indexed rendering), a multi buffer swap will have no effect on the draw call.
- * @return Non-zero if the draw call could be changed.
+ * @param index Index of the draw call (must be < layout->drawCalls).
+ * @param call  Draw call parameters (cannot be NULL).
+ * @return Zero if the draw call does not exist.
  *
  */
-int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call, const GFXBuffer* buffer);
+int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call);
 
 /**
- * Changes a draw call of the vertex layout.
+ * Sets the index buffer source of a draw call.
  *
- * @param index  Index of the draw call (must be < layout->drawCalls).
- * @param buffer Shared buffer to use as index buffer (can be NULL for non-indexed rendering).
- * @return Non-zero if the draw call could be changed.
+ * @param index  Index of the draw call.
+ * @param buffer Buffer to use as index buffer, only the current backbuffer of a multi buffer will be used (can be NULL).
+ * @param offset Byte offset within the buffer to start reading at.
+ * @return Zero if the draw call does not exist.
  *
  */
-int gfx_vertex_layout_set_draw_call_shared(GFXVertexLayout* layout, unsigned char idnex, const GFXDrawCall* call, const GFXSharedBuffer* buffer);
+int gfx_vertex_layout_set_draw_call_buffer(GFXVertexLayout* layout, unsigned char index, const GFXBuffer* buffer, size_t offset);
+
+/**
+ * Sets the (shared) index buffer source of a draw call.
+ *
+ * @param index  Index of the draw call.
+ * @param buffer Shared buffer to use as index buffer (can be NULL).
+ * @param offset Byte offset within the buffer to start reading at.
+ * @return Zero if the draw call does not exist.
+ *
+ */
+int gfx_vertex_layout_set_draw_call_shared_buffer(GFXVertexLayout* layout, unsigned char index, const GFXSharedBuffer* buffer, size_t offset);
 
 /**
  * Retrieves a draw call from the vertex layout.
@@ -547,7 +561,7 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int
 GFXTexture* gfx_texture_create_multisample(GFXTextureFormat format, unsigned char samples, size_t width, size_t height, size_t depth);
 
 /**
- * Creates a new texture associated with a 1D buffer.
+ * Creates a new texture associated with a 1D buffer, it will only see the current backbuffer of the buffer.
  *
  * @return NULL on failure.
  *
@@ -584,7 +598,7 @@ GFXTextureFormat gfx_texture_get_format(GFXTexture* texture);
 void gfx_texture_write(GFXTextureImage image, const GFXPixelTransfer* transfer, const void* data);
 
 /**
- * Writes to the texture from a buffer.
+ * Writes to the texture from a buffer, it will read from its current backbuffer.
  *
  * This method is asynchronous, it performs a DMA transfer.
  * Note: if the texture is linked to a buffer, the client format must be equal to the texture format.
