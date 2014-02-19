@@ -15,7 +15,6 @@ int main()
 	while(gfx_window_is_open(window))
 	{
 		gfx_poll_events();
-		gfx_window_swap_buffers(window);
 	}
 
 	gfx_window_free(window);
