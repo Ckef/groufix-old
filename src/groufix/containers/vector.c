@@ -21,8 +21,8 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/utils.h"
+#include "groufix/containers/vector.h"
 
 #include <limits.h>
 #include <stdlib.h>

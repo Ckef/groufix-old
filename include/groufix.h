@@ -25,9 +25,8 @@
 #define GROUFIX_H
 
 /* Core includes */
-#include "groufix/errors.h"
-#include "groufix/math.h"
-#include "groufix/pipeline.h"
+#include "groufix/core/errors.h"
+#include "groufix/core/pipeline.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -21,8 +21,8 @@
  *
  */
 
-#include "groufix/containers/deque.h"
 #include "groufix/utils.h"
+#include "groufix/containers/deque.h"
 
 #include <limits.h>
 #include <stdlib.h>
