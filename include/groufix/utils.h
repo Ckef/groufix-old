@@ -56,6 +56,12 @@
 #define GFX_UINT_TO_VOID(x) ((void*)(uintptr_t)(x))
 #define GFX_VOID_TO_UINT(x) ((uintptr_t)(x))
 
+/* Void comparison */
+#define GFX_PTR_LESS(x,y) (GFX_VOID_TO_UINT(x) < GFX_VOID_TO_UINT(y))
+#define GFX_PTR_LEQUAL(x,y) (GFX_VOID_TO_UINT(x) <= GFX_VOID_TO_UINT(y))
+#define GFX_PTR_EQUAL(x,y) (GFX_VOID_TO_UINT(x) == GFX_VOID_TO_UINT(y))
+#define GFX_PTR_NEQUAL(x,y) (GFX_VOID_TO_UINT(x) != GFX_VOID_TO_UINT(y))
+
 /* SSE Math */
 #ifdef GFX_NO_SSE
 	#define GFX_SSE_ALIGN

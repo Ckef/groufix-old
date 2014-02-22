@@ -144,7 +144,8 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/memory/shared_buffer.o \
  $(OUT)/unix-x11/groufix/core/memory/texture.o \
  $(OUT)/unix-x11/groufix/core/pipeline/bucket.o \
- $(OUT)/unix-x11/groufix/core/pipeline/pipes.o \
+ $(OUT)/unix-x11/groufix/core/pipeline/pipe.o \
+ $(OUT)/unix-x11/groufix/core/pipeline/pipeline.o \
  $(OUT)/unix-x11/groufix/core/pipeline/process.o \
  $(OUT)/unix-x11/groufix/core/pipeline/states.o \
  $(OUT)/unix-x11/groufix/core/platform/context.o \
@@ -213,7 +214,10 @@ $(OUT)/unix-x11/groufix/core/memory/texture.o: $(SRC)/groufix/core/memory/textur
 $(OUT)/unix-x11/groufix/core/pipeline/bucket.o: $(SRC)/groufix/core/pipeline/bucket.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-$(OUT)/unix-x11/groufix/core/pipeline/pipes.o: $(SRC)/groufix/core/pipeline/pipes.c $(HEADERS_X11)
+$(OUT)/unix-x11/groufix/core/pipeline/pipe.o: $(SRC)/groufix/core/pipeline/pipe.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
+$(OUT)/unix-x11/groufix/core/pipeline/pipeline.o: $(SRC)/groufix/core/pipeline/pipeline.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/core/pipeline/process.o: $(SRC)/groufix/core/pipeline/process.c $(HEADERS_X11)
@@ -290,7 +294,8 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/memory/shared_buffer.o \
  $(OUT)/win32/groufix/core/memory/texture.o \
  $(OUT)/win32/groufix/core/pipeline/bucket.o \
- $(OUT)/win32/groufix/core/pipeline/pipes.o \
+ $(OUT)/win32/groufix/core/pipeline/pipe.o \
+ $(OUT)/win32/groufix/core/pipeline/pipeline.o \
  $(OUT)/win32/groufix/core/pipeline/process.o \
  $(OUT)/win32/groufix/core/pipeline/states.o \
  $(OUT)/win32/groufix/core/platform/context.o \
@@ -359,7 +364,10 @@ $(OUT)/win32/groufix/core/memory/texture.o: $(SRC)/groufix/core/memory/texture.c
 $(OUT)/win32/groufix/core/pipeline/bucket.o: $(SRC)/groufix/core/pipeline/bucket.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(OUT)/win32/groufix/core/pipeline/pipes.o: $(SRC)/groufix/core/pipeline/pipes.c $(HEADERS_WIN32)
+$(OUT)/win32/groufix/core/pipeline/pipe.o: $(SRC)/groufix/core/pipeline/pipe.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/core/pipeline/pipeline.o: $(SRC)/groufix/core/pipeline/pipeline.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/core/pipeline/process.o: $(SRC)/groufix/core/pipeline/process.c $(HEADERS_WIN32)

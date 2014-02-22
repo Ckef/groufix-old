@@ -23,8 +23,6 @@
 
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
-#include "groufix/containers/list.h"
-#include "groufix/containers/vector.h"
 
 #include <stdlib.h>
 
@@ -39,20 +37,6 @@ struct GFX_Attachment
 	unsigned int   layer;
 };
 
-/* Internal Pipe */
-struct GFX_Pipe
-{
-	/* Super class */
-	GFXList node;
-
-	GFXPipeType   type;
-	GFXPipeState  state;
-	GFXPipe       pipe;
-
-	/* Associated pipeline */
-	GFXPipeline*  pipeline;
-};
-
 /* Internal Pipeline */
 struct GFX_Pipeline
 {
@@ -60,21 +44,19 @@ struct GFX_Pipeline
 	GFXPipeline pipeline;
 
 	/* Framebuffer */
-	GLuint            fbo;         /* OpenGL handle */
-	GFXVector         attachments; /* Stores GFX_Attachment */
-	size_t            numTargets;
-	GLenum*           targets;     /* OpenGL draw buffers */
-
-	/* Pipes */
-	struct GFX_Pipe*  first;
-	struct GFX_Pipe*  last;
+	GLuint     fbo;         /* OpenGL handle */
+	GFXVector  attachments; /* Stores GFX_Attachment */
+	size_t     numTargets;
+	GLenum*    targets;     /* OpenGL draw buffers */
+	GFX_Pipe*  first;
+	GFX_Pipe*  last;
 
 	/* Viewport */
-	unsigned int      width;
-	unsigned int      height;
+	unsigned int width;
+	unsigned int height;
 
 	/* Not a shared resource */
-	GFX_Window*       win;
+	GFX_Window* win;
 };
 
 /******************************************************/
@@ -183,7 +165,7 @@ static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Attachment* att
 }
 
 /******************************************************/
-static void _gfx_pipeline_push_pipe(struct GFX_Pipe* pipe)
+static void _gfx_pipeline_push_pipe(GFX_Pipe* pipe)
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)pipe->pipeline;
 
@@ -193,7 +175,7 @@ static void _gfx_pipeline_push_pipe(struct GFX_Pipe* pipe)
 		pipeline->first = pipe;
 		pipe->state = GFX_STATE_DEFAULT;
 	}
-	else 
+	else
 	{
 		/* Strip off clearing bits, put at end */
 		gfx_list_splice_after((GFXList*)pipe, (GFXList*)pipeline->last);
@@ -320,7 +302,7 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 		}
 
 		/* Free all pipes */
-		while(internal->first) gfx_pipe_remove(&internal->first->pipe);
+		while(internal->first) gfx_pipeline_remove(&internal->first->pipe);
 
 		/* Free pipeline */
 		gfx_vector_clear(&internal->attachments);
@@ -420,22 +402,9 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 /******************************************************/
 GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags)
 {
-	/* Create the pipe */
-	struct GFX_Pipe* pipe = (struct GFX_Pipe*)gfx_list_create(sizeof(struct GFX_Pipe));
+	/* Create the pipe and push it */
+	GFX_Pipe* pipe = _gfx_pipe_create_bucket(pipeline, bits, flags);
 	if(!pipe) return 0;
-
-	/* Create bucket */
-	GFXBucket* bucket = _gfx_bucket_create(bits, flags);
-	if(!bucket)
-	{
-		gfx_list_free((GFXList*)pipe);
-		return 0;
-	}
-
-	/* Initialize and push */
-	pipe->type = GFX_PIPE_BUCKET;
-	pipe->pipe.bucket = bucket;
-	pipe->pipeline = pipeline;
 
 	_gfx_pipeline_push_pipe(pipe);
 
@@ -445,22 +414,9 @@ GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFX
 /******************************************************/
 GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline)
 {
-	/* Create the pipe */
-	struct GFX_Pipe* pipe = (struct GFX_Pipe*)gfx_list_create(sizeof(struct GFX_Pipe));
+	/* Create the pipe and push it */
+	GFX_Pipe* pipe = _gfx_pipe_create_process(pipeline);
 	if(!pipe) return 0;
-
-	/* Allocate process */
-	GFXPipeProcess process = _gfx_pipe_process_create();
-	if(!process)
-	{
-		gfx_list_free((GFXList*)pipe);
-		return 0;
-	}
-
-	/* Initialize and push */
-	pipe->type = GFX_PIPE_PROCESS;
-	pipe->pipe.process = process;
-	pipe->pipeline = pipeline;
 
 	_gfx_pipeline_push_pipe(pipe);
 
@@ -468,43 +424,13 @@ GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline)
 }
 
 /******************************************************/
-GFXPipeType gfx_pipe_get_type(GFXPipe* pipe)
+void gfx_pipeline_remove(GFXPipe* pipe)
 {
-	return ((struct GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(struct GFX_Pipe, pipe)))->type;
-}
-
-/******************************************************/
-GFXPipeState gfx_pipe_get_state(GFXPipe* pipe)
-{
-	return ((struct GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(struct GFX_Pipe, pipe)))->state;
-}
-
-/******************************************************/
-void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state)
-{
-	((struct GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(struct GFX_Pipe, pipe)))->state = state;
-}
-
-/******************************************************/
-void gfx_pipe_remove(GFXPipe* pipe)
-{
-	struct GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(struct GFX_Pipe, pipe));
-
-	/* Free the actual pipe */
-	switch(internal->type)
-	{
-		case GFX_PIPE_BUCKET :
-			_gfx_bucket_free(pipe->bucket);
-			break;
-
-		case GFX_PIPE_PROCESS :
-			_gfx_pipe_process_free(pipe->process);
-			break;
-	}
-
-	/* Erase it and replace if necessary */
+	/* Erase and replace if necessary */
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, pipe));
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)internal->pipeline;
-	struct GFX_Pipe* new = (struct GFX_Pipe*)gfx_list_erase((GFXList*)internal);
+
+	GFX_Pipe* new = _gfx_pipe_free(internal);
 
 	if(pipeline->first == internal) pipeline->first = new;
 	if(pipeline->last == internal) pipeline->last = new;
@@ -521,8 +447,8 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 	_gfx_pipeline_bind(internal->fbo, ext);
 
 	/* Iterate over all pipes */
-	struct GFX_Pipe* pipe;
-	for(pipe = internal->first; pipe; pipe = (struct GFX_Pipe*)pipe->node.next)
+	GFX_Pipe* pipe;
+	for(pipe = internal->first; pipe; pipe = (GFX_Pipe*)pipe->node.next)
 	{
 		/* Set viewport */
 		_gfx_states_set_viewport(internal->width, internal->height, ext);

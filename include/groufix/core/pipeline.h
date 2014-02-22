@@ -227,6 +227,63 @@ typedef union GFXPipe
 } GFXPipe;
 
 
+/**
+ * Returns the type of a pipe.
+ *
+ */
+GFXPipeType gfx_pipe_get_type(GFXPipe* pipe);
+
+/**
+ * Returns the state of a pipe.
+ *
+ * The default is that of the previous pipe minus clearing bits,
+ * the first pipe will have GFX_STATE_DEFAULT as default.
+ *
+ */
+GFXPipeState gfx_pipe_get_state(GFXPipe* pipe);
+
+/**
+ * Sets the state of a pipe.
+ *
+ */
+void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state);
+
+
+/********************************************************
+ * Pipe callback objects (for pipe destruction)
+ *******************************************************/
+
+/** Pipe callback object */
+typedef struct GFXPipeCallback
+{
+	unsigned char  key;
+	void*          data;
+
+} GFXPipeCallback;
+
+
+/** Pipe register callback */
+typedef void (*GFXPipeCallbackFunc) (GFXPipe*, GFXPipeCallback*);
+
+
+/**
+ * Register a new callback object for a pipe, it is issued when the pipe is freed.
+ *
+ * @callback Key of the callback plus arbitrary data to store.
+ * @return Zero on failure.
+ *
+ */
+int gfx_pipe_register(GFXPipe* pipe, GFXPipeCallback callback, GFXPipeCallbackFunc func);
+
+/**
+ * Unregister a callback object from a pipe.
+ *
+ * An object can be registered multiple times, in that case it will unregister all of them.
+ *
+ */
+void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback);
+
+
 /********************************************************
  * Pipelines (execute arbitrary processes in order)
  *******************************************************/
@@ -307,31 +364,10 @@ GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFX
 GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline);
 
 /**
- * Returns the type of a pipe.
+ * Removes a pipe from its associated pipeline.
  *
  */
-GFXPipeType gfx_pipe_get_type(GFXPipe* pipe);
-
-/**
- * Returns the state of a pipe.
- *
- * The default is that of the previous pipe minus clearing bits,
- * the first pipe will have GFX_STATE_DEFAULT as default.
- *
- */
-GFXPipeState gfx_pipe_get_state(GFXPipe* pipe);
-
-/**
- * Sets the state of a pipe.
- *
- */
-void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state);
-
-/**
- * Removes a pipe from a pipeline.
- *
- */
-void gfx_pipe_remove(GFXPipe* pipe);
+void gfx_pipeline_remove(GFXPipe* pipe);
 
 /**
  * Executes all pipes in order.

@@ -24,11 +24,64 @@
 #ifndef GFX_PIPELINE_INTERNAL_H
 #define GFX_PIPELINE_INTERNAL_H
 
+#include "groufix/containers/list.h"
+#include "groufix/containers/vector.h"
 #include "groufix/core/internal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/********************************************************
+ * Internal pipe
+ *******************************************************/
+
+/* Internal Pipe */
+typedef struct GFX_Pipe
+{
+	/* Super class */
+	GFXList node;
+
+	GFXPipeType    type;
+	GFXPipeState   state;
+	GFXPipe        pipe;
+
+	GFXVector      callbacks;
+	unsigned char  sorted;
+
+	/* Associated pipeline */
+	GFXPipeline*   pipeline;
+
+} GFX_Pipe;
+
+
+/**
+ * Creates a new bucket pipe.
+ *
+ * @param bits Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
+ * @return NULL on failure
+ *
+ */
+GFX_Pipe* _gfx_pipe_create_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags);
+
+/**
+ * Creates a new process pipe.
+ *
+ * @return NULL on failure.
+ *
+ */
+GFX_Pipe* _gfx_pipe_create_process(GFXPipeline* pipeline);
+
+/**
+ * Makes sure the pipe is freed properly.
+ *
+ * @return The pipe taking its place (can be NULL).
+ *
+ * If no pipe takes its place, it will try to return the previous pipe instead.
+ *
+ */
+GFX_Pipe* _gfx_pipe_free(GFX_Pipe* pipe);
+
 
 /********************************************************
  * OpenGL State management
