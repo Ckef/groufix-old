@@ -41,6 +41,14 @@ extern "C" {
 void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext);
 
 /**
+ * Get the location of a property (a.k.a uniform).
+ *
+ * @return Negative on failure, the location otherwise.
+ *
+ */
+GLint _gfx_program_get_location(GFXProgram* program, unsigned short index);
+
+/**
  * Signals a program it is going to be used with a property map.
  *
  * @return Zero if the property map is already in use with this program.

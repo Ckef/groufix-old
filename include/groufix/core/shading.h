@@ -106,6 +106,54 @@ int gfx_shader_compile(GFXShader* shader);
 
 
 /********************************************************
+ * Program properties
+ *******************************************************/
+
+/** Property type */
+typedef enum GFXPropertyType
+{
+	GFX_VECTOR_PROPERTY, /* Can only be of type GFX_FLOAT, GFX_INT or GFX_UNSIGNED_INT */
+	GFX_MATRIX_PROPERTY, /* Can only be of type GFX_FLOAT */
+	GFX_SAMPLER_PROPERTY
+
+} GFXPropertyType;
+
+
+/** Property */
+typedef struct GFXProperty
+{
+	GFXPropertyType  type;
+	GFXUnpackedType  dataType;   /* Data type of each component */
+	unsigned char    components; /* Number of components, or coordinate dimensions for samplers (can be 0 if unsupported) */
+	size_t           count;      /* Number of array elements (can be 0 if unsupported) */
+
+} GFXProperty;
+
+
+/********************************************************
+ * Program block properties
+ *******************************************************/
+
+/** Property Block Member */
+typedef struct GFXPropertyBlockMember
+{
+	unsigned short  property; /* Property index */
+	size_t          offset;   /* Byteoffset from the beginning of the block */
+	unsigned char   stride;   /* If a matrix, column stride, if not a matrix, array stride */
+
+} GFXPropertyBlockMember;
+
+
+/** Property Block */
+typedef struct GFXPropertyBlock
+{
+	unsigned short           numProperties;
+	GFXPropertyBlockMember*  properties;
+
+} GFXPropertyBlock;
+
+
+/********************************************************
  * Program (linked shaders to form GPU pipeline)
  *******************************************************/
 
@@ -125,7 +173,9 @@ typedef enum GFXFeedbackMode
 /** Program */
 typedef struct GFXProgram
 {
-	size_t id; /* Hardware Object ID */
+	size_t          id;         /* Hardware Object ID */
+	unsigned short  properties; /* Accesible properties */
+	unsigned short  blocks;     /* Accesible property blocks */
 
 } GFXProgram;
 
@@ -210,33 +260,50 @@ void* gfx_program_get_binary(GFXProgram* program, GFXProgramFormat* format, size
  */
 int gfx_program_set_binary(GFXProgram* program, GFXProgramFormat format, size_t size, const void* data);
 
+/**
+ * Returns a property of the program.
+ *
+ * @param index Index of the property, must be < program->properties.
+ * @return NULL if the property does not exist.
+ *
+ * Note: properties only exist after the program is linked successfully.
+ *
+ */
+const GFXProperty* gfx_program_get_property(GFXProgram* program, unsigned short index);
+
+/**
+ * Returns the index of the property with the given uniform name.
+ *
+ * @param name Name of the property in the shader (the string is copied).
+ * @return program->properties on failure, index otherwise.
+ *
+ */
+unsigned short gfx_program_get_named_property(GFXProgram* program, const char* name);
+
+/**
+ * Returns a property block of the program.
+ *
+ * @param index Index of the property block, must be < program->blocks.
+ * @return NULL if the block does not exist.
+ *
+ * Note: blocks only exist after the program is linked successfully.
+ *
+ */
+const GFXPropertyBlock* gfx_program_get_property_block(GFXProgram* program, unsigned short index);
+
+/**
+ * Returns the index of the property block with the given uniform name.
+ *
+ * @param name Name of the property block in the shader (the string is copied).
+ * @return program->blocks on failure, index otherwise.
+ *
+ */
+unsigned short gfx_program_get_named_property_block(GFXProgram* program, const char* name);
+
 
 /********************************************************
  * Property Map (inputs associated with a program)
  *******************************************************/
-
-/** Property type */
-typedef enum GFXPropertyType
-{
-	GFX_VECTOR_PROPERTY, /* Can only be of type GFX_FLOAT, GFX_INT or GFX_UNSIGNED_INT */
-	GFX_MATRIX_PROPERTY, /* Can only be of type GFX_FLOAT */
-	GFX_BUFFER_PROPERTY,
-	GFX_SAMPLER_PROPERTY
-
-} GFXPropertyType;
-
-
-/** Property */
-typedef struct GFXProperty
-{
-	unsigned char    components; /* Number of components */
-	GFXUnpackedType  type;       /* Data type of each component */
-
-	unsigned char    count;      /* Number of elements to upload at once (0 equals 1) */
-	const void*      data;       /* Pointer to vector/matrix */
-
-} GFXProperty;
-
 
 /** Property map */
 typedef struct GFXPropertyMap
@@ -264,53 +331,81 @@ GFXPropertyMap* gfx_property_map_create(GFXProgram* program, unsigned char prope
 void gfx_property_map_free(GFXPropertyMap* map);
 
 /**
- * Forwards data send to the given index to a given uniform name within the program.
+ * Forwards data send to a given index to a property within the program.
  *
- * @param index Index of the property (must be < map->properties).
- * @param type  Type of the index, must be of the same as the name is in the program.
- * @param name  Name of the uniform in the program.
+ * @param index    Index to forward to the program (must be < map->properties).
+ * @param property Index of the program property to forward to.
  * @return Zero on failure.
  *
- * Note: the program of the map must be succesfully linked before calling this method.
- *
  */
-int gfx_property_map_set(GFXPropertyMap* map, unsigned char index, GFXPropertyType type, const char* name);
+int gfx_property_map_forward(GFXPropertyMap* map, unsigned char index, unsigned short property);
 
 /**
- * Retrieves the type of a given property.
+ * Forwards data send to a given index to a given uniform name within the program.
  *
- * @param index Index of the property to retrieve.
- * @param type  Returns the type of the property, can be NULL.
- * @return Non-zero if the property is assigned to any uniform name within the program (if zero, type is not returned).
+ * @param index Index to forward to the program.
+ * @param name  Uniform name within the program to forward to.
+ * @return Zero on failure.
  *
  */
-int gfx_property_map_get(GFXPropertyMap* map, unsigned char index, GFXPropertyType* type);
+int gfx_property_map_forward_named(GFXPropertyMap* map, unsigned char index, const char* name);
 
 /**
- * Sets the value of a uniform within the program.
+ * Forwards data send to a given index to a property block within the program.
+ *
+ * @param index Index to forward to the program (must be < map->properties).
+ * @param block Index of the program property block to forward to.
+ * @return Zero on failure.
+ *
+ */
+int gfx_property_map_forward_block(GFXPropertyMap* map, unsigned char index, unsigned short block);
+
+/**
+ * Forwards data send to a given index to a given uniform block name within the program.
+ *
+ * @param index Index to forward to the program.
+ * @param name  Uniform block name within the program to forward to.
+ * @return Zero on failure.
+ *
+ */
+int gfx_property_map_forward_named_block(GFXPropertyMap* map, unsigned char index, const char* name);
+
+/**
+ * Sets the value of a vector/matrix property.
  *
  * @param index Index of the property to set the value of.
  * @param value Value to set it to, the content will be copied.
  * @return Non-zero on success.
  *
  */
-int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, GFXProperty value);
+int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, const void* value);
 
 /**
- * Sets the value of a uniform block within the program.
+ * Sets the value of a sampler property.
+ *
+ * @param index Index of the property to set the value of.
+ * @return Non-zero on success.
+ *
+ * Note: There can only be GFX_LIM_MAX_SAMPLER_PROPERTIES number of sampler properties forwarded.
+ *
+ */
+int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const GFXTexture* texture);
+
+/**
+ * Sets the value of a property block.
  *
  * @param index  Index of the property to set the value of.
  * @param offset Offset in the buffer in bytes.
  * @param size   Size of the data in bytes.
  * @return Non-zero on success.
  *
- * Note: There can only be GFX_LIM_MAX_BUFFER_PROPERTIES number of properties with type GFX_BUFFER_PROPERTY active.
+ * Note: There can only be GFX_LIM_MAX_BUFFER_PROPERTIES number of block properties forwarded.
  *
  */
 int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size);
 
 /**
- * Sets the value of a uniform block within the program.
+ * Sets the value of a property block.
  *
  * @param index  Index of the property to set the value of.
  * @param offset Offset in the shared buffer in bytes.
@@ -319,17 +414,6 @@ int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const 
  *
  */
 int gfx_property_map_set_shared_buffer(GFXPropertyMap* map, unsigned char index, const GFXSharedBuffer* buffer, size_t offset, size_t size);
-
-/**
- * Sets the value of a uniform sampler within the program.
- *
- * @param index Index of the property to set the value of.
- * @return Non-zero on success.
- *
- * Note: There can only be GFX_LIM_MAX_SAMPLER_PROPERTIES number of properties with type GFX_SAMPLER_PROPERTY active.
- *
- */
-int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const GFXTexture* texture);
 
 /**
  * Swaps the value of two properties.

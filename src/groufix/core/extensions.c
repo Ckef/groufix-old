@@ -236,6 +236,9 @@ void _gfx_extensions_load(void)
 	ext->GenFramebuffers           = glGenFramebuffers;
 	ext->GenTextures               = glGenTextures;
 	ext->GenVertexArrays           = glGenVertexArrays;
+	ext->GetActiveUniform          = glGetActiveUniform;
+	ext->GetActiveUniformBlockiv   = glGetActiveUniformBlockiv;
+	ext->GetActiveUniformsiv       = glGetActiveUniformsiv;
 	ext->GetBufferSubData          = _gfx_gles_get_buffer_sub_data;
 	ext->GetError                  = glGetError;
 	ext->GetProgramBinary          = glGetProgramBinary;
@@ -245,6 +248,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderiv               = glGetShaderiv;
 	ext->GetShaderSource           = glGetShaderSource;
 	ext->GetUniformBlockIndex      = glGetUniformBlockIndex;
+	ext->GetUniformIndices         = glGetUniformIndices;
 	ext->GetUniformLocation        = glGetUniformLocation;
 	ext->IsTexture                 = glIsTexture;
 	ext->LinkProgram               = glLinkProgram;
@@ -350,6 +354,9 @@ void _gfx_extensions_load(void)
 	ext->GenFramebuffers           = (PFNGLGENFRAMEBUFFERSPROC)           _gfx_platform_get_proc_address("glGenFramebuffers");
 	ext->GenTextures               = (PFNGLGENTEXTURESPROC)               glGenTextures;
 	ext->GenVertexArrays           = (PFNGLGENVERTEXARRAYSPROC)           _gfx_platform_get_proc_address("glGenVertexArrays");
+	ext->GetActiveUniform          = (PFNGLGETACTIVEUNIFORMPROC)          _gfx_platform_get_proc_address("glGetActiveUniform");
+	ext->GetActiveUniformBlockiv   = (PFNGLGETACTIVEUNIFORMBLOCKIVPROC)   _gfx_platform_get_proc_address("glGetActiveUniformBlockiv");
+	ext->GetActiveUniformsiv       = (PFNGLGETACTIVEUNIFORMSIVPROC)       _gfx_platform_get_proc_address("glGetActiveUniformsiv");
 	ext->GetBufferSubData          = (PFNGLGETBUFFERSUBDATAPROC)          _gfx_platform_get_proc_address("glGetBufferSubData");
 	ext->GetError                  = (PFNGLGETERRORPROC)                  glGetError;
 	ext->GetProgramInfoLog         = (PFNGLGETPROGRAMINFOLOGPROC)         _gfx_platform_get_proc_address("glGetProgramInfoLog");
@@ -358,6 +365,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderiv               = (PFNGLGETSHADERIVPROC)               _gfx_platform_get_proc_address("glGetShaderiv");
 	ext->GetShaderSource           = (PFNGLGETSHADERSOURCEPROC)           _gfx_platform_get_proc_address("glGetShaderSource");
 	ext->GetUniformBlockIndex      = (PFNGLGETUNIFORMBLOCKINDEXPROC)      _gfx_platform_get_proc_address("glGetUniformBlockIndex");
+	ext->GetUniformIndices         = (PFNGLGETUNIFORMINDICESPROC)         _gfx_platform_get_proc_address("glGetUniformIndices");
 	ext->GetUniformLocation        = (PFNGLGETUNIFORMLOCATIONPROC)        _gfx_platform_get_proc_address("glGetUniformLocation");
 	ext->IsTexture                 = (PFNGLISTEXTUREPROC)                 glIsTexture;
 	ext->LinkProgram               = (PFNGLLINKPROGRAMPROC)               _gfx_platform_get_proc_address("glLinkProgram");

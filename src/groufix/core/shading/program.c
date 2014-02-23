@@ -23,10 +23,18 @@
 
 #include "groufix/core/errors.h"
 #include "groufix/core/internal.h"
+#include "groufix/containers/vector.h"
 
 #include <stdlib.h>
 
 /******************************************************/
+/* Internal Property */
+struct GFX_Property
+{
+	GFXProperty  property; /* Super class */
+	GLint        location;
+};
+
 /* Internal Program */
 struct GFX_Program
 {
@@ -34,9 +42,320 @@ struct GFX_Program
 	GFXProgram program;
 
 	/* Hidden data */
-	GLuint           handle; /* OpenGL handle */
-	GFXPropertyMap*  map;    /* Last used map on this program, not used internally */
+	GLuint           handle;     /* OpenGL handle */
+	GFXVector        properties; /* Stores GFX_Property */
+	GFXVector        blocks;     /* Stores GFXPropertyBlock */
+	GFXPropertyMap*  map;        /* Last used map on this program, not used internally */
 };
+
+/******************************************************/
+static void _gfx_program_uniform_type_to_property(GFXProperty* property, GLenum type)
+{
+	switch(type)
+	{
+		/* Float vectors */
+		case GL_FLOAT :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 1;
+			break;
+
+		case GL_FLOAT_VEC2 :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 2;
+			break;
+
+		case GL_FLOAT_VEC3 :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 3;
+			break;
+
+		case GL_FLOAT_VEC4 :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 4;
+			break;
+
+		/* Int vectors */
+		case GL_INT :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_INT;
+			property->components = 1;
+			break;
+
+		case GL_INT_VEC2 :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_INT;
+			property->components = 2;
+			break;
+
+		case GL_INT_VEC3 :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_INT;
+			property->components = 3;
+			break;
+
+		case GL_INT_VEC4 :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_INT;
+			property->components = 4;
+			break;
+
+		/* Unsigned int vectors */
+		case GL_UNSIGNED_INT :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_UNSIGNED_INT;
+			property->components = 1;
+			break;
+
+		case GL_UNSIGNED_INT_VEC2 :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_UNSIGNED_INT;
+			property->components = 2;
+			break;
+
+		case GL_UNSIGNED_INT_VEC3 :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_UNSIGNED_INT;
+			property->components = 3;
+			break;
+
+		case GL_UNSIGNED_INT_VEC4 :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_UNSIGNED_INT;
+			property->components = 4;
+			break;
+
+		/* Matrices */
+		case GL_FLOAT_MAT2 :
+			property->type       = GFX_MATRIX_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 4;
+			break;
+
+		case GL_FLOAT_MAT3 :
+			property->type       = GFX_MATRIX_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 9;
+			break;
+
+		case GL_FLOAT_MAT4 :
+			property->type       = GFX_MATRIX_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 16;
+			break;
+
+		/* Samplers */
+		case GL_SAMPLER_1D :
+		case GL_SAMPLER_1D_SHADOW :
+		case GL_SAMPLER_BUFFER :
+			property->type       = GFX_SAMPLER_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 1;
+			break;
+
+		case GL_SAMPLER_2D :
+		case GL_SAMPLER_2D_SHADOW :
+		case GL_SAMPLER_1D_ARRAY :
+		case GL_SAMPLER_1D_ARRAY_SHADOW :
+		case GL_SAMPLER_2D_MULTISAMPLE :
+			property->type       = GFX_SAMPLER_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 2;
+			break;
+
+		case GL_SAMPLER_3D :
+		case GL_SAMPLER_CUBE :
+		case GL_SAMPLER_2D_ARRAY :
+		case GL_SAMPLER_2D_ARRAY_SHADOW :
+		case GL_SAMPLER_2D_MULTISAMPLE_ARRAY :
+		case GL_SAMPLER_CUBE_SHADOW :
+			property->type       = GFX_SAMPLER_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 3;
+			break;
+
+		case GL_INT_SAMPLER_1D :
+		case GL_INT_SAMPLER_BUFFER :
+			property->type       = GFX_SAMPLER_PROPERTY;
+			property->dataType   = GFX_INT;
+			property->components = 1;
+			break;
+
+		case GL_INT_SAMPLER_2D :
+		case GL_INT_SAMPLER_1D_ARRAY :
+		case GL_INT_SAMPLER_2D_MULTISAMPLE :
+			property->type       = GFX_SAMPLER_PROPERTY;
+			property->dataType   = GFX_INT;
+			property->components = 2;
+			break;
+
+		case GL_INT_SAMPLER_3D :
+		case GL_INT_SAMPLER_CUBE :
+		case GL_INT_SAMPLER_2D_ARRAY :
+		case GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY :
+			property->type       = GFX_SAMPLER_PROPERTY;
+			property->dataType   = GFX_INT;
+			property->components = 3;
+			break;
+
+		case GL_UNSIGNED_INT_SAMPLER_1D :
+		case GL_UNSIGNED_INT_SAMPLER_BUFFER :
+			property->type       = GFX_SAMPLER_PROPERTY;
+			property->dataType   = GFX_UNSIGNED_INT;
+			property->components = 1;
+			break;
+
+		case GL_UNSIGNED_INT_SAMPLER_2D :
+		case GL_UNSIGNED_INT_SAMPLER_1D_ARRAY :
+		case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE :
+			property->type       = GFX_SAMPLER_PROPERTY;
+			property->dataType   = GFX_UNSIGNED_INT;
+			property->components = 2;
+			break;
+
+		case GL_UNSIGNED_INT_SAMPLER_3D :
+		case GL_UNSIGNED_INT_SAMPLER_CUBE :
+		case GL_UNSIGNED_INT_SAMPLER_2D_ARRAY :
+		case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY :
+			property->type       = GFX_SAMPLER_PROPERTY;
+			property->dataType   = GFX_UNSIGNED_INT;
+			property->components = 3;
+			break;
+
+		/* Uuuuuh... */
+		default :
+			property->type       = GFX_VECTOR_PROPERTY;
+			property->dataType   = GFX_FLOAT;
+			property->components = 0;
+			break;
+	}
+}
+
+/******************************************************/
+static unsigned short _gfx_program_prepare_properties(struct GFX_Program* program, unsigned short properties, GFX_Extensions* ext)
+{
+	/* Reserve memory */
+	gfx_vector_clear(&program->properties);
+	if(!gfx_vector_reserve(&program->properties, properties)) return 0;
+
+	/* Retrieve uniforms */
+	GLuint indices[properties];
+	GLint lens[properties];
+
+	size_t i;
+	for(i = 0; i < properties; ++i) indices[i] = i;
+	ext->GetActiveUniformsiv(program->handle, properties, indices, GL_UNIFORM_NAME_LENGTH, lens);
+
+	/* Create properties */
+	for(i = 0; i < properties; ++i)
+	{
+		/* Get the uniform location */
+		char name[lens[i]];
+		GLint size;
+		GLenum type;
+
+		ext->GetActiveUniform(program->handle, i, lens[i], NULL, &size, &type, name);
+		GLint loc = ext->GetUniformLocation(program->handle, name);
+
+		/* Create and insert */
+		struct GFX_Property prop;
+
+		_gfx_program_uniform_type_to_property(&prop.property, type);
+		prop.property.count = prop.property.components ? size : 0;
+		prop.location = loc;
+
+		/* Finally insert */
+		gfx_vector_insert(&program->properties, &prop, program->properties.end);
+	}
+
+	return properties;
+}
+
+/******************************************************/
+static unsigned short _gfx_program_prepare_blocks(struct GFX_Program* program, unsigned short blocks, GFX_Extensions* ext)
+{
+	/* Reserve memory */
+	gfx_vector_clear(&program->blocks);
+	if(!gfx_vector_reserve(&program->blocks, blocks)) return 0;
+
+	/* Retrieve uniform blocks */
+	size_t k;
+	for(k = 0; k < blocks; ++k)
+	{
+		GLint uniforms;
+		ext->GetActiveUniformBlockiv(program->handle, k, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &uniforms);
+
+		GLint uniformIndices[uniforms];
+		ext->GetActiveUniformBlockiv(program->handle, k, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, uniformIndices);
+
+		/* Retrieve uniforms */
+		GLuint indices[uniforms];
+		GLint offsets[uniforms];
+		GLint arrStrides[uniforms];
+		GLint matStrides[uniforms];
+
+		size_t j;
+		for(j = 0; j < uniforms; ++j) indices[j] = uniformIndices[j];
+
+		ext->GetActiveUniformsiv(program->handle, uniforms, indices, GL_UNIFORM_OFFSET, offsets);
+		ext->GetActiveUniformsiv(program->handle, uniforms, indices, GL_UNIFORM_ARRAY_STRIDE, arrStrides);
+		ext->GetActiveUniformsiv(program->handle, uniforms, indices, GL_UNIFORM_MATRIX_STRIDE, matStrides);
+
+		/* Create block property */
+		GFXPropertyBlock block;
+		block.numProperties = uniforms;
+		block.properties = malloc(sizeof(GFXPropertyBlockMember) * uniforms);
+
+		if(block.properties) for(j = 0; j < uniforms; ++j)
+		{
+			block.properties[j].property = indices[j];
+			block.properties[j].offset = offsets[j];
+			block.properties[j].stride = matStrides[j] > 0 ? matStrides[j] : (arrStrides[j] > 0 ? arrStrides[j] : 0);
+		}
+
+		gfx_vector_insert(&program->blocks, &block, program->blocks.end);
+	}
+
+	return blocks;
+}
+
+/******************************************************/
+static void _gfx_program_unprepare(struct GFX_Program* program)
+{
+	/* Free all property block members */
+	GFXVectorIterator it;
+	for(it = program->blocks.begin; it != program->blocks.end; it = gfx_vector_next(&program->blocks, it))
+	{
+		GFXPropertyBlock* bl = (GFXPropertyBlock*)it;
+
+		free(bl->properties);
+		bl->properties = NULL;
+		bl->numProperties = 0;
+	}
+}
+
+/******************************************************/
+static void _gfx_program_prepare(struct GFX_Program* program, GFX_Extensions* ext)
+{
+	_gfx_program_unprepare(program);
+
+	/* Get number of properties */
+	GLint properties;
+	GLint blocks;
+
+	ext->GetProgramiv(program->handle, GL_ACTIVE_UNIFORMS, &properties);
+	ext->GetProgramiv(program->handle, GL_ACTIVE_UNIFORM_BLOCKS, &blocks);
+
+	properties = properties < 0 ? 0 : properties;
+	blocks = blocks < 0 ? 0 : blocks;
+
+	/* Prepare properties and blocks */
+	program->program.properties = _gfx_program_prepare_properties(program, properties, ext);
+	program->program.blocks = _gfx_program_prepare_blocks(program, blocks, ext);
+}
 
 /******************************************************/
 static void _gfx_program_obj_free(void* object, GFX_Extensions* ext)
@@ -55,6 +374,16 @@ static GFX_HardwareFuncs _gfx_program_obj_funcs =
 	NULL,
 	NULL
 };
+
+/******************************************************/
+GLint _gfx_program_get_location(GFXProgram* program, unsigned short index)
+{
+	/* Validate index */
+	if(index >= program->properties) return -1;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	return ((struct GFX_Property*)gfx_vector_at(&internal->properties, index))->location;
+}
 
 /******************************************************/
 int _gfx_program_target(GFXProgram* program, GFXPropertyMap* map)
@@ -103,6 +432,9 @@ GFXProgram* gfx_program_create(void)
 	/* Create OpenGL program */
 	prog->handle = window->extensions.CreateProgram();
 
+	gfx_vector_init(&prog->properties, sizeof(struct GFX_Property));
+	gfx_vector_init(&prog->blocks, sizeof(GFXPropertyBlock));
+
 	return (GFXProgram*)prog;
 }
 
@@ -124,6 +456,12 @@ void gfx_program_free(GFXProgram* program)
 			if(window->extensions.program == internal->handle)
 				window->extensions.program = 0;
 		}
+
+		/* Unprepare all uniforms */
+		_gfx_program_unprepare(internal);
+
+		gfx_vector_clear(&internal->properties);
+		gfx_vector_clear(&internal->blocks);
 
 		free(program);
 	}
@@ -205,9 +543,9 @@ int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders)
 		_gfx_shader_get_handle(shaders[i])
 	);
 
-	/* Generate error */
 	if(!status)
 	{
+		/* Generate error */
 		GLint len;
 		window->extensions.GetProgramiv(internal->handle, GL_INFO_LOG_LENGTH, &len);
 
@@ -215,6 +553,9 @@ int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders)
 		window->extensions.GetProgramInfoLog(internal->handle, len, NULL, buff);
 		gfx_errors_push(GFX_ERROR_LINK_FAIL, buff);
 	}
+
+	/* Prepare program */
+	else _gfx_program_prepare(internal, &window->extensions);
 
 	return status;
 }
@@ -260,5 +601,59 @@ int gfx_program_set_binary(GFXProgram* program, GFXProgramFormat format, size_t 
 	window->extensions.ProgramBinary(internal->handle, format, data, size);
 	window->extensions.GetProgramiv(internal->handle, GL_LINK_STATUS, &status);
 
+	/* Prepare program */
+	if(status) _gfx_program_prepare(internal, &window->extensions);
+
 	return status;
+}
+
+/******************************************************/
+const GFXProperty* gfx_program_get_property(GFXProgram* program, unsigned short index)
+{
+	/* Validate index */
+	if(index >= program->properties) return NULL;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	return gfx_vector_at(&internal->properties, index);
+}
+
+/******************************************************/
+unsigned short gfx_program_get_named_property(GFXProgram* program, const char* name)
+{
+	/* Get current window and context */
+	GFX_Window* window = _gfx_window_get_current();
+	if(!window) return 0;
+
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	/* Get index */
+	GLuint index;
+	window->extensions.GetUniformIndices(internal->handle, 1, &name, &index);
+
+	return (index == GL_INVALID_INDEX) ? program->properties : index;
+}
+
+/******************************************************/
+const GFXPropertyBlock* gfx_program_get_property_block(GFXProgram* program, unsigned short index)
+{
+	/* Validate index */
+	if(index >= program->blocks) return NULL;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	return gfx_vector_at(&internal->blocks, index);
+}
+
+/******************************************************/
+unsigned short gfx_program_get_named_property_block(GFXProgram* program, const char* name)
+{
+	/* Get current window and context */
+	GFX_Window* window = _gfx_window_get_current();
+	if(!window) return 0;
+
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	/* Get index */
+	GLuint index = window->extensions.GetUniformBlockIndex(internal->handle, name);
+
+	return (index == GL_INVALID_INDEX) ? program->blocks : index;
 }

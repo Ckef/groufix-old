@@ -125,6 +125,9 @@ typedef void (APIENTRYP GFX_GENERATEMIPMAPPROC)            (GLenum);
 typedef void (APIENTRYP GFX_GENFRAMEBUFFERSPROC)           (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENTEXTURESPROC)               (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENVERTEXARRAYSPROC)           (GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_GETACTIVEUNIFORMPROC)          (GLuint, GLuint, GLsizei, GLsizei*, GLint*, GLenum*, GLchar*);
+typedef void (APIENTRYP GFX_GETACTIVEUNIFORMBLOCKIVPROC)   (GLuint, GLuint, GLenum, GLint*);
+typedef void (APIENTRYP GFX_GETACTIVEUNIFORMSIVPROC)       (GLuint, GLsizei, const GLuint*, GLenum, GLint*);
 typedef void (APIENTRYP GFX_GETBUFFERSUBDATAPROC)          (GLenum, GLintptr, GLsizeiptr, GLvoid*);
 typedef GLenum (APIENTRYP GFX_GETERRORPROC)                (void);
 typedef void (APIENTRYP GFX_GETPROGRAMBINARYPROC)          (GLuint, GLsizei, GLsizei*, GLenum*, void*);
@@ -134,6 +137,7 @@ typedef void (APIENTRYP GFX_GETSHADERINFOLOGPROC)          (GLuint, GLsizei, GLs
 typedef void (APIENTRYP GFX_GETSHADERIVPROC)               (GLuint, GLenum, GLint*);
 typedef void (APIENTRYP GFX_GETSHADERSOURCEPROC)           (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef GLuint (APIENTRYP GFX_GETUNIFORMBLOCKINDEXPROC)    (GLuint, const GLchar*);
+typedef void (APIENTRYP GFX_GETUNIFORMINDICESPROC)         (GLuint, GLsizei, const GLchar*const*, GLuint*);
 typedef GLint (APIENTRYP GFX_GETUNIFORMLOCATIONPROC)       (GLuint, const GLchar*);
 typedef GLboolean (APIENTRYP GFX_ISTEXTUREPROC)            (GLuint);
 typedef void (APIENTRYP GFX_LINKPROGRAMPROC)               (GLuint);
@@ -246,6 +250,9 @@ typedef struct GFX_Extensions
 	GFX_GENFRAMEBUFFERSPROC            GenFramebuffers;
 	GFX_GENTEXTURESPROC                GenTextures;
 	GFX_GENVERTEXARRAYSPROC            GenVertexArrays;
+	GFX_GETACTIVEUNIFORMPROC           GetActiveUniform;
+	GFX_GETACTIVEUNIFORMBLOCKIVPROC    GetActiveUniformBlockiv;
+	GFX_GETACTIVEUNIFORMSIVPROC        GetActiveUniformsiv;
 	GFX_GETBUFFERSUBDATAPROC           GetBufferSubData;
 	GFX_GETERRORPROC                   GetError;
 	GFX_GETPROGRAMBINARYPROC           GetProgramBinary;       /* GFX_EXT_PROGRAM_BINARY */
@@ -255,6 +262,7 @@ typedef struct GFX_Extensions
 	GFX_GETSHADERIVPROC                GetShaderiv;
 	GFX_GETSHADERSOURCEPROC            GetShaderSource;
 	GFX_GETUNIFORMBLOCKINDEXPROC       GetUniformBlockIndex;
+	GFX_GETUNIFORMINDICESPROC          GetUniformIndices;
 	GFX_GETUNIFORMLOCATIONPROC         GetUniformLocation;
 	GFX_ISTEXTUREPROC                  IsTexture;
 	GFX_LINKPROGRAMPROC                LinkProgram;

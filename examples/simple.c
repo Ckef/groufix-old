@@ -147,9 +147,9 @@ int main()
 	GFXPropertyMap* map = gfx_property_map_create(program, 0);
 	GFXPropertyMap* map2 = gfx_property_map_create(program2, 1);
 	GFXPropertyMap* map3 = gfx_property_map_create(program3, 1);
-	gfx_property_map_set(map2, 0, GFX_SAMPLER_PROPERTY, "tex");
+	gfx_property_map_forward_named(map2, 0, "tex");
 	gfx_property_map_set_sampler(map2, 0, tex);
-	gfx_property_map_set(map3, 0, GFX_SAMPLER_PROPERTY, "tex");
+	gfx_property_map_forward_named(map3, 0, "tex");
 	gfx_property_map_set_sampler(map3, 0, tex);
 
 
