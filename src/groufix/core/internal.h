@@ -398,7 +398,7 @@ typedef struct GFX_HardwareFuncs
  *
  * @object Arbitrary data to identify with a number.
  * @funcs  Functions to associate with the object.
- * @return Identifier of the object, 1 <= id <= max hardware ID (0 on failure).
+ * @return Identifier of the object, id > 1 (0 on failure).
  *
  * When an object is registered, it will be asked to free when all contexts are destroyed,
  * or reconstructed when the main context is destroyed.

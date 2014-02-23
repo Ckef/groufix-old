@@ -28,9 +28,6 @@
 
 #include <stddef.h>
 
-/* Default hardware ID width */
-#define GFX_HARDWARE_ID_WIDTH_DEFAULT 24
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -343,25 +340,6 @@ int gfx_hardware_is_extension_supported(GFXExtension extension);
  *
  */
 int gfx_hardware_get_limit(GFXLimit limit);
-
-/**
- * Sets the maximum bit width of any hardware ID.
- *
- * This determines how many objects with an hardware ID can be alive at the same time.
- * The actual width is one bit extra,
- * as you can always subtract 1 to get an ID of the passed width (0 is not a valid ID).
- *
- * Note: in order for this call to have any effect,
- * it should be called before hardware objects are created.
- *
- */
-void gfx_hardware_set_max_id_width(unsigned char width);
-
-/**
- * Returns the maximum bit width of any hardware ID.
- *
- */
-unsigned char gfx_hardware_get_max_id_width(void);
 
 
 #ifdef __cplusplus

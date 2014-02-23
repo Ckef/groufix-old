@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/shading/internal.h"
@@ -45,14 +46,19 @@ struct GFX_Bucket
 	GFXBucket bucket;
 
 	/* Hidden data */
-	unsigned char      bit;     /* Index of the max bit to sort by */
+	unsigned char      bit;      /* Index of the max bit to sort by */
+	unsigned char      keyWidth; /* bit width of program/layout keys */
 	unsigned char      flags;
 
-	GFXVector          sources; /* Stores GFX_Source */
-	GFXVector          refs;    /* References to units (units[refs[ID - 1] - 1] = unit, 0 is empty) */
+	GFXVector          sources;  /* Stores GFX_Source */
+	GFXVector          refs;     /* References to units (units[refs[ID - 1] - 1] = unit, 0 is empty) */
 
-	GFXVector          units;   /* Stores GFX_Unit */
-	GFXVectorIterator  visible; /* Everything after is not visible */
+	GFXVector          units;    /* Stores GFX_Unit */
+	GFXVectorIterator  visible;  /* Everything after is not visible */
+
+	/* Keys mappings (arr[key - 1] = hardware id) */
+	GFXVector          programKeys;
+	GFXVector          layoutKeys;
 };
 
 /* Internal source */
@@ -60,6 +66,7 @@ struct GFX_Source
 {
 	GFXPropertyMap*   map;
 	GFXVertexLayout*  layout;
+	GFXBatchState     key;   /* Internal key to sort on */
 
 	/* Draw calls */
 	unsigned char     startDraw;
@@ -79,6 +86,27 @@ struct GFX_Unit
 	size_t         src;  /* Source of the bucket to use (ID - 1) */
 	size_t         inst; /* Number of instances */
 };
+
+/******************************************************/
+static size_t _gfx_bucket_map_key(struct GFX_Bucket* bucket, GFXVector* vec, size_t id)
+{
+	/* Already existing key */
+	GFXVectorIterator it;
+	for(it = vec->begin; it != vec->end; it = gfx_vector_next(vec, it))
+	{
+		if(*(size_t*)it == id) return gfx_vector_get_index(vec, it) + 1;
+	}
+
+	/* Append new mapping */
+	size_t key = gfx_vector_get_size(vec) + 1;
+
+	/* Awmg, too big! */
+	if(key > ((size_t)1 << bucket->keyWidth) - 1) return 0;
+
+	if(gfx_vector_insert(vec, &id, vec->end) == vec->end) return 0;
+
+	return key;
+}
 
 /******************************************************/
 static size_t _gfx_bucket_insert_ref(struct GFX_Bucket* bucket, size_t unitIndex)
@@ -274,26 +302,6 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 }
 
 /******************************************************/
-static GFXBatchState _gfx_bucket_get_state(const struct GFX_Bucket* bucket, size_t layout, size_t program)
-{
-	GFXBatchState state = 0;
-
-	/* First sort on program, then layout */
-	GFXBatchState shifts = 0;
-	if(bucket->bucket.flags & GFX_BUCKET_SORT_VERTEX_LAYOUT)
-	{
-		state |= layout;
-		shifts = gfx_hardware_get_max_id_width();
-	}
-	if(bucket->bucket.flags & GFX_BUCKET_SORT_PROGRAM)
-	{
-		state |= (GFXBatchState)program << shifts;
-	}
-
-	return state;
-}
-
-/******************************************************/
 static inline GFXBatchState _gfx_bucket_add_manual_state(const struct GFX_Bucket* bucket, GFXBatchState state, GFXBatchState original)
 {
 	/* Apply black magic to shift mask and state */
@@ -322,25 +330,17 @@ GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBucketFlags flags)
 	struct GFX_Bucket* bucket = calloc(1, sizeof(struct GFX_Bucket));
 	if(!bucket) return NULL;
 
-	/* Apply sorting flags & bits */
-	unsigned char idWidth = gfx_hardware_get_max_id_width();
-	unsigned char intern = 0;
-	unsigned char manual = sizeof(GFXBatchState) << 3;
-
-	intern += (flags & GFX_BUCKET_SORT_PROGRAM) ? idWidth : 0;
-	intern += (flags & GFX_BUCKET_SORT_VERTEX_LAYOUT) ? idWidth : 0;
-	manual -= intern;
-
-	/* Subtract one to be able to use it as index */
-	bucket->bucket.flags = flags;
-	bucket->bucket.bits = (bits > manual) ? manual : bits;
-	bucket->bit = intern + bucket->bucket.bits - 1;
-
 	gfx_vector_init(&bucket->sources, sizeof(struct GFX_Source));
 	gfx_vector_init(&bucket->refs, sizeof(size_t));
 	gfx_vector_init(&bucket->units, sizeof(struct GFX_Unit));
+	gfx_vector_init(&bucket->programKeys, sizeof(size_t));
+	gfx_vector_init(&bucket->layoutKeys, sizeof(size_t));
 
 	bucket->visible = bucket->units.end;
+
+	/* Apply sorting flags & bits */
+	bucket->bucket.flags = flags;
+	gfx_bucket_set_key_width((GFXBucket*)bucket, GFX_BUCKET_KEY_WIDTH_DEFAULT, bits);
 
 	return (GFXBucket*)bucket;
 }
@@ -355,8 +355,36 @@ void _gfx_bucket_free(GFXBucket* bucket)
 		gfx_vector_clear(&internal->sources);
 		gfx_vector_clear(&internal->refs);
 		gfx_vector_clear(&internal->units);
+		gfx_vector_clear(&internal->programKeys);
+		gfx_vector_clear(&internal->layoutKeys);
 
 		free(bucket);
+	}
+}
+
+/******************************************************/
+void gfx_bucket_set_key_width(GFXBucket* bucket, unsigned char width, unsigned char bits)
+{
+	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+
+	/* Check maps */
+	if(internal->programKeys.begin == internal->programKeys.end &&
+		internal->layoutKeys.begin == internal->layoutKeys.end)
+	{
+		/* Change width, maximum is the state / 2 (or sizeof(state) * 8 / 2) */
+		unsigned char max = sizeof(GFXBatchState) << 2;
+		internal->keyWidth = width > max ? max : width;
+
+		unsigned char intern = 0;
+		unsigned char manual = max << 1;
+
+		intern += (bucket->flags & GFX_BUCKET_SORT_PROGRAM) ? internal->keyWidth : 0;
+		intern += (bucket->flags & GFX_BUCKET_SORT_VERTEX_LAYOUT) ? internal->keyWidth : 0;
+		manual -= intern;
+
+		/* Subtract one to be able to use it as index */
+		bucket->bits = (bits > manual) ? manual : bits;
+		internal->bit = intern + bucket->bits - 1;
 	}
 }
 
@@ -370,12 +398,39 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLa
 
 	/* Create source */
 	struct GFX_Source src;
+
 	src.map           = map;
 	src.layout        = layout;
+	src.key           = 0;
 	src.startDraw     = 0;
 	src.numDraw       = 0;
 	src.startFeedback = 0;
 	src.numFeedback   = 0;
+
+	/* Map keys */
+	size_t proKey = _gfx_bucket_map_key(internal, &internal->programKeys, map->program->id);
+	size_t layKey = _gfx_bucket_map_key(internal, &internal->layoutKeys, layout->id);
+
+	if(!proKey || !layKey)
+	{
+		gfx_errors_push(
+			GFX_ERROR_OVERFLOW,
+			"Too many sources have been added to a bucket, key overflow happened, you crazy person."
+		);
+		return 0;
+	}
+
+	/* Create key */
+	size_t shifts = 0;
+	if(bucket->flags & GFX_BUCKET_SORT_VERTEX_LAYOUT)
+	{
+		src.key |= layKey;
+		shifts = internal->keyWidth;
+	}
+	if(bucket->flags & GFX_BUCKET_SORT_PROGRAM)
+	{
+		src.key |= (GFXBatchState)proKey << shifts;
+	}
 
 	/* Find disabled source to replace */
 	GFXVectorIterator it;
@@ -409,17 +464,10 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src)
 	{
 		/* Disable source */
 		struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
+		source->map = NULL;
+		source->layout = NULL;
 
-		source->map           = NULL;
-		source->layout        = NULL;
-
-		source->startDraw     = 0;
-		source->numDraw       = 0;
-
-		source->startFeedback = 0;
-		source->numFeedback   = 0;
-
-		/* Disable any unit using the source */
+		/* Erase any unit using the source */
 		struct GFX_Unit* unit;
 		for(unit = internal->units.begin; unit != internal->units.end; unit = gfx_vector_next(&internal->units, unit))
 			if(unit->src == src) _gfx_bucket_erase_unit(internal, unit);
@@ -493,8 +541,7 @@ size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int
 	/* Insert the new unit */
 	struct GFX_Unit unit;
 
-	unit.state  = _gfx_bucket_get_state(internal, source->layout->id, source->map->program->id);
-	unit.state  = _gfx_bucket_add_manual_state(internal, state, unit.state);
+	unit.state  = _gfx_bucket_add_manual_state(internal, state, source->key);
 	unit.action = visible ? GFX_INT_UNIT_VISIBLE : 0;
 	unit.src    = src - 1;
 	unit.inst   = 1;
@@ -510,6 +557,7 @@ size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int
 		gfx_vector_erase(&internal->units, it);
 		return 0;
 	}
+
 	((struct GFX_Unit*)it)->ref = id - 1;
 
 	/* Force to process and sort if necessary */

@@ -27,6 +27,8 @@
 #include "groufix/core/shading.h"
 #include "groufix/core/window.h"
 
+#define GFX_BUCKET_KEY_WIDTH_DEFAULT  17
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -57,6 +59,17 @@ typedef struct GFXBucket
 /** Key representing a state */
 typedef uint64_t GFXBatchState;
 
+
+/**
+ * Sets the sorting key width limit (the default is GFX_BUCKET_KEY_WIDTH_DEFAULT).
+ *
+ * @param bits Number of manual bits to sort by.
+ *
+ * This limit applies to program/vertex layout sorting keys (separate keys).
+ * Note: it can only be changed if no sources are added yet.
+ *
+ */
+void gfx_bucket_set_key_width(GFXBucket* bucket, unsigned char width, unsigned char bits);
 
 /**
  * Adds a new source to the bucket.
@@ -349,7 +362,7 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 /**
  * Adds a bucket to the pipeline.
  *
- * @param bits Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
+ * @param bits Number of manual bits to sort by.
  * @return The new pipe (NULL on failure).
  *
  */

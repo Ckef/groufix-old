@@ -34,9 +34,6 @@ int gfx_init(void)
 	/* Initialize platform */
 	if(!_gfx_platform_init()) return 0;
 
-	/* To make it clip against the maximum */
-	gfx_hardware_set_max_id_width(GFX_HARDWARE_ID_WIDTH_DEFAULT);
-
 	/* Get starting point of time */
 	_gfx_platform_init_timer();
 	_gfx_time_start = _gfx_platform_get_time();
