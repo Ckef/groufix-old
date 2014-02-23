@@ -23,33 +23,97 @@
 
 #include "groufix/core/pipeline/internal.h"
 
+#include <stdlib.h>
+
 /******************************************************/
 struct GFX_Callback
 {
-	GFXPipeCallback      callback;
+	GFXPipeCallback      callback; /* Super class */
 	GFXPipeCallbackFunc  func;
 };
 
 /******************************************************/
-static inline void _gfx_pipe_swap_callbacks(struct GFX_Callback* first, struct GFX_Callback* second)
+static int _gfx_pipe_callback_comp(const void* elem1, const void* elem2)
 {
-	struct GFX_Callback temp = *first;
-	*first = *second;
-	*second = temp;
+	GFXPipeCallback* c1 = (GFXPipeCallback*)elem1;
+	GFXPipeCallback* c2 = (GFXPipeCallback*)elem2;
+
+	if(c1->key < c2->key) return -1;
+	if(c1->key > c2->key) return 1;
+
+	if(GFX_PTR_LESS(c1->data, c2->data)) return -1;
+	if(GFX_PTR_LESS(c2->data, c1->data)) return 1;
+
+	return 0;
+}
+
+/******************************************************/
+static int _gfx_pipe_callback_comp_key(const void* key, const void* elem)
+{
+	unsigned char k = GFX_VOID_TO_UINT(key);
+	GFXPipeCallback* call = (GFXPipeCallback*)elem;
+
+	if(call->key > k) return -1;
+	if(call->key < k) return 1;
+
+	return 0;
 }
 
 /******************************************************/
 static void _gfx_pipe_sort(GFX_Pipe* pipe)
 {
-	/* TODO: Everything */
+	/* Sort if necessary */
+	if(!pipe->sorted)
+	{
+		qsort(
+			pipe->callbacks.begin,
+			gfx_vector_get_size(&pipe->callbacks),
+			sizeof(struct GFX_Callback),
+			_gfx_pipe_callback_comp
+		);
+		pipe->sorted = 1;
+	}
 }
 
 /******************************************************/
-static GFXVectorIterator _gfx_pipe_find(GFX_Pipe* pipe, GFXPipeCallback callback)
+static GFXVectorIterator _gfx_pipe_find(GFX_Pipe* pipe, unsigned char key, size_t* num)
 {
-	/* TODO: Everything, again */
+	/* Find first an callback with the key*/
+	GFXVectorIterator it = bsearch(
+		GFX_UINT_TO_VOID(key),
+		pipe->callbacks.begin,
+		gfx_vector_get_size(&pipe->callbacks),
+		sizeof(struct GFX_Callback),
+		_gfx_pipe_callback_comp_key
+	);
 
-	return NULL;
+	if(!it)
+	{
+		*num = 0;
+		return NULL;
+	}
+
+	/* Find first callback with the key */
+	GFXVectorIterator first = it;
+	while(first != pipe->callbacks.begin)
+	{
+		GFXVectorIterator prev = gfx_vector_previous(&pipe->callbacks, first);
+		if(((GFXPipeCallback*)prev)->key != key) break;
+
+		first = prev;
+	}
+
+	/* Find last callback with the key */
+	GFXVectorIterator last = gfx_vector_next(&pipe->callbacks, it);
+	while(last != pipe->callbacks.end)
+	{
+		if(((GFXPipeCallback*)last)->key != key) break;
+		last = gfx_vector_next(&pipe->callbacks, last);
+	}
+
+	/* Return the range */
+	*num = gfx_vector_get_index(&pipe->callbacks, last) - gfx_vector_get_index(&pipe->callbacks, first);
+	return first;
 }
 
 /******************************************************/
@@ -168,16 +232,43 @@ int gfx_pipe_register(GFXPipe* pipe, GFXPipeCallback callback, GFXPipeCallbackFu
 /******************************************************/
 void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback)
 {
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, pipe));
-
 	/* Sort if necessary */
-	if(!internal->sorted)
-	{
-		_gfx_pipe_sort(internal);
-		internal->sorted = 1;
-	}
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, pipe));
+	_gfx_pipe_sort(internal);
 
-	/* Find the callback object and erase it */
-	GFXVectorIterator it = _gfx_pipe_find(internal, callback);
-	if(it) gfx_vector_erase(&internal->callbacks, it);
+	/* Find the callback objects and erase them */
+	size_t size = gfx_vector_get_size(&internal->callbacks);
+	GFXVectorIterator it;
+
+	while(1)
+	{
+		it = bsearch(
+			&callback,
+			internal->callbacks.begin,
+			size,
+			sizeof(struct GFX_Callback),
+			_gfx_pipe_callback_comp
+		);
+		if(!it) break;
+
+		/* Actually erase it */
+		gfx_vector_erase(&internal->callbacks, it);
+		size = gfx_vector_get_size(&internal->callbacks);
+	}
+}
+
+/******************************************************/
+GFXPipeCallback* gfx_pipe_find(GFXPipe* pipe, unsigned char key, size_t* num)
+{
+	/* First make sure it's sorted */
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, pipe));
+	_gfx_pipe_sort(internal);
+
+	return _gfx_pipe_find(internal, key, num);
+}
+
+/******************************************************/
+GFXPipeCallback* gfx_pipe_next(GFXPipeCallback* prev)
+{
+	return GFX_PTR_ADD_BYTES(prev, sizeof(struct GFX_Callback));
 }

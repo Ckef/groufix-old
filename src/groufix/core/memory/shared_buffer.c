@@ -175,38 +175,30 @@ static int _gfx_shared_buffer_insert_segment(struct GFX_SharedBuffer* buffer, si
 }
 
 /******************************************************/
-static GFXVectorIterator _gfx_shared_buffer_find_segment(struct GFX_SharedBuffer* buffer, size_t offset)
+static int _gfx_shared_buffer_segment_comp(const void* key, const void* elem)
 {
-	/* Binary search for the offset */
-	size_t min = 0;
-	size_t max = gfx_vector_get_size(&buffer->segments);
-	GFXVectorIterator it = buffer->segments.end;
+	size_t offset = GFX_VOID_TO_UINT(key);
+	size_t found = ((struct GFX_Segment*)elem)->offset;
 
-	while(max > min)
-	{
-		/* Get mid point */
-		size_t mid = min + ((max - min) >> 1);
+	if(found < offset) return 1;
+	if(found > offset) return -1;
 
-		it = gfx_vector_at(&buffer->segments, mid);
-		size_t found = ((struct GFX_Segment*)it)->offset;
-
-		/* Compare against key */
-		if(found < offset)
-			min = mid + 1;
-		else if(found > offset)
-			max = mid;
-
-		else return it;
-	}
-	return it;
+	return 0;
 }
 
 /******************************************************/
 static void _gfx_shared_buffer_erase_segment(struct GFX_SharedBuffer* buffer, size_t offset)
 {
 	/* Retrieve segment */
-	GFXVectorIterator it = _gfx_shared_buffer_find_segment(buffer, offset);
-	if(it != buffer->segments.end)
+	GFXVectorIterator it = bsearch(
+		GFX_UINT_TO_VOID(offset),
+		buffer->segments.begin,
+		gfx_vector_get_size(&buffer->segments),
+		sizeof(struct GFX_Segment),
+		_gfx_shared_buffer_segment_comp
+	);
+
+	if(it)
 	{
 		struct GFX_Segment* seg = it;
 		if(seg->offset == offset) gfx_vector_erase(&buffer->segments, it);

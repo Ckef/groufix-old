@@ -71,33 +71,6 @@ void _gfx_pipeline_bind(GLuint fbo, GFX_Extensions* ext)
 }
 
 /******************************************************/
-static GFXVectorIterator _gfx_pipeline_find_attachment(struct GFX_Pipeline* pipeline, GLenum attach)
-{
-	/* Binary search for the attachment */
-	size_t min = 0;
-	size_t max = gfx_vector_get_size(&pipeline->attachments);
-	GFXVectorIterator it = pipeline->attachments.end;
-
-	while(max > min)
-	{
-		/* Get mid point */
-		size_t mid = min + ((max - min) >> 1);
-
-		it = gfx_vector_at(&pipeline->attachments, mid);
-		GLenum found = ((struct GFX_Attachment*)it)->attachment;
-
-		/* Compare against key */
-		if(found < attach)
-			min = mid + 1;
-		else if(found > attach)
-			max = mid;
-
-		else return it;
-	}
-	return it;
-}
-
-/******************************************************/
 static void _gfx_pipeline_init_attachment(GLuint fbo, struct GFX_Attachment* attach, GFX_Extensions* ext)
 {
 	/* Check texture handle */
@@ -349,6 +322,18 @@ size_t gfx_pipeline_target(GFXPipeline* pipeline, unsigned int width, unsigned i
 }
 
 /******************************************************/
+static int _gfx_pipeline_attachment_comp(const void* key, const void* elem)
+{
+	GLenum attach = GFX_VOID_TO_UINT(key);
+	GLenum found = ((struct GFX_Attachment*)elem)->attachment;
+
+	if(found < attach) return 1;
+	if(found > attach) return -1;
+
+	return 0;
+}
+
+/******************************************************/
 int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelineAttachment attach, unsigned char index)
 {
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
@@ -384,12 +369,23 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
 	}
 
 	/* Determine whether to insert a new one or replace the old one */
-	GFXVectorIterator it = _gfx_pipeline_find_attachment(internal, att.attachment);
+	GFXVectorIterator it = bsearch(
+		GFX_UINT_TO_VOID(attach),
+		internal->attachments.begin,
+		gfx_vector_get_size(&internal->attachments),
+		sizeof(struct GFX_Attachment),
+		_gfx_pipeline_attachment_comp
+	);
 	int new;
 
-	if(it == internal->attachments.end) new = 1;
+	if(!it)
+	{
+		it = internal->attachments.end;
+		new = 1;
+	}
 	else new = ((struct GFX_Attachment*)it)->attachment != att.attachment;
 
+	/* Now actually insert one or replace the old one */
 	if(new) gfx_vector_insert(&internal->attachments, &att, it);
 	else *((struct GFX_Attachment*)it) = att;
 

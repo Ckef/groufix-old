@@ -52,7 +52,6 @@ struct GFX_Bucket
 
 	GFXVector          sources;  /* Stores GFX_Source */
 	GFXVector          refs;     /* References to units (units[refs[ID - 1] - 1] = unit, 0 is empty) */
-
 	GFXVector          units;    /* Stores GFX_Unit */
 	GFXVectorIterator  visible;  /* Everything after is not visible */
 
@@ -101,7 +100,14 @@ static size_t _gfx_bucket_map_key(struct GFX_Bucket* bucket, GFXVector* vec, siz
 	size_t key = gfx_vector_get_size(vec) + 1;
 
 	/* Awmg, too big! */
-	if(key > ((size_t)1 << bucket->keyWidth) - 1) return 0;
+	if(key > ((size_t)1 << bucket->keyWidth) - 1)
+	{
+		gfx_errors_push(
+			GFX_ERROR_OVERFLOW,
+			"Too many sources have been added to a bucket, key overflow happened, you crazy person."
+		);
+		return 0;
+	}
 
 	if(gfx_vector_insert(vec, &id, vec->end) == vec->end) return 0;
 
@@ -411,14 +417,7 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLa
 	size_t proKey = _gfx_bucket_map_key(internal, &internal->programKeys, map->program->id);
 	size_t layKey = _gfx_bucket_map_key(internal, &internal->layoutKeys, layout->id);
 
-	if(!proKey || !layKey)
-	{
-		gfx_errors_push(
-			GFX_ERROR_OVERFLOW,
-			"Too many sources have been added to a bucket, key overflow happened, you crazy person."
-		);
-		return 0;
-	}
+	if(!proKey || !layKey) return 0;
 
 	/* Create key */
 	size_t shifts = 0;

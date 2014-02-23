@@ -27,7 +27,7 @@
 #include "groufix/core/shading.h"
 #include "groufix/core/window.h"
 
-#define GFX_BUCKET_KEY_WIDTH_DEFAULT  17
+#define GFX_BUCKET_KEY_WIDTH_DEFAULT  16
 
 #ifdef __cplusplus
 extern "C" {
@@ -282,7 +282,7 @@ typedef void (*GFXPipeCallbackFunc) (GFXPipe*, GFXPipeCallback*);
 /**
  * Register a new callback object for a pipe, it is issued when the pipe is freed.
  *
- * @callback Key of the callback plus arbitrary data to store.
+ * @param callback Key of the callback plus arbitrary data to store.
  * @return Zero on failure.
  *
  */
@@ -295,6 +295,22 @@ int gfx_pipe_register(GFXPipe* pipe, GFXPipeCallback callback, GFXPipeCallbackFu
  *
  */
 void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback);
+
+/**
+ * Finds the first callback objects with a given key.
+ *
+ * @param num Number of callback objects found.
+ *
+ */
+GFXPipeCallback* gfx_pipe_find(GFXPipe* pipe, unsigned char key, size_t* num);
+
+/**
+ * Returns the next callback object from a previous find call.
+ *
+ * Note: you can only retrieve as many callbacks as gfx_pipe_find returned to num.
+ *
+ */
+GFXPipeCallback* gfx_pipe_next(GFXPipeCallback* prev);
 
 
 /********************************************************
