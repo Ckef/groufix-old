@@ -24,8 +24,10 @@
 #include "groufix/core/pipeline/internal.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
+/* Internal callback */
 struct GFX_Callback
 {
 	GFXPipeCallback      callback; /* Super class */
@@ -236,24 +238,38 @@ void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback)
 	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, pipe));
 	_gfx_pipe_sort(internal);
 
-	/* Find the callback objects and erase them */
-	size_t size = gfx_vector_get_size(&internal->callbacks);
-	GFXVectorIterator it;
+	/* Find the callback object */
+	GFXVectorIterator it = bsearch(
+		&callback,
+		internal->callbacks.begin,
+		gfx_vector_get_size(&internal->callbacks),
+		sizeof(struct GFX_Callback),
+		_gfx_pipe_callback_comp
+	);
 
-	while(1)
+	if(it)
 	{
-		it = bsearch(
-			&callback,
-			internal->callbacks.begin,
-			size,
-			sizeof(struct GFX_Callback),
-			_gfx_pipe_callback_comp
-		);
-		if(!it) break;
+		/* Find first equivalent callback */
+		GFXVectorIterator first = it;
+		while(first != internal->callbacks.begin)
+		{
+			GFXVectorIterator prev = gfx_vector_previous(&internal->callbacks, first);
+			if(memcmp(prev, &callback, sizeof(GFXPipeCallback))) break;
 
-		/* Actually erase it */
-		gfx_vector_erase(&internal->callbacks, it);
-		size = gfx_vector_get_size(&internal->callbacks);
+			first = prev;
+		}
+
+		/* Find last equivalent callback */
+		GFXVectorIterator last = gfx_vector_next(&internal->callbacks, it);
+		while(last != internal->callbacks.end)
+		{
+			if(memcmp(last, &callback, sizeof(GFXPipeCallback))) break;
+			last = gfx_vector_next(&internal->callbacks, last);
+		}
+
+		/* Erase the range */
+		size_t num = gfx_vector_get_index(&internal->callbacks, last) - gfx_vector_get_index(&internal->callbacks, first);
+		gfx_vector_erase_range(&internal->callbacks, num, first);
 	}
 }
 
