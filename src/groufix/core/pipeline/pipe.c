@@ -23,8 +23,6 @@
 
 #include "groufix/core/pipeline/internal.h"
 
-#define GFX_INT_UCHAR_MSB ~(~((unsigned char)0) >> 1)
-
 /******************************************************/
 struct GFX_Callback
 {
