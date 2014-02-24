@@ -521,7 +521,7 @@ int gfx_property_map_forward_named_block(GFXPropertyMap* map, unsigned char inde
 }
 
 /******************************************************/
-int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, const void* value)
+int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, const void* value, size_t offset, size_t size)
 {
 	struct GFX_Map* internal = (struct GFX_Map*)map;
 	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
@@ -531,9 +531,16 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, const v
 	/* Check type */
 	if(prop->type != GFX_INT_PROPERTY_VECTOR && prop->type != GFX_INT_PROPERTY_MATRIX) return 0;
 
+	/* Calculate size */
+	size_t max = prop->size - sizeof(struct GFX_Value);
+	offset = offset > max ? max : offset;
+
+	max -= offset;
+	size = (!size || size > max) ? max : size;
+
 	/* Set value */
 	struct GFX_Value* val = gfx_vector_at(&internal->values, prop->index);
-	memcpy(val + 1, value, prop->size - sizeof(struct GFX_Value));
+	memcpy(GFX_PTR_ADD_BYTES(val + 1, offset), value, size);
 
 	return 1;
 }

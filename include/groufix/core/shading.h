@@ -373,12 +373,14 @@ int gfx_property_map_forward_named_block(GFXPropertyMap* map, unsigned char inde
 /**
  * Sets the value of a vector/matrix property.
  *
- * @param index Index of the property to set the value of.
- * @param value Value to set it to, the content will be copied.
+ * @param index  Index of the property to set the value of.
+ * @param value  Value to set it to, the content will be copied.
+ * @param offset Byte offset in the mapped value to write to.
+ * @param size   Size of the given data in bytes (0 to calculate the size based on the property type).
  * @return Non-zero on success.
  *
  */
-int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, const void* value);
+int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, const void* value, size_t offset, size_t size);
 
 /**
  * Sets the value of a sampler property.
