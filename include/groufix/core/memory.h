@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_MEMORY_H
-#define GFX_MEMORY_H
+#ifndef GFX_CORE_MEMORY_H
+#define GFX_CORE_MEMORY_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -631,4 +631,4 @@ void gfx_texture_generate_mipmaps(GFXTexture* texture);
 }
 #endif
 
-#endif // GFX_MEMORY_H
+#endif // GFX_CORE_MEMORY_H

@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_WINDOW_H
-#define GFX_WINDOW_H
+#ifndef GFX_CORE_WINDOW_H
+#define GFX_CORE_WINDOW_H
 
 #include "groufix/core/keys.h"
 
@@ -346,4 +346,4 @@ int gfx_hardware_get_limit(GFXLimit limit);
 }
 #endif
 
-#endif // GFX_WINDOW_H
+#endif // GFX_CORE_WINDOW_H

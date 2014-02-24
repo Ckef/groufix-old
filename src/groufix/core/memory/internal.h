@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_MEMORY_INTERNAL_H
-#define GFX_MEMORY_INTERNAL_H
+#ifndef GFX_CORE_MEMORY_INTERNAL_H
+#define GFX_CORE_MEMORY_INTERNAL_H
 
 #include "groufix/core/internal.h"
 
@@ -144,4 +144,4 @@ GFXTextureFormat _gfx_texture_format_from_internal(GLint format);
 }
 #endif
 
-#endif // GFX_MEMORY_INTERNAL_H
+#endif // GFX_CORE_MEMORY_INTERNAL_H

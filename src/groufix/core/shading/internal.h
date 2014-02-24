@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_SHADING_INTERNAL_H
-#define GFX_SHADING_INTERNAL_H
+#ifndef GFX_CORE_SHADING_INTERNAL_H
+#define GFX_CORE_SHADING_INTERNAL_H
 
 #include "groufix/core/internal.h"
 
@@ -107,4 +107,4 @@ void _gfx_binder_unbind_texture(GLuint texture, GFX_Extensions* ext);
 }
 #endif
 
-#endif // GFX_SHADING_INTERNAL_H
+#endif // GFX_CORE_SHADING_INTERNAL_H

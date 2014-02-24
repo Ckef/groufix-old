@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_ERRORS_H
-#define GFX_ERRORS_H
+#ifndef GFX_CORE_ERRORS_H
+#define GFX_CORE_ERRORS_H
 
 #include <stddef.h>
 
@@ -155,4 +155,4 @@ void gfx_errors_set_maximum(size_t max);
 }
 #endif
 
-#endif // GFX_ERRORS_H
+#endif // GFX_CORE_ERRORS_H

@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_PLATFORM_X11_H
-#define GFX_PLATFORM_X11_H
+#ifndef GFX_CORE_PLATFORM_X11_H
+#define GFX_CORE_PLATFORM_X11_H
 
 /* Validate platform */
 #include "groufix/core/platform.h"
@@ -152,4 +152,4 @@ int _gfx_extensions_is_in_string(const char* str, const char* ext);
 }
 #endif
 
-#endif // GFX_PLATFORM_X11_H
+#endif // GFX_CORE_PLATFORM_X11_H

@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_PIPELINE_INTERNAL_H
-#define GFX_PIPELINE_INTERNAL_H
+#ifndef GFX_CORE_PIPELINE_INTERNAL_H
+#define GFX_CORE_PIPELINE_INTERNAL_H
 
 #include "groufix/containers/list.h"
 #include "groufix/containers/vector.h"
@@ -218,4 +218,4 @@ void _gfx_pipe_process_untarget(GFX_Window* target, int last);
 }
 #endif
 
-#endif // GFX_PIPELINE_INTERNAL_H
+#endif // GFX_CORE_PIPELINE_INTERNAL_H

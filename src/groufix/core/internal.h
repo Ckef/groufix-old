@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_INTERNAL_H
-#define GFX_INTERNAL_H
+#ifndef GFX_CORE_INTERNAL_H
+#define GFX_CORE_INTERNAL_H
 
 #include "groufix/core/platform.h"
 #include "groufix/core/pipeline.h"
@@ -498,4 +498,4 @@ GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout);
 }
 #endif
 
-#endif // GFX_INTERNAL_H
+#endif // GFX_CORE_INTERNAL_H

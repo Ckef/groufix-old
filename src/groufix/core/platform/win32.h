@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_PLATFORM_WIN32_H
-#define GFX_PLATFORM_WIN32_H
+#ifndef GFX_CORE_PLATFORM_WIN32_H
+#define GFX_CORE_PLATFORM_WIN32_H
 
 /* Validate platform */
 #include "groufix/core/platform.h"
@@ -79,22 +79,9 @@ typedef struct GFX_Win32_Extensions
 
 } GFX_Win32_Extensions;
 
-/********************************************************
- * Win32 Screen (a.k.a Display Device)
- *******************************************************/
-
-/** Win32 Screen */
-typedef struct GFX_Win32_Screen
-{
-	TCHAR  name[32];
-	int    width;  /* Actual width, not virtual */
-	int    height; /* Actual height, not virtual */
-
-} GFX_Win32_Screen;
-
 
 /********************************************************
- * Win32 Window
+ * Win32 Window & Screen (a.k.a Display Device)
  *******************************************************/
 
 /** Win32 Window Flags */
@@ -104,6 +91,16 @@ typedef enum GFX_Win32_Flags
 	GFX_WIN32_FULLSCREEN   = 0x02
 
 } GFX_Win32_Flags;
+
+
+/** Win32 Screen */
+typedef struct GFX_Win32_Screen
+{
+	TCHAR  name[32];
+	int    width;  /* Actual width, not virtual */
+	int    height; /* Actual height, not virtual */
+
+} GFX_Win32_Screen;
 
 
 /** Win32 Window */
@@ -186,4 +183,4 @@ int _gfx_extensions_is_in_string(const char* str, const char* ext);
 }
 #endif
 
-#endif // GFX_PLATFORM_WIN32_H
+#endif // GFX_CORE_PLATFORM_WIN32_H

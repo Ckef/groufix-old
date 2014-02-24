@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_PLATFORM_H
-#define GFX_PLATFORM_H
+#ifndef GFX_CORE_PLATFORM_H
+#define GFX_CORE_PLATFORM_H
 
 #include "groufix/core/window.h"
 #include "groufix/utils.h"
@@ -472,4 +472,4 @@ GFXProcAddress _gfx_platform_get_proc_address(const char* proc);
 }
 #endif
 
-#endif // GFX_PLATFORM_H
+#endif // GFX_CORE_PLATFORM_H

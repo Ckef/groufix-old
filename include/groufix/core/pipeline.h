@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_PIPELINE_H
-#define GFX_PIPELINE_H
+#ifndef GFX_CORE_PIPELINE_H
+#define GFX_CORE_PIPELINE_H
 
 #include "groufix/core/shading.h"
 #include "groufix/core/window.h"
@@ -409,4 +409,4 @@ void gfx_pipeline_execute(GFXPipeline* pipeline);
 }
 #endif
 
-#endif // GFX_PIPELINE_H
+#endif // GFX_CORE_PIPELINE_H

@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_SHADING_H
-#define GFX_SHADING_H
+#ifndef GFX_CORE_SHADING_H
+#define GFX_CORE_SHADING_H
 
 #include "groufix/core/memory.h"
 
@@ -430,4 +430,4 @@ int gfx_property_map_swap(GFXPropertyMap* map, unsigned char index1, unsigned ch
 }
 #endif
 
-#endif // GFX_SHADING_H
+#endif // GFX_CORE_SHADING_H

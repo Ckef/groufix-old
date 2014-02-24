@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef GFX_KEYS_H
-#define GFX_KEYS_H
+#ifndef GFX_CORE_KEYS_H
+#define GFX_CORE_KEYS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -196,4 +196,4 @@ typedef enum GFXKeyState
 }
 #endif
 
-#endif // GFX_KEYS_H
+#endif // GFX_CORE_KEYS_H
