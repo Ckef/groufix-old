@@ -27,6 +27,65 @@
 
 #include <stdlib.h>
 
+
+/* Define unsupported float uniform types */
+#ifndef GL_SAMPLER_1D
+	#define GL_SAMPLER_1D                                 -0x0001
+#endif
+#ifndef GL_SAMPLER_1D_SHADOW
+	#define GL_SAMPLER_1D_SHADOW                          -0x0002
+#endif
+#ifndef GL_SAMPLER_BUFFER
+	#define GL_SAMPLER_BUFFER                             -0x0003
+#endif
+#ifndef GL_SAMPLER_1D_ARRAY
+	#define GL_SAMPLER_1D_ARRAY                           -0x0004
+#endif
+#ifndef GL_SAMPLER_1D_ARRAY_SHADOW
+	#define GL_SAMPLER_1D_ARRAY_SHADOW                    -0x0005
+#endif
+#ifndef GL_SAMPLER_2D_MULTISAMPLE
+	#define GL_SAMPLER_2D_MULTISAMPLE                     -0x0006
+#endif
+#ifndef GL_SAMPLER_2D_MULTISAMPLE_ARRAY
+	#define GL_SAMPLER_2D_MULTISAMPLE_ARRAY               -0x0007
+#endif
+
+/* Define unsupported int uniform types */
+#ifndef GL_INT_SAMPLER_1D
+	#define GL_INT_SAMPLER_1D                             -0x0008
+#endif
+#ifndef GL_INT_SAMPLER_BUFFER
+	#define GL_INT_SAMPLER_BUFFER                         -0x0009
+#endif
+#ifndef GL_INT_SAMPLER_1D_ARRAY
+	#define GL_INT_SAMPLER_1D_ARRAY                       -0x000a
+#endif
+#ifndef GL_INT_SAMPLER_2D_MULTISAMPLE
+	#define GL_INT_SAMPLER_2D_MULTISAMPLE                 -0x000b
+#endif
+#ifndef GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY
+	#define GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY           -0x000c
+#endif
+
+/* Define unsupported unsigned int uniform types */
+#ifndef GL_UNSIGNED_INT_SAMPLER_1D
+	#define GL_UNSIGNED_INT_SAMPLER_1D                    -0x000d
+#endif
+#ifndef GL_UNSIGNED_INT_SAMPLER_BUFFER
+	#define GL_UNSIGNED_INT_SAMPLER_BUFFER                -0x000e
+#endif
+#ifndef GL_UNSIGNED_INT_SAMPLER_1D_ARRAY
+	#define GL_UNSIGNED_INT_SAMPLER_1D_ARRAY              -0x000f
+#endif
+#ifndef GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE
+	#define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE        -0x0010
+#endif
+#ifndef GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY
+	#define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY  -0x0011
+#endif
+
+
 /******************************************************/
 /* Internal Property */
 struct GFX_Property

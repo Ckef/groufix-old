@@ -466,7 +466,7 @@ int gfx_property_map_forward_named(GFXPropertyMap* map, unsigned char index, con
 {
 	/* Fetch property index and forward it */
 	unsigned short property = gfx_program_get_named_property(map->program, name);
-	if(property == map->program->properties) return 0;
+	if(property >= map->program->properties) return 0;
 
 	return gfx_property_map_forward(map, index, property);
 }
@@ -515,7 +515,7 @@ int gfx_property_map_forward_named_block(GFXPropertyMap* map, unsigned char inde
 {
 	/* Fetch block index and forward it */
 	unsigned short block = gfx_program_get_named_property_block(map->program, name);
-	if(block == map->program->blocks) return 0;
+	if(block >= map->program->blocks) return 0;
 
 	return gfx_property_map_forward_block(map, index, block);
 }
