@@ -275,7 +275,7 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 		}
 
 		/* Free all pipes */
-		while(internal->first) gfx_pipeline_remove(&internal->first->pipe);
+		while(internal->first) gfx_pipeline_remove(&internal->first->ptr);
 
 		/* Free pipeline */
 		gfx_vector_clear(&internal->attachments);
@@ -404,7 +404,7 @@ GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFX
 
 	_gfx_pipeline_push_pipe(pipe);
 
-	return &pipe->pipe;
+	return &pipe->ptr;
 }
 
 /******************************************************/
@@ -416,14 +416,14 @@ GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline)
 
 	_gfx_pipeline_push_pipe(pipe);
 
-	return &pipe->pipe;
+	return &pipe->ptr;
 }
 
 /******************************************************/
 void gfx_pipeline_remove(GFXPipe* pipe)
 {
 	/* Erase and replace if necessary */
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, pipe));
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)internal->pipeline;
 
 	GFX_Pipe* new = _gfx_pipe_free(internal);
@@ -453,11 +453,11 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 		switch(pipe->type)
 		{
 			case GFX_PIPE_BUCKET :
-				_gfx_bucket_process(pipe->pipe.bucket, pipe->state, ext);
+				_gfx_bucket_process(pipe->ptr.bucket, pipe->state, ext);
 				break;
 
 			case GFX_PIPE_PROCESS :
-				_gfx_pipe_process_execute(pipe->pipe.process, pipe->state, internal->win);
+				_gfx_pipe_process_execute(pipe->ptr.process, pipe->state, internal->win);
 				break;
 		}
 	}

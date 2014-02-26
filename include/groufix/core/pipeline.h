@@ -283,6 +283,7 @@ typedef void (*GFXPipeCallbackFunc) (GFXPipe*, GFXPipeCallback*);
  * Register a new callback object for a pipe, it is issued when the pipe is freed.
  *
  * @param callback Key of the callback plus arbitrary data to store.
+ * @param func     Function to be issued when the pipe is freed (can be NULL).
  * @return Zero on failure.
  *
  */
@@ -292,6 +293,7 @@ int gfx_pipe_register(GFXPipe* pipe, GFXPipeCallback callback, GFXPipeCallbackFu
  * Unregister a callback object from a pipe.
  *
  * An object can be registered multiple times, in that case it will unregister all of them.
+ * Note: unregistering can be a costly operation.
  *
  */
 void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback);

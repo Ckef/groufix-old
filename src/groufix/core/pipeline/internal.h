@@ -44,10 +44,7 @@ typedef struct GFX_Pipe
 
 	GFXPipeType    type;
 	GFXPipeState   state;
-	GFXPipe        pipe;
-
-	GFXVector      callbacks;
-	unsigned char  sorted;
+	GFXPipe        ptr; /* Public pointer */
 
 	/* Associated pipeline */
 	GFXPipeline*   pipeline;

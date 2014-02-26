@@ -203,12 +203,12 @@ int main()
 	/* Free all the things */
 	gfx_vertex_layout_free(layout);
 	gfx_shared_buffer_clear(&buffer);
-	gfx_program_free(program);
-	gfx_program_free(program2);
-	gfx_program_free(program3);
 	gfx_property_map_free(map);
 	gfx_property_map_free(map2);
 	gfx_property_map_free(map3);
+	gfx_program_free(program);
+	gfx_program_free(program2);
+	gfx_program_free(program3);
 	gfx_texture_free(tex);
 	gfx_pipeline_free(pipeline);
 
