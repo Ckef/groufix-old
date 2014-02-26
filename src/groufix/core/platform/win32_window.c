@@ -382,8 +382,8 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 	_gfx_win32_get_screen_position(attributes->screen, &xS, &yS);
 
 	/* Style and window rectangle */
-	DWORD styleEx;
-	DWORD style;
+	DWORD styleEx = 0;
+	DWORD style = 0;
 
 	RECT rect;
 	rect.right = attributes->width;
@@ -410,18 +410,27 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 	else
 	{
 		/* Create window style */
-		styleEx =
-			WS_EX_WINDOWEDGE;
+		if(!(attributes->flags & GFX_WINDOW_BORDERLESS))
+		{
+			styleEx =
+				WS_EX_WINDOWEDGE;
 
-		style =
-			WS_CAPTION |
-			WS_MINIMIZEBOX |
-			WS_OVERLAPPED |
-			WS_SYSMENU;
+			style =
+				WS_CAPTION |
+				WS_MINIMIZEBOX |
+				WS_OVERLAPPED |
+				WS_SYSMENU;
 
-		if(attributes->flags & GFX_WINDOW_RESIZABLE) style |=
-			WS_MAXIMIZEBOX |
-			WS_SIZEBOX;
+			if(attributes->flags & GFX_WINDOW_RESIZABLE) style |=
+				WS_MAXIMIZEBOX |
+				WS_SIZEBOX;
+		}
+		else
+		{
+			/* Borderless */
+			styleEx = WS_EX_TOPMOST;
+			style = WS_POPUP | WS_VISIBLE;
+		}
 
 		/* Rectangle */
 		rect.left = xS + attributes->x;
