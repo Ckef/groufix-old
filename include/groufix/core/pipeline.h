@@ -395,7 +395,31 @@ GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFX
 GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline);
 
 /**
- * Removes a pipe from its associated pipeline.
+ * Removes a pipe from the execution list but does not destroy it.
+ *
+ * Afterwards it can still be moved or swapped.
+ *
+ */
+void gfx_pipeline_unlink(GFXPipe* pipe);
+
+/**
+ * Moves a pipe to be after a given pipe in execution order.
+ *
+ * @param after The pipe to be moved after (NULL to move to start).
+ *
+ */
+void gfx_pipeline_move(GFXPipe* pipe, GFXPipe* after);
+
+/**
+ * Swaps the position of two pipes in their execution order.
+ *
+ * Note: if they belong to different pipelines this call is ignored.
+ *
+ */
+void gfx_pipeline_swap(GFXPipe* pipe1, GFXPipe* pipe2);
+
+/**
+ * Removes and destroys a pipe from its associated pipeline.
  *
  */
 void gfx_pipeline_remove(GFXPipe* pipe);

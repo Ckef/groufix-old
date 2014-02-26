@@ -278,13 +278,61 @@ void gfx_list_splice_range_before(GFXList* node, GFXList* first, GFXList* last)
 }
 
 /******************************************************/
-void gfx_list_unsplice(GFXList* first, GFXList* last)
+GFXList* gfx_list_unsplice(GFXList* first, GFXList* last)
 {
+	GFXList* new = NULL;
+
 	/* Close the gap of the range */
-	if(first->previous) first->previous->next = last->next;
-	if(last->next) last->next->previous = first->previous;
+	if(first->previous)
+	{
+		first->previous->next = last->next;
+		new = first->previous;
+	}
+	if(last->next)
+	{
+		last->next->previous = first->previous;
+		new = last->next;
+	}
 
 	/* Unlink range */
 	first->previous = NULL;
 	last->next = NULL;
+
+	return new;
+}
+
+/******************************************************/
+void gfx_list_swap(GFXList* node1, GFXList* node2)
+{
+	/* Relink outer nodes and fix internal links */
+	if(node1->next == node2)
+	{
+		if(node1->previous) node1->previous->next = node2;
+		if(node2->next) node2->next->previous = node1;
+
+		node1->next = node1;
+		node2->previous = node2;
+	}
+	else if(node2->next == node1)
+	{
+		if(node1->next) node1->next->previous = node2;
+		if(node2->previous) node2->previous->next = node1;
+
+		node1->previous = node1;
+		node2->next = node2;
+	}
+	else
+	{
+		/* Relink the two nodes */
+		if(node1->previous) node1->previous->next = node2;
+		if(node1->next) node1->next->previous = node2;
+
+		if(node2->previous) node2->previous->next = node1;
+		if(node2->next) node2->next->previous = node1;
+	}
+
+	/* Swap the two nodes */
+	GFXList temp = *node1;
+	*node1 = *node2;
+	*node2 = temp;
 }

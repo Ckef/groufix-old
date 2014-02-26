@@ -48,8 +48,10 @@ struct GFX_Pipeline
 	GFXVector  attachments; /* Stores GFX_Attachment */
 	size_t     numTargets;
 	GLenum*    targets;     /* OpenGL draw buffers */
+
 	GFX_Pipe*  first;
 	GFX_Pipe*  last;
+	GFX_Pipe*  unlinked;
 
 	/* Viewport */
 	unsigned int width;
@@ -276,6 +278,7 @@ void gfx_pipeline_free(GFXPipeline* pipeline)
 
 		/* Free all pipes */
 		while(internal->first) gfx_pipeline_remove(&internal->first->ptr);
+		while(internal->unlinked) gfx_pipeline_remove(&internal->unlinked->ptr);
 
 		/* Free pipeline */
 		gfx_vector_clear(&internal->attachments);
@@ -420,6 +423,88 @@ GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline)
 }
 
 /******************************************************/
+void gfx_pipeline_unlink(GFXPipe* pipe)
+{
+	/* Unsplice and replace if necessary */
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)internal->pipeline;
+
+	GFX_Pipe* new = (GFX_Pipe*)gfx_list_unsplice((GFXList*)internal, (GFXList*)internal);
+
+	if(pipeline->first == internal) pipeline->first = new;
+	if(pipeline->last == internal) pipeline->last = new;
+	if(pipeline->unlinked == internal) pipeline->unlinked = new;
+
+	/* Splice into unlinked pipes */
+	if(!pipeline->unlinked) pipeline->unlinked = internal;
+	else gfx_list_splice_after((GFXList*)internal, (GFXList*)pipeline->unlinked);
+}
+
+/******************************************************/
+void gfx_pipeline_move(GFXPipe* pipe, GFXPipe* after)
+{
+	if(pipe != after)
+	{
+		GFX_Pipe* int1 = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+		GFX_Pipe* int2 = after ? GFX_PTR_SUB_BYTES(after, offsetof(GFX_Pipe, ptr)) : NULL;
+
+		/* Check if it can be moved */
+		if(int2) if(int1->pipeline != int2->pipeline) return;
+
+		struct GFX_Pipeline* pl = (struct GFX_Pipeline*)int1->pipeline;
+
+		/* Reconstruct pointers */
+		if(pl->first == int1) pl->first = (GFX_Pipe*)int1->node.next;
+		if(pl->last == int1) pl->last = (GFX_Pipe*)int1->node.previous;
+		if(pl->unlinked == int1) pl->unlinked = (GFX_Pipe*)int1->node.next;
+
+		/* Move it */
+		if(int2)
+		{
+			gfx_list_splice_after((GFXList*)int1, (GFXList*)int2);
+			if(pl->last == int2) pl->last = int1;
+		}
+		else if(pl->first)
+		{
+			gfx_list_splice_before((GFXList*)int1, (GFXList*)pl->first);
+			pl->first = int1;
+		}
+		else
+		{
+			gfx_list_unsplice((GFXList*)int1, (GFXList*)int1);
+			pl->first = int1;
+			pl->last = int1;
+		}
+	}
+}
+
+/******************************************************/
+void gfx_pipeline_swap(GFXPipe* pipe1, GFXPipe* pipe2)
+{
+	GFX_Pipe* int1 = GFX_PTR_SUB_BYTES(pipe1, offsetof(GFX_Pipe, ptr));
+	GFX_Pipe* int2 = GFX_PTR_SUB_BYTES(pipe2, offsetof(GFX_Pipe, ptr));
+
+	/* Check if they can be swapped */
+	if(int1->pipeline == int2->pipeline)
+	{
+		struct GFX_Pipeline* pl = (struct GFX_Pipeline*)int1->pipeline;
+
+		/* Reconstruct pointers */
+		if(pl->first == int1) pl->first = int2;
+		else if(pl->first == int2) pl->first = int1;
+
+		if(pl->last == int1) pl->last = int2;
+		else if(pl->last == int2) pl->last = int1;
+
+		if(pl->unlinked == int1) pl->unlinked = int2;
+		else if(pl->unlinked == int2) pl->unlinked = int1;
+
+		/* Swap list elements */
+		gfx_list_swap((GFXList*)int1, (GFXList*)int2);
+	}
+}
+
+/******************************************************/
 void gfx_pipeline_remove(GFXPipe* pipe)
 {
 	/* Erase and replace if necessary */
@@ -430,6 +515,7 @@ void gfx_pipeline_remove(GFXPipe* pipe)
 
 	if(pipeline->first == internal) pipeline->first = new;
 	if(pipeline->last == internal) pipeline->last = new;
+	if(pipeline->unlinked == internal) pipeline->unlinked = new;
 }
 
 /******************************************************/

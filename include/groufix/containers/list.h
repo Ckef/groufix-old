@@ -187,11 +187,19 @@ void gfx_list_splice_range_before(GFXList* node, GFXList* first, GFXList* last);
  *
  * @param first The first node of the range.
  * @param last  The last node of the range.
+ * @return The node of the element taking its place (can be NULL).
  *
  * The two nodes can be equal to each other.
+ * If no node takes its place, it will try to return the previous node instead.
  *
  */
-void gfx_list_unsplice(GFXList* first, GFXList* last);
+GFXList* gfx_list_unsplice(GFXList* first, GFXList* last);
+
+/**
+ * Swaps two elements from position.
+ *
+ */
+void gfx_list_swap(GFXList* node1, GFXList* node2);
 
 
 #ifdef __cplusplus
