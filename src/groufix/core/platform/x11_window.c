@@ -254,7 +254,19 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 	XFree(config);
 
 	/* Create the window attributes */
+	unsigned long mask = 0;
 	XSetWindowAttributes attr;
+
+	if(attributes->flags & GFX_WINDOW_BORDERLESS)
+	{
+		/* Borderless window */
+		mask = CWOverrideRedirect | CWBorderPixel;
+
+		attr.override_redirect = True;
+		attr.border_pixel = 0;
+	}
+
+	/* Event mask & Color map */
 	attr.event_mask =
 		KeyPressMask |
 		KeyReleaseMask |
@@ -284,7 +296,7 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 		visual->depth,
 		InputOutput,
 		visual->visual,
-		CWColormap | CWEventMask,
+		mask | CWColormap | CWEventMask,
 		&attr
 	);
 

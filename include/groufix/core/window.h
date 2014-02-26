@@ -114,7 +114,8 @@ typedef struct GFXContext
 typedef enum GFXWindowFlags
 {
 	GFX_WINDOW_FULLSCREEN  = 0x01,
-	GFX_WINDOW_RESIZABLE   = 0x02
+	GFX_WINDOW_BORDERLESS  = 0x02,
+	GFX_WINDOW_RESIZABLE   = 0x04
 
 } GFXWindowFlags;
 
