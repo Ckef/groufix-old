@@ -243,6 +243,9 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
 				if(!_gfx_main_window) _gfx_main_window = window;
 				_gfx_window_make_current(_gfx_main_window);
 
+				/* Also make it visible */
+				_gfx_platform_window_show(window->handle);
+
 				return (GFXWindow*)window;
 			}
 
@@ -372,6 +375,7 @@ void gfx_window_free(GFXWindow* window)
 /******************************************************/
 int gfx_window_is_open(const GFXWindow* window)
 {
+	if(!window) return 0;
 	return ((const GFX_Window*)window)->handle ? 1 : 0;
 }
 

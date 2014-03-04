@@ -303,7 +303,7 @@ void _gfx_platform_screen_get_size(GFX_PlatformScreen handle, unsigned int* widt
  *******************************************************/
 
 /**
- * Creates a new visible window.
+ * Creates a new window (not required to be visible).
  *
  * @brief attributes The attributes to initialize the window with (cannot be NULL).
  * @return A handle to the window (NULL on failure).

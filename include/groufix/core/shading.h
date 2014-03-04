@@ -138,7 +138,7 @@ typedef struct GFXProperty
 typedef struct GFXPropertyBlockMember
 {
 	unsigned short  property; /* Property index */
-	size_t          offset;   /* Byteoffset from the beginning of the block */
+	size_t          offset;   /* Byte offset from the beginning of the block */
 	unsigned char   stride;   /* If a matrix, column stride, if not a matrix, array stride */
 
 } GFXPropertyBlockMember;
@@ -174,8 +174,8 @@ typedef enum GFXFeedbackMode
 typedef struct GFXProgram
 {
 	size_t          id;         /* Hardware Object ID */
-	unsigned short  properties; /* Accesible properties */
-	unsigned short  blocks;     /* Accesible property blocks */
+	unsigned short  properties; /* Accessible properties */
+	unsigned short  blocks;     /* Accessible property blocks */
 
 } GFXProgram;
 

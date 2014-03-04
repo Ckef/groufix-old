@@ -84,7 +84,7 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLa
 /**
  * Removes a source from the bucket.
  *
- * Any units using the source will be erased from the buket.
+ * Any units using the source will be erased from the bucket.
  *
  */
 void gfx_bucket_remove_source(GFXBucket* bucket, size_t src);

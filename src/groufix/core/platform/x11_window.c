@@ -324,8 +324,7 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 		return NULL;
 	}
 
-	/* Show window & set full screen */
-	XMapWindow(_gfx_x11->display, window.handle);
+	/* Set full screen */
 	if(attributes->flags & GFX_WINDOW_FULLSCREEN) _gfx_x11_set_fullscreen(window.handle, get.root);
 
 	/* Set size hints */
