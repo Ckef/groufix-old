@@ -330,6 +330,22 @@ void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback)
 }
 
 /******************************************************/
+int gfx_pipe_exists(GFXPipe* pipe, GFXPipeCallback callback)
+{
+	/* Sort if necessary */
+	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	_gfx_pipe_sort(internal);
+
+	/* Find the callback object */
+	return bsearch(
+		&callback,
+		internal->callbacks.begin,
+		gfx_vector_get_size(&internal->callbacks),
+		sizeof(struct GFX_Callback),
+		_gfx_pipe_callback_comp) ? 1 : 0;
+}
+
+/******************************************************/
 GFXPipeCallback* gfx_pipe_find(GFXPipe* pipe, unsigned char key, size_t* num)
 {
 	/* First make sure it's sorted and ranged */

@@ -299,6 +299,14 @@ int gfx_pipe_register(GFXPipe* pipe, GFXPipeCallback callback, GFXPipeCallbackFu
 void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback);
 
 /**
+ * Returns whether a given callback has been registered.
+ *
+ * @return Non-zero if it was found.
+ *
+ */
+int gfx_pipe_exists(GFXPipe* pipe, GFXPipeCallback callback);
+
+/**
  * Finds the first callback objects with a given key.
  *
  * @param num Number of callback objects found.
