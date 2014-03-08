@@ -403,6 +403,14 @@ GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFX
 GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline);
 
 /**
+ * Removes all pipes from the execution list without destroying them.
+ *
+ * This acts as if gfx_pipeline_unlink was called on each pipe.
+ *
+ */
+void gfx_pipeline_unlink_all(GFXPipeline* pipeline);
+
+/**
  * Removes a pipe from the execution list but does not destroy it.
  *
  * Afterwards it can still be moved or swapped.

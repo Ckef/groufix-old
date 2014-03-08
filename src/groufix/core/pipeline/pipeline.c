@@ -423,6 +423,22 @@ GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline)
 }
 
 /******************************************************/
+void gfx_pipeline_unlink_all(GFXPipeline* pipeline)
+{
+	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
+
+	/* Splice entire range into unlinked pipes */
+	if(internal->first)
+	{
+		if(!internal->unlinked) internal->unlinked = internal->first;
+		else gfx_list_splice_range_after((GFXList*)internal->unlinked, (GFXList*)internal->first, (GFXList*)internal->last);
+
+		internal->first = NULL;
+		internal->last = NULL;
+	}
+}
+
+/******************************************************/
 void gfx_pipeline_unlink(GFXPipe* pipe)
 {
 	/* Unsplice and replace if necessary */
