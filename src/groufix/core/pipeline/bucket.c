@@ -64,7 +64,6 @@ struct GFX_Bucket
 struct GFX_Source
 {
 	GFXVertexLayout*  layout;
-	size_t            key; /* Vertex Layout key */
 
 	unsigned char     startDraw;
 	unsigned char     numDraw;
@@ -431,10 +430,6 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXVertexLayout* layout)
 	src.startFeedback = 0;
 	src.numFeedback   = 0;
 
-	/* Map vertex layout key */
-	src.key = _gfx_bucket_map_key(internal, &internal->layoutKeys, layout->id);
-	if(!src.key) return 0;
-
 	/* Find disabled source to replace */
 	GFXVectorIterator it;
 	for(it = internal->sources.begin; it != internal->sources.end; it = gfx_vector_next(&internal->sources, it))
@@ -536,14 +531,16 @@ size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFX
 	struct GFX_Source* source = gfx_vector_at(&internal->sources, --src);
 	if(!source->layout) return 0;
 
-	/* Map program key */
-	size_t progKey = _gfx_bucket_map_key(internal, &internal->programKeys, map->program->id);
-	if(!progKey) return 0;
+	/* Map vertex layout and program key */
+	size_t layKey = _gfx_bucket_map_key(internal, &internal->layoutKeys, source->layout->id);
+	size_t proKey = _gfx_bucket_map_key(internal, &internal->programKeys, map->program->id);
+
+	if(!layKey || !proKey) return 0;
 
 	/* Insert the new unit */
 	struct GFX_Unit unit;
 
-	unit.state  = _gfx_bucket_create_state(internal, state, source->key, progKey);
+	unit.state  = _gfx_bucket_create_state(internal, state, layKey, proKey);
 	unit.map    = map;
 	unit.action = visible ? GFX_INT_UNIT_VISIBLE : 0;
 	unit.src    = src;

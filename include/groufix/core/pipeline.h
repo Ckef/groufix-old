@@ -66,7 +66,7 @@ typedef uint64_t GFXBatchState;
  * @param width Limit of program/vertex layout sorting keys (separate keys).
  * @param bits  Number of manual bits to sort by.
  *
- * Note: it can only be changed if no sources are added yet.
+ * Note: it can only be changed if no units are inserted yet.
  *
  */
 void gfx_bucket_set_key_width(GFXBucket* bucket, unsigned char width, unsigned char bits);
