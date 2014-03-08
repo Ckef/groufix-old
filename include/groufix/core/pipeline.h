@@ -63,9 +63,9 @@ typedef uint64_t GFXBatchState;
 /**
  * Sets the sorting key width limit (the default is GFX_BUCKET_KEY_WIDTH_DEFAULT).
  *
- * @param bits Number of manual bits to sort by.
+ * @param width Limit of program/vertex layout sorting keys (separate keys).
+ * @param bits  Number of manual bits to sort by.
  *
- * This limit applies to program/vertex layout sorting keys (separate keys).
  * Note: it can only be changed if no sources are added yet.
  *
  */
@@ -74,12 +74,11 @@ void gfx_bucket_set_key_width(GFXBucket* bucket, unsigned char width, unsigned c
 /**
  * Adds a new source to the bucket.
  *
- * @param map    Property map (and thus program) to use for this unit, cannot be NULL.
  * @param layout Vertex layout to use for this batch, cannot be NULL.
  * @return The ID of the source, 0 on failure.
  *
  */
-size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLayout* layout);
+size_t gfx_bucket_add_source(GFXBucket* bucket, GFXVertexLayout* layout);
 
 /**
  * Removes a source from the bucket.
@@ -111,11 +110,12 @@ void gfx_bucket_set_feedback(GFXBucket* bucket, size_t src, unsigned char start,
  * Insert a unit to be processed into the bucket.
  *
  * @param state    Manual bits of the state to associate this unit with.
+ * @param map      Property map (and thus program) to use for rendering this unit.
  * @param visible  Non-zero if visible, invisible otherwise.
  * @return The ID of the inserted unit, 0 on failure.
  *
  */
-size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible);
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, int visible);
 
 /**
  * Returns the number of instances to draw.

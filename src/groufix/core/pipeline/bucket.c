@@ -63,15 +63,12 @@ struct GFX_Bucket
 /* Internal source */
 struct GFX_Source
 {
-	GFXPropertyMap*   map;
 	GFXVertexLayout*  layout;
-	GFXBatchState     key;   /* Internal key to sort on */
+	size_t            key; /* Vertex Layout key */
 
-	/* Draw calls */
 	unsigned char     startDraw;
 	unsigned char     numDraw;
 
-	/* Feedback buffers */
 	unsigned char     startFeedback;
 	unsigned char     numFeedback;
 };
@@ -79,11 +76,13 @@ struct GFX_Source
 /* Internal batch unit */
 struct GFX_Unit
 {
-	GFXBatchState  state;
-	unsigned char  action;
-	size_t         ref;  /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
-	size_t         src;  /* Source of the bucket to use (ID - 1) */
-	size_t         inst; /* Number of instances */
+	GFXBatchState    state; /* Combination of vertex layout key, program key and manual state */
+	GFXPropertyMap*  map;
+	unsigned char    action;
+
+	size_t           ref;   /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
+	size_t           src;   /* Source of the bucket to use (ID - 1) */
+	size_t           inst;  /* Number of instances */
 };
 
 /******************************************************/
@@ -287,7 +286,7 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 		struct GFX_Source* src = gfx_vector_at(&internal->sources, unit->src);
 
 		/* Bind shader program & draw */
-		_gfx_property_map_use(src->map, ext);
+		_gfx_property_map_use(unit->map, ext);
 
 		_gfx_vertex_layout_draw_begin(
 			src->layout,
@@ -327,6 +326,27 @@ static inline GFXBatchState _gfx_bucket_get_manual_state(const struct GFX_Bucket
 
 	/* Mask it out */
 	return state & ((1 << bucket->bucket.bits) - 1);
+}
+
+/******************************************************/
+static GFXBatchState _gfx_bucket_create_state(const struct GFX_Bucket* bucket, GFXBatchState manual, size_t layout, size_t program)
+{
+	/* Create state containing vertex layout/program key */
+	GFXBatchState state = 0;
+	size_t shifts = 0;
+
+	if(bucket->bucket.flags & GFX_BUCKET_SORT_VERTEX_LAYOUT)
+	{
+		state |= layout;
+		shifts = bucket->keyWidth;
+	}
+	if(bucket->bucket.flags & GFX_BUCKET_SORT_PROGRAM)
+	{
+		state |= (GFXBatchState)program << shifts;
+	}
+
+	/* Add manual state to it */
+	return _gfx_bucket_add_manual_state(bucket, manual, state);
 }
 
 /******************************************************/
@@ -395,48 +415,32 @@ void gfx_bucket_set_key_width(GFXBucket* bucket, unsigned char width, unsigned c
 }
 
 /******************************************************/
-size_t gfx_bucket_add_source(GFXBucket* bucket, GFXPropertyMap* map, GFXVertexLayout* layout)
+size_t gfx_bucket_add_source(GFXBucket* bucket, GFXVertexLayout* layout)
 {
 	/* Derp */
-	if(!map || !layout) return 0;
+	if(!layout) return 0;
 
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 
 	/* Create source */
 	struct GFX_Source src;
 
-	src.map           = map;
 	src.layout        = layout;
-	src.key           = 0;
 	src.startDraw     = 0;
 	src.numDraw       = 0;
 	src.startFeedback = 0;
 	src.numFeedback   = 0;
 
-	/* Map keys */
-	size_t proKey = _gfx_bucket_map_key(internal, &internal->programKeys, map->program->id);
-	size_t layKey = _gfx_bucket_map_key(internal, &internal->layoutKeys, layout->id);
-
-	if(!proKey || !layKey) return 0;
-
-	/* Create key */
-	size_t shifts = 0;
-	if(bucket->flags & GFX_BUCKET_SORT_VERTEX_LAYOUT)
-	{
-		src.key |= layKey;
-		shifts = internal->keyWidth;
-	}
-	if(bucket->flags & GFX_BUCKET_SORT_PROGRAM)
-	{
-		src.key |= (GFXBatchState)proKey << shifts;
-	}
+	/* Map vertex layout key */
+	src.key = _gfx_bucket_map_key(internal, &internal->layoutKeys, layout->id);
+	if(!src.key) return 0;
 
 	/* Find disabled source to replace */
 	GFXVectorIterator it;
 	for(it = internal->sources.begin; it != internal->sources.end; it = gfx_vector_next(&internal->sources, it))
 	{
 		struct GFX_Source* source = it;
-		if(!source->map || !source->layout)
+		if(!source->layout)
 		{
 			*source = src;
 			break;
@@ -463,7 +467,6 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src)
 	{
 		/* Disable source */
 		struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
-		source->map = NULL;
 		source->layout = NULL;
 
 		/* Erase any unit using the source */
@@ -478,7 +481,7 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src)
 			while(source != internal->sources.begin)
 			{
 				struct GFX_Source* prev = gfx_vector_previous(&internal->sources, source);
-				if(prev->map && prev->layout) break;
+				if(prev->layout) break;
 
 				source = prev;
 				++del;
@@ -499,11 +502,9 @@ void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char star
 	if(src && src <= cnt)
 	{
 		struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
-		if(source->map && source->layout)
-		{
-			source->startDraw = start;
-			source->numDraw = num;
-		}
+
+		source->startDraw = start;
+		source->numDraw = num;
 	}
 }
 
@@ -517,32 +518,35 @@ void gfx_bucket_set_feedback(GFXBucket* bucket, size_t src, unsigned char start,
 	if(src && src <= cnt)
 	{
 		struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
-		if(source->map && source->layout)
-		{
-			source->startFeedback = start;
-			source->numFeedback = num;
-		}
+
+		source->startFeedback = start;
+		source->numFeedback = num;
 	}
 }
 
 /******************************************************/
-size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, int visible)
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, int visible)
 {
 	/* Validate index & source */
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	size_t cnt = gfx_vector_get_size(&internal->sources);
 
-	if(!src || src > cnt) return 0;
+	if(!map || !src || src > cnt) return 0;
 
-	struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
-	if(!source->map || !source->layout) return 0;
+	struct GFX_Source* source = gfx_vector_at(&internal->sources, --src);
+	if(!source->layout) return 0;
+
+	/* Map program key */
+	size_t progKey = _gfx_bucket_map_key(internal, &internal->programKeys, map->program->id);
+	if(!progKey) return 0;
 
 	/* Insert the new unit */
 	struct GFX_Unit unit;
 
-	unit.state  = _gfx_bucket_add_manual_state(internal, state, source->key);
+	unit.state  = _gfx_bucket_create_state(internal, state, source->key, progKey);
+	unit.map    = map;
 	unit.action = visible ? GFX_INT_UNIT_VISIBLE : 0;
-	unit.src    = src - 1;
+	unit.src    = src;
 	unit.inst   = 1;
 
 	GFXVectorIterator it = gfx_vector_insert(&internal->units, &unit, internal->units.end);
