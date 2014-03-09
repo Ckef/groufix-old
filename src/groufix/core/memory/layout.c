@@ -405,9 +405,12 @@ int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index
 	/* Check index */
 	if(index >= layout->drawCalls) return 0;
 
-	/* Replace data */
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	(((struct GFX_DrawCall*)(internal + 1)) + index)->call = *call;
+	struct GFX_DrawCall* set = ((struct GFX_DrawCall*)(internal + 1)) + index;
+
+	/* Make sure to not set tessellation data */
+	set->call = *call;
+	if(call->primitive != GFX_PATCHES) set->call.patchVertices = 0;
 
 	return 1;
 }
