@@ -187,21 +187,24 @@ typedef struct GFX_Extensions
 {
 	/* Hardware Extensions & Limits */
 	unsigned char  flags[GFX_EXT_COUNT];
-	int            limits[GFX_LIM_COUNT];
+	GLint          limits[GFX_LIM_COUNT];
 
-	/* Binding points */
-	void*          uniformBuffers;
-	void*          textureUnits;
-
-	/* OpenGL State */
+	/* State & bound objects */
 	GFXPipeState   state;    /* All per-context states */
 	GLuint         pipeline; /* Currently bound FBO */
 	GLuint         layout;   /* Currently bound VAO */
 	GLuint         program;  /* Currently used program */
 
-	/* Viewport */
+	/* Viewport & state values */
 	unsigned int   width;
 	unsigned int   height;
+	unsigned char  packAlignment;
+	unsigned char  unpackAlignment;
+	unsigned int   patchVertices;
+
+	/* Binding points */
+	void*          uniformBuffers;
+	void*          textureUnits;
 
 
 	/* OpenGL Extensions */

@@ -498,13 +498,16 @@ void _gfx_extensions_load(void)
 	/* Set default state */
 	_gfx_states_force_set(GFX_STATE_DEFAULT, ext);
 
-	ext->uniformBuffers = NULL;
-	ext->textureUnits = NULL;
-
 	ext->pipeline = 0;
 	ext->layout = 0;
 	ext->program = 0;
 
-	/* Get viewport size */
 	_gfx_platform_window_get_size(window->handle, &ext->width, &ext->height);
+
+	ext->packAlignment = 0;
+	ext->unpackAlignment = 0;
+	ext->patchVertices = 0;
+
+	ext->uniformBuffers = NULL;
+	ext->textureUnits = NULL;
 }

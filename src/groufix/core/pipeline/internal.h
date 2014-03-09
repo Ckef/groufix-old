@@ -33,6 +33,66 @@ extern "C" {
 #endif
 
 /********************************************************
+ * OpenGL State management
+ *******************************************************/
+
+/**
+ * Sets the framebuffer handle associated with a pipeline as current for the given context.
+ *
+ */
+void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
+
+/**
+ * Sets the state of a context.
+ *
+ * Note: this assumes the context is current.
+ *
+ */
+void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext);
+
+/**
+ * Forces all state fields of a context.
+ *
+ * This will reset all state fields, regardless of previous states.
+ * Note: this assumes the context is current.
+ *
+ */
+void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
+
+/**
+ * Sets the viewport size of the context.
+ *
+ * Note: this assumes the context is current.
+ *
+ */
+void _gfx_states_set_viewport(unsigned int width, unsigned int height, GFX_Extensions* ext);
+
+/**
+ * Sets the pixel pack alignment of the context.
+ *
+ * Note: this assumes the context is current.
+ *
+ */
+void _gfx_states_set_pixel_pack_alignment(unsigned char align, GFX_Extensions* ext);
+
+/**
+ * Sets the pixel unpack alignment of the context.
+ *
+ * Note: this assumes the context is current.
+ *
+ */
+void _gfx_states_set_pixel_unpack_alignment(unsigned char align, GFX_Extensions* ext);
+
+/**
+ * Sets the number of vertices per patch.
+ *
+ * Note: this assumes the context is current.
+ *
+ */
+void _gfx_states_set_patch_vertices(unsigned int vertices, GFX_Extensions* ext);
+
+
+/********************************************************
  * Internal pipe
  *******************************************************/
 
@@ -78,42 +138,6 @@ GFX_Pipe* _gfx_pipe_create_process(GFXPipeline* pipeline);
  *
  */
 GFX_Pipe* _gfx_pipe_free(GFX_Pipe* pipe);
-
-
-/********************************************************
- * OpenGL State management
- *******************************************************/
-
-/**
- * Sets the framebuffer handle associated with a pipeline as current for the given context.
- *
- */
-void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
-
-/**
- * Sets the state of a context.
- *
- * Note: this assumes the context is current.
- *
- */
-void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext);
-
-/**
- * Forces all state fields of a context.
- *
- * This will reset all state fields, regardless of previous states.
- * Note: this assumes the context is current.
- *
- */
-void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
-
-/**
- * Sets the viewport size of the context.
- *
- * Note: this assumes the context is current.
- *
- */
-void _gfx_states_set_viewport(unsigned int width, unsigned int height, GFX_Extensions* ext);
 
 
 /********************************************************

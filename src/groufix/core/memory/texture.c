@@ -23,6 +23,7 @@
 
 #include "groufix/core/errors.h"
 #include "groufix/core/memory/internal.h"
+#include "groufix/core/pipeline/internal.h"
 #include "groufix/core/shading/internal.h"
 
 #include <stdlib.h>
@@ -480,7 +481,7 @@ void gfx_texture_write(GFXTextureImage image, const GFXPixelTransfer* transfer, 
 	{
 		/* Upload texture data */
 		_gfx_binder_bind_texture(internal->handle, internal->target, 0, &window->extensions);
-		window->extensions.PixelStorei(GL_UNPACK_ALIGNMENT, transfer->alignment);
+		_gfx_states_set_pixel_unpack_alignment(transfer->alignment, &window->extensions);
 
 		GLint pixForm = _gfx_texture_eval_pixel_format(transfer->format);
 		GLenum pixType = _gfx_is_data_type_packed(transfer->format.type) ?

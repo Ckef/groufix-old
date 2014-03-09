@@ -24,14 +24,17 @@
 #include "groufix/core/pipeline/internal.h"
 
 /* Compatibility defines */
-#ifndef GL_POINT
-	#define GL_POINT  0x1b00
+#ifndef GL_FILL
+	#define GL_FILL            0x1b02
 #endif
 #ifndef GL_LINE
-	#define GL_LINE   0x1b01
+	#define GL_LINE            0x1b01
 #endif
-#ifndef GL_FILL
-	#define GL_FILL   0x1b02
+#ifndef GL_PATCH_VERTICES
+	#define GL_PATCH_VERTICES  0x8e72
+#endif
+#ifndef GL_POINT
+	#define GL_POINT           0x1b00
 #endif
 
 /******************************************************/
@@ -150,5 +153,35 @@ void _gfx_states_set_viewport(unsigned int width, unsigned int height, GFX_Exten
 		ext->Viewport(0, 0, width, height);
 		ext->width = width;
 		ext->height = height;
+	}
+}
+
+/******************************************************/
+void _gfx_states_set_pixel_pack_alignment(unsigned char align, GFX_Extensions* ext)
+{
+	if(ext->packAlignment != align)
+	{
+		ext->PixelStorei(GL_PACK_ALIGNMENT, align);
+		ext->packAlignment = align;
+	}
+}
+
+/******************************************************/
+void _gfx_states_set_pixel_unpack_alignment(unsigned char align, GFX_Extensions* ext)
+{
+	if(ext->unpackAlignment != align)
+	{
+		ext->PixelStorei(GL_UNPACK_ALIGNMENT, align);
+		ext->unpackAlignment = align;
+	}
+}
+
+/******************************************************/
+void _gfx_states_set_patch_vertices(unsigned int vertices, GFX_Extensions* ext)
+{
+	if(ext->patchVertices != vertices)
+	{
+		ext->PatchParameteri(GL_PATCH_VERTICES, vertices);
+		ext->patchVertices = vertices;
 	}
 }

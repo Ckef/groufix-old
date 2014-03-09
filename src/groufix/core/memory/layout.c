@@ -22,6 +22,7 @@
  */
 
 #include "groufix/core/memory/internal.h"
+#include "groufix/core/pipeline/internal.h"
 #include "groufix/containers/vector.h"
 
 #include <stdlib.h>
@@ -470,22 +471,87 @@ void _gfx_vertex_layout_draw_begin(const GFXVertexLayout* layout, unsigned char 
 	_gfx_layout_bind(internal->vao, internal->ext);
 
 	/* Bind feedback buffers */
-	size_t i;
-	for(i = 0; i < num; ++i)
+	if(num)
 	{
-		size_t j = i + startFeedback;
+		size_t i;
+		for(i = 0; i < num; ++i)
+		{
+			size_t j = i + startFeedback;
 
-		internal->ext->BindBufferRange(
-			GL_TRANSFORM_FEEDBACK_BUFFER,
-			i,
-			internal->buffers[j].buffer,
-			internal->buffers[j].offset,
-			internal->buffers[j].size
-		);
+			internal->ext->BindBufferRange(
+				GL_TRANSFORM_FEEDBACK_BUFFER,
+				i,
+				internal->buffers[j].buffer,
+				internal->buffers[j].offset,
+				internal->buffers[j].size
+			);
+		}
+
+		/* Begin transform feedback */
+		internal->ext->BeginTransformFeedback(internal->primitive);
 	}
+}
 
-	/* Begin transform feedback */
-	if(num) internal->ext->BeginTransformFeedback(internal->primitive);
+/******************************************************/
+static void _gfx_vertex_layout_invoke(struct GFX_DrawCall* call, GFX_Extensions* ext)
+{
+	/* Tessellation */
+	if(call->call.patchVertices)
+		_gfx_states_set_patch_vertices(call->call.patchVertices, ext);
+
+	/* Draw call */
+	switch(call->buffer)
+	{
+		case 0 :
+			ext->DrawArrays(
+				call->call.primitive,
+				call->call.first,
+				call->call.count
+			);
+			break;
+
+		default :
+			ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
+			ext->DrawElements(
+				call->call.primitive,
+				call->call.count,
+				call->call.indexType,
+				(GLvoid*)call->call.first
+			);
+			break;
+	}
+}
+
+/******************************************************/
+static void _gfx_vertex_layout_invoke_instanced(struct GFX_DrawCall* call, size_t inst, GFX_Extensions* ext)
+{
+	/* Tessellation */
+	if(call->call.patchVertices)
+		_gfx_states_set_patch_vertices(call->call.patchVertices, ext);
+
+	/* Draw call */
+	switch(call->buffer)
+	{
+		case 0 :
+			ext->DrawArraysInstanced(
+				call->call.primitive,
+				call->call.first,
+				call->call.count,
+				inst
+			);
+			break;
+
+		default :
+			ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
+			ext->DrawElementsInstanced(
+				call->call.primitive,
+				call->call.count,
+				call->call.indexType,
+				(GLvoid*)call->call.first,
+				inst
+			);
+			break;
+	}
 }
 
 /******************************************************/
@@ -494,59 +560,15 @@ void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startI
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	struct GFX_DrawCall* call = ((struct GFX_DrawCall*)(internal + 1)) + startIndex;
 
-	/* Render all calls */
+	/* Invoke all calls */
 	switch(inst)
 	{
 		case 1 :
-
-			/* Regular drawing */
-			for(; num--; ++call) switch(call->buffer)
-			{
-				case 0 :
-					internal->ext->DrawArrays(
-						call->call.primitive,
-						call->call.first,
-						call->call.count
-					);
-					break;
-
-				default :
-					internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
-					internal->ext->DrawElements(
-						call->call.primitive,
-						call->call.count,
-						call->call.indexType,
-						(GLvoid*)call->call.first
-					);
-					break;
-			}
+			for(; num--; ++call) _gfx_vertex_layout_invoke(call, internal->ext);
 			break;
 
 		default :
-
-			/* Instanced drawing */
-			for(; num--; ++call) switch(call->buffer)
-			{
-				case 0 :
-					internal->ext->DrawArraysInstanced(
-						call->call.primitive,
-						call->call.first,
-						call->call.count,
-						inst
-					);
-					break;
-
-				default :
-					internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, call->buffer);
-					internal->ext->DrawElementsInstanced(
-						call->call.primitive,
-						call->call.count,
-						call->call.indexType,
-						(GLvoid*)call->call.first,
-						inst
-					);
-					break;
-			}
+			for(; num--; ++call) _gfx_vertex_layout_invoke_instanced(call, inst, internal->ext);
 			break;
 	}
 }
