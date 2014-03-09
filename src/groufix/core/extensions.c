@@ -197,6 +197,7 @@ void _gfx_extensions_load(void)
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	ext->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = 0;
+	ext->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
 
 	/* Default Extensions */
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]       = 0;
@@ -321,6 +322,8 @@ void _gfx_extensions_load(void)
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE,
 		ext->limits + GFX_LIM_MAX_BUFFER_TEXTURE_SIZE);
+	glGetIntegerv(GL_MAX_PATCH_VERTICES,
+		ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
 
 	/* Default Extensions */
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]      = 1;

@@ -316,7 +316,7 @@ typedef struct GFXFeedbackBuffer
 typedef struct GFXDrawCall
 {
 	GFXPrimitive     primitive;
-	unsigned int     patchVertices; /* Number of vertices per patch (only used for GFX_PATCHES) */
+	unsigned int     patchVertices; /* Number of vertices per patch (for GFX_PATCHES, must be <= GFX_LIM_MAX_PATCH_VERTICES) */
 
 	uintptr_t        first;         /* First index (or byte offset if an index buffer was given) */
 	size_t           count;         /* Number of vertices to draw */
@@ -414,7 +414,7 @@ int gfx_vertex_layout_set_feedback(GFXVertexLayout* layout, GFXPrimitive primiti
  *
  * @param index Index of the draw call (must be < layout->drawCalls).
  * @param call  Draw call parameters (cannot be NULL).
- * @return Zero if the draw call does not exist.
+ * @return Zero on failure or if the draw call does not exist.
  *
  */
 int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call);

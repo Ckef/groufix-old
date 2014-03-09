@@ -410,9 +410,14 @@ int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index
 
 	/* Make sure to not set tessellation data */
 	set->call = *call;
-	if(call->primitive != GFX_PATCHES) set->call.patchVertices = 0;
+	if(call->primitive != GFX_PATCHES)
+	{
+		set->call.patchVertices = 0;
+		return 1;
+	}
 
-	return 1;
+	/* Validate number of vertices per patch */
+	return (call->patchVertices && call->patchVertices <= internal->ext->limits[GFX_LIM_MAX_PATCH_VERTICES]) ? 1 : 0;
 }
 
 /******************************************************/
