@@ -142,6 +142,7 @@ typedef GLint (APIENTRYP GFX_GETUNIFORMLOCATIONPROC)       (GLuint, const GLchar
 typedef GLboolean (APIENTRYP GFX_ISTEXTUREPROC)            (GLuint);
 typedef void (APIENTRYP GFX_LINKPROGRAMPROC)               (GLuint);
 typedef void* (APIENTRYP GFX_MAPBUFFERRANGEPROC)           (GLenum, GLintptr, GLsizeiptr, GLbitfield);
+typedef void (APIENTRYP GFX_PATCHPARAMETERIPROC)           (GLenum, GLint);
 typedef void (APIENTRYP GFX_PIXELSTOREIPROC)               (GLenum, GLint);
 typedef void (APIENTRYP GFX_POLYGONMODEPROC)               (GLenum, GLenum);
 typedef void (APIENTRYP GFX_PROGRAMBINARYPROC)             (GLuint, GLenum, const void*, GLsizei);
@@ -267,6 +268,7 @@ typedef struct GFX_Extensions
 	GFX_ISTEXTUREPROC                  IsTexture;
 	GFX_LINKPROGRAMPROC                LinkProgram;
 	GFX_MAPBUFFERRANGEPROC             MapBufferRange;
+	GFX_PATCHPARAMETERIPROC            PatchParameteri;        /* GFX_EXT_TESSELLATION_SHADER */
 	GFX_PIXELSTOREIPROC                PixelStorei;
 	GFX_POLYGONMODEPROC                PolygonMode;            /* GFX_EXT_POLYGON_STATE */
 	GFX_PROGRAMBINARYPROC              ProgramBinary;          /* GFX_EXT_PROGRAM_BINARY */

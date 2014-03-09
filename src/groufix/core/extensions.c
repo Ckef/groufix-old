@@ -27,9 +27,26 @@
 
 #include <string.h>
 
+
+/********************************************************
+ * GL core & GL ES emulators
+ *******************************************************/
+
+static void _gfx_gl_patch_parameter_i(GLenum pname, GLint value)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_TESSELLATION_SHADER is incompatible with this context."
+	);
+}
+
+
 #ifdef GFX_GLES
 
-/******************************************************/
+/********************************************************
+ * GL ES emulators
+ *******************************************************/
+
 static void _gfx_gles_framebuffer_texture_1d(GLenum target, GLenum attach, GLenum textarget, GLuint texture, GLint level)
 {
 	gfx_errors_push(
@@ -38,7 +55,6 @@ static void _gfx_gles_framebuffer_texture_1d(GLenum target, GLenum attach, GLenu
 	);
 }
 
-/******************************************************/
 static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsizeiptr size, GLvoid* data)
 {
 	void* map = glMapBufferRange(target, offset, size, GL_MAP_READ_BIT);
@@ -54,7 +70,6 @@ static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsize
 	}
 }
 
-/******************************************************/
 static void _gfx_gles_tex_buffer(GLenum target, GLenum internalFormat, GLuint buffer)
 {
 	gfx_errors_push(
@@ -63,7 +78,6 @@ static void _gfx_gles_tex_buffer(GLenum target, GLenum internalFormat, GLuint bu
 	);
 }
 
-/******************************************************/
 static void _gfx_gles_tex_1d_error(void)
 {
 	gfx_errors_push(
@@ -72,19 +86,16 @@ static void _gfx_gles_tex_1d_error(void)
 	);
 }
 
-/******************************************************/
 static void _gfx_gles_tex_image_1d(GLenum target, GLint level, GLint internalFormat, GLsizei w, GLint b, GLenum format, GLenum type, const GLvoid* data)
 {
 	_gfx_gles_tex_1d_error();
 }
 
-/******************************************************/
 static void _gfx_gles_tex_sub_image_1d(GLenum target, GLint level, GLint xoff, GLsizei w, GLenum format, GLenum type, const GLvoid* data)
 {
 	_gfx_gles_tex_1d_error();
 }
 
-/******************************************************/
 static void _gfx_gles_multisample_tex_error(void)
 {
 	gfx_errors_push(
@@ -93,27 +104,28 @@ static void _gfx_gles_multisample_tex_error(void)
 	);
 }
 
-/******************************************************/
 static void _gfx_gles_polygon_mode(GLenum face, GLenum mode)
 {
 	/* Just ignore the call */
 }
 
-/******************************************************/
 static void _gfx_gles_tex_image_2d_multisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei w, GLsizei h, GLboolean f)
 {
 	_gfx_gles_multisample_tex_error();
 }
 
-/******************************************************/
 static void _gfx_gles_tex_image_3d_multisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei w, GLsizei h, GLsizei d, GLboolean f)
 {
 	_gfx_gles_multisample_tex_error();
 }
 
+
 #else
 
-/******************************************************/
+/********************************************************
+ * GL core emulators
+ *******************************************************/
+
 static void _gfx_gl_vertex_attrib_divisor(GLuint index, GLuint divisor)
 {
 	gfx_errors_push(
@@ -122,7 +134,6 @@ static void _gfx_gl_vertex_attrib_divisor(GLuint index, GLuint divisor)
 	);
 }
 
-/******************************************************/
 static void _gfx_gl_program_binary_error(void)
 {
 	gfx_errors_push(
@@ -131,7 +142,6 @@ static void _gfx_gl_program_binary_error(void)
 	);
 }
 
-/******************************************************/
 static void _gfx_gl_get_program_binary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum *binaryFormat, void* binary)
 {
 	if(length) *length = 0;
@@ -139,13 +149,13 @@ static void _gfx_gl_get_program_binary(GLuint program, GLsizei bufsize, GLsizei*
 	_gfx_gl_program_binary_error();
 }
 
-/******************************************************/
 static void _gfx_gl_program_binary(GLuint program, GLenum binaryFormat, const void* binary, GLsizei length)
 {
 	_gfx_gl_program_binary_error();
 }
 
 #endif
+
 
 /******************************************************/
 void _gfx_extensions_load(void)
@@ -264,6 +274,7 @@ void _gfx_extensions_load(void)
 	ext->IsTexture                 = glIsTexture;
 	ext->LinkProgram               = glLinkProgram;
 	ext->MapBufferRange            = glMapBufferRange;
+	ext->PatchParameteri           = _gfx_gl_patch_parameter_i;
 	ext->PixelStorei               = glPixelStorei;
 	ext->PolygonMode               = _gfx_gles_polygon_mode;
 	ext->ProgramBinary             = glProgramBinary;
@@ -449,30 +460,37 @@ void _gfx_extensions_load(void)
 	if(window->context.major > 4 || (window->context.major == 4 && window->context.minor > 0))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
-		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
+		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC) _gfx_platform_get_proc_address("glGetProgramBinary");
+		ext->ProgramBinary    = (PFNGLPROGRAMBINARYPROC)    _gfx_platform_get_proc_address("glProgramBinary");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("GetProgramBinary");
-		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("ProgramBinary");
+		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC) _gfx_platform_get_proc_address("GetProgramBinary");
+		ext->ProgramBinary    = (PFNGLPROGRAMBINARYPROC)    _gfx_platform_get_proc_address("ProgramBinary");
 	}
 	else
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
-		ext->GetProgramBinary    = (PFNGLGETPROGRAMBINARYPROC)  _gfx_gl_get_program_binary;
-		ext->ProgramBinary       = (PFNGLPROGRAMBINARYPROC)     _gfx_gl_program_binary;
+		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC) _gfx_gl_get_program_binary;
+		ext->ProgramBinary    = (PFNGLPROGRAMBINARYPROC)    _gfx_gl_program_binary;
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
-	if(window->context.major > 3 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
+	if(window->context.major > 3)
 	{
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
+		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("glPatchParameteri");
+	}
+	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
+	{
+		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
+		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("PatchParameteri");
 	}
 	else
 	{
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 0;
+		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_gl_patch_parameter_i;
 	}
 
 #endif

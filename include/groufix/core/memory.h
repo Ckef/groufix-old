@@ -284,7 +284,8 @@ typedef enum GFXPrimitive
 	GFX_LINE_STRIP      = 0x0003,
 	GFX_TRIANGLES       = 0x0004,
 	GFX_TRIANGLE_STRIP  = 0x0005,
-	GFX_TRIANGLE_FAN    = 0x0006
+	GFX_TRIANGLE_FAN    = 0x0006,
+	GFX_PATCHES         = 0x000e  /* Requires GFX_EXT_TESSELLATION_SHADER */
 
 } GFXPrimitive;
 
@@ -315,9 +316,11 @@ typedef struct GFXFeedbackBuffer
 typedef struct GFXDrawCall
 {
 	GFXPrimitive     primitive;
-	uintptr_t        first;     /* First index (or byte offset if an index buffer was given) */
-	size_t           count;     /* Number of vertices to draw */
-	GFXUnpackedType  indexType; /* Can only be an unsigned type */
+	unsigned int     patchVertices; /* Number of vertices per patch (only used for GFX_PATCHES) */
+
+	uintptr_t        first;         /* First index (or byte offset if an index buffer was given) */
+	size_t           count;         /* Number of vertices to draw */
+	GFXUnpackedType  indexType;     /* Can only be an unsigned type */
 
 } GFXDrawCall;
 
