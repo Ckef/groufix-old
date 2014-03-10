@@ -64,12 +64,7 @@ struct GFX_Bucket
 struct GFX_Source
 {
 	GFXVertexLayout*  layout;
-
-	unsigned char     startDraw;
-	unsigned char     numDraw;
-
-	unsigned char     startFeedback;
-	unsigned char     numFeedback;
+	GFXVertexSource   source;
 };
 
 /* Internal batch unit */
@@ -289,18 +284,18 @@ void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* 
 
 		_gfx_vertex_layout_draw_begin(
 			src->layout,
-			src->startFeedback,
-			src->numFeedback
+			src->source.startFeedback,
+			src->source.numFeedback
 		);
 		_gfx_vertex_layout_draw(
 			src->layout,
-			src->startDraw,
-			src->numDraw,
+			src->source.startDraw,
+			src->source.numDraw,
 			unit->inst
 		);
 		_gfx_vertex_layout_draw_end(
 			src->layout,
-			src->numFeedback
+			src->source.numFeedback
 		);
 	}
 }
@@ -424,11 +419,8 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXVertexLayout* layout)
 	/* Create source */
 	struct GFX_Source src;
 
-	src.layout        = layout;
-	src.startDraw     = 0;
-	src.numDraw       = 0;
-	src.startFeedback = 0;
-	src.numFeedback   = 0;
+	memset(&src, 0, sizeof(struct GFX_Source));
+	src.layout = layout;
 
 	/* Find disabled source to replace */
 	GFXVectorIterator it;
@@ -447,6 +439,22 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXVertexLayout* layout)
 
 	/* Return index + 1 */
 	return (it == internal->sources.end) ? 0 : gfx_vector_get_index(&internal->sources, it) + 1;
+}
+
+/******************************************************/
+void gfx_bucket_set_source(GFXBucket* bucket, size_t src, GFXVertexSource values)
+{
+	--src;
+
+	/* Validate index */
+	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+	size_t cnt = gfx_vector_get_size(&internal->sources);
+
+	if(src < cnt)
+	{
+		struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
+		source->source = values;
+	}
 }
 
 /******************************************************/
@@ -488,47 +496,17 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src)
 }
 
 /******************************************************/
-void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num)
-{
-	/* Validate index */
-	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
-	size_t cnt = gfx_vector_get_size(&internal->sources);
-
-	if(src && src <= cnt)
-	{
-		struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
-
-		source->startDraw = start;
-		source->numDraw = num;
-	}
-}
-
-/******************************************************/
-void gfx_bucket_set_feedback(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num)
-{
-	/* Validate index */
-	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
-	size_t cnt = gfx_vector_get_size(&internal->sources);
-
-	if(src && src <= cnt)
-	{
-		struct GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
-
-		source->startFeedback = start;
-		source->numFeedback = num;
-	}
-}
-
-/******************************************************/
 size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, int visible)
 {
+	--src;
+
 	/* Validate index & source */
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	size_t cnt = gfx_vector_get_size(&internal->sources);
 
-	if(!map || !src || src > cnt) return 0;
+	if(!map || src >= cnt) return 0;
 
-	struct GFX_Source* source = gfx_vector_at(&internal->sources, --src);
+	struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
 	if(!source->layout) return 0;
 
 	/* Map vertex layout and program key */

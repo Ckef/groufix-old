@@ -163,8 +163,9 @@ int main()
 	GFXPipe* pipe = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	gfx_pipe_set_state(pipe, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
+	GFXVertexSource source = { 0, 1, 0, 0 };
 	size_t src = gfx_bucket_add_source(pipe->bucket, layout);
-	gfx_bucket_set_draw_calls(pipe->bucket, src, 0, 1);
+	gfx_bucket_set_source(pipe->bucket, src, source);
 	gfx_bucket_insert(pipe->bucket, src, 0, map, 1);
 
 	pipe = gfx_pipeline_push_process(pipeline);

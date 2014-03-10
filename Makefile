@@ -86,6 +86,7 @@ HEADERS = \
  $(INCLUDE)/groufix/math/mat.h \
  $(INCLUDE)/groufix/math/quat.h \
  $(INCLUDE)/groufix/math/vec.h \
+ $(INCLUDE)/groufix/scene/mesh.h \
  $(INCLUDE)/groufix/math.h \
  $(INCLUDE)/groufix/utils.h \
  $(INCLUDE)/groufix.h
@@ -100,7 +101,8 @@ HEADERS_LIB = \
  $(SRC)/groufix/core/pipeline/internal.h \
  $(SRC)/groufix/core/shading/internal.h \
  $(SRC)/groufix/core/internal.h \
- $(SRC)/groufix/core/platform.h
+ $(SRC)/groufix/core/platform.h \
+ $(SRC)/groufix/scene/internal.h
 
 HEADERS_X11 = \
  $(HEADERS_LIB) \
@@ -164,6 +166,8 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/hardware.o \
  $(OUT)/unix-x11/groufix/core/screen.o \
  $(OUT)/unix-x11/groufix/core/window.o \
+ $(OUT)/unix-x11/groufix/scene/mesh.o \
+ $(OUT)/unix-x11/groufix/scene/submesh.o \
  $(OUT)/unix-x11/groufix/math.o \
  $(OUT)/unix-x11/groufix.o
 
@@ -183,6 +187,7 @@ before-unix-x11:
 	mkdir -p $(OUT)/unix-x11/groufix/core/pipeline
 	mkdir -p $(OUT)/unix-x11/groufix/core/platform
 	mkdir -p $(OUT)/unix-x11/groufix/core/shading
+	mkdir -p $(OUT)/unix-x11/groufix/scene
 
 
 # All the object files
@@ -274,6 +279,12 @@ $(OUT)/unix-x11/groufix/core/screen.o: $(SRC)/groufix/core/screen.c $(HEADERS_X1
 $(OUT)/unix-x11/groufix/core/window.o: $(SRC)/groufix/core/window.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/scene/mesh.o: $(SRC)/groufix/scene/mesh.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
+$(OUT)/unix-x11/groufix/scene/submesh.o: $(SRC)/groufix/scene/submesh.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -314,6 +325,8 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/hardware.o \
  $(OUT)/win32/groufix/core/screen.o \
  $(OUT)/win32/groufix/core/window.o \
+ $(OUT)/win32/groufix/scene/mesh.o \
+ $(OUT)/win32/groufix/scene/submesh.o \
  $(OUT)/win32/groufix/math.o \
  $(OUT)/win32/groufix.o
 
@@ -333,6 +346,7 @@ before-win32:
 	if not exist $(OUT)\win32\groufix\core\pipeline\nul mkdir $(OUT)\win32\groufix\core\pipeline
 	if not exist $(OUT)\win32\groufix\core\platform\nul mkdir $(OUT)\win32\groufix\core\platform
 	if not exist $(OUT)\win32\groufix\core\shading\nul mkdir $(OUT)\win32\groufix\core\shading
+	if not exist $(OUT)\win32\groufix\scene\nul mkdir $(OUT)\win32\groufix\scene
 
 
 # All the object files
@@ -422,6 +436,12 @@ $(OUT)/win32/groufix/core/screen.o: $(SRC)/groufix/core/screen.c $(HEADERS_WIN32
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/core/window.o: $(SRC)/groufix/core/window.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/scene/mesh.o: $(SRC)/groufix/scene/mesh.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/scene/submesh.o: $(SRC)/groufix/scene/submesh.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_WIN32)

@@ -34,7 +34,7 @@ extern "C" {
 #endif
 
 /********************************************************
- * Buckets to hold batch units
+ * Bucket metadata
  *******************************************************/
 
 /** Bucket sort flags */
@@ -46,6 +46,22 @@ typedef enum GFXBucketFlags
 
 } GFXBucketFlags;
 
+
+/** Source to sample from a vertex layout */
+typedef struct GFXVertexSource
+{
+	unsigned char startDraw;
+	unsigned char numDraw;
+
+	unsigned char startFeedback;
+	unsigned char numFeedback;
+
+} GFXVertexSource;
+
+
+/********************************************************
+ * Buckets to hold batch units
+ *******************************************************/
 
 /** Bucket to manage batches */
 typedef struct GFXBucket
@@ -81,30 +97,20 @@ void gfx_bucket_set_key_width(GFXBucket* bucket, unsigned char width, unsigned c
 size_t gfx_bucket_add_source(GFXBucket* bucket, GFXVertexLayout* layout);
 
 /**
+ * Set the values of a source (default of everything is 0).
+ *
+ * @param src Source ID to change the values of.
+ *
+ */
+void gfx_bucket_set_source(GFXBucket* bucket, size_t src, GFXVertexSource values);
+
+/**
  * Removes a source from the bucket.
  *
  * Any units using the source will be erased from the bucket.
  *
  */
 void gfx_bucket_remove_source(GFXBucket* bucket, size_t src);
-
-/**
- * Sets the draw calls to issue from the source.
- *
- * @param start First draw call to issue.
- * @param num   Number of draw calls to issue starting at start.
- *
- */
-void gfx_bucket_set_draw_calls(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num);
-
-/**
- * Sets the active buffers to use for feedback.
- *
- * @param start First buffer to to use.
- * @param num   Number of buffers to sequentially use.
- *
- */
-void gfx_bucket_set_feedback(GFXBucket* bucket, size_t src, unsigned char start, unsigned char num);
 
 /**
  * Insert a unit to be processed into the bucket.
