@@ -27,6 +27,7 @@
 /* Core includes */
 #include "groufix/core/errors.h"
 #include "groufix/core/pipeline.h"
+#include "groufix/utils.h"
 
 #ifdef __cplusplus
 extern "C" {
