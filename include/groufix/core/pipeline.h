@@ -449,8 +449,10 @@ void gfx_pipeline_remove(GFXPipe* pipe);
 /**
  * Executes all pipes in order.
  *
+ * @param num Number of pipes to execute, 0 to execute all remaining pipes.
+ *
  */
-void gfx_pipeline_execute(GFXPipeline* pipeline);
+void gfx_pipeline_execute(GFXPipeline* pipeline, unsigned int num);
 
 
 #ifdef __cplusplus

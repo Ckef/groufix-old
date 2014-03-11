@@ -183,7 +183,7 @@ int main()
 		gfx_poll_events();
 
 		/* Execute pipeline & swap buffers */
-		gfx_pipeline_execute(pipeline);
+		gfx_pipeline_execute(pipeline, 0);
 
 		/* Print time */
 		double time = gfx_get_time();

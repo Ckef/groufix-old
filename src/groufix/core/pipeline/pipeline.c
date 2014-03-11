@@ -51,6 +51,7 @@ struct GFX_Pipeline
 
 	GFX_Pipe*  first;
 	GFX_Pipe*  last;
+	GFX_Pipe*  current;
 	GFX_Pipe*  unlinked;
 
 	/* Viewport */
@@ -435,20 +436,24 @@ void gfx_pipeline_unlink_all(GFXPipeline* pipeline)
 
 		internal->first = NULL;
 		internal->last = NULL;
+		internal->current = NULL;
 	}
 }
 
 /******************************************************/
 void gfx_pipeline_unlink(GFXPipe* pipe)
 {
-	/* Unsplice and replace if necessary */
 	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)internal->pipeline;
 
+	/* Fix current and unlink */
+	if(pipeline->current == internal) pipeline->current = (GFX_Pipe*)internal->node.next;
+
 	GFX_Pipe* new = (GFX_Pipe*)gfx_list_unsplice((GFXList*)internal, (GFXList*)internal);
 
-	if(pipeline->first == internal) pipeline->first = new;
-	if(pipeline->last == internal) pipeline->last = new;
+	/* Replace if necessary */
+	if(pipeline->first == internal)    pipeline->first    = new;
+	if(pipeline->last == internal)     pipeline->last     = new;
 	if(pipeline->unlinked == internal) pipeline->unlinked = new;
 
 	/* Splice into unlinked pipes */
@@ -459,19 +464,20 @@ void gfx_pipeline_unlink(GFXPipe* pipe)
 /******************************************************/
 void gfx_pipeline_move(GFXPipe* pipe, GFXPipe* after)
 {
-	if(pipe != after)
-	{
-		GFX_Pipe* int1 = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
-		GFX_Pipe* int2 = after ? GFX_PTR_SUB_BYTES(after, offsetof(GFX_Pipe, ptr)) : NULL;
+	GFX_Pipe* int1 = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	GFX_Pipe* int2 = after ? GFX_PTR_SUB_BYTES(after, offsetof(GFX_Pipe, ptr)) : NULL;
 
+	if(int1 != int2 && ((GFX_Pipe*)int1->node.previous != int2 || !int2))
+	{
 		/* Check if it can be moved */
 		if(int2) if(int1->pipeline != int2->pipeline) return;
 
 		struct GFX_Pipeline* pl = (struct GFX_Pipeline*)int1->pipeline;
 
 		/* Reconstruct pointers */
-		if(pl->first == int1) pl->first = (GFX_Pipe*)int1->node.next;
-		if(pl->last == int1) pl->last = (GFX_Pipe*)int1->node.previous;
+		if(pl->first == int1)    pl->first    = (GFX_Pipe*)int1->node.next;
+		if(pl->last == int1)     pl->last     = (GFX_Pipe*)int1->node.previous;
+		if(pl->current == int1)  pl->current  = (GFX_Pipe*)int1->node.next;
 		if(pl->unlinked == int1) pl->unlinked = (GFX_Pipe*)int1->node.next;
 
 		/* Move it */
@@ -512,6 +518,9 @@ void gfx_pipeline_swap(GFXPipe* pipe1, GFXPipe* pipe2)
 		if(pl->last == int1) pl->last = int2;
 		else if(pl->last == int2) pl->last = int1;
 
+		if(pl->current == int1) pl->current = int2;
+		else if(pl->current == int2) pl->current = int1;
+
 		if(pl->unlinked == int1) pl->unlinked = int2;
 		else if(pl->unlinked == int2) pl->unlinked = int1;
 
@@ -523,19 +532,22 @@ void gfx_pipeline_swap(GFXPipe* pipe1, GFXPipe* pipe2)
 /******************************************************/
 void gfx_pipeline_remove(GFXPipe* pipe)
 {
-	/* Erase and replace if necessary */
 	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)internal->pipeline;
 
+	/* Fix current and erase */
+	if(pipeline->current == internal) pipeline->current = (GFX_Pipe*)internal->node.next;
+
 	GFX_Pipe* new = _gfx_pipe_free(internal);
 
+	/* Replace if necessary */
 	if(pipeline->first == internal) pipeline->first = new;
 	if(pipeline->last == internal) pipeline->last = new;
 	if(pipeline->unlinked == internal) pipeline->unlinked = new;
 }
 
 /******************************************************/
-void gfx_pipeline_execute(GFXPipeline* pipeline)
+void gfx_pipeline_execute(GFXPipeline* pipeline, unsigned int num)
 {
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 	if(!internal->win) return;
@@ -545,8 +557,10 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 	_gfx_pipeline_bind(internal->fbo, ext);
 
 	/* Iterate over all pipes */
-	GFX_Pipe* pipe;
-	for(pipe = internal->first; pipe; pipe = (GFX_Pipe*)pipe->node.next)
+	unsigned int nolimit = num ? 0 : 1;
+	GFX_Pipe* pipe = internal->current ? internal->current : internal->first;
+
+	while(pipe && (nolimit | num--))
 	{
 		/* Set viewport */
 		_gfx_states_set_viewport(internal->width, internal->height, ext);
@@ -562,5 +576,10 @@ void gfx_pipeline_execute(GFXPipeline* pipeline)
 				_gfx_pipe_process_execute(pipe->ptr.process, pipe->state, internal->win);
 				break;
 		}
+
+		pipe = (GFX_Pipe*)pipe->node.next;
 	}
+
+	/* Update current */
+	internal->current = pipe;
 }
