@@ -88,6 +88,7 @@ HEADERS = \
  $(INCLUDE)/groufix/math/vec.h \
  $(INCLUDE)/groufix/scene/mesh.h \
  $(INCLUDE)/groufix/math.h \
+ $(INCLUDE)/groufix/scene.h \
  $(INCLUDE)/groufix/utils.h \
  $(INCLUDE)/groufix.h
 

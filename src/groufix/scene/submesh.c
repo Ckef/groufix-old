@@ -21,7 +21,7 @@
  *
  */
 
-#include "groufix/scene/mesh.h"
+#include "groufix/scene.h"
 #include "groufix/containers/vector.h"
 
 #include <stdlib.h>
@@ -72,9 +72,35 @@ static void _gfx_submesh_remove_bucket(struct GFX_SubMesh* mesh, size_t bucketIn
 		);
 	}
 
+	/* Unregister submesh at pipe */
+	GFXPipeCallback call;
+	call.key = GFX_SCENE_KEY_SUBMESH;
+	call.data = mesh;
+
+	gfx_pipe_unregister(*(GFXPipe**)pipe, call);
+
 	/* Erase from vectors */
 	gfx_vector_erase(&mesh->buckets, pipe);
 	gfx_vector_erase_range(&mesh->sources, mesh->submesh.sources, src);
+}
+
+/******************************************************/
+static void _gfx_submesh_callback(GFXPipe* pipe, GFXPipeCallback* callback)
+{
+	struct GFX_SubMesh* sub = callback->data;
+
+	/* Find the pipe and source IDs */
+	GFXVectorIterator it = _gfx_submesh_find_bucket(sub, pipe);
+	if(it != sub->buckets.end)
+	{
+		size_t index = gfx_vector_get_index(&sub->buckets, it);
+
+		GFXVectorIterator src = gfx_vector_at(&sub->sources, index * sub->submesh.sources);
+
+		/* Erase them from vectors */
+		gfx_vector_erase(&sub->buckets, it);
+		gfx_vector_erase_range(&sub->sources, sub->submesh.sources, src);
+	}
 }
 
 /******************************************************/
@@ -142,14 +168,21 @@ void _gfx_submesh_free(GFXSubMesh* mesh)
 void _gfx_submesh_add_to_bucket(GFXSubMesh* mesh, GFXPipe* pipe)
 {
 	/* Validate pipe type */
-	if(gfx_pipe_get_type(pipe) == GFX_PIPE_BUCKET)
-	{
-		/* See if it already exists */
-		struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
-		GFXVectorIterator it = _gfx_submesh_find_bucket(internal, pipe);
+	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET) return;
 
-		/* Insert it if not */
-		if(it == internal->buckets.end)
+	/* See if it already exists */
+	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
+	GFXVectorIterator it = _gfx_submesh_find_bucket(internal, pipe);
+
+	/* Insert it if not */
+	if(it == internal->buckets.end)
+	{
+		/* Register submesh at pipe */
+		GFXPipeCallback call;
+		call.key = GFX_SCENE_KEY_SUBMESH;
+		call.data = internal;
+
+		if(gfx_pipe_register(pipe, call, _gfx_submesh_callback))
 		{
 			it = gfx_vector_insert(&internal->buckets, &pipe, internal->buckets.end);
 
@@ -162,11 +195,21 @@ void _gfx_submesh_add_to_bucket(GFXSubMesh* mesh, GFXPipe* pipe)
 					NULL,
 					internal->sources.end);
 
-				if(itSrc == internal->sources.end) gfx_vector_erase(&internal->buckets, it);
+				if(itSrc != internal->sources.end)
+				{
+					/* Initialize source IDs to 0 */
+					memset(itSrc, 0, sizeof(size_t) * mesh->sources);
 
-				/* Initialize source IDs to 0 */
-				else memset(itSrc, 0, sizeof(size_t) * mesh->sources);
+					/* Done */
+					return;
+				}
+
+				/* Failure, erase bucket */
+				gfx_vector_erase(&internal->buckets, it);
 			}
+
+			/* Failure, unregister */
+			gfx_pipe_unregister(pipe, call);
 		}
 	}
 }
