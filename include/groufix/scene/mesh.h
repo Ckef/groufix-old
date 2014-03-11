@@ -84,6 +84,8 @@ void gfx_mesh_init(GFXMesh* mesh);
 /**
  * Initializes a copy of a mesh.
  *
+ * Note: if any submesh fails to share, it is not inserted in the submesh array.
+ *
  */
 void gfx_mesh_init_copy(GFXMesh* mesh, GFXMesh* src);
 
@@ -111,6 +113,14 @@ GFXSubMesh* gfx_mesh_push(GFXMesh* mesh, unsigned char drawCalls, unsigned char 
  *
  */
 int gfx_mesh_push_share(GFXMesh* mesh, GFXSubMesh* share);
+
+/**
+ * Removes a submesh from the mesh.
+ *
+ * @param index Index of the submesh in mesh->subMeshes.
+ *
+ */
+void gfx_mesh_remove(GFXMesh* mesh, size_t index);
 
 
 #ifdef __cplusplus

@@ -46,6 +46,18 @@ static inline void _gfx_mesh_free_submesh(GFXMesh* mesh)
 }
 
 /******************************************************/
+static void _gfx_mesh_remove_submesh(GFXMesh* mesh, size_t index)
+{
+	/* Move memory and free the last submesh */
+	memmove(
+		mesh->subMeshes + index,
+		mesh->subMeshes + index + 1,
+		sizeof(GFXSubMesh*) * (mesh->num - index - 1));
+
+	_gfx_mesh_free_submesh(mesh);
+}
+
+/******************************************************/
 void gfx_mesh_init(GFXMesh* mesh)
 {
 	memset(mesh, 0, sizeof(GFXMesh));
@@ -105,4 +117,15 @@ int gfx_mesh_push_share(GFXMesh* mesh, GFXSubMesh* share)
 	mesh->subMeshes[mesh->num - 1] = share;
 
 	return 1;
+}
+
+/******************************************************/
+void gfx_mesh_remove(GFXMesh* mesh, size_t index)
+{
+	if(index < mesh->num)
+	{
+		/* Free the submesh and remove it */
+		_gfx_submesh_free(mesh->subMeshes[index]);
+		_gfx_mesh_remove_submesh(mesh, index);
+	}
 }

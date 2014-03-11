@@ -281,7 +281,7 @@ static int _gfx_vertex_layout_set_attribute_buffer(GFXVertexLayout* layout, unsi
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	if(!internal->ext) return 0;
 
-	/* Check what index is being removed */
+	/* Check index */
 	size_t size = gfx_vector_get_size(&internal->attributes);
 	if(index >= size) return 0;
 
