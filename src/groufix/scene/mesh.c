@@ -42,7 +42,7 @@ static int _gfx_mesh_alloc_submesh(GFXMesh* mesh)
 /******************************************************/
 static inline void _gfx_mesh_free_submesh(GFXMesh* mesh)
 {
-	mesh->subMeshes = realloc(mesh->subMeshes, sizeof(GFXSubMesh*) * --mesh->num);
+	mesh->subMeshes = realloc(mesh->subMeshes, sizeof(GFXSubMesh*) * (--mesh->num));
 }
 
 /******************************************************/

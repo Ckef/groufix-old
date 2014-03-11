@@ -22,6 +22,7 @@
  */
 
 #include "groufix/scene/mesh.h"
+#include "groufix/containers/vector.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -34,7 +35,9 @@ struct GFX_SubMesh
 	GFXSubMesh submesh;
 
 	/* Hidden data */
-	unsigned int references;
+	unsigned int  references; /* Reference counter */
+	GFXVector     buckets;    /* Stores GFXPipe* */
+	GFXVector     sources;    /* Stores size_t * sources for each bucket */
 };
 
 /******************************************************/
@@ -46,9 +49,6 @@ GFXSubMesh* _gfx_submesh_create(unsigned char drawCalls, unsigned char sources)
 	struct GFX_SubMesh* sub = calloc(1, size);
 	if(!sub) return NULL;
 
-	sub->references = 1;
-	sub->submesh.sources = sources;
-
 	/* Create layout */
 	sub->submesh.layout = gfx_vertex_layout_create(drawCalls);
 	if(!sub->submesh.layout)
@@ -56,6 +56,13 @@ GFXSubMesh* _gfx_submesh_create(unsigned char drawCalls, unsigned char sources)
 		free(sub);
 		return NULL;
 	}
+
+	/* Initialize */
+	sub->references = 1;
+	sub->submesh.sources = sources;
+
+	gfx_vector_init(&sub->buckets, sizeof(GFXPipe*));
+	gfx_vector_init(&sub->sources, sizeof(size_t));
 
 	return (GFXSubMesh*)sub;
 }
@@ -81,6 +88,9 @@ void _gfx_submesh_free(GFXSubMesh* mesh)
 		/* Check references */
 		if(!(--internal->references))
 		{
+			gfx_vector_clear(&internal->buckets);
+			gfx_vector_clear(&internal->sources);
+
 			gfx_vertex_layout_free(mesh->layout);
 			free(mesh);
 		}
@@ -94,9 +104,7 @@ int gfx_submesh_set_source(GFXSubMesh* mesh, unsigned char index, GFXVertexSourc
 	if(index >= mesh->sources) return 0;
 
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
-	GFXVertexSource* src = ((GFXVertexSource*)(internal + 1)) + index;
-
-	*src = source;
+	((GFXVertexSource*)(internal + 1))[index] = source;
 
 	return 1;
 }
@@ -115,6 +123,6 @@ GFXVertexSource gfx_submesh_get_source(GFXSubMesh* mesh, unsigned char index)
 
 	/* Fetch source */
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
-	
+
 	return ((GFXVertexSource*)(internal + 1))[index];
 }

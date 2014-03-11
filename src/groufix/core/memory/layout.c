@@ -402,11 +402,11 @@ int gfx_vertex_layout_set_feedback(GFXVertexLayout* layout, GFXPrimitive primiti
 /******************************************************/
 int gfx_vertex_layout_set_draw_call(GFXVertexLayout* layout, unsigned char index, const GFXDrawCall* call)
 {
-	/* Check index */
-	if(index >= layout->drawCalls) return 0;
-
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	struct GFX_DrawCall* set = ((struct GFX_DrawCall*)(internal + 1)) + index;
+
+	/* Check index */
+	if(!internal->ext || index >= layout->drawCalls) return 0;
 
 	/* Make sure to not set tessellation data */
 	set->call = *call;
