@@ -58,6 +58,27 @@ int _gfx_submesh_reference(GFXSubMesh* mesh);
  */
 void _gfx_submesh_free(GFXSubMesh* mesh);
 
+/**
+ * Adds a submesh to a bucket pipe.
+ *
+ */
+void _gfx_submesh_add_to_bucket(GFXSubMesh* mesh, GFXPipe* pipe);
+
+/**
+ * Removes a submesh from a bucket pipe.
+ *
+ */
+void _gfx_submesh_remove_from_bucket(GFXSubMesh* mesh, GFXPipe* pipe);
+
+/**
+ * Retrieves the bucket source ID from a submesh.
+ *
+ * @param index Index of the submesh source (must be < mesh->sources).
+ * @return The ID of the source, 0 on failure.
+ *
+ */
+size_t _gfx_submesh_get_bucket_source(GFXSubMesh* mesh, GFXPipe* pipe, unsigned char index);
+
 
 #ifdef __cplusplus
 }

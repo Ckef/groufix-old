@@ -97,7 +97,7 @@ static size_t _gfx_bucket_map_key(struct GFX_Bucket* bucket, GFXVector* vec, siz
 	{
 		gfx_errors_push(
 			GFX_ERROR_OVERFLOW,
-			"Too many sources have been added to a bucket, key overflow happened, you crazy person."
+			"Too many units have been inserted into a bucket, key overflow happened, you crazy person."
 		);
 		return 0;
 	}

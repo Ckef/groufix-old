@@ -40,9 +40,14 @@ static int _gfx_mesh_alloc_submesh(GFXMesh* mesh)
 }
 
 /******************************************************/
-static inline void _gfx_mesh_free_submesh(GFXMesh* mesh)
+static void _gfx_mesh_free_submesh(GFXMesh* mesh)
 {
-	mesh->subMeshes = realloc(mesh->subMeshes, sizeof(GFXSubMesh*) * (--mesh->num));
+	if(!(--mesh->num))
+	{
+		free(mesh->subMeshes);
+		mesh->subMeshes = NULL;
+	}
+	else mesh->subMeshes = realloc(mesh->subMeshes, sizeof(GFXSubMesh*) * mesh->num);
 }
 
 /******************************************************/
@@ -124,7 +129,6 @@ void gfx_mesh_remove(GFXMesh* mesh, size_t index)
 {
 	if(index < mesh->num)
 	{
-		/* Free the submesh and remove it */
 		_gfx_submesh_free(mesh->subMeshes[index]);
 		_gfx_mesh_remove_submesh(mesh, index);
 	}
