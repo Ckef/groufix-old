@@ -73,7 +73,7 @@ static GFX_HardwareFuncs _gfx_shared_buffer_obj_funcs =
 };
 
 /******************************************************/
-static GFXVectorIterator _gfx_shared_buffer_create(GFXBufferTarget target, GFX_Extensions* ext)
+static GFXVectorIterator _gfx_shared_buffer_create(GFXBufferTarget target, size_t minSize, GFX_Extensions* ext)
 {
 	/* Create a new shared buffer */
 	struct GFX_SharedBuffer* buff = malloc(sizeof(struct GFX_SharedBuffer));
@@ -97,7 +97,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(GFXBufferTarget target, GFX_E
 
 	/* Initialize buffer */
 	buff->target = target;
-	buff->size = _gfx_shared_buffer_size;
+	buff->size = (_gfx_shared_buffer_size < minSize) ? minSize : _gfx_shared_buffer_size;
 
 	ext->GenBuffers(1, &buff->handle);
 	ext->BindBuffer(target, buff->handle);
@@ -261,7 +261,7 @@ int gfx_shared_buffer_init(GFXSharedBuffer* buffer, GFXBufferTarget target, size
 	}
 
 	/* Create new shared buffer */
-	it = _gfx_shared_buffer_create(target, &window->extensions);
+	it = _gfx_shared_buffer_create(target, size, &window->extensions);
 	if(it)
 	{
 		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;

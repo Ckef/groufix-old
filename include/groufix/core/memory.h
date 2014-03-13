@@ -27,8 +27,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* Default shared buffer pool size (4 MB) */
-#define GFX_SHARED_BUFFER_SIZE_DEFAULT  0x400000
+/* Default shared buffer pool size (1 MB) */
+#define GFX_SHARED_BUFFER_SIZE_DEFAULT  0x100000
 
 #ifdef __cplusplus
 extern "C" {
