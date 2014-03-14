@@ -509,9 +509,8 @@ void _gfx_extensions_load(void)
 #endif
 
 	/* Set default state */
-	GFX_PipeState state;
-	_gfx_states_set_default(&state);
-	_gfx_states_force_set(&state, ext);
+	_gfx_states_set_default(&ext->state);
+	_gfx_states_force_set(&ext->state, ext);
 
 	/* Set other defaults */
 	ext->pipeline = 0;

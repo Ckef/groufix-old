@@ -309,6 +309,46 @@ void gfx_pipe_set_blend_function_alpha(GFXPipe* pipe, GFXBlendFunc source, GFXBl
 }
 
 /******************************************************/
+void gfx_pipe_set_stencil_test_front(GFXPipe* pipe, GFXFragmentTest test, int ref, unsigned int mask)
+{
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+
+	internal->state.stencilFuncFront = test;
+	internal->state.stencilRefFront = ref;
+	internal->state.stencilMaskFront = mask;
+}
+
+/******************************************************/
+void gfx_pipe_set_stencil_test_back(GFXPipe* pipe, GFXFragmentTest test, int ref, unsigned int mask)
+{
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+
+	internal->state.stencilFuncBack = test;
+	internal->state.stencilRefBack = ref;
+	internal->state.stencilMaskBack = mask;
+}
+
+/******************************************************/
+void gfx_pipe_set_stencil_func_front(GFXPipe* pipe, GFXStencilFunc fail, GFXStencilFunc depth, GFXStencilFunc pass)
+{
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+
+	internal->state.stencilFailFront = fail;
+	internal->state.depthFailFront = depth;
+	internal->state.stencilPassFront = pass;
+}
+
+/******************************************************/
+void gfx_pipe_set_stencil_func_back(GFXPipe* pipe, GFXStencilFunc fail, GFXStencilFunc depth, GFXStencilFunc pass)
+{
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+
+	internal->state.stencilFailBack = fail;
+	internal->state.depthFailBack = depth;
+	internal->state.stencilPassBack = pass;
+}
+
+/******************************************************/
 int gfx_pipe_register(GFXPipe* pipe, GFXPipeCallback callback, GFXPipeCallbackFunc func)
 {
 	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));

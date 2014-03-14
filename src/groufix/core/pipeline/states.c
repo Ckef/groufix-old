@@ -97,8 +97,155 @@ static inline void _gfx_state_set_stencil_test(GFXPipeState state, const GFX_Ext
 }
 
 /******************************************************/
-static inline void _gfx_state_set_blend_params(GFX_PipeState* state, const GFX_Extensions* ext)
+void _gfx_states_set_default(GFX_State* state)
 {
+	state->state            = GFX_STATE_DEFAULT;
+	state->depthFunc        = GFX_FRAG_LESS;
+	state->blendRGB         = GFX_BLEND_ADD;
+	state->blendAlpha       = GFX_BLEND_ADD;
+	state->blendSourceRGB   = GFX_BLEND_ONE;
+	state->blendSourceAlpha = GFX_BLEND_ONE;
+	state->blendBufferRGB   = GFX_BLEND_ZERO;
+	state->blendBufferAlpha = GFX_BLEND_ZERO;
+	state->stencilFuncFront = GFX_FRAG_ALWAYS;
+	state->stencilFuncBack  = GFX_FRAG_ALWAYS;
+	state->stencilRefFront  = 0;
+	state->stencilRefBack   = 0;
+	state->stencilMaskFront = ~((GLuint)0);
+	state->stencilMaskBack  = ~((GLuint)0);
+	state->stencilFailFront = GFX_STENCIL_KEEP;
+	state->stencilFailBack  = GFX_STENCIL_KEEP;
+	state->depthFailFront   = GFX_STENCIL_KEEP;
+	state->depthFailBack    = GFX_STENCIL_KEEP;
+	state->stencilPassFront = GFX_STENCIL_KEEP;
+	state->stencilPassBack  = GFX_STENCIL_KEEP;
+}
+
+/******************************************************/
+void _gfx_states_set(GFX_State* state, GFX_Extensions* ext)
+{
+	/* Clear buffers & check stripped state */
+	_gfx_states_clear_buffers(state->state, ext);
+	GFXPipeState extState = state->state & ~GFX_CLEAR_ALL;
+
+	GFXPipeState diff = extState ^ ext->state.state;
+
+	/* Set all boolean states */
+	if(diff & (GFX_STATE_WIREFRAME | GFX_STATE_POINTCLOUD))
+		_gfx_state_set_polygon_mode(extState, ext);
+	if(diff & GFX_STATE_NO_RASTERIZER)
+		_gfx_state_set_rasterizer(extState, ext);
+	if(diff & GFX_STATE_DEPTH_WRITE)
+		ext->DepthMask(extState & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
+	if(diff & GFX_STATE_DEPTH_TEST)
+		_gfx_state_set_depth_test(extState, ext);
+	if(diff & (GFX_STATE_CULL_FRONT | GFX_STATE_CULL_BACK))
+		_gfx_state_set_cull_face(extState, ext);
+	if(diff & GFX_STATE_BLEND)
+		_gfx_state_set_blend(extState, ext);
+	if(diff & GFX_STATE_STENCIL_TEST)
+		_gfx_state_set_stencil_test(extState, ext);
+
+	int comp;
+
+	/* Depth function */
+	comp = ext->state.depthFunc != state->depthFunc;
+	if(comp) ext->DepthFunc(state->depthFunc);
+
+	/* Blend equation */
+	comp = ext->state.blendRGB != state->blendRGB;
+	comp |= ext->state.blendAlpha != state->blendAlpha;
+
+	if(comp) ext->BlendEquationSeparate(
+		state->blendRGB,
+		state->blendAlpha
+	);
+
+	/* Blend functions */
+	comp = ext->state.blendSourceRGB != state->blendSourceRGB;
+	comp |= ext->state.blendBufferRGB != state->blendBufferRGB;
+	comp |= ext->state.blendSourceAlpha != state->blendSourceAlpha;
+	comp |= ext->state.blendBufferAlpha != state->blendBufferAlpha;
+
+	if(comp) ext->BlendFuncSeparate(
+		state->blendSourceRGB,
+		state->blendBufferRGB,
+		state->blendSourceAlpha,
+		state->blendBufferAlpha
+	);
+
+	/* Stencil front face functions */
+	comp = ext->state.stencilFuncFront != state->stencilFuncFront;
+	comp |= ext->state.stencilRefFront != state->stencilRefFront;
+	comp |= ext->state.stencilMaskFront != state->stencilMaskFront;
+
+	if(comp) ext->StencilFuncSeparate(
+		GL_FRONT,
+		state->stencilFuncFront,
+		state->stencilRefFront,
+		state->stencilMaskFront
+	);
+
+	/* Stencil back face functions */
+	comp = ext->state.stencilFuncBack != state->stencilFuncBack;
+	comp |= ext->state.stencilRefBack != state->stencilRefBack;
+	comp |= ext->state.stencilMaskBack != state->stencilMaskBack;
+
+	if(comp) ext->StencilFuncSeparate(
+		GL_BACK,
+		state->stencilFuncBack,
+		state->stencilRefBack,
+		state->stencilMaskBack
+	);
+
+	/* Stencil front face operations */
+	comp = ext->state.stencilFailFront != state->stencilFailFront;
+	comp |= ext->state.depthFailFront != state->depthFailFront;
+	comp |= ext->state.stencilPassFront != state->stencilPassFront;
+
+	if(comp) ext->StencilOpSeparate(
+		GL_FRONT,
+		state->stencilFailFront,
+		state->depthFailFront,
+		state->stencilPassFront
+	);
+
+	/* Stencil back face operations */
+	comp = ext->state.stencilFailBack != state->stencilFailBack;
+	comp |= ext->state.depthFailBack != state->depthFailBack;
+	comp |= ext->state.stencilPassBack != state->stencilPassBack;
+
+	if(comp) ext->StencilOpSeparate(
+		GL_BACK,
+		state->stencilFailBack,
+		state->depthFailBack,
+		state->stencilPassBack
+	);
+
+	/* Set all values */
+	ext->state = *state;
+}
+
+/******************************************************/
+void _gfx_states_force_set(GFX_State* state, GFX_Extensions* ext)
+{
+	/* Clear buffers & strip state */
+	_gfx_states_clear_buffers(state->state, ext);
+	GFXPipeState extState = state->state & ~GFX_CLEAR_ALL;
+
+	/* Set all boolean states */
+	_gfx_state_set_polygon_mode(extState, ext);
+	_gfx_state_set_rasterizer(extState, ext);
+	ext->DepthMask(extState & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
+	_gfx_state_set_depth_test(extState, ext);
+	_gfx_state_set_cull_face(extState, ext);
+	_gfx_state_set_blend(extState, ext);
+	_gfx_state_set_stencil_test(extState, ext);
+
+	/* Depth function */
+	ext->DepthFunc(state->depthFunc);
+
+	/* Blending */
 	ext->BlendEquationSeparate(
 		state->blendRGB,
 		state->blendAlpha
@@ -109,76 +256,32 @@ static inline void _gfx_state_set_blend_params(GFX_PipeState* state, const GFX_E
 		state->blendSourceAlpha,
 		state->blendBufferAlpha
 	);
-}
 
-/******************************************************/
-void _gfx_states_set_default(GFX_PipeState* state)
-{
-	state->state            = GFX_STATE_DEFAULT;
-	state->depthFunc        = GFX_FRAG_LESS;
-	state->blendRGB         = GFX_BLEND_ADD;
-	state->blendAlpha       = GFX_BLEND_ADD;
-	state->blendSourceRGB   = GFX_BLEND_ONE;
-	state->blendSourceAlpha = GFX_BLEND_ONE;
-	state->blendBufferRGB   = GFX_BLEND_ZERO;
-	state->blendBufferAlpha = GFX_BLEND_ZERO;
-}
-
-/******************************************************/
-void _gfx_states_set(GFX_PipeState* state, GFX_Extensions* ext)
-{
-	/* Clear buffers & check stripped state */
-	_gfx_states_clear_buffers(state->state, ext);
-	GFXPipeState extState = state->state & ~GFX_CLEAR_ALL;
-
-	GFXPipeState diff = extState ^ ext->state;
-	ext->state = extState;
-
-	if(diff)
-	{
-		/* Set all states */
-		if(diff & (GFX_STATE_WIREFRAME | GFX_STATE_POINTCLOUD))
-			_gfx_state_set_polygon_mode(extState, ext);
-		if(diff & GFX_STATE_NO_RASTERIZER)
-			_gfx_state_set_rasterizer(extState, ext);
-		if(diff & GFX_STATE_DEPTH_WRITE)
-			ext->DepthMask(extState & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
-		if(diff & GFX_STATE_DEPTH_TEST)
-			_gfx_state_set_depth_test(extState, ext);
-		if(diff & (GFX_STATE_CULL_FRONT | GFX_STATE_CULL_BACK))
-			_gfx_state_set_cull_face(extState, ext);
-		if(diff & GFX_STATE_BLEND)
-			_gfx_state_set_blend(extState, ext);
-		if(diff & GFX_STATE_STENCIL_TEST)
-			_gfx_state_set_stencil_test(extState, ext);
-	}
-
-	/* Blending */
-	if(extState & GFX_STATE_DEPTH_TEST)
-		ext->DepthFunc(state->depthFunc);
-	if(extState & GFX_STATE_BLEND)
-		_gfx_state_set_blend_params(state, ext);
-}
-
-/******************************************************/
-void _gfx_states_force_set(GFX_PipeState* state, GFX_Extensions* ext)
-{
-	/* Clear buffers & strip state */
-	_gfx_states_clear_buffers(state->state, ext);
-	ext->state = state->state & ~GFX_CLEAR_ALL;
-
-	/* Set all states */
-	_gfx_state_set_polygon_mode(ext->state, ext);
-	_gfx_state_set_rasterizer(ext->state, ext);
-	ext->DepthMask(ext->state & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
-	_gfx_state_set_depth_test(ext->state, ext);
-	_gfx_state_set_cull_face(ext->state, ext);
-	_gfx_state_set_blend(ext->state, ext);
-	_gfx_state_set_stencil_test(ext->state, ext);
-
-	/* Blending */
-	ext->DepthFunc(state->depthFunc);
-	_gfx_state_set_blend_params(state, ext);
+	/* Stencil test */
+	ext->StencilFuncSeparate(
+		GL_FRONT,
+		state->stencilFuncFront,
+		state->stencilRefFront,
+		state->stencilMaskFront
+	);
+	ext->StencilFuncSeparate(
+		GL_BACK,
+		state->stencilFuncBack,
+		state->stencilRefBack,
+		state->stencilMaskBack
+	);
+	ext->StencilOpSeparate(
+		GL_FRONT,
+		state->stencilFailFront,
+		state->depthFailFront,
+		state->stencilPassFront
+	);
+	ext->StencilOpSeparate(
+		GL_BACK,
+		state->stencilFailBack,
+		state->depthFailBack,
+		state->stencilPassBack
+	);
 }
 
 /******************************************************/

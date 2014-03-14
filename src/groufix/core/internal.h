@@ -187,6 +187,40 @@ typedef void (APIENTRYP GFX_VERTEXATTRIBPOINTERPROC)       (GLuint, GLint, GLenu
 typedef void (APIENTRYP GFX_VIEWPORTPROC)                  (GLint, GLint, GLsizei, GLsizei);
 
 
+/** OpenGL context (pipe) state */
+typedef struct GFX_State
+{
+	/* Boolean states */
+	GFXPipeState state;
+
+	/* Depth state */
+	GLenum  depthFunc;
+
+	/* Blending state */
+	GLenum  blendRGB;
+	GLenum  blendAlpha;
+	GLenum  blendSourceRGB;
+	GLenum  blendSourceAlpha;
+	GLenum  blendBufferRGB;
+	GLenum  blendBufferAlpha;
+
+	/* Stencil state */
+	GLenum  stencilFuncFront;
+	GLenum  stencilFuncBack;
+	GLint   stencilRefFront;
+	GLint   stencilRefBack;
+	GLuint  stencilMaskFront;
+	GLuint  stencilMaskBack;
+	GLenum  stencilFailFront;
+	GLenum  stencilFailBack;
+	GLenum  depthFailFront;
+	GLenum  depthFailBack;
+	GLenum  stencilPassFront;
+	GLenum  stencilPassBack;
+
+} GFX_State;
+
+
 /** OpenGL extensions & context states */
 typedef struct GFX_Extensions
 {
@@ -195,7 +229,7 @@ typedef struct GFX_Extensions
 	GLint          limits[GFX_LIM_COUNT];
 
 	/* State & bound objects */
-	GFXPipeState   state;    /* All per-context states */
+	GFX_State      state;    /* All per-pipe states */
 	GLuint         pipeline; /* Currently bound FBO */
 	GLuint         layout;   /* Currently bound VAO */
 	GLuint         program;  /* Currently used program */

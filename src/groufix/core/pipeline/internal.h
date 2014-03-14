@@ -36,33 +36,13 @@ extern "C" {
  * OpenGL State management
  *******************************************************/
 
-/** Internal state */
-typedef struct GFX_PipeState
-{
-	/* Enabled state */
-	GFXPipeState     state;
-
-	/* Depth state */
-	GFXFragmentTest  depthFunc;
-
-	/* Blending state */
-	GFXBlendState    blendRGB;
-	GFXBlendState    blendAlpha;
-	GFXBlendFunc     blendSourceRGB;
-	GFXBlendFunc     blendSourceAlpha;
-	GFXBlendFunc     blendBufferRGB;
-	GFXBlendFunc     blendBufferAlpha;
-
-} GFX_PipeState;
-
-
 /**
  * Sets all values of a state to their defaults.
  *
  * @param state Structure who's values will be set to their defaults.
  *
  */
-void _gfx_states_set_default(GFX_PipeState* state);
+void _gfx_states_set_default(GFX_State* state);
 
 /**
  * Sets the state of a context.
@@ -70,7 +50,7 @@ void _gfx_states_set_default(GFX_PipeState* state);
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_set(GFX_PipeState* state, GFX_Extensions* ext);
+void _gfx_states_set(GFX_State* state, GFX_Extensions* ext);
 
 /**
  * Forces all state fields of a context.
@@ -79,7 +59,7 @@ void _gfx_states_set(GFX_PipeState* state, GFX_Extensions* ext);
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_force_set(GFX_PipeState* state, GFX_Extensions* ext);
+void _gfx_states_force_set(GFX_State* state, GFX_Extensions* ext);
 
 /**
  * Sets the viewport size of the context.
@@ -125,8 +105,8 @@ typedef struct GFX_Pipe
 	GFXList node;
 
 	GFXPipeType    type;
-	GFX_PipeState  state;
-	GFXPipe        ptr; /* Public pointer */
+	GFXPipe        ptr;  /* Public pointer */
+	GFX_State      state;
 
 	/* Associated pipeline */
 	GFXPipeline*   pipeline;
@@ -191,7 +171,7 @@ void _gfx_bucket_free(GFXBucket* bucket);
  * Processes the bucket, drawing all batches.
  *
  */
-void _gfx_bucket_process(GFXBucket* bucket, GFX_PipeState* state, GFX_Extensions* ext);
+void _gfx_bucket_process(GFXBucket* bucket, GFX_State* state, GFX_Extensions* ext);
 
 
 /********************************************************
@@ -219,7 +199,7 @@ void _gfx_pipe_process_free(GFXPipeProcess process);
  * @param active Currently active window.
  *
  */
-void _gfx_pipe_process_execute(GFXPipeProcess process, GFX_PipeState* state, GFX_Window* active);
+void _gfx_pipe_process_execute(GFXPipeProcess process, GFX_State* state, GFX_Window* active);
 
 /**
  * Prepares a window for render to texture.

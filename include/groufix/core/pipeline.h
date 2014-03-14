@@ -109,6 +109,21 @@ typedef enum GFXBlendFunc
 } GFXBlendFunc;
 
 
+/** Stencil function */
+typedef enum GFXStencilFunc
+{
+	GFX_STENCIL_KEEP           = 0x1e00,
+	GFX_STENCIL_ZERO           = 0x0000,
+	GFX_STENCIL_REPLACE        = 0x1e01,
+	GFX_STENCIL_INCREASE       = 0x1e02,
+	GFX_STENCIL_INCREASE_WRAP  = 0x8507,
+	GFX_STENCIL_DECREASE       = 0x1e03,
+	GFX_STENCIL_DECREASE_WRAP  = 0x8508,
+	GFX_STENCIL_INVERT         = 0x150a
+
+} GFXStencilFunc;
+
+
 /********************************************************
  * Bucket metadata
  *******************************************************/
@@ -354,6 +369,44 @@ void gfx_pipe_set_blend_function_rgb(GFXPipe* pipe, GFXBlendFunc source, GFXBlen
  *
  */
 void gfx_pipe_set_blend_function_alpha(GFXPipe* pipe, GFXBlendFunc source, GFXBlendFunc buffer);
+
+/**
+ * Sets the stencil test for the front face of a pipe.
+ *
+ * @param ref  Reference value to compare against.
+ * @param mask Bitmask to apply to the ref value and stored stencil value.
+ *
+ */
+void gfx_pipe_set_stencil_test_front(GFXPipe* pipe, GFXFragmentTest test, int ref, unsigned int mask);
+
+/**
+ * Sets the stencil test for the back face of a pipe.
+ *
+ * @param ref  Reference value to compare against.
+ * @param mask Bitmask to apply to the ref value and stored stencil value.
+ *
+ */
+void gfx_pipe_set_stencil_test_back(GFXPipe* pipe, GFXFragmentTest test, int ref, unsigned int mask);
+
+/**
+ * Sets the stencil function to do when the stencil test fails for the front face.
+ *
+ * @param fail  Function for when the stencil test fails.
+ * @param depth Function for when the depth test fails.
+ * @param pass  Function for when both the stencil and depth test pass.
+ *
+ */
+void gfx_pipe_set_stencil_func_front(GFXPipe* pipe, GFXStencilFunc fail, GFXStencilFunc depth, GFXStencilFunc pass);
+
+/**
+ * Sets the stencil function to do when the stencil test fails for the back face.
+ *
+ * @param fail  Function for when the stencil test fails.
+ * @param depth Function for when the depth test fails.
+ * @param pass  Function for when both the stencil and depth test pass.
+ *
+ */
+void gfx_pipe_set_stencil_func_back(GFXPipe* pipe, GFXStencilFunc fail, GFXStencilFunc depth, GFXStencilFunc pass);
 
 
 /********************************************************
