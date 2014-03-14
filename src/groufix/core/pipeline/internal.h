@@ -40,24 +40,29 @@ extern "C" {
 typedef struct GFX_PipeState
 {
 	/* Enabled state */
-	GFXPipeState   state;
+	GFXPipeState     state;
+
+	/* Depth state */
+	GFXFragmentTest  depthFunc;
 
 	/* Blending state */
-	GFXBlendState  blendRGB;
-	GFXBlendState  blendAlpha;
-	GFXBlendFunc   blendSourceRGB;
-	GFXBlendFunc   blendSourceAlpha;
-	GFXBlendFunc   blendBufferRGB;
-	GFXBlendFunc   blendBufferAlpha;
+	GFXBlendState    blendRGB;
+	GFXBlendState    blendAlpha;
+	GFXBlendFunc     blendSourceRGB;
+	GFXBlendFunc     blendSourceAlpha;
+	GFXBlendFunc     blendBufferRGB;
+	GFXBlendFunc     blendBufferAlpha;
 
 } GFX_PipeState;
 
 
 /**
- * Sets the framebuffer handle associated with a pipeline as current for the given context.
+ * Sets all values of a state to their defaults.
+ *
+ * @param state Structure who's values will be set to their defaults.
  *
  */
-void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
+void _gfx_states_set_default(GFX_PipeState* state);
 
 /**
  * Sets the state of a context.
@@ -155,6 +160,12 @@ GFX_Pipe* _gfx_pipe_create_process(GFXPipeline* pipeline);
  *
  */
 GFX_Pipe* _gfx_pipe_free(GFX_Pipe* pipe);
+
+/**
+ * Sets the framebuffer handle associated with a pipeline as current for the given context.
+ *
+ */
+void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
 
 
 /********************************************************

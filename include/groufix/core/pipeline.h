@@ -61,6 +61,21 @@ typedef enum GFXPipeState
 } GFXPipeState;
 
 
+/** Fragment test equation */
+typedef enum GFXFragmentTest
+{
+	GFX_FRAG_NEVER          = 0x0200,
+	GFX_FRAG_LESS           = 0x0201,
+	GFX_FRAG_LESS_EQUAL     = 0x0203,
+	GFX_FRAG_GREATER        = 0x0204,
+	GFX_FRAG_GREATER_EQUAL  = 0x0206,
+	GFX_FRAG_EQUAL          = 0x0202,
+	GFX_FRAG_NOT_EQUAL      = 0x0205,
+	GFX_FRAG_ALWAYS         = 0x0207
+
+} GFXFragmentTest;
+
+
 /** Blend state */
 typedef enum GFXBlendState
 {
@@ -303,6 +318,12 @@ GFXPipeState gfx_pipe_get_state(GFXPipe* pipe);
  *
  */
 void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state);
+
+/**
+ * Sets the depth test function of a pipe.
+ *
+ */
+void gfx_pipe_set_depth_test(GFXPipe* pipe, GFXFragmentTest test);
 
 /**
  * Sets the blending state for the RGB channels of a pipe.

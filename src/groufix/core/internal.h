@@ -106,6 +106,7 @@ typedef void (APIENTRYP GFX_DELETESHADERPROC)              (GLuint);
 typedef void (APIENTRYP GFX_DELETESYNCPROC)                (GLsync);
 typedef void (APIENTRYP GFX_DELETETEXTURESPROC)            (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEVERTEXARRAYSPROC)        (GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_DEPTHFUNCPROC)                 (GLenum);
 typedef void (APIENTRYP GFX_DEPTHMASKPROC)                 (GLboolean);
 typedef void (APIENTRYP GFX_DETACHSHADERPROC)              (GLuint, GLuint);
 typedef void (APIENTRYP GFX_DISABLEPROC)                   (GLenum);
@@ -149,6 +150,8 @@ typedef void (APIENTRYP GFX_PIXELSTOREIPROC)               (GLenum, GLint);
 typedef void (APIENTRYP GFX_POLYGONMODEPROC)               (GLenum, GLenum);
 typedef void (APIENTRYP GFX_PROGRAMBINARYPROC)             (GLuint, GLenum, const void*, GLsizei);
 typedef void (APIENTRYP GFX_SHADERSOURCEPROC)              (GLuint, GLsizei, const GLchar*const*, const GLint*);
+typedef void (APIENTRYP GFX_STENCILFUNCSEPARATEPROC)       (GLenum, GLenum, GLint, GLuint);
+typedef void (APIENTRYP GFX_STENCILOPSEPARATEPROC)         (GLenum, GLenum, GLenum, GLenum);
 typedef void (APIENTRYP GFX_TEXBUFFERPROC)                 (GLenum, GLenum, GLuint);
 typedef void (APIENTRYP GFX_TEXIMAGE1DPROC)                (GLenum, GLint, GLint, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXIMAGE2DPROC)                (GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
@@ -237,6 +240,7 @@ typedef struct GFX_Extensions
 	GFX_DELETESYNCPROC                 DeleteSync;
 	GFX_DELETETEXTURESPROC             DeleteTextures;
 	GFX_DELETEVERTEXARRAYSPROC         DeleteVertexArrays;
+	GFX_DEPTHFUNCPROC                  DepthFunc;
 	GFX_DEPTHMASKPROC                  DepthMask;
 	GFX_DETACHSHADERPROC               DetachShader;
 	GFX_DISABLEPROC                    Disable;
@@ -280,6 +284,8 @@ typedef struct GFX_Extensions
 	GFX_POLYGONMODEPROC                PolygonMode;            /* GFX_EXT_POLYGON_STATE */
 	GFX_PROGRAMBINARYPROC              ProgramBinary;          /* GFX_EXT_PROGRAM_BINARY */
 	GFX_SHADERSOURCEPROC               ShaderSource;
+	GFX_STENCILFUNCSEPARATEPROC        StencilFuncSeparate;
+	GFX_STENCILOPSEPARATEPROC          StencilOpSeparate;
 	GFX_TEXBUFFERPROC                  TexBuffer;              /* GFX_EXT_BUFFER_TEXTURE */
 	GFX_TEXIMAGE1DPROC                 TexImage1D;             /* GFX_EXT_TEXTURE_1D */
 	GFX_TEXIMAGE2DPROC                 TexImage2D;

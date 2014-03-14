@@ -182,12 +182,7 @@ static struct GFX_Internal_Pipe* _gfx_pipe_create(GFXPipeType type, GFXPipeline*
 	gfx_vector_init(&pipe->ranges, sizeof(struct GFX_Range));
 
 	/* Some defaults */
-	pipe->pipe.state.blendRGB         = GFX_BLEND_ADD;
-	pipe->pipe.state.blendAlpha       = GFX_BLEND_ADD;
-	pipe->pipe.state.blendSourceRGB   = GFX_BLEND_ONE;
-	pipe->pipe.state.blendSourceAlpha = GFX_BLEND_ONE;
-	pipe->pipe.state.blendBufferRGB   = GFX_BLEND_ZERO;
-	pipe->pipe.state.blendBufferAlpha = GFX_BLEND_ZERO;
+	_gfx_states_set_default(&pipe->pipe.state);
 
 	return pipe;
 }
@@ -275,6 +270,12 @@ GFXPipeState gfx_pipe_get_state(GFXPipe* pipe)
 void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state)
 {
 	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.state = state;
+}
+
+/******************************************************/
+void gfx_pipe_set_depth_test(GFXPipe* pipe, GFXFragmentTest test)
+{
+	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.depthFunc = test;
 }
 
 /******************************************************/

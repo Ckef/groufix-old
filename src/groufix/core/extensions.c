@@ -239,6 +239,7 @@ void _gfx_extensions_load(void)
 	ext->DeleteSync                = glDeleteSync;
 	ext->DeleteTextures            = glDeleteTextures;
 	ext->DeleteVertexArrays        = glDeleteVertexArrays;
+	ext->DepthFunc                 = glDepthFunc;
 	ext->DepthMask                 = glDepthMask;
 	ext->DetachShader              = glDetachShader;
 	ext->Disable                   = glDisable;
@@ -282,6 +283,8 @@ void _gfx_extensions_load(void)
 	ext->PolygonMode               = _gfx_gles_polygon_mode;
 	ext->ProgramBinary             = glProgramBinary;
 	ext->ShaderSource              = glShaderSource;
+	ext->StencilFuncSeparate       = glStencilFuncSeparate;
+	ext->StencilOpSeparate         = glStencilOpSeparate;
 	ext->TexBuffer                 = _gfx_gles_tex_buffer;
 	ext->TexImage1D                = _gfx_gles_tex_image_1d;
 	ext->TexImage2D                = glTexImage2D;
@@ -363,6 +366,7 @@ void _gfx_extensions_load(void)
 	ext->DeleteSync                = (PFNGLDELETESYNCPROC)                _gfx_platform_get_proc_address("glDeleteSync");
 	ext->DeleteTextures            = (PFNGLDELETETEXTURESPROC)            glDeleteTextures;
 	ext->DeleteVertexArrays        = (PFNGLDELETEVERTEXARRAYSPROC)        _gfx_platform_get_proc_address("glDeleteVertexArrays");
+	ext->DepthFunc                 = (PFNGLDEPTHFUNCPROC)                 glDepthFunc;
 	ext->DepthMask                 = (PFNGLDEPTHMASKPROC)                 glDepthMask;
 	ext->DetachShader              = (PFNGLDETACHSHADERPROC)              _gfx_platform_get_proc_address("glDetachShader");
 	ext->Disable                   = (PFNGLDISABLEPROC)                   glDisable;
@@ -403,6 +407,8 @@ void _gfx_extensions_load(void)
 	ext->PixelStorei               = (PFNGLPIXELSTOREIPROC)               glPixelStorei;
 	ext->PolygonMode               = (PFNGLPOLYGONMODEPROC)               glPolygonMode;
 	ext->ShaderSource              = (PFNGLSHADERSOURCEPROC)              _gfx_platform_get_proc_address("glShaderSource");
+	ext->StencilFuncSeparate       = (PFNGLSTENCILFUNCSEPARATEPROC)       _gfx_platform_get_proc_address("glStencilFuncSeparate");
+	ext->StencilOpSeparate         = (PFNGLSTENCILOPSEPARATEPROC)         _gfx_platform_get_proc_address("glStencilOpSeparate");
 	ext->TexBuffer                 = (PFNGLTEXBUFFERPROC)                 _gfx_platform_get_proc_address("glTexBuffer");
 	ext->TexImage1D                = (PFNGLTEXIMAGE1DPROC)                glTexImage1D;
 	ext->TexImage2D                = (PFNGLTEXIMAGE2DPROC)                glTexImage2D;
@@ -504,14 +510,7 @@ void _gfx_extensions_load(void)
 
 	/* Set default state */
 	GFX_PipeState state;
-	state.state            = GFX_STATE_DEFAULT;
-	state.blendRGB         = GFX_BLEND_ADD;
-	state.blendAlpha       = GFX_BLEND_ADD;
-	state.blendSourceRGB   = GFX_BLEND_ONE;
-	state.blendSourceAlpha = GFX_BLEND_ONE;
-	state.blendBufferRGB   = GFX_BLEND_ZERO;
-	state.blendBufferAlpha = GFX_BLEND_ZERO;
-
+	_gfx_states_set_default(&state);
 	_gfx_states_force_set(&state, ext);
 
 	/* Set other defaults */

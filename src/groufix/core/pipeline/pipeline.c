@@ -171,13 +171,7 @@ static void _gfx_pipeline_push_pipe(GFX_Pipe* pipe)
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)pipe->pipeline;
 
-	if(!pipeline->first)
-	{
-		/* Default state, first pipe */
-		pipeline->first = pipe;
-		pipe->state.state = GFX_STATE_DEFAULT;
-	}
-	else
+	if(pipeline->first)
 	{
 		/* Preserve state, strip off clearing bits, put at end */
 		gfx_list_splice_after((GFXList*)pipe, (GFXList*)pipeline->last);
@@ -185,6 +179,10 @@ static void _gfx_pipeline_push_pipe(GFX_Pipe* pipe)
 		pipe->state = pipeline->last->state;
 		pipe->state.state &= ~GFX_CLEAR_ALL;
 	}
+
+	/* First pipe */
+	else pipeline->first = pipe;
+
 	pipeline->last = pipe;
 }
 

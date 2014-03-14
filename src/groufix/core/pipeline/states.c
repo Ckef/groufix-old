@@ -112,6 +112,19 @@ static inline void _gfx_state_set_blend_params(GFX_PipeState* state, const GFX_E
 }
 
 /******************************************************/
+void _gfx_states_set_default(GFX_PipeState* state)
+{
+	state->state            = GFX_STATE_DEFAULT;
+	state->depthFunc        = GFX_FRAG_LESS;
+	state->blendRGB         = GFX_BLEND_ADD;
+	state->blendAlpha       = GFX_BLEND_ADD;
+	state->blendSourceRGB   = GFX_BLEND_ONE;
+	state->blendSourceAlpha = GFX_BLEND_ONE;
+	state->blendBufferRGB   = GFX_BLEND_ZERO;
+	state->blendBufferAlpha = GFX_BLEND_ZERO;
+}
+
+/******************************************************/
 void _gfx_states_set(GFX_PipeState* state, GFX_Extensions* ext)
 {
 	/* Clear buffers & check stripped state */
@@ -141,7 +154,10 @@ void _gfx_states_set(GFX_PipeState* state, GFX_Extensions* ext)
 	}
 
 	/* Blending */
-	if(extState & GFX_STATE_BLEND) _gfx_state_set_blend_params(state, ext);
+	if(extState & GFX_STATE_DEPTH_TEST)
+		ext->DepthFunc(state->depthFunc);
+	if(extState & GFX_STATE_BLEND)
+		_gfx_state_set_blend_params(state, ext);
 }
 
 /******************************************************/
@@ -161,6 +177,7 @@ void _gfx_states_force_set(GFX_PipeState* state, GFX_Extensions* ext)
 	_gfx_state_set_stencil_test(ext->state, ext);
 
 	/* Blending */
+	ext->DepthFunc(state->depthFunc);
 	_gfx_state_set_blend_params(state, ext);
 }
 
