@@ -36,6 +36,23 @@ extern "C" {
  * OpenGL State management
  *******************************************************/
 
+/** Internal state */
+typedef struct GFX_PipeState
+{
+	/* Enabled state */
+	GFXPipeState   state;
+
+	/* Blending state */
+	GFXBlendState  blendRGB;
+	GFXBlendState  blendAlpha;
+	GFXBlendFunc   blendSourceRGB;
+	GFXBlendFunc   blendSourceAlpha;
+	GFXBlendFunc   blendBufferRGB;
+	GFXBlendFunc   blendBufferAlpha;
+
+} GFX_PipeState;
+
+
 /**
  * Sets the framebuffer handle associated with a pipeline as current for the given context.
  *
@@ -48,7 +65,7 @@ void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext);
+void _gfx_states_set(GFX_PipeState* state, GFX_Extensions* ext);
 
 /**
  * Forces all state fields of a context.
@@ -57,7 +74,7 @@ void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext);
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext);
+void _gfx_states_force_set(GFX_PipeState* state, GFX_Extensions* ext);
 
 /**
  * Sets the viewport size of the context.
@@ -103,7 +120,7 @@ typedef struct GFX_Pipe
 	GFXList node;
 
 	GFXPipeType    type;
-	GFXPipeState   state;
+	GFX_PipeState  state;
 	GFXPipe        ptr; /* Public pointer */
 
 	/* Associated pipeline */
@@ -163,7 +180,7 @@ void _gfx_bucket_free(GFXBucket* bucket);
  * Processes the bucket, drawing all batches.
  *
  */
-void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* ext);
+void _gfx_bucket_process(GFXBucket* bucket, GFX_PipeState* state, GFX_Extensions* ext);
 
 
 /********************************************************
@@ -191,7 +208,7 @@ void _gfx_pipe_process_free(GFXPipeProcess process);
  * @param active Currently active window.
  *
  */
-void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_Window* active);
+void _gfx_pipe_process_execute(GFXPipeProcess process, GFX_PipeState* state, GFX_Window* active);
 
 /**
  * Prepares a window for render to texture.

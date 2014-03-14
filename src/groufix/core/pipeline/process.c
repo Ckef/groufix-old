@@ -49,7 +49,7 @@ struct GFX_Process
 };
 
 /******************************************************/
-static inline void _gfx_pipe_process_draw(GFXPipeState state, GFXPropertyMap* map, GLuint layout, GFX_Extensions* ext)
+static inline void _gfx_pipe_process_draw(GFX_PipeState* state, GFXPropertyMap* map, GLuint layout, GFX_Extensions* ext)
 {
 	_gfx_states_set(state, ext);
 	_gfx_property_map_use(map, ext);
@@ -231,7 +231,7 @@ void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target, int 
 }
 
 /******************************************************/
-void _gfx_pipe_process_execute(GFXPipeProcess process, GFXPipeState state, GFX_Window* active)
+void _gfx_pipe_process_execute(GFXPipeProcess process, GFX_PipeState* state, GFX_Window* active)
 {
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 

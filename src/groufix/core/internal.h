@@ -88,6 +88,8 @@ typedef void (APIENTRYP GFX_BINDBUFFERRANGEPROC)           (GLenum, GLuint, GLui
 typedef void (APIENTRYP GFX_BINDFRAMEBUFFERPROC)           (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDTEXTUREPROC)               (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDVERTEXARRAYPROC)           (GLuint);
+typedef void (APIENTRYP GFX_BLENDEQUATIONSEPARATEPROC)     (GLenum, GLenum);
+typedef void (APIENTRYP GFX_BLENDFUNCSEPARATEPROC)         (GLenum, GLenum, GLenum, GLenum);
 typedef void (APIENTRYP GFX_BUFFERDATAPROC)                (GLenum, GLsizeiptr, const GLvoid*, GLenum);
 typedef void (APIENTRYP GFX_BUFFERSUBDATAPROC)             (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
 typedef void (APIENTRYP GFX_CLEARPROC)                     (GLbitfield);
@@ -217,6 +219,8 @@ typedef struct GFX_Extensions
 	GFX_BINDFRAMEBUFFERPROC            BindFramebuffer;
 	GFX_BINDTEXTUREPROC                BindTexture;
 	GFX_BINDVERTEXARRAYPROC            BindVertexArray;
+	GFX_BLENDEQUATIONSEPARATEPROC      BlendEquationSeparate;
+	GFX_BLENDFUNCSEPARATEPROC          BlendFuncSeparate;
 	GFX_BUFFERDATAPROC                 BufferData;
 	GFX_BUFFERSUBDATAPROC              BufferSubData;
 	GFX_CLEARPROC                      Clear;

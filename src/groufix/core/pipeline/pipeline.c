@@ -175,13 +175,15 @@ static void _gfx_pipeline_push_pipe(GFX_Pipe* pipe)
 	{
 		/* Default state, first pipe */
 		pipeline->first = pipe;
-		pipe->state = GFX_STATE_DEFAULT;
+		pipe->state.state = GFX_STATE_DEFAULT;
 	}
 	else
 	{
-		/* Strip off clearing bits, put at end */
+		/* Preserve state, strip off clearing bits, put at end */
 		gfx_list_splice_after((GFXList*)pipe, (GFXList*)pipeline->last);
-		pipe->state = pipeline->last->state & ~GFX_CLEAR_ALL;
+
+		pipe->state = pipeline->last->state;
+		pipe->state.state &= ~GFX_CLEAR_ALL;
 	}
 	pipeline->last = pipe;
 }
@@ -573,11 +575,11 @@ void gfx_pipeline_execute(GFXPipeline* pipeline, unsigned int num)
 		switch(pipe->type)
 		{
 			case GFX_PIPE_BUCKET :
-				_gfx_bucket_process(pipe->ptr.bucket, pipe->state, ext);
+				_gfx_bucket_process(pipe->ptr.bucket, &pipe->state, ext);
 				break;
 
 			case GFX_PIPE_PROCESS :
-				_gfx_pipe_process_execute(pipe->ptr.process, pipe->state, internal->win);
+				_gfx_pipe_process_execute(pipe->ptr.process, &pipe->state, internal->win);
 				break;
 		}
 

@@ -34,6 +34,67 @@ extern "C" {
 #endif
 
 /********************************************************
+ * Pipe states and factors
+ *******************************************************/
+
+/** Pipe state */
+typedef enum GFXPipeState
+{
+	GFX_CLEAR_COLOR          = 0x0001,
+	GFX_CLEAR_DEPTH          = 0x0002,
+	GFX_CLEAR_STENCIL        = 0x0004,
+	GFX_CLEAR_ALL            = 0x0007,
+
+	GFX_STATE_WIREFRAME      = 0x0008, /* Requires GFX_EXT_POLYGON_STATE */
+	GFX_STATE_POINTCLOUD     = 0x0010, /* Requires GFX_EXT_POLYGON_STATE */
+
+	GFX_STATE_NO_RASTERIZER  = 0x0020,
+	GFX_STATE_DEPTH_WRITE    = 0x0040,
+	GFX_STATE_DEPTH_TEST     = 0x0080,
+	GFX_STATE_CULL_FRONT     = 0x0100,
+	GFX_STATE_CULL_BACK      = 0x0200,
+	GFX_STATE_BLEND          = 0x0400,
+	GFX_STATE_STENCIL_TEST   = 0x0800,
+
+	GFX_STATE_DEFAULT = GFX_STATE_CULL_BACK
+
+} GFXPipeState;
+
+
+/** Blend state */
+typedef enum GFXBlendState
+{
+	GFX_BLEND_ADD           = 0x8006,
+	GFX_BLEND_SUBTRACT      = 0x800a,
+	GFX_BLEND_REV_SUBTRACT  = 0x800b,
+	GFX_BLEND_MIN           = 0x8007,
+	GFX_BLEND_MAX           = 0x8008
+
+} GFXBlendState;
+
+
+/** Blend function */
+typedef enum GFXBlendFunc
+{
+	GFX_BLEND_ZERO                    = 0x0000,
+	GFX_BLEND_ONE                     = 0x0001,
+
+	GFX_BLEND_SOURCE                  = 0x0300,
+	GFX_BLEND_BUFFER                  = 0x0306,
+	GFX_BLEND_ONE_MINUS_SOURCE        = 0x0301,
+	GFX_BLEND_ONE_MINUS_BUFFER        = 0x0307,
+
+	GFX_BLEND_SOURCE_ALPHA            = 0x0302,
+	GFX_BLEND_BUFFER_ALPHA            = 0x0304,
+	GFX_BLEND_ONE_MINUS_SOURCE_ALPHA  = 0x0303,
+	GFX_BLEND_ONE_MINUS_BUFFER_ALPHA  = 0x0305,
+
+	GFX_BLEND_ALPHA_SATURATE          = 0x0308
+
+} GFXBlendFunc;
+
+
+/********************************************************
  * Bucket metadata
  *******************************************************/
 
@@ -213,30 +274,6 @@ typedef enum GFXPipeType
 } GFXPipeType;
 
 
-/** Pipe state */
-typedef enum GFXPipeState
-{
-	GFX_CLEAR_COLOR          = 0x0001,
-	GFX_CLEAR_DEPTH          = 0x0002,
-	GFX_CLEAR_STENCIL        = 0x0004,
-	GFX_CLEAR_ALL            = 0x0007,
-
-	GFX_STATE_WIREFRAME      = 0x0008, /* Requires GFX_EXT_POLYGON_STATE */
-	GFX_STATE_POINTCLOUD     = 0x0010, /* Requires GFX_EXT_POLYGON_STATE */
-
-	GFX_STATE_NO_RASTERIZER  = 0x0020,
-	GFX_STATE_DEPTH_WRITE    = 0x0040,
-	GFX_STATE_DEPTH_TEST     = 0x0080,
-	GFX_STATE_CULL_FRONT     = 0x0100,
-	GFX_STATE_CULL_BACK      = 0x0200,
-	GFX_STATE_BLEND          = 0x0400,
-	GFX_STATE_STENCIL_TEST   = 0x0800,
-
-	GFX_STATE_DEFAULT = GFX_STATE_CULL_BACK
-
-} GFXPipeState;
-
-
 /** Individual pipe */
 typedef union GFXPipe
 {
@@ -266,6 +303,36 @@ GFXPipeState gfx_pipe_get_state(GFXPipe* pipe);
  *
  */
 void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state);
+
+/**
+ * Sets the blending state for the RGB channels of a pipe.
+ *
+ */
+void gfx_pipe_set_blend_state_rgb(GFXPipe* pipe, GFXBlendState state);
+
+/**
+ * Sets the blending state for the alpha channel of a pipe.
+ *
+ */
+void gfx_pipe_set_blend_state_alpha(GFXPipe* pipe, GFXBlendState state);
+
+/**
+ * Sets the blending function for the RGB channels of a pipe.
+ *
+ * @param source Factor to multiply with the fragment output.
+ * @param buffer Factor to mulitply with the previous buffer value.
+ *
+ */
+void gfx_pipe_set_blend_function_rgb(GFXPipe* pipe, GFXBlendFunc source, GFXBlendFunc buffer);
+
+/**
+ * Sets the blending function for the alpha channel of a pipe.
+ *
+ * @param source Factor to multiply with the fragment output.
+ * @param buffer Factor to mulitply with the previous buffer value.
+ *
+ */
+void gfx_pipe_set_blend_function_alpha(GFXPipe* pipe, GFXBlendFunc source, GFXBlendFunc buffer);
 
 
 /********************************************************
@@ -397,6 +464,8 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
  * @param bits Number of manual bits to sort by.
  * @return The new pipe (NULL on failure).
  *
+ * Note: all state and parameters will be copied from the previous pipe.
+ *
  */
 GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags);
 
@@ -404,6 +473,8 @@ GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFX
  * Adds a process to the pipeline.
  *
  * @return The new pipe (NULL on failure).
+ *
+ * Note: all state and parameters will be copied from the previous pipe.
  *
  */
 GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline);

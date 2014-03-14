@@ -97,52 +97,71 @@ static inline void _gfx_state_set_stencil_test(GFXPipeState state, const GFX_Ext
 }
 
 /******************************************************/
-void _gfx_states_set(GFXPipeState state, GFX_Extensions* ext)
+static inline void _gfx_state_set_blend_params(GFX_PipeState* state, const GFX_Extensions* ext)
+{
+	ext->BlendEquationSeparate(
+		state->blendRGB,
+		state->blendAlpha
+	);
+	ext->BlendFuncSeparate(
+		state->blendSourceRGB,
+		state->blendBufferRGB,
+		state->blendSourceAlpha,
+		state->blendBufferAlpha
+	);
+}
+
+/******************************************************/
+void _gfx_states_set(GFX_PipeState* state, GFX_Extensions* ext)
 {
 	/* Clear buffers & check stripped state */
-	_gfx_states_clear_buffers(state, ext);
-	state &= ~GFX_CLEAR_ALL;
+	_gfx_states_clear_buffers(state->state, ext);
+	GFXPipeState extState = state->state & ~GFX_CLEAR_ALL;
 
-	GFXPipeState diff = state ^ ext->state;
-	ext->state = state;
+	GFXPipeState diff = extState ^ ext->state;
+	ext->state = extState;
 
 	if(diff)
 	{
 		/* Set all states */
 		if(diff & (GFX_STATE_WIREFRAME | GFX_STATE_POINTCLOUD))
-			_gfx_state_set_polygon_mode(state, ext);
+			_gfx_state_set_polygon_mode(extState, ext);
 		if(diff & GFX_STATE_NO_RASTERIZER)
-			_gfx_state_set_rasterizer(state, ext);
+			_gfx_state_set_rasterizer(extState, ext);
 		if(diff & GFX_STATE_DEPTH_WRITE)
-			ext->DepthMask(state & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
+			ext->DepthMask(extState & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
 		if(diff & GFX_STATE_DEPTH_TEST)
-			_gfx_state_set_depth_test(state, ext);
+			_gfx_state_set_depth_test(extState, ext);
 		if(diff & (GFX_STATE_CULL_FRONT | GFX_STATE_CULL_BACK))
-			_gfx_state_set_cull_face(state, ext);
+			_gfx_state_set_cull_face(extState, ext);
 		if(diff & GFX_STATE_BLEND)
-			_gfx_state_set_blend(state, ext);
+			_gfx_state_set_blend(extState, ext);
 		if(diff & GFX_STATE_STENCIL_TEST)
-			_gfx_state_set_stencil_test(state, ext);
+			_gfx_state_set_stencil_test(extState, ext);
 	}
+
+	/* Blending */
+	if(extState & GFX_STATE_BLEND) _gfx_state_set_blend_params(state, ext);
 }
 
 /******************************************************/
-void _gfx_states_force_set(GFXPipeState state, GFX_Extensions* ext)
+void _gfx_states_force_set(GFX_PipeState* state, GFX_Extensions* ext)
 {
 	/* Clear buffers & strip state */
-	_gfx_states_clear_buffers(state, ext);
-	state &= ~GFX_CLEAR_ALL;
-
-	ext->state = state;
+	_gfx_states_clear_buffers(state->state, ext);
+	ext->state = state->state & ~GFX_CLEAR_ALL;
 
 	/* Set all states */
-	_gfx_state_set_polygon_mode(state, ext);
-	_gfx_state_set_rasterizer(state, ext);
-	ext->DepthMask(state & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
-	_gfx_state_set_depth_test(state, ext);
-	_gfx_state_set_cull_face(state, ext);
-	_gfx_state_set_blend(state, ext);
-	_gfx_state_set_stencil_test(state, ext);
+	_gfx_state_set_polygon_mode(ext->state, ext);
+	_gfx_state_set_rasterizer(ext->state, ext);
+	ext->DepthMask(ext->state & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
+	_gfx_state_set_depth_test(ext->state, ext);
+	_gfx_state_set_cull_face(ext->state, ext);
+	_gfx_state_set_blend(ext->state, ext);
+	_gfx_state_set_stencil_test(ext->state, ext);
+
+	/* Blending */
+	_gfx_state_set_blend_params(state, ext);
 }
 
 /******************************************************/

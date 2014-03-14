@@ -181,6 +181,14 @@ static struct GFX_Internal_Pipe* _gfx_pipe_create(GFXPipeType type, GFXPipeline*
 	gfx_vector_init(&pipe->callbacks, sizeof(struct GFX_Callback));
 	gfx_vector_init(&pipe->ranges, sizeof(struct GFX_Range));
 
+	/* Some defaults */
+	pipe->pipe.state.blendRGB         = GFX_BLEND_ADD;
+	pipe->pipe.state.blendAlpha       = GFX_BLEND_ADD;
+	pipe->pipe.state.blendSourceRGB   = GFX_BLEND_ONE;
+	pipe->pipe.state.blendSourceAlpha = GFX_BLEND_ONE;
+	pipe->pipe.state.blendBufferRGB   = GFX_BLEND_ZERO;
+	pipe->pipe.state.blendBufferAlpha = GFX_BLEND_ZERO;
+
 	return pipe;
 }
 
@@ -260,13 +268,43 @@ GFXPipeType gfx_pipe_get_type(GFXPipe* pipe)
 /******************************************************/
 GFXPipeState gfx_pipe_get_state(GFXPipe* pipe)
 {
-	return ((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state;
+	return ((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.state;
 }
 
 /******************************************************/
 void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state)
 {
-	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state = state;
+	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.state = state;
+}
+
+/******************************************************/
+void gfx_pipe_set_blend_state_rgb(GFXPipe* pipe, GFXBlendState state)
+{
+	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.blendRGB = state;
+}
+
+/******************************************************/
+void gfx_pipe_set_blend_state_alpha(GFXPipe* pipe, GFXBlendState state)
+{
+	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.blendAlpha = state;
+}
+
+/******************************************************/
+void gfx_pipe_set_blend_function_rgb(GFXPipe* pipe, GFXBlendFunc source, GFXBlendFunc buffer)
+{
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+
+	internal->state.blendSourceRGB = source;
+	internal->state.blendBufferRGB = buffer;
+}
+
+/******************************************************/
+void gfx_pipe_set_blend_function_alpha(GFXPipe* pipe, GFXBlendFunc source, GFXBlendFunc buffer)
+{
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+
+	internal->state.blendSourceAlpha = source;
+	internal->state.blendBufferAlpha = buffer;
 }
 
 /******************************************************/

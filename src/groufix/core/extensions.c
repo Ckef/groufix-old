@@ -221,6 +221,8 @@ void _gfx_extensions_load(void)
 	ext->BindFramebuffer           = glBindFramebuffer;
 	ext->BindTexture               = glBindTexture;
 	ext->BindVertexArray           = glBindVertexArray;
+	ext->BlendEquationSeparate     = glBlendEquationSeparate;
+	ext->BlendFuncSeparate         = glBlendFuncSeparate;
 	ext->BufferData                = glBufferData;
 	ext->BufferSubData             = glBufferSubData;
 	ext->Clear                     = glClear;
@@ -343,6 +345,8 @@ void _gfx_extensions_load(void)
 	ext->BindFramebuffer           = (PFNGLBINDFRAMEBUFFERPROC)           _gfx_platform_get_proc_address("glBindFramebuffer");
 	ext->BindTexture               = (PFNGLBINDTEXTUREPROC)               glBindTexture;
 	ext->BindVertexArray           = (PFNGLBINDVERTEXARRAYPROC)           _gfx_platform_get_proc_address("glBindVertexArray");
+	ext->BlendEquationSeparate     = (PFNGLBLENDEQUATIONSEPARATEPROC)     _gfx_platform_get_proc_address("glBlendEquationSeparate");
+	ext->BlendFuncSeparate         = (PFNGLBLENDFUNCSEPARATEPROC)         _gfx_platform_get_proc_address("glBlendFuncSeparate");
 	ext->BufferData                = (PFNGLBUFFERDATAPROC)                _gfx_platform_get_proc_address("glBufferData");
 	ext->BufferSubData             = (PFNGLBUFFERSUBDATAPROC)             _gfx_platform_get_proc_address("glBufferSubData");
 	ext->Clear                     = (PFNGLCLEARPROC)                     glClear;
@@ -499,8 +503,18 @@ void _gfx_extensions_load(void)
 #endif
 
 	/* Set default state */
-	_gfx_states_force_set(GFX_STATE_DEFAULT, ext);
+	GFX_PipeState state;
+	state.state            = GFX_STATE_DEFAULT;
+	state.blendRGB         = GFX_BLEND_ADD;
+	state.blendAlpha       = GFX_BLEND_ADD;
+	state.blendSourceRGB   = GFX_BLEND_ONE;
+	state.blendSourceAlpha = GFX_BLEND_ONE;
+	state.blendBufferRGB   = GFX_BLEND_ZERO;
+	state.blendBufferAlpha = GFX_BLEND_ZERO;
 
+	_gfx_states_force_set(&state, ext);
+
+	/* Set other defaults */
 	ext->pipeline = 0;
 	ext->layout = 0;
 	ext->program = 0;

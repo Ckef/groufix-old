@@ -253,7 +253,7 @@ static void _gfx_bucket_radix_sort(struct GFX_Bucket* bucket, GFXBatchState bit,
 }
 
 /******************************************************/
-void _gfx_bucket_process(GFXBucket* bucket, GFXPipeState state, GFX_Extensions* ext)
+void _gfx_bucket_process(GFXBucket* bucket, GFX_PipeState* state, GFX_Extensions* ext)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 
