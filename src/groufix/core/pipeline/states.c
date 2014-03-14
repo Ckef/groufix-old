@@ -224,6 +224,7 @@ void _gfx_states_set(GFX_State* state, GFX_Extensions* ext)
 
 	/* Set all values */
 	ext->state = *state;
+	ext->state.state = extState;
 }
 
 /******************************************************/
