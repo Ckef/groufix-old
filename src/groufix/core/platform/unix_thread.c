@@ -23,9 +23,35 @@
 
 #include "groufix/core/platform.h"
 
+#include <stdlib.h>
+
+/******************************************************/
+/* Internal thread arguments */
+struct GFX_ThreadArgs
+{
+	GFX_ThreadAddress  addr;
+	void*              args;
+};
+
+/******************************************************/
+static void* _gfx_unix_thread_addr(void* arg)
+{
+	struct GFX_ThreadArgs data = *(struct GFX_ThreadArgs*)arg;
+	free(arg);
+
+	return GFX_UINT_TO_VOID(data.addr(data.args));
+}
+
 /******************************************************/
 int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable)
 {
+	/* Create arguments */
+	struct GFX_ThreadArgs* data = malloc(sizeof(struct GFX_ThreadArgs));
+	if(!data) return 0;
+
+	data->addr = func;
+	data->args = arg;
+
 	/* Create attributes */
 	pthread_attr_t attr;
 
@@ -33,11 +59,28 @@ int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func
 	pthread_attr_setdetachstate(&attr, joinable ? PTHREAD_CREATE_JOINABLE : PTHREAD_CREATE_DETACHED);
 
 	/* Create thread */
-	int ret = pthread_create(thread, &attr, func, arg);
+	if(pthread_create(thread, &attr, _gfx_unix_thread_addr, data))
+	{
+		pthread_attr_destroy(&attr);
+		free(data);
+
+		return 0;
+	}
 
 	pthread_attr_destroy(&attr);
 
-	return !ret;
+	return 1;
+}
+
+/******************************************************/
+int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret)
+{
+	void* val = NULL;
+	if(pthread_join(handle, &val)) return 0;
+
+	if(ret) *ret = GFX_VOID_TO_UINT(val);
+
+	return 1;
 }
 
 /******************************************************/
@@ -47,13 +90,7 @@ int _gfx_platform_thread_equal(GFX_PlatformThread thread1, GFX_PlatformThread th
 }
 
 /******************************************************/
-void _gfx_platform_thread_exit(void* ret)
+void _gfx_platform_thread_exit(unsigned int ret)
 {
-	pthread_exit(ret);
-}
-
-/******************************************************/
-int _gfx_platform_thread_join(GFX_PlatformThread handle, void** ret)
-{
-	return !pthread_join(handle, ret);
+	pthread_exit(GFX_UINT_TO_VOID(ret));
 }

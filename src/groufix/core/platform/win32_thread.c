@@ -23,10 +23,65 @@
 
 #include "groufix/core/platform/win32.h"
 
+#include <process.h>
+#include <stdlib.h>
+
+/******************************************************/
+/* Internal thread arguments */
+struct GFX_ThreadArgs
+{
+	GFX_ThreadAddress  addr;
+	void*              args;
+};
+
+/******************************************************/
+static unsigned int __stdcall _gfx_win32_thread_addr(void* arg)
+{
+	struct GFX_ThreadArgs data = *(struct GFX_ThreadArgs*)arg;
+	free(arg);
+
+	return data.addr(data.args);
+}
+
 /******************************************************/
 int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable)
 {
-	return 0;
+	/* Create arguments */
+	struct GFX_ThreadArgs* data = malloc(sizeof(struct GFX_ThreadArgs));
+	if(!data) return 0;
+
+	data->addr = func;
+	data->args = arg;
+
+	/* Create thread */
+	*thread = (HANDLE)_beginthreadex(NULL, 0, _gfx_win32_thread_addr, data, 0, NULL);
+	if(!*thread)
+	{
+		free(data);
+		return 0;
+	}
+
+	if(!joinable) CloseHandle(*thread);
+
+	return 1;
+}
+
+/******************************************************/
+int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret)
+{
+	if(WaitForSingleObject(handle, INFINITE) == WAIT_FAILED) return 0;
+
+	if(ret)
+	{
+		DWORD val = 0;
+		GetExitCodeThread(handle, &val);
+
+		*ret = val;
+	}
+
+	CloseHandle(handle);
+
+	return 1;
 }
 
 /******************************************************/
@@ -36,12 +91,7 @@ int _gfx_platform_thread_equal(GFX_PlatformThread thread1, GFX_PlatformThread th
 }
 
 /******************************************************/
-void _gfx_platform_thread_exit(void* ret)
+void _gfx_platform_thread_exit(unsigned int ret)
 {
-}
-
-/******************************************************/
-int _gfx_platform_thread_join(GFX_PlatformThread handle, void** ret)
-{
-	return 0;
+	_endthreadex(ret);
 }

@@ -80,7 +80,7 @@ typedef void (*GFX_ProcAddress)(void);
 
 
 /** Thread Address */
-typedef void* (*GFX_ThreadAddress)(void*);
+typedef unsigned int (*GFX_ThreadAddress)(void*);
 
 
 /** A Thread */
@@ -169,6 +169,17 @@ double _gfx_platform_get_time_resolution(void);
 int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable);
 
 /**
+ * Wait for a thread to terminate and frees all resources associated with it.
+ *
+ * @param ret Value the thread has returned (can be NULL).
+ * @return Zero on failure.
+ *
+ * Note: if a thread was created to be joinable, this call must be made to free resources.
+ *
+ */
+int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret);
+
+/**
  * Compares two threads.
  *
  * @return Non-zero if the threads are equal.
@@ -182,16 +193,7 @@ int _gfx_platform_thread_equal(GFX_PlatformThread thread1, GFX_PlatformThread th
  * @param ret Return value of the thread.
  *
  */
-void _gfx_platform_thread_exit(void* ret);
-
-/**
- * Wait for a thread to terminate.
- *
- * @param ret Value the thread has returned (can be NULL).
- * @return Zero on failure.
- *
- */
-int _gfx_platform_thread_join(GFX_PlatformThread handle, void** ret);
+void _gfx_platform_thread_exit(unsigned int ret);
 
 
 /********************************************************
