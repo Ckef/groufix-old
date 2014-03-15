@@ -84,12 +84,6 @@ int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret)
 }
 
 /******************************************************/
-int _gfx_platform_thread_equal(GFX_PlatformThread thread1, GFX_PlatformThread thread2)
-{
-	return pthread_equal(thread1, thread2);
-}
-
-/******************************************************/
 void _gfx_platform_thread_exit(unsigned int ret)
 {
 	pthread_exit(GFX_UINT_TO_VOID(ret));

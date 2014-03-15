@@ -180,14 +180,6 @@ int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func
 int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret);
 
 /**
- * Compares two threads.
- *
- * @return Non-zero if the threads are equal.
- *
- */
-int _gfx_platform_thread_equal(GFX_PlatformThread thread1, GFX_PlatformThread thread2);
-
-/**
  * Exits the calling thread.
  *
  * @param ret Return value of the thread.
