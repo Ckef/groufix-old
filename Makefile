@@ -55,19 +55,19 @@ INCLUDE = include
 SRC     = src
 SSE     = YES
 
-# Flags for all compiler calls
+# Flags for all object files
 CFLAGS            = -Os -O2 -Wall -pedantic -I$(INCLUDE) -DGFX_$(SSE)_SSE
 CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32      = $(CFLAGS) -std=c99
 
-# Object files only
+# Library object files only
 OBJFLAGS          = -c -s -I$(DEPEND) -I$(SRC)
-OBJFLAGS_UNIX_X11 = $(CFLAGS_UNIX_X11) $(OBJFLAGS) -fPIC
-OBJFLAGS_WIN32    = $(CFLAGS_WIN32) $(OBJFLAGS)
+OBJFLAGS_UNIX_X11 = $(OBJFLAGS) $(CFLAGS_UNIX_X11) -fPIC -pthread
+OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32)
 
-# Libraries to link to
-LIBS_UNIX_X11     = -lX11 -lGL
-LIBS_WIN32        = -lwinmm -lopengl32 -lgdi32
+# Linker flags
+LFLAGS_UNIX_X11   = -shared -pthread -lX11 -lGL
+LFLAGS_WIN32      = -shared -lwinmm -lopengl32 -lgdi32
 
 
 #################################################################
@@ -152,10 +152,11 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/pipeline/process.o \
  $(OUT)/unix-x11/groufix/core/pipeline/states.o \
  $(OUT)/unix-x11/groufix/core/platform/context.o \
+ $(OUT)/unix-x11/groufix/core/platform/unix_thread.o \
+ $(OUT)/unix-x11/groufix/core/platform/unix_time.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_screen.o \
- $(OUT)/unix-x11/groufix/core/platform/x11_time.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_window.o \
  $(OUT)/unix-x11/groufix/core/shading/binder.o \
  $(OUT)/unix-x11/groufix/core/shading/program.o \
@@ -173,7 +174,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix.o
 
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
-	$(CC) -shared $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LIBS_UNIX_X11)
+	$(CC) $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LFLAGS_UNIX_X11)
 
 unix-x11-minimal: examples/minimal.c unix-x11 
 	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
@@ -235,6 +236,12 @@ $(OUT)/unix-x11/groufix/core/pipeline/states.o: $(SRC)/groufix/core/pipeline/sta
 $(OUT)/unix-x11/groufix/core/platform/context.o: $(SRC)/groufix/core/platform/context.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/core/platform/unix_thread.o: $(SRC)/groufix/core/platform/unix_thread.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
+$(OUT)/unix-x11/groufix/core/platform/unix_time.o: $(SRC)/groufix/core/platform/unix_time.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/core/platform/x11_context.o: $(SRC)/groufix/core/platform/x11_context.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -242,9 +249,6 @@ $(OUT)/unix-x11/groufix/core/platform/x11_init.o: $(SRC)/groufix/core/platform/x
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/core/platform/x11_screen.o: $(SRC)/groufix/core/platform/x11_screen.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/platform/x11_time.o: $(SRC)/groufix/core/platform/x11_time.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 $(OUT)/unix-x11/groufix/core/platform/x11_window.o: $(SRC)/groufix/core/platform/x11_window.c $(HEADERS_X11)
@@ -314,6 +318,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/platform/win32_context.o \
  $(OUT)/win32/groufix/core/platform/win32_init.o \
  $(OUT)/win32/groufix/core/platform/win32_screen.o \
+ $(OUT)/win32/groufix/core/platform/win32_thread.o \
  $(OUT)/win32/groufix/core/platform/win32_time.o \
  $(OUT)/win32/groufix/core/platform/win32_window.o \
  $(OUT)/win32/groufix/core/shading/binder.o \
@@ -332,7 +337,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix.o
 
 win32: before-win32 $(OBJS_WIN32)
-	$(CC) -shared $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LIBS_WIN32)
+	$(CC) $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
 
 win32-minimal: examples/minimal.c win32
 	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
@@ -401,6 +406,9 @@ $(OUT)/win32/groufix/core/platform/win32_init.o: $(SRC)/groufix/core/platform/wi
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/core/platform/win32_screen.o: $(SRC)/groufix/core/platform/win32_screen.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/core/platform/win32_thread.o: $(SRC)/groufix/core/platform/win32_thread.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/core/platform/win32_time.o: $(SRC)/groufix/core/platform/win32_time.c $(HEADERS_WIN32)

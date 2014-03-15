@@ -32,7 +32,7 @@
 	#define GFX_WIN32
 #elif defined(__APPLE__) || defined(__MACH__)
 	#define GFX_OSX
-#elif defined(__unix) || defined(__unix__) || defined(__linux__)
+#elif defined(__unix) || defined(__unix__) || defined(__linux__) || defined(__gnu_linux__)
 	#define GFX_UNIX
 
 /* Maybe GLES? */
@@ -40,8 +40,9 @@
 	#error "Platform not supported"
 #endif
 
-/* Windows */
-#ifdef GFX_WIN32
+
+/* Required platform headers */
+#if defined(GFX_WIN32)
 
 	/* Windows XP */
 	#ifndef WINVER
@@ -57,22 +58,47 @@
 	#define VC_EXTRALEAN
 	#endif
 	
-	/* To avoid redefinitions */
 	#include <windows.h>
 
+#elif defined(GFX_UNIX)
+
+	#include <pthread.h>
+
 #endif
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /********************************************************
- * Platform definitions
+ * Platform process/thread definitions
  *******************************************************/
 
 /** Process Address */
-typedef void (*GFXProcAddress)(void);
+typedef void (*GFX_ProcAddress)(void);
 
+
+/** Thread Address */
+typedef void* (*GFX_ThreadAddress)(void*);
+
+
+/** A Thread */
+#if defined(GFX_WIN32)
+typedef HANDLE GFX_PlatformThread;
+
+#elif defined(GFX_UNIX)
+typedef pthread_t GFX_PlatformThread;
+
+#else
+typedef void* GFX_PlatformThread;
+
+#endif
+
+
+/********************************************************
+ * Platform window manager definitions
+ *******************************************************/
 
 /** A Screen */
 typedef void* GFX_PlatformScreen;
@@ -124,6 +150,40 @@ uint64_t _gfx_platform_get_time(void);
  *
  */
 double _gfx_platform_get_time_resolution(void);
+
+
+/********************************************************
+ * Threading
+ *******************************************************/
+
+/**
+ * Creates a new thread.
+ *
+ * @param thread   Returns the thread handle.
+ * @param func     Starting address of the thread, cannot be NULL.
+ * @param arg      Argument to give to func.
+ * @param joinable If zero, the thread cannot be joined.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_platform_thread_create(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable);
+
+/**
+ * Exits the calling thread.
+ *
+ * @param ret Return value of the thread.
+ *
+ */
+void _gfx_platform_thread_exit(void* ret);
+
+/**
+ * Wait for a thread to terminate.
+ *
+ * @param ret Value the thread has returned (can be NULL).
+ * @return Zero on failure.
+ *
+ */
+int _gfx_platform_thread_join(GFX_PlatformThread handle, void** ret);
 
 
 /********************************************************
@@ -465,7 +525,7 @@ int _gfx_platform_is_extension_supported(GFX_PlatformWindow handle, const char* 
  * @return NULL if the process does not exist.
  *
  */
-GFXProcAddress _gfx_platform_get_proc_address(const char* proc);
+GFX_ProcAddress _gfx_platform_get_proc_address(const char* proc);
 
 
 #ifdef __cplusplus

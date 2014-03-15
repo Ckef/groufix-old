@@ -118,7 +118,7 @@ int _gfx_platform_is_extension_supported(GFX_PlatformWindow handle, const char* 
 }
 
 /******************************************************/
-GFXProcAddress _gfx_platform_get_proc_address(const char* proc)
+GFX_ProcAddress _gfx_platform_get_proc_address(const char* proc)
 {
-	return (GFXProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
+	return (GFX_ProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
 }
