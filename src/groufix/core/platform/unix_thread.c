@@ -24,7 +24,7 @@
 #include "groufix/core/platform.h"
 
 /******************************************************/
-int _gfx_platform_thread_create(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable)
+int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable)
 {
 	/* Create attributes */
 	pthread_attr_t attr;
@@ -38,6 +38,12 @@ int _gfx_platform_thread_create(GFX_PlatformThread* thread, GFX_ThreadAddress fu
 	pthread_attr_destroy(&attr);
 
 	return !ret;
+}
+
+/******************************************************/
+int _gfx_platform_thread_equal(GFX_PlatformThread thread1, GFX_PlatformThread thread2)
+{
+	return pthread_equal(thread1, thread2);
 }
 
 /******************************************************/

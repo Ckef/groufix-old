@@ -24,9 +24,15 @@
 #include "groufix/core/platform/win32.h"
 
 /******************************************************/
-int _gfx_platform_thread_create(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable)
+int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable)
 {
 	return 0;
+}
+
+/******************************************************/
+int _gfx_platform_thread_equal(GFX_PlatformThread thread1, GFX_PlatformThread thread2)
+{
+	return thread1 == thread2;
 }
 
 /******************************************************/

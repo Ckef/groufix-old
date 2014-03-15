@@ -157,7 +157,7 @@ double _gfx_platform_get_time_resolution(void);
  *******************************************************/
 
 /**
- * Creates a new thread.
+ * Initializes a new thread.
  *
  * @param thread   Returns the thread handle.
  * @param func     Starting address of the thread, cannot be NULL.
@@ -166,7 +166,15 @@ double _gfx_platform_get_time_resolution(void);
  * @return Zero on failure.
  *
  */
-int _gfx_platform_thread_create(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable);
+int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable);
+
+/**
+ * Compares two threads.
+ *
+ * @return Non-zero if the threads are equal.
+ *
+ */
+int _gfx_platform_thread_equal(GFX_PlatformThread thread1, GFX_PlatformThread thread2);
 
 /**
  * Exits the calling thread.
