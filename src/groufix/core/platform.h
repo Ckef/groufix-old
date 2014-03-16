@@ -96,6 +96,19 @@ typedef void* GFX_PlatformThread;
 #endif
 
 
+/** A Mutex */
+#if defined(GFX_WIN32)
+typedef CRITICAL_SECTION GFX_PlatformMutex;
+
+#elif defined(GFX_UNIX)
+typedef pthread_mutex_t GFX_PlatformMutex;
+
+#else
+typedef void* GFX_PlatformMutex;
+
+#endif
+
+
 /********************************************************
  * Platform window manager definitions
  *******************************************************/
@@ -169,6 +182,12 @@ double _gfx_platform_get_time_resolution(void);
 int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func, void* arg, int joinable);
 
 /**
+ * Detaches a thread, making it unjoinable.
+ *
+ */
+void _gfx_platform_thread_detach(GFX_PlatformThread handle);
+
+/**
  * Wait for a thread to terminate and frees all resources associated with it.
  *
  * @param ret Value the thread has returned (can be NULL).
@@ -186,6 +205,49 @@ int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret);
  *
  */
 void _gfx_platform_thread_exit(unsigned int ret);
+
+/**
+ * Initializes a new mutex.
+ *
+ * @param mutex Returns the mutex object.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_platform_mutex_init(GFX_PlatformMutex* mutex);
+
+/**
+ * Makes sure a mutex is freed properly.
+ *
+ * Note: Clearing a locked mutex results in undefined behavior.
+ *
+ */
+void _gfx_platform_mutex_clear(GFX_PlatformMutex* mutex);
+
+/**
+ * Blocks untill the calling thread is granted ownership of the mutex.
+ *
+ * @return Zero on failure (no blocking occurred).
+ *
+ * Note: locking a mutex you already own results in undefined behavior.
+ *
+ */
+int _gfx_platform_mutex_lock(GFX_PlatformMutex* mutex);
+
+/**
+ * Try to get ownership of the mutex, but do not block.
+ *
+ * @return Non-zero if ownership was granted.
+ *
+ */
+int _gfx_platform_mutex_try_lock(GFX_PlatformMutex* mutex);
+
+/**
+ * Releases the mutex, making it available to other threads.
+ *
+ * Note: unlocking a mutex which was not locked results in undefined behavior.
+ *
+ */
+void _gfx_platform_mutex_unlock(GFX_PlatformMutex* mutex);
 
 
 /********************************************************

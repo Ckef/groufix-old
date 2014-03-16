@@ -73,6 +73,12 @@ int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func
 }
 
 /******************************************************/
+void _gfx_platform_thread_detach(GFX_PlatformThread handle)
+{
+	pthread_detach(handle);
+}
+
+/******************************************************/
 int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret)
 {
 	void* val = NULL;
@@ -87,4 +93,34 @@ int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret)
 void _gfx_platform_thread_exit(unsigned int ret)
 {
 	pthread_exit(GFX_UINT_TO_VOID(ret));
+}
+
+/******************************************************/
+int _gfx_platform_mutex_init(GFX_PlatformMutex* mutex)
+{
+	return !pthread_mutex_init(mutex, NULL);
+}
+
+/******************************************************/
+void _gfx_platform_mutex_clear(GFX_PlatformMutex* mutex)
+{
+	pthread_mutex_destroy(mutex);
+}
+
+/******************************************************/
+int _gfx_platform_mutex_lock(GFX_PlatformMutex* mutex)
+{
+	return !pthread_mutex_lock(mutex);
+}
+
+/******************************************************/
+int _gfx_platform_mutex_try_lock(GFX_PlatformMutex* mutex)
+{
+	return !pthread_mutex_trylock(mutex);
+}
+
+/******************************************************/
+void _gfx_platform_mutex_unlock(GFX_PlatformMutex* mutex)
+{
+	pthread_mutex_unlock(mutex);
 }

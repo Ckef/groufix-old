@@ -67,6 +67,12 @@ int _gfx_platform_thread_init(GFX_PlatformThread* thread, GFX_ThreadAddress func
 }
 
 /******************************************************/
+void _gfx_platform_thread_detach(GFX_PlatformThread handle)
+{
+	CloseHandle(handle);
+}
+
+/******************************************************/
 int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret)
 {
 	if(WaitForSingleObject(handle, INFINITE) == WAIT_FAILED) return 0;
@@ -88,4 +94,38 @@ int _gfx_platform_thread_join(GFX_PlatformThread handle, unsigned int* ret)
 void _gfx_platform_thread_exit(unsigned int ret)
 {
 	_endthreadex(ret);
+}
+
+/******************************************************/
+int _gfx_platform_mutex_init(GFX_PlatformMutex* mutex)
+{
+	InitializeCriticalSection(mutex);
+
+	return 1;
+}
+
+/******************************************************/
+void _gfx_platform_mutex_clear(GFX_PlatformMutex* mutex)
+{
+	DeleteCriticalSection(mutex);
+}
+
+/******************************************************/
+int _gfx_platform_mutex_lock(GFX_PlatformMutex* mutex)
+{
+	EnterCriticalSection(mutex);
+
+	return 1;
+}
+
+/******************************************************/
+int _gfx_platform_mutex_try_lock(GFX_PlatformMutex* mutex)
+{
+	return TryEnterCriticalSection(mutex);
+}
+
+/******************************************************/
+void _gfx_platform_mutex_unlock(GFX_PlatformMutex* mutex)
+{
+	LeaveCriticalSection(mutex);
 }
