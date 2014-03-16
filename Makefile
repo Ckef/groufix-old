@@ -86,6 +86,7 @@ HEADERS = \
  $(INCLUDE)/groufix/math/mat.h \
  $(INCLUDE)/groufix/math/quat.h \
  $(INCLUDE)/groufix/math/vec.h \
+ $(INCLUDE)/groufix/scene/material.h \
  $(INCLUDE)/groufix/scene/mesh.h \
  $(INCLUDE)/groufix/math.h \
  $(INCLUDE)/groufix/scene.h \
@@ -168,6 +169,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/hardware.o \
  $(OUT)/unix-x11/groufix/core/screen.o \
  $(OUT)/unix-x11/groufix/core/window.o \
+ $(OUT)/unix-x11/groufix/scene/material.o \
  $(OUT)/unix-x11/groufix/scene/mesh.o \
  $(OUT)/unix-x11/groufix/scene/submesh.o \
  $(OUT)/unix-x11/groufix/math.o \
@@ -284,6 +286,9 @@ $(OUT)/unix-x11/groufix/core/screen.o: $(SRC)/groufix/core/screen.c $(HEADERS_X1
 $(OUT)/unix-x11/groufix/core/window.o: $(SRC)/groufix/core/window.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
+$(OUT)/unix-x11/groufix/scene/material.o: $(SRC)/groufix/scene/material.c $(HEADERS_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+
 $(OUT)/unix-x11/groufix/scene/mesh.o: $(SRC)/groufix/scene/mesh.c $(HEADERS_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -331,6 +336,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/hardware.o \
  $(OUT)/win32/groufix/core/screen.o \
  $(OUT)/win32/groufix/core/window.o \
+ $(OUT)/win32/groufix/scene/material.o \
  $(OUT)/win32/groufix/scene/mesh.o \
  $(OUT)/win32/groufix/scene/submesh.o \
  $(OUT)/win32/groufix/math.o \
@@ -445,6 +451,9 @@ $(OUT)/win32/groufix/core/screen.o: $(SRC)/groufix/core/screen.c $(HEADERS_WIN32
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/core/window.o: $(SRC)/groufix/core/window.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+
+$(OUT)/win32/groufix/scene/material.o: $(SRC)/groufix/scene/material.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
 $(OUT)/win32/groufix/scene/mesh.o: $(SRC)/groufix/scene/mesh.c $(HEADERS_WIN32)
