@@ -586,7 +586,20 @@ void gfx_pipeline_move(GFXPipe* pipe, GFXPipe* after);
 void gfx_pipeline_swap(GFXPipe* pipe1, GFXPipe* pipe2);
 
 /**
+ * Unlinks all current pipes and moves all given pipes to be executed (in order).
+ *
+ * @param num   Number of pipes to link.
+ * @param pipes Num pipes to link, in order.
+ *
+ * Note: if the pipes don't belong to the same pipeline, nothing happens.
+ *
+ */
+void gfx_pipeline_relink(size_t num, GFXPipe** pipes);
+
+/**
  * Removes and destroys a pipe from its associated pipeline.
+ *
+ * The pipe cannot be used anymore after this call.
  *
  */
 void gfx_pipeline_remove(GFXPipe* pipe);

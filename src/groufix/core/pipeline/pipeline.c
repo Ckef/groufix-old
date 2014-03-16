@@ -479,10 +479,13 @@ void gfx_pipeline_move(GFXPipe* pipe, GFXPipe* after)
 		struct GFX_Pipeline* pl = (struct GFX_Pipeline*)int1->pipeline;
 
 		/* Reconstruct pointers */
-		if(pl->first == int1)    pl->first    = (GFX_Pipe*)int1->node.next;
-		if(pl->last == int1)     pl->last     = (GFX_Pipe*)int1->node.previous;
-		if(pl->current == int1)  pl->current  = (GFX_Pipe*)int1->node.next;
-		if(pl->unlinked == int1) pl->unlinked = (GFX_Pipe*)int1->node.next;
+		if(pl->unlinked != int1)
+		{
+			if(pl->first == int1)   pl->first   = (GFX_Pipe*)int1->node.next;
+			if(pl->last == int1)    pl->last    = (GFX_Pipe*)int1->node.previous;
+			if(pl->current == int1) pl->current = (GFX_Pipe*)int1->node.next;
+		}
+		else pl->unlinked = (GFX_Pipe*)int1->node.next;
 
 		/* Move it */
 		if(int2)
@@ -530,6 +533,28 @@ void gfx_pipeline_swap(GFXPipe* pipe1, GFXPipe* pipe2)
 
 		/* Swap list elements */
 		gfx_list_swap((GFXList*)int1, (GFXList*)int2);
+	}
+}
+
+/******************************************************/
+void gfx_pipeline_relink(size_t num, GFXPipe** pipes)
+{
+	if(num)
+	{
+		/* Get pipeline and check if they all have the same */
+		GFXPipeline* pipeline = ((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipes[0], offsetof(GFX_Pipe, ptr)))->pipeline;
+		size_t ch = num;
+
+		while(ch > 1)
+		{
+			GFXPipe* pipe = pipes[--ch];
+			if(((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->pipeline != pipeline)
+				return;
+		}
+
+		/* Unlink and relink all pipes */
+		gfx_pipeline_unlink_all(pipeline);
+		while(num) gfx_pipeline_move(pipes[--num], NULL);
 	}
 }
 
