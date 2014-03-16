@@ -309,7 +309,6 @@ GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVecto
 		_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize));
 		start = GFX_PTR_ADD_BYTES(vector->begin, oldSize - toEnd);
 	}
-	else if(!newSize) gfx_vector_clear(vector);
 
 	/* Set new end */
 	else vector->end = GFX_PTR_ADD_BYTES(vector->begin, newSize);

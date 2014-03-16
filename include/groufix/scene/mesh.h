@@ -24,6 +24,7 @@
 #ifndef GFX_SCENE_MESH_H
 #define GFX_SCENE_MESH_H
 
+#include "groufix/scene/lod.h"
 #include "groufix/core/pipeline.h"
 
 #ifdef __cplusplus
@@ -87,58 +88,68 @@ int gfx_submesh_set_draw_call_buffer(GFXSubMesh* mesh, unsigned char index, size
 /** Mesh */
 typedef struct GFXMesh
 {
-	size_t        num;       /* Number of elements in subMeshes */
-	GFXSubMesh**  subMeshes; /* Array containing the referenced subMeshes */
+	GFXLodMap lodMap; /* Super class */
 
 } GFXMesh;
 
 
 /**
- * Initializes a mesh.
+ * Creates a new mesh.
+ *
+ * @return NULL on failure.
  *
  */
-void gfx_mesh_init(GFXMesh* mesh);
+GFXMesh* gfx_mesh_create(void);
 
 /**
- * Initializes a copy of a mesh.
- *
- * Note: if any submesh fails to share, it is not inserted in the submesh array.
+ * Makes sure the mesh is freed properly.
  *
  */
-void gfx_mesh_init_copy(GFXMesh* mesh, GFXMesh* src);
+void gfx_mesh_free(GFXMesh* mesh);
 
 /**
- * Clears content of a mesh.
+ * Creates a new submesh and maps it to a given level of detail.
  *
- */
-void gfx_mesh_clear(GFXMesh* mesh);
-
-/**
- * Appends a newly created submesh to the end of the mesh.
- *
+ * @param level     Level of detail to map to (must be <= mesh->levels).
  * @param drawCalls Fixed number of draw calls associated with the layout.
  * @param sources   Fixed number of sources to create.
  * @return The new submesh on success, NULL on failure.
  *
  */
-GFXSubMesh* gfx_mesh_push(GFXMesh* mesh, unsigned char drawCalls, unsigned char sources);
+GFXSubMesh* gfx_mesh_add(GFXMesh* mesh, size_t level, unsigned char drawCalls, unsigned char sources);
 
 /**
- * Appends a shared submesh to the end of the mesh.
+ * Shares a submesh and maps it to a given level of detail.
  *
+ * @param level Level of detail to map to (must be <= mesh->levels).
  * @param share Submesh to share.
  * @return Zero on failure.
  *
  */
-int gfx_mesh_push_share(GFXMesh* mesh, GFXSubMesh* share);
+int gfx_mesh_add_share(GFXMesh* mesh, size_t level, GFXSubMesh* share);
 
 /**
  * Removes a submesh from the mesh.
  *
- * @param index Index of the submesh in mesh->subMeshes.
+ * This might or might not remove LODs.
+ * If this happens, higher levels will fall down one level.
  *
  */
-void gfx_mesh_remove(GFXMesh* mesh, size_t index);
+void gfx_mesh_remove(GFXMesh* mesh, GFXSubMesh* sub);
+
+/**
+ * Returns an array of submeshes of a given level of detail.
+ *
+ * @param num Returns the number of submeshes in the returned array.
+ * @return Array of num submeshes.
+ *
+ * Note: as soon as a submesh is added/removed the array pointer is invalidated.
+ *
+ */
+inline GFXSubMesh** gfx_mesh_get(GFXMesh* mesh, size_t level, size_t* num)
+{
+	return (GFXSubMesh**)gfx_lod_map_get((GFXLodMap*)mesh, level, num);
+}
 
 
 #ifdef __cplusplus

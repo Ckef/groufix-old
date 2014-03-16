@@ -24,6 +24,7 @@
 #ifndef GFX_SCENE_MATERIAL_H
 #define GFX_SCENE_MATERIAL_H
 
+#include "groufix/scene/lod.h"
 #include "groufix/core/shading.h"
 
 #ifdef __cplusplus
@@ -37,41 +38,58 @@ extern "C" {
 /** Material */
 typedef struct GFXMaterial
 {
-	size_t            num;          /* Number of elements in propertyMaps */
-	GFXPropertyMap**  propertyMaps; /* Array containing the property maps */
+	GFXLodMap lodMap; /* Super class */
 
 } GFXMaterial;
 
 
 /**
- * Initializes a material.
+ * Creates a new material.
+ *
+ * @return NULL on failure.
  *
  */
-void gfx_material_init(GFXMaterial* material);
+GFXMaterial* gfx_material_create(void);
 
 /**
- * Clears content of a material.
+ * Makes sure the material is freed properly.
  *
  */
-void gfx_material_clear(GFXMaterial* material);
+void gfx_material_free(GFXMaterial* material);
 
 /**
- * Appends a newly created property map to the end of the material.
+ * Creates a new property map and maps it to a given level of detail.
  *
+ * @param level      Level of detail to map to (must be <= material->levels).
  * @param program    Program to set inputs for.
  * @param properties Fixed number of property indices associated with this map.
  * @return The new property map on success, NULL on failure.
  *
  */
-GFXPropertyMap* gfx_material_push(GFXMaterial* material, GFXProgram* program, unsigned char properties);
+GFXPropertyMap* gfx_material_add(GFXMaterial* material, size_t level, GFXProgram* program, unsigned char properties);
 
 /**
  * Removes a property map from the material.
  *
- * @param index Index of the property map in material->propertyMaps.
+ * This might or might not remove LODs.
+ * If this happens, higher levels will fall down one level.
  *
  */
-void gfx_material_remove(GFXMaterial* material, size_t index);
+void gfx_material_remove(GFXMaterial* material, GFXPropertyMap* map);
+
+/**
+ * Returns an array of property maps of a given level of detail.
+ *
+ * @param num Returns the number of property maps in the returned array.
+ * @return Array of num property maps.
+ *
+ * Note: as soon as a property map is added/removed the array pointer is invalidated.
+ *
+ */
+inline GFXPropertyMap** gfx_material_get(GFXMaterial* material, size_t level, size_t* num)
+{
+	return (GFXPropertyMap**)gfx_lod_map_get((GFXLodMap*)material, level, num);
+}
 
 
 #ifdef __cplusplus

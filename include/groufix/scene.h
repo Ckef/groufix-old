@@ -24,6 +24,7 @@
 #ifndef GFX_SCENE_H
 #define GFX_SCENE_H
 
+#include "groufix/scene/material.h"
 #include "groufix/scene/mesh.h"
 
 #ifdef __cplusplus

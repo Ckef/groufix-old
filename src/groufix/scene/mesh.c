@@ -23,113 +23,77 @@
 
 #include "groufix/scene/internal.h"
 
-#include <stdlib.h>
-#include <string.h>
-
 /******************************************************/
-static int _gfx_mesh_alloc_submesh(GFXMesh* mesh)
+GFXMesh* gfx_mesh_create(void)
 {
-	/* Allocate the pointer */
-	GFXSubMesh** ptr = realloc(mesh->subMeshes, sizeof(GFXSubMesh*) * (mesh->num + 1));
-	if(!ptr) return 0;
-
-	mesh->subMeshes = ptr;
-	++mesh->num;
-
-	return 1;
+	return (GFXMesh*)gfx_lod_map_create();
 }
 
 /******************************************************/
-static void _gfx_mesh_free_submesh(GFXMesh* mesh)
+void gfx_mesh_free(GFXMesh* mesh)
 {
-	if(!(--mesh->num))
+	if(mesh)
 	{
-		free(mesh->subMeshes);
-		mesh->subMeshes = NULL;
+		/* Iterate over all levels */
+		size_t levels = mesh->lodMap.levels;
+
+		while(levels)
+		{
+			/* Free all submeshes in it */
+			size_t num;
+			GFXSubMesh** subs = gfx_mesh_get(mesh, --levels, &num);
+
+			while(num) _gfx_submesh_free(subs[--num]);
+		}
+
+		gfx_lod_map_free((GFXLodMap*)mesh);
 	}
-	else mesh->subMeshes = realloc(mesh->subMeshes, sizeof(GFXSubMesh*) * mesh->num);
 }
 
 /******************************************************/
-static void _gfx_mesh_remove_submesh(GFXMesh* mesh, size_t index)
+GFXSubMesh* gfx_mesh_add(GFXMesh* mesh, size_t level, unsigned char drawCalls, unsigned char sources)
 {
-	/* Move memory and free the last submesh */
-	memmove(
-		mesh->subMeshes + index,
-		mesh->subMeshes + index + 1,
-		sizeof(GFXSubMesh*) * (mesh->num - index - 1));
-
-	_gfx_mesh_free_submesh(mesh);
-}
-
-/******************************************************/
-void gfx_mesh_init(GFXMesh* mesh)
-{
-	memset(mesh, 0, sizeof(GFXMesh));
-}
-
-/******************************************************/
-void gfx_mesh_init_copy(GFXMesh* mesh, GFXMesh* src)
-{
-	gfx_mesh_init(mesh);
-
-	/* Share all the submeshes */
-	size_t s;
-	for(s = 0; s < src->num; ++s)
-		gfx_mesh_push_share(mesh, src->subMeshes[s]);
-}
-
-/******************************************************/
-void gfx_mesh_clear(GFXMesh* mesh)
-{
-	/* Free all submeshes */
-	size_t s;
-	for(s = 0; s < mesh->num; ++s)
-		_gfx_submesh_free(mesh->subMeshes[s]);
-
-	free(mesh->subMeshes);
-	gfx_mesh_init(mesh);
-}
-
-/******************************************************/
-GFXSubMesh* gfx_mesh_push(GFXMesh* mesh, unsigned char drawCalls, unsigned char sources)
-{
-	if(!_gfx_mesh_alloc_submesh(mesh)) return NULL;
-
-	/* Create new submesh */
+	/* Create new submesh and add it to the LOD map */
 	GFXSubMesh* sub = _gfx_submesh_create(drawCalls, sources);
-	if(!sub)
+	if(!sub) return NULL;
+
+	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, sub))
 	{
-		_gfx_mesh_free_submesh(mesh);
+		_gfx_submesh_free(sub);
 		return NULL;
 	}
-	mesh->subMeshes[mesh->num - 1] = sub;
 
 	return sub;
 }
 
 /******************************************************/
-int gfx_mesh_push_share(GFXMesh* mesh, GFXSubMesh* share)
+int gfx_mesh_add_share(GFXMesh* mesh, size_t level, GFXSubMesh* share)
 {
-	if(!_gfx_mesh_alloc_submesh(mesh)) return 0;
+	/* Check if it's already mapped to avoid another reference */
+	if(gfx_lod_map_has((GFXLodMap*)mesh, level, share)) return 1;
 
 	/* Reference the submesh */
-	if(!_gfx_submesh_reference(share))
+	if(!_gfx_submesh_reference(share)) return 0;
+
+	/* Add it to the LOD map */
+	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, share))
 	{
-		_gfx_mesh_free_submesh(mesh);
+		_gfx_submesh_free(share);
 		return 0;
 	}
-	mesh->subMeshes[mesh->num - 1] = share;
 
 	return 1;
 }
 
 /******************************************************/
-void gfx_mesh_remove(GFXMesh* mesh, size_t index)
+void gfx_mesh_remove(GFXMesh* mesh, GFXSubMesh* sub)
 {
-	if(index < mesh->num)
+	/* Remove it from all levels */
+	size_t levels = mesh->lodMap.levels;
+
+	while(levels)
 	{
-		_gfx_submesh_free(mesh->subMeshes[index]);
-		_gfx_mesh_remove_submesh(mesh, index);
+		if(gfx_lod_map_remove((GFXLodMap*)mesh, --levels, sub))
+			_gfx_submesh_free(sub);
 	}
 }

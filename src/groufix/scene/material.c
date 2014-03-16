@@ -23,86 +23,58 @@
 
 #include "groufix/scene/material.h"
 
-#include <stdlib.h>
-#include <string.h>
-
 /******************************************************/
-static int _gfx_material_alloc_property_map(GFXMaterial* mat)
+GFXMaterial* gfx_material_create(void)
 {
-	/* Allocate the pointer */
-	GFXPropertyMap** ptr = realloc(mat->propertyMaps, sizeof(GFXPropertyMap*) * (mat->num + 1));
-	if(!ptr) return 0;
-
-	mat->propertyMaps = ptr;
-	++mat->num;
-
-	return 1;
+	return (GFXMaterial*)gfx_lod_map_create();
 }
 
 /******************************************************/
-static void _gfx_material_free_property_map(GFXMaterial* mat)
+void gfx_material_free(GFXMaterial* material)
 {
-	if(!(--mat->num))
+	if(material)
 	{
-		free(mat->propertyMaps);
-		mat->propertyMaps = NULL;
+		/* Iterate over all levels */
+		size_t levels = material->lodMap.levels;
+
+		while(levels)
+		{
+			/* Free all property maps in it */
+			size_t num;
+			GFXPropertyMap** maps = gfx_material_get(material, --levels, &num);
+
+			while(num) gfx_property_map_free(maps[--num]);
+		}
+
+		gfx_lod_map_free((GFXLodMap*)material);
 	}
-	else mat->propertyMaps = realloc(mat->propertyMaps, sizeof(GFXPropertyMap*) * mat->num);
 }
 
 /******************************************************/
-static void _gfx_material_remove_property_map(GFXMaterial* mat, size_t index)
+GFXPropertyMap* gfx_material_add(GFXMaterial* material, size_t level, GFXProgram* program, unsigned char properties)
 {
-	/* Move memory and free the last property map */
-	memmove(
-		mat->propertyMaps + index,
-		mat->propertyMaps + index + 1,
-		sizeof(GFXPropertyMap*) * (mat->num - index - 1));
-
-	_gfx_material_free_property_map(mat);
-}
-
-/******************************************************/
-void gfx_material_init(GFXMaterial* material)
-{
-	memset(material, 0, sizeof(GFXMaterial));
-}
-
-/******************************************************/
-void gfx_material_clear(GFXMaterial* material)
-{
-	/* Free all property maps */
-	size_t p;
-	for(p = 0; p < material->num; ++p)
-		gfx_property_map_free(material->propertyMaps[p]);
-
-	free(material->propertyMaps);
-	gfx_material_init(material);
-}
-
-/******************************************************/
-GFXPropertyMap* gfx_material_push(GFXMaterial* material, GFXProgram* program, unsigned char properties)
-{
-	if(!_gfx_material_alloc_property_map(material)) return NULL;
-
-	/* Create new property map */
+	/* Create new property map and add it to the LOD map */
 	GFXPropertyMap* map = gfx_property_map_create(program, properties);
-	if(!map)
+	if(!map) return NULL;
+
+	if(!gfx_lod_map_add((GFXLodMap*)material, level, map))
 	{
-		_gfx_material_free_property_map(material);
+		gfx_property_map_free(map);
 		return NULL;
 	}
-	material->propertyMaps[material->num - 1] = map;
 
 	return map;
 }
 
 /******************************************************/
-void gfx_material_remove(GFXMaterial* material, size_t index)
+void gfx_material_remove(GFXMaterial* material, GFXPropertyMap* map)
 {
-	if(index < material->num)
+	/* Remove it from all levels */
+	size_t levels = material->lodMap.levels;
+
+	while(levels)
 	{
-		gfx_property_map_free(material->propertyMaps[index]);
-		_gfx_material_remove_property_map(material, index);
+		if(gfx_lod_map_remove((GFXLodMap*)material, --levels, map))
+			gfx_property_map_free(map);
 	}
 }
