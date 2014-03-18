@@ -49,19 +49,24 @@ static int _gfx_deque_realloc(GFXDeque* deque, size_t capacity)
 	long int diff = capacity - deque->capacity;
 
 	/* Move if necessary */
-	if(diff < 0 && begin > end)
-	{
-		deque->begin = memmove(
-			GFX_PTR_ADD_BYTES(deque->begin, diff),
-			deque->begin,
-			deque->capacity - begin
-		);
-		deque->capacity = capacity;
-	}
+	if(diff < 0 && begin > end) deque->begin = memmove(
+		GFX_PTR_ADD_BYTES(deque->begin, diff),
+		deque->begin,
+		deque->capacity - begin
+	);
 
 	/* Make sure to check if it worked */
 	void* new = realloc(deque->data, capacity);
-	if(!new) return 0;
+	if(!new)
+	{
+		/* Move memory back >.> */
+		if(diff < 0 && begin > end) deque->begin = memmove(
+			GFX_PTR_SUB_BYTES(deque->begin, diff),
+			deque->begin,
+			deque->capacity - begin
+		);
+		return 0;
+	}
 
 	/* Set new properties */
 	deque->data = new;
@@ -69,15 +74,13 @@ static int _gfx_deque_realloc(GFXDeque* deque, size_t capacity)
 	deque->end = GFX_PTR_ADD_BYTES(deque->data, end);
 
 	/* Move if necessary */
-	if(diff > 0 && begin > end)
-	{
-		deque->begin = memmove(
-			GFX_PTR_ADD_BYTES(deque->begin, diff),
-			deque->begin,
-			deque->capacity - begin
-		);
-		deque->capacity = capacity;
-	}
+	if(diff > 0 && begin > end) deque->begin = memmove(
+		GFX_PTR_ADD_BYTES(deque->begin, diff),
+		deque->begin,
+		deque->capacity - begin
+	);
+
+	deque->capacity = capacity;
 
 	return 1;
 }

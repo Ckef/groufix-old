@@ -66,7 +66,7 @@ OBJFLAGS_UNIX_X11 = $(OBJFLAGS) $(CFLAGS_UNIX_X11) -fPIC -pthread
 OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32)
 
 # Linker flags
-LFLAGS_UNIX_X11   = -shared -pthread -lX11 -lGL
+LFLAGS_UNIX_X11   = -shared -pthread -lX11 -lGL -lrt
 LFLAGS_WIN32      = -shared -lwinmm -lopengl32 -lgdi32
 
 

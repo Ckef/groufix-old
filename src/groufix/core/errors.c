@@ -126,7 +126,7 @@ void gfx_errors_push(GFXErrorCode code, const char* description)
 	if(description)
 	{
 		char* des = malloc(sizeof(char) * (strlen(description) + 1));
-		strcpy(des, description);
+		if(des) strcpy(des, description);
 
 		error.description = des;
 	}
