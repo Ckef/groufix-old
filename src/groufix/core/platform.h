@@ -212,6 +212,8 @@ void _gfx_platform_thread_exit(unsigned int ret);
  * @param mutex Returns the mutex object.
  * @return Zero on failure.
  *
+ * Note: NEVER copy the initialized mutex, the same pointer must always be used!
+ *
  */
 int _gfx_platform_mutex_init(GFX_PlatformMutex* mutex);
 

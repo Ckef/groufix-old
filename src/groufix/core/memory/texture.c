@@ -265,7 +265,8 @@ static void _gfx_texture_set_size(struct GFX_Texture* tex, size_t width, size_t 
 		format.type.packed :
 		format.type.unpacked;
 
-	_gfx_binder_bind_texture(tex->handle, tex->target, 0, ext);
+	int old;
+	_gfx_binder_bind_texture(tex->handle, tex->target, 0, &old, ext);
 
 	/* Allocate all mipmaps */
 	unsigned char m;
@@ -367,7 +368,9 @@ GFXTexture* gfx_texture_create(GFXTextureType type, GFXTextureFormat format, int
 	tex->texture.mipmaps = mipmaps;
 
 	/* Set parameters and allocate data */
-	_gfx_binder_bind_texture(tex->handle, target, 0, &window->extensions);
+	int old;
+	_gfx_binder_bind_texture(tex->handle, target, 0, &old, &window->extensions);
+
 	window->extensions.TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
 	window->extensions.TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
 
@@ -424,7 +427,8 @@ GFXTexture* gfx_texture_create_buffer_link(GFXTextureFormat format, const GFXBuf
 	tex->texture.depth  = 1;
 
 	/* Link buffer */
-	_gfx_binder_bind_texture(tex->handle, tex->target, 0, &window->extensions);
+	int old;
+	_gfx_binder_bind_texture(tex->handle, tex->target, 0, &old, &window->extensions);
 	window->extensions.TexBuffer(tex->target, tex->format, tex->buffer);
 
 	return (GFXTexture*)tex;
@@ -480,7 +484,8 @@ void gfx_texture_write(GFXTextureImage image, const GFXPixelTransfer* transfer, 
 	else
 	{
 		/* Upload texture data */
-		_gfx_binder_bind_texture(internal->handle, internal->target, 0, &window->extensions);
+		int old;
+		_gfx_binder_bind_texture(internal->handle, internal->target, 0, &old, &window->extensions);
 		_gfx_states_set_pixel_unpack_alignment(transfer->alignment, &window->extensions);
 
 		GLint pixForm = _gfx_texture_eval_pixel_format(transfer->format);
@@ -635,7 +640,8 @@ void gfx_texture_generate_mipmaps(GFXTexture* texture)
 	if(!window) return;
 
 	struct GFX_Texture* internal = (struct GFX_Texture*)texture;
+	int old;
 
-	_gfx_binder_bind_texture(internal->handle, internal->target, 0, &window->extensions);
+	_gfx_binder_bind_texture(internal->handle, internal->target, 0, &old, &window->extensions);
 	window->extensions.GenerateMipmap(internal->target);
 }

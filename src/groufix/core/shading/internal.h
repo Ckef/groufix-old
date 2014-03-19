@@ -75,10 +75,11 @@ void _gfx_program_untarget(GFXProgram* program, GFXPropertyMap* map);
  * Binds a buffer to the appropriate uniform buffer index.
  *
  * @param prioritize Non-zero signifies this buffer must stay bound as long as possible.
+ * @param old        If the uniform buffer was already bound to the returned value, old will be non-zero.
  * @return the uniform buffer index it was bound to.
  *
  */
-size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeiptr size, int prioritize, GFX_Extensions* ext);
+size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeiptr size, int prioritize, int* old, GFX_Extensions* ext);
 
 /**
  * Makes sure a buffer is unbound from any uniform buffer index.
@@ -91,10 +92,11 @@ void _gfx_binder_unbind_uniform_buffer(GLuint buffer, GFX_Extensions* ext);
  *
  * @param target     Internal target of the texture.
  * @param prioritize Non-zero signifies this texture must stay bound as long as possible.
+ * @param old        If the texture was already bound to the returned value, old will be non-zero.
  * @return the texture unit it was bound to.
  *
  */
-size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, GFX_Extensions* ext);
+size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, int* old, GFX_Extensions* ext);
 
 /**
  * Makes sure a texture is unbound from any unit.
