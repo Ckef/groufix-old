@@ -49,21 +49,25 @@ static int _gfx_deque_realloc(GFXDeque* deque, size_t capacity)
 	long int diff = capacity - deque->capacity;
 
 	/* Move if necessary */
-	if(diff < 0 && begin > end) deque->begin = memmove(
-		GFX_PTR_ADD_BYTES(deque->begin, diff),
-		deque->begin,
-		deque->capacity - begin
-	);
+	if(begin > end)
+	{
+		if(diff < 0) memmove(
+			GFX_PTR_ADD_BYTES(deque->begin, diff),
+			deque->begin,
+			deque->capacity - begin
+		);
+		begin += diff;
+	}
 
 	/* Make sure to check if it worked */
 	void* new = realloc(deque->data, capacity);
 	if(!new)
 	{
 		/* Move memory back >.> */
-		if(diff < 0 && begin > end) deque->begin = memmove(
+		if(diff < 0 && begin > end) memmove(
 			GFX_PTR_SUB_BYTES(deque->begin, diff),
 			deque->begin,
-			deque->capacity - begin
+			capacity - begin
 		);
 		return 0;
 	}
@@ -358,11 +362,10 @@ GFXDequeIterator gfx_deque_pop_back(GFXDeque* deque)
 	{
 		/* Just set a new end iterator */
 		deque->end = _gfx_deque_advance(deque, deque->end, -deque->elementSize);
+		if(deque->end == deque->data) deque->end = GFX_PTR_ADD_BYTES(deque->data, deque->capacity);
+
 		if(deque->begin != deque->end)
 		{
-			/* Loop end back to the actual end, if not empty */
-			if(deque->end == deque->data) deque->end = GFX_PTR_ADD_BYTES(deque->data, deque->capacity);
-
 			/* Reallocate if necessary */
 			/* Use upperbound/4 instead to avoid constant realloc */
 			size_t size = gfx_deque_get_byte_size(deque) + GFX_DEQUE_PADDING;

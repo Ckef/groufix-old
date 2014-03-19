@@ -149,6 +149,7 @@ typedef void (APIENTRYP GFX_PATCHPARAMETERIPROC)           (GLenum, GLint);
 typedef void (APIENTRYP GFX_PIXELSTOREIPROC)               (GLenum, GLint);
 typedef void (APIENTRYP GFX_POLYGONMODEPROC)               (GLenum, GLenum);
 typedef void (APIENTRYP GFX_PROGRAMBINARYPROC)             (GLuint, GLenum, const void*, GLsizei);
+typedef void (APIENTRYP GFX_PROGRAMPARAMETERIPROC)         (GLuint, GLenum, GLint);
 typedef void (APIENTRYP GFX_SHADERSOURCEPROC)              (GLuint, GLsizei, const GLchar*const*, const GLint*);
 typedef void (APIENTRYP GFX_STENCILFUNCSEPARATEPROC)       (GLenum, GLenum, GLint, GLuint);
 typedef void (APIENTRYP GFX_STENCILOPSEPARATEPROC)         (GLenum, GLenum, GLenum, GLenum);
@@ -317,6 +318,7 @@ typedef struct GFX_Extensions
 	GFX_PIXELSTOREIPROC                PixelStorei;
 	GFX_POLYGONMODEPROC                PolygonMode;            /* GFX_EXT_POLYGON_STATE */
 	GFX_PROGRAMBINARYPROC              ProgramBinary;          /* GFX_EXT_PROGRAM_BINARY */
+	GFX_PROGRAMPARAMETERIPROC          ProgramParameteri;      /* GFX_EXT_SEPARABLE_PROGRAM */
 	GFX_SHADERSOURCEPROC               ShaderSource;
 	GFX_STENCILFUNCSEPARATEPROC        StencilFuncSeparate;
 	GFX_STENCILOPSEPARATEPROC          StencilOpSeparate;

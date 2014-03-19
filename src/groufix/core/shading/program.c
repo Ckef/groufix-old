@@ -85,6 +85,11 @@
 	#define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY  -0x0011
 #endif
 
+/* Other defines */
+#ifndef GL_PROGRAM_SEPARABLE
+	#define GL_PROGRAM_SEPARABLE                          0x8258
+#endif
+
 
 /******************************************************/
 /* Internal Property */
