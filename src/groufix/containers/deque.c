@@ -79,8 +79,8 @@ static int _gfx_deque_realloc(GFXDeque* deque, size_t capacity)
 
 	/* Move if necessary */
 	if(diff > 0 && begin > end) deque->begin = memmove(
-		GFX_PTR_ADD_BYTES(deque->begin, diff),
 		deque->begin,
+		GFX_PTR_SUB_BYTES(deque->begin, diff),
 		deque->capacity - begin
 	);
 
