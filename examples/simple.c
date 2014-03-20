@@ -124,20 +124,20 @@ int main()
 	GFXProgram* program = gfx_program_create();
 	gfx_program_set_attribute(program, 0, "position");
 	gfx_program_set_attribute(program, 1, "color");
-	gfx_program_link(program, 2, shaders);
+	gfx_program_link(program, 2, shaders, 0);
 
 	gfx_shader_set_source(vert, 1, &vertSrc2);
 	gfx_shader_set_source(frag, 1, &fragSrc2);
 
 	GFXProgram* program2 = gfx_program_create();
 	gfx_program_set_attribute(program2, 0, "data");
-	gfx_program_link(program2, 2, shaders);
+	gfx_program_link(program2, 2, shaders, 0);
 
 	gfx_shader_set_source(frag, 1, &fragSrc3);
 
 	GFXProgram* program3 = gfx_program_create();
 	gfx_program_set_attribute(program3, 0, "data");
-	gfx_program_link(program3, 2, shaders);
+	gfx_program_link(program3, 2, shaders, 0);
 
 	gfx_shader_free(vert);
 	gfx_shader_free(frag);

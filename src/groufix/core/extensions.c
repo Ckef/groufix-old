@@ -40,14 +40,6 @@ static void _gfx_gl_patch_parameter_i(GLenum pname, GLint value)
 	);
 }
 
-static void _gfx_gl_program_parameter_i(GLuint program, GLenum pname, GLint value)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_SEPARABLE_PROGRAM is incompatible with this context."
-	);
-}
-
 
 #ifdef GFX_GLES
 
@@ -162,6 +154,11 @@ static void _gfx_gl_program_binary(GLuint program, GLenum binaryFormat, const vo
 	_gfx_gl_program_binary_error();
 }
 
+static void _gfx_gl_program_parameter_i(GLuint program, GLenum pname, GLint value)
+{
+	_gfx_gl_program_binary_error();
+}
+
 #endif
 
 
@@ -216,7 +213,6 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_POLYGON_STATE]        = 0;
 	ext->flags[GFX_EXT_PROGRAM_BINARY]       = 1;
 	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]     = 0;
-	ext->flags[GFX_EXT_SEPARABLE_PROGRAM]    = 0;
 	ext->flags[GFX_EXT_TESSELLATION_SHADER]  = 0;
 	ext->flags[GFX_EXT_TEXTURE_1D]           = 0;
 
@@ -483,36 +479,22 @@ void _gfx_extensions_load(void)
 	if(window->context.major > 4 || (window->context.major == 4 && window->context.minor > 0))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC) _gfx_platform_get_proc_address("glGetProgramBinary");
-		ext->ProgramBinary    = (PFNGLPROGRAMBINARYPROC)    _gfx_platform_get_proc_address("glProgramBinary");
+		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
+		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
+		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteri");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC) _gfx_platform_get_proc_address("GetProgramBinary");
-		ext->ProgramBinary    = (PFNGLPROGRAMBINARYPROC)    _gfx_platform_get_proc_address("ProgramBinary");
-	}
-	else
-	{
-		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
-		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC) _gfx_gl_get_program_binary;
-		ext->ProgramBinary    = (PFNGLPROGRAMBINARYPROC)    _gfx_gl_program_binary;
-	}
-
-	/* GFX_EXT_SEPARABLE_PROGRAM */
-	if(window->context.major > 4 || (window->context.major == 4 && window->context.minor > 0))
-	{
-		ext->flags[GFX_EXT_SEPARABLE_PROGRAM] = 1;
-		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteri");
-	}
-	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_separate_shader_objects"))
-	{
-		ext->flags[GFX_EXT_SEPARABLE_PROGRAM] = 1;
+		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("GetProgramBinary");
+		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("ProgramBinary");
 		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("ProgramParameteri");
 	}
 	else
 	{
-		ext->flags[GFX_EXT_SEPARABLE_PROGRAM] = 0;
+		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
+		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_gl_get_program_binary;
+		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_gl_program_binary;
 		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_gl_program_parameter_i;
 	}
 

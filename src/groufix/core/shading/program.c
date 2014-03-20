@@ -85,11 +85,6 @@
 	#define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY  -0x0011
 #endif
 
-/* Other defines */
-#ifndef GL_PROGRAM_SEPARABLE
-	#define GL_PROGRAM_SEPARABLE                          0x8258
-#endif
-
 
 /******************************************************/
 /* Internal Property */
@@ -567,13 +562,23 @@ int gfx_program_set_feedback(GFXProgram* program, size_t num, const char** names
 }
 
 /******************************************************/
-int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders)
+int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders, int binary)
 {
 	/* Get current window and context */
 	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 
 	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	/* Set binary parameter */
+	if(window->extensions.flags[GFX_EXT_PROGRAM_BINARY])
+	{
+		window->extensions.ProgramParameteri(
+			internal->handle,
+			GL_PROGRAM_BINARY_RETRIEVABLE_HINT,
+			binary ? GL_TRUE : GL_FALSE
+		);
+	}
 
 	/* Compile and attach all shaders */
 	size_t i = 0;

@@ -224,7 +224,8 @@ int gfx_program_set_feedback(GFXProgram* program, size_t num, const char** names
 /**
  * Links given shaders into a program.
  *
- * @shaders All shader objects to link into the program (cannot be NULL).
+ * @param shaders All shader objects to link into the program (cannot be NULL).
+ * @param binary  If non-zero, the binary representation can be fetched afterwards.
  * @return Non-zero on success.
  *
  * Note: this call will attempt to compile all given shaders.
@@ -233,7 +234,7 @@ int gfx_program_set_feedback(GFXProgram* program, size_t num, const char** names
  * This will remove any evidence of a previous link operation.
  *
  */
-int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders);
+int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders, int binary);
 
 /**
  * Retrieves the binary representation of a program.
@@ -243,6 +244,7 @@ int gfx_program_link(GFXProgram* program, size_t num, GFXShader** shaders);
  * @return Binary data, NULL on failure.
  *
  * If the returned pointer is not NULL, it should be freed manually.
+ * Note: requires GFX_EXT_PROGRAM_BINARY.
  *
  */
 void* gfx_program_get_binary(GFXProgram* program, GFXProgramFormat* format, size_t* size);
@@ -256,6 +258,7 @@ void* gfx_program_get_binary(GFXProgram* program, GFXProgramFormat* format, size
  * @return Non-zero on success.
  *
  * This operation can be considered to perform an implicit linking operation.
+ * Note: requires GFX_EXT_PROGRAM_BINARY.
  *
  */
 int gfx_program_set_binary(GFXProgram* program, GFXProgramFormat format, size_t size, const void* data);
