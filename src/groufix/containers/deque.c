@@ -48,15 +48,27 @@ static int _gfx_deque_realloc(GFXDeque* deque, size_t capacity)
 	size_t end = GFX_PTR_DIFF(deque->data, deque->end);
 	long int diff = capacity - deque->capacity;
 
-	/* Move if necessary */
-	if(begin > end)
+	if(diff < 0)
 	{
-		if(diff < 0) memmove(
-			GFX_PTR_ADD_BYTES(deque->begin, diff),
-			deque->begin,
-			deque->capacity - begin
-		);
-		begin += diff;
+		/* Move end closer to begin */
+		if(begin > end)
+		{
+			memmove(
+				GFX_PTR_ADD_BYTES(deque->begin, diff),
+				deque->begin,
+				deque->capacity - begin
+			);
+			begin += diff;
+		}
+
+		/* Move everything to begin */
+		else if(end > capacity)
+		{
+			end -= begin;
+			begin = 0;
+
+			memmove(deque->data, deque->begin, end);
+		}
 	}
 
 	/* Make sure to check if it worked */
@@ -77,10 +89,10 @@ static int _gfx_deque_realloc(GFXDeque* deque, size_t capacity)
 	deque->begin = GFX_PTR_ADD_BYTES(deque->data, begin);
 	deque->end = GFX_PTR_ADD_BYTES(deque->data, end);
 
-	/* Move if necessary */
+	/* Move end farther away from begin */
 	if(diff > 0 && begin > end) deque->begin = memmove(
+		GFX_PTR_ADD_BYTES(deque->begin, diff),
 		deque->begin,
-		GFX_PTR_SUB_BYTES(deque->begin, diff),
 		deque->capacity - begin
 	);
 
