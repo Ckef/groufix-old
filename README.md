@@ -17,9 +17,11 @@ The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 
 A Makefile is shipped with the project, run make without a target to view all build targets. All necessary OpenGL headers are shipped with the project as well. Platform files (such as windows.h or xlib.h) are not shipped as they should be made available by the platform itself. Once the library is built, link against it using `-lGroufix`.
 
-To compile Groufix, you need the standard headers for your platform and OpenGL. These headers should come with the appropriate GPU drivers. When developing for OGL ES, the library should be built specifically for it, `GFX_GLES` should be defined by the compiler to compile the correct extension loading mechanism (in most cases this is done automatically through the build target).
+Groufix can be compiled with certain options. Some can only be set while compiling the library, others can be altered for both the library and the program which links against the library. All options are:
 
-Groufix will compile certain functions using SSE instructions. To disable this feature `GFX_NO_SSE` should be defined by the compiler to compile using ordinary instructions instead of SSE ones. Alternatively, if the makefile is used to compile Groufix, the flag `SSE=NO` can be passed along with the make command to disable SSE instructions.
+* __GFX_GLES__ _(library only)_ To compile Groufix, you need the standard headers for your platform and OpenGL. These headers should come with the appropriate GPU drivers. When developing for OGL ES, the library should be built specifically for it, `GFX_GLES` should be defined by the compiler to compile the correct extension loading mechanism (in most cases this is done automatically through the build target).
+
+* __GFX_NO_SSE__ _(library and program)_ Groufix will compile certain functions using SSE instructions. To disable this feature `GFX_NO_SSE` should be defined by the compiler to compile using ordinary instructions instead of SSE ones. Alternatively, if the makefile is used to compile Groufix, the flag `SSE=NO` can be passed along with the make command to disable SSE instructions.
 
 ## Usage
 
