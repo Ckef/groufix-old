@@ -236,28 +236,39 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout)
 }
 
 /******************************************************/
+static int _gfx_vertex_layout_set_attribute(struct GFX_Layout* layout, unsigned int index)
+{
+	/* Check index */
+	if(index >= layout->ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
+	size_t size = gfx_vector_get_size(&layout->attributes);
+
+	if(index >= size)
+	{
+		/* Allocate enough memory */
+		GFXVectorIterator it = gfx_vector_insert_range(&layout->attributes, index + 1 - size, NULL, layout->attributes.end);
+		if(it == layout->attributes.end) return 0;
+
+		while(it != layout->attributes.end)
+		{
+			/* Initialize size and buffer to 0 so the attributes will be ignored */
+			struct GFX_Attribute* attr = (struct GFX_Attribute*)it;
+			attr->size = 0;
+			attr->buffer = 0;
+
+			it = gfx_vector_next(&layout->attributes, it);
+		}
+	}
+
+	return 1;
+}
+
+/******************************************************/
 int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr)
 {
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	if(!internal->ext) return 0;
 
-	/* Check index */
-	if(index >= internal->ext->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
-	size_t size = gfx_vector_get_size(&internal->attributes);
-
-	if(index >= size)
-	{
-		/* Allocate enough memory */
-		GFXVectorIterator it = gfx_vector_insert_range(&internal->attributes, index + 1 - size, NULL, internal->attributes.end);
-		if(it == internal->attributes.end) return 0;
-
-		while(it != internal->attributes.end)
-		{
-			/* Initialize buffer to 0 so the attributes will be ignored */
-			((struct GFX_Attribute*)it)->buffer = 0;
-			it = gfx_vector_next(&internal->attributes, it);
-		}
-	}
+	if(!_gfx_vertex_layout_set_attribute(internal, index)) return 0;
 
 	/* Set attribute */
 	struct GFX_Attribute* set = (struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
@@ -281,9 +292,7 @@ static int _gfx_vertex_layout_set_attribute_buffer(GFXVertexLayout* layout, unsi
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	if(!internal->ext) return 0;
 
-	/* Check index */
-	size_t size = gfx_vector_get_size(&internal->attributes);
-	if(index >= size) return 0;
+	if(!_gfx_vertex_layout_set_attribute(internal, index)) return 0;
 
 	/* Set attribute */
 	struct GFX_Attribute* set = (struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);

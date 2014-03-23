@@ -367,23 +367,23 @@ void gfx_vertex_layout_free(GFXVertexLayout* layout);
 int gfx_vertex_layout_set_attribute(GFXVertexLayout* layout, unsigned int index, const GFXVertexAttribute* attr);
 
 /**
- * Sets the vertex buffer source of an existing attribute.
+ * Sets the vertex buffer source of an attribute.
  *
  * @param index  Index of the attribute to set the source of.
  * @param buffer Buffer to read this attribute from, only the current backbuffer of a multi buffer will be used (can be NULL to disable).
  * @param offset Byte offset within the buffer to start reading at.
- * @return Zero if the attribute does not exist.
+ * @return Zero on failure.
  *
  */
 int gfx_vertex_layout_set_attribute_buffer(GFXVertexLayout* layout, unsigned int index, const GFXBuffer* buffer, size_t offset);
 
 /**
- * Sets the (shared) vertex buffer source of an existing attribute.
+ * Sets the (shared) vertex buffer source of an attribute.
  *
  * @param index  Index of the attribute to set the source of.
  * @param buffer Shared buffer to read this attribute from (can be NULL to disable).
  * @param offset Byte offset within the buffer to start reading at.
- * @return Zero if the attribute does not exist.
+ * @return Zero on failure.
  *
  */
 int gfx_vertex_layout_set_attribute_shared_buffer(GFXVertexLayout* layout, unsigned int index, const GFXSharedBuffer* buffer, size_t offset);

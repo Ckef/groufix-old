@@ -63,22 +63,42 @@ int gfx_submesh_set_source(GFXSubMesh* mesh, unsigned char index, GFXVertexSourc
 GFXVertexSource gfx_submesh_get_source(GFXSubMesh* mesh, unsigned char index);
 
 /**
- * Creates an automatic vertex buffer for a given attribute.
+ * Creates an automatic vertex buffer.
  *
- * @param index Index of the attribute to create a buffer for.
+ * @return Attribute buffer index (0 on failure).
+ *
+ */
+size_t gfx_submesh_add_attribute_buffer(GFXSubMesh* mesh, size_t size, const void* data);
+
+/**
+ * Creates an automatic index buffer.
+ *
+ * @return Index buffer index (0 on failure).
+ *
+ */
+size_t gfx_submesh_add_draw_call_buffer(GFXSubMesh* mesh, size_t size, const void* data);
+
+/**
+ * Uses a vertex (attribute) buffer for a given attribue.
+ *
+ * @param index  Index of the attribute to create a buffer for.
+ * @param buffer Buffer index to use for this attribute.
+ * @param offset Byte offset within the buffer to start reading at.
  * @return Zero on failure (in which case the attribute is disabled).
  *
  */
-int gfx_submesh_set_attribute_buffer(GFXSubMesh* mesh, unsigned int index, size_t size, const void* data);
+int gfx_submesh_set_attribute_buffer(GFXSubMesh* mesh, unsigned int index, size_t buffer, size_t offset);
 
 /**
- * Creates an automatic index buffer for a given draw call.
+ * Uses an index buffer for a given draw call.
  *
- * @param index Index of the draw call to create a buffer for.
+ * @param index  Index of the draw call to create a buffer for.
+ * @param buffer Buffer index to use for this draw call.
+ * @param offset Byte offset within the buffer to start reading at.
  * @return Zero on failure (in which case the index buffer is disabled).
  *
  */
-int gfx_submesh_set_draw_call_buffer(GFXSubMesh* mesh, unsigned char index, size_t size, const void* data);
+int gfx_submesh_set_draw_call_buffer(GFXSubMesh* mesh, unsigned char index, size_t buffer, size_t offset);
 
 
 /********************************************************
