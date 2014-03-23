@@ -29,7 +29,7 @@
 
 /* Correct OGL header */
 #ifdef GFX_GLES
-	#include <GLES3/gl3.h>
+	#include <GLES3/gl31.h>
 #else
 	#include <GL/glcorearb.h>
 #endif
@@ -43,10 +43,10 @@
 
 	/* Maximal supported context */
 	#define GFX_CONTEXT_MAJOR_MAX 3
-	#define GFX_CONTEXT_MINOR_MAX 0
+	#define GFX_CONTEXT_MINOR_MAX 1
 
 	/* Greatest minor version possible */
-	#define GFX_CONTEXT_ALL_MINORS_MAX 0
+	#define GFX_CONTEXT_ALL_MINORS_MAX 1
 
 #else
 

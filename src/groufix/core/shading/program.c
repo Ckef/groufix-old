@@ -44,45 +44,36 @@
 #ifndef GL_SAMPLER_1D_ARRAY_SHADOW
 	#define GL_SAMPLER_1D_ARRAY_SHADOW                    -0x0005
 #endif
-#ifndef GL_SAMPLER_2D_MULTISAMPLE
-	#define GL_SAMPLER_2D_MULTISAMPLE                     -0x0006
-#endif
 #ifndef GL_SAMPLER_2D_MULTISAMPLE_ARRAY
-	#define GL_SAMPLER_2D_MULTISAMPLE_ARRAY               -0x0007
+	#define GL_SAMPLER_2D_MULTISAMPLE_ARRAY               -0x0006
 #endif
 
 /* Define unsupported int uniform types */
 #ifndef GL_INT_SAMPLER_1D
-	#define GL_INT_SAMPLER_1D                             -0x0008
+	#define GL_INT_SAMPLER_1D                             -0x0007
 #endif
 #ifndef GL_INT_SAMPLER_BUFFER
-	#define GL_INT_SAMPLER_BUFFER                         -0x0009
+	#define GL_INT_SAMPLER_BUFFER                         -0x0008
 #endif
 #ifndef GL_INT_SAMPLER_1D_ARRAY
-	#define GL_INT_SAMPLER_1D_ARRAY                       -0x000a
-#endif
-#ifndef GL_INT_SAMPLER_2D_MULTISAMPLE
-	#define GL_INT_SAMPLER_2D_MULTISAMPLE                 -0x000b
+	#define GL_INT_SAMPLER_1D_ARRAY                       -0x0009
 #endif
 #ifndef GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY
-	#define GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY           -0x000c
+	#define GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY           -0x000a
 #endif
 
 /* Define unsupported unsigned int uniform types */
 #ifndef GL_UNSIGNED_INT_SAMPLER_1D
-	#define GL_UNSIGNED_INT_SAMPLER_1D                    -0x000d
+	#define GL_UNSIGNED_INT_SAMPLER_1D                    -0x000b
 #endif
 #ifndef GL_UNSIGNED_INT_SAMPLER_BUFFER
-	#define GL_UNSIGNED_INT_SAMPLER_BUFFER                -0x000e
+	#define GL_UNSIGNED_INT_SAMPLER_BUFFER                -0x000c
 #endif
 #ifndef GL_UNSIGNED_INT_SAMPLER_1D_ARRAY
-	#define GL_UNSIGNED_INT_SAMPLER_1D_ARRAY              -0x000f
-#endif
-#ifndef GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE
-	#define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE        -0x0010
+	#define GL_UNSIGNED_INT_SAMPLER_1D_ARRAY              -0x000d
 #endif
 #ifndef GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY
-	#define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY  -0x0011
+	#define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY  -0x000e
 #endif
 
 

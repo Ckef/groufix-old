@@ -97,7 +97,7 @@ HEADERS = \
 HEADERS_LIB = \
  $(HEADERS) \
  $(DEPEND)/GL/glcorearb.h \
- $(DEPEND)/GLES3/gl3.h \
+ $(DEPEND)/GLES3/gl31.h \
  $(DEPEND)/GLES3/gl3platform.h \
  $(DEPEND)/KHR/khrplatform.h \
  $(SRC)/groufix/core/memory/internal.h \
