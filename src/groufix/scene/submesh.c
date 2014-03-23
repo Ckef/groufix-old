@@ -35,12 +35,10 @@ struct GFX_SubMesh
 	GFXSubMesh submesh;
 
 	/* Hidden data */
-	unsigned int  references;  /* Reference counter */
-	GFXVector     buckets;     /* Stores GFXPipe* */
-	GFXVector     sources;     /* Stores size_t * sources for each bucket */
-
-	GFXVector     vertexBuffs; /* Stores GFXSharedBuffer */
-	GFXVector     indexBuffs;  /* Stores GFXSharedBuffer */
+	unsigned int  references; /* Reference counter */
+	GFXVector     buckets;    /* Stores GFXPipe* */
+	GFXVector     sources;    /* Stores size_t * sources for each bucket */
+	GFXVector     buffers;    /* Stores GFXSharedBuffer */
 };
 
 /******************************************************/
@@ -129,8 +127,7 @@ GFXSubMesh* _gfx_submesh_create(unsigned char drawCalls, unsigned char sources)
 
 	gfx_vector_init(&sub->buckets, sizeof(GFXPipe*));
 	gfx_vector_init(&sub->sources, sizeof(size_t));
-	gfx_vector_init(&sub->vertexBuffs, sizeof(GFXSharedBuffer));
-	gfx_vector_init(&sub->indexBuffs, sizeof(GFXSharedBuffer));
+	gfx_vector_init(&sub->buffers, sizeof(GFXSharedBuffer));
 
 	return (GFXSubMesh*)sub;
 }
@@ -163,16 +160,9 @@ void _gfx_submesh_free(GFXSubMesh* mesh)
 			/* Clear all shared buffers */
 			GFXVectorIterator it;
 			for(
-				it = internal->vertexBuffs.begin;
-				it != internal->vertexBuffs.end;
-				it = gfx_vector_next(&internal->vertexBuffs, it))
-			{
-				gfx_shared_buffer_clear((GFXSharedBuffer*)it);
-			}
-			for(
-				it = internal->indexBuffs.begin;
-				it != internal->indexBuffs.end;
-				it = gfx_vector_next(&internal->indexBuffs, it))
+				it = internal->buffers.begin;
+				it != internal->buffers.end;
+				it = gfx_vector_next(&internal->buffers, it))
 			{
 				gfx_shared_buffer_clear((GFXSharedBuffer*)it);
 			}
@@ -180,8 +170,7 @@ void _gfx_submesh_free(GFXSubMesh* mesh)
 			/* Free everything */
 			gfx_vector_clear(&internal->buckets);
 			gfx_vector_clear(&internal->sources);
-			gfx_vector_clear(&internal->vertexBuffs);
-			gfx_vector_clear(&internal->indexBuffs);
+			gfx_vector_clear(&internal->buffers);
 
 			gfx_vertex_layout_free(mesh->layout);
 			free(mesh);
@@ -325,37 +314,23 @@ GFXVertexSource gfx_submesh_get_source(GFXSubMesh* mesh, unsigned char index)
 }
 
 /******************************************************/
-static size_t _gfx_submesh_add_buffer(GFXVector* buffs, GFXBufferTarget target, size_t size, const void* data)
+size_t gfx_submesh_add_buffer(GFXSubMesh* mesh, GFXBufferTarget target, size_t size, const void* data)
 {
+	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
+
 	/* Insert new vector element */
-	GFXVectorIterator it = gfx_vector_insert(buffs, NULL, buffs->end);
-	if(it == buffs->end) return 0;
+	GFXVectorIterator it = gfx_vector_insert(&internal->buffers, NULL, internal->buffers.end);
+	if(it == internal->buffers.end) return 0;
 
 	/* Create new shared buffer */
 	GFXSharedBuffer* buff = (GFXSharedBuffer*)it;
 	if(!gfx_shared_buffer_init(buff, target, size, data))
 	{
-		gfx_vector_erase(buffs, it);
+		gfx_vector_erase(&internal->buffers, it);
 		return 0;
 	}
 
-	return gfx_vector_get_size(buffs);
-}
-
-/******************************************************/
-size_t gfx_submesh_add_attribute_buffer(GFXSubMesh* mesh, size_t size, const void* data)
-{
-	/* Create vertex buffer */
-	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
-	return _gfx_submesh_add_buffer(&internal->vertexBuffs, GFX_VERTEX_BUFFER, size, data);
-}
-
-/******************************************************/
-size_t gfx_submesh_add_draw_call_buffer(GFXSubMesh* mesh, size_t size, const void* data)
-{
-	/* Create index buffer */
-	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
-	return _gfx_submesh_add_buffer(&internal->indexBuffs, GFX_INDEX_BUFFER, size, data);
+	return gfx_vector_get_size(&internal->buffers);
 }
 
 /******************************************************/
@@ -363,7 +338,7 @@ int gfx_submesh_set_attribute_buffer(GFXSubMesh* mesh, unsigned int index, size_
 {
 	/* Validate index */
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
-	if(buffer > gfx_vector_get_size(&internal->vertexBuffs))
+	if(buffer > gfx_vector_get_size(&internal->buffers))
 	{
 		/* Disable the attribute */
 		gfx_vertex_layout_set_attribute_shared_buffer(mesh->layout, index, NULL, 0);
@@ -371,7 +346,7 @@ int gfx_submesh_set_attribute_buffer(GFXSubMesh* mesh, unsigned int index, size_
 	}
 
 	/* Pass buffer to vertex layout */
-	GFXSharedBuffer* buff = (GFXSharedBuffer*)gfx_vector_at(&internal->vertexBuffs, buffer - 1);
+	GFXSharedBuffer* buff = (GFXSharedBuffer*)gfx_vector_at(&internal->buffers, buffer - 1);
 
 	return gfx_vertex_layout_set_attribute_shared_buffer(mesh->layout, index, buff, offset);
 }
@@ -381,7 +356,7 @@ int gfx_submesh_set_draw_call_buffer(GFXSubMesh* mesh, unsigned char index, size
 {
 	/* Validate index */
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
-	if(buffer > gfx_vector_get_size(&internal->indexBuffs))
+	if(buffer > gfx_vector_get_size(&internal->buffers))
 	{
 		/* Disable the attribute */
 		gfx_vertex_layout_set_draw_call_shared_buffer(mesh->layout, index, NULL, 0);
@@ -389,7 +364,7 @@ int gfx_submesh_set_draw_call_buffer(GFXSubMesh* mesh, unsigned char index, size
 	}
 
 	/* Pass buffer to vertex layout */
-	GFXSharedBuffer* buff = (GFXSharedBuffer*)gfx_vector_at(&internal->indexBuffs, buffer - 1);
+	GFXSharedBuffer* buff = (GFXSharedBuffer*)gfx_vector_at(&internal->buffers, buffer - 1);
 
 	return gfx_vertex_layout_set_draw_call_shared_buffer(mesh->layout, index, buff, offset);
 }
