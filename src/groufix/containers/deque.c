@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define GFX_DEQUE_PADDING  1
 #define GFX_DEQUE_MSB (~(SIZE_MAX >> 1))
 
 /******************************************************/
