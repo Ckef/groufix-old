@@ -331,10 +331,7 @@ void _gfx_extensions_load(void)
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE,
-		ext->limits + GFX_LIM_MAX_BUFFER_TEXTURE_SIZE);
-	glGetIntegerv(GL_MAX_PATCH_VERTICES,
-		ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
+	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, ext->limits + GFX_LIM_MAX_BUFFER_TEXTURE_SIZE);
 
 	/* Default Extensions */
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]      = 1;
@@ -501,16 +498,19 @@ void _gfx_extensions_load(void)
 	/* GFX_EXT_TESSELLATION_SHADER */
 	if(window->context.major > 3)
 	{
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
 		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("glPatchParameteri");
 	}
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
 	{
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
 		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("PatchParameteri");
 	}
 	else
 	{
+		ext->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 0;
 		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_gl_patch_parameter_i;
 	}
