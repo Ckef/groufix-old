@@ -70,13 +70,14 @@ struct GFX_Source
 /* Internal batch unit */
 struct GFX_Unit
 {
-	GFXBatchState    state; /* Combination of vertex layout key, program key and manual state */
+	GFXBatchState    state;  /* Combination of vertex layout key, program key and manual state */
 	GFXPropertyMap*  map;
+	unsigned char    copy;   /* Copy of the property map to use */
 	unsigned char    action;
 
-	size_t           ref;   /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
-	size_t           src;   /* Source of the bucket to use (ID - 1) */
-	size_t           inst;  /* Number of instances */
+	size_t           ref;    /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
+	size_t           src;    /* Source of the bucket to use (ID - 1) */
+	size_t           inst;   /* Number of instances */
 };
 
 /******************************************************/
@@ -280,7 +281,7 @@ void _gfx_bucket_process(GFXBucket* bucket, GFX_State* state, GFX_Extensions* ex
 		struct GFX_Source* src = gfx_vector_at(&internal->sources, unit->src);
 
 		/* Bind shader program & draw */
-		_gfx_property_map_use(unit->map, ext);
+		_gfx_property_map_use(unit->map, unit->copy, ext);
 
 		_gfx_vertex_layout_draw_begin(
 			src->layout,
@@ -496,7 +497,7 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src)
 }
 
 /******************************************************/
-size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, int visible)
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, unsigned char copy, int visible)
 {
 	--src;
 
@@ -520,6 +521,7 @@ size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFX
 
 	unit.state  = _gfx_bucket_create_state(internal, state, layKey, proKey);
 	unit.map    = map;
+	unit.copy   = copy;
 	unit.action = visible ? GFX_INT_UNIT_VISIBLE : 0;
 	unit.src    = src;
 	unit.inst   = 1;

@@ -313,6 +313,7 @@ typedef struct GFXPropertyMap
 {
 	GFXProgram*    program;    /* Program it references (cannot be changed or freed while the map is alive) */
 	unsigned char  properties; /* Number of properties */
+	unsigned char  copies;     /* Number of property copies present, the initial value is 1 */
 
 } GFXPropertyMap;
 
@@ -334,72 +335,97 @@ GFXPropertyMap* gfx_property_map_create(GFXProgram* program, unsigned char prope
 void gfx_property_map_free(GFXPropertyMap* map);
 
 /**
+ * Appends more copies to the properties containing copies.
+ *
+ * @param num Number of copies to append.
+ * @return Zero on failure.
+ *
+ */
+int gfx_property_map_expand(GFXPropertyMap* map, unsigned char num);
+
+/**
+ * Removes multiple copies at the end of the properties containing copies.
+ *
+ * @param num Number of copies to remove.
+ * @return Number of copies actually removed.
+ *
+ */
+unsigned char gfx_property_map_shrink(GFXPropertyMap* map, unsigned char num);
+
+/**
  * Forwards data send to a given index to a property within the program.
  *
  * @param index    Index to forward to the program (must be < map->properties).
+ * @param copies   Non-zero if this property should contain copies of itself.
  * @param property Index of the program property to forward to.
  * @return Zero on failure.
  *
  */
-int gfx_property_map_forward(GFXPropertyMap* map, unsigned char index, unsigned short property);
+int gfx_property_map_forward(GFXPropertyMap* map, unsigned char index, int copies, unsigned short property);
 
 /**
  * Forwards data send to a given index to a given uniform name within the program.
  *
- * @param index Index to forward to the program.
- * @param name  Uniform name within the program to forward to.
+ * @param index  Index to forward to the program.
+ * @param copies Non-zero if this property should contain copies of itself.
+ * @param name   Uniform name within the program to forward to.
  * @return Zero on failure.
  *
  */
-int gfx_property_map_forward_named(GFXPropertyMap* map, unsigned char index, const char* name);
+int gfx_property_map_forward_named(GFXPropertyMap* map, unsigned char index, int copies, const char* name);
 
 /**
  * Forwards data send to a given index to a property block within the program.
  *
- * @param index Index to forward to the program (must be < map->properties).
- * @param block Index of the program property block to forward to.
+ * @param index  Index to forward to the program (must be < map->properties).
+ * @param copies Non-zero if this property should contain copies of itself.
+ * @param block  Index of the program property block to forward to.
  * @return Zero on failure.
  *
  */
-int gfx_property_map_forward_block(GFXPropertyMap* map, unsigned char index, unsigned short block);
+int gfx_property_map_forward_block(GFXPropertyMap* map, unsigned char index, int copies, unsigned short block);
 
 /**
  * Forwards data send to a given index to a given uniform block name within the program.
  *
- * @param index Index to forward to the program.
- * @param name  Uniform block name within the program to forward to.
+ * @param index  Index to forward to the program.
+ * @param copies Non-zero if this property should contain copies of itself.
+ * @param name   Uniform block name within the program to forward to.
  * @return Zero on failure.
  *
  */
-int gfx_property_map_forward_named_block(GFXPropertyMap* map, unsigned char index, const char* name);
+int gfx_property_map_forward_named_block(GFXPropertyMap* map, unsigned char index, int copies, const char* name);
 
 /**
  * Sets the value of a vector/matrix property.
  *
  * @param index  Index of the property to set the value of.
+ * @param copy   Index of the copy to set the value of.
  * @param value  Value to set it to, the content will be copied.
  * @param offset Byte offset in the mapped value to write to.
  * @param size   Size of the given data in bytes (0 to calculate the size based on the property type).
  * @return Non-zero on success.
  *
  */
-int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, const void* value, size_t offset, size_t size);
+int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, unsigned char copy, const void* value, size_t offset, size_t size);
 
 /**
  * Sets the value of a sampler property.
  *
  * @param index Index of the property to set the value of.
+ * @param copy  Index of the copy to set the value of.
  * @return Non-zero on success.
  *
  * Note: There can only be GFX_LIM_MAX_SAMPLER_PROPERTIES number of sampler properties forwarded.
  *
  */
-int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const GFXTexture* texture);
+int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, unsigned char copy, const GFXTexture* texture);
 
 /**
  * Sets the value of a property block.
  *
  * @param index  Index of the property to set the value of.
+ * @param copy   Index of the copy to set the value of.
  * @param offset Offset in the buffer in bytes.
  * @param size   Size of the data in bytes.
  * @return Non-zero on success.
@@ -407,26 +433,19 @@ int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, const
  * Note: There can only be GFX_LIM_MAX_BUFFER_PROPERTIES number of block properties forwarded.
  *
  */
-int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, const GFXBuffer* buffer, size_t offset, size_t size);
+int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, unsigned char copy, const GFXBuffer* buffer, size_t offset, size_t size);
 
 /**
  * Sets the value of a property block.
  *
  * @param index  Index of the property to set the value of.
+ * @param copy   Index of the copy to set the value of.
  * @param offset Offset in the shared buffer in bytes.
  * @param size   Size of the data in bytes.
  * @return Non-zero on success.
  *
  */
-int gfx_property_map_set_shared_buffer(GFXPropertyMap* map, unsigned char index, const GFXSharedBuffer* buffer, size_t offset, size_t size);
-
-/**
- * Swaps the value of two properties.
- *
- * @return Non-zero on success.
- *
- */
-int gfx_property_map_swap(GFXPropertyMap* map, unsigned char index1, unsigned char index2);
+int gfx_property_map_set_shared_buffer(GFXPropertyMap* map, unsigned char index, unsigned char copy, const GFXSharedBuffer* buffer, size_t offset, size_t size);
 
 
 #ifdef __cplusplus

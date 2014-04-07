@@ -147,10 +147,10 @@ int main()
 	GFXPropertyMap* map = gfx_property_map_create(program, 0);
 	GFXPropertyMap* map2 = gfx_property_map_create(program2, 1);
 	GFXPropertyMap* map3 = gfx_property_map_create(program3, 1);
-	gfx_property_map_forward_named(map2, 0, "tex");
-	gfx_property_map_set_sampler(map2, 0, tex);
-	gfx_property_map_forward_named(map3, 0, "tex");
-	gfx_property_map_set_sampler(map3, 0, tex);
+	gfx_property_map_forward_named(map2, 0, 0, "tex");
+	gfx_property_map_set_sampler(map2, 0, 0, tex);
+	gfx_property_map_forward_named(map3, 0, 0, "tex");
+	gfx_property_map_set_sampler(map3, 0, 0, tex);
 
 
 	/* Pipeline */
@@ -166,14 +166,14 @@ int main()
 	GFXVertexSource source = { 0, 1, 0, 0 };
 	size_t src = gfx_bucket_add_source(pipe->bucket, layout);
 	gfx_bucket_set_source(pipe->bucket, src, source);
-	gfx_bucket_insert(pipe->bucket, src, 0, map, 1);
+	gfx_bucket_insert(pipe->bucket, src, 0, map, 0, 1);
 
 	pipe = gfx_pipeline_push_process(pipeline);
-	gfx_pipe_process_set_source(pipe->process, map2);
+	gfx_pipe_process_set_source(pipe->process, map2, 0);
 	gfx_pipe_process_set_target(pipe->process, window1, 1);
 
 	pipe = gfx_pipeline_push_process(pipeline);
-	gfx_pipe_process_set_source(pipe->process, map3);
+	gfx_pipe_process_set_source(pipe->process, map3, 0);
 	gfx_pipe_process_set_target(pipe->process, window2, 1);
 
 

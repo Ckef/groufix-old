@@ -95,7 +95,6 @@ struct GFX_Program
 	GLuint           handle;     /* OpenGL handle */
 	GFXVector        properties; /* Stores GFX_Property */
 	GFXVector        blocks;     /* Stores GFXPropertyBlock */
-	GFXPropertyMap*  map;        /* Last used map on this program, not used internally */
 };
 
 /******************************************************/
@@ -433,25 +432,6 @@ GLint _gfx_program_get_location(GFXProgram* program, unsigned short index)
 	struct GFX_Program* internal = (struct GFX_Program*)program;
 
 	return ((struct GFX_Property*)gfx_vector_at(&internal->properties, index))->location;
-}
-
-/******************************************************/
-int _gfx_program_target(GFXProgram* program, GFXPropertyMap* map)
-{
-	struct GFX_Program* internal = (struct GFX_Program*)program;
-
-	if(internal->map == map) return 0;
-	internal->map = map;
-
-	return 1;
-}
-
-/******************************************************/
-void _gfx_program_untarget(GFXProgram* program, GFXPropertyMap* map)
-{
-	struct GFX_Program* internal = (struct GFX_Program*)program;
-
-	if(internal->map == map) internal->map = NULL;
 }
 
 /******************************************************/

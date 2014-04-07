@@ -208,11 +208,12 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src);
  *
  * @param state    Manual bits of the state to associate this unit with.
  * @param map      Property map (and thus program) to use for rendering this unit.
+ * @param copy     Index of the copy of the property map to use.
  * @param visible  Non-zero if visible, invisible otherwise.
  * @return The ID of the inserted unit, 0 on failure.
  *
  */
-size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, int visible);
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, unsigned char copy, int visible);
 
 /**
  * Returns the number of instances to draw.
@@ -276,10 +277,11 @@ typedef void* GFXPipeProcess;
 /**
  * Sets the sources to use while drawing.
  *
- * @param map Property Map (and thus program) to use for the process, NULL will disable the process.
+ * @param map  Property map (and thus program) to use for the process, NULL will disable the process.
+ * @param copy Index of the copy of the property map to use.
  *
  */
-void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map);
+void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map, unsigned char copy);
 
 /**
  * Sets the target window to render to.

@@ -37,8 +37,10 @@ extern "C" {
 /**
  * Sets the program handle as currently in use for the given context.
  *
+ * @param copy Index of the copy of the map to use.
+ *
  */
-void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext);
+void _gfx_property_map_use(GFXPropertyMap* map, unsigned char copy, GFX_Extensions* ext);
 
 /**
  * Get the location of a property (a.k.a uniform).
@@ -47,24 +49,6 @@ void _gfx_property_map_use(GFXPropertyMap* map, GFX_Extensions* ext);
  *
  */
 GLint _gfx_program_get_location(GFXProgram* program, unsigned short index);
-
-/**
- * Signals a program it is going to be used with a property map.
- *
- * @return Zero if the property map is already in use with this program.
- *
- * Note: this should only be called from within the property map.
- *
- */
-int _gfx_program_target(GFXProgram* program, GFXPropertyMap* map);
-
-/**
- * Makes sure the program is not targeted by the given property map.
- *
- * Note: this should only be called from within the property map.
- *
- */
-void _gfx_program_untarget(GFXProgram* program, GFXPropertyMap* map);
 
 
 /********************************************************

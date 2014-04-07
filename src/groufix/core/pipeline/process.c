@@ -40,8 +40,9 @@ struct GFX_Process
 {
 	/* Post Processing */
 	GFXPropertyMap*  map;
+	unsigned char    copy;   /* Copy of the property map to use */
 	GFX_Window*      target;
-	unsigned char    swap; /* Whether to swap window buffers or not */
+	unsigned char    swap;   /* Whether to swap window buffers or not */
 
 	/* Viewport */
 	unsigned int width;
@@ -49,10 +50,10 @@ struct GFX_Process
 };
 
 /******************************************************/
-static inline void _gfx_pipe_process_draw(GFX_State* state, GFXPropertyMap* map, GLuint layout, GFX_Extensions* ext)
+static inline void _gfx_pipe_process_draw(GFX_State* state, GFXPropertyMap* map, unsigned char copy, GLuint layout, GFX_Extensions* ext)
 {
 	_gfx_states_set(state, ext);
-	_gfx_property_map_use(map, ext);
+	_gfx_property_map_use(map, copy, ext);
 	_gfx_layout_bind(layout, ext);
 
 	ext->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -211,9 +212,12 @@ void _gfx_pipe_process_free(GFXPipeProcess process)
 }
 
 /******************************************************/
-void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map)
+void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map, unsigned char copy)
 {
-	((struct GFX_Process*)process)->map = map;
+	struct GFX_Process* internal = (struct GFX_Process*)process;
+
+	internal->map = map;
+	internal->copy = copy;
 }
 
 /******************************************************/
@@ -248,7 +252,14 @@ void _gfx_pipe_process_execute(GFXPipeProcess process, GFX_State* state, GFX_Win
 			_gfx_pipeline_bind(0, ext);
 
 			_gfx_states_set_viewport(internal->width, internal->height, ext);
-			_gfx_pipe_process_draw(state, internal->map, internal->target->layout, ext);
+			_gfx_pipe_process_draw(
+				state,
+				internal->map,
+				internal->copy,
+				internal->target->layout,
+				ext
+			);
+
 			if(internal->swap) _gfx_window_swap_buffers();
 
 			_gfx_pipeline_bind(fbo, ext);
@@ -256,6 +267,12 @@ void _gfx_pipe_process_execute(GFXPipeProcess process, GFX_State* state, GFX_Win
 		}
 
 		/* If no windowed rendering, just draw */
-		else _gfx_pipe_process_draw(state, internal->map, active->layout, &active->extensions);
+		else _gfx_pipe_process_draw(
+			state,
+			internal->map,
+			internal->copy,
+			active->layout,
+			&active->extensions
+		);
 	}
 }
