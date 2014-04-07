@@ -313,7 +313,7 @@ typedef struct GFXPropertyMap
 {
 	GFXProgram*    program;    /* Program it references (cannot be changed or freed while the map is alive) */
 	unsigned char  properties; /* Number of properties */
-	unsigned char  copies;     /* Number of property copies present, the initial value is 1 */
+	size_t         copies;     /* Number of property copies present, the initial value is 1 */
 
 } GFXPropertyMap;
 
@@ -341,7 +341,7 @@ void gfx_property_map_free(GFXPropertyMap* map);
  * @return Zero on failure.
  *
  */
-int gfx_property_map_expand(GFXPropertyMap* map, unsigned char num);
+int gfx_property_map_expand(GFXPropertyMap* map, size_t num);
 
 /**
  * Removes multiple copies at the end of the properties containing copies.
@@ -350,7 +350,7 @@ int gfx_property_map_expand(GFXPropertyMap* map, unsigned char num);
  * @return Number of copies actually removed.
  *
  */
-unsigned char gfx_property_map_shrink(GFXPropertyMap* map, unsigned char num);
+size_t gfx_property_map_shrink(GFXPropertyMap* map, size_t num);
 
 /**
  * Forwards data send to a given index to a property within the program.
@@ -407,7 +407,7 @@ int gfx_property_map_forward_named_block(GFXPropertyMap* map, unsigned char inde
  * @return Non-zero on success.
  *
  */
-int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, unsigned char copy, const void* value, size_t offset, size_t size);
+int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, size_t copy, const void* value, size_t offset, size_t size);
 
 /**
  * Sets the value of a sampler property.
@@ -419,7 +419,7 @@ int gfx_property_map_set_value(GFXPropertyMap* map, unsigned char index, unsigne
  * Note: There can only be GFX_LIM_MAX_SAMPLER_PROPERTIES number of sampler properties forwarded.
  *
  */
-int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, unsigned char copy, const GFXTexture* texture);
+int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, size_t copy, const GFXTexture* texture);
 
 /**
  * Sets the value of a property block.
@@ -433,7 +433,7 @@ int gfx_property_map_set_sampler(GFXPropertyMap* map, unsigned char index, unsig
  * Note: There can only be GFX_LIM_MAX_BUFFER_PROPERTIES number of block properties forwarded.
  *
  */
-int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, unsigned char copy, const GFXBuffer* buffer, size_t offset, size_t size);
+int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, size_t copy, const GFXBuffer* buffer, size_t offset, size_t size);
 
 /**
  * Sets the value of a property block.
@@ -445,7 +445,7 @@ int gfx_property_map_set_buffer(GFXPropertyMap* map, unsigned char index, unsign
  * @return Non-zero on success.
  *
  */
-int gfx_property_map_set_shared_buffer(GFXPropertyMap* map, unsigned char index, unsigned char copy, const GFXSharedBuffer* buffer, size_t offset, size_t size);
+int gfx_property_map_set_shared_buffer(GFXPropertyMap* map, unsigned char index, size_t copy, const GFXSharedBuffer* buffer, size_t offset, size_t size);
 
 
 #ifdef __cplusplus

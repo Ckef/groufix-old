@@ -40,7 +40,7 @@ extern "C" {
  * @param copy Index of the copy of the map to use.
  *
  */
-void _gfx_property_map_use(GFXPropertyMap* map, unsigned char copy, GFX_Extensions* ext);
+void _gfx_property_map_use(GFXPropertyMap* map, size_t copy, GFX_Extensions* ext);
 
 /**
  * Get the location of a property (a.k.a uniform).

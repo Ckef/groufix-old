@@ -72,7 +72,7 @@ struct GFX_Unit
 {
 	GFXBatchState    state;  /* Combination of vertex layout key, program key and manual state */
 	GFXPropertyMap*  map;
-	unsigned char    copy;   /* Copy of the property map to use */
+	size_t           copy;   /* Copy of the property map to use */
 	unsigned char    action;
 
 	size_t           ref;    /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
@@ -497,7 +497,7 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src)
 }
 
 /******************************************************/
-size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, unsigned char copy, int visible)
+size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, size_t copy, int visible)
 {
 	--src;
 

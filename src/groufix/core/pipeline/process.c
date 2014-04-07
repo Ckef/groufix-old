@@ -40,7 +40,7 @@ struct GFX_Process
 {
 	/* Post Processing */
 	GFXPropertyMap*  map;
-	unsigned char    copy;   /* Copy of the property map to use */
+	size_t           copy;   /* Copy of the property map to use */
 	GFX_Window*      target;
 	unsigned char    swap;   /* Whether to swap window buffers or not */
 
@@ -50,7 +50,7 @@ struct GFX_Process
 };
 
 /******************************************************/
-static inline void _gfx_pipe_process_draw(GFX_State* state, GFXPropertyMap* map, unsigned char copy, GLuint layout, GFX_Extensions* ext)
+static inline void _gfx_pipe_process_draw(GFX_State* state, GFXPropertyMap* map, size_t copy, GLuint layout, GFX_Extensions* ext)
 {
 	_gfx_states_set(state, ext);
 	_gfx_property_map_use(map, copy, ext);
@@ -212,7 +212,7 @@ void _gfx_pipe_process_free(GFXPipeProcess process)
 }
 
 /******************************************************/
-void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map, unsigned char copy)
+void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map, size_t copy)
 {
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 
