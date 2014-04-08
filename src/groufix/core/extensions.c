@@ -32,7 +32,10 @@
  * GL core & GL ES emulators
  *******************************************************/
 
-static void _gfx_gl_patch_parameter_i(GLenum pname, GLint value)
+static void _gfx_gl_patch_parameter_i(
+
+		GLenum  pname,
+		GLint   value)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -47,7 +50,13 @@ static void _gfx_gl_patch_parameter_i(GLenum pname, GLint value)
  * GL ES emulators
  *******************************************************/
 
-static void _gfx_gles_framebuffer_texture_1d(GLenum target, GLenum attach, GLenum textarget, GLuint texture, GLint level)
+static void _gfx_gles_framebuffer_texture_1d(
+
+		GLenum  target,
+		GLenum  attach,
+		GLenum  textarget,
+		GLuint  texture,
+		GLint   level)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -55,9 +64,19 @@ static void _gfx_gles_framebuffer_texture_1d(GLenum target, GLenum attach, GLenu
 	);
 }
 
-static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsizeiptr size, GLvoid* data)
+static void _gfx_gles_get_buffer_sub_data(
+
+		GLenum      target,
+		GLintptr    offset,
+		GLsizeiptr  size,
+		GLvoid*     data)
 {
-	void* map = glMapBufferRange(target, offset, size, GL_MAP_READ_BIT);
+	void* map = glMapBufferRange(
+		target,
+		offset,
+		size,
+		GL_MAP_READ_BIT
+	);
 
 	if(map)
 	{
@@ -70,7 +89,11 @@ static void _gfx_gles_get_buffer_sub_data(GLenum target, GLintptr offset, GLsize
 	}
 }
 
-static void _gfx_gles_tex_buffer(GLenum target, GLenum internalFormat, GLuint buffer)
+static void _gfx_gles_tex_buffer(
+
+		GLenum  target,
+		GLenum  internalFormat,
+		GLuint  buffer)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -86,12 +109,29 @@ static void _gfx_gles_tex_1d_error(void)
 	);
 }
 
-static void _gfx_gles_tex_image_1d(GLenum target, GLint level, GLint internalFormat, GLsizei w, GLint b, GLenum format, GLenum type, const GLvoid* data)
+static void _gfx_gles_tex_image_1d(
+
+		GLenum         target,
+		GLint          level,
+		GLint          internalFormat,
+		GLsizei        w,
+		GLint          b,
+		GLenum         format,
+		GLenum         type,
+		const GLvoid*  data)
 {
 	_gfx_gles_tex_1d_error();
 }
 
-static void _gfx_gles_tex_sub_image_1d(GLenum target, GLint level, GLint xoff, GLsizei w, GLenum format, GLenum type, const GLvoid* data)
+static void _gfx_gles_tex_sub_image_1d(
+
+		GLenum         target,
+		GLint          level,
+		GLint          xoff,
+		GLsizei        w,
+		GLenum         format,
+		GLenum         type,
+		const GLvoid*  data)
 {
 	_gfx_gles_tex_1d_error();
 }
@@ -104,17 +144,35 @@ static void _gfx_gles_multisample_tex_error(void)
 	);
 }
 
-static void _gfx_gles_polygon_mode(GLenum face, GLenum mode)
+static void _gfx_gles_polygon_mode(
+
+		GLenum  face,
+		GLenum  mode)
 {
 	/* Just ignore the call */
 }
 
-static void _gfx_gles_tex_image_2d_multisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei w, GLsizei h, GLboolean f)
+static void _gfx_gles_tex_image_2d_multisample(
+
+		GLenum     target,
+		GLsizei    samples,
+		GLenum     internalformat,
+		GLsizei    w,
+		GLsizei    h,
+		GLboolean  f)
 {
 	_gfx_gles_multisample_tex_error();
 }
 
-static void _gfx_gles_tex_image_3d_multisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei w, GLsizei h, GLsizei d, GLboolean f)
+static void _gfx_gles_tex_image_3d_multisample(
+
+		GLenum     target,
+		GLsizei    samples,
+		GLenum     internalformat,
+		GLsizei    w,
+		GLsizei    h,
+		GLsizei    d,
+		GLboolean  f)
 {
 	_gfx_gles_multisample_tex_error();
 }
@@ -126,7 +184,10 @@ static void _gfx_gles_tex_image_3d_multisample(GLenum target, GLsizei samples, G
  * GL core emulators
  *******************************************************/
 
-static void _gfx_gl_vertex_attrib_divisor(GLuint index, GLuint divisor)
+static void _gfx_gl_vertex_attrib_divisor(
+
+		GLuint  index,
+		GLuint  divisor)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -142,19 +203,34 @@ static void _gfx_gl_program_binary_error(void)
 	);
 }
 
-static void _gfx_gl_get_program_binary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum *binaryFormat, void* binary)
+static void _gfx_gl_get_program_binary(
+
+		GLuint    program,
+		GLsizei   bufsize,
+		GLsizei*  length,
+		GLenum*   binaryFormat,
+		void*     binary)
 {
 	if(length) *length = 0;
 
 	_gfx_gl_program_binary_error();
 }
 
-static void _gfx_gl_program_binary(GLuint program, GLenum binaryFormat, const void* binary, GLsizei length)
+static void _gfx_gl_program_binary(
+
+		GLuint       program,
+		GLenum       binaryFormat,
+		const void*  binary,
+		GLsizei      length)
 {
 	_gfx_gl_program_binary_error();
 }
 
-static void _gfx_gl_program_parameter_i(GLuint program, GLenum pname, GLint value)
+static void _gfx_gl_program_parameter_i(
+
+		GLuint  program,
+		GLenum  pname,
+		GLint   value)
 {
 	_gfx_gl_program_binary_error();
 }
@@ -172,7 +248,10 @@ void _gfx_extensions_load(void)
 	GFX_Extensions* ext = &window->extensions;
 
 	/* Get OpenGL version */
-	_gfx_platform_context_get(&window->context.major, &window->context.minor);
+	_gfx_platform_context_get(
+		&window->context.major,
+		&window->context.minor
+	);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS,
@@ -446,7 +525,9 @@ void _gfx_extensions_load(void)
 	ext->Viewport                  = (PFNGLVIEWPORTPROC)                  glViewport;
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
-	if(window->context.major > 3 || (window->context.major == 3 && window->context.minor > 2))
+	if(
+		window->context.major > 3 ||
+		(window->context.major == 3 && window->context.minor > 2))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
@@ -463,7 +544,9 @@ void _gfx_extensions_load(void)
 	}
 
 	/* GFX_EXT_LAYERED_CUBEMAP */
-	if(window->context.major > 3 || _gfx_platform_is_extension_supported(window->handle, "GL_ARB_texture_cube_map_array"))
+	if(
+		window->context.major > 3 ||
+		_gfx_platform_is_extension_supported(window->handle, "GL_ARB_texture_cube_map_array"))
 	{
 		ext->flags[GFX_EXT_LAYERED_CUBEMAP] = 1;
 	}
@@ -473,7 +556,9 @@ void _gfx_extensions_load(void)
 	}
 
 	/* GFX_EXT_PROGRAM_BINARY */
-	if(window->context.major > 4 || (window->context.major == 4 && window->context.minor > 0))
+	if(
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 0))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
@@ -526,7 +611,11 @@ void _gfx_extensions_load(void)
 	ext->layout = 0;
 	ext->program = 0;
 
-	_gfx_platform_window_get_size(window->handle, &ext->width, &ext->height);
+	_gfx_platform_window_get_size(
+		window->handle,
+		&ext->width,
+		&ext->height
+	);
 
 	ext->packAlignment = 0;
 	ext->unpackAlignment = 0;

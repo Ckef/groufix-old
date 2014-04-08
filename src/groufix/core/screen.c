@@ -30,7 +30,9 @@ unsigned int gfx_get_num_screens(void)
 }
 
 /******************************************************/
-GFXScreen gfx_get_screen(unsigned int num)
+GFXScreen gfx_get_screen(
+
+		unsigned int num)
 {
 	return (GFXScreen)_gfx_platform_get_screen(num);
 }
@@ -42,7 +44,15 @@ GFXScreen gfx_get_default_screen(void)
 }
 
 /******************************************************/
-void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height)
+void gfx_screen_get_size(
+
+		GFXScreen      screen,
+		unsigned int*  width,
+		unsigned int*  height)
 {
-	_gfx_platform_screen_get_size((GFX_PlatformScreen)screen, width, height);
+	_gfx_platform_screen_get_size(
+		(GFX_PlatformScreen)screen,
+		width,
+		height
+	);
 }

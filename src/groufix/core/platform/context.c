@@ -40,7 +40,10 @@ static const char* _gfx_glsl_versions[] =
 };
 
 /******************************************************/
-void _gfx_platform_context_get(int* major, int* minor)
+void _gfx_platform_context_get(
+
+		int*  major,
+		int*  minor)
 {
 	GLint ma, mi;
 	glGetIntegerv(GL_MAJOR_VERSION, &ma);
@@ -51,7 +54,10 @@ void _gfx_platform_context_get(int* major, int* minor)
 }
 
 /******************************************************/
-const char* _gfx_platform_context_get_glsl(int major, int minor)
+const char* _gfx_platform_context_get_glsl(
+
+		int  major,
+		int  minor)
 {
 	switch(major)
 	{
@@ -77,7 +83,10 @@ const char* _gfx_platform_context_get_glsl(int major, int minor)
 }
 
 /******************************************************/
-int _gfx_extensions_is_in_string(const char* str, const char* ext)
+int _gfx_extensions_is_in_string(
+
+		const char*  str,
+		const char*  ext)
 {
 	/* Get extension length */
 	size_t len = strlen(ext);

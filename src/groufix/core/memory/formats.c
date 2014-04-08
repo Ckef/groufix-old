@@ -222,7 +222,9 @@
 
 
 /******************************************************/
-int _gfx_is_data_type_packed(GFXDataType type)
+int _gfx_is_data_type_packed(
+
+		GFXDataType type)
 {
 	switch(type.packed)
 	{
@@ -242,7 +244,9 @@ int _gfx_is_data_type_packed(GFXDataType type)
 }
 
 /******************************************************/
-unsigned char _gfx_sizeof_data_type(GFXDataType type)
+unsigned char _gfx_sizeof_data_type(
+
+		GFXDataType type)
 {
 	/* Check for unpacked datatypes */
 	switch(type.unpacked)
@@ -285,7 +289,9 @@ unsigned char _gfx_sizeof_data_type(GFXDataType type)
 }
 
 /******************************************************/
-GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format)
+GLint _gfx_texture_format_to_pixel_format(
+
+		GFXTextureFormat format)
 {
 	/* Check for packed formats */
 	switch(format.type.packed)
@@ -334,7 +340,9 @@ GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format)
 }
 
 /******************************************************/
-GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
+GLint _gfx_texture_format_to_internal(
+
+		GFXTextureFormat format)
 {
 	/* Check for packed formats */
 	switch(format.type.packed)
@@ -486,7 +494,9 @@ GLint _gfx_texture_format_to_internal(GFXTextureFormat format)
 }
 
 /******************************************************/
-GFXTextureFormat _gfx_texture_format_from_internal(GLint format)
+GFXTextureFormat _gfx_texture_format_from_internal(
+
+		GLint format)
 {
 	GFXTextureFormat ret;
 	memset(&ret, 0, sizeof(GFXTextureFormat));

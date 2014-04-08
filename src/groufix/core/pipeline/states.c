@@ -38,7 +38,10 @@
 #endif
 
 /******************************************************/
-static inline void _gfx_states_clear_buffers(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_states_clear_buffers(
+
+		GFXPipeState           state,
+		const GFX_Extensions*  ext)
 {
 	GLbitfield mask = 0;
 	mask |= (state & GFX_CLEAR_COLOR) ? GL_COLOR_BUFFER_BIT : 0;
@@ -49,30 +52,45 @@ static inline void _gfx_states_clear_buffers(GFXPipeState state, const GFX_Exten
 }
 
 /******************************************************/
-static inline void _gfx_state_set_polygon_mode(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_polygon_mode(
+
+		GFXPipeState           state,
+		const GFX_Extensions*  ext)
 {
-	if(state & GFX_STATE_WIREFRAME) ext->PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else if(state & GFX_STATE_POINTCLOUD) ext->PolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	if(state & GFX_STATE_WIREFRAME)
+		ext->PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	else if(state & GFX_STATE_POINTCLOUD)
+		ext->PolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
 	else ext->PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 /******************************************************/
-static inline void _gfx_state_set_rasterizer(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_rasterizer(
+
+		GFXPipeState           state,
+		const GFX_Extensions*  ext)
 {
 	if(state & GFX_STATE_NO_RASTERIZER) ext->Enable(GL_RASTERIZER_DISCARD);
 	else ext->Disable(GL_RASTERIZER_DISCARD);
 }
 
 /******************************************************/
-static inline void _gfx_state_set_depth_test(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_depth_test(
+
+		GFXPipeState           state,
+		const GFX_Extensions*  ext)
 {
 	if(state & GFX_STATE_DEPTH_TEST) ext->Enable(GL_DEPTH_TEST);
 	else ext->Disable(GL_DEPTH_TEST);
 }
 
 /******************************************************/
-static inline void _gfx_state_set_cull_face(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_cull_face(
+
+		GFXPipeState           state,
+		const GFX_Extensions*  ext)
 {
 	if(state & (GFX_STATE_CULL_FRONT | GFX_STATE_CULL_BACK))
 	{
@@ -83,21 +101,29 @@ static inline void _gfx_state_set_cull_face(GFXPipeState state, const GFX_Extens
 }
 
 /******************************************************/
-static inline void _gfx_state_set_blend(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_blend(
+
+		GFXPipeState           state,
+		const GFX_Extensions*  ext)
 {
 	if(state & GFX_STATE_BLEND) ext->Enable(GL_BLEND);
 	else ext->Disable(GL_BLEND);
 }
 
 /******************************************************/
-static inline void _gfx_state_set_stencil_test(GFXPipeState state, const GFX_Extensions* ext)
+static inline void _gfx_state_set_stencil_test(
+
+		GFXPipeState           state,
+		const GFX_Extensions*  ext)
 {
 	if(state & GFX_STATE_STENCIL_TEST) ext->Enable(GL_STENCIL_TEST);
 	else ext->Disable(GL_STENCIL_TEST);
 }
 
 /******************************************************/
-void _gfx_states_set_default(GFX_State* state)
+void _gfx_states_set_default(
+
+		GFX_State* state)
 {
 	state->state            = GFX_STATE_DEFAULT;
 	state->depthFunc        = GFX_FRAG_LESS;
@@ -122,7 +148,10 @@ void _gfx_states_set_default(GFX_State* state)
 }
 
 /******************************************************/
-void _gfx_states_set(GFX_State* state, GFX_Extensions* ext)
+void _gfx_states_set(
+
+		GFX_State*       state,
+		GFX_Extensions*  ext)
 {
 	/* Clear buffers & check stripped state */
 	_gfx_states_clear_buffers(state->state, ext);
@@ -228,7 +257,10 @@ void _gfx_states_set(GFX_State* state, GFX_Extensions* ext)
 }
 
 /******************************************************/
-void _gfx_states_force_set(GFX_State* state, GFX_Extensions* ext)
+void _gfx_states_force_set(
+
+		GFX_State*       state,
+		GFX_Extensions*  ext)
 {
 	/* Clear buffers & strip state */
 	_gfx_states_clear_buffers(state->state, ext);
@@ -286,7 +318,11 @@ void _gfx_states_force_set(GFX_State* state, GFX_Extensions* ext)
 }
 
 /******************************************************/
-void _gfx_states_set_viewport(unsigned int width, unsigned int height, GFX_Extensions* ext)
+void _gfx_states_set_viewport(
+
+		unsigned int     width,
+		unsigned int     height,
+		GFX_Extensions*  ext)
 {
 	if(ext->width != width || ext->height != height)
 	{
@@ -297,7 +333,10 @@ void _gfx_states_set_viewport(unsigned int width, unsigned int height, GFX_Exten
 }
 
 /******************************************************/
-void _gfx_states_set_pixel_pack_alignment(unsigned char align, GFX_Extensions* ext)
+void _gfx_states_set_pixel_pack_alignment(
+
+		unsigned char    align,
+		GFX_Extensions*  ext)
 {
 	if(ext->packAlignment != align)
 	{
@@ -307,7 +346,10 @@ void _gfx_states_set_pixel_pack_alignment(unsigned char align, GFX_Extensions* e
 }
 
 /******************************************************/
-void _gfx_states_set_pixel_unpack_alignment(unsigned char align, GFX_Extensions* ext)
+void _gfx_states_set_pixel_unpack_alignment(
+
+		unsigned char    align,
+		GFX_Extensions*  ext)
 {
 	if(ext->unpackAlignment != align)
 	{
@@ -317,7 +359,10 @@ void _gfx_states_set_pixel_unpack_alignment(unsigned char align, GFX_Extensions*
 }
 
 /******************************************************/
-void _gfx_states_set_patch_vertices(unsigned int vertices, GFX_Extensions* ext)
+void _gfx_states_set_patch_vertices(
+
+		unsigned int     vertices,
+		GFX_Extensions*  ext)
 {
 	if(ext->patchVertices != vertices)
 	{

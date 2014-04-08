@@ -24,14 +24,22 @@
 #include "groufix/core/platform/x11.h"
 
 /******************************************************/
-int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor, GFX_PlatformWindow share)
+int _gfx_platform_context_create(
+
+		GFX_PlatformWindow  handle,
+		int                 major,
+		int                 minor,
+		GFX_PlatformWindow  share)
 {
 	/* Get the windows */
-	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
+		GFX_VOID_TO_UINT(handle));
+
 	if(!window) return 0;
 
 	GFX_X11_Window* shareWind = NULL;
-	if(share) shareWind = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(share));
+	if(share) shareWind = _gfx_x11_get_window_from_handle(
+		GFX_VOID_TO_UINT(share));
 
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
@@ -57,7 +65,11 @@ int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor
 	/* Make it current */
 	if(window->context)
 	{
-		glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
+		glXMakeCurrent(
+			_gfx_x11->display,
+			window->handle,
+			window->context
+		);
 		_gfx_x11->current = window->handle;
 
 		return 1;
@@ -66,10 +78,14 @@ int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor
 }
 
 /******************************************************/
-void _gfx_platform_context_free(GFX_PlatformWindow handle)
+void _gfx_platform_context_free(
+
+		GFX_PlatformWindow handle)
 {
 	/* Get the window and destroy its context */
-	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
+		GFX_VOID_TO_UINT(handle));
+
 	if(window)
 	{
 		glXMakeCurrent(_gfx_x11->display, None, NULL);
@@ -80,9 +96,13 @@ void _gfx_platform_context_free(GFX_PlatformWindow handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_make_current(GFX_PlatformWindow handle)
+void _gfx_platform_context_make_current(
+
+		GFX_PlatformWindow handle)
 {
-	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
+		GFX_VOID_TO_UINT(handle));
+
 	if(window)
 	{
 		glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
@@ -91,14 +111,20 @@ void _gfx_platform_context_make_current(GFX_PlatformWindow handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_set_swap_interval(GFX_PlatformWindow handle, int num)
+void _gfx_platform_context_set_swap_interval(
+
+		GFX_PlatformWindow  handle,
+		int                 num)
 {
 	/* Correct if adaptive vsync is not supported */
 	if(!_gfx_x11->extensions.EXT_swap_control_tear && num < 0)
 		num = -num;
 
 	if(_gfx_x11->extensions.SwapIntervalEXT)
-		_gfx_x11->extensions.SwapIntervalEXT(_gfx_x11->display, (Window)GFX_VOID_TO_UINT(handle), num);
+		_gfx_x11->extensions.SwapIntervalEXT(
+			_gfx_x11->display,
+			(Window)GFX_VOID_TO_UINT(handle), num
+		);
 }
 
 /******************************************************/
@@ -108,17 +134,25 @@ void _gfx_platform_context_swap_buffers(void)
 }
 
 /******************************************************/
-int _gfx_platform_is_extension_supported(GFX_PlatformWindow handle, const char* ext)
+int _gfx_platform_is_extension_supported(
+
+		GFX_PlatformWindow  handle,
+		const char*         ext)
 {
 	/* Get screen */
 	Screen* screen = (Screen*)_gfx_platform_window_get_screen(handle);
 	if(!screen) return 0;
 
-	return _gfx_x11_is_extension_supported(XScreenNumberOfScreen(screen), ext);
+	return _gfx_x11_is_extension_supported(
+		XScreenNumberOfScreen(screen),
+		ext
+	);
 }
 
 /******************************************************/
-GFX_ProcAddress _gfx_platform_get_proc_address(const char* proc)
+GFX_ProcAddress _gfx_platform_get_proc_address(
+
+		const char* proc)
 {
 	return (GFX_ProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
 }

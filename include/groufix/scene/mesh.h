@@ -51,7 +51,11 @@ typedef struct GFXSubMesh
  * @return Zero if the source does not exist.
  *
  */
-int gfx_submesh_set_source(GFXSubMesh* mesh, unsigned char index, GFXVertexSource source);
+int gfx_submesh_set_source(
+
+		GFXSubMesh*      mesh,
+		unsigned char    index,
+		GFXVertexSource  source);
 
 /**
  * Returns a source of the submesh.
@@ -60,7 +64,10 @@ int gfx_submesh_set_source(GFXSubMesh* mesh, unsigned char index, GFXVertexSourc
  * @return The source values, all 0 if it does not exist.
  *
  */
-GFXVertexSource gfx_submesh_get_source(GFXSubMesh* mesh, unsigned char index);
+GFXVertexSource gfx_submesh_get_source(
+
+		GFXSubMesh*    mesh,
+		unsigned char  index);
 
 /**
  * Creates an automatic buffer.
@@ -69,7 +76,12 @@ GFXVertexSource gfx_submesh_get_source(GFXSubMesh* mesh, unsigned char index);
  * @return ID to identify the buffer (0 on failure).
  *
  */
-size_t gfx_submesh_add_buffer(GFXSubMesh* mesh, GFXBufferTarget target, size_t size, const void* data);
+size_t gfx_submesh_add_buffer(
+
+		GFXSubMesh*      mesh,
+		GFXBufferTarget  target,
+		size_t           size,
+		const void*      data);
 
 /**
  * Uses a vertex buffer for a given attribue.
@@ -80,7 +92,12 @@ size_t gfx_submesh_add_buffer(GFXSubMesh* mesh, GFXBufferTarget target, size_t s
  * @return Zero on failure (in which case the attribute is disabled).
  *
  */
-int gfx_submesh_set_attribute_buffer(GFXSubMesh* mesh, unsigned int index, size_t buffer, size_t offset);
+int gfx_submesh_set_attribute_buffer(
+
+		GFXSubMesh*   mesh,
+		unsigned int  index,
+		size_t        buffer,
+		size_t        offset);
 
 /**
  * Uses an index buffer for a given draw call.
@@ -91,7 +108,12 @@ int gfx_submesh_set_attribute_buffer(GFXSubMesh* mesh, unsigned int index, size_
  * @return Zero on failure (in which case the index buffer is disabled).
  *
  */
-int gfx_submesh_set_draw_call_buffer(GFXSubMesh* mesh, unsigned char index, size_t buffer, size_t offset);
+int gfx_submesh_set_draw_call_buffer(
+
+		GFXSubMesh*    mesh,
+		unsigned char  index,
+		size_t         buffer,
+		size_t         offset);
 
 
 /********************************************************
@@ -118,7 +140,9 @@ GFXMesh* gfx_mesh_create(void);
  * Makes sure the mesh is freed properly.
  *
  */
-void gfx_mesh_free(GFXMesh* mesh);
+void gfx_mesh_free(
+
+		GFXMesh* mesh);
 
 /**
  * Creates a new submesh and maps it to a given level of detail.
@@ -129,7 +153,12 @@ void gfx_mesh_free(GFXMesh* mesh);
  * @return The new submesh on success, NULL on failure.
  *
  */
-GFXSubMesh* gfx_mesh_add(GFXMesh* mesh, size_t level, unsigned char drawCalls, unsigned char sources);
+GFXSubMesh* gfx_mesh_add(
+
+		GFXMesh*       mesh,
+		size_t         level,
+		unsigned char  drawCalls,
+		unsigned char  sources);
 
 /**
  * Shares a submesh and maps it to a given level of detail.
@@ -139,7 +168,11 @@ GFXSubMesh* gfx_mesh_add(GFXMesh* mesh, size_t level, unsigned char drawCalls, u
  * @return Zero on failure.
  *
  */
-int gfx_mesh_add_share(GFXMesh* mesh, size_t level, GFXSubMesh* share);
+int gfx_mesh_add_share(
+
+		GFXMesh*     mesh,
+		size_t       level,
+		GFXSubMesh*  share);
 
 /**
  * Removes a submesh from the mesh.
@@ -148,7 +181,10 @@ int gfx_mesh_add_share(GFXMesh* mesh, size_t level, GFXSubMesh* share);
  * If this happens, higher levels will fall down one level.
  *
  */
-void gfx_mesh_remove(GFXMesh* mesh, GFXSubMesh* sub);
+void gfx_mesh_remove(
+
+		GFXMesh*     mesh,
+		GFXSubMesh*  sub);
 
 /**
  * Returns an array of submeshes of a given level of detail.
@@ -159,7 +195,11 @@ void gfx_mesh_remove(GFXMesh* mesh, GFXSubMesh* sub);
  * Note: as soon as a submesh is added/removed the array pointer is invalidated.
  *
  */
-inline GFXSubMesh** gfx_mesh_get(GFXMesh* mesh, size_t level, size_t* num)
+inline GFXSubMesh** gfx_mesh_get(
+
+		GFXMesh*  mesh,
+		size_t    level,
+		size_t*   num)
 {
 	return (GFXSubMesh**)gfx_lod_map_get((GFXLodMap*)mesh, level, num);
 }

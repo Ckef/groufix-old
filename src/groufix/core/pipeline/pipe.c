@@ -58,7 +58,10 @@ struct GFX_Range
 };
 
 /******************************************************/
-static int _gfx_pipe_callback_comp(const void* elem1, const void* elem2)
+static int _gfx_pipe_callback_comp(
+
+		const void*  elem1,
+		const void*  elem2)
 {
 	GFXPipeCallback* c1 = (GFXPipeCallback*)elem1;
 	GFXPipeCallback* c2 = (GFXPipeCallback*)elem2;
@@ -73,7 +76,10 @@ static int _gfx_pipe_callback_comp(const void* elem1, const void* elem2)
 }
 
 /******************************************************/
-static int _gfx_pipe_range_comp(const void* key, const void* elem)
+static int _gfx_pipe_range_comp(
+
+		const void*  key,
+		const void*  elem)
 {
 	unsigned char k = GFX_VOID_TO_UINT(key);
 	struct GFX_Range* range = (struct GFX_Range*)elem;
@@ -85,7 +91,9 @@ static int _gfx_pipe_range_comp(const void* key, const void* elem)
 }
 
 /******************************************************/
-static void _gfx_pipe_sort(struct GFX_Internal_Pipe* pipe)
+static void _gfx_pipe_sort(
+
+		struct GFX_Internal_Pipe* pipe)
 {
 	/* Sort if necessary */
 	if(!(pipe->flags & GFX_INT_PIPE_SORTED))
@@ -101,7 +109,9 @@ static void _gfx_pipe_sort(struct GFX_Internal_Pipe* pipe)
 }
 
 /******************************************************/
-static void _gfx_pipe_range(struct GFX_Internal_Pipe* pipe)
+static void _gfx_pipe_range(
+
+		struct GFX_Internal_Pipe* pipe)
 {
 	/* Range if necessary */
 	if(!(pipe->flags & GFX_INT_PIPE_RANGED))
@@ -142,7 +152,11 @@ static void _gfx_pipe_range(struct GFX_Internal_Pipe* pipe)
 }
 
 /******************************************************/
-static GFXVectorIterator _gfx_pipe_find(struct GFX_Internal_Pipe* pipe, unsigned char key, size_t* num)
+static GFXVectorIterator _gfx_pipe_find(
+
+		struct GFX_Internal_Pipe*  pipe,
+		unsigned char              key,
+		size_t*                    num)
 {
 	/* Find range element */
 	struct GFX_Range* it = bsearch(
@@ -169,7 +183,10 @@ static GFXVectorIterator _gfx_pipe_find(struct GFX_Internal_Pipe* pipe, unsigned
 }
 
 /******************************************************/
-static struct GFX_Internal_Pipe* _gfx_pipe_create(GFXPipeType type, GFXPipeline* pipeline)
+static struct GFX_Internal_Pipe* _gfx_pipe_create(
+
+		GFXPipeType   type,
+		GFXPipeline*  pipeline)
 {
 	/* Create the pipe */
 	struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)gfx_list_create(sizeof(struct GFX_Internal_Pipe));
@@ -188,7 +205,11 @@ static struct GFX_Internal_Pipe* _gfx_pipe_create(GFXPipeType type, GFXPipeline*
 }
 
 /******************************************************/
-GFX_Pipe* _gfx_pipe_create_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags)
+GFX_Pipe* _gfx_pipe_create_bucket(
+
+		GFXPipeline*    pipeline,
+		unsigned char   bits,
+		GFXBucketFlags  flags)
 {
 	struct GFX_Internal_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_BUCKET, pipeline);
 	if(!pipe) return NULL;
@@ -206,7 +227,9 @@ GFX_Pipe* _gfx_pipe_create_bucket(GFXPipeline* pipeline, unsigned char bits, GFX
 }
 
 /******************************************************/
-GFX_Pipe* _gfx_pipe_create_process(GFXPipeline* pipeline)
+GFX_Pipe* _gfx_pipe_create_process(
+
+		GFXPipeline* pipeline)
 {
 	struct GFX_Internal_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_PROCESS, pipeline);
 	if(!pipe) return NULL;
@@ -224,13 +247,18 @@ GFX_Pipe* _gfx_pipe_create_process(GFXPipeline* pipeline)
 }
 
 /******************************************************/
-GFX_Pipe* _gfx_pipe_free(GFX_Pipe* pipe)
+GFX_Pipe* _gfx_pipe_free(
+
+		GFX_Pipe* pipe)
 {
 	struct GFX_Internal_Pipe* internal = (struct GFX_Internal_Pipe*)pipe;
 
 	/* Issue all callbacks */
 	GFXVectorIterator it;
-	for(it = internal->callbacks.begin; it != internal->callbacks.end; it = gfx_vector_next(&internal->callbacks, it))
+	for(
+		it = internal->callbacks.begin;
+		it != internal->callbacks.end;
+		it = gfx_vector_next(&internal->callbacks, it))
 	{
 		struct GFX_Callback* call = (struct GFX_Callback*)it;
 		if(call->func) call->func(&pipe->ptr, &call->callback);
@@ -255,63 +283,110 @@ GFX_Pipe* _gfx_pipe_free(GFX_Pipe* pipe)
 }
 
 /******************************************************/
-GFXPipeType gfx_pipe_get_type(GFXPipe* pipe)
+GFXPipeType gfx_pipe_get_type(
+
+		GFXPipe* pipe)
 {
-	return ((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->type;
+	return ((GFX_Pipe*)GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr)))->type;
 }
 
 /******************************************************/
-GFXPipeState gfx_pipe_get_state(GFXPipe* pipe)
+GFXPipeState gfx_pipe_get_state(
+
+		GFXPipe* pipe)
 {
-	return ((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.state;
+	return ((GFX_Pipe*)GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr)))->state.state;
 }
 
 /******************************************************/
-void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state)
+void gfx_pipe_set_state(
+
+		GFXPipe*      pipe,
+		GFXPipeState  state)
 {
-	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.state = state;
+	((GFX_Pipe*)GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr)))->state.state = state;
 }
 
 /******************************************************/
-void gfx_pipe_set_depth_test(GFXPipe* pipe, GFXFragmentTest test)
+void gfx_pipe_set_depth_test(
+
+		GFXPipe*         pipe,
+		GFXFragmentTest  test)
 {
-	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.depthFunc = test;
+	((GFX_Pipe*)GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr)))->state.depthFunc = test;
 }
 
 /******************************************************/
-void gfx_pipe_set_blend_state_rgb(GFXPipe* pipe, GFXBlendState state)
+void gfx_pipe_set_blend_state_rgb(
+
+		GFXPipe*       pipe,
+		GFXBlendState  state)
 {
-	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.blendRGB = state;
+	((GFX_Pipe*)GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr)))->state.blendRGB = state;
 }
 
 /******************************************************/
-void gfx_pipe_set_blend_state_alpha(GFXPipe* pipe, GFXBlendState state)
+void gfx_pipe_set_blend_state_alpha(
+
+		GFXPipe*       pipe,
+		GFXBlendState  state)
 {
-	((GFX_Pipe*)GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr)))->state.blendAlpha = state;
+	((GFX_Pipe*)GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr)))->state.blendAlpha = state;
 }
 
 /******************************************************/
-void gfx_pipe_set_blend_function_rgb(GFXPipe* pipe, GFXBlendFunc source, GFXBlendFunc buffer)
+void gfx_pipe_set_blend_function_rgb(
+
+		GFXPipe*      pipe,
+		GFXBlendFunc  source,
+		GFXBlendFunc  buffer)
 {
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
 
 	internal->state.blendSourceRGB = source;
 	internal->state.blendBufferRGB = buffer;
 }
 
 /******************************************************/
-void gfx_pipe_set_blend_function_alpha(GFXPipe* pipe, GFXBlendFunc source, GFXBlendFunc buffer)
+void gfx_pipe_set_blend_function_alpha(
+
+		GFXPipe*      pipe,
+		GFXBlendFunc  source,
+		GFXBlendFunc  buffer)
 {
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
 
 	internal->state.blendSourceAlpha = source;
 	internal->state.blendBufferAlpha = buffer;
 }
 
 /******************************************************/
-void gfx_pipe_set_stencil_test_front(GFXPipe* pipe, GFXFragmentTest test, int ref, unsigned int mask)
+void gfx_pipe_set_stencil_test_front(
+
+		GFXPipe*         pipe,
+		GFXFragmentTest  test,
+		int              ref,
+		unsigned int     mask)
 {
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
 
 	internal->state.stencilFuncFront = test;
 	internal->state.stencilRefFront = ref;
@@ -319,9 +394,16 @@ void gfx_pipe_set_stencil_test_front(GFXPipe* pipe, GFXFragmentTest test, int re
 }
 
 /******************************************************/
-void gfx_pipe_set_stencil_test_back(GFXPipe* pipe, GFXFragmentTest test, int ref, unsigned int mask)
+void gfx_pipe_set_stencil_test_back(
+
+		GFXPipe*         pipe,
+		GFXFragmentTest  test,
+		int              ref,
+		unsigned int     mask)
 {
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
 
 	internal->state.stencilFuncBack = test;
 	internal->state.stencilRefBack = ref;
@@ -329,9 +411,16 @@ void gfx_pipe_set_stencil_test_back(GFXPipe* pipe, GFXFragmentTest test, int ref
 }
 
 /******************************************************/
-void gfx_pipe_set_stencil_func_front(GFXPipe* pipe, GFXStencilFunc fail, GFXStencilFunc depth, GFXStencilFunc pass)
+void gfx_pipe_set_stencil_func_front(
+
+		GFXPipe*        pipe,
+		GFXStencilFunc  fail,
+		GFXStencilFunc  depth,
+		GFXStencilFunc  pass)
 {
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
 
 	internal->state.stencilFailFront = fail;
 	internal->state.depthFailFront = depth;
@@ -339,9 +428,16 @@ void gfx_pipe_set_stencil_func_front(GFXPipe* pipe, GFXStencilFunc fail, GFXSten
 }
 
 /******************************************************/
-void gfx_pipe_set_stencil_func_back(GFXPipe* pipe, GFXStencilFunc fail, GFXStencilFunc depth, GFXStencilFunc pass)
+void gfx_pipe_set_stencil_func_back(
+
+		GFXPipe*        pipe,
+		GFXStencilFunc  fail,
+		GFXStencilFunc  depth,
+		GFXStencilFunc  pass)
 {
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
 
 	internal->state.stencilFailBack = fail;
 	internal->state.depthFailBack = depth;
@@ -349,26 +445,40 @@ void gfx_pipe_set_stencil_func_back(GFXPipe* pipe, GFXStencilFunc fail, GFXStenc
 }
 
 /******************************************************/
-int gfx_pipe_register(GFXPipe* pipe, GFXPipeCallback callback, GFXPipeCallbackFunc func)
+int gfx_pipe_register(
+
+		GFXPipe*             pipe,
+		GFXPipeCallback      callback,
+		GFXPipeCallbackFunc  func)
 {
-	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
 
 	/* Insert the callback object */
 	struct GFX_Callback call;
 	call.callback = callback;
 	call.func = func;
 
-	if(gfx_vector_insert(&internal->callbacks, &call, internal->callbacks.end) == internal->callbacks.end) return 0;
+	if(gfx_vector_insert(&internal->callbacks, &call, internal->callbacks.end) == internal->callbacks.end)
+		return 0;
+
 	internal->flags = 0;
 
 	return 1;
 }
 
 /******************************************************/
-void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback)
+void gfx_pipe_unregister(
+
+		GFXPipe*         pipe,
+		GFXPipeCallback  callback)
 {
 	/* Sort if necessary */
-	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
+
 	_gfx_pipe_sort(internal);
 
 	/* Find the callback object */
@@ -401,7 +511,9 @@ void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback)
 		}
 
 		/* Erase the range */
-		size_t num = gfx_vector_get_index(&internal->callbacks, last) - gfx_vector_get_index(&internal->callbacks, first);
+		size_t num = gfx_vector_get_index(&internal->callbacks, last);
+		num -= gfx_vector_get_index(&internal->callbacks, first);
+
 		gfx_vector_erase_range(&internal->callbacks, num, first);
 
 		internal->flags &= ~GFX_INT_PIPE_RANGED;
@@ -409,10 +521,16 @@ void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback)
 }
 
 /******************************************************/
-int gfx_pipe_exists(GFXPipe* pipe, GFXPipeCallback callback)
+int gfx_pipe_exists(
+
+		GFXPipe*         pipe,
+		GFXPipeCallback  callback)
 {
 	/* Sort if necessary */
-	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
+
 	_gfx_pipe_sort(internal);
 
 	/* Find the callback object */
@@ -425,10 +543,16 @@ int gfx_pipe_exists(GFXPipe* pipe, GFXPipeCallback callback)
 }
 
 /******************************************************/
-GFXPipeCallback* gfx_pipe_find(GFXPipe* pipe, unsigned char key, size_t* num)
+GFXPipeCallback* gfx_pipe_find(
+
+		GFXPipe*       pipe,
+		unsigned char  key,
+		size_t*        num)
 {
 	/* First make sure it's sorted and ranged */
-	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(
+		pipe,
+		offsetof(GFX_Pipe, ptr));
 
 	_gfx_pipe_sort(internal);
 	_gfx_pipe_range(internal);
@@ -437,7 +561,9 @@ GFXPipeCallback* gfx_pipe_find(GFXPipe* pipe, unsigned char key, size_t* num)
 }
 
 /******************************************************/
-GFXPipeCallback* gfx_pipe_next(GFXPipeCallback* prev)
+GFXPipeCallback* gfx_pipe_next(
+
+		GFXPipeCallback* prev)
 {
 	return GFX_PTR_ADD_BYTES(prev, sizeof(struct GFX_Callback));
 }

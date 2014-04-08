@@ -47,7 +47,9 @@ static GFXError* _gfx_errors_last(void)
 }
 
 /******************************************************/
-void gfx_set_error_mode(GFXErrorMode mode)
+void gfx_set_error_mode(
+
+		GFXErrorMode mode)
 {
 	_gfx_error_mode = mode;
 }
@@ -66,7 +68,9 @@ unsigned int gfx_get_num_errors(void)
 }
 
 /******************************************************/
-int gfx_errors_peek(GFXError* error)
+int gfx_errors_peek(
+
+		GFXError* error)
 {
 	GFXError* err = _gfx_errors_last();
 	if(!err) return 0;
@@ -77,13 +81,20 @@ int gfx_errors_peek(GFXError* error)
 }
 
 /******************************************************/
-int gfx_errors_find(GFXErrorCode code)
+int gfx_errors_find(
+
+		GFXErrorCode code)
 {
 	if(!_gfx_errors) return 0;
 
 	GFXDequeIterator it;
-	for(it = _gfx_errors->begin; it != _gfx_errors->end; it = gfx_deque_next(_gfx_errors, it))
+	for(
+		it = _gfx_errors->begin;
+		it != _gfx_errors->end;
+		it = gfx_deque_next(_gfx_errors, it))
+	{
 		if(((GFXError*)it)->code == code) break;
+	}
 
 	return it != _gfx_errors->end;
 }
@@ -101,7 +112,10 @@ void gfx_errors_pop(void)
 }
 
 /******************************************************/
-void gfx_errors_push(GFXErrorCode code, const char* description)
+void gfx_errors_push(
+
+		GFXErrorCode  code,
+		const char*   description)
 {
 	/* Allocate */
 	if(!_gfx_errors)
@@ -141,8 +155,13 @@ void gfx_errors_empty(void)
 	{
 		/* Free all descriptions */
 		GFXDequeIterator it;
-		for(it = _gfx_errors->begin; it != _gfx_errors->end; it = gfx_deque_next(_gfx_errors, it))
+		for(
+			it = _gfx_errors->begin;
+			it != _gfx_errors->end;
+			it = gfx_deque_next(_gfx_errors, it))
+		{
 			free((char*)((GFXError*)it)->description);
+		}
 
 		gfx_deque_free(_gfx_errors);
 		_gfx_errors = NULL;
@@ -150,7 +169,9 @@ void gfx_errors_empty(void)
 }
 
 /******************************************************/
-void gfx_errors_set_maximum(size_t max)
+void gfx_errors_set_maximum(
+
+		size_t max)
 {
 	_gfx_errors_maximum = max;
 
@@ -161,9 +182,12 @@ void gfx_errors_set_maximum(size_t max)
 		/* Remove errors */
 		while(gfx_deque_get_size(_gfx_errors) > max)
 		{
-			GFXDequeIterator it = gfx_deque_previous(_gfx_errors, _gfx_errors->end);
-			free((char*)((GFXError*)it)->description);
+			GFXDequeIterator it = gfx_deque_previous(
+				_gfx_errors,
+				_gfx_errors->end
+			);
 
+			free((char*)((GFXError*)it)->description);
 			gfx_deque_pop_back(_gfx_errors);
 		}
 

@@ -30,7 +30,9 @@ GFXMaterial* gfx_material_create(void)
 }
 
 /******************************************************/
-void gfx_material_free(GFXMaterial* material)
+void gfx_material_free(
+
+		GFXMaterial* material)
 {
 	if(material)
 	{
@@ -41,7 +43,11 @@ void gfx_material_free(GFXMaterial* material)
 		{
 			/* Free all property maps in it */
 			size_t num;
-			GFXPropertyMap** maps = gfx_material_get(material, --levels, &num);
+			GFXPropertyMap** maps = gfx_material_get(
+				material,
+				--levels,
+				&num
+			);
 
 			while(num) gfx_property_map_free(maps[--num]);
 		}
@@ -51,7 +57,12 @@ void gfx_material_free(GFXMaterial* material)
 }
 
 /******************************************************/
-GFXPropertyMap* gfx_material_add(GFXMaterial* material, size_t level, GFXProgram* program, unsigned char properties)
+GFXPropertyMap* gfx_material_add(
+
+		GFXMaterial*   material,
+		size_t         level,
+		GFXProgram*    program,
+		unsigned char  properties)
 {
 	/* Create new property map and add it to the LOD map */
 	GFXPropertyMap* map = gfx_property_map_create(program, properties);
@@ -67,7 +78,10 @@ GFXPropertyMap* gfx_material_add(GFXMaterial* material, size_t level, GFXProgram
 }
 
 /******************************************************/
-void gfx_material_remove(GFXMaterial* material, GFXPropertyMap* map)
+void gfx_material_remove(
+
+		GFXMaterial*     material,
+		GFXPropertyMap*  map)
 {
 	/* Remove it from all levels */
 	size_t levels = material->lodMap.levels;

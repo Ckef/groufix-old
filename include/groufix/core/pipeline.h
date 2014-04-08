@@ -176,7 +176,11 @@ typedef uint64_t GFXBatchState;
  * Note: it can only be changed if no units are inserted yet.
  *
  */
-void gfx_bucket_set_key_width(GFXBucket* bucket, unsigned char width, unsigned char bits);
+void gfx_bucket_set_key_width(
+
+		GFXBucket*     bucket,
+		unsigned char  width,
+		unsigned char  bits);
 
 /**
  * Adds a new source to the bucket.
@@ -185,7 +189,10 @@ void gfx_bucket_set_key_width(GFXBucket* bucket, unsigned char width, unsigned c
  * @return The ID of the source, 0 on failure.
  *
  */
-size_t gfx_bucket_add_source(GFXBucket* bucket, GFXVertexLayout* layout);
+size_t gfx_bucket_add_source(
+
+		GFXBucket*        bucket,
+		GFXVertexLayout*  layout);
 
 /**
  * Set the values of a source (default of everything is 0).
@@ -193,7 +200,11 @@ size_t gfx_bucket_add_source(GFXBucket* bucket, GFXVertexLayout* layout);
  * @param src Source ID to change the values of.
  *
  */
-void gfx_bucket_set_source(GFXBucket* bucket, size_t src, GFXVertexSource values);
+void gfx_bucket_set_source(
+
+		GFXBucket*       bucket,
+		size_t           src,
+		GFXVertexSource  values);
 
 /**
  * Removes a source from the bucket.
@@ -201,7 +212,10 @@ void gfx_bucket_set_source(GFXBucket* bucket, size_t src, GFXVertexSource values
  * Any units using the source will be erased from the bucket.
  *
  */
-void gfx_bucket_remove_source(GFXBucket* bucket, size_t src);
+void gfx_bucket_remove_source(
+
+		GFXBucket*  bucket,
+		size_t      src);
 
 /**
  * Insert a unit to be processed into the bucket.
@@ -213,7 +227,14 @@ void gfx_bucket_remove_source(GFXBucket* bucket, size_t src);
  * @return The ID of the inserted unit, 0 on failure.
  *
  */
-size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFXPropertyMap* map, size_t copy, int visible);
+size_t gfx_bucket_insert(
+
+		GFXBucket*       bucket,
+		size_t           src,
+		GFXBatchState    state,
+		GFXPropertyMap*  map,
+		size_t           copy,
+		int              visible);
 
 /**
  * Returns the number of instances to draw.
@@ -221,19 +242,28 @@ size_t gfx_bucket_insert(GFXBucket* bucket, size_t src, GFXBatchState state, GFX
  * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
  *
  */
-size_t gfx_bucket_get_instances(GFXBucket* bucket, size_t unit);
+size_t gfx_bucket_get_instances(
+
+		GFXBucket*  bucket,
+		size_t      unit);
 
 /**
  * Returns the manual bits of the state associated with a unit.
  *
  */
-GFXBatchState gfx_bucket_get_state(GFXBucket* bucket, size_t unit);
+GFXBatchState gfx_bucket_get_state(
+
+		GFXBucket*  bucket,
+		size_t      unit);
 
 /**
  * Returns whether a unit is visible or not.
  *
  */
-int gfx_bucket_is_visible(GFXBucket* bucket, size_t unit);
+int gfx_bucket_is_visible(
+
+		GFXBucket*  bucket,
+		size_t      unit);
 
 /**
  * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
@@ -241,13 +271,21 @@ int gfx_bucket_is_visible(GFXBucket* bucket, size_t unit);
  * Note: if the source mode includes INSTANCED but only 1 instance is drawn, a performance hit might be expected.
  *
  */
-void gfx_bucket_set_instances(GFXBucket* bucket, size_t unit, size_t instances);
+void gfx_bucket_set_instances(
+
+		GFXBucket*  bucket,
+		size_t      unit,
+		size_t      instances);
 
 /**
  * Sets the manual bits of the state to associate a unit with.
  *
  */
-void gfx_bucket_set_state(GFXBucket* bucket, size_t unit, GFXBatchState state);
+void gfx_bucket_set_state(
+
+		GFXBucket*     bucket,
+		size_t         unit,
+		GFXBatchState  state);
 
 /**
  * Sets the visibility of a unit.
@@ -257,13 +295,20 @@ void gfx_bucket_set_state(GFXBucket* bucket, size_t unit, GFXBatchState state);
  * Note: making a unit visible is expensive regardless of its previous visibility.
  *
  */
-void gfx_bucket_set_visible(GFXBucket* bucket, size_t unit, int visible);
+void gfx_bucket_set_visible(
+
+		GFXBucket*  bucket,
+		size_t      unit,
+		int         visible);
 
 /**
  * Erases and frees a unit from its bucket.
  *
  */
-void gfx_bucket_erase(GFXBucket* bucket, size_t unit);
+void gfx_bucket_erase(
+
+		GFXBucket*  bucket,
+		size_t      unit);
 
 
 /********************************************************
@@ -281,7 +326,11 @@ typedef void* GFXPipeProcess;
  * @param copy Index of the copy of the property map to use.
  *
  */
-void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map, size_t copy);
+void gfx_pipe_process_set_source(
+
+		GFXPipeProcess   process,
+		GFXPropertyMap*  map,
+		size_t           copy);
 
 /**
  * Sets the target window to render to.
@@ -290,7 +339,11 @@ void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map, si
  * @param swap   Whether to swap the window's internal buffers afterwards or not.
  *
  */
-void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target, int swap);
+void gfx_pipe_process_set_target(
+
+		GFXPipeProcess  process,
+		GFXWindow*      target,
+		int             swap);
 
 
 /********************************************************
@@ -319,7 +372,9 @@ typedef union GFXPipe
  * Returns the type of a pipe.
  *
  */
-GFXPipeType gfx_pipe_get_type(GFXPipe* pipe);
+GFXPipeType gfx_pipe_get_type(
+
+		GFXPipe* pipe);
 
 /**
  * Returns the state of a pipe.
@@ -328,31 +383,44 @@ GFXPipeType gfx_pipe_get_type(GFXPipe* pipe);
  * the first pipe will have GFX_STATE_DEFAULT as default.
  *
  */
-GFXPipeState gfx_pipe_get_state(GFXPipe* pipe);
+GFXPipeState gfx_pipe_get_state(
+
+		GFXPipe* pipe);
 
 /**
  * Sets the state of a pipe.
  *
  */
-void gfx_pipe_set_state(GFXPipe* pipe, GFXPipeState state);
+void gfx_pipe_set_state(
+
+		GFXPipe*      pipe,
+		GFXPipeState  state);
 
 /**
  * Sets the depth test function of a pipe.
  *
  */
-void gfx_pipe_set_depth_test(GFXPipe* pipe, GFXFragmentTest test);
+void gfx_pipe_set_depth_test(
+		GFXPipe*         pipe,
+		GFXFragmentTest  test);
 
 /**
  * Sets the blending state for the RGB channels of a pipe.
  *
  */
-void gfx_pipe_set_blend_state_rgb(GFXPipe* pipe, GFXBlendState state);
+void gfx_pipe_set_blend_state_rgb(
+
+		GFXPipe*       pipe,
+		GFXBlendState  state);
 
 /**
  * Sets the blending state for the alpha channel of a pipe.
  *
  */
-void gfx_pipe_set_blend_state_alpha(GFXPipe* pipe, GFXBlendState state);
+void gfx_pipe_set_blend_state_alpha(
+
+		GFXPipe*       pipe,
+		GFXBlendState  state);
 
 /**
  * Sets the blending function for the RGB channels of a pipe.
@@ -361,7 +429,11 @@ void gfx_pipe_set_blend_state_alpha(GFXPipe* pipe, GFXBlendState state);
  * @param buffer Factor to mulitply with the previous buffer value.
  *
  */
-void gfx_pipe_set_blend_function_rgb(GFXPipe* pipe, GFXBlendFunc source, GFXBlendFunc buffer);
+void gfx_pipe_set_blend_function_rgb(
+
+		GFXPipe*      pipe,
+		GFXBlendFunc  source,
+		GFXBlendFunc  buffer);
 
 /**
  * Sets the blending function for the alpha channel of a pipe.
@@ -370,7 +442,11 @@ void gfx_pipe_set_blend_function_rgb(GFXPipe* pipe, GFXBlendFunc source, GFXBlen
  * @param buffer Factor to mulitply with the previous buffer value.
  *
  */
-void gfx_pipe_set_blend_function_alpha(GFXPipe* pipe, GFXBlendFunc source, GFXBlendFunc buffer);
+void gfx_pipe_set_blend_function_alpha(
+
+		GFXPipe*      pipe,
+		GFXBlendFunc  source,
+		GFXBlendFunc  buffer);
 
 /**
  * Sets the stencil test for the front face of a pipe.
@@ -379,7 +455,12 @@ void gfx_pipe_set_blend_function_alpha(GFXPipe* pipe, GFXBlendFunc source, GFXBl
  * @param mask Bitmask to apply to the ref value and stored stencil value.
  *
  */
-void gfx_pipe_set_stencil_test_front(GFXPipe* pipe, GFXFragmentTest test, int ref, unsigned int mask);
+void gfx_pipe_set_stencil_test_front(
+
+		GFXPipe*         pipe,
+		GFXFragmentTest  test,
+		int              ref,
+		unsigned int     mask);
 
 /**
  * Sets the stencil test for the back face of a pipe.
@@ -388,7 +469,12 @@ void gfx_pipe_set_stencil_test_front(GFXPipe* pipe, GFXFragmentTest test, int re
  * @param mask Bitmask to apply to the ref value and stored stencil value.
  *
  */
-void gfx_pipe_set_stencil_test_back(GFXPipe* pipe, GFXFragmentTest test, int ref, unsigned int mask);
+void gfx_pipe_set_stencil_test_back(
+
+		GFXPipe*         pipe,
+		GFXFragmentTest  test,
+		int              ref,
+		unsigned int     mask);
 
 /**
  * Sets the stencil function to do when the stencil test fails for the front face.
@@ -398,7 +484,12 @@ void gfx_pipe_set_stencil_test_back(GFXPipe* pipe, GFXFragmentTest test, int ref
  * @param pass  Function for when both the stencil and depth test pass.
  *
  */
-void gfx_pipe_set_stencil_func_front(GFXPipe* pipe, GFXStencilFunc fail, GFXStencilFunc depth, GFXStencilFunc pass);
+void gfx_pipe_set_stencil_func_front(
+
+		GFXPipe*        pipe,
+		GFXStencilFunc  fail,
+		GFXStencilFunc  depth,
+		GFXStencilFunc  pass);
 
 /**
  * Sets the stencil function to do when the stencil test fails for the back face.
@@ -408,7 +499,12 @@ void gfx_pipe_set_stencil_func_front(GFXPipe* pipe, GFXStencilFunc fail, GFXSten
  * @param pass  Function for when both the stencil and depth test pass.
  *
  */
-void gfx_pipe_set_stencil_func_back(GFXPipe* pipe, GFXStencilFunc fail, GFXStencilFunc depth, GFXStencilFunc pass);
+void gfx_pipe_set_stencil_func_back(
+
+		GFXPipe*        pipe,
+		GFXStencilFunc  fail,
+		GFXStencilFunc  depth,
+		GFXStencilFunc  pass);
 
 
 /********************************************************
@@ -436,7 +532,11 @@ typedef void (*GFXPipeCallbackFunc) (GFXPipe*, GFXPipeCallback*);
  * @return Zero on failure.
  *
  */
-int gfx_pipe_register(GFXPipe* pipe, GFXPipeCallback callback, GFXPipeCallbackFunc func);
+int gfx_pipe_register(
+
+		GFXPipe*             pipe,
+		GFXPipeCallback      callback,
+		GFXPipeCallbackFunc  func);
 
 /**
  * Unregister a callback object from a pipe.
@@ -445,7 +545,10 @@ int gfx_pipe_register(GFXPipe* pipe, GFXPipeCallback callback, GFXPipeCallbackFu
  * Note: unregistering can be a costly operation.
  *
  */
-void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback);
+void gfx_pipe_unregister(
+
+		GFXPipe*         pipe,
+		GFXPipeCallback  callback);
 
 /**
  * Returns whether a given callback has been registered.
@@ -453,7 +556,10 @@ void gfx_pipe_unregister(GFXPipe* pipe, GFXPipeCallback callback);
  * @return Non-zero if it was found.
  *
  */
-int gfx_pipe_exists(GFXPipe* pipe, GFXPipeCallback callback);
+int gfx_pipe_exists(
+
+		GFXPipe*         pipe,
+		GFXPipeCallback  callback);
 
 /**
  * Finds the first callback objects with a given key.
@@ -461,7 +567,11 @@ int gfx_pipe_exists(GFXPipe* pipe, GFXPipeCallback callback);
  * @param num Number of callback objects found.
  *
  */
-GFXPipeCallback* gfx_pipe_find(GFXPipe* pipe, unsigned char key, size_t* num);
+GFXPipeCallback* gfx_pipe_find(
+
+		GFXPipe*       pipe,
+		unsigned char  key,
+		size_t*        num);
 
 /**
  * Returns the next callback object from a previous find call.
@@ -469,7 +579,9 @@ GFXPipeCallback* gfx_pipe_find(GFXPipe* pipe, unsigned char key, size_t* num);
  * Note: you can only retrieve as many callbacks as gfx_pipe_find returned to num.
  *
  */
-GFXPipeCallback* gfx_pipe_next(GFXPipeCallback* prev);
+GFXPipeCallback* gfx_pipe_next(
+
+		GFXPipeCallback*  prev);
 
 
 /********************************************************
@@ -506,7 +618,9 @@ GFXPipeline* gfx_pipeline_create(void);
  * Makes sure the pipeline is freed properly.
  *
  */
-void gfx_pipeline_free(GFXPipeline* pipeline);
+void gfx_pipeline_free(
+
+		GFXPipeline* pipeline);
 
 /**
  * Specifies what color attachments to draw to.
@@ -520,7 +634,13 @@ void gfx_pipeline_free(GFXPipeline* pipeline);
  * Note: the number of indices must be < GFX_LIM_MAX_COLOR_TARGETS.
  *
  */
-size_t gfx_pipeline_target(GFXPipeline* pipeline, unsigned int width, unsigned int height, size_t num, const char* indices);
+size_t gfx_pipeline_target(
+
+		GFXPipeline*  pipeline,
+		unsigned int  width,
+		unsigned int  height,
+		size_t        num,
+		const char*   indices);
 
 /**
  * Attaches a texture image to the pipeline as render target.
@@ -532,7 +652,12 @@ size_t gfx_pipeline_target(GFXPipeline* pipeline, unsigned int width, unsigned i
  * Note: the index must be < GFX_LIM_MAX_COLOR_ATTACHMENTS.
  *
  */
-int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelineAttachment attach, unsigned char index);
+int gfx_pipeline_attach(
+
+		GFXPipeline*           pipeline,
+		GFXTextureImage        image,
+		GFXPipelineAttachment  attach,
+		unsigned char          index);
 
 /**
  * Adds a bucket to the pipeline.
@@ -543,7 +668,11 @@ int gfx_pipeline_attach(GFXPipeline* pipeline, GFXTextureImage image, GFXPipelin
  * Note: all state and parameters will be copied from the previous pipe.
  *
  */
-GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags);
+GFXPipe* gfx_pipeline_push_bucket(
+
+		GFXPipeline*    pipeline,
+		unsigned char   bits,
+		GFXBucketFlags  flags);
 
 /**
  * Adds a process to the pipeline.
@@ -553,7 +682,9 @@ GFXPipe* gfx_pipeline_push_bucket(GFXPipeline* pipeline, unsigned char bits, GFX
  * Note: all state and parameters will be copied from the previous pipe.
  *
  */
-GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline);
+GFXPipe* gfx_pipeline_push_process(
+
+		GFXPipeline* pipeline);
 
 /**
  * Removes all pipes from the execution list without destroying them.
@@ -561,7 +692,9 @@ GFXPipe* gfx_pipeline_push_process(GFXPipeline* pipeline);
  * This acts as if gfx_pipeline_unlink was called on each pipe.
  *
  */
-void gfx_pipeline_unlink_all(GFXPipeline* pipeline);
+void gfx_pipeline_unlink_all(
+
+		GFXPipeline* pipeline);
 
 /**
  * Removes a pipe from the execution list but does not destroy it.
@@ -569,7 +702,9 @@ void gfx_pipeline_unlink_all(GFXPipeline* pipeline);
  * Afterwards it can still be moved or swapped.
  *
  */
-void gfx_pipeline_unlink(GFXPipe* pipe);
+void gfx_pipeline_unlink(
+
+		GFXPipe* pipe);
 
 /**
  * Moves a pipe to be after a given pipe in execution order.
@@ -577,7 +712,10 @@ void gfx_pipeline_unlink(GFXPipe* pipe);
  * @param after The pipe to be moved after (NULL to move to start).
  *
  */
-void gfx_pipeline_move(GFXPipe* pipe, GFXPipe* after);
+void gfx_pipeline_move(
+
+		GFXPipe*  pipe,
+		GFXPipe*  after);
 
 /**
  * Swaps the position of two pipes in their execution order.
@@ -585,7 +723,10 @@ void gfx_pipeline_move(GFXPipe* pipe, GFXPipe* after);
  * Note: if they belong to different pipelines this call is ignored.
  *
  */
-void gfx_pipeline_swap(GFXPipe* pipe1, GFXPipe* pipe2);
+void gfx_pipeline_swap(
+
+		GFXPipe*  pipe1,
+		GFXPipe*  pipe2);
 
 /**
  * Unlinks all current pipes and moves all given pipes to be executed (in order).
@@ -596,7 +737,10 @@ void gfx_pipeline_swap(GFXPipe* pipe1, GFXPipe* pipe2);
  * Note: if the pipes don't belong to the same pipeline, nothing happens.
  *
  */
-void gfx_pipeline_relink(size_t num, GFXPipe** pipes);
+void gfx_pipeline_relink(
+
+		size_t     num,
+		GFXPipe**  pipes);
 
 /**
  * Removes and destroys a pipe from its associated pipeline.
@@ -604,7 +748,9 @@ void gfx_pipeline_relink(size_t num, GFXPipe** pipes);
  * The pipe cannot be used anymore after this call.
  *
  */
-void gfx_pipeline_remove(GFXPipe* pipe);
+void gfx_pipeline_remove(
+
+		GFXPipe* pipe);
 
 /**
  * Executes all pipes in order.
@@ -612,7 +758,10 @@ void gfx_pipeline_remove(GFXPipe* pipe);
  * @param num Number of pipes to execute, 0 to execute all remaining pipes.
  *
  */
-void gfx_pipeline_execute(GFXPipeline* pipeline, unsigned int num);
+void gfx_pipeline_execute(
+
+		GFXPipeline*  pipeline,
+		unsigned int  num);
 
 
 #ifdef __cplusplus

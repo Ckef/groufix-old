@@ -58,7 +58,9 @@ typedef struct GFXDeque
  * @return NULL on failure.
  *
  */
-GFXDeque* gfx_deque_create(size_t elementSize);
+GFXDeque* gfx_deque_create(
+
+		size_t elementSize);
 
 /**
  * Creates a new deque with a preset content.
@@ -68,7 +70,11 @@ GFXDeque* gfx_deque_create(size_t elementSize);
  * @return NULL on failure.
  *
  */
-GFXDeque* gfx_deque_create_from_buffer(size_t elementSize, size_t numElements, const void* buff);
+GFXDeque* gfx_deque_create_from_buffer(
+
+		size_t       elementSize,
+		size_t       numElements,
+		const void*  buff);
 
 /**
  * Creates a copy of a deque.
@@ -76,19 +82,26 @@ GFXDeque* gfx_deque_create_from_buffer(size_t elementSize, size_t numElements, c
  * @return NULL on failure.
  *
  */
-GFXDeque* gfx_deque_create_copy(GFXDeque* src);
+GFXDeque* gfx_deque_create_copy(
+
+		GFXDeque* src);
 
 /**
  * Makes sure the deque is freed properly.
  *
  */
-void gfx_deque_free(GFXDeque* deque);
+void gfx_deque_free(
+
+		GFXDeque* deque);
 
 /**
  * Initializes a deque.
  *
  */
-void gfx_deque_init(GFXDeque* deque, size_t elementSize);
+void gfx_deque_init(
+
+		GFXDeque*  deque,
+		size_t     elementSize);
 
 /**
  * Initializes a deque with a preset content.
@@ -97,37 +110,54 @@ void gfx_deque_init(GFXDeque* deque, size_t elementSize);
  * @param buff        Memory to copy content from, if NULL, nothing will be copied.
  *
  */
-void gfx_deque_init_from_buffer(GFXDeque* deque, size_t elementSize, size_t numElements, const void* buff);
+void gfx_deque_init_from_buffer(
+
+		GFXDeque*    deque,
+		size_t       elementSize,
+		size_t       numElements,
+		const void*  buff);
 
 /**
  * Initializes a copy of a deque.
  *
  */
-void gfx_deque_init_copy(GFXDeque* deque, GFXDeque* src);
+void gfx_deque_init_copy(
+
+		GFXDeque* deque,
+		GFXDeque* src);
 
 /**
  * Clears the content of a deque.
  *
  */
-void gfx_deque_clear(GFXDeque* deque);
+void gfx_deque_clear(
+
+		GFXDeque* deque);
 
 /**
  * Returns the size of the deque in bytes.
  *
  */
-size_t gfx_deque_get_byte_size(GFXDeque* deque);
+size_t gfx_deque_get_byte_size(
+
+		GFXDeque* deque);
 
 /**
  * Returns the size of the deque in elements.
  *
  */
-size_t gfx_deque_get_size(GFXDeque* deque);
+size_t gfx_deque_get_size(
+
+		GFXDeque* deque);
 
 /**
  * Returns the index of an iterator.
  *
  */
-size_t gfx_deque_get_index(GFXDeque* deque, GFXDequeIterator it);
+size_t gfx_deque_get_index(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it);
 
 /**
  * Requests a minimum capacity, which will hold as long as nothing is erased.
@@ -135,33 +165,49 @@ size_t gfx_deque_get_index(GFXDeque* deque, GFXDequeIterator it);
  * @return If zero, out of memory.
  *
  */
-int gfx_deque_reserve(GFXDeque* deque, size_t numElements);
+int gfx_deque_reserve(
+
+		GFXDeque*  deque,
+		size_t     numElements);
 
 /**
  * Returns an iterator of the element at a given index.
  *
  * This method does not check the bounds!
  *
- */ 
-GFXDequeIterator gfx_deque_at(GFXDeque* deque, size_t index);
+ */
+GFXDequeIterator gfx_deque_at(
+
+		GFXDeque*  deque,
+		size_t     index);
 
 /**
  * Increments an iterator to the next element.
  *
  */
-GFXDequeIterator gfx_deque_next(GFXDeque* deque, GFXDequeIterator it);
+GFXDequeIterator gfx_deque_next(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it);
 
 /**
  * Decrements an iterator to the previous element.
  *
  */
-GFXDequeIterator gfx_deque_previous(GFXDeque* deque, GFXDequeIterator it);
+GFXDequeIterator gfx_deque_previous(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it);
 
 /**
  * Advances an iterator an arbitrary amount of elements (can be negative).
  *
  */
-GFXDequeIterator gfx_deque_advance(GFXDeque* deque, GFXDequeIterator it, int num);
+GFXDequeIterator gfx_deque_advance(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it,
+		int               num);
 
 /**
  * Adds an element to the front of the deque.
@@ -170,7 +216,10 @@ GFXDequeIterator gfx_deque_advance(GFXDeque* deque, GFXDequeIterator it, int num
  * @return An iterator to the new element (deque->end on failure).
  *
  */
-GFXDequeIterator gfx_deque_push_front(GFXDeque* deque, const void* element);
+GFXDequeIterator gfx_deque_push_front(
+
+		GFXDeque*    deque,
+		const void*  element);
 
 /**
  * Adds an element to the back of the deque.
@@ -179,7 +228,10 @@ GFXDequeIterator gfx_deque_push_front(GFXDeque* deque, const void* element);
  * @return An iterator to the new element (deque->end on failure).
  *
  */
-GFXDequeIterator gfx_deque_push_back(GFXDeque* deque, const void* element);
+GFXDequeIterator gfx_deque_push_back(
+
+		GFXDeque*    deque,
+		const void*  element);
 
 /**
  * Removes an element from the front of the deque.
@@ -187,7 +239,9 @@ GFXDequeIterator gfx_deque_push_back(GFXDeque* deque, const void* element);
  * @return An iterator to the element taking its place.
  *
  */
-GFXDequeIterator gfx_deque_pop_front(GFXDeque* deque);
+GFXDequeIterator gfx_deque_pop_front(
+
+		GFXDeque* deque);
 
 /**
  * Removes an element from the back of the deque.
@@ -195,7 +249,9 @@ GFXDequeIterator gfx_deque_pop_front(GFXDeque* deque);
  * @return An iterator to the element taking its place.
  *
  */
-GFXDequeIterator gfx_deque_pop_back(GFXDeque* deque);
+GFXDequeIterator gfx_deque_pop_back(
+
+		GFXDeque* deque);
 
 
 #ifdef __cplusplus

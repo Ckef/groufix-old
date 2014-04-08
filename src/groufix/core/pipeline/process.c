@@ -50,7 +50,13 @@ struct GFX_Process
 };
 
 /******************************************************/
-static inline void _gfx_pipe_process_draw(GFX_State* state, GFXPropertyMap* map, size_t copy, GLuint layout, GFX_Extensions* ext)
+static inline void _gfx_pipe_process_draw(
+
+		GFX_State*       state,
+		GFXPropertyMap*  map,
+		size_t           copy,
+		GLuint           layout,
+		GFX_Extensions*  ext)
 {
 	_gfx_states_set(state, ext);
 	_gfx_property_map_use(map, copy, ext);
@@ -60,7 +66,9 @@ static inline void _gfx_pipe_process_draw(GFX_State* state, GFXPropertyMap* map,
 }
 
 /******************************************************/
-int _gfx_pipe_process_prepare(GFX_Window* target)
+int _gfx_pipe_process_prepare(
+
+		GFX_Window* target)
 {
 	GFX_Extensions* ext = &target->extensions;
 
@@ -98,10 +106,17 @@ int _gfx_pipe_process_prepare(GFX_Window* target)
 }
 
 /******************************************************/
-void _gfx_pipe_process_resize(GFX_Window* target, unsigned int width, unsigned int height)
+void _gfx_pipe_process_resize(
+
+		GFX_Window*   target,
+		unsigned int  width,
+		unsigned int  height)
 {
 	GFXVectorIterator it;
-	if(_gfx_pipes) for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
+	if(_gfx_pipes) for(
+		it = _gfx_pipes->begin;
+		it != _gfx_pipes->end;
+		it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, resize! */
 		struct GFX_Process* proc = *(struct GFX_Process**)it;
@@ -114,10 +129,16 @@ void _gfx_pipe_process_resize(GFX_Window* target, unsigned int width, unsigned i
 }
 
 /******************************************************/
-void _gfx_pipe_process_retarget(GFX_Window* replace, GFX_Window* target)
+void _gfx_pipe_process_retarget(
+
+		GFX_Window*  replace,
+		GFX_Window*  target)
 {
 	GFXVectorIterator it;
-	if(_gfx_pipes) for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
+	if(_gfx_pipes) for(
+		it = _gfx_pipes->begin;
+		it != _gfx_pipes->end;
+		it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, retarget */
 		struct GFX_Process* proc = *(struct GFX_Process**)it;
@@ -126,11 +147,17 @@ void _gfx_pipe_process_retarget(GFX_Window* replace, GFX_Window* target)
 }
 
 /******************************************************/
-void _gfx_pipe_process_untarget(GFX_Window* target, int last)
+void _gfx_pipe_process_untarget(
+
+		GFX_Window*  target,
+		int          last)
 {
 	/* Reset pipes if not retargeting */
 	GFXVectorIterator it;
-	if(_gfx_pipes) for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
+	if(_gfx_pipes) for(
+		it = _gfx_pipes->begin;
+		it != _gfx_pipes->end;
+		it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, reset post processing */
 		struct GFX_Process* proc = *(struct GFX_Process**)it;
@@ -187,7 +214,9 @@ GFXPipeProcess _gfx_pipe_process_create(void)
 }
 
 /******************************************************/
-void _gfx_pipe_process_free(GFXPipeProcess process)
+void _gfx_pipe_process_free(
+
+		GFXPipeProcess process)
 {
 	if(process)
 	{
@@ -195,12 +224,17 @@ void _gfx_pipe_process_free(GFXPipeProcess process)
 
 		/* Erase self from vector */
 		GFXVectorIterator it;
-		for(it = _gfx_pipes->begin; it != _gfx_pipes->end; it = gfx_vector_next(_gfx_pipes, it))
+		for(
+			it = _gfx_pipes->begin;
+			it != _gfx_pipes->end;
+			it = gfx_vector_next(_gfx_pipes, it))
+		{
 			if(process == *(GFXPipeProcess*)it)
 			{
 				gfx_vector_erase(_gfx_pipes, it);
 				break;
 			}
+		}
 
 		/* No more processes */
 		if(_gfx_pipes->begin == _gfx_pipes->end)
@@ -212,7 +246,11 @@ void _gfx_pipe_process_free(GFXPipeProcess process)
 }
 
 /******************************************************/
-void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map, size_t copy)
+void gfx_pipe_process_set_source(
+
+		GFXPipeProcess   process,
+		GFXPropertyMap*  map,
+		size_t           copy)
 {
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 
@@ -221,7 +259,11 @@ void gfx_pipe_process_set_source(GFXPipeProcess process, GFXPropertyMap* map, si
 }
 
 /******************************************************/
-void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target, int swap)
+void gfx_pipe_process_set_target(
+
+		GFXPipeProcess  process,
+		GFXWindow*      target,
+		int             swap)
 {
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 	internal->target = (GFX_Window*)target;
@@ -235,7 +277,11 @@ void gfx_pipe_process_set_target(GFXPipeProcess process, GFXWindow* target, int 
 }
 
 /******************************************************/
-void _gfx_pipe_process_execute(GFXPipeProcess process, GFX_State* state, GFX_Window* active)
+void _gfx_pipe_process_execute(
+
+		GFXPipeProcess  process,
+		GFX_State*      state,
+		GFX_Window*     active)
 {
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 

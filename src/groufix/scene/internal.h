@@ -42,7 +42,10 @@ extern "C" {
  * @return NULL on failure.
  *
  */
-GFXSubMesh* _gfx_submesh_create(unsigned char drawCalls, unsigned char sources);
+GFXSubMesh* _gfx_submesh_create(
+
+		unsigned char  drawCalls,
+		unsigned char  sources);
 
 /**
  * References a submesh to postpone its destruction.
@@ -50,25 +53,35 @@ GFXSubMesh* _gfx_submesh_create(unsigned char drawCalls, unsigned char sources);
  * @return Zero on overflow.
  *
  */
-int _gfx_submesh_reference(GFXSubMesh* mesh);
+int _gfx_submesh_reference(
+
+		GFXSubMesh* mesh);
 
 /**
  * Makes sure the submesh is freed properly.
  *
  */
-void _gfx_submesh_free(GFXSubMesh* mesh);
+void _gfx_submesh_free(
+
+		GFXSubMesh* mesh);
 
 /**
  * Adds a submesh to a bucket pipe.
  *
  */
-void _gfx_submesh_add_to_bucket(GFXSubMesh* mesh, GFXPipe* pipe);
+void _gfx_submesh_add_to_bucket(
+
+		GFXSubMesh*  mesh,
+		GFXPipe*     pipe);
 
 /**
  * Removes a submesh from a bucket pipe.
  *
  */
-void _gfx_submesh_remove_from_bucket(GFXSubMesh* mesh, GFXPipe* pipe);
+void _gfx_submesh_remove_from_bucket(
+
+		GFXSubMesh*  mesh,
+		GFXPipe*     pipe);
 
 /**
  * Retrieves the bucket source ID from a submesh.
@@ -77,7 +90,11 @@ void _gfx_submesh_remove_from_bucket(GFXSubMesh* mesh, GFXPipe* pipe);
  * @return The ID of the source, 0 on failure.
  *
  */
-size_t _gfx_submesh_get_bucket_source(GFXSubMesh* mesh, GFXPipe* pipe, unsigned char index);
+size_t _gfx_submesh_get_bucket_source(
+
+		GFXSubMesh*    mesh,
+		GFXPipe*       pipe,
+		unsigned char  index);
 
 
 #ifdef __cplusplus

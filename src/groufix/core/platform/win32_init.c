@@ -30,19 +30,28 @@
 GFX_Win32_Instance* _gfx_win32 = NULL;
 
 /******************************************************/
-GFXVectorIterator _gfx_win32_get_window_from_handle(HWND handle)
+GFXVectorIterator _gfx_win32_get_window_from_handle(
+
+		HWND handle)
 {
 	if(!_gfx_win32) return NULL;
 
 	GFXVectorIterator it;
-	for(it = _gfx_win32->windows.begin; it != _gfx_win32->windows.end; it = gfx_vector_next(&_gfx_win32->windows, it))
+	for(
+		it = _gfx_win32->windows.begin;
+		it != _gfx_win32->windows.end;
+		it = gfx_vector_next(&_gfx_win32->windows, it))
+	{
 		if(((GFX_Win32_Window*)it)->handle == handle) break;
+	}
 
 	return it != _gfx_win32->windows.end ? it : NULL;
 }
 
 /******************************************************/
-wchar_t* _gfx_win32_utf8_to_wchar(const char* str)
+wchar_t* _gfx_win32_utf8_to_wchar(
+
+		const char* str)
 {
 	/* First get the required length in characters */
 	int length = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
@@ -58,7 +67,9 @@ wchar_t* _gfx_win32_utf8_to_wchar(const char* str)
 }
 
 /******************************************************/
-char* _gfx_win32_wchar_to_utf8(const wchar_t* str)
+char* _gfx_win32_wchar_to_utf8(
+
+		const wchar_t* str)
 {
 	/* First get the required length in bytes */
 	int length = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
@@ -86,7 +97,12 @@ static int _gfx_win32_load_extensions(void)
 	wc.lpszClassName = GFX_WIN32_WND_CLASS;
 
 	if(!RegisterClass(&wc)) return 0;
-	HWND window = CreateWindow(GFX_WIN32_WND_CLASS, L"", 0, 0, 0, 0, 0, NULL, NULL, GetModuleHandle(NULL), NULL);
+	HWND window = CreateWindow(
+		GFX_WIN32_WND_CLASS,
+		L"", 0, 0, 0, 0, 0, NULL, NULL,
+		GetModuleHandle(NULL),
+		NULL
+	);
 
 	/* Setup context properties */
 	GFXColorDepth depth;
@@ -141,19 +157,25 @@ static int _gfx_win32_load_extensions(void)
 }
 
 /******************************************************/
-static GFXKey _gfx_win32_get_key(int symbol)
+static GFXKey _gfx_win32_get_key(
+
+		int symbol)
 {
 	/* Unicode numbers */
-	if(symbol >= 0x30 && symbol <= 0x39) return (GFXKey)(symbol - 0x30 + GFX_KEY_0);
+	if(symbol >= 0x30 && symbol <= 0x39)
+		return (GFXKey)(symbol - 0x30 + GFX_KEY_0);
 
 	/* Keypad numbers */
-	if(symbol >= VK_NUMPAD0 && symbol <= VK_NUMPAD9) return (GFXKey)(symbol - VK_NUMPAD0 + GFX_KEY_KP_0);
+	if(symbol >= VK_NUMPAD0 && symbol <= VK_NUMPAD9)
+		return (GFXKey)(symbol - VK_NUMPAD0 + GFX_KEY_KP_0);
 
 	/* Unicode capitals */
-	if(symbol >= 0x41 && symbol <= 0x5a) return (GFXKey)(symbol - 0x41 + GFX_KEY_A);
+	if(symbol >= 0x41 && symbol <= 0x5a)
+		return (GFXKey)(symbol - 0x41 + GFX_KEY_A);
 
 	/* Function keys */
-	if(symbol >= VK_F1 && symbol <= VK_F24) return (GFXKey)(symbol - VK_F1 + GFX_KEY_F1);
+	if(symbol >= VK_F1 && symbol <= VK_F24)
+		return (GFXKey)(symbol - VK_F1 + GFX_KEY_F1);
 
 	/* Non-unicode */
 	switch(symbol)
@@ -297,7 +319,11 @@ void _gfx_platform_terminate(void)
 		unsigned int i = gfx_vector_get_size(&_gfx_win32->windows);
 		while(i--)
 		{
-			GFXVectorIterator it = gfx_vector_previous(&_gfx_win32->windows, _gfx_win32->windows.end);
+			GFXVectorIterator it = gfx_vector_previous(
+				&_gfx_win32->windows,
+				_gfx_win32->windows.end
+			);
+
 			_gfx_platform_window_free(((GFX_Win32_Window*)it)->handle);
 		}
 		gfx_vector_clear(&_gfx_win32->screens);

@@ -157,7 +157,10 @@ typedef struct GFX_VEC_ALIGN
  * Returns a value of the vector.
  *
  */
-inline GFX_VEC_DATA* GFX_VEC_FUNC(get)(GFX_VEC_NAME* a, size_t component)
+inline GFX_VEC_DATA* GFX_VEC_FUNC(get)(
+
+		GFX_VEC_NAME*  a,
+		size_t         component)
 {
 	return a->data + component;
 }
@@ -168,7 +171,9 @@ inline GFX_VEC_DATA* GFX_VEC_FUNC(get)(GFX_VEC_NAME* a, size_t component)
  * @return The given vector itself.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(set_zero)(GFX_VEC_NAME* a)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(set_zero)(
+
+		GFX_VEC_NAME* a)
 {
 	return (GFX_VEC_NAME*)memset(a, 0, sizeof(GFX_VEC_NAME));
 }
@@ -179,7 +184,11 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(set_zero)(GFX_VEC_NAME* a)
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(add)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(add)(
+
+		GFX_VEC_NAME*  dest,
+		GFX_VEC_NAME*  a,
+		GFX_VEC_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
@@ -194,7 +203,11 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(add)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(sub)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(sub)(
+
+		GFX_VEC_NAME*  dest,
+		GFX_VEC_NAME*  a,
+		GFX_VEC_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
@@ -209,7 +222,11 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(sub)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(mult)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(mult)(
+
+		GFX_VEC_NAME*  dest,
+		GFX_VEC_NAME*  a,
+		GFX_VEC_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
@@ -224,7 +241,11 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(mult)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(scale)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_DATA scalar)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(scale)(
+
+		GFX_VEC_NAME*  dest,
+		GFX_VEC_NAME*  a,
+		GFX_VEC_DATA   scalar)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
@@ -237,7 +258,10 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(scale)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GF
  * Take the dot product of two vectors.
  *
  */
-inline GFX_VEC_DATA GFX_VEC_FUNC(dot)(GFX_VEC_NAME* a, GFX_VEC_NAME* b)
+inline GFX_VEC_DATA GFX_VEC_FUNC(dot)(
+
+		GFX_VEC_NAME*  a,
+		GFX_VEC_NAME*  b)
 {
 	GFX_VEC_DATA dot = 0;
 
@@ -255,7 +279,11 @@ inline GFX_VEC_DATA GFX_VEC_FUNC(dot)(GFX_VEC_NAME* a, GFX_VEC_NAME* b)
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(cross)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GFX_VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(cross)(
+
+		GFX_VEC_NAME*  dest,
+		GFX_VEC_NAME*  a,
+		GFX_VEC_NAME*  b)
 {
 	GFX_VEC_NAME res;
 	res.data[0] = a->data[1] * b->data[2] - a->data[2] * b->data[1];
@@ -272,7 +300,9 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(cross)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a, GF
  * Take the squared magnitude of a vector.
  *
  */
-inline GFX_VEC_DATA GFX_VEC_FUNC(magnitude_squared)(GFX_VEC_NAME* a)
+inline GFX_VEC_DATA GFX_VEC_FUNC(magnitude_squared)(
+
+		GFX_VEC_NAME* a)
 {
 	GFX_VEC_DATA dot = 0;
 
@@ -289,7 +319,9 @@ inline GFX_VEC_DATA GFX_VEC_FUNC(magnitude_squared)(GFX_VEC_NAME* a)
  * Take the magnitude of a vector.
  *
  */
-inline double GFX_VEC_FUNC(magnitude)(GFX_VEC_NAME* a)
+inline double GFX_VEC_FUNC(magnitude)(
+
+		GFX_VEC_NAME* a)
 {
 	return sqrt((double)GFX_VEC_FUNC(magnitude_squared)(a));
 }
@@ -300,7 +332,10 @@ inline double GFX_VEC_FUNC(magnitude)(GFX_VEC_NAME* a)
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a)
+inline GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(
+
+		GFX_VEC_NAME*  dest,
+		GFX_VEC_NAME*  a)
 {
 	double mag = GFX_VEC_FUNC(magnitude)(a);
 	GFX_VEC_DATA scale = (GFX_VEC_DATA)(mag ? 1.0 / mag : 0.0);
@@ -314,7 +349,9 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(GFX_VEC_NAME* dest, GFX_VEC_NAME* a
  * @return If the vector is zero, a non-zero value is returned.
  *
  */
-inline int GFX_VEC_FUNC(is_zero)(GFX_VEC_NAME* a)
+inline int GFX_VEC_FUNC(is_zero)(
+
+		GFX_VEC_NAME* a)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)

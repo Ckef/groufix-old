@@ -131,13 +131,18 @@ extern GFX_X11_Connection* _gfx_x11;
  * Returns whether an extension is supported for a given screen.
  *
  */
-int _gfx_x11_is_extension_supported(int screenNumber, const char* ext);
+int _gfx_x11_is_extension_supported(
+
+		int          screenNumber,
+		const char*  ext);
 
 /**
  * Returns an X11 window from its handle.
  *
  */
-GFXVectorIterator _gfx_x11_get_window_from_handle(Window handle);
+GFXVectorIterator _gfx_x11_get_window_from_handle(
+
+		Window handle);
 
 /**
  * Returns whether the OpenGL extension can be found in the space separated string.
@@ -145,7 +150,10 @@ GFXVectorIterator _gfx_x11_get_window_from_handle(Window handle);
  * This method is primarily used in the platform implementations.
  *
  */
-int _gfx_extensions_is_in_string(const char* str, const char* ext);
+int _gfx_extensions_is_in_string(
+
+		const char*  str,
+		const char*  ext);
 
 
 #ifdef __cplusplus

@@ -42,7 +42,9 @@ extern "C" {
  * @param state Structure who's values will be set to their defaults.
  *
  */
-void _gfx_states_set_default(GFX_State* state);
+void _gfx_states_set_default(
+
+		GFX_State* state);
 
 /**
  * Sets the state of a context.
@@ -50,7 +52,10 @@ void _gfx_states_set_default(GFX_State* state);
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_set(GFX_State* state, GFX_Extensions* ext);
+void _gfx_states_set(
+
+		GFX_State*       state,
+		GFX_Extensions*  ext);
 
 /**
  * Forces all state fields of a context.
@@ -59,7 +64,10 @@ void _gfx_states_set(GFX_State* state, GFX_Extensions* ext);
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_force_set(GFX_State* state, GFX_Extensions* ext);
+void _gfx_states_force_set(
+
+		GFX_State*       state,
+		GFX_Extensions*  ext);
 
 /**
  * Sets the viewport size of the context.
@@ -67,7 +75,11 @@ void _gfx_states_force_set(GFX_State* state, GFX_Extensions* ext);
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_set_viewport(unsigned int width, unsigned int height, GFX_Extensions* ext);
+void _gfx_states_set_viewport(
+
+		unsigned int     width,
+		unsigned int     height,
+		GFX_Extensions*  ext);
 
 /**
  * Sets the pixel pack alignment of the context.
@@ -75,7 +87,10 @@ void _gfx_states_set_viewport(unsigned int width, unsigned int height, GFX_Exten
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_set_pixel_pack_alignment(unsigned char align, GFX_Extensions* ext);
+void _gfx_states_set_pixel_pack_alignment(
+
+		unsigned char    align,
+		GFX_Extensions*  ext);
 
 /**
  * Sets the pixel unpack alignment of the context.
@@ -83,7 +98,10 @@ void _gfx_states_set_pixel_pack_alignment(unsigned char align, GFX_Extensions* e
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_set_pixel_unpack_alignment(unsigned char align, GFX_Extensions* ext);
+void _gfx_states_set_pixel_unpack_alignment(
+
+		unsigned char    align,
+		GFX_Extensions*  ext);
 
 /**
  * Sets the number of vertices per patch.
@@ -91,7 +109,10 @@ void _gfx_states_set_pixel_unpack_alignment(unsigned char align, GFX_Extensions*
  * Note: this assumes the context is current.
  *
  */
-void _gfx_states_set_patch_vertices(unsigned int vertices, GFX_Extensions* ext);
+void _gfx_states_set_patch_vertices(
+
+		unsigned int     vertices,
+		GFX_Extensions*  ext);
 
 
 /********************************************************
@@ -121,7 +142,11 @@ typedef struct GFX_Pipe
  * @return NULL on failure
  *
  */
-GFX_Pipe* _gfx_pipe_create_bucket(GFXPipeline* pipeline, unsigned char bits, GFXBucketFlags flags);
+GFX_Pipe* _gfx_pipe_create_bucket(
+
+		GFXPipeline*    pipeline,
+		unsigned char   bits,
+		GFXBucketFlags  flags);
 
 /**
  * Creates a new process pipe.
@@ -129,7 +154,9 @@ GFX_Pipe* _gfx_pipe_create_bucket(GFXPipeline* pipeline, unsigned char bits, GFX
  * @return NULL on failure.
  *
  */
-GFX_Pipe* _gfx_pipe_create_process(GFXPipeline* pipeline);
+GFX_Pipe* _gfx_pipe_create_process(
+
+		GFXPipeline* pipeline);
 
 /**
  * Makes sure the pipe is freed properly.
@@ -139,13 +166,18 @@ GFX_Pipe* _gfx_pipe_create_process(GFXPipeline* pipeline);
  * If no pipe takes its place, it will try to return the previous pipe instead.
  *
  */
-GFX_Pipe* _gfx_pipe_free(GFX_Pipe* pipe);
+GFX_Pipe* _gfx_pipe_free(
+
+		GFX_Pipe* pipe);
 
 /**
  * Sets the framebuffer handle associated with a pipeline as current for the given context.
  *
  */
-void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
+void _gfx_pipeline_bind(
+
+		GLuint           handle,
+		GFX_Extensions*  ext);
 
 
 /********************************************************
@@ -159,19 +191,28 @@ void _gfx_pipeline_bind(GLuint handle, GFX_Extensions* ext);
  * @return NULL on failure.
  *
  */
-GFXBucket* _gfx_bucket_create(unsigned char bits, GFXBucketFlags flags);
+GFXBucket* _gfx_bucket_create(
+
+		unsigned char   bits,
+		GFXBucketFlags  flags);
 
 /**
  * Makes sure the bucket is freed properly.
  *
  */
-void _gfx_bucket_free(GFXBucket* bucket);
+void _gfx_bucket_free(
+
+		GFXBucket* bucket);
 
 /**
  * Processes the bucket, drawing all batches.
  *
  */
-void _gfx_bucket_process(GFXBucket* bucket, GFX_State* state, GFX_Extensions* ext);
+void _gfx_bucket_process(
+
+		GFXBucket*       bucket,
+		GFX_State*       state,
+		GFX_Extensions*  ext);
 
 
 /********************************************************
@@ -190,7 +231,9 @@ GFXPipeProcess _gfx_pipe_process_create(void);
  * Makes sure the pipe process is freed properly.
  *
  */
-void _gfx_pipe_process_free(GFXPipeProcess process);
+void _gfx_pipe_process_free(
+
+		GFXPipeProcess process);
 
 /**
  * Executes the pipe process.
@@ -199,7 +242,11 @@ void _gfx_pipe_process_free(GFXPipeProcess process);
  * @param active Currently active window.
  *
  */
-void _gfx_pipe_process_execute(GFXPipeProcess process, GFX_State* state, GFX_Window* active);
+void _gfx_pipe_process_execute(
+
+		GFXPipeProcess  process,
+		GFX_State*      state,
+		GFX_Window*     active);
 
 /**
  * Prepares a window for render to texture.
@@ -210,7 +257,9 @@ void _gfx_pipe_process_execute(GFXPipeProcess process, GFX_State* state, GFX_Win
  * Note: the given target window should be current.
  *
  */
-int _gfx_pipe_process_prepare(GFX_Window* target);
+int _gfx_pipe_process_prepare(
+
+		GFX_Window* target);
 
 /**
  * Forwards a new size of a window to all processes.
@@ -220,7 +269,11 @@ int _gfx_pipe_process_prepare(GFX_Window* target);
  * @height New height.
  *
  */
-void _gfx_pipe_process_resize(GFX_Window* target, unsigned int width, unsigned int height);
+void _gfx_pipe_process_resize(
+
+		GFX_Window*   target,
+		unsigned int  width,
+		unsigned int  height);
 
 /**
  * Replaces a specific target with a new one.
@@ -229,7 +282,10 @@ void _gfx_pipe_process_resize(GFX_Window* target, unsigned int width, unsigned i
  * @param target  New target to replace the old target with.
  *
  */
-void _gfx_pipe_process_retarget(GFX_Window* replace, GFX_Window* target);
+void _gfx_pipe_process_retarget(
+
+		GFX_Window*  replace,
+		GFX_Window*  target);
 
 /**
  * Makes sure no pipe process targets the given window anymore, ever.
@@ -240,7 +296,10 @@ void _gfx_pipe_process_retarget(GFX_Window* replace, GFX_Window* target);
  * Note: the given target window should be current.
  *
  */
-void _gfx_pipe_process_untarget(GFX_Window* target, int last);
+void _gfx_pipe_process_untarget(
+
+		GFX_Window*  target,
+		int          last);
 
 
 #ifdef __cplusplus

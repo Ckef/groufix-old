@@ -55,7 +55,10 @@ struct GFX_Segment
 };
 
 /******************************************************/
-static void _gfx_shared_buffer_obj_free(void* object, GFX_Extensions* ext)
+static void _gfx_shared_buffer_obj_free(
+
+		void*            object,
+		GFX_Extensions*  ext)
 {
 	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
 
@@ -73,14 +76,23 @@ static GFX_HardwareFuncs _gfx_shared_buffer_obj_funcs =
 };
 
 /******************************************************/
-static GFXVectorIterator _gfx_shared_buffer_create(GFXBufferTarget target, size_t minSize, GFX_Extensions* ext)
+static GFXVectorIterator _gfx_shared_buffer_create(
+
+		GFXBufferTarget  target,
+		size_t           minSize,
+		GFX_Extensions*  ext)
 {
 	/* Create a new shared buffer */
 	struct GFX_SharedBuffer* buff = malloc(sizeof(struct GFX_SharedBuffer));
 	if(!buff) return NULL;
 
 	/* Insert the buffer */
-	GFXVectorIterator it = gfx_vector_insert(_gfx_shared_buffers, &buff, _gfx_shared_buffers->end);
+	GFXVectorIterator it = gfx_vector_insert(
+		_gfx_shared_buffers,
+		&buff,
+		_gfx_shared_buffers->end
+	);
+
 	if(it == _gfx_shared_buffers->end)
 	{
 		free(buff);
@@ -88,7 +100,11 @@ static GFXVectorIterator _gfx_shared_buffer_create(GFXBufferTarget target, size_
 	}
 
 	/* Register as object */
-	buff->id = _gfx_hardware_object_register(buff, &_gfx_shared_buffer_obj_funcs);
+	buff->id = _gfx_hardware_object_register(
+		buff,
+		&_gfx_shared_buffer_obj_funcs
+	);
+
 	if(!buff->id)
 	{
 		free(buff);
@@ -109,7 +125,10 @@ static GFXVectorIterator _gfx_shared_buffer_create(GFXBufferTarget target, size_
 }
 
 /******************************************************/
-static void _gfx_shared_buffer_free(GFXVectorIterator it, GFX_Extensions* ext)
+static void _gfx_shared_buffer_free(
+
+		GFXVectorIterator  it,
+		GFX_Extensions*    ext)
 {
 	if(it)
 	{
@@ -136,7 +155,11 @@ static void _gfx_shared_buffer_free(GFXVectorIterator it, GFX_Extensions* ext)
 }
 
 /******************************************************/
-static int _gfx_shared_buffer_insert_segment(struct GFX_SharedBuffer* buffer, size_t size, size_t* offset)
+static int _gfx_shared_buffer_insert_segment(
+
+		struct GFX_SharedBuffer*  buffer,
+		size_t                    size,
+		size_t*                   offset)
 {
 	struct GFX_Segment new;
 	new.offset = 0;
@@ -144,7 +167,10 @@ static int _gfx_shared_buffer_insert_segment(struct GFX_SharedBuffer* buffer, si
 
 	/* Iterate through segments and find a big enough empty spot */
 	GFXVectorIterator it;
-	for(it = buffer->segments.begin; it != buffer->segments.end; it = gfx_vector_next(&buffer->segments, it))
+	for(
+		it = buffer->segments.begin;
+		it != buffer->segments.end;
+		it = gfx_vector_next(&buffer->segments, it))
 	{
 		struct GFX_Segment* seg = it;
 		if(size > (seg->offset - new.offset))
@@ -175,7 +201,10 @@ static int _gfx_shared_buffer_insert_segment(struct GFX_SharedBuffer* buffer, si
 }
 
 /******************************************************/
-static int _gfx_shared_buffer_segment_comp(const void* key, const void* elem)
+static int _gfx_shared_buffer_segment_comp(
+
+		const void*  key,
+		const void*  elem)
 {
 	size_t offset = GFX_VOID_TO_UINT(key);
 	size_t found = ((struct GFX_Segment*)elem)->offset;
@@ -187,7 +216,10 @@ static int _gfx_shared_buffer_segment_comp(const void* key, const void* elem)
 }
 
 /******************************************************/
-static void _gfx_shared_buffer_erase_segment(struct GFX_SharedBuffer* buffer, size_t offset)
+static void _gfx_shared_buffer_erase_segment(
+
+		struct GFX_SharedBuffer*  buffer,
+		size_t                    offset)
 {
 	/* Retrieve segment */
 	GFXVectorIterator it = bsearch(
@@ -206,13 +238,17 @@ static void _gfx_shared_buffer_erase_segment(struct GFX_SharedBuffer* buffer, si
 }
 
 /******************************************************/
-GLuint _gfx_shared_buffer_get_handle(const GFXSharedBuffer* buffer)
+GLuint _gfx_shared_buffer_get_handle(
+
+		const GFXSharedBuffer* buffer)
 {
 	return ((struct GFX_SharedBuffer*)buffer->reference)->handle;
 }
 
 /******************************************************/
-void gfx_shared_buffer_request_size(unsigned long size)
+void gfx_shared_buffer_request_size(
+
+		unsigned long size)
 {
 	if(size <= GFX_SHARED_BUFFER_MSB)
 	{
@@ -226,7 +262,12 @@ void gfx_shared_buffer_request_size(unsigned long size)
 }
 
 /******************************************************/
-int gfx_shared_buffer_init(GFXSharedBuffer* buffer, GFXBufferTarget target, size_t size, const void* data)
+int gfx_shared_buffer_init(
+
+		GFXSharedBuffer*  buffer,
+		GFXBufferTarget   target,
+		size_t            size,
+		const void*       data)
 {
 	/* Get current window and context & validate target */
 	GFX_Window* window = _gfx_window_get_current();
@@ -241,7 +282,10 @@ int gfx_shared_buffer_init(GFXSharedBuffer* buffer, GFXBufferTarget target, size
 
 	/* Iterate through all shared buffers */
 	GFXVectorIterator it;
-	for(it = _gfx_shared_buffers->begin; it != _gfx_shared_buffers->end; it = gfx_vector_next(_gfx_shared_buffers, it))
+	for(
+		it = _gfx_shared_buffers->begin;
+		it != _gfx_shared_buffers->end;
+		it = gfx_vector_next(_gfx_shared_buffers, it))
 	{
 		/* Validate buffer and try to insert */
 		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
@@ -286,7 +330,9 @@ int gfx_shared_buffer_init(GFXSharedBuffer* buffer, GFXBufferTarget target, size
 }
 
 /******************************************************/
-void gfx_shared_buffer_clear(GFXSharedBuffer* buffer)
+void gfx_shared_buffer_clear(
+
+		GFXSharedBuffer* buffer)
 {
 	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)buffer->reference;
 	_gfx_shared_buffer_erase_segment(buff, buffer->offset);
@@ -302,12 +348,17 @@ void gfx_shared_buffer_clear(GFXSharedBuffer* buffer)
 
 		/* Find buffer iterator and free it */
 		GFXVectorIterator it;
-		for(it = _gfx_shared_buffers->begin; it != _gfx_shared_buffers->end; it = gfx_vector_next(_gfx_shared_buffers, it))
+		for(
+			it = _gfx_shared_buffers->begin;
+			it != _gfx_shared_buffers->end;
+			it = gfx_vector_next(_gfx_shared_buffers, it))
+		{
 			if(*(struct GFX_SharedBuffer**)it == buff)
 			{
 				_gfx_shared_buffer_free(it, ext);
 				break;
 			}
+		}
 	}
 
 	buffer->reference = NULL;

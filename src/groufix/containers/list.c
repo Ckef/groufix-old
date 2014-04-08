@@ -26,7 +26,9 @@
 #include <stdlib.h>
 
 /******************************************************/
-GFXList* gfx_list_create(size_t dataSize)
+GFXList* gfx_list_create(
+
+		size_t dataSize)
 {
 	/* Create a new list node */
 	GFXList* list = calloc(1, dataSize);
@@ -36,7 +38,9 @@ GFXList* gfx_list_create(size_t dataSize)
 }
 
 /******************************************************/
-void gfx_list_free(GFXList* list)
+void gfx_list_free(
+
+		GFXList* list)
 {
 	if(list)
 	{
@@ -54,7 +58,9 @@ void gfx_list_free(GFXList* list)
 }
 
 /******************************************************/
-size_t gfx_list_get_size(GFXList* list)
+size_t gfx_list_get_size(
+
+		GFXList* list)
 {
 	size_t cnt = 1;
 	while(list->next)
@@ -67,13 +73,19 @@ size_t gfx_list_get_size(GFXList* list)
 }
 
 /******************************************************/
-GFXList* gfx_list_at(GFXList* list, size_t index)
+GFXList* gfx_list_at(
+
+		GFXList*  list,
+		size_t    index)
 {
 	return gfx_list_advance(list, index);
 }
 
 /******************************************************/
-GFXList* gfx_list_advance(GFXList* node, int num)
+GFXList* gfx_list_advance(
+
+		GFXList*  node,
+		int       num)
 {
 	if(num > 0) while(num--)
 	{
@@ -89,7 +101,10 @@ GFXList* gfx_list_advance(GFXList* node, int num)
 }
 
 /******************************************************/
-GFXList* gfx_list_insert_after(GFXList* node, size_t dataSize)
+GFXList* gfx_list_insert_after(
+
+		GFXList*  node,
+		size_t    dataSize)
 {
 	/* Create the new node */
 	GFXList* new = gfx_list_create(dataSize);
@@ -108,7 +123,10 @@ GFXList* gfx_list_insert_after(GFXList* node, size_t dataSize)
 }
 
 /******************************************************/
-GFXList* gfx_list_insert_before(GFXList* node, size_t dataSize)
+GFXList* gfx_list_insert_before(
+
+		GFXList*  node,
+		size_t    dataSize)
 {
 	/* Create the new node */
 	GFXList* new = gfx_list_create(dataSize);
@@ -127,7 +145,11 @@ GFXList* gfx_list_insert_before(GFXList* node, size_t dataSize)
 }
 
 /******************************************************/
-GFXList* gfx_list_insert_at(GFXList* list, size_t dataSize, size_t index)
+GFXList* gfx_list_insert_at(
+
+		GFXList*  list,
+		size_t    dataSize,
+		size_t    index)
 {
 	/* Just insert where we already are */
 	if(!index) return gfx_list_insert_before(list, dataSize);
@@ -140,7 +162,9 @@ GFXList* gfx_list_insert_at(GFXList* list, size_t dataSize, size_t index)
 }
 
 /******************************************************/
-GFXList* gfx_list_erase(GFXList* node)
+GFXList* gfx_list_erase(
+
+		GFXList* node)
 {
 	GFXList* new = NULL;
 
@@ -165,7 +189,10 @@ GFXList* gfx_list_erase(GFXList* node)
 }
 
 /******************************************************/
-GFXList* gfx_list_erase_at(GFXList* list, size_t index)
+GFXList* gfx_list_erase_at(
+
+		GFXList*  list,
+		size_t    index)
 {
 	list = gfx_list_at(list, index);
 	if(!list) return NULL;
@@ -174,7 +201,10 @@ GFXList* gfx_list_erase_at(GFXList* list, size_t index)
 }
 
 /******************************************************/
-GFXList* gfx_list_erase_range(GFXList* first, GFXList* last)
+GFXList* gfx_list_erase_range(
+
+		GFXList*  first,
+		GFXList*  last)
 {
 	GFXList* new = NULL;
 
@@ -202,7 +232,10 @@ GFXList* gfx_list_erase_range(GFXList* first, GFXList* last)
 }
 
 /******************************************************/
-void gfx_list_splice_after(GFXList* node, GFXList* pos)
+void gfx_list_splice_after(
+
+		GFXList*  node,
+		GFXList*  pos)
 {
 	if(node != pos)
 	{
@@ -222,7 +255,10 @@ void gfx_list_splice_after(GFXList* node, GFXList* pos)
 }
 
 /******************************************************/
-void gfx_list_splice_before(GFXList* node, GFXList* pos)
+void gfx_list_splice_before(
+
+		GFXList*  node,
+		GFXList*  pos)
 {
 	if(node != pos)
 	{
@@ -242,7 +278,11 @@ void gfx_list_splice_before(GFXList* node, GFXList* pos)
 }
 
 /******************************************************/
-void gfx_list_splice_range_after(GFXList* node, GFXList* first, GFXList* last)
+void gfx_list_splice_range_after(
+
+		GFXList*  node,
+		GFXList*  first,
+		GFXList*  last)
 {
 	/* Close the gap of the range */
 	if(first->previous) first->previous->next = last->next;
@@ -260,7 +300,11 @@ void gfx_list_splice_range_after(GFXList* node, GFXList* first, GFXList* last)
 }
 
 /******************************************************/
-void gfx_list_splice_range_before(GFXList* node, GFXList* first, GFXList* last)
+void gfx_list_splice_range_before(
+
+		GFXList*  node,
+		GFXList*  first,
+		GFXList*  last)
 {
 	/* Close the gap of the range */
 	if(first->previous) first->previous->next = last->next;
@@ -278,7 +322,10 @@ void gfx_list_splice_range_before(GFXList* node, GFXList* first, GFXList* last)
 }
 
 /******************************************************/
-GFXList* gfx_list_unsplice(GFXList* first, GFXList* last)
+GFXList* gfx_list_unsplice(
+
+		GFXList*  first,
+		GFXList*  last)
 {
 	GFXList* new = NULL;
 
@@ -302,7 +349,10 @@ GFXList* gfx_list_unsplice(GFXList* first, GFXList* last)
 }
 
 /******************************************************/
-void gfx_list_swap(GFXList* node1, GFXList* node2)
+void gfx_list_swap(
+
+		GFXList*  node1,
+		GFXList*  node2)
 {
 	/* Relink outer nodes and fix internal links */
 	if(node1->next == node2)

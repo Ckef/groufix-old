@@ -126,7 +126,11 @@ typedef struct GFX_MAT_ALIGN
  * Returns a value of the matrix.
  *
  */
-inline GFX_MAT_DATA* GFX_MAT_FUNC(get)(GFX_MAT_NAME* a, size_t row, size_t column)
+inline GFX_MAT_DATA* GFX_MAT_FUNC(get)(
+
+		GFX_MAT_NAME*  a,
+		size_t         row,
+		size_t         column)
 {
 	return a->data + (row + GFX_MAT_SIZE * column);
 }
@@ -137,7 +141,9 @@ inline GFX_MAT_DATA* GFX_MAT_FUNC(get)(GFX_MAT_NAME* a, size_t row, size_t colum
  * @return The given matrix itself.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(set_zero)(GFX_MAT_NAME* a)
+inline GFX_MAT_NAME* GFX_MAT_FUNC(set_zero)(
+
+		GFX_MAT_NAME* a)
 {
 	return (GFX_MAT_NAME*)memset(a, 0, sizeof(GFX_MAT_NAME));
 }
@@ -148,7 +154,11 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(set_zero)(GFX_MAT_NAME* a)
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(add)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX_MAT_NAME* b)
+inline GFX_MAT_NAME* GFX_MAT_FUNC(add)(
+
+		GFX_MAT_NAME*  dest,
+		GFX_MAT_NAME*  a,
+		GFX_MAT_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -163,7 +173,11 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(add)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX_
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(sub)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX_MAT_NAME* b)
+inline GFX_MAT_NAME* GFX_MAT_FUNC(sub)(
+
+		GFX_MAT_NAME*  dest,
+		GFX_MAT_NAME*  a,
+		GFX_MAT_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -178,7 +192,11 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(sub)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX_
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(mult)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX_MAT_NAME* b)
+inline GFX_MAT_NAME* GFX_MAT_FUNC(mult)(
+
+		GFX_MAT_NAME*  dest,
+		GFX_MAT_NAME*  a,
+		GFX_MAT_NAME*  b)
 {
 	GFX_MAT_NAME res;
 	GFX_MAT_FUNC(set_zero)(&res);
@@ -202,7 +220,11 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(mult)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a, GFX_MAT_DATA scalar)
+inline GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(
+
+		GFX_MAT_NAME*  dest,
+		GFX_MAT_NAME*  a,
+		GFX_MAT_DATA   scalar)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -217,7 +239,10 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(GFX_MAT_NAME* dest, GFX_MAT_NAME*
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
+inline GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(
+
+		GFX_MAT_NAME*  dest,
+		GFX_MAT_NAME*  a)
 {
 	GFX_MAT_NAME res;
 
@@ -236,7 +261,9 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a
  * @return If the matrix is zero, a non-zero value is returned.
  *
  */
-inline int GFX_MAT_FUNC(is_zero)(GFX_MAT_NAME* a)
+inline int GFX_MAT_FUNC(is_zero)(
+
+		GFX_MAT_NAME* a)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -250,7 +277,9 @@ inline int GFX_MAT_FUNC(is_zero)(GFX_MAT_NAME* a)
  * Computes the determinant of a matrix.
  *
  */
-inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
+inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
+
+		GFX_MAT_NAME* a)
 {
 	return a->data[0] * a->data[3] - a->data[2] * a->data[1];
 }
@@ -262,7 +291,10 @@ inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
  * @return Non-zero if it could take the inverse, otherwise zero.
  *
  */
-inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
+inline int GFX_MAT_FUNC(inverse)(
+
+		GFX_MAT_NAME*  dest,
+		GFX_MAT_NAME*  a)
 {
 	/* Check if determinant is non-zero */
 	double det = GFX_MAT_FUNC(determinant)(a);
@@ -284,7 +316,9 @@ inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
  * Computes the determinant of a matrix.
  *
  */
-inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
+inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
+
+		GFX_MAT_NAME* a)
 {
 	return
 		a->data[0] * a->data[4] * a->data[8] +
@@ -302,7 +336,10 @@ inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
  * @return Non-zero if it could take the inverse, otherwise zero.
  *
  */
-inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
+inline int GFX_MAT_FUNC(inverse)(
+
+		GFX_MAT_NAME*  dest,
+		GFX_MAT_NAME*  a)
 {
 	/* Compute adjugate matrix */
 	GFX_MAT_NAME adj;
@@ -335,7 +372,9 @@ inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
  * Computes the determinant of a matrix.
  *
  */
-inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
+inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
+
+		GFX_MAT_NAME* a)
 {
 	/* Determinants of 2x2 submatrices */
 	GFX_MAT_DATA S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
@@ -362,7 +401,10 @@ inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(GFX_MAT_NAME* a)
  * @return Non-zero if it could take the inverse, otherwise zero.
  *
  */
-inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
+inline int GFX_MAT_FUNC(inverse)(
+
+		GFX_MAT_NAME*  dest,
+		GFX_MAT_NAME*  a)
 {
 	/* Determinants of 2x2 submatrices */
 	GFX_MAT_DATA S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
@@ -413,7 +455,10 @@ inline int GFX_MAT_FUNC(inverse)(GFX_MAT_NAME* dest, GFX_MAT_NAME* a)
  * Returns a column of a matrix as vector.
  *
  */
-inline GFX_VEC_NAME* GFX_MAT_FUNC(get_column)(GFX_MAT_NAME* a, size_t column)
+inline GFX_VEC_NAME* GFX_MAT_FUNC(get_column)(
+
+		GFX_MAT_NAME*  a,
+		size_t         column)
 {
 	return (GFX_VEC_NAME*)(a->data + (column * GFX_MAT_SIZE));
 }
@@ -424,7 +469,11 @@ inline GFX_VEC_NAME* GFX_MAT_FUNC(get_column)(GFX_MAT_NAME* a, size_t column)
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(GFX_VEC_NAME* dest, GFX_MAT_NAME* a, GFX_VEC_NAME* b)
+inline GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
+
+		GFX_VEC_NAME*  dest,
+		GFX_MAT_NAME*  a,
+		GFX_VEC_NAME*  b)
 {
 	GFX_VEC_NAME res;
 	GFX_VEC_FUNC(set_zero)(&res);

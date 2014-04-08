@@ -43,7 +43,9 @@ struct GFX_HardwareObject
 };
 
 /******************************************************/
-int gfx_hardware_is_extension_supported(GFXExtension extension)
+int gfx_hardware_is_extension_supported(
+
+		GFXExtension extension)
 {
 	GFX_Window* wind = _gfx_window_get_current();
 	if(!wind) return 0;
@@ -52,7 +54,9 @@ int gfx_hardware_is_extension_supported(GFXExtension extension)
 }
 
 /******************************************************/
-int gfx_hardware_get_limit(GFXLimit limit)
+int gfx_hardware_get_limit(
+
+		GFXLimit limit)
 {
 	GFX_Window* wind = _gfx_window_get_current();
 	if(!wind) return -1;
@@ -61,7 +65,10 @@ int gfx_hardware_get_limit(GFXLimit limit)
 }
 
 /******************************************************/
-size_t _gfx_hardware_object_register(void* object, const GFX_HardwareFuncs* funcs)
+size_t _gfx_hardware_object_register(
+
+		void*                     object,
+		const GFX_HardwareFuncs*  funcs)
 {
 	if(!funcs) return 0;
 
@@ -115,7 +122,9 @@ size_t _gfx_hardware_object_register(void* object, const GFX_HardwareFuncs* func
 }
 
 /******************************************************/
-void _gfx_hardware_object_unregister(size_t id)
+void _gfx_hardware_object_unregister(
+
+		size_t id)
 {
 	if(_gfx_hw_objects && id)
 	{
@@ -161,16 +170,23 @@ void _gfx_hardware_object_unregister(size_t id)
 }
 
 /******************************************************/
-void _gfx_hardware_objects_free(GFX_Extensions* ext)
+void _gfx_hardware_objects_free(
+
+		GFX_Extensions* ext)
 {
 	if(_gfx_hw_objects)
 	{
 		/* Issue free request */
 		GFXVectorIterator it;
-		for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = gfx_vector_next(_gfx_hw_objects, it))
+		for(
+			it = _gfx_hw_objects->begin;
+			it != _gfx_hw_objects->end;
+			it = gfx_vector_next(_gfx_hw_objects, it))
 		{
 			struct GFX_HardwareObject* obj = (struct GFX_HardwareObject*)it;
-			if(obj->funcs) if(obj->funcs->free) obj->funcs->free(obj->handle, ext);
+
+			if(obj->funcs) if(obj->funcs->free)
+				obj->funcs->free(obj->handle, ext);
 		}
 
 		/* Unregister all */
@@ -183,27 +199,41 @@ void _gfx_hardware_objects_free(GFX_Extensions* ext)
 }
 
 /******************************************************/
-void _gfx_hardware_objects_save(GFX_Extensions* ext)
+void _gfx_hardware_objects_save(
+
+		GFX_Extensions* ext)
 {
 	/* Issue save method */
 	GFXVectorIterator it;
-	if(_gfx_hw_objects) for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = gfx_vector_next(_gfx_hw_objects, it))
+	if(_gfx_hw_objects) for(
+		it = _gfx_hw_objects->begin;
+		it != _gfx_hw_objects->end;
+		it = gfx_vector_next(_gfx_hw_objects, it))
 	{
 		/* Store pointer to arbitrary storage */
 		struct GFX_HardwareObject* obj = (struct GFX_HardwareObject*)it;
-		if(obj->funcs) if(obj->funcs->save) obj->funcs->save(obj->handle, ext);
+
+		if(obj->funcs) if(obj->funcs->save)
+			obj->funcs->save(obj->handle, ext);
 	}
 }
 
 /******************************************************/
-void _gfx_hardware_objects_restore(GFX_Extensions* ext)
+void _gfx_hardware_objects_restore(
+
+		GFX_Extensions* ext)
 {
 	/* Issue restore method */
 	GFXVectorIterator it;
-	if(_gfx_hw_objects) for(it = _gfx_hw_objects->begin; it != _gfx_hw_objects->end; it = gfx_vector_next(_gfx_hw_objects, it))
+	if(_gfx_hw_objects) for(
+		it = _gfx_hw_objects->begin;
+		it != _gfx_hw_objects->end;
+		it = gfx_vector_next(_gfx_hw_objects, it))
 	{
 		/* Restore from pointer if given */
 		struct GFX_HardwareObject* obj = (struct GFX_HardwareObject*)it;
-		if(obj->funcs) if(obj->funcs->restore) obj->funcs->restore(obj->handle, ext);
+
+		if(obj->funcs) if(obj->funcs->restore)
+			obj->funcs->restore(obj->handle, ext);
 	}
 }

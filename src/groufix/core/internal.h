@@ -383,7 +383,9 @@ typedef struct GFX_Window
  * Returns the top level window associated with a platform window.
  *
  */
-GFX_Window* _gfx_window_get_from_handle(GFX_PlatformWindow handle);
+GFX_Window* _gfx_window_get_from_handle(
+
+		GFX_PlatformWindow handle);
 
 /**
  * Destroys the server side window.
@@ -392,7 +394,9 @@ GFX_Window* _gfx_window_get_from_handle(GFX_PlatformWindow handle);
  * Thus, it must still be freed.
  *
  */
-void _gfx_window_destroy(GFX_Window* window);
+void _gfx_window_destroy(
+
+		GFX_Window* window);
 
 /**
  * Sets the window as the current render target.
@@ -401,7 +405,9 @@ void _gfx_window_destroy(GFX_Window* window);
  * Note: This SHOULD NOT be called unless you know damn well what you're doing.
  *
  */
-void _gfx_window_make_current(GFX_Window* window);
+void _gfx_window_make_current(
+
+		GFX_Window* window);
 
 /**
  * Returns the current window.
@@ -411,7 +417,7 @@ void _gfx_window_make_current(GFX_Window* window);
  */
 GFX_Window* _gfx_window_get_current(void);
 
-/** 
+/**
  * Swaps the internal buffers of the current window.
  *
  */
@@ -463,13 +469,18 @@ typedef struct GFX_HardwareFuncs
  * or reconstructed when the main context is destroyed.
  *
  */
-size_t _gfx_hardware_object_register(void* object, const GFX_HardwareFuncs* funcs);
+size_t _gfx_hardware_object_register(
+
+		void*                     object,
+		const GFX_HardwareFuncs*  funcs);
 
 /**
  * Unregisters a generic hardware object by identifier.
  *
  */
-void _gfx_hardware_object_unregister(size_t id);
+void _gfx_hardware_object_unregister(
+
+		size_t id);
 
 /**
  * Issue free request of all hardware objects, this happens when its parent context is destroyed.
@@ -478,7 +489,9 @@ void _gfx_hardware_object_unregister(size_t id);
  * Thus this callback is NOT allowed to unregister the object.
  *
  */
-void _gfx_hardware_objects_free(GFX_Extensions* ext);
+void _gfx_hardware_objects_free(
+
+		GFX_Extensions* ext);
 
 /**
  * Issue save method of all hardware objects.
@@ -487,7 +500,9 @@ void _gfx_hardware_objects_free(GFX_Extensions* ext);
  * It is guaranteed another context is still active, this is only meant for objects which can't be shared.
  *
  */
-void _gfx_hardware_objects_save(GFX_Extensions* ext);
+void _gfx_hardware_objects_save(
+
+		GFX_Extensions* ext);
 
 /**
  * Issue restore method of all hardware objects.
@@ -495,7 +510,9 @@ void _gfx_hardware_objects_save(GFX_Extensions* ext);
  * During this operation, a new window and context is current.
  *
  */
-void _gfx_hardware_objects_restore(GFX_Extensions* ext);
+void _gfx_hardware_objects_restore(
+
+		GFX_Extensions* ext);
 
 
 /********************************************************
@@ -506,43 +523,57 @@ void _gfx_hardware_objects_restore(GFX_Extensions* ext);
  * Returns the current handle of a buffer.
  *
  */
-GLuint _gfx_buffer_get_handle(const GFXBuffer* buffer);
+GLuint _gfx_buffer_get_handle(
+
+		const GFXBuffer* buffer);
 
 /**
  * Returns the handle of the framebuffer associated with a pipeline.
  *
  */
-GLuint _gfx_pipeline_get_handle(const GFXPipeline* pipeline);
+GLuint _gfx_pipeline_get_handle(
+
+		const GFXPipeline* pipeline);
 
 /**
  * Returns the handle of a program.
  *
  */
-GLuint _gfx_program_get_handle(const GFXProgram* program);
+GLuint _gfx_program_get_handle(
+
+		const GFXProgram* program);
 
 /**
  * Returns the handle of a shader.
  *
  */
-GLuint _gfx_shader_get_handle(const GFXShader* shader);
+GLuint _gfx_shader_get_handle(
+
+		const GFXShader* shader);
 
 /**
  * Returns the handle of a shared buffer.
  *
  */
-GLuint _gfx_shared_buffer_get_handle(const GFXSharedBuffer* buffer);
+GLuint _gfx_shared_buffer_get_handle(
+
+		const GFXSharedBuffer* buffer);
 
 /**
  * Returns the handle of a texture.
  *
  */
-GLuint _gfx_texture_get_handle(const GFXTexture* texture);
+GLuint _gfx_texture_get_handle(
+
+		const GFXTexture* texture);
 
 /**
  * Returns the VAO of a layout.
  *
  */
-GLuint _gfx_vertex_layout_get_handle(const GFXVertexLayout* layout);
+GLuint _gfx_vertex_layout_get_handle(
+
+		const GFXVertexLayout* layout);
 
 
 #ifdef __cplusplus

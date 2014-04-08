@@ -30,25 +30,39 @@
 GFX_X11_Connection* _gfx_x11 = NULL;
 
 /******************************************************/
-int _gfx_x11_is_extension_supported(int screenNumber, const char* ext)
+int _gfx_x11_is_extension_supported(
+
+		int          screenNumber,
+		const char*  ext)
 {
 	if(!_gfx_x11) return 0;
 
 	/* Get extensions */
-	const char* extensions = glXQueryExtensionsString(_gfx_x11->display, screenNumber);
+	const char* extensions = glXQueryExtensionsString(
+		_gfx_x11->display,
+		screenNumber
+	);
+
 	if(!extensions) return 0;
 
 	return _gfx_extensions_is_in_string(extensions, ext);
 }
 
 /******************************************************/
-GFXVectorIterator _gfx_x11_get_window_from_handle(Window handle)
+GFXVectorIterator _gfx_x11_get_window_from_handle(
+
+		Window handle)
 {
 	if(!_gfx_x11) return NULL;
 
 	GFXVectorIterator it;
-	for(it = _gfx_x11->windows.begin; it != _gfx_x11->windows.end; it = gfx_vector_next(&_gfx_x11->windows, it))
+	for(
+		it = _gfx_x11->windows.begin;
+		it != _gfx_x11->windows.end;
+		it = gfx_vector_next(&_gfx_x11->windows, it))
+	{
 		if(((GFX_X11_Window*)it)->handle == handle) break;
+	}
 
 	return it != _gfx_x11->windows.end ? it : NULL;
 }
@@ -87,7 +101,10 @@ static int _gfx_x11_load_extensions(void)
 }
 
 /******************************************************/
-static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
+static int _gfx_x11_error_handler(
+
+		Display*      display,
+		XErrorEvent*  evt)
 {
 	size_t length = sizeof(char) * (GFX_X11_ERROR_LENGTH);
 	char* text = malloc(length);
@@ -105,22 +122,29 @@ static int _gfx_x11_error_handler(Display* display, XErrorEvent* evt)
 }
 
 /******************************************************/
-static GFXKey _gfx_x11_get_key(KeySym symbol)
+static GFXKey _gfx_x11_get_key(
+
+		KeySym symbol)
 {
 	/* Unicode numbers */
-	if(symbol >= XK_0 && symbol <= XK_9) return (GFXKey)(symbol - XK_0 + GFX_KEY_0);
+	if(symbol >= XK_0 && symbol <= XK_9)
+		return (GFXKey)(symbol - XK_0 + GFX_KEY_0);
 
 	/* Keypad numbers */
-	if(symbol >= XK_KP_0 && symbol <= XK_KP_9) return (GFXKey)(symbol - XK_KP_0 + GFX_KEY_KP_0);
+	if(symbol >= XK_KP_0 && symbol <= XK_KP_9)
+		return (GFXKey)(symbol - XK_KP_0 + GFX_KEY_KP_0);
 
 	/* Unicode capitals */
-	if(symbol >= XK_A && symbol <= XK_Z) return (GFXKey)(symbol - XK_A + GFX_KEY_A);
+	if(symbol >= XK_A && symbol <= XK_Z)
+		return (GFXKey)(symbol - XK_A + GFX_KEY_A);
 
 	/* Unicode lowercase */
-	if(symbol >= XK_a && symbol <= XK_z) return (GFXKey)(symbol - XK_a + GFX_KEY_A);
+	if(symbol >= XK_a && symbol <= XK_z)
+		return (GFXKey)(symbol - XK_a + GFX_KEY_A);
 
 	/* Function keys */
-	if(symbol >= XK_F1 && symbol <= XK_F24) return (GFXKey)(symbol - XK_F1 + GFX_KEY_F1);
+	if(symbol >= XK_F1 && symbol <= XK_F24)
+		return (GFXKey)(symbol - XK_F1 + GFX_KEY_F1);
 
 	/* Non-unicode */
 	switch(symbol)
@@ -199,12 +223,18 @@ static void _gfx_x11_create_key_table(void)
 	int numKeys = maxKey - minKey + 1;
 
 	int symbolsPerKey;
-	KeySym* symbols = XGetKeyboardMapping(_gfx_x11->display, minKey, numKeys, &symbolsPerKey);
+	KeySym* symbols = XGetKeyboardMapping(
+		_gfx_x11->display,
+		minKey,
+		numKeys,
+		&symbolsPerKey
+	);
 
 	/* Use the first symbol of all keycodes */
 	size_t i;
-	for(i = minKey; i <= maxKey; ++i)
-		_gfx_x11->keys[i] = _gfx_x11_get_key(symbols[(i - minKey) * symbolsPerKey]);
+	for(i = minKey; i <= maxKey; ++i) _gfx_x11->keys[i] = _gfx_x11_get_key(
+		symbols[(i - minKey) * symbolsPerKey]
+	);
 
 	XFree(symbols);
 }

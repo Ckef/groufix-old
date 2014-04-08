@@ -54,7 +54,10 @@ struct GFX_TextureUnit
 };
 
 /******************************************************/
-static void* _gfx_binder_init(size_t num, size_t size)
+static void* _gfx_binder_init(
+
+		size_t  num,
+		size_t  size)
 {
 	size_t unitSize = sizeof(struct GFX_Unit) + size;
 
@@ -78,7 +81,13 @@ static void* _gfx_binder_init(size_t num, size_t size)
 }
 
 /******************************************************/
-static void _gfx_binder_increase(int sign, unsigned char min, void* bindings, size_t num, size_t size)
+static void _gfx_binder_increase(
+
+		int            sign,
+		unsigned char  min,
+		void*          bindings,
+		size_t         num,
+		size_t         size)
 {
 	size_t unitSize = sizeof(struct GFX_Unit) + size;
 
@@ -103,7 +112,13 @@ static void _gfx_binder_increase(int sign, unsigned char min, void* bindings, si
 }
 
 /******************************************************/
-static void _gfx_binder_unbind(void* bindings, size_t num, size_t size, size_t cmpSize, const void* cmp)
+static void _gfx_binder_unbind(
+
+		void*        bindings,
+		size_t       num,
+		size_t       size,
+		size_t       cmpSize,
+		const void*  cmp)
 {
 	struct GFX_Unit* curr = bindings;
 	size_t unitSize = sizeof(struct GFX_Unit) + size;
@@ -115,7 +130,13 @@ static void _gfx_binder_unbind(void* bindings, size_t num, size_t size, size_t c
 		/* Empty current unit */
 		if(!memcmp(curr + 1, cmp, cmpSize))
 		{
-			_gfx_binder_increase(-1, curr->counter, bindings, num, size);
+			_gfx_binder_increase(
+				-1,
+				curr->counter,
+				bindings,
+				num,
+				size
+			);
 
 			memset(curr, 0, unitSize);
 			curr->counter = GFX_BINDER_COUNTER_EMPTY;
@@ -127,7 +148,14 @@ static void _gfx_binder_unbind(void* bindings, size_t num, size_t size, size_t c
 }
 
 /******************************************************/
-static size_t _gfx_binder_request(void* bindings, size_t num, size_t size, const void* data, int prioritize, int* old)
+static size_t _gfx_binder_request(
+
+		void*        bindings,
+		size_t       num,
+		size_t       size,
+		const void*  data,
+		int          prioritize,
+		int*         old)
 {
 	*old = 0;
 
@@ -178,7 +206,14 @@ static size_t _gfx_binder_request(void* bindings, size_t num, size_t size, const
 }
 
 /******************************************************/
-size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeiptr size, int prioritize, int* old, GFX_Extensions* ext)
+size_t _gfx_binder_bind_uniform_buffer(
+
+		GLuint           buffer,
+		GLintptr         offset,
+		GLsizeiptr       size,
+		int              prioritize,
+		int*             old,
+		GFX_Extensions*  ext)
 {
 	/* Allocate binding points */
 	if(!ext->uniformBuffers) ext->uniformBuffers = _gfx_binder_init(
@@ -202,13 +237,22 @@ size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeipt
 	);
 
 	/* Bind the buffer */
-	if(!*old) ext->BindBufferRange(GL_UNIFORM_BUFFER, bind, buffer, offset, size);
+	if(!*old) ext->BindBufferRange(
+		GL_UNIFORM_BUFFER,
+		bind,
+		buffer,
+		offset,
+		size
+	);
 
 	return bind;
 }
 
 /******************************************************/
-void _gfx_binder_unbind_uniform_buffer(GLuint buffer, GFX_Extensions* ext)
+void _gfx_binder_unbind_uniform_buffer(
+
+		GLuint           buffer,
+		GFX_Extensions*  ext)
 {
 	if(ext->uniformBuffers)
 	{
@@ -226,7 +270,13 @@ void _gfx_binder_unbind_uniform_buffer(GLuint buffer, GFX_Extensions* ext)
 }
 
 /******************************************************/
-size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, int* old, GFX_Extensions* ext)
+size_t _gfx_binder_bind_texture(
+
+		GLuint           texture,
+		GLenum           target,
+		int              prioritize,
+		int*             old,
+		GFX_Extensions*  ext)
 {
 	/* Allocate binding points */
 	if(!ext->textureUnits) ext->textureUnits = _gfx_binder_init(
@@ -255,7 +305,10 @@ size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, i
 }
 
 /******************************************************/
-void _gfx_binder_unbind_texture(GLuint texture, GFX_Extensions* ext)
+void _gfx_binder_unbind_texture(
+
+		GLuint           texture,
+		GFX_Extensions*  ext)
 {
 	if(ext->textureUnits)
 	{

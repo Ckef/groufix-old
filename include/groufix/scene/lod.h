@@ -54,7 +54,9 @@ GFXLodMap* gfx_lod_map_create(void);
  * Makes sure the LOD map is freed properly.
  *
  */
-void gfx_lod_map_free(GFXLodMap* map);
+void gfx_lod_map_free(
+
+		GFXLodMap* map);
 
 /**
  * Maps data to a given level of detail.
@@ -63,7 +65,11 @@ void gfx_lod_map_free(GFXLodMap* map);
  * @return Non-zero if the data is mapped.
  *
  */
-int gfx_lod_map_add(GFXLodMap* map, size_t level, void* data);
+int gfx_lod_map_add(
+
+		GFXLodMap*  map,
+		size_t      level,
+		void*       data);
 
 /**
  * Removes mapped data from a given level of detail.
@@ -74,7 +80,11 @@ int gfx_lod_map_add(GFXLodMap* map, size_t level, void* data);
  * all levels above it will fall down one level.
  *
  */
-int gfx_lod_map_remove(GFXLodMap* map, size_t level, void* data);
+int gfx_lod_map_remove(
+
+		GFXLodMap*  map,
+		size_t      level,
+		void*       data);
 
 /**
  * Retrieves wheter given data is mapped or not.
@@ -83,7 +93,11 @@ int gfx_lod_map_remove(GFXLodMap* map, size_t level, void* data);
  * @return Non-zero if the data is indeed mapped to the given level.
  *
  */
-int gfx_lod_map_has(GFXLodMap* map, size_t level, void* data);
+int gfx_lod_map_has(
+
+		GFXLodMap*  map,
+		size_t      level,
+		void*       data);
 
 /**
  * Returns an array of data elements of a given level of detail.
@@ -94,7 +108,11 @@ int gfx_lod_map_has(GFXLodMap* map, size_t level, void* data);
  * Note: as soon as a data element is added/removed the array pointer is invalidated.
  *
  */
-void** gfx_lod_map_get(GFXLodMap* map, size_t level, size_t* num);
+void** gfx_lod_map_get(
+
+		GFXLodMap*  map,
+		size_t      level,
+		size_t*     num);
 
 
 #ifdef __cplusplus

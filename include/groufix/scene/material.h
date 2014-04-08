@@ -55,7 +55,9 @@ GFXMaterial* gfx_material_create(void);
  * Makes sure the material is freed properly.
  *
  */
-void gfx_material_free(GFXMaterial* material);
+void gfx_material_free(
+
+		GFXMaterial* material);
 
 /**
  * Creates a new property map and maps it to a given level of detail.
@@ -66,7 +68,12 @@ void gfx_material_free(GFXMaterial* material);
  * @return The new property map on success, NULL on failure.
  *
  */
-GFXPropertyMap* gfx_material_add(GFXMaterial* material, size_t level, GFXProgram* program, unsigned char properties);
+GFXPropertyMap* gfx_material_add(
+
+		GFXMaterial*   material,
+		size_t         level,
+		GFXProgram*    program,
+		unsigned char  properties);
 
 /**
  * Removes a property map from the material.
@@ -75,7 +82,10 @@ GFXPropertyMap* gfx_material_add(GFXMaterial* material, size_t level, GFXProgram
  * If this happens, higher levels will fall down one level.
  *
  */
-void gfx_material_remove(GFXMaterial* material, GFXPropertyMap* map);
+void gfx_material_remove(
+
+		GFXMaterial*     material,
+		GFXPropertyMap*  map);
 
 /**
  * Returns an array of property maps of a given level of detail.
@@ -86,7 +96,11 @@ void gfx_material_remove(GFXMaterial* material, GFXPropertyMap* map);
  * Note: as soon as a property map is added/removed the array pointer is invalidated.
  *
  */
-inline GFXPropertyMap** gfx_material_get(GFXMaterial* material, size_t level, size_t* num)
+inline GFXPropertyMap** gfx_material_get(
+
+		GFXMaterial*  material,
+		size_t        level,
+		size_t*       num)
 {
 	return (GFXPropertyMap**)gfx_lod_map_get((GFXLodMap*)material, level, num);
 }

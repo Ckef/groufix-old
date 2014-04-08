@@ -41,11 +41,13 @@ typedef struct GFXList
 } GFXList;
 
 
-/** 
+/**
  * Returns the data attached to a node.
  *
  */
-inline void* gfx_list_get_data(GFXList* node)
+inline void* gfx_list_get_data(
+
+		GFXList* node)
 {
 	return (void*)(node + 1);
 }
@@ -57,7 +59,9 @@ inline void* gfx_list_get_data(GFXList* node)
  * @return NULL on failure.
  *
  */
-GFXList* gfx_list_create(size_t dataSize);
+GFXList* gfx_list_create(
+
+		size_t dataSize);
 
 /**
  * Makes sure the list is freed properly.
@@ -65,25 +69,35 @@ GFXList* gfx_list_create(size_t dataSize);
  * Frees each node after the given node.
  *
  */
-void gfx_list_free(GFXList* list);
+void gfx_list_free(
+
+		GFXList* list);
 
 /**
  * Returns the size of the list in elements.
  *
  */
-size_t gfx_list_get_size(GFXList* list);
+size_t gfx_list_get_size(
+
+		GFXList* list);
 
 /**
  * Returns a node at a given index, can be NULL.
  *
- */ 
-GFXList* gfx_list_at(GFXList* list, size_t index);
+ */
+GFXList* gfx_list_at(
+
+		GFXList*  list,
+		size_t    index);
 
 /**
  * Advances a node an arbitrary amount of indices (can be negative).
  *
  */
-GFXList* gfx_list_advance(GFXList* node, int num);
+GFXList* gfx_list_advance(
+
+		GFXList*  node,
+		int       num);
 
 /**
  * Inserts an element after a given node.
@@ -92,7 +106,10 @@ GFXList* gfx_list_advance(GFXList* node, int num);
  * @return The node of the new element (NULL on failure).
  *
  */
-GFXList* gfx_list_insert_after(GFXList* node, size_t dataSize);
+GFXList* gfx_list_insert_after(
+
+		GFXList*  node,
+		size_t    dataSize);
 
 /**
  * Inserts an element before a given node.
@@ -101,7 +118,10 @@ GFXList* gfx_list_insert_after(GFXList* node, size_t dataSize);
  * @return The node of the new element (NULL on failure).
  *
  */
-GFXList* gfx_list_insert_before(GFXList* node, size_t dataSize);
+GFXList* gfx_list_insert_before(
+
+		GFXList*  node,
+		size_t    dataSize);
 
 /**
  * Inserts an element after a given index.
@@ -110,7 +130,11 @@ GFXList* gfx_list_insert_before(GFXList* node, size_t dataSize);
  * @return The node of the new element (NULL on failure).
  *
  */
-GFXList* gfx_list_insert_at(GFXList* list, size_t dataSize, size_t index);
+GFXList* gfx_list_insert_at(
+
+		GFXList*  list,
+		size_t    dataSize,
+		size_t    index);
 
 /**
  * Erases a node.
@@ -120,7 +144,9 @@ GFXList* gfx_list_insert_at(GFXList* list, size_t dataSize, size_t index);
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-GFXList* gfx_list_erase(GFXList* node);
+GFXList* gfx_list_erase(
+
+		GFXList* node);
 
 /**
  * Erases an element at a given index.
@@ -130,7 +156,10 @@ GFXList* gfx_list_erase(GFXList* node);
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-GFXList* gfx_list_erase_at(GFXList* list, size_t index);
+GFXList* gfx_list_erase_at(
+
+		GFXList*  list,
+		size_t    index);
 
 /**
  * Erases a range of nodes.
@@ -140,7 +169,10 @@ GFXList* gfx_list_erase_at(GFXList* list, size_t index);
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-GFXList* gfx_list_erase_range(GFXList* first, GFXList* last);
+GFXList* gfx_list_erase_range(
+
+		GFXList*  first,
+		GFXList*  last);
 
 /**
  * Moves an element after a given node.
@@ -149,7 +181,10 @@ GFXList* gfx_list_erase_range(GFXList* first, GFXList* last);
  * @param pos  Position to move after.
  *
  */
-void gfx_list_splice_after(GFXList* node, GFXList* pos);
+void gfx_list_splice_after(
+
+		GFXList*  node,
+		GFXList*  pos);
 
 /**
  * Moves an element before a given node.
@@ -158,7 +193,10 @@ void gfx_list_splice_after(GFXList* node, GFXList* pos);
  * @param pos  Position to move before.
  *
  */
-void gfx_list_splice_before(GFXList* node, GFXList* pos);
+void gfx_list_splice_before(
+
+		GFXList*  node,
+		GFXList*  pos);
 
 /**
  * Inserts a range of elements after a given node.
@@ -169,7 +207,11 @@ void gfx_list_splice_before(GFXList* node, GFXList* pos);
  * Note: if node is within the range, behaviour is undefined.
  *
  */
-void gfx_list_splice_range_after(GFXList* node, GFXList* first, GFXList* last);
+void gfx_list_splice_range_after(
+
+		GFXList*  node,
+		GFXList*  first,
+		GFXList*  last);
 
 /**
  * Inserts a range of elements before a given node.
@@ -180,7 +222,11 @@ void gfx_list_splice_range_after(GFXList* node, GFXList* first, GFXList* last);
  * Note: if node is within the range, behaviour is undefined.
  *
  */
-void gfx_list_splice_range_before(GFXList* node, GFXList* first, GFXList* last);
+void gfx_list_splice_range_before(
+
+		GFXList*  node,
+		GFXList*  first,
+		GFXList*  last);
 
 /**
  * Unlinks a range of elements, effectively creating two seperate lists.
@@ -193,13 +239,19 @@ void gfx_list_splice_range_before(GFXList* node, GFXList* first, GFXList* last);
  * If no node takes its place, it will try to return the previous node instead.
  *
  */
-GFXList* gfx_list_unsplice(GFXList* first, GFXList* last);
+GFXList* gfx_list_unsplice(
+
+		GFXList*  first,
+		GFXList*  last);
 
 /**
  * Swaps two elements from position.
  *
  */
-void gfx_list_swap(GFXList* node1, GFXList* node2);
+void gfx_list_swap(
+
+		GFXList*  node1,
+		GFXList*  node2);
 
 
 #ifdef __cplusplus

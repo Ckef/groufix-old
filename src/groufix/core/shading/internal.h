@@ -40,7 +40,11 @@ extern "C" {
  * @param copy Index of the copy of the map to use.
  *
  */
-void _gfx_property_map_use(GFXPropertyMap* map, size_t copy, GFX_Extensions* ext);
+void _gfx_property_map_use(
+
+		GFXPropertyMap*  map,
+		size_t           copy,
+		GFX_Extensions*  ext);
 
 /**
  * Get the location of a property (a.k.a uniform).
@@ -48,7 +52,10 @@ void _gfx_property_map_use(GFXPropertyMap* map, size_t copy, GFX_Extensions* ext
  * @return Negative on failure, the location otherwise.
  *
  */
-GLint _gfx_program_get_location(GFXProgram* program, unsigned short index);
+GLint _gfx_program_get_location(
+
+		GFXProgram*     program,
+		unsigned short  index);
 
 
 /********************************************************
@@ -63,13 +70,23 @@ GLint _gfx_program_get_location(GFXProgram* program, unsigned short index);
  * @return the uniform buffer index it was bound to.
  *
  */
-size_t _gfx_binder_bind_uniform_buffer(GLuint buffer, GLintptr offset, GLsizeiptr size, int prioritize, int* old, GFX_Extensions* ext);
+size_t _gfx_binder_bind_uniform_buffer(
+
+		GLuint           buffer,
+		GLintptr         offset,
+		GLsizeiptr       size,
+		int              prioritize,
+		int*             old,
+		GFX_Extensions*  ext);
 
 /**
  * Makes sure a buffer is unbound from any uniform buffer index.
  *
  */
-void _gfx_binder_unbind_uniform_buffer(GLuint buffer, GFX_Extensions* ext);
+void _gfx_binder_unbind_uniform_buffer(
+
+		GLuint           buffer,
+		GFX_Extensions*  ext);
 
 /**
  * Binds a texture to the appropriate unit.
@@ -80,13 +97,22 @@ void _gfx_binder_unbind_uniform_buffer(GLuint buffer, GFX_Extensions* ext);
  * @return the texture unit it was bound to.
  *
  */
-size_t _gfx_binder_bind_texture(GLuint texture, GLenum target, int prioritize, int* old, GFX_Extensions* ext);
+size_t _gfx_binder_bind_texture(
+
+		GLuint           texture,
+		GLenum           target,
+		int              prioritize,
+		int*             old,
+		GFX_Extensions*  ext);
 
 /**
  * Makes sure a texture is unbound from any unit.
  *
  */
-void _gfx_binder_unbind_texture(GLuint texture, GFX_Extensions* ext);
+void _gfx_binder_unbind_texture(
+
+		GLuint           texture,
+		GFX_Extensions*  ext);
 
 
 #ifdef __cplusplus

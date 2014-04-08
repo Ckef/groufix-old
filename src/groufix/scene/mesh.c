@@ -30,7 +30,9 @@ GFXMesh* gfx_mesh_create(void)
 }
 
 /******************************************************/
-void gfx_mesh_free(GFXMesh* mesh)
+void gfx_mesh_free(
+
+		GFXMesh* mesh)
 {
 	if(mesh)
 	{
@@ -41,7 +43,11 @@ void gfx_mesh_free(GFXMesh* mesh)
 		{
 			/* Free all submeshes in it */
 			size_t num;
-			GFXSubMesh** subs = gfx_mesh_get(mesh, --levels, &num);
+			GFXSubMesh** subs = gfx_mesh_get(
+				mesh,
+				--levels,
+				&num
+			);
 
 			while(num) _gfx_submesh_free(subs[--num]);
 		}
@@ -51,7 +57,12 @@ void gfx_mesh_free(GFXMesh* mesh)
 }
 
 /******************************************************/
-GFXSubMesh* gfx_mesh_add(GFXMesh* mesh, size_t level, unsigned char drawCalls, unsigned char sources)
+GFXSubMesh* gfx_mesh_add(
+
+		GFXMesh*       mesh,
+		size_t         level,
+		unsigned char  drawCalls,
+		unsigned char  sources)
 {
 	/* Create new submesh and add it to the LOD map */
 	GFXSubMesh* sub = _gfx_submesh_create(drawCalls, sources);
@@ -67,13 +78,19 @@ GFXSubMesh* gfx_mesh_add(GFXMesh* mesh, size_t level, unsigned char drawCalls, u
 }
 
 /******************************************************/
-int gfx_mesh_add_share(GFXMesh* mesh, size_t level, GFXSubMesh* share)
+int gfx_mesh_add_share(
+
+		GFXMesh*     mesh,
+		size_t       level,
+		GFXSubMesh*  share)
 {
 	/* Check if it's already mapped to avoid another reference */
-	if(gfx_lod_map_has((GFXLodMap*)mesh, level, share)) return 1;
+	if(gfx_lod_map_has((GFXLodMap*)mesh, level, share))
+		return 1;
 
 	/* Reference the submesh */
-	if(!_gfx_submesh_reference(share)) return 0;
+	if(!_gfx_submesh_reference(share))
+		return 0;
 
 	/* Add it to the LOD map */
 	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, share))
@@ -86,7 +103,10 @@ int gfx_mesh_add_share(GFXMesh* mesh, size_t level, GFXSubMesh* share)
 }
 
 /******************************************************/
-void gfx_mesh_remove(GFXMesh* mesh, GFXSubMesh* sub)
+void gfx_mesh_remove(
+
+		GFXMesh*     mesh,
+		GFXSubMesh*  sub)
 {
 	/* Remove it from all levels */
 	size_t levels = mesh->lodMap.levels;

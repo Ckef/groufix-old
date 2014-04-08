@@ -58,7 +58,10 @@ extern "C" {
  * Evaluates the target of a buffer and prints an error if necessary.
  *
  */
-int _gfx_buffer_eval_target(GFXBufferTarget target, const GFX_Extensions* ext);
+int _gfx_buffer_eval_target(
+
+		GFXBufferTarget        target,
+		const GFX_Extensions*  ext);
 
 
 /********************************************************
@@ -69,25 +72,40 @@ int _gfx_buffer_eval_target(GFXBufferTarget target, const GFX_Extensions* ext);
  * Sets the layout handle as currently bound for the given context.
  *
  */
-void _gfx_layout_bind(GLuint handle, GFX_Extensions* ext);
+void _gfx_layout_bind(
+
+		GLuint           handle,
+		GFX_Extensions*  ext);
 
 /**
  * Start a number of draw calls using a given vertex layout.
  *
  */
-void _gfx_vertex_layout_draw_begin(const GFXVertexLayout* layout, unsigned char startFeedback, unsigned char num);
+void _gfx_vertex_layout_draw_begin(
+
+		const GFXVertexLayout*  layout,
+		unsigned char           startFeedback,
+		unsigned char           num);
 
 /**
  * Regular drawing using a given vertex layout.
  *
  */
-void _gfx_vertex_layout_draw(const GFXVertexLayout* layout, unsigned char startIndex, unsigned char num, size_t inst);
+void _gfx_vertex_layout_draw(
+
+		const GFXVertexLayout*  layout,
+		unsigned char           startIndex,
+		unsigned char           num,
+		size_t                  inst);
 
 /**
  * Ends draw calls of a given vertex layout.
  *
  */
-void _gfx_vertex_layout_draw_end(const GFXVertexLayout* layout, unsigned char numFeedback);
+void _gfx_vertex_layout_draw_end(
+
+		const GFXVertexLayout*  layout,
+		unsigned char           numFeedback);
 
 
 /********************************************************
@@ -98,13 +116,17 @@ void _gfx_vertex_layout_draw_end(const GFXVertexLayout* layout, unsigned char nu
  * Returns 1 if packed data, 0 if unpacked.
  *
  */
-int _gfx_is_data_type_packed(GFXDataType type);
+int _gfx_is_data_type_packed(
+
+		GFXDataType type);
 
 /**
  * Returns the size of a data type in bytes.
  *
  */
-unsigned char _gfx_sizeof_data_type(GFXDataType type);
+unsigned char _gfx_sizeof_data_type(
+
+		GFXDataType type);
 
 
 /********************************************************
@@ -115,7 +137,9 @@ unsigned char _gfx_sizeof_data_type(GFXDataType type);
  * Returns the internal target of a texture (a.k.a type).
  *
  */
-GLenum _gfx_texture_get_internal_target(const GFXTexture* texture);
+GLenum _gfx_texture_get_internal_target(
+
+		const GFXTexture* texture);
 
 /**
  * Converts a texture format to a client pixel format.
@@ -123,7 +147,9 @@ GLenum _gfx_texture_get_internal_target(const GFXTexture* texture);
  * @return Negative on failure.
  *
  */
-GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format);
+GLint _gfx_texture_format_to_pixel_format(
+
+		GFXTextureFormat format);
 
 /**
  * Converts a texture format to an internal format.
@@ -131,13 +157,17 @@ GLint _gfx_texture_format_to_pixel_format(GFXTextureFormat format);
  * @return Negative on failure.
  *
  */
-GLint _gfx_texture_format_to_internal(GFXTextureFormat format);
+GLint _gfx_texture_format_to_internal(
+
+		GFXTextureFormat format);
 
 /**
  * Converts an internal format to a texture format.
  *
  */
-GFXTextureFormat _gfx_texture_format_from_internal(GLint format);
+GFXTextureFormat _gfx_texture_format_from_internal(
+
+		GLint format);
 
 
 #ifdef __cplusplus

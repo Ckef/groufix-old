@@ -52,7 +52,9 @@ unsigned int gfx_get_num_screens(void);
  * @param num The number of the screens (num < num_screens).
  *
  */
-GFXScreen gfx_get_screen(unsigned int num);
+GFXScreen gfx_get_screen(
+
+		unsigned int num);
 
 /**
  * Returns the default screen.
@@ -64,7 +66,11 @@ GFXScreen gfx_get_default_screen(void);
  * Gets the resolution of a screen in pixels.
  *
  */
-void gfx_screen_get_size(GFXScreen screen, unsigned int* width, unsigned int* height);
+void gfx_screen_get_size(
+
+		GFXScreen      screen,
+		unsigned int*  width,
+		unsigned int*  height);
 
 
 /********************************************************
@@ -147,7 +153,9 @@ typedef struct GFXWindow
  * Requests a minimal OpenGL Context for new windows.
  *
  */
-void gfx_request_context(GFXContext context);
+void gfx_request_context(
+
+		GFXContext context);
 
 /**
  * Returns the number of windows.
@@ -164,7 +172,9 @@ unsigned int gfx_get_num_windows(void);
  * The number of a screen can change, this is meant purely for iteration.
  *
  */
-GFXWindow* gfx_get_window(unsigned int num);
+GFXWindow* gfx_get_window(
+
+		unsigned int num);
 
 /**
  * Creates a new window.
@@ -176,9 +186,18 @@ GFXWindow* gfx_get_window(unsigned int num);
  * @param h      Height of the window.
  * @param flags  Flags to apply to this window, full screen has precedence over all other flags.
  * @return NULL on failure.
- * 
+ *
  */
-GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* name, int x, int y, unsigned int w, unsigned int h, GFXWindowFlags flags);
+GFXWindow* gfx_window_create(
+
+		GFXScreen       screen,
+		GFXColorDepth   depth,
+		const char*     name,
+		int             x,
+		int             y,
+		unsigned int    w,
+		unsigned int    h,
+		GFXWindowFlags  flags);
 
 /**
  * Recreates a window.
@@ -190,7 +209,12 @@ GFXWindow* gfx_window_create(GFXScreen screen, GFXColorDepth depth, const char* 
  * This method is to avoid destroying a window, thereby freeing hardware memory.
  *
  */
-GFXWindow* gfx_window_recreate(GFXWindow* window, GFXScreen screen, GFXColorDepth depth, GFXWindowFlags flags);
+GFXWindow* gfx_window_recreate(
+
+		GFXWindow*      window,
+		GFXScreen       screen,
+		GFXColorDepth   depth,
+		GFXWindowFlags  flags);
 
 /**
  * Destroys and frees the window.
@@ -199,7 +223,9 @@ GFXWindow* gfx_window_recreate(GFXWindow* window, GFXScreen screen, GFXColorDept
  * This is done automatically at termination.
  *
  */
-void gfx_window_free(GFXWindow* window);
+void gfx_window_free(
+
+		GFXWindow* window);
 
 /**
  * Returns whether a window is still alive.
@@ -208,19 +234,25 @@ void gfx_window_free(GFXWindow* window);
  * this call queries whether the window is still physically open.
  *
  */
-int gfx_window_is_open(const GFXWindow* window);
+int gfx_window_is_open(
+
+		const GFXWindow* window);
 
 /**
  * Returns the screen associated with a window.
  *
  */
-GFXScreen gfx_window_get_screen(const GFXWindow* window);
+GFXScreen gfx_window_get_screen(
+
+		const GFXWindow* window);
 
 /**
  * Returns the context of the window.
  *
  */
-GFXContext gfx_window_get_context(const GFXWindow* window);
+GFXContext gfx_window_get_context(
+
+		const GFXWindow* window);
 
 /**
  * Gets the name of the window.
@@ -228,49 +260,74 @@ GFXContext gfx_window_get_context(const GFXWindow* window);
  * If the returned pointer is not NULL, it should be freed manually.
  *
  */
-char* gfx_window_get_name(const GFXWindow* window);
+char* gfx_window_get_name(
+
+		const GFXWindow* window);
 
 /**
  * Gets the size of the window.
  *
  */
-void gfx_window_get_size(const GFXWindow* window, unsigned int* width, unsigned int* height);
+void gfx_window_get_size(
+
+		const GFXWindow*  window,
+		unsigned int*     width,
+		unsigned int*     height);
 
 /**
  * Gets the position of the window.
  *
  */
-void gfx_window_get_position(const GFXWindow* window, int* x, int* y);
+void gfx_window_get_position(
+
+		const GFXWindow*  window,
+		int*              x,
+		int*              y);
 
 /**
  * Sets the name of the window.
  *
  */
-void gfx_window_set_name(const GFXWindow* window, const char* name);
+void gfx_window_set_name(
+
+		const GFXWindow*  window,
+		const char*       name);
 
 /**
  * Sets the size of the window.
  *
  */
-void gfx_window_set_size(const GFXWindow* window, unsigned int width, unsigned int height);
+void gfx_window_set_size(
+
+		const GFXWindow*  window,
+		unsigned int      width,
+		unsigned int      height);
 
 /**
  * Sets the position of the window.
  *
  */
-void gfx_window_set_position(const GFXWindow* window, int x, int y);
+void gfx_window_set_position(
+
+		const GFXWindow*  window,
+		int               x,
+		int               y);
 
 /**
  * Makes a window visible.
  *
  */
-void gfx_window_show(const GFXWindow* window);
+void gfx_window_show(
+
+		const GFXWindow* window);
 
 /**
  * Makes a window invisible.
  *
  */
-void gfx_window_hide(const GFXWindow* window);
+void gfx_window_hide(
+
+		const GFXWindow* window);
 
 /**
  * Sets the minimum number of video frame periods per buffer swap.
@@ -279,7 +336,10 @@ void gfx_window_hide(const GFXWindow* window);
  * A value of -1 enables adaptive vsync.
  *
  */
-void gfx_window_set_swap_interval(const GFXWindow* window, int num);
+void gfx_window_set_swap_interval(
+
+		const GFXWindow*  window,
+		int               num);
 
 
 /********************************************************
@@ -333,7 +393,9 @@ typedef enum GFXLimit
  * Note: if no window is created, thus no context exists, this will return 0.
  *
  */
-int gfx_hardware_is_extension_supported(GFXExtension extension);
+int gfx_hardware_is_extension_supported(
+
+		GFXExtension extension);
 
 /**
  * Returns a limit given by the hardware.
@@ -341,7 +403,9 @@ int gfx_hardware_is_extension_supported(GFXExtension extension);
  * Note: if no window is created, thus no context exists, this will return -1.
  *
  */
-int gfx_hardware_get_limit(GFXLimit limit);
+int gfx_hardware_get_limit(
+
+		GFXLimit limit);
 
 
 #ifdef __cplusplus

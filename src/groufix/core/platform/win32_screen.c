@@ -31,7 +31,9 @@ unsigned int _gfx_platform_get_num_screens(void)
 }
 
 /******************************************************/
-GFX_PlatformScreen _gfx_platform_get_screen(unsigned int num)
+GFX_PlatformScreen _gfx_platform_get_screen(
+
+		unsigned int num)
 {
 	if(!_gfx_win32) return NULL;
 
@@ -48,7 +50,11 @@ GFX_PlatformScreen _gfx_platform_get_default_screen(void)
 }
 
 /******************************************************/
-void _gfx_platform_screen_get_size(GFX_PlatformScreen handle, unsigned int* width, unsigned int* height)
+void _gfx_platform_screen_get_size(
+
+		GFX_PlatformScreen  handle,
+		unsigned int*       width,
+		unsigned int*       height)
 {
 	GFX_Win32_Screen* screen = (GFX_Win32_Screen*)handle;
 	*width = screen->width;

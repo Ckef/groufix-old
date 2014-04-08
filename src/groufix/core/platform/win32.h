@@ -146,13 +146,18 @@ extern GFX_Win32_Instance* _gfx_win32;
  * Sets the pixel format for a window.
  *
  */
-void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth);
+void _gfx_win32_set_pixel_format(
+
+		HWND                  handle,
+		const GFXColorDepth*  depth);
 
 /**
  * Returns an Win32 window from its handle.
  *
  */
-GFXVectorIterator _gfx_win32_get_window_from_handle(HWND handle);
+GFXVectorIterator _gfx_win32_get_window_from_handle(
+
+		HWND handle);
 
 /**
  * Converts a UTF-8 string to a wide string.
@@ -160,7 +165,9 @@ GFXVectorIterator _gfx_win32_get_window_from_handle(HWND handle);
  * If the returned pointer is not NULL, it should be freed manually.
  *
  */
-wchar_t* _gfx_win32_utf8_to_wchar(const char* str);
+wchar_t* _gfx_win32_utf8_to_wchar(
+
+		const char* str);
 
 /**
  * Converts a wide string to a UTF-8 string.
@@ -168,7 +175,9 @@ wchar_t* _gfx_win32_utf8_to_wchar(const char* str);
  * If the returned pointer is not NULL, it should be freed manually.
  *
  */
-char* _gfx_win32_wchar_to_utf8(const wchar_t* str);
+char* _gfx_win32_wchar_to_utf8(
+
+		const wchar_t* str);
 
 /**
  * Returns whether the OpenGL extension can be found in the space separated string.
@@ -176,7 +185,10 @@ char* _gfx_win32_wchar_to_utf8(const wchar_t* str);
  * This method is primarily used in the platform implementations.
  *
  */
-int _gfx_extensions_is_in_string(const char* str, const char* ext);
+int _gfx_extensions_is_in_string(
+
+		const char*  str,
+		const char*  ext);
 
 
 #ifdef __cplusplus

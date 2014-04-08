@@ -27,7 +27,12 @@
 #include <stdlib.h>
 
 /******************************************************/
-static int _gfx_win32_set_fullscreen(GFX_Win32_Screen* screen, unsigned int width, unsigned int height, const GFXColorDepth* depth)
+static int _gfx_win32_set_fullscreen(
+
+		GFX_Win32_Screen*     screen,
+		unsigned int          width,
+		unsigned int          height,
+		const GFXColorDepth*  depth)
 {
 	/* Minimum of 32 bits */
 	DEVMODE mode;
@@ -41,23 +46,37 @@ static int _gfx_win32_set_fullscreen(GFX_Win32_Screen* screen, unsigned int widt
 	mode.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 	/* Actual call */
-	return ChangeDisplaySettingsEx(screen->name, &mode, NULL, CDS_FULLSCREEN, NULL) == DISP_CHANGE_SUCCESSFUL;
+	return (ChangeDisplaySettingsEx(screen->name, &mode, NULL, CDS_FULLSCREEN, NULL)
+		== DISP_CHANGE_SUCCESSFUL);
 }
 
 /******************************************************/
-static void _gfx_win32_get_screen_position(GFX_Win32_Screen* screen, int* x, int* y)
+static void _gfx_win32_get_screen_position(
+
+		GFX_Win32_Screen*  screen,
+		int*               x,
+		int*               y)
 {
 	DEVMODE mode;
 	ZeroMemory(&mode, sizeof(DEVMODE));
 	mode.dmSize = sizeof(DEVMODE);
 
-	EnumDisplaySettingsEx(screen->name, ENUM_CURRENT_SETTINGS, &mode, EDS_ROTATEMODE);
+	EnumDisplaySettingsEx(
+		screen->name,
+		ENUM_CURRENT_SETTINGS,
+		&mode,
+		EDS_ROTATEMODE
+	);
+
 	*x = mode.dmPosition.x;
 	*y = mode.dmPosition.y;
 }
 
 /******************************************************/
-void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth)
+void _gfx_win32_set_pixel_format(
+
+		HWND                  handle,
+		const GFXColorDepth*  depth)
 {
 	PIXELFORMATDESCRIPTOR format;
 	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
@@ -77,7 +96,9 @@ void _gfx_win32_set_pixel_format(HWND handle, const GFXColorDepth* depth)
 }
 
 /******************************************************/
-static void _gfx_win32_track_mouse(HWND handle)
+static void _gfx_win32_track_mouse(
+
+		HWND handle)
 {
 	TRACKMOUSEEVENT track;
 	ZeroMemory(&track, sizeof(TRACKMOUSEEVENT));
@@ -90,7 +111,10 @@ static void _gfx_win32_track_mouse(HWND handle)
 }
 
 /******************************************************/
-static GFXKey _gfx_win32_get_extended_key(GFXKey key, LPARAM lParam)
+static GFXKey _gfx_win32_get_extended_key(
+
+		GFXKey  key,
+		LPARAM  lParam)
 {
 	/* Get extended key (probably right key) */
 	if(lParam & 0x1000000) switch(key)
@@ -99,7 +123,7 @@ static GFXKey _gfx_win32_get_extended_key(GFXKey key, LPARAM lParam)
 		case GFX_KEY_SHIFT_LEFT   : return GFX_KEY_SHIFT_RIGHT;
 		case GFX_KEY_CONTROL_LEFT : return GFX_KEY_CONTROL_RIGHT;
 		case GFX_KEY_ALT_LEFT     : return GFX_KEY_ALT_RIGHT;
-		
+
 		default : return key;
 	}
 	return key;
@@ -129,7 +153,12 @@ static GFXKeyState _gfx_win32_get_key_state(void)
 }
 
 /******************************************************/
-static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK _gfx_win32_window_proc(
+
+		HWND    handle,
+		UINT    msg,
+		WPARAM  wParam,
+		LPARAM  lParam)
 {
 	/* Get window */
 	GFX_PlatformWindow window = (GFX_PlatformWindow)handle;
@@ -151,7 +180,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(HWND handle, UINT msg, WPARAM wPa
 
 			GFX_Win32_Screen* screen = _gfx_platform_window_get_screen(window);
 			if(screen) _gfx_win32_get_screen_position(screen, &xS, &yS);
-			
+
 			int x = (int)(short)LOWORD(lParam);
 			int y = (int)(short)HIWORD(lParam);
 
@@ -365,7 +394,9 @@ static int _gfx_win32_register_window_class(void)
 }
 
 /******************************************************/
-GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* attributes)
+GFX_PlatformWindow _gfx_platform_window_create(
+
+		const GFX_PlatformAttributes* attributes)
 {
 	/* Make sure to register the window class */
 	if(!_gfx_win32_register_window_class()) return NULL;
@@ -466,7 +497,12 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 		/* Some fullscreen options */
 		if(attributes->flags & GFX_WINDOW_FULLSCREEN)
 		{
-			SetWindowPos(window.handle, HWND_TOPMOST, 0,0,0,0, SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(
+				window.handle,
+				HWND_TOPMOST,
+				0,0,0,0,
+				SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE
+			);
 			ShowWindow(window.handle, SW_MAXIMIZE);
 		}
 
@@ -492,7 +528,9 @@ GFX_PlatformWindow _gfx_platform_window_create(const GFX_PlatformAttributes* att
 }
 
 /******************************************************/
-void _gfx_platform_window_free(GFX_PlatformWindow handle)
+void _gfx_platform_window_free(
+
+		GFX_PlatformWindow handle)
 {
 	if(_gfx_win32)
 	{
@@ -511,7 +549,9 @@ void _gfx_platform_window_free(GFX_PlatformWindow handle)
 }
 
 /******************************************************/
-GFX_PlatformScreen _gfx_platform_window_get_screen(GFX_PlatformWindow handle)
+GFX_PlatformScreen _gfx_platform_window_get_screen(
+
+		GFX_PlatformWindow handle)
 {
 	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
 	if(it) return it->screen;
@@ -520,7 +560,9 @@ GFX_PlatformScreen _gfx_platform_window_get_screen(GFX_PlatformWindow handle)
 }
 
 /******************************************************/
-char* _gfx_platform_window_get_name(GFX_PlatformWindow handle)
+char* _gfx_platform_window_get_name(
+
+		GFX_PlatformWindow handle)
 {
 	/* Check if it has a name */
 	int len = GetWindowTextLength(handle);
@@ -537,7 +579,11 @@ char* _gfx_platform_window_get_name(GFX_PlatformWindow handle)
 }
 
 /******************************************************/
-void _gfx_platform_window_get_size(GFX_PlatformWindow handle, unsigned int* width, unsigned int* height)
+void _gfx_platform_window_get_size(
+
+		GFX_PlatformWindow  handle,
+		unsigned int*       width,
+		unsigned int*       height)
 {
 	RECT rect;
 	ZeroMemory(&rect, sizeof(RECT));
@@ -548,7 +594,11 @@ void _gfx_platform_window_get_size(GFX_PlatformWindow handle, unsigned int* widt
 }
 
 /******************************************************/
-void _gfx_platform_window_get_position(GFX_PlatformWindow handle, int* x, int* y)
+void _gfx_platform_window_get_position(
+
+		GFX_PlatformWindow  handle,
+		int*                x,
+		int*                y)
 {
 	/* Get window's screen position */
 	GFX_Win32_Screen* screen = _gfx_platform_window_get_screen(handle);
@@ -563,7 +613,10 @@ void _gfx_platform_window_get_position(GFX_PlatformWindow handle, int* x, int* y
 }
 
 /******************************************************/
-void _gfx_platform_window_set_name(GFX_PlatformWindow handle, const char* name)
+void _gfx_platform_window_set_name(
+
+		GFX_PlatformWindow  handle,
+		const char*         name)
 {
 	/* Make sure to convert to wide character */
 	wchar_t* wchar = _gfx_win32_utf8_to_wchar(name);
@@ -572,13 +625,28 @@ void _gfx_platform_window_set_name(GFX_PlatformWindow handle, const char* name)
 }
 
 /******************************************************/
-void _gfx_platform_window_set_size(GFX_PlatformWindow handle, unsigned int width, unsigned int height)
+void _gfx_platform_window_set_size(
+
+		GFX_PlatformWindow  handle,
+		unsigned int        width,
+		unsigned int        height)
 {
-	SetWindowPos(handle, NULL, 0, 0, width, height, SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOZORDER);
+	SetWindowPos(
+		handle,
+		NULL,
+		0, 0,
+		width,
+		height,
+		SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOZORDER
+	);
 }
 
 /******************************************************/
-void _gfx_platform_window_set_position(GFX_PlatformWindow handle, int x, int y)
+void _gfx_platform_window_set_position(
+
+		GFX_PlatformWindow  handle,
+		int                 x,
+		int                 y)
 {
 	/* Get window's monitor position */
 	int xM = 0;
@@ -587,17 +655,28 @@ void _gfx_platform_window_set_position(GFX_PlatformWindow handle, int x, int y)
 	GFX_Win32_Screen* screen = _gfx_platform_window_get_screen(handle);
 	if(screen) _gfx_win32_get_screen_position(screen, &xM, &yM);
 
-	SetWindowPos(handle, NULL, x + xM, y + yM, 0, 0, SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOZORDER);
+	SetWindowPos(
+		handle,
+		NULL,
+		x + xM,
+		y + yM,
+		0, 0,
+		SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOZORDER
+	);
 }
 
 /******************************************************/
-void _gfx_platform_window_show(GFX_PlatformWindow handle)
+void _gfx_platform_window_show(
+
+		GFX_PlatformWindow handle)
 {
 	ShowWindow(handle, SW_SHOW);
 }
 
 /******************************************************/
-void _gfx_platform_window_hide(GFX_PlatformWindow handle)
+void _gfx_platform_window_hide(
+
+		GFX_PlatformWindow handle)
 {
 	ShowWindow(handle, SW_HIDE);
 }

@@ -56,7 +56,9 @@ typedef struct GFXVector
  * @return NULL on failure.
  *
  */
-GFXVector* gfx_vector_create(size_t elementSize);
+GFXVector* gfx_vector_create(
+
+		size_t elementSize);
 
 /**
  * Creates a new vector with a preset content.
@@ -66,7 +68,11 @@ GFXVector* gfx_vector_create(size_t elementSize);
  * @return NULL on failure.
  *
  */
-GFXVector* gfx_vector_create_from_buffer(size_t elementSize, size_t numElements, const void* buff);
+GFXVector* gfx_vector_create_from_buffer(
+
+		size_t       elementSize,
+		size_t       numElements,
+		const void*  buff);
 
 /**
  * Creates a copy of a vector.
@@ -74,19 +80,26 @@ GFXVector* gfx_vector_create_from_buffer(size_t elementSize, size_t numElements,
  * @return NULL on failure.
  *
  */
-GFXVector* gfx_vector_create_copy(GFXVector* src);
+GFXVector* gfx_vector_create_copy(
+
+		GFXVector* src);
 
 /**
  * Makes sure the vector is freed properly.
  *
  */
-void gfx_vector_free(GFXVector* vector);
+void gfx_vector_free(
+
+		GFXVector* vector);
 
 /**
  * Initializes a vector.
  *
  */
-void gfx_vector_init(GFXVector* vector, size_t elementSize);
+void gfx_vector_init(
+
+		GFXVector*  vector,
+		size_t      elementSize);
 
 /**
  * Initializes a vector with a preset content.
@@ -95,37 +108,54 @@ void gfx_vector_init(GFXVector* vector, size_t elementSize);
  * @param buff        Memory to copy content from, if NULL, nothing will be copied.
  *
  */
-void gfx_vector_init_from_buffer(GFXVector* vector, size_t elementSize, size_t numElements, const void* buff);
+void gfx_vector_init_from_buffer(
+
+		GFXVector*   vector,
+		size_t       elementSize,
+		size_t       numElements,
+		const void*  buff);
 
 /**
  * Initializes a copy of a vector.
  *
  */
-void gfx_vector_init_copy(GFXVector* vector, GFXVector* src);
+void gfx_vector_init_copy(
+
+		GFXVector*  vector,
+		GFXVector*  src);
 
 /**
  * Clears the content of a vector.
  *
  */
-void gfx_vector_clear(GFXVector* vector);
+void gfx_vector_clear(
+
+		GFXVector* vector);
 
 /**
  * Returns the size of the vector in bytes.
  *
  */
-size_t gfx_vector_get_byte_size(GFXVector* vector);
+size_t gfx_vector_get_byte_size(
+
+		GFXVector* vector);
 
 /**
  * Returns the size of the vector in elements.
  *
  */
-size_t gfx_vector_get_size(GFXVector* vector);
+size_t gfx_vector_get_size(
+
+		GFXVector* vector);
 
 /**
  * Returns the index of an iterator.
  *
  */
-size_t gfx_vector_get_index(GFXVector* vector, GFXVectorIterator it);
+size_t gfx_vector_get_index(
+
+		GFXVector*         vector,
+		GFXVectorIterator  it);
 
 /**
  * Requests a minimum capacity, which will hold as long as nothing is erased.
@@ -133,33 +163,49 @@ size_t gfx_vector_get_index(GFXVector* vector, GFXVectorIterator it);
  * @return If zero, out of memory.
  *
  */
-int gfx_vector_reserve(GFXVector* vector, size_t numElements);
+int gfx_vector_reserve(
+
+		GFXVector*  vector,
+		size_t      numElements);
 
 /**
  * Returns an iterator of the element at a given index.
  *
  * This method does not check the bounds!
  *
- */ 
-GFXVectorIterator gfx_vector_at(GFXVector* vector, size_t index);
+ */
+GFXVectorIterator gfx_vector_at(
+
+		GFXVector*  vector,
+		size_t      index);
 
 /**
  * Increments an iterator to the next element.
  *
  */
-GFXVectorIterator gfx_vector_next(GFXVector* vector, GFXVectorIterator it);
+GFXVectorIterator gfx_vector_next(
+
+		GFXVector*         vector,
+		GFXVectorIterator  it);
 
 /**
  * Decrements an iterator to the previous element.
  *
  */
-GFXVectorIterator gfx_vector_previous(GFXVector* vector, GFXVectorIterator it);
+GFXVectorIterator gfx_vector_previous(
+
+		GFXVector*         vector,
+		GFXVectorIterator  it);
 
 /**
  * Advances an iterator an arbitrary amount of elements (can be negative).
  *
  */
-GFXVectorIterator gfx_vector_advance(GFXVector* vector, GFXVectorIterator it, int num);
+GFXVectorIterator gfx_vector_advance(
+
+		GFXVector*         vector,
+		GFXVectorIterator  it,
+		int                num);
 
 /**
  * Inserts an element at a given iterator.
@@ -168,7 +214,11 @@ GFXVectorIterator gfx_vector_advance(GFXVector* vector, GFXVectorIterator it, in
  * @return The iterator to the new element (vector->end on failure).
  *
  */
-GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXVectorIterator pos);
+GFXVectorIterator gfx_vector_insert(
+
+		GFXVector*         vector,
+		const void*        element,
+		GFXVectorIterator  pos);
 
 /**
  * Inserts an element after a given index.
@@ -177,7 +227,11 @@ GFXVectorIterator gfx_vector_insert(GFXVector* vector, const void* element, GFXV
  * @return The iterator to the new element (vector->end on failure).
  *
  */
-GFXVectorIterator gfx_vector_insert_at(GFXVector* vector, const void* element, size_t index);
+GFXVectorIterator gfx_vector_insert_at(
+
+		GFXVector*   vector,
+		const void*  element,
+		size_t       index);
 
 /**
  * Inserts a range of elements at a given iterator (can be this vector).
@@ -187,7 +241,12 @@ GFXVectorIterator gfx_vector_insert_at(GFXVector* vector, const void* element, s
  * @return The iterator to the beginning of the inserted range (vector->end on failure).
  *
  */
-GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVectorIterator start, GFXVectorIterator pos);
+GFXVectorIterator gfx_vector_insert_range(
+
+		GFXVector*         vector,
+		size_t             num,
+		GFXVectorIterator  start,
+		GFXVectorIterator  pos);
 
 /**
  * Inserts a range of elements at a given index (can be this vector).
@@ -197,7 +256,12 @@ GFXVectorIterator gfx_vector_insert_range(GFXVector* vector, size_t num, GFXVect
  * @return The iterator to the beginning of the inserted range (vector->end on failure).
  *
  */
-GFXVectorIterator gfx_vector_insert_range_at(GFXVector* vector, size_t num, GFXVectorIterator start, size_t index);
+GFXVectorIterator gfx_vector_insert_range_at(
+
+		GFXVector*         vector,
+		size_t             num,
+		GFXVectorIterator  start,
+		size_t             index);
 
 /**
  * Erases an element at a given iterator.
@@ -205,7 +269,10 @@ GFXVectorIterator gfx_vector_insert_range_at(GFXVector* vector, size_t num, GFXV
  * @return The iterator to the element taking its place.
  *
  */
-GFXVectorIterator gfx_vector_erase(GFXVector* vector, GFXVectorIterator pos);
+GFXVectorIterator gfx_vector_erase(
+
+		GFXVector*         vector,
+		GFXVectorIterator  pos);
 
 /**
  * Erases an element at a given index.
@@ -213,7 +280,10 @@ GFXVectorIterator gfx_vector_erase(GFXVector* vector, GFXVectorIterator pos);
  * @return The iterator to the element taking its place.
  *
  */
-GFXVectorIterator gfx_vector_erase_at(GFXVector* vector, size_t index);
+GFXVectorIterator gfx_vector_erase_at(
+
+		GFXVector*  vector,
+		size_t      index);
 
 /**
  * Erases a range of elements at a given iterator.
@@ -223,7 +293,11 @@ GFXVectorIterator gfx_vector_erase_at(GFXVector* vector, size_t index);
  * @return The iterator to the element taking its place.
  *
  */
-GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVectorIterator start);
+GFXVectorIterator gfx_vector_erase_range(
+
+		GFXVector*         vector,
+		size_t             num,
+		GFXVectorIterator  start);
 
 /**
  * Erases a range of elements at a given index.
@@ -232,7 +306,11 @@ GFXVectorIterator gfx_vector_erase_range(GFXVector* vector, size_t num, GFXVecto
  * @return The iterator to the element taking its place.
  *
  */
-GFXVectorIterator gfx_vector_erase_range_at(GFXVector* vector, size_t num, size_t index);
+GFXVectorIterator gfx_vector_erase_range_at(
+
+		GFXVector*  vector,
+		size_t      num,
+		size_t      index);
 
 
 #ifdef __cplusplus

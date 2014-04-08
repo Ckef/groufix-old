@@ -87,7 +87,9 @@ typedef struct GFXError
  * @param mode The error mode to use, debug reports hardware (OpenGL) errors as well.
  *
  */
-void gfx_set_error_mode(GFXErrorMode mode);
+void gfx_set_error_mode(
+
+		GFXErrorMode mode);
 
 /**
  * Returns the current error mode.
@@ -108,7 +110,9 @@ unsigned int gfx_get_num_errors(void);
  * @return Whether or not an error was present.
  *
  */
-int gfx_errors_peek(GFXError* error);
+int gfx_errors_peek(
+
+		GFXError* error);
 
 /**
  * Find a specific error code.
@@ -117,7 +121,9 @@ int gfx_errors_peek(GFXError* error);
  * @return non-zero if any error with the given code was found.
  *
  */
-int gfx_errors_find(GFXErrorCode code);
+int gfx_errors_find(
+
+		GFXErrorCode code);
 
 /**
  * Removes the last error.
@@ -134,7 +140,10 @@ void gfx_errors_pop(void);
  * The description will be copied.
  *
  */
-void gfx_errors_push(GFXErrorCode code, const char* description);
+void gfx_errors_push(
+
+		GFXErrorCode  code,
+		const char*   description);
 
 /**
  * Empty the internal error queue.
@@ -148,7 +157,9 @@ void gfx_errors_empty(void);
  * Sets the maximum number of errors stored.
  *
  */
-void gfx_errors_set_maximum(size_t max);
+void gfx_errors_set_maximum(
+
+		size_t max);
 
 
 #ifdef __cplusplus

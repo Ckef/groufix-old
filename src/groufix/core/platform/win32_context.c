@@ -24,7 +24,12 @@
 #include "groufix/core/platform/win32.h"
 
 /******************************************************/
-int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor, GFX_PlatformWindow share)
+int _gfx_platform_context_create(
+
+		GFX_PlatformWindow  handle,
+		int                 major,
+		int                 minor,
+		GFX_PlatformWindow  share)
 {
 	/* Get the windows */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
@@ -47,7 +52,11 @@ int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor
 	if(shareWind) shareCont = shareWind->context;
 
 	_gfx_win32->current = GetDC(handle);
-	window->context = _gfx_win32->extensions.CreateContextAttribsARB(_gfx_win32->current, shareCont, bufferAttr);
+	window->context = _gfx_win32->extensions.CreateContextAttribsARB(
+		_gfx_win32->current,
+		shareCont,
+		bufferAttr
+	);
 
 	/* Make it current */
 	if(window->context)
@@ -59,7 +68,9 @@ int _gfx_platform_context_create(GFX_PlatformWindow handle, int major, int minor
 }
 
 /******************************************************/
-void _gfx_platform_context_free(GFX_PlatformWindow handle)
+void _gfx_platform_context_free(
+
+		GFX_PlatformWindow handle)
 {
 	/* Get the window and destroy its context */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
@@ -71,7 +82,9 @@ void _gfx_platform_context_free(GFX_PlatformWindow handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_make_current(GFX_PlatformWindow handle)
+void _gfx_platform_context_make_current(
+
+		GFX_PlatformWindow handle)
 {
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
 	if(window)
@@ -82,7 +95,10 @@ void _gfx_platform_context_make_current(GFX_PlatformWindow handle)
 }
 
 /******************************************************/
-void _gfx_platform_context_set_swap_interval(GFX_PlatformWindow handle, int num)
+void _gfx_platform_context_set_swap_interval(
+
+		GFX_PlatformWindow  handle,
+		int                 num)
 {
 	/* Correct if adaptive vsync is not supported */
 	if(!_gfx_win32->extensions.EXT_swap_control_tear && num < 0)
@@ -103,7 +119,10 @@ void _gfx_platform_context_swap_buffers(void)
 }
 
 /******************************************************/
-int _gfx_platform_is_extension_supported(GFX_PlatformWindow handle, const char* ext)
+int _gfx_platform_is_extension_supported(
+
+		GFX_PlatformWindow  handle,
+		const char*         ext)
 {
 	if(!_gfx_win32) return 0;
 
@@ -115,10 +134,12 @@ int _gfx_platform_is_extension_supported(GFX_PlatformWindow handle, const char* 
 }
 
 /******************************************************/
-GFX_ProcAddress _gfx_platform_get_proc_address(const char* proc)
+GFX_ProcAddress _gfx_platform_get_proc_address(
+
+		const char* proc)
 {
 	GFX_ProcAddress address = (GFX_ProcAddress)wglGetProcAddress(proc);
 	if(address) return address;
-	
+
 	return (GFX_ProcAddress)GetProcAddress(GetModuleHandle(NULL), proc);
 }
