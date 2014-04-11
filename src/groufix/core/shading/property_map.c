@@ -63,39 +63,14 @@ struct GFX_Property
 	size_t         size;     /* In bytes of a single copy */
 };
 
-/* Internal vector/matrix property */
-struct GFX_Value
-{
-	GFXUnpackedType  type;
-	unsigned char    components;
-	size_t           count;
-};
-
-/* Internal sampler property */
-struct GFX_Sampler
-{
-	GLuint texture;
-	GLuint target;
-};
-
-/* Internal block property */
-struct GFX_Block
-{
-	GLuint      buffer;
-	GLintptr    offset;
-	GLsizeiptr  size;
-};
-
 /******************************************************/
 static inline struct GFX_Property* _gfx_property_map_get_at(
 
 		struct GFX_Map*  map,
 		unsigned char    index)
 {
-	/* Check index */
-	if(index >= map->map.properties) return NULL;
-
-	return ((struct GFX_Property*)(map + 1)) + index;
+	return index >= map->map.properties ?
+		NULL : ((struct GFX_Property*)(map + 1)) + index;
 }
 
 /******************************************************/
@@ -122,8 +97,159 @@ static inline GFXVectorIterator _gfx_property_get_value(
 		struct GFX_Property*  prop,
 		size_t                copy)
 {
-	size_t index = prop->index + (prop->type & GFX_INT_PROPERTY_HAS_COPIES ? copy * prop->size : 0);
-	return gfx_vector_at(&map->values, index);
+	return gfx_vector_at(
+		&map->values,
+		prop->index + (prop->type & GFX_INT_PROPERTY_HAS_COPIES ? copy * prop->size : 0)
+	);
+}
+
+/******************************************************/
+/* Internal function to set a property */
+typedef void (*GFX_PropertyFunc)(GLuint, GLuint, void*, GFX_Extensions*);
+
+
+/* Internal vector/matrix property */
+struct GFX_Value
+{
+	GFXUnpackedType  type;
+	unsigned char    components;
+	size_t           count;
+};
+
+/* Internal sampler property */
+struct GFX_Sampler
+{
+	GLuint texture;
+	GLuint target;
+};
+
+/* Internal block property */
+struct GFX_Block
+{
+	GLuint      buffer;
+	GLintptr    offset;
+	GLsizeiptr  size;
+};
+
+/******************************************************/
+static void _gfx_property_set_unknown(
+
+		GLuint           program,
+		GLuint           location,
+		void*            data,
+		GFX_Extensions*  ext)
+{
+	/* Some unknown property type, ignore :D */
+}
+
+/******************************************************/
+static void _gfx_property_set_vector(
+
+		GLuint           program,
+		GLuint           location,
+		void*            data,
+		GFX_Extensions*  ext)
+{
+	struct GFX_Value* val = (struct GFX_Value*)data;
+	void* value = val + 1;
+
+	switch(val->type)
+	{
+		case GFX_FLOAT : switch(val->components)
+		{
+			case 1 : ext->Uniform1fv(location, val->count, value); break;
+			case 2 : ext->Uniform2fv(location, val->count, value); break;
+			case 3 : ext->Uniform3fv(location, val->count, value); break;
+			case 4 : ext->Uniform4fv(location, val->count, value); break;
+		}
+		break;
+
+		case GFX_INT : switch(val->components)
+		{
+			case 1 : ext->Uniform1iv(location, val->count, value); break;
+			case 2 : ext->Uniform2iv(location, val->count, value); break;
+			case 3 : ext->Uniform3iv(location, val->count, value); break;
+			case 4 : ext->Uniform4iv(location, val->count, value); break;
+		}
+		break;
+
+		case GFX_UNSIGNED_INT : switch(val->components)
+		{
+			case 1 : ext->Uniform1uiv(location, val->count, value); break;
+			case 2 : ext->Uniform2uiv(location, val->count, value); break;
+			case 3 : ext->Uniform3uiv(location, val->count, value); break;
+			case 4 : ext->Uniform4uiv(location, val->count, value); break;
+		}
+		break;
+
+		/* Herp */
+		default : break;
+	}
+}
+
+/******************************************************/
+static void _gfx_property_set_matrix(
+
+		GLuint           program,
+		GLuint           location,
+		void*            data,
+		GFX_Extensions*  ext)
+{
+	struct GFX_Value* val = (struct GFX_Value*)data;
+	void* value = val + 1;
+
+	switch(val->type)
+	{
+		case GFX_FLOAT : switch(val->components)
+		{
+			case 4  : ext->UniformMatrix2fv(location, val->count, GL_FALSE, value); break;
+			case 9  : ext->UniformMatrix3fv(location, val->count, GL_FALSE, value); break;
+			case 16 : ext->UniformMatrix4fv(location, val->count, GL_FALSE, value); break;
+		}
+		break;
+
+		/* Derp */
+		default : break;
+	}
+}
+
+/******************************************************/
+static void _gfx_property_set_sampler(
+
+		GLuint           program,
+		GLuint           location,
+		void*            data,
+		GFX_Extensions*  ext)
+{
+	struct GFX_Sampler* samp = (struct GFX_Sampler*)data;
+
+	int old;
+	GLint unit = _gfx_binder_bind_texture(
+		samp->texture,
+		samp->target,
+		1, &old, ext
+	);
+	if(!old) ext->Uniform1iv(location, 1, &unit);
+}
+
+/******************************************************/
+static void _gfx_property_set_block(
+
+		GLuint           program,
+		GLuint           location,
+		void*            data,
+		GFX_Extensions*  ext)
+{
+	struct GFX_Block* block = (struct GFX_Block*)data;
+
+	int old;
+	size_t index = _gfx_binder_bind_uniform_buffer(
+		block->buffer,
+		block->offset,
+		block->size,
+		1, &old, ext
+	);
+	if(!old) ext->UniformBlockBinding(program, location, index);
 }
 
 /******************************************************/
@@ -134,112 +260,26 @@ static void _gfx_property_set(
 		size_t                copy,
 		GFX_Extensions*       ext)
 {
-	/* Get value & type */
+	/* Jump table */
+	static const GFX_PropertyFunc jump[] =
+	{
+		_gfx_property_set_unknown, /* Dummy method */
+
+		_gfx_property_set_vector,
+		_gfx_property_set_matrix,
+		_gfx_property_set_sampler,
+		_gfx_property_set_block
+	};
+
+	/* Get value & type, jump to function */
 	void* data = _gfx_property_get_value(map, prop, copy);
 
-	switch(_gfx_property_get_type(prop->type))
-	{
-		/* Bind the uniform vector */
-		case GFX_INT_PROPERTY_VECTOR :
-		{
-			struct GFX_Value* val = (struct GFX_Value*)data;
-			void* value = val + 1;
-
-			switch(val->type)
-			{
-				case GFX_FLOAT : switch(val->components)
-				{
-					case 1 : ext->Uniform1fv(prop->location, val->count, value); break;
-					case 2 : ext->Uniform2fv(prop->location, val->count, value); break;
-					case 3 : ext->Uniform3fv(prop->location, val->count, value); break;
-					case 4 : ext->Uniform4fv(prop->location, val->count, value); break;
-				}
-				break;
-
-				case GFX_INT : switch(val->components)
-				{
-					case 1 : ext->Uniform1iv(prop->location, val->count, value); break;
-					case 2 : ext->Uniform2iv(prop->location, val->count, value); break;
-					case 3 : ext->Uniform3iv(prop->location, val->count, value); break;
-					case 4 : ext->Uniform4iv(prop->location, val->count, value); break;
-				}
-				break;
-
-				case GFX_UNSIGNED_INT : switch(val->components)
-				{
-					case 1 : ext->Uniform1uiv(prop->location, val->count, value); break;
-					case 2 : ext->Uniform2uiv(prop->location, val->count, value); break;
-					case 3 : ext->Uniform3uiv(prop->location, val->count, value); break;
-					case 4 : ext->Uniform4uiv(prop->location, val->count, value); break;
-				}
-				break;
-
-				/* Herp */
-				default : break;
-			}
-
-			break;
-		}
-
-		/* Bind the uniform matrix */
-		case GFX_INT_PROPERTY_MATRIX :
-		{
-			struct GFX_Value* val = (struct GFX_Value*)data;
-			void* value = val + 1;
-
-			switch(val->type)
-			{
-				case GFX_FLOAT : switch(val->components)
-				{
-					case 4  : ext->UniformMatrix2fv(prop->location, val->count, GL_FALSE, value); break;
-					case 9  : ext->UniformMatrix3fv(prop->location, val->count, GL_FALSE, value); break;
-					case 16 : ext->UniformMatrix4fv(prop->location, val->count, GL_FALSE, value); break;
-				}
-				break;
-
-				/* Derp */
-				default : break;
-			}
-
-			break;
-		}
-
-		/* Set sampler uniform to texture unit */
-		case GFX_INT_PROPERTY_SAMPLER :
-		{
-			struct GFX_Sampler* samp = (struct GFX_Sampler*)data;
-
-			int old;
-			GLint unit = _gfx_binder_bind_texture(
-				samp->texture,
-				samp->target,
-				1, &old, ext
-			);
-			if(!old) ext->Uniform1iv(prop->location, 1, &unit);
-
-			break;
-		}
-
-		/* Bind uniform block to uniform buffer index */
-		case GFX_INT_PROPERTY_BLOCK :
-		{
-			struct GFX_Block* block = (struct GFX_Block*)data;
-
-			int old;
-			size_t index = _gfx_binder_bind_uniform_buffer(
-				block->buffer,
-				block->offset,
-				block->size,
-				1, &old, ext
-			);
-			if(!old) ext->UniformBlockBinding(map->handle, prop->location, index);
-
-			break;
-		}
-
-		/* Uuuurr.. */
-		default : break;
-	}
+	jump[_gfx_property_get_type(prop->type)](
+		map->handle,
+		prop->location,
+		data,
+		ext
+	);
 }
 
 /******************************************************/

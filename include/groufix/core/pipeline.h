@@ -231,9 +231,9 @@ size_t gfx_bucket_insert(
 
 		GFXBucket*       bucket,
 		size_t           src,
-		GFXBatchState    state,
 		GFXPropertyMap*  map,
 		size_t           copy,
+		GFXBatchState    state,
 		int              visible);
 
 /**

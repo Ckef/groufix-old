@@ -166,7 +166,7 @@ int main()
 	GFXVertexSource source = { 0, 1, 0, 0 };
 	size_t src = gfx_bucket_add_source(pipe->bucket, layout);
 	gfx_bucket_set_source(pipe->bucket, src, source);
-	gfx_bucket_insert(pipe->bucket, src, 0, map, 0, 1);
+	gfx_bucket_insert(pipe->bucket, src, map, 0, 0, 1);
 
 	pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, map2, 0);
