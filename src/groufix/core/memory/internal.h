@@ -51,20 +51,6 @@ extern "C" {
 #endif
 
 /********************************************************
- * Internal buffer functions
- *******************************************************/
-
-/**
- * Evaluates the target of a buffer and prints an error if necessary.
- *
- */
-int _gfx_buffer_eval_target(
-
-		GFXBufferTarget        target,
-		const GFX_Extensions*  ext);
-
-
-/********************************************************
  * Internal binding & draw calls
  *******************************************************/
 
@@ -96,7 +82,32 @@ void _gfx_vertex_layout_draw(
 		const GFXVertexLayout*  layout,
 		unsigned char           startIndex,
 		unsigned char           num,
-		size_t                  inst);
+		size_t                  inst,
+		size_t                  base);
+
+/**
+ * Instanced drawing using a given vertex layout.
+ *
+ */
+void _gfx_vertex_layout_draw_instanced(
+
+		const GFXVertexLayout*  layout,
+		unsigned char           startIndex,
+		unsigned char           num,
+		size_t                  inst,
+		size_t                  base);
+
+/**
+ * Instanced drawing with a base offset using a given vertex layout.
+ *
+ */
+void _gfx_vertex_layout_draw_instanced_base(
+
+		const GFXVertexLayout*  layout,
+		unsigned char           startIndex,
+		unsigned char           num,
+		size_t                  inst,
+		size_t                  base);
 
 /**
  * Ends draw calls of a given vertex layout.

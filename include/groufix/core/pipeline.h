@@ -248,6 +248,15 @@ size_t gfx_bucket_get_instances(
 		size_t      unit);
 
 /**
+ * Returns the starting instance offset for instanced vertex attributes.
+ *
+ */
+size_t gfx_bucket_get_instance_base(
+
+		GFXBucket*  bucket,
+		size_t      unit);
+
+/**
  * Returns the manual bits of the state associated with a unit.
  *
  */
@@ -266,9 +275,7 @@ int gfx_bucket_is_visible(
 		size_t      unit);
 
 /**
- * Sets the number of instances to draw (only active when the batch mode include INSTANCED).
- *
- * Note: if the source mode includes INSTANCED but only 1 instance is drawn, a performance hit might be expected.
+ * Sets the number of instances to draw.
  *
  */
 void gfx_bucket_set_instances(
@@ -276,6 +283,18 @@ void gfx_bucket_set_instances(
 		GFXBucket*  bucket,
 		size_t      unit,
 		size_t      instances);
+
+/**
+ * Sets the starting instance offset for instanced vertex attributes.
+ *
+ * Note: requires GFX_EXT_INSTANCED_BASE_ATTRIBUTES.
+ *
+ */
+void gfx_bucket_set_instance_base(
+
+		GFXBucket*  bucket,
+		size_t      unit,
+		size_t      base);
 
 /**
  * Sets the manual bits of the state to associate a unit with.
@@ -291,8 +310,6 @@ void gfx_bucket_set_state(
  * Sets the visibility of a unit.
  *
  * @param visible Non-zero if visible, invisible otherwise.
- *
- * Note: making a unit visible is expensive regardless of its previous visibility.
  *
  */
 void gfx_bucket_set_visible(

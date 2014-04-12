@@ -378,7 +378,8 @@ int gfx_submesh_set_attribute_buffer(
 		gfx_vertex_layout_set_attribute_shared_buffer(
 			mesh->layout,
 			index,
-			NULL, 0
+			NULL,
+			0
 		);
 		return 0;
 	}
@@ -413,7 +414,8 @@ int gfx_submesh_set_draw_call_buffer(
 		gfx_vertex_layout_set_draw_call_shared_buffer(
 			mesh->layout,
 			index,
-			NULL, 0
+			NULL,
+			0
 		);
 		return 0;
 	}

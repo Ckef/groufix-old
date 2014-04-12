@@ -39,6 +39,16 @@
 #define GFX_INT_UNIT_ERASE            0x02
 
 /******************************************************/
+/* Internal draw function */
+typedef void (*GFX_DrawFunc)(
+
+	const GFXVertexLayout*,
+	unsigned char,
+	unsigned char,
+	size_t,
+	size_t);
+
+
 /* Internal bucket */
 struct GFX_Bucket
 {
@@ -71,13 +81,16 @@ struct GFX_Source
 struct GFX_Unit
 {
 	GFXBatchState    state;  /* Combination of vertex layout key, program key and manual state */
+	unsigned char    action;
+	size_t           ref;    /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
+
 	GFXPropertyMap*  map;
 	size_t           copy;   /* Copy of the property map to use */
-	unsigned char    action;
 
-	size_t           ref;    /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
 	size_t           src;    /* Source of the bucket to use (ID - 1) */
 	size_t           inst;   /* Number of instances */
+	size_t           base;   /* Base instance for instanced vertex attributes */
+	GFX_DrawFunc     func;
 };
 
 /******************************************************/
@@ -301,61 +314,6 @@ static void _gfx_bucket_radix_sort(
 }
 
 /******************************************************/
-void _gfx_bucket_process(
-
-		GFXBucket*       bucket,
-		GFX_State*       state,
-		GFX_Extensions*  ext)
-{
-	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
-
-	/* Handle the flags */
-	if(internal->flags & GFX_INT_BUCKET_PROCESS_UNITS)
-		_gfx_bucket_process_units(internal);
-
-	if(internal->flags & GFX_INT_BUCKET_SORT)
-		_gfx_bucket_radix_sort(
-			internal,
-			(GFXBatchState)1 << internal->bit,
-			internal->units.begin,
-			internal->visible
-		);
-
-	internal->flags = 0;
-
-	/* Set states and process */
-	_gfx_states_set(state, ext);
-
-	struct GFX_Unit* unit;
-	for(
-		unit = internal->units.begin;
-		unit != internal->visible;
-		unit = gfx_vector_next(&internal->units, unit))
-	{
-		struct GFX_Source* src = gfx_vector_at(&internal->sources, unit->src);
-
-		/* Bind shader program & draw */
-		_gfx_property_map_use(unit->map, unit->copy, ext);
-
-		_gfx_vertex_layout_draw_begin(
-			src->layout,
-			src->source.startFeedback,
-			src->source.numFeedback
-		);
-		_gfx_vertex_layout_draw(
-			src->layout,
-			src->source.startDraw,
-			src->source.numDraw,
-			unit->inst
-		);
-		_gfx_vertex_layout_draw_end(
-			src->layout,
-			src->source.numFeedback
-		);
-	}
-}
-
-/******************************************************/
 static inline GFXBatchState _gfx_bucket_add_manual_state(
 
 		const struct GFX_Bucket*  bucket,
@@ -411,6 +369,17 @@ static GFXBatchState _gfx_bucket_create_state(
 }
 
 /******************************************************/
+static inline void _gfx_bucket_set_draw_func(
+
+		struct GFX_Unit* unit)
+{
+	unit->func =
+		(unit->base != 0) ? _gfx_vertex_layout_draw_instanced_base :
+		(unit->inst != 1) ? _gfx_vertex_layout_draw_instanced :
+		_gfx_vertex_layout_draw;
+}
+
+/******************************************************/
 GFXBucket* _gfx_bucket_create(
 
 		unsigned char   bits,
@@ -451,6 +420,62 @@ void _gfx_bucket_free(
 		gfx_vector_clear(&internal->layoutKeys);
 
 		free(bucket);
+	}
+}
+
+/******************************************************/
+void _gfx_bucket_process(
+
+		GFXBucket*       bucket,
+		GFX_State*       state,
+		GFX_Extensions*  ext)
+{
+	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+
+	/* Handle the flags */
+	if(internal->flags & GFX_INT_BUCKET_PROCESS_UNITS)
+		_gfx_bucket_process_units(internal);
+
+	if(internal->flags & GFX_INT_BUCKET_SORT)
+		_gfx_bucket_radix_sort(
+			internal,
+			(GFXBatchState)1 << internal->bit,
+			internal->units.begin,
+			internal->visible
+		);
+
+	internal->flags = 0;
+
+	/* Set states and process */
+	_gfx_states_set(state, ext);
+
+	struct GFX_Unit* unit;
+	for(
+		unit = internal->units.begin;
+		unit != internal->visible;
+		unit = gfx_vector_next(&internal->units, unit))
+	{
+		struct GFX_Source* src = gfx_vector_at(&internal->sources, unit->src);
+
+		/* Bind shader program & draw */
+		_gfx_property_map_use(unit->map, unit->copy, ext);
+
+		_gfx_vertex_layout_draw_begin(
+			src->layout,
+			src->source.startFeedback,
+			src->source.numFeedback
+		);
+		unit->func(
+			src->layout,
+			src->source.startDraw,
+			src->source.numDraw,
+			unit->inst,
+			unit->base
+		);
+		_gfx_vertex_layout_draw_end(
+			src->layout,
+			src->source.numFeedback
+		);
 	}
 }
 
@@ -631,11 +656,12 @@ size_t gfx_bucket_insert(
 	struct GFX_Unit unit;
 
 	unit.state  = _gfx_bucket_create_state(internal, state, layKey, proKey);
+	unit.action = visible ? GFX_INT_UNIT_VISIBLE : 0;
 	unit.map    = map;
 	unit.copy   = copy;
-	unit.action = visible ? GFX_INT_UNIT_VISIBLE : 0;
 	unit.src    = src;
 	unit.inst   = 1;
+	unit.base   = 0;
 
 	GFXVectorIterator it = gfx_vector_insert(
 		&internal->units,
@@ -663,6 +689,8 @@ size_t gfx_bucket_insert(
 	internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS;
 	if(visible) internal->flags |= GFX_INT_BUCKET_SORT;
 
+	_gfx_bucket_set_draw_func(it);
+
 	return id;
 }
 
@@ -673,6 +701,15 @@ size_t gfx_bucket_get_instances(
 		size_t      unit)
 {
 	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->inst;
+}
+
+/******************************************************/
+size_t gfx_bucket_get_instance_base(
+
+		GFXBucket*  bucket,
+		size_t      unit)
+{
+	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->base;
 }
 
 /******************************************************/
@@ -701,7 +738,23 @@ void gfx_bucket_set_instances(
 		size_t      unit,
 		size_t      instances)
 {
-	_gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->inst = instances;
+	struct GFX_Unit* un = _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit);
+	un->inst = instances;
+
+	_gfx_bucket_set_draw_func(un);
+}
+
+/******************************************************/
+void gfx_bucket_set_instance_base(
+
+		GFXBucket*  bucket,
+		size_t      unit,
+		size_t      base)
+{
+	struct GFX_Unit* un = _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit);
+	un->base = base;
+
+	_gfx_bucket_set_draw_func(un);
 }
 
 /******************************************************/

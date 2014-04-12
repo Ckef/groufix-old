@@ -39,6 +39,15 @@
 #define GFX_INT_PROPERTY_HAS_COPIES  0x08
 
 /******************************************************/
+/* Internal function to set a property */
+typedef void (*GFX_PropertyFunc)(
+
+	GLuint,
+	GLuint,
+	void*,
+	GFX_Extensions*);
+
+
 /* Internal property map */
 struct GFX_Map
 {
@@ -61,6 +70,29 @@ struct GFX_Property
 
 	size_t         index;    /* Of values in value vector */
 	size_t         size;     /* In bytes of a single copy */
+};
+
+/* Internal vector/matrix property */
+struct GFX_Value
+{
+	GFXUnpackedType  type;
+	unsigned char    components;
+	size_t           count;
+};
+
+/* Internal sampler property */
+struct GFX_Sampler
+{
+	GLuint texture;
+	GLuint target;
+};
+
+/* Internal block property */
+struct GFX_Block
+{
+	GLuint      buffer;
+	GLintptr    offset;
+	GLsizeiptr  size;
 };
 
 /******************************************************/
@@ -102,34 +134,6 @@ static inline GFXVectorIterator _gfx_property_get_value(
 		prop->index + (prop->type & GFX_INT_PROPERTY_HAS_COPIES ? copy * prop->size : 0)
 	);
 }
-
-/******************************************************/
-/* Internal function to set a property */
-typedef void (*GFX_PropertyFunc)(GLuint, GLuint, void*, GFX_Extensions*);
-
-
-/* Internal vector/matrix property */
-struct GFX_Value
-{
-	GFXUnpackedType  type;
-	unsigned char    components;
-	size_t           count;
-};
-
-/* Internal sampler property */
-struct GFX_Sampler
-{
-	GLuint texture;
-	GLuint target;
-};
-
-/* Internal block property */
-struct GFX_Block
-{
-	GLuint      buffer;
-	GLintptr    offset;
-	GLsizeiptr  size;
-};
 
 /******************************************************/
 static void _gfx_property_set_unknown(

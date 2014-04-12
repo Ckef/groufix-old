@@ -86,7 +86,7 @@ size_t gfx_submesh_add_buffer(
 /**
  * Uses a vertex buffer for a given attribue.
  *
- * @param index  Index of the attribute to create a buffer for.
+ * @param index  Index of the attribute to set the buffer of.
  * @param buffer Buffer ID to use for this attribute.
  * @param offset Byte offset within the buffer to start reading at.
  * @return Zero on failure (in which case the attribute is disabled).
@@ -102,7 +102,7 @@ int gfx_submesh_set_attribute_buffer(
 /**
  * Uses an index buffer for a given draw call.
  *
- * @param index  Index of the draw call to create a buffer for.
+ * @param index  Index of the draw call to set the buffer of.
  * @param buffer Buffer ID to use for this draw call.
  * @param offset Byte offset within the buffer to start reading at.
  * @return Zero on failure (in which case the index buffer is disabled).

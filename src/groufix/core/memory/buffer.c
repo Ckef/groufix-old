@@ -42,7 +42,7 @@ struct GFX_Buffer
 };
 
 /******************************************************/
-int _gfx_buffer_eval_target(
+static int _gfx_buffer_eval_target(
 
 		GFXBufferTarget        target,
 		const GFX_Extensions*  ext)

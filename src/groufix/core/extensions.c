@@ -32,6 +32,37 @@
  * GL core & GL ES emulators
  *******************************************************/
 
+static void _gfx_gl_base_instance_error(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_INSTANCED_BASE_ATTRIBUTES is incompatible with this context."
+	);
+}
+
+static void _gfx_gl_draw_arrays_instanced_base_instance(
+
+		GLenum   mode,
+		GLint    first,
+		GLsizei  count,
+		GLsizei  primcount,
+		GLuint   baseinstance)
+{
+	_gfx_gl_base_instance_error();
+}
+
+static void _gfx_gl_draw_elements_instanced_base_instance(
+
+		GLenum         mode,
+		GLsizei        count,
+		GLenum         type,
+		const GLvoid*  indices,
+		GLsizei        primcount,
+		GLuint         baseinstance)
+{
+	_gfx_gl_base_instance_error();
+}
+
 static void _gfx_gl_patch_parameter_i(
 
 		GLenum  pname,
@@ -136,20 +167,20 @@ static void _gfx_gles_tex_sub_image_1d(
 	_gfx_gles_tex_1d_error();
 }
 
-static void _gfx_gles_multisample_tex_error(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_MULTISAMPLE_TEXTURE is incompatible with this context."
-	);
-}
-
 static void _gfx_gles_polygon_mode(
 
 		GLenum  face,
 		GLenum  mode)
 {
 	/* Just ignore the call */
+}
+
+static void _gfx_gles_multisample_tex_error(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_MULTISAMPLE_TEXTURE is incompatible with this context."
+	);
 }
 
 static void _gfx_gles_tex_image_2d_multisample(
@@ -284,125 +315,128 @@ void _gfx_extensions_load(void)
 	ext->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
 
 	/* Default Extensions */
-	ext->flags[GFX_EXT_BUFFER_TEXTURE]       = 0;
-	ext->flags[GFX_EXT_GEOMETRY_SHADER]      = 0;
-	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-	ext->flags[GFX_EXT_LAYERED_CUBEMAP]      = 0;
-	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE]  = 0;
-	ext->flags[GFX_EXT_POLYGON_STATE]        = 0;
-	ext->flags[GFX_EXT_PROGRAM_BINARY]       = 1;
-	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]     = 0;
-	ext->flags[GFX_EXT_TESSELLATION_SHADER]  = 0;
-	ext->flags[GFX_EXT_TEXTURE_1D]           = 0;
+	ext->flags[GFX_EXT_BUFFER_TEXTURE]            = 0;
+	ext->flags[GFX_EXT_GEOMETRY_SHADER]           = 0;
+	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES]      = 1;
+	ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 0;
+	ext->flags[GFX_EXT_LAYERED_CUBEMAP]           = 0;
+	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE]       = 0;
+	ext->flags[GFX_EXT_POLYGON_STATE]             = 0;
+	ext->flags[GFX_EXT_PROGRAM_BINARY]            = 1;
+	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]          = 0;
+	ext->flags[GFX_EXT_TESSELLATION_SHADER]       = 0;
+	ext->flags[GFX_EXT_TEXTURE_1D]                = 0;
 
 	/* GLES, assumes 3.0+ */
-	ext->ActiveTexture             = glActiveTexture;
-	ext->AttachShader              = glAttachShader;
-	ext->BeginTransformFeedback    = glBeginTransformFeedback;
-	ext->BindAttribLocation        = glBindAttribLocation;
-	ext->BindBuffer                = glBindBuffer;
-	ext->BindBufferRange           = glBindBufferRange;
-	ext->BindFramebuffer           = glBindFramebuffer;
-	ext->BindTexture               = glBindTexture;
-	ext->BindVertexArray           = glBindVertexArray;
-	ext->BlendEquationSeparate     = glBlendEquationSeparate;
-	ext->BlendFuncSeparate         = glBlendFuncSeparate;
-	ext->BufferData                = glBufferData;
-	ext->BufferSubData             = glBufferSubData;
-	ext->Clear                     = glClear;
-	ext->ClientWaitSync            = glClientWaitSync;
-	ext->CompileShader             = glCompileShader;
-	ext->CopyBufferSubData         = glCopyBufferSubData;
-	ext->CreateProgram             = glCreateProgram;
-	ext->CreateShader              = glCreateShader;
-	ext->CullFace                  = glCullFace;
-	ext->DeleteBuffers             = glDeleteBuffers;
-	ext->DeleteFramebuffers        = glDeleteFramebuffers;
-	ext->DeleteProgram             = glDeleteProgram;
-	ext->DeleteShader              = glDeleteShader;
-	ext->DeleteSync                = glDeleteSync;
-	ext->DeleteTextures            = glDeleteTextures;
-	ext->DeleteVertexArrays        = glDeleteVertexArrays;
-	ext->DepthFunc                 = glDepthFunc;
-	ext->DepthMask                 = glDepthMask;
-	ext->DetachShader              = glDetachShader;
-	ext->Disable                   = glDisable;
-	ext->DisableVertexAttribArray  = glDisableVertexAttribArray;
-	ext->DrawArrays                = glDrawArrays;
-	ext->DrawArraysInstanced       = glDrawArraysInstanced;
-	ext->DrawBuffers               = glDrawBuffers;
-	ext->DrawElements              = glDrawElements;
-	ext->DrawElementsInstanced     = glDrawElementsInstanced;
-	ext->Enable                    = glEnable;
-	ext->EnableVertexAttribArray   = glEnableVertexAttribArray;
-	ext->EndTransformFeedback      = glEndTransformFeedback;
-	ext->FenceSync                 = glFenceSync;
-	ext->FramebufferTexture1D      = _gfx_gles_framebuffer_texture_1d;
-	ext->FramebufferTexture2D      = glFramebufferTexture2D;
-	ext->FramebufferTextureLayer   = glFramebufferTextureLayer;
-	ext->GenBuffers                = glGenBuffers;
-	ext->GenerateMipmap            = glGenerateMipmap;
-	ext->GenFramebuffers           = glGenFramebuffers;
-	ext->GenTextures               = glGenTextures;
-	ext->GenVertexArrays           = glGenVertexArrays;
-	ext->GetActiveUniform          = glGetActiveUniform;
-	ext->GetActiveUniformBlockiv   = glGetActiveUniformBlockiv;
-	ext->GetActiveUniformsiv       = glGetActiveUniformsiv;
-	ext->GetBufferSubData          = _gfx_gles_get_buffer_sub_data;
-	ext->GetError                  = glGetError;
-	ext->GetProgramBinary          = glGetProgramBinary;
-	ext->GetProgramInfoLog         = glGetProgramInfoLog;
-	ext->GetProgramiv              = glGetProgramiv;
-	ext->GetShaderInfoLog          = glGetShaderInfoLog;
-	ext->GetShaderiv               = glGetShaderiv;
-	ext->GetShaderSource           = glGetShaderSource;
-	ext->GetUniformBlockIndex      = glGetUniformBlockIndex;
-	ext->GetUniformIndices         = glGetUniformIndices;
-	ext->GetUniformLocation        = glGetUniformLocation;
-	ext->IsTexture                 = glIsTexture;
-	ext->LinkProgram               = glLinkProgram;
-	ext->MapBufferRange            = glMapBufferRange;
-	ext->PatchParameteri           = _gfx_gl_patch_parameter_i;
-	ext->PixelStorei               = glPixelStorei;
-	ext->PolygonMode               = _gfx_gles_polygon_mode;
-	ext->ProgramBinary             = glProgramBinary;
-	ext->ProgramParameteri         = glProgramParameteri;
-	ext->ShaderSource              = glShaderSource;
-	ext->StencilFuncSeparate       = glStencilFuncSeparate;
-	ext->StencilOpSeparate         = glStencilOpSeparate;
-	ext->TexBuffer                 = _gfx_gles_tex_buffer;
-	ext->TexImage1D                = _gfx_gles_tex_image_1d;
-	ext->TexImage2D                = glTexImage2D;
-	ext->TexImage2DMultisample     = _gfx_gles_tex_image_2d_multisample;
-	ext->TexImage3D                = glTexImage3D;
-	ext->TexImage3DMultisample     = _gfx_gles_tex_image_3d_multisample;
-	ext->TexParameteri             = glTexParameteri;
-	ext->TexSubImage1D             = _gfx_gles_tex_sub_image_1d;
-	ext->TexSubImage2D             = glTexSubImage2D;
-	ext->TexSubImage3D             = glTexSubImage3D;
-	ext->TransformFeedbackVaryings = glTransformFeedbackVaryings;
-	ext->Uniform1fv                = glUniform1fv;
-	ext->Uniform1iv                = glUniform1iv;
-	ext->Uniform1uiv               = glUniform1uiv;
-	ext->Uniform2fv                = glUniform2fv;
-	ext->Uniform2iv                = glUniform2iv;
-	ext->Uniform2uiv               = glUniform2uiv;
-	ext->Uniform3fv                = glUniform3fv;
-	ext->Uniform3iv                = glUniform3iv;
-	ext->Uniform3uiv               = glUniform3uiv;
-	ext->Uniform4fv                = glUniform4fv;
-	ext->Uniform4iv                = glUniform4iv;
-	ext->Uniform4uiv               = glUniform4uiv;
-	ext->UniformBlockBinding       = glUniformBlockBinding;
-	ext->UniformMatrix2fv          = glUniformMatrix2fv;
-	ext->UniformMatrix3fv          = glUniformMatrix3fv;
-	ext->UniformMatrix4fv          = glUniformMatrix4fv;
-	ext->UnmapBuffer               = glUnmapBuffer;
-	ext->UseProgram                = glUseProgram;
-	ext->VertexAttribDivisor       = glVertexAttribDivisor;
-	ext->VertexAttribIPointer      = glVertexAttribIPointer;
-	ext->VertexAttribPointer       = glVertexAttribPointer;
-	ext->Viewport                  = glViewport;
+	ext->ActiveTexture                     = glActiveTexture;
+	ext->AttachShader                      = glAttachShader;
+	ext->BeginTransformFeedback            = glBeginTransformFeedback;
+	ext->BindAttribLocation                = glBindAttribLocation;
+	ext->BindBuffer                        = glBindBuffer;
+	ext->BindBufferRange                   = glBindBufferRange;
+	ext->BindFramebuffer                   = glBindFramebuffer;
+	ext->BindTexture                       = glBindTexture;
+	ext->BindVertexArray                   = glBindVertexArray;
+	ext->BlendEquationSeparate             = glBlendEquationSeparate;
+	ext->BlendFuncSeparate                 = glBlendFuncSeparate;
+	ext->BufferData                        = glBufferData;
+	ext->BufferSubData                     = glBufferSubData;
+	ext->Clear                             = glClear;
+	ext->ClientWaitSync                    = glClientWaitSync;
+	ext->CompileShader                     = glCompileShader;
+	ext->CopyBufferSubData                 = glCopyBufferSubData;
+	ext->CreateProgram                     = glCreateProgram;
+	ext->CreateShader                      = glCreateShader;
+	ext->CullFace                          = glCullFace;
+	ext->DeleteBuffers                     = glDeleteBuffers;
+	ext->DeleteFramebuffers                = glDeleteFramebuffers;
+	ext->DeleteProgram                     = glDeleteProgram;
+	ext->DeleteShader                      = glDeleteShader;
+	ext->DeleteSync                        = glDeleteSync;
+	ext->DeleteTextures                    = glDeleteTextures;
+	ext->DeleteVertexArrays                = glDeleteVertexArrays;
+	ext->DepthFunc                         = glDepthFunc;
+	ext->DepthMask                         = glDepthMask;
+	ext->DetachShader                      = glDetachShader;
+	ext->Disable                           = glDisable;
+	ext->DisableVertexAttribArray          = glDisableVertexAttribArray;
+	ext->DrawArrays                        = glDrawArrays;
+	ext->DrawArraysInstanced               = glDrawArraysInstanced;
+	ext->DrawArraysInstancedBaseInstance   = _gfx_gl_draw_arrays_instanced_base_instance;
+	ext->DrawBuffers                       = glDrawBuffers;
+	ext->DrawElements                      = glDrawElements;
+	ext->DrawElementsInstanced             = glDrawElementsInstanced;
+	ext->DrawElementsInstancedBaseInstance = _gfx_gl_draw_elements_instanced_base_instance;
+	ext->Enable                            = glEnable;
+	ext->EnableVertexAttribArray           = glEnableVertexAttribArray;
+	ext->EndTransformFeedback              = glEndTransformFeedback;
+	ext->FenceSync                         = glFenceSync;
+	ext->FramebufferTexture1D              = _gfx_gles_framebuffer_texture_1d;
+	ext->FramebufferTexture2D              = glFramebufferTexture2D;
+	ext->FramebufferTextureLayer           = glFramebufferTextureLayer;
+	ext->GenBuffers                        = glGenBuffers;
+	ext->GenerateMipmap                    = glGenerateMipmap;
+	ext->GenFramebuffers                   = glGenFramebuffers;
+	ext->GenTextures                       = glGenTextures;
+	ext->GenVertexArrays                   = glGenVertexArrays;
+	ext->GetActiveUniform                  = glGetActiveUniform;
+	ext->GetActiveUniformBlockiv           = glGetActiveUniformBlockiv;
+	ext->GetActiveUniformsiv               = glGetActiveUniformsiv;
+	ext->GetBufferSubData                  = _gfx_gles_get_buffer_sub_data;
+	ext->GetError                          = glGetError;
+	ext->GetProgramBinary                  = glGetProgramBinary;
+	ext->GetProgramInfoLog                 = glGetProgramInfoLog;
+	ext->GetProgramiv                      = glGetProgramiv;
+	ext->GetShaderInfoLog                  = glGetShaderInfoLog;
+	ext->GetShaderiv                       = glGetShaderiv;
+	ext->GetShaderSource                   = glGetShaderSource;
+	ext->GetUniformBlockIndex              = glGetUniformBlockIndex;
+	ext->GetUniformIndices                 = glGetUniformIndices;
+	ext->GetUniformLocation                = glGetUniformLocation;
+	ext->IsTexture                         = glIsTexture;
+	ext->LinkProgram                       = glLinkProgram;
+	ext->MapBufferRange                    = glMapBufferRange;
+	ext->PatchParameteri                   = _gfx_gl_patch_parameter_i;
+	ext->PixelStorei                       = glPixelStorei;
+	ext->PolygonMode                       = _gfx_gles_polygon_mode;
+	ext->ProgramBinary                     = glProgramBinary;
+	ext->ProgramParameteri                 = glProgramParameteri;
+	ext->ShaderSource                      = glShaderSource;
+	ext->StencilFuncSeparate               = glStencilFuncSeparate;
+	ext->StencilOpSeparate                 = glStencilOpSeparate;
+	ext->TexBuffer                         = _gfx_gles_tex_buffer;
+	ext->TexImage1D                        = _gfx_gles_tex_image_1d;
+	ext->TexImage2D                        = glTexImage2D;
+	ext->TexImage2DMultisample             = _gfx_gles_tex_image_2d_multisample;
+	ext->TexImage3D                        = glTexImage3D;
+	ext->TexImage3DMultisample             = _gfx_gles_tex_image_3d_multisample;
+	ext->TexParameteri                     = glTexParameteri;
+	ext->TexSubImage1D                     = _gfx_gles_tex_sub_image_1d;
+	ext->TexSubImage2D                     = glTexSubImage2D;
+	ext->TexSubImage3D                     = glTexSubImage3D;
+	ext->TransformFeedbackVaryings         = glTransformFeedbackVaryings;
+	ext->Uniform1fv                        = glUniform1fv;
+	ext->Uniform1iv                        = glUniform1iv;
+	ext->Uniform1uiv                       = glUniform1uiv;
+	ext->Uniform2fv                        = glUniform2fv;
+	ext->Uniform2iv                        = glUniform2iv;
+	ext->Uniform2uiv                       = glUniform2uiv;
+	ext->Uniform3fv                        = glUniform3fv;
+	ext->Uniform3iv                        = glUniform3iv;
+	ext->Uniform3uiv                       = glUniform3uiv;
+	ext->Uniform4fv                        = glUniform4fv;
+	ext->Uniform4iv                        = glUniform4iv;
+	ext->Uniform4uiv                       = glUniform4uiv;
+	ext->UniformBlockBinding               = glUniformBlockBinding;
+	ext->UniformMatrix2fv                  = glUniformMatrix2fv;
+	ext->UniformMatrix3fv                  = glUniformMatrix3fv;
+	ext->UniformMatrix4fv                  = glUniformMatrix4fv;
+	ext->UnmapBuffer                       = glUnmapBuffer;
+	ext->UseProgram                        = glUseProgram;
+	ext->VertexAttribDivisor               = glVertexAttribDivisor;
+	ext->VertexAttribIPointer              = glVertexAttribIPointer;
+	ext->VertexAttribPointer               = glVertexAttribPointer;
+	ext->Viewport                          = glViewport;
 
 #else
 
@@ -410,7 +444,8 @@ void _gfx_extensions_load(void)
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, ext->limits + GFX_LIM_MAX_BUFFER_TEXTURE_SIZE);
+	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE,
+		ext->limits + GFX_LIM_MAX_BUFFER_TEXTURE_SIZE);
 
 	/* Default Extensions */
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]      = 1;
@@ -530,17 +565,58 @@ void _gfx_extensions_load(void)
 		(window->context.major == 3 && window->context.minor > 2))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
+
+		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)
+			_gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
+
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("VertexAttribDivisorARB");
+
+		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)
+			_gfx_platform_get_proc_address("VertexAttribDivisorARB");
 	}
+
 	else
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
-		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_gl_vertex_attrib_divisor;
+
+		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)
+			_gfx_gl_vertex_attrib_divisor;
+	}
+
+	/* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
+	if(
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 1))
+	{
+		ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
+
+		ext->DrawArraysInstancedBaseInstance = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)
+			_gfx_platform_get_proc_address("glDrawArraysInstancedBaseInstance");
+		ext->DrawElementsInstancedBaseInstance = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC)
+			_gfx_platform_get_proc_address("glDrawElementsInstancedBaseInstance");
+	}
+
+	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_base_instance"))
+	{
+		ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
+
+		ext->DrawArraysInstancedBaseInstance = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)
+			_gfx_platform_get_proc_address("DrawArraysInstancedBaseInstance");
+		ext->DrawElementsInstancedBaseInstance = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC)
+			_gfx_platform_get_proc_address("DrawElementsInstancedBaseInstace");
+	}
+
+	else
+	{
+		ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 0;
+
+		ext->DrawArraysInstancedBaseInstance = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)
+			_gfx_gl_draw_arrays_instanced_base_instance;
+		ext->DrawElementsInstancedBaseInstance = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC)
+			_gfx_gl_draw_elements_instanced_base_instance;
 	}
 
 	/* GFX_EXT_LAYERED_CUBEMAP */
@@ -550,6 +626,7 @@ void _gfx_extensions_load(void)
 	{
 		ext->flags[GFX_EXT_LAYERED_CUBEMAP] = 1;
 	}
+
 	else
 	{
 		ext->flags[GFX_EXT_LAYERED_CUBEMAP] = 0;
@@ -561,43 +638,69 @@ void _gfx_extensions_load(void)
 		(window->context.major == 4 && window->context.minor > 0))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
-		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
-		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteri");
+
+		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC)
+			_gfx_platform_get_proc_address("glGetProgramBinary");
+		ext->ProgramBinary = (PFNGLPROGRAMBINARYPROC)
+			_gfx_platform_get_proc_address("glProgramBinary");
+		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)
+			_gfx_platform_get_proc_address("glProgramParameteri");
 	}
+
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("GetProgramBinary");
-		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("ProgramBinary");
-		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("ProgramParameteri");
+
+		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC)
+			_gfx_platform_get_proc_address("GetProgramBinary");
+		ext->ProgramBinary = (PFNGLPROGRAMBINARYPROC)
+			_gfx_platform_get_proc_address("ProgramBinary");
+		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)
+			_gfx_platform_get_proc_address("ProgramParameteri");
 	}
+
 	else
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
-		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_gl_get_program_binary;
-		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_gl_program_binary;
-		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_gl_program_parameter_i;
+
+		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)
+			_gfx_gl_get_program_binary;
+		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)
+			_gfx_gl_program_binary;
+		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)
+			_gfx_gl_program_parameter_i;
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
 	if(window->context.major > 3)
 	{
-		glGetIntegerv(GL_MAX_PATCH_VERTICES, ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
+		glGetIntegerv(GL_MAX_PATCH_VERTICES,
+			ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
+
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
-		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("glPatchParameteri");
+
+		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC)
+			_gfx_platform_get_proc_address("glPatchParameteri");
 	}
+
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
 	{
-		glGetIntegerv(GL_MAX_PATCH_VERTICES, ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
+		glGetIntegerv(GL_MAX_PATCH_VERTICES,
+			ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
+
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
-		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("PatchParameteri");
+
+		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC)
+			_gfx_platform_get_proc_address("PatchParameteri");
 	}
+
 	else
 	{
 		ext->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 0;
-		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_gl_patch_parameter_i;
+
+		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC)
+			_gfx_gl_patch_parameter_i;
 	}
 
 #endif
