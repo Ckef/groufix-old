@@ -39,16 +39,6 @@
 #define GFX_INT_UNIT_ERASE            0x02
 
 /******************************************************/
-/* Internal draw function */
-typedef void (*GFX_DrawFunc)(
-
-	const GFXVertexLayout*,
-	unsigned char,
-	unsigned char,
-	size_t,
-	unsigned int);
-
-
 /* Internal bucket */
 struct GFX_Bucket
 {
@@ -374,9 +364,11 @@ static inline void _gfx_bucket_set_draw_func(
 		struct GFX_Unit* unit)
 {
 	unit->func =
-		(unit->base != 0) ? _gfx_vertex_layout_draw_instanced_base :
-		(unit->inst != 1) ? _gfx_vertex_layout_draw_instanced :
-		_gfx_vertex_layout_draw;
+		(unit->base != 0) ?
+			_gfx_vertex_layout_draw_instanced_base :
+		(unit->inst != 1) ?
+			_gfx_vertex_layout_draw_instanced :
+			_gfx_vertex_layout_draw;
 }
 
 /******************************************************/

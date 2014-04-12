@@ -54,6 +54,16 @@ extern "C" {
  * Internal binding & draw calls
  *******************************************************/
 
+/** Internal draw function */
+typedef void (*GFX_DrawFunc)(
+
+	const GFXVertexLayout*,
+	unsigned char,
+	unsigned char,
+	size_t,
+	unsigned int);
+
+
 /**
  * Sets the layout handle as currently bound for the given context.
  *
