@@ -76,6 +76,8 @@ void _gfx_vertex_layout_draw_begin(
 /**
  * Regular drawing using a given vertex layout.
  *
+ * Note: inst and base are ignored.
+ *
  */
 void _gfx_vertex_layout_draw(
 
@@ -83,10 +85,12 @@ void _gfx_vertex_layout_draw(
 		unsigned char           startIndex,
 		unsigned char           num,
 		size_t                  inst,
-		size_t                  base);
+		unsigned int            base);
 
 /**
  * Instanced drawing using a given vertex layout.
+ *
+ * Note: base is ignored.
  *
  */
 void _gfx_vertex_layout_draw_instanced(
@@ -95,7 +99,7 @@ void _gfx_vertex_layout_draw_instanced(
 		unsigned char           startIndex,
 		unsigned char           num,
 		size_t                  inst,
-		size_t                  base);
+		unsigned int            base);
 
 /**
  * Instanced drawing with a base offset using a given vertex layout.
@@ -107,7 +111,7 @@ void _gfx_vertex_layout_draw_instanced_base(
 		unsigned char           startIndex,
 		unsigned char           num,
 		size_t                  inst,
-		size_t                  base);
+		unsigned int            base);
 
 /**
  * Ends draw calls of a given vertex layout.

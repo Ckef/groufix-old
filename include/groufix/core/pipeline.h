@@ -251,7 +251,7 @@ size_t gfx_bucket_get_instances(
  * Returns the starting instance offset for instanced vertex attributes.
  *
  */
-size_t gfx_bucket_get_instance_base(
+unsigned int gfx_bucket_get_instance_base(
 
 		GFXBucket*  bucket,
 		size_t      unit);
@@ -292,9 +292,9 @@ void gfx_bucket_set_instances(
  */
 void gfx_bucket_set_instance_base(
 
-		GFXBucket*  bucket,
-		size_t      unit,
-		size_t      base);
+		GFXBucket*    bucket,
+		size_t        unit,
+		unsigned int  base);
 
 /**
  * Sets the manual bits of the state to associate a unit with.

@@ -615,7 +615,7 @@ void _gfx_vertex_layout_draw(
 		unsigned char           startIndex,
 		unsigned char           num,
 		size_t                  inst,
-		size_t                  base)
+		unsigned int            base)
 {
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	struct GFX_DrawCall* call;
@@ -653,7 +653,7 @@ void _gfx_vertex_layout_draw_instanced(
 		unsigned char           startIndex,
 		unsigned char           num,
 		size_t                  inst,
-		size_t                  base)
+		unsigned int            base)
 {
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	struct GFX_DrawCall* call;
@@ -693,7 +693,7 @@ void _gfx_vertex_layout_draw_instanced_base(
 		unsigned char           startIndex,
 		unsigned char           num,
 		size_t                  inst,
-		size_t                  base)
+		unsigned int            base)
 {
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	struct GFX_DrawCall* call;

@@ -46,7 +46,7 @@ typedef void (*GFX_DrawFunc)(
 	unsigned char,
 	unsigned char,
 	size_t,
-	size_t);
+	unsigned int);
 
 
 /* Internal bucket */
@@ -89,7 +89,7 @@ struct GFX_Unit
 
 	size_t           src;    /* Source of the bucket to use (ID - 1) */
 	size_t           inst;   /* Number of instances */
-	size_t           base;   /* Base instance for instanced vertex attributes */
+	unsigned int     base;   /* Base instance for instanced vertex attributes */
 	GFX_DrawFunc     func;
 };
 
@@ -704,7 +704,7 @@ size_t gfx_bucket_get_instances(
 }
 
 /******************************************************/
-size_t gfx_bucket_get_instance_base(
+unsigned int gfx_bucket_get_instance_base(
 
 		GFXBucket*  bucket,
 		size_t      unit)
@@ -747,9 +747,9 @@ void gfx_bucket_set_instances(
 /******************************************************/
 void gfx_bucket_set_instance_base(
 
-		GFXBucket*  bucket,
-		size_t      unit,
-		size_t      base)
+		GFXBucket*    bucket,
+		size_t        unit,
+		unsigned int  base)
 {
 	struct GFX_Unit* un = _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit);
 	un->base = base;
