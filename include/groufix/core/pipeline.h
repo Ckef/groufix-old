@@ -198,9 +198,10 @@ size_t gfx_bucket_add_source(
  * Set the values of a source (default of everything is 0).
  *
  * @param src Source ID to change the values of.
+ * @return Zero when not enough draw calls, non-zero on success.
  *
  */
-void gfx_bucket_set_source(
+int gfx_bucket_set_source(
 
 		GFXBucket*       bucket,
 		size_t           src,

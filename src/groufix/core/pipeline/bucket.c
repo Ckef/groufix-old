@@ -536,7 +536,7 @@ size_t gfx_bucket_add_source(
 }
 
 /******************************************************/
-void gfx_bucket_set_source(
+int gfx_bucket_set_source(
 
 		GFXBucket*       bucket,
 		size_t           src,
@@ -548,11 +548,15 @@ void gfx_bucket_set_source(
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	size_t cnt = gfx_vector_get_size(&internal->sources);
 
-	if(src < cnt)
-	{
-		struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
-		source->source = values;
-	}
+	if(src >= cnt) return 0;
+
+	struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
+
+	/* Check draw call boundaries */
+	if(values.startDraw + values.numDraw > source->layout->drawCalls) return 0;
+	source->source = values;
+
+	return 1;
 }
 
 /******************************************************/
