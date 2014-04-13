@@ -26,7 +26,7 @@
 /******************************************************/
 GFXMesh* gfx_mesh_create(void)
 {
-	return (GFXMesh*)gfx_lod_map_create();
+	return (GFXMesh*)gfx_lod_map_create(sizeof(GFXSubMesh*));
 }
 
 /******************************************************/
@@ -68,7 +68,7 @@ GFXSubMesh* gfx_mesh_add(
 	GFXSubMesh* sub = _gfx_submesh_create(drawCalls, sources);
 	if(!sub) return NULL;
 
-	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, sub))
+	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &sub))
 	{
 		_gfx_submesh_free(sub);
 		return NULL;
@@ -85,7 +85,7 @@ int gfx_mesh_add_share(
 		GFXSubMesh*  share)
 {
 	/* Check if it's already mapped to avoid another reference */
-	if(gfx_lod_map_has((GFXLodMap*)mesh, level, share))
+	if(gfx_lod_map_has((GFXLodMap*)mesh, level, &share))
 		return 1;
 
 	/* Reference the submesh */
@@ -93,7 +93,7 @@ int gfx_mesh_add_share(
 		return 0;
 
 	/* Add it to the LOD map */
-	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, share))
+	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &share))
 	{
 		_gfx_submesh_free(share);
 		return 0;
@@ -113,7 +113,7 @@ void gfx_mesh_remove(
 
 	while(levels)
 	{
-		if(gfx_lod_map_remove((GFXLodMap*)mesh, --levels, sub))
+		if(gfx_lod_map_remove((GFXLodMap*)mesh, --levels, &sub))
 			_gfx_submesh_free(sub);
 	}
 }

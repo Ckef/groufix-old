@@ -45,10 +45,13 @@ typedef struct GFXLodMap
 /**
  * Creates a new LOD map.
  *
+ * @param dataSize Size of each mapped object in bytes.
  * @return NULL on failure.
  *
  */
-GFXLodMap* gfx_lod_map_create(void);
+GFXLodMap* gfx_lod_map_create(
+
+		size_t dataSize);
 
 /**
  * Makes sure the LOD map is freed properly.
@@ -62,6 +65,7 @@ void gfx_lod_map_free(
  * Maps data to a given level of detail.
  *
  * @param level Level of detail to map to (must be <= map->levels).
+ * @param data  Data of dataSize (see gfx_lod_map_create) bytes.
  * @return Non-zero if the data is mapped.
  *
  */
@@ -74,6 +78,7 @@ int gfx_lod_map_add(
 /**
  * Removes mapped data from a given level of detail.
  *
+ * @param data Data of dataSize bytes to compare against.
  * @return Non-zero if it was found and removed.
  *
  * If this operation causes a level to be empty,
@@ -90,6 +95,7 @@ int gfx_lod_map_remove(
  * Retrieves wheter given data is mapped or not.
  *
  * @param level Level of detail it should be mapped to.
+ * @param data  Data of dataSize bytes to compare against.
  * @return Non-zero if the data is indeed mapped to the given level.
  *
  */
@@ -100,7 +106,7 @@ int gfx_lod_map_has(
 		void*       data);
 
 /**
- * Returns an array of data elements of a given level of detail.
+ * Returns an array of data elements of dataSize bytes of a given level of detail.
  *
  * @param num Returns the number of elements in the returned array.
  * @return Array of num elements.
@@ -108,7 +114,7 @@ int gfx_lod_map_has(
  * Note: as soon as a data element is added/removed the array pointer is invalidated.
  *
  */
-void** gfx_lod_map_get(
+void* gfx_lod_map_get(
 
 		GFXLodMap*  map,
 		size_t      level,

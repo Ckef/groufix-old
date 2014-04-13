@@ -26,7 +26,7 @@
 /******************************************************/
 GFXMaterial* gfx_material_create(void)
 {
-	return (GFXMaterial*)gfx_lod_map_create();
+	return (GFXMaterial*)gfx_lod_map_create(sizeof(GFXPropertyMap*));
 }
 
 /******************************************************/
@@ -68,7 +68,7 @@ GFXPropertyMap* gfx_material_add(
 	GFXPropertyMap* map = gfx_property_map_create(program, properties);
 	if(!map) return NULL;
 
-	if(!gfx_lod_map_add((GFXLodMap*)material, level, map))
+	if(!gfx_lod_map_add((GFXLodMap*)material, level, &map))
 	{
 		gfx_property_map_free(map);
 		return NULL;
@@ -88,7 +88,7 @@ void gfx_material_remove(
 
 	while(levels)
 	{
-		if(gfx_lod_map_remove((GFXLodMap*)material, --levels, map))
+		if(gfx_lod_map_remove((GFXLodMap*)material, --levels, &map))
 			gfx_property_map_free(map);
 	}
 }

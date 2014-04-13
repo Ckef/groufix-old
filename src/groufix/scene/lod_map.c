@@ -25,6 +25,7 @@
 #include "groufix/containers/vector.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
 /* Internal LOD map */
@@ -34,7 +35,7 @@ struct GFX_Map
 	GFXLodMap map;
 
 	/* Hidden data */
-	GFXVector data;   /* Stores void* */
+	GFXVector data;   /* Stores elements of dataSize bytes */
 	GFXVector levels; /* Stores size_t, upper bound of the level */
 };
 
@@ -66,7 +67,7 @@ static size_t _gfx_lod_map_find_data(
 
 	while(begin != end)
 	{
-		if(*(void**)it == data) break;
+		if(!memcmp(it, data, map->data.elementSize)) break;
 
 		++begin;
 		it = gfx_vector_next(&map->data, it);
@@ -77,13 +78,15 @@ static size_t _gfx_lod_map_find_data(
 }
 
 /******************************************************/
-GFXLodMap* gfx_lod_map_create(void)
+GFXLodMap* gfx_lod_map_create(
+
+		size_t dataSize)
 {
 	/* Allocate new map */
 	struct GFX_Map* map = calloc(1, sizeof(struct GFX_Map));
 	if(!map) return NULL;
 
-	gfx_vector_init(&map->data, sizeof(void*));
+	gfx_vector_init(&map->data, dataSize);
 	gfx_vector_init(&map->levels, sizeof(size_t));
 
 	return (GFXLodMap*)map;
@@ -158,7 +161,7 @@ int gfx_lod_map_add(
 	if(index == end)
 	{
 		/* Insert the data */
-		if(gfx_vector_insert(&internal->data, &data, found) == internal->data.end)
+		if(gfx_vector_insert(&internal->data, data, found) == internal->data.end)
 		{
 			if(begin == end)
 			{
@@ -273,7 +276,7 @@ int gfx_lod_map_has(
 }
 
 /******************************************************/
-void** gfx_lod_map_get(
+void* gfx_lod_map_get(
 
 		GFXLodMap*  map,
 		size_t      level,
@@ -303,5 +306,5 @@ void** gfx_lod_map_get(
 
 	*num = end - begin;
 
-	return (void**)gfx_vector_at(&internal->data, begin);
+	return gfx_vector_at(&internal->data, begin);
 }
