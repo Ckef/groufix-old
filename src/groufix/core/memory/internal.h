@@ -54,83 +54,39 @@ extern "C" {
  * Internal binding & draw calls
  *******************************************************/
 
-/** Internal draw function */
-typedef void (*GFX_DrawFunc)(
+/** Internal draw type */
+typedef enum GFX_DrawType
+{
+	GFX_INT_DRAW,
+	GFX_INT_DRAW_INSTANCED,
+	GFX_INT_DRAW_INSTANCED_BASE
 
-	const GFXVertexLayout*,
-	unsigned char,
-	unsigned char,
-	size_t,
-	unsigned int);
+} GFX_DrawType;
 
 
 /**
  * Sets the layout handle as currently bound for the given context.
  *
  */
-void _gfx_layout_bind(
+void _gfx_vertex_layout_bind(
 
 		GLuint           handle,
 		GFX_Extensions*  ext);
 
 /**
- * Start a number of draw calls using a given vertex layout.
+ * Performs a complete draw operation.
  *
- */
-void _gfx_vertex_layout_draw_begin(
-
-		const GFXVertexLayout*  layout,
-		unsigned char           startFeedback,
-		unsigned char           num);
-
-/**
- * Regular drawing using a given vertex layout.
- *
- * Note: inst and base are ignored.
+ * @param source Draw calls of the layout to issue.
+ * @param type   Function to use for drawing.
  *
  */
 void _gfx_vertex_layout_draw(
 
 		const GFXVertexLayout*  layout,
-		unsigned char           startIndex,
-		unsigned char           num,
+		GFXVertexSource         source,
 		size_t                  inst,
-		unsigned int            base);
-
-/**
- * Instanced drawing using a given vertex layout.
- *
- * Note: base is ignored.
- *
- */
-void _gfx_vertex_layout_draw_instanced(
-
-		const GFXVertexLayout*  layout,
-		unsigned char           startIndex,
-		unsigned char           num,
-		size_t                  inst,
-		unsigned int            base);
-
-/**
- * Instanced drawing with a base offset using a given vertex layout.
- *
- */
-void _gfx_vertex_layout_draw_instanced_base(
-
-		const GFXVertexLayout*  layout,
-		unsigned char           startIndex,
-		unsigned char           num,
-		size_t                  inst,
-		unsigned int            base);
-
-/**
- * Ends draw calls of a given vertex layout.
- *
- */
-void _gfx_vertex_layout_draw_end(
-
-		const GFXVertexLayout*  layout,
-		unsigned char           numFeedback);
+		unsigned int            base,
+		GFX_DrawType            type);
 
 
 /********************************************************

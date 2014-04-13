@@ -60,7 +60,7 @@ static inline void _gfx_pipe_process_draw(
 {
 	_gfx_states_set(state, ext);
 	_gfx_property_map_use(map, copy, ext);
-	_gfx_layout_bind(layout, ext);
+	_gfx_vertex_layout_bind(layout, ext);
 
 	ext->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
@@ -93,7 +93,7 @@ int _gfx_pipe_process_prepare(
 	if(!target->layout)
 	{
 		ext->GenVertexArrays(1, &target->layout);
-		_gfx_layout_bind(target->layout, ext);
+		_gfx_vertex_layout_bind(target->layout, ext);
 
 		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
 		ext->EnableVertexAttribArray(0);

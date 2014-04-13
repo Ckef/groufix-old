@@ -80,7 +80,7 @@ struct GFX_Unit
 	size_t           src;    /* Source of the bucket to use (ID - 1) */
 	size_t           inst;   /* Number of instances */
 	unsigned int     base;   /* Base instance for instanced vertex attributes */
-	GFX_DrawFunc     func;
+	GFX_DrawType     type;
 };
 
 /******************************************************/
@@ -359,16 +359,16 @@ static GFXBatchState _gfx_bucket_create_state(
 }
 
 /******************************************************/
-static inline void _gfx_bucket_set_draw_func(
+static inline void _gfx_bucket_set_draw_type(
 
 		struct GFX_Unit* unit)
 {
-	unit->func =
+	unit->type =
 		(unit->base != 0) ?
-			_gfx_vertex_layout_draw_instanced_base :
+			GFX_INT_DRAW_INSTANCED_BASE :
 		(unit->inst != 1) ?
-			_gfx_vertex_layout_draw_instanced :
-			_gfx_vertex_layout_draw;
+			GFX_INT_DRAW_INSTANCED :
+			GFX_INT_DRAW;
 }
 
 /******************************************************/
@@ -452,21 +452,12 @@ void _gfx_bucket_process(
 		/* Bind shader program & draw */
 		_gfx_property_map_use(unit->map, unit->copy, ext);
 
-		_gfx_vertex_layout_draw_begin(
+		_gfx_vertex_layout_draw(
 			src->layout,
-			src->source.startFeedback,
-			src->source.numFeedback
-		);
-		unit->func(
-			src->layout,
-			src->source.startDraw,
-			src->source.numDraw,
+			src->source,
 			unit->inst,
-			unit->base
-		);
-		_gfx_vertex_layout_draw_end(
-			src->layout,
-			src->source.numFeedback
+			unit->base,
+			unit->type
 		);
 	}
 }
@@ -681,7 +672,7 @@ size_t gfx_bucket_insert(
 	internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS;
 	if(visible) internal->flags |= GFX_INT_BUCKET_SORT;
 
-	_gfx_bucket_set_draw_func(it);
+	_gfx_bucket_set_draw_type(it);
 
 	return id;
 }
@@ -733,7 +724,7 @@ void gfx_bucket_set_instances(
 	struct GFX_Unit* un = _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit);
 	un->inst = instances;
 
-	_gfx_bucket_set_draw_func(un);
+	_gfx_bucket_set_draw_type(un);
 }
 
 /******************************************************/
@@ -746,7 +737,7 @@ void gfx_bucket_set_instance_base(
 	struct GFX_Unit* un = _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit);
 	un->base = base;
 
-	_gfx_bucket_set_draw_func(un);
+	_gfx_bucket_set_draw_type(un);
 }
 
 /******************************************************/
