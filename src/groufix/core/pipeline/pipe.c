@@ -543,7 +543,7 @@ int gfx_pipe_exists(
 }
 
 /******************************************************/
-GFXPipeCallback* gfx_pipe_find(
+GFXPipeCallbackList gfx_pipe_find(
 
 		GFXPipe*       pipe,
 		unsigned char  key,
@@ -563,8 +563,8 @@ GFXPipeCallback* gfx_pipe_find(
 /******************************************************/
 GFXPipeCallback* gfx_pipe_at(
 
-		GFXPipeCallback*  arr,
-		size_t            index)
+		GFXPipeCallbackList  list,
+		size_t               index)
 {
-	return (GFXPipeCallback*)(((struct GFX_Callback*)arr) + index);
+	return (GFXPipeCallback*)(((struct GFX_Callback*)list) + index);
 }

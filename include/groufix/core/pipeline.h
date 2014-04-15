@@ -542,6 +542,10 @@ typedef struct GFXPipeCallback
 typedef void (*GFXPipeCallbackFunc) (GFXPipe*, GFXPipeCallback*);
 
 
+/** Pipe callback list */
+typedef void* GFXPipeCallbackList;
+
+
 /**
  * Register a new callback object for a pipe, it is issued when the pipe is freed.
  *
@@ -580,29 +584,32 @@ int gfx_pipe_exists(
 		GFXPipeCallback  callback);
 
 /**
- * Finds the first callback objects with a given key.
+ * Finds and returns an abstract list of callback objects with a given key.
  *
- * @param num Number of callback objects found.
+ * @param num Returns the number of callback objects found.
+ * @return List of found objects.
+ *
+ * Note: as soon as a callback object is registered/unregistered the list is invalidated.
  *
  */
-GFXPipeCallback* gfx_pipe_find(
+GFXPipeCallbackList gfx_pipe_find(
 
 		GFXPipe*       pipe,
 		unsigned char  key,
 		size_t*        num);
 
 /**
- * Indexes into the array of callback objects.
+ * Indexes into the list of callback objects.
  *
- * @param arr Array of callbacks returned by gfx_pipe_find.
+ * @param list List of callbacks returned by gfx_pipe_find.
  *
  * Note: you can only retrieve a callbacks with index < num returnd by gfx_pipe_find.
  *
  */
 GFXPipeCallback* gfx_pipe_at(
 
-		GFXPipeCallback*  arr,
-		size_t            index);
+		GFXPipeCallbackList  list,
+		size_t               index);
 
 
 /********************************************************
