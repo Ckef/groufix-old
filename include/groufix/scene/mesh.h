@@ -128,6 +128,10 @@ typedef struct GFXMesh
 } GFXMesh;
 
 
+/** Submesh list */
+typedef void* GFXSubMeshList;
+
+
 /**
  * Creates a new mesh.
  *
@@ -187,22 +191,32 @@ void gfx_mesh_remove(
 		GFXSubMesh*  sub);
 
 /**
- * Returns an array of submeshes of a given level of detail.
+ * Returns an abstract list of submeshes of a given level of detail.
  *
- * @param num Returns the number of submeshes in the returned array.
- * @return Array of num submeshes.
+ * @param num Returns the number of submeshes in the returned list.
+ * @return List of submeshes.
  *
- * Note: as soon as a submesh is added/removed the array pointer is invalidated.
+ * Note: as soon as a submesh is added/removed the list is invalidated.
  *
  */
-inline GFXSubMesh** gfx_mesh_get(
+GFXSubMeshList gfx_mesh_get(
 
 		GFXMesh*  mesh,
 		size_t    level,
-		size_t*   num)
-{
-	return (GFXSubMesh**)gfx_lod_map_get((GFXLodMap*)mesh, level, num);
-}
+		size_t*   num);
+
+/**
+ * Index into a list of submeshes.
+ *
+ * @param list List of submeshes returned by gfx_mesh_get.
+ *
+ * Note: you can only retrieve a submesh with index < num returnd by gfx_mesh_get.
+ *
+ */
+GFXSubMesh* gfx_submesh_list_at(
+
+		GFXSubMeshList  list,
+		size_t          index);
 
 
 #ifdef __cplusplus

@@ -43,6 +43,10 @@ typedef struct GFXMaterial
 } GFXMaterial;
 
 
+/** Property map list */
+typedef void* GFXPropertyMapList;
+
+
 /**
  * Creates a new material.
  *
@@ -88,22 +92,32 @@ void gfx_material_remove(
 		GFXPropertyMap*  map);
 
 /**
- * Returns an array of property maps of a given level of detail.
+ * Returns an abstract list of property maps of a given level of detail.
  *
- * @param num Returns the number of property maps in the returned array.
- * @return Array of num property maps.
+ * @param num Returns the number of property maps in the returned list.
+ * @return List of property maps.
  *
- * Note: as soon as a property map is added/removed the array pointer is invalidated.
+ * Note: as soon as a property map is added/removed the list is invalidated.
  *
  */
-inline GFXPropertyMap** gfx_material_get(
+GFXPropertyMapList gfx_material_get(
 
 		GFXMaterial*  material,
 		size_t        level,
-		size_t*       num)
-{
-	return (GFXPropertyMap**)gfx_lod_map_get((GFXLodMap*)material, level, num);
-}
+		size_t*       num);
+
+/**
+ * Index into a list of property maps.
+ *
+ * @param list List of property maps returned by gfx_material_get.
+ *
+ * Note: you can only retrieve a property map with index < num returned by gfx_material_get.
+ *
+ */
+GFXPropertyMap* gfx_property_map_list_at(
+
+		GFXPropertyMapList  list,
+		size_t              index);
 
 
 #ifdef __cplusplus

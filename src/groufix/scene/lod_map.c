@@ -67,7 +67,7 @@ static size_t _gfx_lod_map_find_data(
 
 	while(begin != end)
 	{
-		if(!memcmp(it, data, map->data.elementSize)) break;
+		if(!memcmp(it, data, map->map.compSize)) break;
 
 		++begin;
 		it = gfx_vector_next(&map->data, it);
@@ -80,11 +80,14 @@ static size_t _gfx_lod_map_find_data(
 /******************************************************/
 GFXLodMap* gfx_lod_map_create(
 
-		size_t dataSize)
+		size_t  dataSize,
+		size_t  compSize)
 {
 	/* Allocate new map */
 	struct GFX_Map* map = calloc(1, sizeof(struct GFX_Map));
 	if(!map) return NULL;
+
+	map->map.compSize = (compSize > dataSize) ? dataSize : compSize;
 
 	gfx_vector_init(&map->data, dataSize);
 	gfx_vector_init(&map->levels, sizeof(size_t));

@@ -561,9 +561,10 @@ GFXPipeCallback* gfx_pipe_find(
 }
 
 /******************************************************/
-GFXPipeCallback* gfx_pipe_next(
+GFXPipeCallback* gfx_pipe_at(
 
-		GFXPipeCallback* prev)
+		GFXPipeCallback*  arr,
+		size_t            index)
 {
-	return GFX_PTR_ADD_BYTES(prev, sizeof(struct GFX_Callback));
+	return (GFXPipeCallback*)(((struct GFX_Callback*)arr) + index);
 }

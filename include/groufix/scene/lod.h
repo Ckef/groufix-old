@@ -37,7 +37,8 @@ extern "C" {
 /** LodMap */
 typedef struct GFXLodMap
 {
-	size_t levels; /* Number of LODs */
+	size_t  levels;   /* Number of LODs */
+	size_t  compSize; /* Number of bytes to use for comparisons */
 
 } GFXLodMap;
 
@@ -46,12 +47,14 @@ typedef struct GFXLodMap
  * Creates a new LOD map.
  *
  * @param dataSize Size of each mapped object in bytes.
+ * @param compSize Starting bytes of elements to use to compare said elements.
  * @return NULL on failure.
  *
  */
 GFXLodMap* gfx_lod_map_create(
 
-		size_t dataSize);
+		size_t  dataSize,
+		size_t  compSize);
 
 /**
  * Makes sure the LOD map is freed properly.
@@ -65,7 +68,7 @@ void gfx_lod_map_free(
  * Maps data to a given level of detail.
  *
  * @param level Level of detail to map to (must be <= map->levels).
- * @param data  Data of dataSize (see gfx_lod_map_create) bytes.
+ * @param data  Data of dataSize (see gfx_lod_map_create) bytes, copied into the map.
  * @return Non-zero if the data is mapped.
  *
  */
@@ -78,7 +81,7 @@ int gfx_lod_map_add(
 /**
  * Removes mapped data from a given level of detail.
  *
- * @param data Data of dataSize bytes to compare against.
+ * @param data Data of compSize bytes to compare against.
  * @return Non-zero if it was found and removed.
  *
  * If this operation causes a level to be empty,
@@ -95,7 +98,7 @@ int gfx_lod_map_remove(
  * Retrieves wheter given data is mapped or not.
  *
  * @param level Level of detail it should be mapped to.
- * @param data  Data of dataSize bytes to compare against.
+ * @param data  Data of compSize bytes to compare against.
  * @return Non-zero if the data is indeed mapped to the given level.
  *
  */

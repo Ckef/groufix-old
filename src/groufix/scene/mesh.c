@@ -26,7 +26,10 @@
 /******************************************************/
 GFXMesh* gfx_mesh_create(void)
 {
-	return (GFXMesh*)gfx_lod_map_create(sizeof(GFXSubMesh*));
+	return (GFXMesh*)gfx_lod_map_create(
+		sizeof(GFXSubMesh*),
+		sizeof(GFXSubMesh*)
+	);
 }
 
 /******************************************************/
@@ -43,13 +46,14 @@ void gfx_mesh_free(
 		{
 			/* Free all submeshes in it */
 			size_t num;
-			GFXSubMesh** subs = gfx_mesh_get(
+			GFXSubMeshList list = gfx_mesh_get(
 				mesh,
 				--levels,
 				&num
 			);
 
-			while(num) _gfx_submesh_free(subs[--num]);
+			while(num) _gfx_submesh_free(
+				gfx_submesh_list_at(list, --num));
 		}
 
 		gfx_lod_map_free((GFXLodMap*)mesh);
@@ -116,4 +120,23 @@ void gfx_mesh_remove(
 		if(gfx_lod_map_remove((GFXLodMap*)mesh, --levels, &sub))
 			_gfx_submesh_free(sub);
 	}
+}
+
+/******************************************************/
+GFXSubMeshList gfx_mesh_get(
+
+		GFXMesh*  mesh,
+		size_t    level,
+		size_t*   num)
+{
+	return gfx_lod_map_get((GFXLodMap*)mesh, level, num);
+}
+
+/******************************************************/
+GFXSubMesh* gfx_submesh_list_at(
+
+		GFXSubMeshList  list,
+		size_t          index)
+{
+	return ((GFXSubMesh**)list)[index];
 }

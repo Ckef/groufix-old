@@ -592,14 +592,17 @@ GFXPipeCallback* gfx_pipe_find(
 		size_t*        num);
 
 /**
- * Returns the next callback object from a previous find call.
+ * Indexes into the array of callback objects.
  *
- * Note: you can only retrieve as many callbacks as gfx_pipe_find returned to num.
+ * @param arr Array of callbacks returned by gfx_pipe_find.
+ *
+ * Note: you can only retrieve a callbacks with index < num returnd by gfx_pipe_find.
  *
  */
-GFXPipeCallback* gfx_pipe_next(
+GFXPipeCallback* gfx_pipe_at(
 
-		GFXPipeCallback*  prev);
+		GFXPipeCallback*  arr,
+		size_t            index);
 
 
 /********************************************************
