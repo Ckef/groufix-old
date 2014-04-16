@@ -32,7 +32,7 @@
 typedef void (*GFX_DrawFunc)(
 
 		GFXDrawCall*,
-		GLuint,
+		size_t,
 		size_t,
 		unsigned int,
 		GFX_Extensions*);
@@ -59,13 +59,6 @@ struct GFX_TFBuffer
 	GLsizeiptr  size;
 };
 
-/* Internal draw call */
-struct GFX_DrawCall
-{
-	GFXDrawCall  call;   /* Super class */
-	GLuint       buffer; /* Index buffer */
-};
-
 /* Internal Vertex layout */
 struct GFX_Layout
 {
@@ -80,6 +73,9 @@ struct GFX_Layout
 	size_t                TFNumBuffers;
 	struct GFX_TFBuffer*  TFBuffers;     /* Transform Feedback buffers */
 	GLint                 patchVertices; /* Number of vertices per patch */
+
+	GLuint                indexBuffer;
+	size_t                indexOffset;   /* Byte offset into index buffer */
 
 	/* Not a shared resource */
 	GFX_Extensions* ext;
@@ -103,93 +99,105 @@ void _gfx_vertex_layout_bind(
 static void _gfx_layout_draw(
 
 		GFXDrawCall*     call,
-		GLuint           buffer,
+		size_t           offset,
 		size_t           inst,
 		unsigned int     base,
 		GFX_Extensions*  ext)
 {
-	if(buffer)
-	{
-		ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
-		ext->DrawElements(
-			call->primitive,
-			call->count,
-			call->indexType,
-			(GLvoid*)call->first
-		);
-	}
-	else
-	{
-		ext->DrawArrays(
-			call->primitive,
-			call->first,
-			call->count
-		);
-	}
+	ext->DrawArrays(
+		call->primitive,
+		call->first,
+		call->count
+	);
+}
+
+/******************************************************/
+static void _gfx_layout_draw_indexed(
+
+		GFXDrawCall*     call,
+		size_t           offset,
+		size_t           inst,
+		unsigned int     base,
+		GFX_Extensions*  ext)
+{
+	ext->DrawElements(
+		call->primitive,
+		call->count,
+		call->indexType,
+		(GLvoid*)(offset + call->first)
+	);
 }
 
 /******************************************************/
 static void _gfx_layout_draw_instanced(
 
 		GFXDrawCall*     call,
-		GLuint           buffer,
+		size_t           offset,
 		size_t           inst,
 		unsigned int     base,
 		GFX_Extensions*  ext)
 {
-	if(buffer)
-	{
-		ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
-		ext->DrawElementsInstanced(
-			call->primitive,
-			call->count,
-			call->indexType,
-			(GLvoid*)call->first,
-			inst
-		);
-	}
-	else
-	{
-		ext->DrawArraysInstanced(
-			call->primitive,
-			call->first,
-			call->count,
-			inst
-		);
-	}
+	ext->DrawArraysInstanced(
+		call->primitive,
+		call->first,
+		call->count,
+		inst
+	);
+}
+
+/******************************************************/
+static void _gfx_layout_draw_indexed_instanced(
+
+		GFXDrawCall*     call,
+		size_t           offset,
+		size_t           inst,
+		unsigned int     base,
+		GFX_Extensions*  ext)
+{
+	ext->DrawElementsInstanced(
+		call->primitive,
+		call->count,
+		call->indexType,
+		(GLvoid*)(offset + call->first),
+		inst
+	);
 }
 
 /******************************************************/
 static void _gfx_layout_draw_instanced_base(
 
 		GFXDrawCall*     call,
-		GLuint           buffer,
+		size_t           offset,
 		size_t           inst,
 		unsigned int     base,
 		GFX_Extensions*  ext)
 {
-	if(buffer)
-	{
-		ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
-		ext->DrawElementsInstancedBaseInstance(
-			call->primitive,
-			call->count,
-			call->indexType,
-			(GLvoid*)call->first,
-			inst,
-			base
-		);
-	}
-	else
-	{
-		ext->DrawArraysInstancedBaseInstance(
-			call->primitive,
-			call->first,
-			call->count,
-			inst,
-			base
-		);
-	}
+	ext->DrawArraysInstancedBaseInstance(
+		call->primitive,
+		call->first,
+		call->count,
+		inst,
+		base
+	);
+}
+
+/******************************************************/
+static void _gfx_layout_draw_indexed_instanced_base(
+
+		GFXDrawCall*     call,
+		size_t           offset,
+		size_t           inst,
+		unsigned int     base,
+		GFX_Extensions*  ext)
+{
+	ext->DrawElementsInstancedBaseInstance(
+		call->primitive,
+		call->count,
+		call->indexType,
+		(GLvoid*)(offset + call->first),
+		inst,
+		base
+	);
 }
 
 /******************************************************/
@@ -200,25 +208,31 @@ static void _gfx_layout_invoke_draw(
 		unsigned char       num,
 		size_t              inst,
 		unsigned int        base,
-		GFX_DrawFunc        func)
+		GFX_DrawType        type)
 {
-	/* Iterate over all draw calls */
-	struct GFX_DrawCall* call;
-
-	for(
-		call = ((struct GFX_DrawCall*)(layout + 1)) + startIndex;
-		num--;
-		++call)
+	/* Jump table */
+	static const GFX_DrawFunc jump[] =
 	{
-		/* Invoke draw call */
-		func(
-			&call->call,
-			call->buffer,
-			inst,
-			base,
-			layout->ext
-		);
-	}
+		_gfx_layout_draw,
+		_gfx_layout_draw_indexed,
+		_gfx_layout_draw_instanced,
+		_gfx_layout_draw_indexed_instanced,
+		_gfx_layout_draw_instanced_base,
+		_gfx_layout_draw_indexed_instanced_base
+	};
+
+	/* Get table index */
+	type = (type << 1) + (layout->indexBuffer ? 1 : 0);
+
+	/* Iterate over all draw calls & invoke */
+	GFXDrawCall* call = (GFXDrawCall*)(layout + 1) + startIndex;
+	while(num--) jump[type](
+		call++,
+		layout->indexOffset,
+		inst,
+		base,
+		layout->ext
+	);
 }
 
 /******************************************************/
@@ -343,7 +357,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	if(!window || !drawCalls) return NULL;
 
 	/* Create new layout, append draw calls to end of struct */
-	size_t size = sizeof(struct GFX_Layout) + drawCalls * sizeof(struct GFX_DrawCall);
+	size_t size = sizeof(struct GFX_Layout) + drawCalls * sizeof(GFXDrawCall);
 
 	struct GFX_Layout* layout = calloc(1, size);
 	if(!layout) return NULL;
@@ -396,6 +410,64 @@ void gfx_vertex_layout_free(
 
 		free(layout);
 	}
+}
+
+/******************************************************/
+int gfx_vertex_layout_set_feedback(
+
+		GFXVertexLayout*          layout,
+		GFXPrimitive              primitive,
+		size_t                    num,
+		const GFXFeedbackBuffer*  buffers)
+{
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	if(!internal->ext) return 0;
+
+	/* Check number of buffers */
+	if(num > internal->ext->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS]) return 0;
+
+	free(internal->TFBuffers);
+	internal->TFPrimitive  = primitive;
+	internal->TFNumBuffers = num;
+	internal->TFBuffers    = NULL;
+
+	/* Free all buffers */
+	if(num)
+	{
+		/* Construct feedback buffers */
+		internal->TFBuffers = malloc(sizeof(struct GFX_TFBuffer) * num);
+		if(!internal->TFBuffers) return 0;
+
+		size_t i;
+		for(i = 0; i < num; ++i)
+		{
+			internal->TFBuffers[i].buffer =
+				_gfx_buffer_get_handle(buffers[i].buffer);
+			internal->TFBuffers[i].offset =
+				buffers[i].offset;
+			internal->TFBuffers[i].size =
+				buffers[i].size;
+		}
+	}
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_vertex_layout_set_patch_vertices(
+
+		GFXVertexLayout*  layout,
+		unsigned int      vertices)
+{
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+
+	/* Bound check */
+	if(vertices > internal->ext->limits[GFX_LIM_MAX_PATCH_VERTICES])
+		return 0;
+
+	internal->patchVertices = vertices;
+
+	return 1;
 }
 
 /******************************************************/
@@ -566,68 +638,6 @@ void gfx_vertex_layout_remove_attribute(
 }
 
 /******************************************************/
-int gfx_vertex_layout_set_feedback(
-
-		GFXVertexLayout*          layout,
-		GFXPrimitive              primitive,
-		size_t                    num,
-		const GFXFeedbackBuffer*  buffers)
-{
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	if(!internal->ext) return 0;
-
-	/* Check number of buffers */
-	if(num > internal->ext->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS]) return 0;
-
-	internal->TFPrimitive = primitive;
-
-	/* Free all buffers */
-	if(!num)
-	{
-		free(internal->TFBuffers);
-		internal->TFBuffers = NULL;
-		internal->TFNumBuffers = 0;
-	}
-	else
-	{
-		/* Construct feedback buffers */
-		struct GFX_TFBuffer* buffs = malloc(sizeof(struct GFX_TFBuffer) * num);
-		if(!buffs) return 0;
-
-		free(internal->TFBuffers);
-		internal->TFBuffers = buffs;
-		internal->TFNumBuffers = num;
-
-		size_t i;
-		for(i = 0; i < num; ++i)
-		{
-			buffs[i].buffer = _gfx_buffer_get_handle(buffers[i].buffer);
-			buffs[i].offset = buffers[i].offset;
-			buffs[i].size = buffers[i].size;
-		}
-	}
-
-	return 1;
-}
-
-/******************************************************/
-int gfx_vertex_layout_set_patch_vertices(
-
-		GFXVertexLayout*  layout,
-		unsigned int      vertices)
-{
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-
-	/* Bound check */
-	if(vertices > internal->ext->limits[GFX_LIM_MAX_PATCH_VERTICES])
-		return 0;
-
-	internal->patchVertices = vertices;
-
-	return 1;
-}
-
-/******************************************************/
 int gfx_vertex_layout_set_draw_call(
 
 		GFXVertexLayout*    layout,
@@ -635,7 +645,6 @@ int gfx_vertex_layout_set_draw_call(
 		const GFXDrawCall*  call)
 {
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	struct GFX_DrawCall* set = ((struct GFX_DrawCall*)(internal + 1)) + index;
 
 	/* Check index */
 	if(!internal->ext || index >= layout->drawCalls)
@@ -645,61 +654,9 @@ int gfx_vertex_layout_set_draw_call(
 	if(call->primitive == GFX_PATCHES && !internal->ext->flags[GFX_EXT_TESSELLATION_SHADER])
 		return 0;
 
-	set->call = *call;
+	((GFXDrawCall*)(internal + 1))[index] = *call;
 
 	return 1;
-}
-
-/******************************************************/
-static int _gfx_layout_set_draw_call_buffer(
-
-		GFXVertexLayout*  layout,
-		unsigned char     index,
-		GLuint            buffer,
-		size_t            offset)
-{
-	/* Check index */
-	if(index >= layout->drawCalls) return 0;
-
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	struct GFX_DrawCall* call = ((struct GFX_DrawCall*)(internal + 1)) + index;
-
-	call->buffer = buffer;
-	call->call.first = offset;
-
-	return 1;
-}
-
-/******************************************************/
-int gfx_vertex_layout_set_draw_call_buffer(
-
-		GFXVertexLayout*  layout,
-		unsigned char     index,
-		const GFXBuffer*  buffer,
-		size_t            offset)
-{
-	GLuint buff = 0;
-	if(buffer) buff = _gfx_buffer_get_handle(buffer);
-
-	return _gfx_layout_set_draw_call_buffer(layout, index, buff, offset);
-}
-
-/******************************************************/
-int gfx_vertex_layout_set_draw_call_shared_buffer(
-
-		GFXVertexLayout*        layout,
-		unsigned char           index,
-		const GFXSharedBuffer*  buffer,
-		size_t                  offset)
-{
-	GLuint buff = 0;
-	if(buffer)
-	{
-		buff = _gfx_shared_buffer_get_handle(buffer);
-		offset += buffer->offset;
-	}
-
-	return _gfx_layout_set_draw_call_buffer(layout, index, buff, offset);
 }
 
 /******************************************************/
@@ -714,9 +671,47 @@ int gfx_vertex_layout_get_draw_call(
 
 	/* Retrieve data */
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	*call = (((struct GFX_DrawCall*)(internal + 1)) + index)->call;
+	*call = ((GFXDrawCall*)(internal + 1))[index];
 
 	return 1;
+}
+
+/******************************************************/
+void gfx_vertex_layout_set_index_buffer(
+
+		GFXVertexLayout*  layout,
+		const GFXBuffer*  buffer,
+		size_t            offset)
+{
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+
+	internal->indexBuffer = 0;
+	internal->indexOffset = 0;
+
+	if(buffer)
+	{
+		internal->indexBuffer = _gfx_buffer_get_handle(buffer);
+		internal->indexOffset = offset;
+	}
+}
+
+/******************************************************/
+void gfx_vertex_layout_set_index_shared_buffer(
+
+		GFXVertexLayout*        layout,
+		const GFXSharedBuffer*  buffer,
+		size_t                  offset)
+{
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+
+	internal->indexBuffer = 0;
+	internal->indexOffset = 0;
+
+	if(buffer)
+	{
+		internal->indexBuffer = _gfx_shared_buffer_get_handle(buffer);
+		internal->indexOffset = offset + buffer->offset;
+	}
 }
 
 /******************************************************/
@@ -728,19 +723,12 @@ void _gfx_vertex_layout_draw(
 		unsigned int            base,
 		GFX_DrawType            type)
 {
-	/* Jump table */
-	static const GFX_DrawFunc jump[] =
-	{
-		_gfx_layout_draw,
-		_gfx_layout_draw_instanced,
-		_gfx_layout_draw_instanced_base
-	};
-
-	/* Bind VAO */
+	/* Bind VAO & Index buffer & Tessellation vertices */
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	_gfx_vertex_layout_bind(internal->vao, internal->ext);
 
-	/* Tessellation */
+	_gfx_vertex_layout_bind(internal->vao, internal->ext);
+	internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, internal->indexBuffer);
+
 	_gfx_states_set_patch_vertices(
 		internal->patchVertices,
 		internal->ext
@@ -770,7 +758,7 @@ void _gfx_vertex_layout_draw(
 			source.numDraw,
 			inst,
 			base,
-			jump[type]
+			type
 		);
 		internal->ext->EndTransformFeedback();
 	}
@@ -782,6 +770,6 @@ void _gfx_vertex_layout_draw(
 		source.numDraw,
 		inst,
 		base,
-		jump[type]
+		type
 	);
 }

@@ -399,21 +399,19 @@ int gfx_submesh_set_attribute_buffer(
 }
 
 /******************************************************/
-int gfx_submesh_set_draw_call_buffer(
+int gfx_submesh_set_index_buffer(
 
-		GFXSubMesh*    mesh,
-		unsigned char  index,
-		size_t         buffer,
-		size_t         offset)
+		GFXSubMesh*  mesh,
+		size_t       buffer,
+		size_t       offset)
 {
 	/* Validate index */
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
 	if(buffer > gfx_vector_get_size(&internal->buffers))
 	{
 		/* Disable the attribute */
-		gfx_vertex_layout_set_draw_call_shared_buffer(
+		gfx_vertex_layout_set_index_shared_buffer(
 			mesh->layout,
-			index,
 			NULL,
 			0
 		);
@@ -426,10 +424,11 @@ int gfx_submesh_set_draw_call_buffer(
 		buffer - 1
 	);
 
-	return gfx_vertex_layout_set_draw_call_shared_buffer(
+	gfx_vertex_layout_set_index_shared_buffer(
 		mesh->layout,
-		index,
 		buff,
 		offset
 	);
+
+	return 1;
 }

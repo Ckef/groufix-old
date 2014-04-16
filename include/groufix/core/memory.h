@@ -363,7 +363,7 @@ typedef struct GFXFeedbackBuffer
 typedef struct GFXDrawCall
 {
 	GFXPrimitive     primitive;
-	uintptr_t        first;     /* First index (or byte offset if an index buffer was given) */
+	uintptr_t        first;     /* Byte offset if an index buffer is used, first index otherwise */
 	size_t           count;     /* Number of vertices to draw */
 	GFXUnpackedType  indexType; /* Can only be an unsigned type */
 
@@ -401,6 +401,38 @@ GFXVertexLayout* gfx_vertex_layout_create(
 void gfx_vertex_layout_free(
 
 		GFXVertexLayout* layout);
+
+/**
+ * Sets a feedback attribute of a vertex layout.
+ *
+ * @param primitive Primitive to output to the buffers, can only be GFX_POINTS, GFX_LINES or GFX_TRIANGLES.
+ * @param num       Size of buffers, must be <= GFX_LIM_MAX_FEEDBACK_BUFFERS.
+ * @param buffers   Array of buffers to receive program feedback from.
+ * @return Zero on failure.
+ *
+ * Note: any two given buffer ranges cannot overlap.
+ *
+ */
+int gfx_vertex_layout_set_feedback(
+
+		GFXVertexLayout*          layout,
+		GFXPrimitive              primitive,
+		size_t                    num,
+		const GFXFeedbackBuffer*  buffers);
+
+/**
+ * Sets the number of vertices per patch (GFX_PATCHES).
+ *
+ * @param vertices Number of vertices per patch, must be <= GFX_LIM_MAX_PATCH_VERTICES.
+ * @return Zero on failure.
+ *
+ * Note: requires GFX_EXT_TESSELLATION_SHADER.
+ *
+ */
+int gfx_vertex_layout_set_patch_vertices(
+
+		GFXVertexLayout*  layout,
+		unsigned int      vertices);
 
 /**
  * Adds/sets an attribute of a vertex layout.
@@ -463,38 +495,6 @@ void gfx_vertex_layout_remove_attribute(
 		unsigned int      index);
 
 /**
- * Sets a feedback attribute of a vertex layout.
- *
- * @param primitive Primitive to output to the buffers, can only be GFX_POINTS, GFX_LINES or GFX_TRIANGLES.
- * @param num       Size of buffers, must be <= GFX_LIM_MAX_FEEDBACK_BUFFERS.
- * @param buffers   Array of buffers to receive program feedback from.
- * @return Zero on failure.
- *
- * Note: any two given buffer ranges cannot overlap.
- *
- */
-int gfx_vertex_layout_set_feedback(
-
-		GFXVertexLayout*          layout,
-		GFXPrimitive              primitive,
-		size_t                    num,
-		const GFXFeedbackBuffer*  buffers);
-
-/**
- * Sets the number of vertices per patch (GFX_PATCHES).
- *
- * @param vertices Number of vertices per patch, must be <= GFX_LIM_MAX_PATCH_VERTICES.
- * @return Zero on failure.
- *
- * Note: requires GFX_EXT_TESSELLATION_SHADER.
- *
- */
-int gfx_vertex_layout_set_patch_vertices(
-
-		GFXVertexLayout*  layout,
-		unsigned int      vertices);
-
-/**
  * Changes a draw call of the vertex layout.
  *
  * @param index Index of the draw call (must be < layout->drawCalls).
@@ -507,38 +507,6 @@ int gfx_vertex_layout_set_draw_call(
 		GFXVertexLayout*    layout,
 		unsigned char       index,
 		const GFXDrawCall*  call);
-
-/**
- * Sets the index buffer source of a draw call.
- *
- * @param index  Index of the draw call.
- * @param buffer Buffer to use as index buffer, only the current backbuffer of a multi buffer will be used (can be NULL).
- * @param offset Byte offset within the buffer to start reading at.
- * @return Zero if the draw call does not exist.
- *
- */
-int gfx_vertex_layout_set_draw_call_buffer(
-
-		GFXVertexLayout*  layout,
-		unsigned char     index,
-		const GFXBuffer*  buffer,
-		size_t            offset);
-
-/**
- * Sets the (shared) index buffer source of a draw call.
- *
- * @param index  Index of the draw call.
- * @param buffer Shared buffer to use as index buffer (can be NULL).
- * @param offset Byte offset within the buffer to start reading at.
- * @return Zero if the draw call does not exist.
- *
- */
-int gfx_vertex_layout_set_draw_call_shared_buffer(
-
-		GFXVertexLayout*        layout,
-		unsigned char           index,
-		const GFXSharedBuffer*  buffer,
-		size_t                  offset);
 
 /**
  * Retrieves a draw call from the vertex layout.
@@ -554,6 +522,32 @@ int gfx_vertex_layout_get_draw_call(
 		GFXVertexLayout*  layout,
 		unsigned char     index,
 		GFXDrawCall*      call);
+
+/**
+ * Sets the index buffer source of a draw call.
+ *
+ * @param buffer Buffer to use as index buffer, only the current backbuffer of a multi buffer will be used (can be NULL).
+ * @param offset Byte offset within the buffer to start reading at.
+ *
+ */
+void gfx_vertex_layout_set_index_buffer(
+
+		GFXVertexLayout*  layout,
+		const GFXBuffer*  buffer,
+		size_t            offset);
+
+/**
+ * Sets the (shared) index buffer source of a draw call.
+ *
+ * @param buffer Shared buffer to use as index buffer (can be NULL).
+ * @param offset Byte offset within the buffer to start reading at.
+ *
+ */
+void gfx_vertex_layout_set_index_shared_buffer(
+
+		GFXVertexLayout*        layout,
+		const GFXSharedBuffer*  buffer,
+		size_t                  offset);
 
 
 /********************************************************

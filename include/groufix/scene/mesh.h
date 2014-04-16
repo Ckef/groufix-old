@@ -100,20 +100,18 @@ int gfx_submesh_set_attribute_buffer(
 		size_t        offset);
 
 /**
- * Uses an index buffer for a given draw call.
+ * Uses an index buffer for the submesh.
  *
- * @param index  Index of the draw call to set the buffer of.
  * @param buffer Buffer ID to use for this draw call.
  * @param offset Byte offset within the buffer to start reading at.
  * @return Zero on failure (in which case the index buffer is disabled).
  *
  */
-int gfx_submesh_set_draw_call_buffer(
+int gfx_submesh_set_index_buffer(
 
-		GFXSubMesh*    mesh,
-		unsigned char  index,
-		size_t         buffer,
-		size_t         offset);
+		GFXSubMesh*  mesh,
+		size_t       buffer,
+		size_t       offset);
 
 
 /********************************************************
