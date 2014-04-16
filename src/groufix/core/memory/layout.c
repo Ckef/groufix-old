@@ -73,11 +73,13 @@ struct GFX_Layout
 	GFXVertexLayout layout;
 
 	/* Hidden data */
-	GLuint                vao;        /* OpenGL handle */
-	GFXVector             attributes; /* Stores GFX_Attribute */
-	size_t                numBuffers;
-	struct GFX_TFBuffer*  buffers;    /* Transform Feedback buffers */
-	GFXPrimitive          primitive;  /* Feedback output primitive */
+	GLuint                vao;           /* OpenGL handle */
+	GFXVector             attributes;    /* Stores GFX_Attribute */
+
+	GFXPrimitive          TFPrimitive;   /* Feedback output primitive */
+	size_t                TFNumBuffers;
+	struct GFX_TFBuffer*  TFBuffers;     /* Transform Feedback buffers */
+	GLint                 patchVertices; /* Number of vertices per patch */
 
 	/* Not a shared resource */
 	GFX_Extensions* ext;
@@ -208,12 +210,6 @@ static void _gfx_layout_invoke_draw(
 		num--;
 		++call)
 	{
-		/* Tessellation */
-		_gfx_states_set_patch_vertices(
-			call->call.patchVertices,
-			layout->ext
-		);
-
 		/* Invoke draw call */
 		func(
 			&call->call,
@@ -396,7 +392,7 @@ void gfx_vertex_layout_free(
 		}
 
 		gfx_vector_clear(&internal->attributes);
-		free(internal->buffers);
+		free(internal->TFBuffers);
 
 		free(layout);
 	}
@@ -583,14 +579,14 @@ int gfx_vertex_layout_set_feedback(
 	/* Check number of buffers */
 	if(num > internal->ext->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS]) return 0;
 
-	internal->primitive = primitive;
+	internal->TFPrimitive = primitive;
 
 	/* Free all buffers */
 	if(!num)
 	{
-		free(internal->buffers);
-		internal->buffers = NULL;
-		internal->numBuffers = 0;
+		free(internal->TFBuffers);
+		internal->TFBuffers = NULL;
+		internal->TFNumBuffers = 0;
 	}
 	else
 	{
@@ -598,9 +594,9 @@ int gfx_vertex_layout_set_feedback(
 		struct GFX_TFBuffer* buffs = malloc(sizeof(struct GFX_TFBuffer) * num);
 		if(!buffs) return 0;
 
-		free(internal->buffers);
-		internal->buffers = buffs;
-		internal->numBuffers = num;
+		free(internal->TFBuffers);
+		internal->TFBuffers = buffs;
+		internal->TFNumBuffers = num;
 
 		size_t i;
 		for(i = 0; i < num; ++i)
@@ -610,6 +606,23 @@ int gfx_vertex_layout_set_feedback(
 			buffs[i].size = buffers[i].size;
 		}
 	}
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_vertex_layout_set_patch_vertices(
+
+		GFXVertexLayout*  layout,
+		unsigned int      vertices)
+{
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+
+	/* Bound check */
+	if(vertices > internal->ext->limits[GFX_LIM_MAX_PATCH_VERTICES])
+		return 0;
+
+	internal->patchVertices = vertices;
 
 	return 1;
 }
@@ -632,16 +645,9 @@ int gfx_vertex_layout_set_draw_call(
 	if(call->primitive == GFX_PATCHES && !internal->ext->flags[GFX_EXT_TESSELLATION_SHADER])
 		return 0;
 
-	/* Make sure to not set tessellation data */
 	set->call = *call;
-	if(call->primitive != GFX_PATCHES)
-	{
-		set->call.patchVertices = 0;
-		return 1;
-	}
 
-	/* Validate number of vertices per patch */
-	return (call->patchVertices && call->patchVertices <= internal->ext->limits[GFX_LIM_MAX_PATCH_VERTICES]) ? 1 : 0;
+	return 1;
 }
 
 /******************************************************/
@@ -734,6 +740,12 @@ void _gfx_vertex_layout_draw(
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	_gfx_vertex_layout_bind(internal->vao, internal->ext);
 
+	/* Tessellation */
+	_gfx_states_set_patch_vertices(
+		internal->patchVertices,
+		internal->ext
+	);
+
 	/* Draw using a feedback buffer */
 	if(source.numFeedback)
 	{
@@ -744,14 +756,14 @@ void _gfx_vertex_layout_draw(
 			internal->ext->BindBufferRange(
 				GL_TRANSFORM_FEEDBACK_BUFFER,
 				source.numFeedback,
-				internal->buffers[i].buffer,
-				internal->buffers[i].offset,
-				internal->buffers[i].size
+				internal->TFBuffers[i].buffer,
+				internal->TFBuffers[i].offset,
+				internal->TFBuffers[i].size
 			);
 		}
 
 		/* Begin feedback, draw, end feedback */
-		internal->ext->BeginTransformFeedback(internal->primitive);
+		internal->ext->BeginTransformFeedback(internal->TFPrimitive);
 		_gfx_layout_invoke_draw(
 			internal,
 			source.startDraw,

@@ -363,11 +363,9 @@ typedef struct GFXFeedbackBuffer
 typedef struct GFXDrawCall
 {
 	GFXPrimitive     primitive;
-	unsigned int     patchVertices; /* Number of vertices per patch (for GFX_PATCHES, must be <= GFX_LIM_MAX_PATCH_VERTICES) */
-
-	uintptr_t        first;         /* First index (or byte offset if an index buffer was given) */
-	size_t           count;         /* Number of vertices to draw */
-	GFXUnpackedType  indexType;     /* Can only be an unsigned type */
+	uintptr_t        first;     /* First index (or byte offset if an index buffer was given) */
+	size_t           count;     /* Number of vertices to draw */
+	GFXUnpackedType  indexType; /* Can only be an unsigned type */
 
 } GFXDrawCall;
 
@@ -481,6 +479,20 @@ int gfx_vertex_layout_set_feedback(
 		GFXPrimitive              primitive,
 		size_t                    num,
 		const GFXFeedbackBuffer*  buffers);
+
+/**
+ * Sets the number of vertices per patch (GFX_PATCHES).
+ *
+ * @param vertices Number of vertices per patch, must be <= GFX_LIM_MAX_PATCH_VERTICES.
+ * @return Zero on failure.
+ *
+ * Note: requires GFX_EXT_TESSELLATION_SHADER.
+ *
+ */
+int gfx_vertex_layout_set_patch_vertices(
+
+		GFXVertexLayout*  layout,
+		unsigned int      vertices);
 
 /**
  * Changes a draw call of the vertex layout.
