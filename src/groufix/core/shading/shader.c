@@ -97,6 +97,64 @@ static const char* _gfx_shader_eval_glsl(
 }
 
 /******************************************************/
+static int _gfx_shader_preprocess_version(size_t* num, char*** src, GFX_Window* window)
+{
+	size_t newNum = *num;
+	char** newSrc = *src;
+
+	/* Search for #version preprocessor */
+	const char* vers = "#version";
+	size_t n;
+
+	for(n = 0; n < newNum; ++n)
+		if(strstr(newSrc[n], vers)) break;
+
+	/* Prepend it if not found */
+	if(n >= newNum)
+	{
+		/* Fetch version string */
+		const char* glsl = _gfx_shader_eval_glsl(
+			window->context.major,
+			window->context.minor
+		);
+
+		if(!glsl) return 0;
+
+		size_t len = strlen(glsl);
+		++newNum;
+
+		/* Allocate new sources */
+		newSrc = malloc(sizeof(char*) * newNum);
+		if(!newSrc) return 0;
+
+		memcpy(newSrc + 1, *src, sizeof(char*) * (*num));
+
+		/* Construct preprocessor */
+		newSrc[0] = malloc(sizeof(char) * (11 + len));
+		if(!newSrc[0])
+		{
+			free(newSrc);
+			return 0;
+		}
+
+		newSrc[0][8]        = ' ';
+		newSrc[0][9 + len]  = '\n';
+		newSrc[0][10 + len] = '\0';
+
+		strncpy(newSrc[0], vers, 8);
+		strncpy(newSrc[0] + 9, glsl, len);
+
+		/* Free original */
+		free(*src);
+	}
+
+	*num = newNum;
+	*src = newSrc;
+
+	return 1;
+}
+
+/******************************************************/
 static void _gfx_shader_obj_free(
 
 		void*            object,
@@ -194,70 +252,51 @@ int gfx_shader_set_source(
 
 	struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
-	size_t newNum = num;
-	char** newSrc = NULL;
+	/* Copy sources for preprocessing */
+	char** newSrc = malloc(sizeof(char*) * num);
+	if(!newSrc) return 0;
 
-	/* Search for #version preprocessor */
-	const char* vers = "#version";
 	size_t n;
-
 	for(n = 0; n < num; ++n)
-		if(strstr(src[n], vers)) break;
-
-	/* Append it if not found */
-	n = n >= num;
-	if(n)
 	{
-		/* Fetch version string */
-		const char* glsl = _gfx_shader_eval_glsl(
-			window->context.major,
-			window->context.minor
-		);
+		size_t len = strlen(src[n]);
+		newSrc[n] = malloc(sizeof(char*) * (len + 1));
 
-		if(!glsl) return 0;
-
-		size_t size = strlen(glsl);
-		++newNum;
-
-		/* Allocate new sources */
-		newSrc = malloc(sizeof(char*) * newNum);
-		if(!newSrc) return 0;
-
-		memcpy(newSrc + 1, src, sizeof(char*) * num);
-
-		/* Construct preprocessor */
-		*newSrc = malloc(sizeof(char) * (11 + size));
-		if(!*newSrc)
+		/* Undo all */
+		if(!newSrc[n])
 		{
+			while(n) free(newSrc[--n]);
 			free(newSrc);
+
 			return 0;
 		}
 
-		(*newSrc)[8] = ' ';
-		(*newSrc)[9 + size] = '\n';
-		(*newSrc)[10 + size] = '\0';
-
-		memcpy(*newSrc, vers, sizeof(char) << 3);
-		memcpy(*newSrc + 9, glsl, sizeof(char) * size);
+		/* Copy the string */
+		strncpy(newSrc[n], src[n], len);
+		newSrc[n][len] = '\0';
 	}
 
-	/* Set the source */
-	window->extensions.ShaderSource(
-		internal->handle,
-		newNum,
-		n ? (const char**)newSrc : src,
-		NULL
-	);
-	shader->compiled = 0;
+	/* Preprocess */
+	int success;
+	success = _gfx_shader_preprocess_version(&num, &newSrc, window);
 
-	/* Deallocate new data */
-	if(newSrc)
+	if(success)
 	{
-		free(*newSrc);
-		free(newSrc);
+		/* Set the source */
+		window->extensions.ShaderSource(
+			internal->handle,
+			num,
+			(const char**)newSrc,
+			NULL
+		);
+		shader->compiled = 0;
 	}
 
-	return 1;
+	/* Deallocate sources */
+	while(num) free(newSrc[--num]);
+	free(newSrc);
+
+	return success;
 }
 
 /******************************************************/
