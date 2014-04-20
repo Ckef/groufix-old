@@ -60,25 +60,29 @@ int _gfx_submesh_reference(
 /**
  * Makes sure the submesh is freed properly.
  *
+ * Decreases the reference counter before freeing.
+ *
  */
 void _gfx_submesh_free(
 
 		GFXSubMesh* mesh);
 
 /**
- * Adds a submesh to a bucket pipe.
+ * Adds the bucket and increases a reference counter referencing the bucket.
+ *
+ * @return Zero on failure or overflow.
  *
  */
-void _gfx_submesh_add_to_bucket(
+int _gfx_submesh_reference_bucket(
 
 		GFXSubMesh*  mesh,
 		GFXPipe*     pipe);
 
 /**
- * Removes a submesh from a bucket pipe.
+ * Decreases the reference counter, removes the submesh from the bucket if zero.
  *
  */
-void _gfx_submesh_remove_from_bucket(
+void _gfx_submesh_remove_bucket(
 
 		GFXSubMesh*  mesh,
 		GFXPipe*     pipe);
@@ -87,6 +91,7 @@ void _gfx_submesh_remove_from_bucket(
  * Retrieves the bucket source ID from a submesh.
  *
  * @param index Index of the submesh source (must be < mesh->sources).
+ * @param pipe  A bucket references in the submesh.
  * @return The ID of the source, 0 on failure.
  *
  */
