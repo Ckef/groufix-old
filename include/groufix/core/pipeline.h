@@ -223,7 +223,6 @@ void gfx_bucket_remove_source(
  *
  * @param state    Manual bits of the state to associate this unit with.
  * @param map      Property map (and thus program) to use for rendering this unit.
- * @param copy     Index of the copy of the property map to use.
  * @param visible  Non-zero if visible, invisible otherwise.
  * @return The ID of the inserted unit, 0 on failure.
  *
@@ -233,14 +232,22 @@ size_t gfx_bucket_insert(
 		GFXBucket*       bucket,
 		size_t           src,
 		GFXPropertyMap*  map,
-		size_t           copy,
 		GFXBatchState    state,
 		int              visible);
 
 /**
- * Returns the number of instances to draw.
+ * Returns the index of the copy of the property map in use.
  *
  * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
+ *
+ */
+size_t gfx_bucket_get_copy(
+
+		GFXBucket*  bucket,
+		size_t      unit);
+
+/**
+ * Returns the number of instances to draw.
  *
  */
 size_t gfx_bucket_get_instances(
@@ -274,6 +281,16 @@ int gfx_bucket_is_visible(
 
 		GFXBucket*  bucket,
 		size_t      unit);
+
+/**
+ * Sets the index of the copy of the property map to use.
+ *
+ */
+void gfx_bucket_set_copy(
+
+		GFXBucket*  bucket,
+		size_t      unit,
+		size_t      copy);
 
 /**
  * Sets the number of instances to draw.

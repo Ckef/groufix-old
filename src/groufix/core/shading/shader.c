@@ -97,7 +97,11 @@ static const char* _gfx_shader_eval_glsl(
 }
 
 /******************************************************/
-static int _gfx_shader_preprocess_version(size_t* num, char*** src, GFX_Window* window)
+static int _gfx_shader_preprocess_version(
+
+		size_t*      num,
+		char***      src,
+		GFX_Window*  window)
 {
 	size_t newNum = *num;
 	char** newSrc = *src;

@@ -611,7 +611,6 @@ size_t gfx_bucket_insert(
 		GFXBucket*       bucket,
 		size_t           src,
 		GFXPropertyMap*  map,
-		size_t           copy,
 		GFXBatchState    state,
 		int              visible)
 {
@@ -645,7 +644,7 @@ size_t gfx_bucket_insert(
 	unit.state  = _gfx_bucket_create_state(internal, state, layKey, proKey);
 	unit.action = visible ? GFX_INT_UNIT_VISIBLE : 0;
 	unit.map    = map;
-	unit.copy   = copy;
+	unit.copy   = 0;
 	unit.src    = src;
 	unit.inst   = 1;
 	unit.base   = 0;
@@ -656,6 +655,9 @@ size_t gfx_bucket_insert(
 		internal->units.end
 	);
 	if(it == internal->units.end) return 0;
+
+	/* Force to process */
+	internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS;
 
 	/* Insert a reference for it */
 	size_t id = _gfx_bucket_insert_ref(
@@ -670,15 +672,22 @@ size_t gfx_bucket_insert(
 		return 0;
 	}
 
+	/* Set reference and draw type and force to sort if necessary */
 	((struct GFX_Unit*)it)->ref = id - 1;
-
-	/* Force to process and sort if necessary */
-	internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS;
-	if(visible) internal->flags |= GFX_INT_BUCKET_SORT;
-
 	_gfx_bucket_set_draw_type(it);
 
+	if(visible) internal->flags |= GFX_INT_BUCKET_SORT;
+
 	return id;
+}
+
+/******************************************************/
+size_t gfx_bucket_get_copy(
+
+		GFXBucket*  bucket,
+		size_t      unit)
+{
+	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->copy;
 }
 
 /******************************************************/
@@ -716,6 +725,16 @@ int gfx_bucket_is_visible(
 		size_t      unit)
 {
 	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->action & GFX_INT_UNIT_VISIBLE;
+}
+
+/******************************************************/
+void gfx_bucket_set_copy(
+
+		GFXBucket*  bucket,
+		size_t      unit,
+		size_t      copy)
+{
+	_gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->copy = copy;
 }
 
 /******************************************************/
