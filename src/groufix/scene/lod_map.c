@@ -186,6 +186,44 @@ int gfx_lod_map_add(
 }
 
 /******************************************************/
+static int _gfx_lod_map_remove_at(
+
+		struct GFX_Map*    map,
+		GFXVectorIterator  level,
+		size_t             index)
+{
+	/* Get boundaries */
+	size_t begin;
+	size_t end;
+	_gfx_lod_map_get_boundaries(
+		map,
+		level,
+		&begin,
+		&end
+	);
+
+	size_t size = end - begin;
+	if(index >= size) return 0;
+
+	/* Erase the data */
+	gfx_vector_erase_at(&map->data, begin + index);
+	if(size == 1)
+	{
+		level = gfx_vector_erase(&map->levels, level);
+		--map->map.levels;
+	}
+
+	/* Decrease upper bounds */
+	while(level != map->levels.end)
+	{
+		--(*(size_t*)level);
+		level = gfx_vector_next(&map->levels, level);
+	}
+
+	return 1;
+}
+
+/******************************************************/
 int gfx_lod_map_remove(
 
 		GFXLodMap*  map,
@@ -210,7 +248,7 @@ int gfx_lod_map_remove(
 		&end
 	);
 
-	/* Find the data */
+	/* Find the data and remove it */
 	GFXVectorIterator found;
 	size_t index = _gfx_lod_map_find_data(
 		internal,
@@ -220,24 +258,26 @@ int gfx_lod_map_remove(
 		&found
 	);
 
-	if(index == end) return 0;
+	return _gfx_lod_map_remove_at(internal, levIt, index - begin);
+}
 
-	/* Erase the data */
-	gfx_vector_erase(&internal->data, found);
-	if(end - begin == 1)
-	{
-		levIt = gfx_vector_erase(&internal->levels, levIt);
-		--map->levels;
-	}
+/******************************************************/
+int gfx_lod_map_remove_at(
 
-	/* Decrease upper bounds */
-	while(levIt != internal->levels.end)
-	{
-		--(*(size_t*)levIt);
-		levIt = gfx_vector_next(&internal->levels, levIt);
-	}
+		GFXLodMap*  map,
+		size_t      level,
+		size_t      index)
+{
+	if(level >= map->levels) return 0;
 
-	return 1;
+	/* Get level and remove */
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFXVectorIterator levIt = gfx_vector_at(
+		&internal->levels,
+		level
+	);
+
+	return _gfx_lod_map_remove_at(internal, levIt, index);
 }
 
 /******************************************************/

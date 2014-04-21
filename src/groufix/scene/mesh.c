@@ -46,14 +46,13 @@ void gfx_mesh_free(
 		{
 			/* Free all submeshes in it */
 			size_t num;
-			GFXSubMeshList list = gfx_mesh_get(
-				mesh,
+			GFXSubMesh** data = gfx_lod_map_get(
+				(GFXLodMap*)mesh,
 				--levels,
 				&num
 			);
 
-			while(num) _gfx_submesh_free(
-				gfx_submesh_list_at(list, --num));
+			while(num) _gfx_submesh_free(data[--num]);
 		}
 
 		gfx_lod_map_free((GFXLodMap*)mesh);

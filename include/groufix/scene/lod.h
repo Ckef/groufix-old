@@ -95,6 +95,22 @@ int gfx_lod_map_remove(
 		void*       data);
 
 /**
+ * Removes mapped data from a given level of detail.
+ *
+ * @param index Index of the data within the level as seen in the return of gfx_lod_map_get.
+ * @return Non-zero if it was removed.
+ *
+ * If this operation causes a level to be empty,
+ * all levels above it will fall down one level.
+ *
+ */
+int gfx_lod_map_remove_at(
+
+		GFXLodMap*  map,
+		size_t      level,
+		size_t      index);
+
+/**
  * Retrieves wheter given data is mapped or not.
  *
  * @param level Level of detail it should be mapped to.
