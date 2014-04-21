@@ -24,7 +24,7 @@
 #################################################################
 # If no target was given
 #################################################################
-default:
+help:
 	@echo ""
 	@echo "Use one of the following commands to build Groufix:"
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -107,7 +107,7 @@ HEADERS_LIB = \
  $(SRC)/groufix/core/platform.h \
  $(SRC)/groufix/scene/internal.h
 
-HEADERS_X11 = \
+HEADERS_UNIX_X11 = \
  $(HEADERS_LIB) \
  $(DEPEND)/GL/glxext.h \
  $(SRC)/groufix/core/platform/x11.h
@@ -177,15 +177,19 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/math.o \
  $(OUT)/unix-x11/groufix.o
 
+
+# Shared Library
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
 	$(CC) $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LFLAGS_UNIX_X11)
 
-unix-x11-minimal: examples/minimal.c unix-x11 
+# Examples
+unix-x11-minimal: examples/minimal.c unix-x11
 	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
-unix-x11-simple: examples/simple.c unix-x11 
+unix-x11-simple: examples/simple.c unix-x11
 	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
+# Directories
 before-unix-x11:
 	mkdir -p $(BIN)/unix-x11
 	mkdir -p $(OUT)/unix-x11/groufix/containers
@@ -195,115 +199,8 @@ before-unix-x11:
 	mkdir -p $(OUT)/unix-x11/groufix/core/shading
 	mkdir -p $(OUT)/unix-x11/groufix/scene
 
-
 # All the object files
-
-$(OUT)/unix-x11/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/memory/buffer.o: $(SRC)/groufix/core/memory/buffer.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/memory/formats.o: $(SRC)/groufix/core/memory/formats.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/memory/layout.o: $(SRC)/groufix/core/memory/layout.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/memory/shared_buffer.o: $(SRC)/groufix/core/memory/shared_buffer.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/memory/texture.o: $(SRC)/groufix/core/memory/texture.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/pipeline/bucket.o: $(SRC)/groufix/core/pipeline/bucket.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/pipeline/pipe.o: $(SRC)/groufix/core/pipeline/pipe.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/pipeline/pipeline.o: $(SRC)/groufix/core/pipeline/pipeline.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/pipeline/process.o: $(SRC)/groufix/core/pipeline/process.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/pipeline/states.o: $(SRC)/groufix/core/pipeline/states.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/platform/context.o: $(SRC)/groufix/core/platform/context.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/platform/unix_thread.o: $(SRC)/groufix/core/platform/unix_thread.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/platform/unix_time.o: $(SRC)/groufix/core/platform/unix_time.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/platform/x11_context.o: $(SRC)/groufix/core/platform/x11_context.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/platform/x11_init.o: $(SRC)/groufix/core/platform/x11_init.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/platform/x11_screen.o: $(SRC)/groufix/core/platform/x11_screen.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/platform/x11_window.o: $(SRC)/groufix/core/platform/x11_window.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/shading/binder.o: $(SRC)/groufix/core/shading/binder.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/shading/program.o: $(SRC)/groufix/core/shading/program.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/shading/property_map.o: $(SRC)/groufix/core/shading/property_map.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/shading/shader.o: $(SRC)/groufix/core/shading/shader.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/errors.o: $(SRC)/groufix/core/errors.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/events.o: $(SRC)/groufix/core/events.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/extensions.o: $(SRC)/groufix/core/extensions.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/hardware.o: $(SRC)/groufix/core/hardware.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/screen.o: $(SRC)/groufix/core/screen.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/core/window.o: $(SRC)/groufix/core/window.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/scene/lod_map.o: $(SRC)/groufix/scene/lod_map.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/scene/material.o: $(SRC)/groufix/scene/material.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/scene/mesh.o: $(SRC)/groufix/scene/mesh.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/scene/submesh.o: $(SRC)/groufix/scene/submesh.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-
-$(OUT)/unix-x11/groufix.o: $(SRC)/groufix.c $(HEADERS_X11)
+$(OUT)/unix-x11%.o: $(SRC)%.c $(HEADERS_UNIX_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 
@@ -348,15 +245,19 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/math.o \
  $(OUT)/win32/groufix.o
 
+
+# Shared Library
 win32: before-win32 $(OBJS_WIN32)
 	$(CC) $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
 
+# Examples
 win32-minimal: examples/minimal.c win32
 	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
 
 win32-simple: examples/simple.c win32
 	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
 
+# Directories
 before-win32:
 	if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
 	if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
@@ -366,114 +267,6 @@ before-win32:
 	if not exist $(OUT)\win32\groufix\core\shading\nul mkdir $(OUT)\win32\groufix\core\shading
 	if not exist $(OUT)\win32\groufix\scene\nul mkdir $(OUT)\win32\groufix\scene
 
-
 # All the object files
-
-$(OUT)/win32/groufix/containers/deque.o: $(SRC)/groufix/containers/deque.c $(HEADERS_WIN32)
+$(OUT)/win32%.o: $(SRC)%.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/containers/list.o: $(SRC)/groufix/containers/list.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/containers/vector.o: $(SRC)/groufix/containers/vector.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/memory/buffer.o: $(SRC)/groufix/core/memory/buffer.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/memory/formats.o: $(SRC)/groufix/core/memory/formats.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/memory/layout.o: $(SRC)/groufix/core/memory/layout.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/memory/shared_buffer.o: $(SRC)/groufix/core/memory/shared_buffer.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/memory/texture.o: $(SRC)/groufix/core/memory/texture.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/pipeline/bucket.o: $(SRC)/groufix/core/pipeline/bucket.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/pipeline/pipe.o: $(SRC)/groufix/core/pipeline/pipe.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/pipeline/pipeline.o: $(SRC)/groufix/core/pipeline/pipeline.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/pipeline/process.o: $(SRC)/groufix/core/pipeline/process.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/pipeline/states.o: $(SRC)/groufix/core/pipeline/states.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/platform/context.o: $(SRC)/groufix/core/platform/context.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/platform/win32_context.o: $(SRC)/groufix/core/platform/win32_context.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/platform/win32_init.o: $(SRC)/groufix/core/platform/win32_init.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/platform/win32_screen.o: $(SRC)/groufix/core/platform/win32_screen.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/platform/win32_thread.o: $(SRC)/groufix/core/platform/win32_thread.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/platform/win32_time.o: $(SRC)/groufix/core/platform/win32_time.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/platform/win32_window.o: $(SRC)/groufix/core/platform/win32_window.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/shading/binder.o: $(SRC)/groufix/core/shading/binder.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/shading/program.o: $(SRC)/groufix/core/shading/program.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/shading/property_map.o: $(SRC)/groufix/core/shading/property_map.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/shading/shader.o: $(SRC)/groufix/core/shading/shader.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/errors.o: $(SRC)/groufix/core/errors.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/events.o: $(SRC)/groufix/core/events.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/extensions.o: $(SRC)/groufix/core/extensions.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/hardware.o: $(SRC)/groufix/core/hardware.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/screen.o: $(SRC)/groufix/core/screen.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/core/window.o: $(SRC)/groufix/core/window.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/scene/lod_map.o: $(SRC)/groufix/scene/lod_map.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/scene/material.o: $(SRC)/groufix/scene/material.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/scene/mesh.o: $(SRC)/groufix/scene/mesh.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/scene/submesh.o: $(SRC)/groufix/scene/submesh.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix/math.o: $(SRC)/groufix/math.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
-$(OUT)/win32/groufix.o: $(SRC)/groufix.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-
