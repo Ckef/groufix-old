@@ -434,19 +434,6 @@ static int _gfx_property_expand(
 	for(it = (struct GFX_Property*)(map + 1); properties--; ++it)
 		if(it->index > prop->index) it->index += insSize;
 
-	/* Initialize the copies */
-	GFXVectorIterator copy = gfx_vector_advance(
-		&map->values,
-		end,
-		-prop->size
-	);
-
-	while(num--)
-	{
-		memcpy(end, copy, prop->size);
-		end = gfx_vector_advance(&map->values, end, prop->size);
-	}
-
 	return 1;
 }
 
@@ -557,6 +544,7 @@ int gfx_property_map_expand(
 		if(prop->type & GFX_INT_PROPERTY_HAS_COPIES) bSize += prop->size * num;
 
 	/* Try to reserve the needed memory */
+	/* This is done so the expand calls won't fail */
 	if(!gfx_vector_reserve(&internal->values, bSize))
 		return 0;
 
