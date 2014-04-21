@@ -417,12 +417,7 @@ static int _gfx_property_expand(
 
 	/* Insert the copies */
 	size_t insSize = prop->size * num;
-
-	GFXVectorIterator end = _gfx_property_get_value(
-		map,
-		prop,
-		map->map.copies
-	);
+	GFXVectorIterator end = _gfx_property_get_value(map, prop, map->map.copies);
 
 	if(gfx_vector_insert_range(&map->values, insSize, NULL, end) == map->values.end)
 		return 0;
@@ -466,6 +461,25 @@ static void _gfx_property_shrink(
 
 		for(it = (struct GFX_Property*)(map + 1); properties--; ++it)
 			if(it->index > prop->index) it->index -= erSize;
+	}
+}
+
+/******************************************************/
+static void _gfx_property_move(
+
+		struct GFX_Map*       map,
+		struct GFX_Property*  prop,
+		size_t                dest,
+		size_t                src)
+{
+	/* No copies to move */
+	if(prop->type & GFX_INT_PROPERTY_HAS_COPIES && dest != src && prop->size)
+	{
+		GFXVectorIterator destVal = _gfx_property_get_value(map, prop, dest);
+		GFXVectorIterator srcVal = _gfx_property_get_value(map, prop, src);
+
+		/* Copy the memory */
+		memcpy(destVal, srcVal, prop->size);
 	}
 }
 
@@ -582,6 +596,28 @@ size_t gfx_property_map_shrink(
 	map->copies -= num;
 
 	return num;
+}
+
+/******************************************************/
+int gfx_property_map_move(
+
+		GFXPropertyMap*  map,
+		size_t           dest,
+		size_t           src)
+{
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+
+	/* Validate indices */
+	if(dest >= map->copies || src >= map->copies) return 0;
+
+	/* Iterate and move */
+	struct GFX_Property* prop;
+	unsigned char properties = map->properties;
+
+	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
+		_gfx_property_move(internal, prop, dest, src);
+
+	return 1;
 }
 
 /******************************************************/

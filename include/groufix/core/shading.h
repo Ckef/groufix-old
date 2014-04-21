@@ -414,6 +414,22 @@ size_t gfx_property_map_shrink(
 		size_t           num);
 
 /**
+ * Moves the values of all properties of a given copy to another copy.
+ *
+ * @param dest Index of the destination copy.
+ * @param src  Index of the source copy (can equal dest).
+ * @return Zero if either copy does not exist.
+ *
+ * The values of the source copies remain unaltered.
+ *
+ */
+int gfx_property_map_move(
+
+		GFXPropertyMap*  map,
+		size_t           dest,
+		size_t           src);
+
+/**
  * Forwards data send to a given index to a property within the program.
  *
  * @param index    Index to forward to the program (must be < map->properties).
