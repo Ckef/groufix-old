@@ -123,6 +123,8 @@ GFXSubMesh* _gfx_submesh_create(
 		unsigned char  drawCalls,
 		unsigned char  sources)
 {
+	if(!sources) return NULL;
+
 	/* Allocate submesh */
 	size_t size = sizeof(struct GFX_SubMesh) + sources * sizeof(GFXVertexSource);
 

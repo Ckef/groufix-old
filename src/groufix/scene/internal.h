@@ -25,10 +25,50 @@
 #define GFX_SCENE_INTERNAL_H
 
 #include "groufix/scene/mesh.h"
+#include "groufix/containers/vector.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/********************************************************
+ * Internal LOD map
+ *******************************************************/
+
+/* Internal LOD map */
+typedef struct GFX_LodMap
+{
+	/* Super class */
+	GFXLodMap map;
+
+	/* Hidden data */
+	GFXVector data;   /* Stores elements of dataSize bytes */
+	GFXVector levels; /* Stores size_t, upper bound of the level */
+
+} GFX_LodMap;
+
+
+/**
+ * Initializes a LOD map.
+ *
+ * @param dataSize Size of each mapped object in bytes.
+ * @param compSize Starting bytes of elements to use to compare said elements.
+ *
+ */
+void _gfx_lod_map_init(
+
+		GFX_LodMap*  map,
+		size_t       dataSize,
+		size_t       compSize);
+
+/**
+ * Clears the content of a LOD map.
+ *
+ */
+void _gfx_lod_map_clear(
+
+		GFX_LodMap* map);
+
 
 /********************************************************
  * SubMesh management

@@ -21,15 +21,37 @@
  *
  */
 
-#include "groufix/scene/material.h"
+#include "groufix/scene.h"
+#include "groufix/scene/internal.h"
+
+#include <stdlib.h>
+
+/******************************************************/
+/* Internal material */
+struct GFX_Material
+{
+	/* Super class */
+	GFX_LodMap map;
+
+	/* Hidden data */
+	GFXVector  units;
+	GFXVector  buckets;
+};
 
 /******************************************************/
 GFXMaterial* gfx_material_create(void)
 {
-	return (GFXMaterial*)gfx_lod_map_create(
+	/* Allocate material */
+	struct GFX_Material* mat = calloc(1, sizeof(struct GFX_Material));
+	if(!mat) return NULL;
+
+	_gfx_lod_map_init(
+		(GFX_LodMap*)mat,
 		sizeof(GFXPropertyMap*),
 		sizeof(GFXPropertyMap*)
 	);
+
+	return (GFXMaterial*)mat;
 }
 
 /******************************************************/
@@ -46,17 +68,17 @@ void gfx_material_free(
 		{
 			/* Free all property maps in it */
 			size_t num;
-			GFXPropertyMapList list = gfx_material_get(
-				material,
+			GFXPropertyMap** data = gfx_lod_map_get(
+				(GFXLodMap*)material,
 				--levels,
 				&num
 			);
 
-			while(num) gfx_property_map_free(
-				gfx_property_map_list_at(list, --num));
+			while(num) gfx_property_map_free(data[--num]);
 		}
 
-		gfx_lod_map_free((GFXLodMap*)material);
+		_gfx_lod_map_clear((GFX_LodMap*)material);
+		free(material);
 	}
 }
 
@@ -87,13 +109,16 @@ void gfx_material_remove(
 		GFXMaterial*     material,
 		GFXPropertyMap*  map)
 {
-	/* Remove it from all levels */
+	/* Find level and remove it */
 	size_t levels = material->lodMap.levels;
 
 	while(levels)
 	{
 		if(gfx_lod_map_remove((GFXLodMap*)material, --levels, &map))
+		{
 			gfx_property_map_free(map);
+			break;
+		}
 	}
 }
 

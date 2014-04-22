@@ -21,28 +21,16 @@
  *
  */
 
-#include "groufix/scene/lod.h"
+#include "groufix/scene/internal.h"
 #include "groufix/containers/vector.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 /******************************************************/
-/* Internal LOD map */
-struct GFX_Map
-{
-	/* Super class */
-	GFXLodMap map;
-
-	/* Hidden data */
-	GFXVector data;   /* Stores elements of dataSize bytes */
-	GFXVector levels; /* Stores size_t, upper bound of the level */
-};
-
-/******************************************************/
 static void _gfx_lod_map_get_boundaries(
 
-		struct GFX_Map*    map,
+		GFX_LodMap*        map,
 		GFXVectorIterator  level,
 		size_t*            begin,
 		size_t*            end)
@@ -56,7 +44,7 @@ static void _gfx_lod_map_get_boundaries(
 /******************************************************/
 static size_t _gfx_lod_map_find_data(
 
-		struct GFX_Map*     map,
+		GFX_LodMap*         map,
 		size_t              begin,
 		size_t              end,
 		void*               data,
@@ -78,19 +66,38 @@ static size_t _gfx_lod_map_find_data(
 }
 
 /******************************************************/
+void _gfx_lod_map_init(
+
+		GFX_LodMap*  map,
+		size_t       dataSize,
+		size_t       compSize)
+{
+	map->map.compSize = (compSize > dataSize) ? dataSize : compSize;
+
+	gfx_vector_init(&map->data, dataSize);
+	gfx_vector_init(&map->levels, sizeof(size_t));
+}
+
+/******************************************************/
+void _gfx_lod_map_clear(
+
+		GFX_LodMap* map)
+{
+	gfx_vector_clear(&map->data);
+	gfx_vector_clear(&map->levels);
+}
+
+/******************************************************/
 GFXLodMap* gfx_lod_map_create(
 
 		size_t  dataSize,
 		size_t  compSize)
 {
 	/* Allocate new map */
-	struct GFX_Map* map = calloc(1, sizeof(struct GFX_Map));
+	GFX_LodMap* map = calloc(1, sizeof(GFX_LodMap));
 	if(!map) return NULL;
 
-	map->map.compSize = (compSize > dataSize) ? dataSize : compSize;
-
-	gfx_vector_init(&map->data, dataSize);
-	gfx_vector_init(&map->levels, sizeof(size_t));
+	_gfx_lod_map_init(map, dataSize, compSize);
 
 	return (GFXLodMap*)map;
 }
@@ -102,11 +109,7 @@ void gfx_lod_map_free(
 {
 	if(map)
 	{
-		struct GFX_Map* internal = (struct GFX_Map*)map;
-
-		gfx_vector_clear(&internal->data);
-		gfx_vector_clear(&internal->levels);
-
+		_gfx_lod_map_clear((GFX_LodMap*)map);
 		free(map);
 	}
 }
@@ -120,7 +123,7 @@ int gfx_lod_map_add(
 {
 	if(level > map->levels) return 0;
 
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_LodMap* internal = (GFX_LodMap*)map;
 
 	/* Get level iterator */
 	GFXVectorIterator levIt;
@@ -188,7 +191,7 @@ int gfx_lod_map_add(
 /******************************************************/
 static int _gfx_lod_map_remove_at(
 
-		struct GFX_Map*    map,
+		GFX_LodMap*        map,
 		GFXVectorIterator  level,
 		size_t             index)
 {
@@ -232,7 +235,7 @@ int gfx_lod_map_remove(
 {
 	if(level >= map->levels) return 0;
 
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_LodMap* internal = (GFX_LodMap*)map;
 	GFXVectorIterator levIt = gfx_vector_at(
 		&internal->levels,
 		level
@@ -271,7 +274,7 @@ int gfx_lod_map_remove_at(
 	if(level >= map->levels) return 0;
 
 	/* Get level and remove */
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_LodMap* internal = (GFX_LodMap*)map;
 	GFXVectorIterator levIt = gfx_vector_at(
 		&internal->levels,
 		level
@@ -289,7 +292,7 @@ int gfx_lod_map_has(
 {
 	if(level >= map->levels) return 0;
 
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_LodMap* internal = (GFX_LodMap*)map;
 	GFXVectorIterator levIt = gfx_vector_at(
 		&internal->levels,
 		level
@@ -331,7 +334,7 @@ void* gfx_lod_map_get(
 		return NULL;
 	}
 
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_LodMap* internal = (GFX_LodMap*)map;
 	GFXVectorIterator levIt = gfx_vector_at(
 		&internal->levels,
 		level
