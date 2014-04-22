@@ -71,6 +71,8 @@ void gfx_lod_map_free(
  * @param data  Data of dataSize (see gfx_lod_map_create) bytes, copied into the map.
  * @return Non-zero if the data is mapped.
  *
+ * The data is appended to the end of the level (as seen in the return of gfx_lod_map_get).
+ *
  */
 int gfx_lod_map_add(
 
@@ -123,6 +125,19 @@ int gfx_lod_map_has(
 		GFXLodMap*  map,
 		size_t      level,
 		void*       data);
+
+/**
+ * Counts the number of data elements in a number of levels.
+ *
+ * @param level All elements in levels up until and including this level are counted.
+ *
+ * Note: level is clamped to (map->levels - 1).
+ *
+ */
+size_t gfx_lod_map_count(
+
+		GFXLodMap*  map,
+		size_t      level);
 
 /**
  * Returns an array of data elements of dataSize bytes of a given level of detail.

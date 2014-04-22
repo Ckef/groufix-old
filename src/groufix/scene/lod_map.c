@@ -72,6 +72,7 @@ void _gfx_lod_map_init(
 		size_t       dataSize,
 		size_t       compSize)
 {
+	map->map.levels = 0;
 	map->map.compSize = (compSize > dataSize) ? dataSize : compSize;
 
 	gfx_vector_init(&map->data, dataSize);
@@ -319,6 +320,18 @@ int gfx_lod_map_has(
 	);
 
 	return (index != end);
+}
+
+/******************************************************/
+size_t gfx_lod_map_count(
+
+		GFXLodMap*  map,
+		size_t      level)
+{
+	if(!map->levels) return 0;
+	level = (level >= map->levels) ? map->levels - 1 : level;
+
+	return *(size_t*)gfx_vector_at(&((GFX_LodMap*)map)->levels, level);
 }
 
 /******************************************************/
