@@ -106,19 +106,47 @@ int gfx_mesh_add_share(
 }
 
 /******************************************************/
-void gfx_mesh_remove(
+int gfx_mesh_remove(
 
 		GFXMesh*     mesh,
+		size_t       level,
 		GFXSubMesh*  sub)
 {
-	/* Remove it from all levels */
-	size_t levels = mesh->lodMap.levels;
-
-	while(levels)
+	/* Try to remove it */
+	if(gfx_lod_map_remove((GFXLodMap*)mesh, level, &sub))
 	{
-		if(gfx_lod_map_remove((GFXLodMap*)mesh, --levels, &sub))
-			_gfx_submesh_free(sub);
+		_gfx_submesh_free(sub);
+		return 1;
 	}
+	return 0;
+}
+
+/******************************************************/
+int gfx_mesh_remove_at(
+
+		GFXMesh*  mesh,
+		size_t    level,
+		size_t    index)
+{
+	/* First get the submesh */
+	size_t num;
+	GFXSubMesh** data = gfx_lod_map_get(
+		(GFXLodMap*)mesh,
+		level,
+		&num
+	);
+
+	if(index >= num) return 0;
+
+	/* Try to remove it */
+	GFXSubMesh* submesh = data[index];
+
+	if(gfx_lod_map_remove_at((GFXLodMap*)mesh, level, index))
+	{
+		_gfx_submesh_free(submesh);
+		return 1;
+	}
+	return 0;
 }
 
 /******************************************************/

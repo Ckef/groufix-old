@@ -326,12 +326,12 @@ int gfx_lod_map_has(
 size_t gfx_lod_map_count(
 
 		GFXLodMap*  map,
-		size_t      level)
+		size_t      levels)
 {
-	if(!map->levels) return 0;
-	level = (level >= map->levels) ? map->levels - 1 : level;
+	levels = (levels > map->levels) ? map->levels : levels;
+	if(!levels) return 0;
 
-	return *(size_t*)gfx_vector_at(&((GFX_LodMap*)map)->levels, level);
+	return *(size_t*)gfx_vector_at(&((GFX_LodMap*)map)->levels, levels - 1);
 }
 
 /******************************************************/

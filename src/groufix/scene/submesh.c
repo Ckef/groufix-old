@@ -36,7 +36,7 @@ struct GFX_SubMesh
 
 	/* Hidden data */
 	unsigned int  references; /* Reference counter */
-	GFXVector     buckets;    /* Stores (GFX_BucketRef + size_t * sources) for each bucket */
+	GFXVector     buckets;    /* Stores (GFX_BucketRef + size_t * sources) */
 	GFXVector     buffers;    /* Stores GFXSharedBuffer */
 };
 
@@ -50,7 +50,6 @@ struct GFX_BucketRef
 /******************************************************/
 static inline size_t* _gfx_submesh_get_src(
 
-		struct GFX_SubMesh*    mesh,
 		struct GFX_BucketRef*  bucket,
 		unsigned char          index)
 {
@@ -87,7 +86,7 @@ static void _gfx_submesh_erase_bucket(
 	{
 		gfx_bucket_remove_source(
 			bucket->pipe->bucket,
-			*_gfx_submesh_get_src(mesh, bucket, srcInd)
+			*_gfx_submesh_get_src(bucket, srcInd)
 		);
 	}
 
@@ -285,7 +284,7 @@ size_t _gfx_submesh_get_bucket_source(
 	if(bucket == internal->buckets.end || index >= mesh->sources) return 0;
 
 	/* Get the source ID */
-	size_t* srcPtr = _gfx_submesh_get_src(internal, bucket, index);
+	size_t* srcPtr = _gfx_submesh_get_src(bucket, index);
 	size_t src = *srcPtr;
 
 	if(!src)
@@ -328,7 +327,7 @@ int gfx_submesh_set_source(
 	{
 		gfx_bucket_set_source(
 			((struct GFX_BucketRef*)it)->pipe->bucket,
-			*_gfx_submesh_get_src(internal, it, index),
+			*_gfx_submesh_get_src(it, index),
 			source);
 	}
 

@@ -177,16 +177,35 @@ int gfx_mesh_add_share(
 		GFXSubMesh*  share);
 
 /**
- * Removes a submesh from the mesh.
+ * Removes a submesh from a given level of detail of a mesh.
  *
- * This might or might not remove LODs.
- * If this happens, higher levels will fall down one level.
+ * @return Non-zero if it was found and removed.
+ *
+ * If this operation causes a level to be empty,
+ * all levels above it will fall down one level.
  *
  */
-void gfx_mesh_remove(
+int gfx_mesh_remove(
 
 		GFXMesh*     mesh,
+		size_t       level,
 		GFXSubMesh*  sub);
+
+/**
+ * Removes a submesh from a given level of detail of a mesh.
+ *
+ * @param index Index of the submesh within the level as seen in the return of gfx_mesh_get.
+ * @return Non-zero if it was removed.
+ *
+ * If this operation causes a level to be empty,
+ * all levels above it will fall down one level.
+ *
+ */
+int gfx_mesh_remove_at(
+
+		GFXMesh*  mesh,
+		size_t    level,
+		size_t    index);
 
 /**
  * Returns an abstract list of submeshes of a given level of detail.

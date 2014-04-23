@@ -34,9 +34,71 @@ struct GFX_Material
 	GFX_LodMap map;
 
 	/* Hidden data */
-	GFXVector  units;
-	GFXVector  buckets;
+	GFXVector  units;   /* Stores GFX_Unit */
+	GFXVector  buckets; /* Stores (GFXPipe* + size_t (upper bound in units) * propertyMaps) */
 };
+
+/* Internal unit */
+struct GFX_Unit
+{
+	size_t  src;  /* Sort key */
+	size_t  unit; /* Actual bucket unit */
+};
+
+/******************************************************/
+static inline size_t _gfx_material_num_property_maps(
+
+		GFXLodMap* map)
+{
+	return gfx_lod_map_count(map, map->levels);
+}
+
+/******************************************************/
+static void _gfx_material_get_boundaries(
+
+		struct GFX_Material*  material,
+		GFXVectorIterator     bucket,
+		size_t                index,
+		size_t*               begin,
+		size_t*               end)
+{
+	size_t* it = ((size_t*)(((GFXPipe**)bucket) + 1)) + index;
+	*end = *it;
+
+	/* Get previous upper bound as begin */
+	if(index) *begin = *(it - 1);
+
+	/* Get start as begin */
+	else if(bucket == material->buckets.begin) *begin = 0;
+
+	/* Get upper bound of previous buffer as begin */
+	else *begin = *(((size_t*)bucket) - 1);
+}
+
+/******************************************************/
+static GFXVectorIterator _gfx_material_find_bucket(
+
+		struct GFX_Material*  material,
+		GFXPipe*              pipe)
+{
+	/* Get bucket iterator size */
+	GFXVectorIterator it;
+	int bucketSize =
+		sizeof(GFXPipe*) +
+		sizeof(size_t) *
+		_gfx_material_num_property_maps((GFXLodMap*)material);
+
+	/* Iterate and find */
+	for(
+		it = material->buckets.begin;
+		it != material->buckets.end;
+		it = gfx_vector_advance(&material->buckets, it, bucketSize))
+	{
+		if(*(GFXPipe**)it == pipe) break;
+	}
+
+	return it;
+}
 
 /******************************************************/
 GFXMaterial* gfx_material_create(void)
@@ -45,11 +107,15 @@ GFXMaterial* gfx_material_create(void)
 	struct GFX_Material* mat = calloc(1, sizeof(struct GFX_Material));
 	if(!mat) return NULL;
 
+	/* Initialize */
 	_gfx_lod_map_init(
 		(GFX_LodMap*)mat,
 		sizeof(GFXPropertyMap*),
 		sizeof(GFXPropertyMap*)
 	);
+
+	gfx_vector_init(&mat->units, sizeof(struct GFX_Unit));
+	gfx_vector_init(&mat->buckets, 1);
 
 	return (GFXMaterial*)mat;
 }
@@ -61,6 +127,8 @@ void gfx_material_free(
 {
 	if(material)
 	{
+		struct GFX_Material* internal = (struct GFX_Material*)material;
+
 		/* Iterate over all levels */
 		size_t levels = material->lodMap.levels;
 
@@ -77,7 +145,10 @@ void gfx_material_free(
 			while(num) gfx_property_map_free(data[--num]);
 		}
 
+		gfx_vector_clear(&internal->units);
+		gfx_vector_clear(&internal->buckets);
 		_gfx_lod_map_clear((GFX_LodMap*)material);
+
 		free(material);
 	}
 }
@@ -104,7 +175,7 @@ GFXPropertyMap* gfx_material_add(
 }
 
 /******************************************************/
-void gfx_material_remove(
+int gfx_material_remove(
 
 		GFXMaterial*     material,
 		GFXPropertyMap*  map)
@@ -117,9 +188,38 @@ void gfx_material_remove(
 		if(gfx_lod_map_remove((GFXLodMap*)material, --levels, &map))
 		{
 			gfx_property_map_free(map);
-			break;
+			return 1;
 		}
 	}
+	return 0;
+}
+
+/******************************************************/
+int gfx_material_remove_at(
+
+		GFXMaterial*  material,
+		size_t        level,
+		size_t        index)
+{
+	/* First get the property map */
+	size_t num;
+	GFXPropertyMap** data = gfx_lod_map_get(
+		(GFXLodMap*)material,
+		level,
+		&num
+	);
+
+	if(index >= num) return 0;
+
+	/* Try to remove it */
+	GFXPropertyMap* map = data[index];
+
+	if(gfx_lod_map_remove_at((GFXLodMap*)material, level, index))
+	{
+		gfx_property_map_free(map);
+		return 1;
+	}
+	return 0;
 }
 
 /******************************************************/

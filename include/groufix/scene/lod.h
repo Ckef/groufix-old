@@ -129,15 +129,13 @@ int gfx_lod_map_has(
 /**
  * Counts the number of data elements in a number of levels.
  *
- * @param level All elements in levels up until and including this level are counted.
- *
- * Note: level is clamped to (map->levels - 1).
+ * @param level Number of levels, starting at 0, to count the elements of.
  *
  */
 size_t gfx_lod_map_count(
 
 		GFXLodMap*  map,
-		size_t      level);
+		size_t      levels);
 
 /**
  * Returns an array of data elements of dataSize bytes of a given level of detail.
