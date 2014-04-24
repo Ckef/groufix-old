@@ -81,12 +81,12 @@ static void _gfx_submesh_erase_bucket(
 		struct GFX_BucketRef*  bucket)
 {
 	/* Remove all the sources */
-	size_t srcInd;
-	for(srcInd = 0; srcInd < mesh->submesh.sources; ++srcInd)
+	size_t s;
+	for(s = 0; s < mesh->submesh.sources; ++s)
 	{
 		gfx_bucket_remove_source(
 			bucket->pipe->bucket,
-			*_gfx_submesh_get_src(bucket, srcInd)
+			*_gfx_submesh_get_src(bucket, s)
 		);
 	}
 
@@ -193,8 +193,8 @@ void _gfx_submesh_free(
 			/* Free everything */
 			gfx_vector_clear(&internal->buckets);
 			gfx_vector_clear(&internal->buffers);
-
 			gfx_vertex_layout_free(mesh->layout);
+
 			free(mesh);
 		}
 	}

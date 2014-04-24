@@ -129,7 +129,7 @@ int gfx_lod_map_has(
 /**
  * Counts the number of data elements in a number of levels.
  *
- * @param level Number of levels, starting at 0, to count the elements of.
+ * @param levels Number of levels, starting at 0, to count the elements of.
  *
  */
 size_t gfx_lod_map_count(
