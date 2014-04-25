@@ -482,40 +482,48 @@ void gfx_pipe_unregister(
 	_gfx_pipe_sort(internal);
 
 	/* Find the callback object */
-	GFXVectorIterator it = bsearch(
+	size_t max = gfx_vector_get_size(&internal->callbacks);
+	size_t min = 0;
+
+	GFXVectorIterator found = bsearch(
 		&callback,
 		internal->callbacks.begin,
-		gfx_vector_get_size(&internal->callbacks),
+		max,
 		sizeof(struct GFX_Callback),
 		_gfx_pipe_callback_comp
 	);
 
-	if(it)
+	if(found)
 	{
-		/* Find first equivalent callback */
-		GFXVectorIterator first = it;
-		while(first != internal->callbacks.begin)
-		{
-			GFXVectorIterator prev = gfx_vector_previous(&internal->callbacks, first);
-			if(memcmp(prev, &callback, sizeof(GFXPipeCallback))) break;
+		size_t mid = gfx_vector_get_index(
+			&internal->callbacks,
+			found
+		);
 
-			first = prev;
+		/* Binary search for first equivalent callback */
+		size_t find = mid;
+		while(find > min)
+		{
+			size_t quart = min + ((find - min) >> 1);
+			GFXVectorIterator it = gfx_vector_at(&internal->callbacks, quart);
+
+			if(_gfx_pipe_callback_comp(it, &callback) < 0) min = quart + 1;
+			else find = quart;
 		}
 
-		/* Find last equivalent callback */
-		GFXVectorIterator last = gfx_vector_next(&internal->callbacks, it);
-		while(last != internal->callbacks.end)
+		/* Binary search for last equivalent callback */
+		find = mid;
+		while(max > find)
 		{
-			if(memcmp(last, &callback, sizeof(GFXPipeCallback))) break;
-			last = gfx_vector_next(&internal->callbacks, last);
+			size_t quart = find + ((max - find) >> 1);
+			GFXVectorIterator it = gfx_vector_at(&internal->callbacks, quart);
+
+			if(_gfx_pipe_callback_comp(it, &callback) > 0) max = quart;
+			else find = quart + 1;
 		}
 
 		/* Erase the range */
-		size_t num = gfx_vector_get_index(&internal->callbacks, last);
-		num -= gfx_vector_get_index(&internal->callbacks, first);
-
-		gfx_vector_erase_range(&internal->callbacks, num, first);
-
+		gfx_vector_erase_range_at(&internal->callbacks, max - min, min);
 		internal->flags &= ~GFX_INT_PIPE_RANGED;
 	}
 }
