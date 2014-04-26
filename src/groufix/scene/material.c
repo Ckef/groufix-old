@@ -224,17 +224,10 @@ static void _gfx_material_erase_buckets(
 
 		size_t begin;
 		size_t end;
-		_gfx_material_get_bucket_boundaries(
-			material,
-			bucket,
-			&begin,
-			&end
-		);
+		_gfx_material_get_bucket_boundaries(material, bucket, &begin, &end);
 
-		/* Erase all associated units */
+		/* Erase all associated units and unregister at bucket */
 		_gfx_material_erase_units(material, (*(GFXPipe**)bucket)->bucket, begin, end);
-
-		/* Unregister material at bucket */
 		_gfx_material_unregister(material, bucket);
 	}
 
@@ -256,12 +249,7 @@ static void _gfx_material_callback(
 	{
 		size_t begin;
 		size_t end;
-		_gfx_material_get_bucket_boundaries(
-			mat,
-			bucket,
-			&begin,
-			&end
-		);
+		_gfx_material_get_bucket_boundaries(mat, bucket, &begin, &end);
 
 		size_t size = _gfx_material_get_bucket_size(mat);
 		size_t numMaps = _gfx_material_get_num_maps((GFXLodMap*)mat);
@@ -272,43 +260,26 @@ static void _gfx_material_callback(
 		bucket = gfx_vector_erase_range(&mat->buckets, size, bucket);
 
 		/* Adjust upper bounds */
-		_gfx_material_increase_bounds(
-			mat,
-			bucket,
-			0,
-			numMaps,
-			-diff
-		);
+		_gfx_material_increase_bounds(mat, bucket, 0, numMaps, -diff);
 	}
 }
 
 /******************************************************/
 static size_t _gfx_material_find_units(
 
-		struct GFX_Material*  material,
-		GFXVectorIterator     bucket,
-		size_t                index,
-		size_t                src,
-		size_t*               num)
+		struct GFX_Unit*  units,
+		size_t*           num,
+		size_t            src)
 {
-	size_t min;
-	size_t max;
-	_gfx_material_get_boundaries(
-		material,
-		bucket,
-		index,
-		&min,
-		&max
-	);
-
 	/* Binary search for the source ID */
-	size_t mid = min;
+	size_t min = 0;
+	size_t max = *num;
+	size_t mid = 0;
+
 	while(max > min)
 	{
 		mid = min + ((max - min) >> 1);
-
-		GFXVectorIterator it = gfx_vector_at(&material->units, mid);
-		size_t found = ((struct GFX_Unit*)it)->src;
+		size_t found = units[mid].src;
 
 		/* Compare against key */
 		if(found < src)
@@ -324,9 +295,7 @@ static size_t _gfx_material_find_units(
 	while(find > min)
 	{
 		size_t quart = min + ((find - min) >> 1);
-
-		GFXVectorIterator it = gfx_vector_at(&material->units, quart);
-		size_t found = ((struct GFX_Unit*)it)->src;
+		size_t found = units[quart].src;
 
 		/* Compare against key */
 		if(found < src) min = quart + 1;
@@ -338,9 +307,7 @@ static size_t _gfx_material_find_units(
 	while(max > find)
 	{
 		size_t quart = find + ((max - find) >> 1);
-
-		GFXVectorIterator it = gfx_vector_at(&material->units, quart);
-		size_t found = ((struct GFX_Unit*)it)->src;
+		size_t found = units[quart].src;
 
 		/* Compare against key (*/
 		if(found > src) max = quart;
@@ -397,7 +364,10 @@ size_t _gfx_material_add_bucket_unit(
 		_gfx_material_get_map_index((GFXLodMap*)internal, level, index);
 
 	/* Also find the bucket while we're at it */
-	GFXVectorIterator bucket = _gfx_material_find_bucket(internal, pipe);
+	GFXVectorIterator bucket = _gfx_material_find_bucket(
+		internal,
+		pipe
+	);
 
 	if(bucket == internal->buckets.end)
 	{
@@ -434,7 +404,10 @@ size_t _gfx_material_add_bucket_unit(
 
 					while(numMaps--)
 					{
-						size_t* set = _gfx_material_bucket_at(bucket, numMaps);
+						size_t* set = _gfx_material_bucket_at(
+							bucket,
+							numMaps
+						);
 						*set = (numMaps >= ind) ? upper : upper - 1;
 					}
 
@@ -456,19 +429,20 @@ size_t _gfx_material_add_bucket_unit(
 	}
 
 	/* Find the range of units with the given source */
-	size_t units;
-	size_t begin = _gfx_material_find_units(
-		internal,
-		bucket,
-		ind,
-		src,
-		&units);
+	size_t min;
+	size_t max;
+
+	_gfx_material_get_boundaries(internal, bucket, ind, &min, &max);
+	struct GFX_Unit* units = gfx_vector_at(&internal->units, min);
+
+	num = max - min;
+	min += _gfx_material_find_units(units, &num, src);
 
 	/* Try to insert the unit */
 	GFXVectorIterator unitIt = gfx_vector_insert_at(
 		&internal->units,
 		&unit,
-		begin + units);
+		min + num);
 
 	if(unitIt == internal->units.end)
 	{
@@ -491,12 +465,11 @@ size_t _gfx_material_add_bucket_unit(
 /******************************************************/
 void* _gfx_material_get_bucket_units(
 
-		GFXMaterial*   material,
-		size_t         level,
-		size_t         index,
-		GFXPipe*       pipe,
-		size_t         src,
-		size_t*        num)
+		GFXMaterial*  material,
+		size_t        level,
+		size_t        index,
+		GFXPipe*      pipe,
+		size_t*       num)
 {
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 
@@ -517,16 +490,25 @@ void* _gfx_material_get_bucket_units(
 		return NULL;
 	}
 
-	/* Find the range of units with the given source */
-	size_t begin = _gfx_material_find_units(
-		internal,
-		bucket,
-		ind,
-		src,
-		num
-	);
+	/* Get the boundaries and return the range */
+	size_t min;
+	size_t max;
+	_gfx_material_get_boundaries(internal, bucket, ind, &min, &max);
 
-	return gfx_vector_at(&internal->units, begin);
+	*num = max - min;
+	return gfx_vector_at(&internal->units, min);
+}
+
+/******************************************************/
+size_t _gfx_material_find_bucket_units(
+
+		void*    units,
+		size_t   search,
+		size_t   src,
+		size_t*  num)
+{
+	*num = search;
+	return _gfx_material_find_units(units, num, src);
 }
 
 /******************************************************/
@@ -545,7 +527,6 @@ void _gfx_material_remove_bucket_units(
 		size_t        level,
 		size_t        index,
 		GFXPipe*      pipe,
-		size_t        src,
 		size_t        unit,
 		size_t        num)
 {
@@ -564,44 +545,26 @@ void _gfx_material_remove_bucket_units(
 	/* At least it will never segfault */
 	if(ind < numMaps && bucket != internal->buckets.end)
 	{
-		/* Find the range of units with the given source */
-		size_t units;
-		size_t begin = _gfx_material_find_units(
-			internal,
-			bucket,
-			ind,
-			src,
-			&units
-		);
+		/* Get the range of units of the bucket to erase */
+		size_t min;
+		size_t max;
+		_gfx_material_get_boundaries(internal, bucket, ind, &min, &max);
 
-		begin += unit;
-		units = (unit > units) ? 0 : units - unit;
-		num = (num > units) ? units : num;
+		size_t size = max - min;
+		min += (unit > size) ? size : unit;
+		size = max - min;
+		num = (num > size) ? size : num;
 
 		if(num)
 		{
 			/* Erase the units */
-			_gfx_material_erase_units(internal, pipe->bucket, begin, num);
-			gfx_vector_erase_range_at(&internal->units, num, begin);
+			_gfx_material_erase_units(internal, pipe->bucket, min, min + num);
+			gfx_vector_erase_range_at(&internal->units, num, min);
 
-			/* Decrease bounds */
-			_gfx_material_increase_bounds(
-				internal,
-				bucket,
-				ind,
-				numMaps,
-				-num);
-
-			/* Check if the bucket has any units left */
-			_gfx_material_get_bucket_boundaries(
-				internal,
-				bucket,
-				&begin,
-				&num
-			);
-
-			/* Unregister if none are left */
-			if(!(num - begin)) _gfx_material_unregister(internal, bucket);
+			/* Decrease bounds and remove the bucket if no units are left */
+			_gfx_material_increase_bounds(internal, bucket, ind, numMaps, -num);
+			_gfx_material_get_bucket_boundaries(internal, bucket, &min, &max);
+			if(!(max - min)) _gfx_material_unregister(internal, bucket);
 		}
 	}
 }
@@ -750,18 +713,17 @@ static int _gfx_material_remove_at(
 
 			size_t begin;
 			size_t end;
-			_gfx_material_get_boundaries(
-				material,
-				bucket,
-				ind,
-				&begin,
-				&end
-			);
+			_gfx_material_get_boundaries(material, bucket, ind, &begin, &end);
 
 			size_t diff = end - begin;
 
 			/* Erase all associated units */
-			_gfx_material_erase_units(material, (*(GFXPipe**)bucket)->bucket, begin, end);
+			_gfx_material_erase_units(
+				material,
+				(*(GFXPipe**)bucket)->bucket,
+				begin,
+				end
+			);
 			gfx_vector_erase_range_at(&material->units, diff, begin);
 
 			/* Adjust upper bounds */
@@ -786,12 +748,7 @@ static int _gfx_material_remove_at(
 
 			size_t begin;
 			size_t end;
-			_gfx_material_get_bucket_boundaries(
-				material,
-				bucket,
-				&begin,
-				&end
-			);
+			_gfx_material_get_bucket_boundaries(material, bucket, &begin, &end);
 
 			/* Unregister if no units are left */
 			if(!(end - begin)) _gfx_material_unregister(material, bucket);
@@ -832,14 +789,13 @@ int gfx_material_remove(
 			&num
 		);
 
-		size_t n;
-		for(n = 0; n < num; ++n) if(data[n] == map)
+		while(num--) if(data[num] == map)
 		{
 			/* Erase it if found */
 			return _gfx_material_remove_at(
 				(struct GFX_Material*)material,
 				levels,
-				n
+				num
 			);
 		}
 	}

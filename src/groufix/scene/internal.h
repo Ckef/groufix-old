@@ -98,8 +98,7 @@ size_t _gfx_material_add_bucket_unit(
 /**
  * Retrieves a number of bucket units from the material.
  *
- * @param src Source of the bucket to search for.
- * @param num Number of returned units with the given source.
+ * @param num Returns the number of returned units.
  * @return Abstract array containing num units.
  *
  * As soon as any units are added or removed, the returned pointer is invalidated.
@@ -112,13 +111,31 @@ void* _gfx_material_get_bucket_units(
 		size_t        level,
 		size_t        index,
 		GFXPipe*      pipe,
-		size_t        src,
 		size_t*       num);
+
+/**
+ * Finds units with a given source in an array returned by _gfx_material_get_bucket_units.
+ *
+ * @param units  Array returned by _gfx_material_get_bucket_units.
+ * @param search Number of elements beginning at the start of the array to include in the search.
+ * @param src    Source to search for.
+ * @param num    Number of found units starting at the returned index.
+ * @return       Index into the array the found units start at.
+ *
+ * Note: search is not bound checked.
+ *
+ */
+size_t _gfx_material_find_bucket_units(
+
+		void*    units,
+		size_t   search,
+		size_t   src,
+		size_t*  num);
 
 /**
  * Indexes into the array returned by _gfx_material_get_bucket_units.
  *
- * @param array Array returned by _gfx_material_get_bucket_units.
+ * @param array Abstract array to index into.
  * @param unit  Index into the array (bounds not checked).
  * @return The ID of the unit.
  *
@@ -143,7 +160,6 @@ void _gfx_material_remove_bucket_units(
 		size_t        level,
 		size_t        index,
 		GFXPipe*      pipe,
-		size_t        src,
 		size_t        unit,
 		size_t        num);
 
