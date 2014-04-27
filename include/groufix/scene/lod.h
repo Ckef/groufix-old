@@ -152,6 +152,15 @@ void* gfx_lod_map_get(
 		size_t      level,
 		size_t*     num);
 
+/**
+ * Returns an array of data elements of dataSize bytes of all levels.
+ *
+ */
+void* gfx_lod_map_get_all(
+
+		GFXLodMap*  map,
+		size_t*     num);
+
 
 #ifdef __cplusplus
 }

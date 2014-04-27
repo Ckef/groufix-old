@@ -21,15 +21,277 @@
  *
  */
 
+#include "groufix/scene.h"
 #include "groufix/scene/internal.h"
+
+#include <stdlib.h>
+
+/******************************************************/
+/* Internal mesh */
+struct GFX_Mesh
+{
+	GFX_LodMap  map;     /* Super class */
+	GFXVector   buckets; /* Stores GFX_BucketRef */
+};
+
+/* Internal bucket reference */
+struct GFX_BucketRef
+{
+	GFXPipe*  pipe;
+	size_t    ref; /* Reference count */
+};
+
+/******************************************************/
+static int _gfx_mesh_buckets_reference_submesh(
+
+		struct GFX_Mesh*  mesh,
+		GFXSubMesh*       sub)
+{
+	/* Reference all buckets at the submesh */
+	GFXVectorIterator it;
+	for(
+		it = mesh->buckets.begin;
+		it != mesh->buckets.end;
+		it = gfx_vector_next(&mesh->buckets, it))
+	{
+		if(!_gfx_submesh_reference_bucket(
+			sub,
+			((struct GFX_BucketRef*)it)->pipe,
+			((struct GFX_BucketRef*)it)->ref)) break;
+	}
+
+	/* Remove the references on failure */
+	if(it != mesh->buckets.end)
+	{
+		while(it != mesh->buckets.begin)
+		{
+			it = gfx_vector_previous(&mesh->buckets, it);
+			_gfx_submesh_remove_bucket(
+				sub,
+				((struct GFX_BucketRef*)it)->pipe,
+				((struct GFX_BucketRef*)it)->ref
+			);
+		}
+		return 0;
+	}
+
+	return 1;
+}
+
+/******************************************************/
+static void _gfx_mesh_buckets_remove_submesh(
+
+		struct GFX_Mesh*  mesh,
+		GFXSubMesh*       sub)
+{
+	/* Remove all buckets from the submesh */
+	GFXVectorIterator it;
+	for(
+		it = mesh->buckets.begin;
+		it != mesh->buckets.end;
+		it = gfx_vector_next(&mesh->buckets, it))
+	{
+		_gfx_submesh_remove_bucket(
+			sub,
+			((struct GFX_BucketRef*)it)->pipe,
+			((struct GFX_BucketRef*)it)->ref
+		);
+	}
+}
+
+/******************************************************/
+static struct GFX_BucketRef* _gfx_mesh_find_bucket(
+
+		struct GFX_Mesh*  mesh,
+		GFXPipe*          pipe)
+{
+	GFXVectorIterator it;
+	for(
+		it = mesh->buckets.begin;
+		it != mesh->buckets.end;
+		it = gfx_vector_next(&mesh->buckets, it))
+	{
+		if(((struct GFX_BucketRef*)it)->pipe == pipe) break;
+	}
+
+	return (struct GFX_BucketRef*)it;
+}
+
+/******************************************************/
+static void _gfx_mesh_erase_bucket(
+
+		struct GFX_Mesh*       mesh,
+		struct GFX_BucketRef*  bucket,
+		size_t                 ref)
+{
+	/* Remove the bucket at all submeshes */
+	size_t num;
+	GFXSubMesh** subs = gfx_lod_map_get_all(
+		(GFXLodMap*)mesh,
+		&num);
+
+	while(num) _gfx_submesh_remove_bucket(
+		subs[--num],
+		bucket->pipe,
+		ref);
+
+	/* And decrease reference */
+	if(!(bucket->ref = (bucket->ref <= ref) ? 0 : bucket->ref - ref))
+	{
+		/* Unregister mesh at pipe */
+		GFXPipeCallback call;
+		call.key = GFX_SCENE_KEY_MESH;
+		call.data = mesh;
+
+		gfx_pipe_unregister(bucket->pipe, call);
+
+		/* Erase it */
+		gfx_vector_erase(&mesh->buckets, bucket);
+	}
+}
+
+/******************************************************/
+static void _gfx_mesh_callback(
+
+		GFXPipe*          pipe,
+		GFXPipeCallback*  callback)
+{
+	/* Simply remove the bucket from the vector */
+	/* We do not need to worry about submeshes as they are registered at the pipe as well */
+	struct GFX_Mesh* mesh = callback->data;
+	struct GFX_BucketRef* bucket = _gfx_mesh_find_bucket(mesh, pipe);
+
+	if(bucket != mesh->buckets.end) gfx_vector_erase(
+		&mesh->buckets,
+		bucket
+	);
+}
+
+/******************************************************/
+static int _gfx_mesh_increase_references(
+
+		struct GFX_Mesh*       mesh,
+		struct GFX_BucketRef*  bucket)
+{
+	/* Check for overflow */
+	if(!(bucket->ref + 1)) return 0;
+	++bucket->ref;
+
+	/* Reference the bucket at all submeshes */
+	size_t num;
+	GFXSubMesh** subs = gfx_lod_map_get_all(
+		(GFXLodMap*)mesh,
+		&num
+	);
+
+	size_t n;
+	for(n = 0; n < num; ++n) if(!_gfx_submesh_reference_bucket(
+		subs[n],
+		bucket->pipe, 1)) break;
+
+	/* Remove the references on failure */
+	if(n < num)
+	{
+		while(n) _gfx_submesh_remove_bucket(
+			subs[--n],
+			bucket->pipe,
+			1
+		);
+		--bucket->ref;
+
+		return 0;
+	}
+
+	return 1;
+}
+
+/******************************************************/
+int _gfx_mesh_reference_bucket(
+
+		GFXMesh*  mesh,
+		GFXPipe*  pipe)
+{
+	/* Validate pipe type */
+	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET) return 0;
+
+	/* Find the bucket first */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	struct GFX_BucketRef* bucket = _gfx_mesh_find_bucket(
+		internal,
+		pipe
+	);
+
+	if(bucket == internal->buckets.end)
+	{
+		/* Insert a new bucket */
+		struct GFX_BucketRef insert;
+		insert.pipe = pipe;
+		insert.ref = 0;
+
+		bucket = gfx_vector_insert(
+			&internal->buckets,
+			&insert,
+			internal->buckets.end
+		);
+
+		if(bucket == internal->buckets.end) return 0;
+
+		/* Increase references */
+		if(_gfx_mesh_increase_references(internal, bucket))
+		{
+			/* Register mesh at pipe */
+			GFXPipeCallback call;
+			call.key = GFX_SCENE_KEY_MESH;
+			call.data = internal;
+
+			if(gfx_pipe_register(pipe, call, _gfx_mesh_callback))
+				return 1;
+		}
+
+		/* Erase bucket on failure */
+		gfx_vector_erase(&internal->buckets, bucket);
+
+		return 0;
+	}
+
+	/* Increase references */
+	return _gfx_mesh_increase_references(internal, bucket);
+}
+
+/******************************************************/
+void _gfx_mesh_remove_bucket(
+
+		GFXMesh*  mesh,
+		GFXPipe*  pipe)
+{
+	/* Find the bucket first */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	struct GFX_BucketRef* bucket = _gfx_mesh_find_bucket(internal, pipe);
+
+	if(bucket != internal->buckets.end) _gfx_mesh_erase_bucket(
+		internal,
+		bucket,
+		1
+	);
+}
 
 /******************************************************/
 GFXMesh* gfx_mesh_create(void)
 {
-	return (GFXMesh*)gfx_lod_map_create(
+	/* Allocate mesh */
+	struct GFX_Mesh* mesh = calloc(1, sizeof(struct GFX_Mesh));
+	if(!mesh) return NULL;
+
+	/* Initialize */
+	_gfx_lod_map_init(
+		(GFX_LodMap*)mesh,
 		sizeof(GFXSubMesh*),
 		sizeof(GFXSubMesh*)
 	);
+
+	gfx_vector_init(&mesh->buckets, sizeof(struct GFX_BucketRef));
+
+	return (GFXMesh*)mesh;
 }
 
 /******************************************************/
@@ -39,23 +301,30 @@ void gfx_mesh_free(
 {
 	if(mesh)
 	{
-		/* Iterate over all levels */
-		size_t levels = mesh->lodMap.levels;
+		struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
 
-		while(levels)
-		{
-			/* Free all submeshes in it */
-			size_t num;
-			GFXSubMesh** data = gfx_lod_map_get(
-				(GFXLodMap*)mesh,
-				--levels,
-				&num
+		/* Erase all buckets */
+		while(internal->buckets.begin != internal->buckets.end)
+			_gfx_mesh_erase_bucket(
+				internal,
+				internal->buckets.begin,
+				((struct GFX_BucketRef*)internal->buckets.begin)->ref
 			);
 
-			while(num) _gfx_submesh_free(data[--num]);
-		}
+		/* Free all submeshes */
+		size_t num;
+		GFXSubMesh** subs = gfx_lod_map_get_all(
+			(GFXLodMap*)mesh,
+			&num
+		);
 
-		gfx_lod_map_free((GFXLodMap*)mesh);
+		while(num--) _gfx_submesh_free(subs[num]);
+
+		/* Clear and free */
+		gfx_vector_clear(&internal->buckets);
+		_gfx_lod_map_clear((GFX_LodMap*)mesh);
+
+		free(mesh);
 	}
 }
 
@@ -71,6 +340,14 @@ GFXSubMesh* gfx_mesh_add(
 	GFXSubMesh* sub = _gfx_submesh_create(drawCalls, sources);
 	if(!sub) return NULL;
 
+	/* Reference the buckets at submesh */
+	if(!_gfx_mesh_buckets_reference_submesh((struct GFX_Mesh*)mesh, sub))
+	{
+		_gfx_submesh_free(sub);
+		return NULL;
+	}
+
+	/* Add it to the LOD map */
 	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &sub))
 	{
 		_gfx_submesh_free(sub);
@@ -95,10 +372,19 @@ int gfx_mesh_add_share(
 	if(!_gfx_submesh_reference(share))
 		return 0;
 
+	/* Reference the buckets at submesh */
+	if(!_gfx_mesh_buckets_reference_submesh((struct GFX_Mesh*)mesh, share))
+	{
+		_gfx_submesh_free(share);
+		return 0;
+	}
+
 	/* Add it to the LOD map */
 	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &share))
 	{
+		_gfx_mesh_buckets_remove_submesh((struct GFX_Mesh*)mesh, share);
 		_gfx_submesh_free(share);
+
 		return 0;
 	}
 
@@ -115,7 +401,12 @@ int gfx_mesh_remove(
 	/* Try to remove it */
 	if(gfx_lod_map_remove((GFXLodMap*)mesh, level, &sub))
 	{
+		_gfx_mesh_buckets_remove_submesh(
+			(struct GFX_Mesh*)mesh,
+			sub
+		);
 		_gfx_submesh_free(sub);
+
 		return 1;
 	}
 	return 0;
@@ -143,7 +434,12 @@ int gfx_mesh_remove_at(
 
 	if(gfx_lod_map_remove_at((GFXLodMap*)mesh, level, index))
 	{
+		_gfx_mesh_buckets_remove_submesh(
+			(struct GFX_Mesh*)mesh,
+			submesh
+		);
 		_gfx_submesh_free(submesh);
+
 		return 1;
 	}
 	return 0;
@@ -157,6 +453,15 @@ GFXSubMeshList gfx_mesh_get(
 		size_t*   num)
 {
 	return gfx_lod_map_get((GFXLodMap*)mesh, level, num);
+}
+
+/******************************************************/
+GFXSubMeshList gfx_mesh_get_all(
+
+		GFXMesh*  mesh,
+		size_t*   num)
+{
+	return gfx_lod_map_get_all((GFXLodMap*)mesh, num);
 }
 
 /******************************************************/

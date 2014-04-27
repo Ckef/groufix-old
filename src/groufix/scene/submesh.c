@@ -24,6 +24,7 @@
 #include "groufix/scene.h"
 #include "groufix/containers/vector.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -204,7 +205,8 @@ void _gfx_submesh_free(
 int _gfx_submesh_reference_bucket(
 
 		GFXSubMesh*  mesh,
-		GFXPipe*     pipe)
+		GFXPipe*     pipe,
+		size_t       ref)
 {
 	/* Validate pipe type */
 	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET) return 0;
@@ -240,13 +242,13 @@ int _gfx_submesh_reference_bucket(
 		memset(bucket + 1, 0, sizeof(size_t) * mesh->sources);
 
 		bucket->pipe = pipe;
-		bucket->ref = 1;
+		bucket->ref = ref;
 	}
 	else
 	{
 		/* Increase reference counter */
-		if(!(bucket->ref + 1)) return 0;
-		++bucket->ref;
+		if(SIZE_MAX - ref < bucket->ref) return 0;
+		bucket->ref += ref;
 	}
 
 	return 1;
@@ -256,7 +258,8 @@ int _gfx_submesh_reference_bucket(
 void _gfx_submesh_remove_bucket(
 
 		GFXSubMesh*  mesh,
-		GFXPipe*     pipe)
+		GFXPipe*     pipe,
+		size_t       ref)
 {
 	/* Find the bucket and remove it */
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
@@ -265,7 +268,7 @@ void _gfx_submesh_remove_bucket(
 	if(bucket != internal->buckets.end)
 	{
 		/* Decrease reference counter */
-		if(!(--bucket->ref))
+		if(!(bucket->ref = (bucket->ref <= ref) ? 0 : bucket->ref - ref))
 			_gfx_submesh_erase_bucket(internal, bucket);
 	}
 }

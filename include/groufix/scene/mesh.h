@@ -223,11 +223,20 @@ GFXSubMeshList gfx_mesh_get(
 		size_t*   num);
 
 /**
+ * Returns an abstract list of submeshes of all levels.
+ *
+ */
+GFXSubMeshList gfx_mesh_get_all(
+
+		GFXMesh*  mesh,
+		size_t*   num);
+
+/**
  * Index into a list of submeshes.
  *
- * @param list List of submeshes returned by gfx_mesh_get.
+ * @param list List of submeshes returned by gfx_mesh_get or gfx_mesh_get_all.
  *
- * Note: you can only retrieve a submesh with index < num returnd by gfx_mesh_get.
+ * Note: you can only retrieve a submesh with index < number of elements in list.
  *
  */
 GFXSubMesh* gfx_submesh_list_at(

@@ -601,21 +601,15 @@ void gfx_material_free(
 		/* Erase all buckets */
 		_gfx_material_erase_buckets(internal);
 
-		/* Iterate over all levels */
-		size_t levels = material->lodMap.levels;
-		while(levels)
-		{
-			/* Free all property maps in it */
-			size_t num;
-			GFXPropertyMap** data = gfx_lod_map_get(
-				(GFXLodMap*)material,
-				--levels,
-				&num
-			);
+		/* Free all property maps */
+		size_t num;
+		GFXPropertyMap** maps = gfx_lod_map_get_all(
+			(GFXLodMap*)material,
+			&num);
 
-			while(num) gfx_property_map_free(data[--num]);
-		}
+		while(num) gfx_property_map_free(maps[--num]);
 
+		/* Clear and free */
 		_gfx_lod_map_clear((GFX_LodMap*)material);
 		free(material);
 	}
@@ -825,6 +819,15 @@ GFXPropertyMapList gfx_material_get(
 		size_t*       num)
 {
 	return gfx_lod_map_get((GFXLodMap*)material, level, num);
+}
+
+/******************************************************/
+GFXPropertyMapList gfx_material_get_all(
+
+		GFXMaterial*  material,
+		size_t*       num)
+{
+	return gfx_lod_map_get_all((GFXLodMap*)material, num);
 }
 
 /******************************************************/

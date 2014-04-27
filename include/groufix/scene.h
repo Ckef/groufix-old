@@ -35,6 +35,7 @@ extern "C" {
 typedef enum GFXSceneKey
 {
 	GFX_SCENE_KEY_MATERIAL,
+	GFX_SCENE_KEY_MESH,
 	GFX_SCENE_KEY_SUBMESH
 
 } GFXSceneKey;

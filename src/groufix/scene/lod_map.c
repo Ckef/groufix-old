@@ -367,3 +367,24 @@ void* gfx_lod_map_get(
 
 	return gfx_vector_at(&internal->data, begin);
 }
+
+/******************************************************/
+void* gfx_lod_map_get_all(
+
+		GFXLodMap*  map,
+		size_t*     num)
+{
+	if(!map->levels)
+	{
+		*num = 0;
+		return NULL;
+	}
+
+	GFX_LodMap* internal = (GFX_LodMap*)map;
+	*num = *(size_t*)gfx_vector_at(
+		&internal->levels,
+		map->levels - 1
+	);
+
+	return internal->data.begin;
+}

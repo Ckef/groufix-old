@@ -125,6 +125,15 @@ GFXPropertyMapList gfx_material_get(
 		size_t*       num);
 
 /**
+ * Returns an abstract list of property maps of all levels.
+ *
+ */
+GFXPropertyMapList gfx_material_get_all(
+
+		GFXMaterial*  material,
+		size_t*       num);
+
+/**
  * Index into a list of property maps.
  *
  * @param list List of property maps returned by gfx_material_get.
