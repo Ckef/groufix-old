@@ -126,6 +126,15 @@ typedef struct GFXMesh
 } GFXMesh;
 
 
+/** Source to sample from a submesh */
+typedef struct GFXMeshSource
+{
+	unsigned char startSource;
+	unsigned char numSource;
+
+} GFXMeshSource;
+
+
 /** Submesh list */
 typedef void* GFXSubMeshList;
 
@@ -175,6 +184,37 @@ int gfx_mesh_add_share(
 		GFXMesh*     mesh,
 		size_t       level,
 		GFXSubMesh*  share);
+
+/**
+ * Sets the sources to sample from a submesh added to a mesh.
+ *
+ * @return Non-zero if the submesh was found.
+ *
+ * The default is all sources used.
+ *
+ */
+int gfx_mesh_set_source(
+
+		GFXMesh*       mesh,
+		size_t         level,
+		GFXSubMesh*    sub,
+		GFXMeshSource  source);
+
+/**
+ * Sets the sources to sample from a submesh added to a mesh.
+ *
+ * @param index Index of the submesh within the level as seen in the return of gfx_mesh_get.
+ * @return Zero if the submesh does not exist.
+ *
+ * The default is all sources used.
+ *
+ */
+int gfx_mesh_set_source_at(
+
+		GFXMesh*       mesh,
+		size_t         level,
+		size_t         index,
+		GFXMeshSource  source);
 
 /**
  * Removes a submesh from a given level of detail of a mesh.
@@ -232,11 +272,20 @@ GFXSubMeshList gfx_mesh_get_all(
 		size_t*   num);
 
 /**
- * Index into a list of submeshes.
+ * Index into a list of submeshes, retrieving the mesh source.
  *
  * @param list List of submeshes returned by gfx_mesh_get or gfx_mesh_get_all.
  *
  * Note: you can only retrieve a submesh with index < number of elements in list.
+ *
+ */
+GFXMeshSource gfx_submesh_list_source_at(
+
+		GFXSubMeshList  list,
+		size_t          index);
+
+/**
+ * Index into a list of submeshes, retrieving the submesh.
  *
  */
 GFXSubMesh* gfx_submesh_list_at(

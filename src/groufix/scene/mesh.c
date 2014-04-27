@@ -34,6 +34,13 @@ struct GFX_Mesh
 	GFXVector   buckets; /* Stores GFX_BucketRef */
 };
 
+/* Internal submesh data */
+struct GFX_SubData
+{
+	GFXSubMesh*    sub;    /* Super class */
+	GFXMeshSource  source; /* Sources to use within sub */
+};
+
 /* Internal bucket reference */
 struct GFX_BucketRef
 {
@@ -126,12 +133,12 @@ static void _gfx_mesh_erase_bucket(
 {
 	/* Remove the bucket at all submeshes */
 	size_t num;
-	GFXSubMesh** subs = gfx_lod_map_get_all(
+	struct GFX_SubData* subs = gfx_lod_map_get_all(
 		(GFXLodMap*)mesh,
 		&num);
 
 	while(num) _gfx_submesh_remove_bucket(
-		subs[--num],
+		subs[--num].sub,
 		bucket->pipe,
 		ref);
 
@@ -179,21 +186,21 @@ static int _gfx_mesh_increase_references(
 
 	/* Reference the bucket at all submeshes */
 	size_t num;
-	GFXSubMesh** subs = gfx_lod_map_get_all(
+	struct GFX_SubData* subs = gfx_lod_map_get_all(
 		(GFXLodMap*)mesh,
 		&num
 	);
 
 	size_t n;
 	for(n = 0; n < num; ++n) if(!_gfx_submesh_reference_bucket(
-		subs[n],
+		subs[n].sub,
 		bucket->pipe, 1)) break;
 
 	/* Remove the references on failure */
 	if(n < num)
 	{
 		while(n) _gfx_submesh_remove_bucket(
-			subs[--n],
+			subs[--n].sub,
 			bucket->pipe,
 			1
 		);
@@ -285,7 +292,7 @@ GFXMesh* gfx_mesh_create(void)
 	/* Initialize */
 	_gfx_lod_map_init(
 		(GFX_LodMap*)mesh,
-		sizeof(GFXSubMesh*),
+		sizeof(struct GFX_SubData),
 		sizeof(GFXSubMesh*)
 	);
 
@@ -313,12 +320,12 @@ void gfx_mesh_free(
 
 		/* Free all submeshes */
 		size_t num;
-		GFXSubMesh** subs = gfx_lod_map_get_all(
+		struct GFX_SubData* subs = gfx_lod_map_get_all(
 			(GFXLodMap*)mesh,
 			&num
 		);
 
-		while(num--) _gfx_submesh_free(subs[num]);
+		while(num--) _gfx_submesh_free(subs[num].sub);
 
 		/* Clear and free */
 		gfx_vector_clear(&internal->buckets);
@@ -336,25 +343,29 @@ GFXSubMesh* gfx_mesh_add(
 		unsigned char  drawCalls,
 		unsigned char  sources)
 {
-	/* Create new submesh and add it to the LOD map */
-	GFXSubMesh* sub = _gfx_submesh_create(drawCalls, sources);
-	if(!sub) return NULL;
+	/* Create new submesh */
+	struct GFX_SubData data;
+	data.source.startSource = 0;
+	data.source.numSource = sources;
+
+	data.sub = _gfx_submesh_create(drawCalls, sources);
+	if(!data.sub) return NULL;
 
 	/* Reference the buckets at submesh */
-	if(!_gfx_mesh_buckets_reference_submesh((struct GFX_Mesh*)mesh, sub))
+	if(!_gfx_mesh_buckets_reference_submesh((struct GFX_Mesh*)mesh, data.sub))
 	{
-		_gfx_submesh_free(sub);
+		_gfx_submesh_free(data.sub);
 		return NULL;
 	}
 
 	/* Add it to the LOD map */
-	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &sub))
+	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))
 	{
-		_gfx_submesh_free(sub);
+		_gfx_submesh_free(data.sub);
 		return NULL;
 	}
 
-	return sub;
+	return data.sub;
 }
 
 /******************************************************/
@@ -380,13 +391,68 @@ int gfx_mesh_add_share(
 	}
 
 	/* Add it to the LOD map */
-	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &share))
+	struct GFX_SubData data;
+	data.sub = share;
+	data.source.startSource = 0;
+	data.source.numSource = share->sources;
+
+	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))
 	{
 		_gfx_mesh_buckets_remove_submesh((struct GFX_Mesh*)mesh, share);
 		_gfx_submesh_free(share);
 
 		return 0;
 	}
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_mesh_set_source(
+
+		GFXMesh*       mesh,
+		size_t         level,
+		GFXSubMesh*    sub,
+		GFXMeshSource  source)
+{
+	/* First find the submesh */
+	size_t num;
+	struct GFX_SubData* data = gfx_lod_map_get(
+		(GFXLodMap*)mesh,
+		level,
+		&num
+	);
+
+	while(num--) if(data[num].sub == sub)
+	{
+		/* Set source if found */
+		data[num].source = source;
+		return 1;
+	}
+
+	return 0;
+}
+
+/******************************************************/
+int gfx_mesh_set_source_at(
+
+		GFXMesh*       mesh,
+		size_t         level,
+		size_t         index,
+		GFXMeshSource  source)
+{
+	/* First get the submesh */
+	size_t num;
+	struct GFX_SubData* data = gfx_lod_map_get(
+		(GFXLodMap*)mesh,
+		level,
+		&num
+	);
+
+	if(index >= num) return 0;
+
+	/* Set the source */
+	data[index].source = source;
 
 	return 1;
 }
@@ -421,7 +487,7 @@ int gfx_mesh_remove_at(
 {
 	/* First get the submesh */
 	size_t num;
-	GFXSubMesh** data = gfx_lod_map_get(
+	struct GFX_SubData* data = gfx_lod_map_get(
 		(GFXLodMap*)mesh,
 		level,
 		&num
@@ -430,7 +496,7 @@ int gfx_mesh_remove_at(
 	if(index >= num) return 0;
 
 	/* Try to remove it */
-	GFXSubMesh* submesh = data[index];
+	GFXSubMesh* submesh = data[index].sub;
 
 	if(gfx_lod_map_remove_at((GFXLodMap*)mesh, level, index))
 	{
@@ -465,10 +531,19 @@ GFXSubMeshList gfx_mesh_get_all(
 }
 
 /******************************************************/
+GFXMeshSource gfx_submesh_list_source_at(
+
+		GFXSubMeshList  list,
+		size_t          index)
+{
+	return ((struct GFX_SubData*)list)[index].source;
+}
+
+/******************************************************/
 GFXSubMesh* gfx_submesh_list_at(
 
 		GFXSubMeshList  list,
 		size_t          index)
 {
-	return ((GFXSubMesh**)list)[index];
+	return ((struct GFX_SubData*)list)[index].sub;
 }
