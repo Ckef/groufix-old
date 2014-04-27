@@ -136,9 +136,9 @@ GFXPropertyMapList gfx_material_get_all(
 /**
  * Index into a list of property maps.
  *
- * @param list List of property maps returned by gfx_material_get.
+ * @param list List of property maps returned by gfx_material_get or gfx_material_get_all.
  *
- * Note: you can only retrieve a property map with index < num returned by gfx_material_get.
+ * Note: you can only retrieve a property map with index < numer of elements in list.
  *
  */
 GFXPropertyMap* gfx_property_map_list_at(

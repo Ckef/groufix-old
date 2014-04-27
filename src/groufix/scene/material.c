@@ -149,7 +149,7 @@ static void _gfx_material_increase_bounds(
 		GFXVectorIterator     bucket,
 		size_t                index,
 		size_t                num,
-		size_t                diff)
+		int                   diff)
 {
 	size_t size = _gfx_material_get_bucket_size(material);
 	size_t u;
