@@ -151,8 +151,6 @@ size_t _gfx_material_bucket_units_at(
  * @param unit Index into the array returned by _gfx_material_get_bucket_units.
  * @param num  Number of units to erase starting at the given index.
  *
- * Note: index is not bound checked.
- *
  */
 void _gfx_material_remove_bucket_units(
 

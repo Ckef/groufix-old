@@ -42,7 +42,7 @@ struct GFX_Unit
 /* Uniform buffer key */
 struct GFX_UniformBuffer
 {
-	GLuint      buffer;
+	GLuint      buffer; /* Super class */
 	GLintptr    offset;
 	GLsizeiptr  size;
 };
@@ -50,7 +50,7 @@ struct GFX_UniformBuffer
 /* Texture unit key */
 struct GFX_TextureUnit
 {
-	GLuint texture;
+	GLuint texture; /* Super class */
 };
 
 /******************************************************/
@@ -174,14 +174,6 @@ static size_t _gfx_binder_request(
 
 	while(num--)
 	{
-		/* Check for empty */
-		if(curr->counter == GFX_BINDER_COUNTER_EMPTY)
-		{
-			pos = curr;
-			break;
-		}
-
-		/* Check if equal & find highest */
 		if(!memcmp(data, curr + 1, size))
 		{
 			pos = curr;
@@ -263,7 +255,7 @@ void _gfx_binder_unbind_uniform_buffer(
 			ext->uniformBuffers,
 			ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(struct GFX_UniformBuffer),
-			offsetof(struct GFX_UniformBuffer, buffer) + sizeof(GLuint),
+			sizeof(GLuint),
 			&buff
 		);
 	}
@@ -319,7 +311,7 @@ void _gfx_binder_unbind_texture(
 			ext->textureUnits,
 			ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(struct GFX_TextureUnit),
-			offsetof(struct GFX_TextureUnit, texture) + sizeof(GLuint),
+			sizeof(GLuint),
 			&unit
 		);
 	}

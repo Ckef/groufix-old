@@ -227,7 +227,12 @@ static void _gfx_material_erase_buckets(
 		_gfx_material_get_bucket_boundaries(material, bucket, &begin, &end);
 
 		/* Erase all associated units and unregister at bucket */
-		_gfx_material_erase_units(material, (*(GFXPipe**)bucket)->bucket, begin, end);
+		_gfx_material_erase_units(
+			material,
+			(*(GFXPipe**)bucket)->bucket,
+			begin,
+			end
+		);
 		_gfx_material_unregister(material, bucket);
 	}
 
@@ -419,47 +424,44 @@ size_t _gfx_material_add_bucket_unit(
 			}
 
 			/* Remove bucket */
-			gfx_vector_erase_range(&internal->buckets, bucketSize, bucket);
+			gfx_vector_erase_range(
+				&internal->buckets,
+				bucketSize,
+				bucket
+			);
 		}
-
-		/* Erase unit from bucket */
-		gfx_bucket_erase(pipe->bucket, unit.unit);
-
-		return 0;
 	}
-
-	/* Find the range of units with the given source */
-	size_t min;
-	size_t max;
-
-	_gfx_material_get_boundaries(internal, bucket, ind, &min, &max);
-	struct GFX_Unit* units = gfx_vector_at(&internal->units, min);
-
-	num = max - min;
-	min += _gfx_material_find_units(units, &num, src);
-
-	/* Try to insert the unit */
-	GFXVectorIterator unitIt = gfx_vector_insert_at(
-		&internal->units,
-		&unit,
-		min + num);
-
-	if(unitIt == internal->units.end)
+	else
 	{
-		gfx_bucket_erase(pipe->bucket, unit.unit);
-		return 0;
+		/* Find the range of units with the given source */
+		size_t min;
+		size_t max;
+
+		_gfx_material_get_boundaries(internal, bucket, ind, &min, &max);
+		struct GFX_Unit* units = gfx_vector_at(&internal->units, min);
+
+		num = max - min;
+		min += _gfx_material_find_units(units, &num, src);
+
+		/* Try to insert the unit */
+		GFXVectorIterator unitIt = gfx_vector_insert_at(
+			&internal->units,
+			&unit,
+			min + num
+		);
+
+		if(unitIt != internal->units.end)
+		{
+			/* Increase bounds */
+			_gfx_material_increase_bounds(internal, bucket, ind, numMaps, 1);
+			return unit.unit;
+		}
 	}
 
-	/* Increase bounds */
-	_gfx_material_increase_bounds(
-		internal,
-		bucket,
-		ind,
-		numMaps,
-		1
-	);
+	/* Erase unit from bucket */
+	gfx_bucket_erase(pipe->bucket, unit.unit);
 
-	return unit.unit;
+	return 0;
 }
 
 /******************************************************/
@@ -473,18 +475,9 @@ void* _gfx_material_get_bucket_units(
 {
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 
-	/* Get bucket index of the map */
-	size_t numMaps =
-		_gfx_material_get_num_maps((GFXLodMap*)internal);
-	size_t ind =
-		_gfx_material_get_map_index((GFXLodMap*)internal, level, index);
-
 	/* Find the bucket */
 	GFXVectorIterator bucket = _gfx_material_find_bucket(internal, pipe);
-
-	/* Crude check if the index is within the maps */
-	/* At least it will never segfault */
-	if(ind >= numMaps || bucket == internal->buckets.end)
+	if(bucket == internal->buckets.end)
 	{
 		*num = 0;
 		return NULL;
@@ -493,7 +486,13 @@ void* _gfx_material_get_bucket_units(
 	/* Get the boundaries and return the range */
 	size_t min;
 	size_t max;
-	_gfx_material_get_boundaries(internal, bucket, ind, &min, &max);
+	_gfx_material_get_boundaries(
+		internal,
+		bucket,
+		_gfx_material_get_map_index((GFXLodMap*)internal, level, index),
+		&min,
+		&max
+	);
 
 	*num = max - min;
 	return gfx_vector_at(&internal->units, min);
@@ -532,39 +531,43 @@ void _gfx_material_remove_bucket_units(
 {
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 
-	/* Get bucket index of the map */
-	size_t numMaps =
-		_gfx_material_get_num_maps((GFXLodMap*)internal);
-	size_t ind =
-		_gfx_material_get_map_index((GFXLodMap*)internal, level, index);
+	/* First validate level and index */
+	size_t range;
+	gfx_lod_map_get((GFXLodMap*)material, level, &range);
 
-	/* Find the bucket */
-	GFXVectorIterator bucket = _gfx_material_find_bucket(internal, pipe);
-
-	/* Crude check if the index is within the maps */
-	/* At least it will never segfault */
-	if(ind < numMaps && bucket != internal->buckets.end)
+	if(index < range)
 	{
-		/* Get the range of units of the bucket to erase */
-		size_t min;
-		size_t max;
-		_gfx_material_get_boundaries(internal, bucket, ind, &min, &max);
+		/* Get bucket index of the map */
+		size_t numMaps =
+			_gfx_material_get_num_maps((GFXLodMap*)internal);
+		size_t ind =
+			_gfx_material_get_map_index((GFXLodMap*)internal, level, index);
 
-		size_t size = max - min;
-		min += (unit > size) ? size : unit;
-		size = max - min;
-		num = (num > size) ? size : num;
-
-		if(num)
+		/* Find the bucket */
+		GFXVectorIterator bucket = _gfx_material_find_bucket(internal, pipe);
+		if(bucket != internal->buckets.end)
 		{
-			/* Erase the units */
-			_gfx_material_erase_units(internal, pipe->bucket, min, min + num);
-			gfx_vector_erase_range_at(&internal->units, num, min);
+			/* Get the range of units of the bucket to erase */
+			size_t min;
+			size_t max;
+			_gfx_material_get_boundaries(internal, bucket, ind, &min, &max);
 
-			/* Decrease bounds and remove the bucket if no units are left */
-			_gfx_material_increase_bounds(internal, bucket, ind, numMaps, -num);
-			_gfx_material_get_bucket_boundaries(internal, bucket, &min, &max);
-			if(!(max - min)) _gfx_material_unregister(internal, bucket);
+			size_t size = max - min;
+			min += (unit > size) ? size : unit;
+			size = max - min;
+			num = (num > size) ? size : num;
+
+			if(num)
+			{
+				/* Erase the units */
+				_gfx_material_erase_units(internal, pipe->bucket, min, min + num);
+				gfx_vector_erase_range_at(&internal->units, num, min);
+
+				/* Decrease bounds and remove the bucket if no units are left */
+				_gfx_material_increase_bounds(internal, bucket, ind, numMaps, -num);
+				_gfx_material_get_bucket_boundaries(internal, bucket, &min, &max);
+				if(!(max - min)) _gfx_material_unregister(internal, bucket);
+			}
 		}
 	}
 }
@@ -636,8 +639,10 @@ GFXPropertyMap* gfx_material_add(
 	if(gfx_lod_map_add((GFXLodMap*)internal, level, &map))
 	{
 		/* Calculate new size and try to reserve it */
-		size_t bucketIndex = gfx_vector_get_byte_size(&internal->buckets);
-		size_t size = bucketIndex + (bucketIndex / bucketSize) * sizeof(size_t);
+		size_t bucketIndex =
+			gfx_vector_get_byte_size(&internal->buckets);
+		size_t size =
+			bucketIndex + (bucketIndex / bucketSize) * sizeof(size_t);
 
 		if(gfx_vector_reserve(&internal->buckets, size))
 		{
@@ -707,7 +712,13 @@ static int _gfx_material_remove_at(
 
 			size_t begin;
 			size_t end;
-			_gfx_material_get_boundaries(material, bucket, ind, &begin, &end);
+			_gfx_material_get_boundaries(
+				material,
+				bucket,
+				ind,
+				&begin,
+				&end
+			);
 
 			size_t diff = end - begin;
 
