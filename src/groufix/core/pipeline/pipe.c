@@ -32,7 +32,7 @@
 
 /******************************************************/
 /* Internal pipe */
-struct GFX_Internal_Pipe
+struct GFX_IntPipe
 {
 	/* Super class */
 	GFX_Pipe pipe;
@@ -93,7 +93,7 @@ static int _gfx_pipe_range_comp(
 /******************************************************/
 static void _gfx_pipe_sort(
 
-		struct GFX_Internal_Pipe* pipe)
+		struct GFX_IntPipe* pipe)
 {
 	/* Sort if necessary */
 	if(!(pipe->flags & GFX_INT_PIPE_SORTED))
@@ -111,7 +111,7 @@ static void _gfx_pipe_sort(
 /******************************************************/
 static void _gfx_pipe_range(
 
-		struct GFX_Internal_Pipe* pipe)
+		struct GFX_IntPipe* pipe)
 {
 	/* Range if necessary */
 	if(!(pipe->flags & GFX_INT_PIPE_RANGED))
@@ -154,9 +154,9 @@ static void _gfx_pipe_range(
 /******************************************************/
 static GFXVectorIterator _gfx_pipe_find(
 
-		struct GFX_Internal_Pipe*  pipe,
-		unsigned char              key,
-		size_t*                    num)
+		struct GFX_IntPipe*  pipe,
+		unsigned char        key,
+		size_t*              num)
 {
 	/* Find range element */
 	struct GFX_Range* it = bsearch(
@@ -183,13 +183,15 @@ static GFXVectorIterator _gfx_pipe_find(
 }
 
 /******************************************************/
-static struct GFX_Internal_Pipe* _gfx_pipe_create(
+static struct GFX_IntPipe* _gfx_pipe_create(
 
 		GFXPipeType   type,
 		GFXPipeline*  pipeline)
 {
 	/* Create the pipe */
-	struct GFX_Internal_Pipe* pipe = (struct GFX_Internal_Pipe*)gfx_list_create(sizeof(struct GFX_Internal_Pipe));
+	struct GFX_IntPipe* pipe =
+		(struct GFX_IntPipe*)gfx_list_create(sizeof(struct GFX_IntPipe));
+
 	if(!pipe) return NULL;
 
 	pipe->pipe.type = type;
@@ -211,7 +213,7 @@ GFX_Pipe* _gfx_pipe_create_bucket(
 		unsigned char   bits,
 		GFXBucketFlags  flags)
 {
-	struct GFX_Internal_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_BUCKET, pipeline);
+	struct GFX_IntPipe* pipe = _gfx_pipe_create(GFX_PIPE_BUCKET, pipeline);
 	if(!pipe) return NULL;
 
 	/* Create bucket */
@@ -231,7 +233,7 @@ GFX_Pipe* _gfx_pipe_create_process(
 
 		GFXPipeline* pipeline)
 {
-	struct GFX_Internal_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_PROCESS, pipeline);
+	struct GFX_IntPipe* pipe = _gfx_pipe_create(GFX_PIPE_PROCESS, pipeline);
 	if(!pipe) return NULL;
 
 	/* Allocate process */
@@ -251,7 +253,7 @@ GFX_Pipe* _gfx_pipe_free(
 
 		GFX_Pipe* pipe)
 {
-	struct GFX_Internal_Pipe* internal = (struct GFX_Internal_Pipe*)pipe;
+	struct GFX_IntPipe* internal = (struct GFX_IntPipe*)pipe;
 
 	/* Issue all callbacks */
 	GFXVectorIterator it;
@@ -451,7 +453,7 @@ int gfx_pipe_register(
 		GFXPipeCallback      callback,
 		GFXPipeCallbackFunc  func)
 {
-	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(
+	struct GFX_IntPipe* internal = GFX_PTR_SUB_BYTES(
 		pipe,
 		offsetof(GFX_Pipe, ptr));
 
@@ -475,7 +477,7 @@ void gfx_pipe_unregister(
 		GFXPipeCallback  callback)
 {
 	/* Sort if necessary */
-	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(
+	struct GFX_IntPipe* internal = GFX_PTR_SUB_BYTES(
 		pipe,
 		offsetof(GFX_Pipe, ptr));
 
@@ -505,7 +507,10 @@ void gfx_pipe_unregister(
 		while(find > min)
 		{
 			size_t quart = min + ((find - min) >> 1);
-			GFXVectorIterator it = gfx_vector_at(&internal->callbacks, quart);
+			GFXVectorIterator it = gfx_vector_at(
+				&internal->callbacks,
+				quart
+			);
 
 			if(_gfx_pipe_callback_comp(it, &callback) < 0) min = quart + 1;
 			else find = quart;
@@ -516,7 +521,10 @@ void gfx_pipe_unregister(
 		while(max > find)
 		{
 			size_t quart = find + ((max - find) >> 1);
-			GFXVectorIterator it = gfx_vector_at(&internal->callbacks, quart);
+			GFXVectorIterator it = gfx_vector_at(
+				&internal->callbacks,
+				quart
+			);
 
 			if(_gfx_pipe_callback_comp(it, &callback) > 0) max = quart;
 			else find = quart + 1;
@@ -535,7 +543,7 @@ int gfx_pipe_exists(
 		GFXPipeCallback  callback)
 {
 	/* Sort if necessary */
-	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(
+	struct GFX_IntPipe* internal = GFX_PTR_SUB_BYTES(
 		pipe,
 		offsetof(GFX_Pipe, ptr));
 
@@ -558,7 +566,7 @@ GFXPipeCallbackList gfx_pipe_find(
 		size_t*        num)
 {
 	/* First make sure it's sorted and ranged */
-	struct GFX_Internal_Pipe* internal = GFX_PTR_SUB_BYTES(
+	struct GFX_IntPipe* internal = GFX_PTR_SUB_BYTES(
 		pipe,
 		offsetof(GFX_Pipe, ptr));
 

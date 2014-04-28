@@ -266,6 +266,18 @@ int _gfx_mesh_reference_bucket(
 }
 
 /******************************************************/
+int _gfx_mesh_has_bucket(
+
+		GFXMesh*  mesh,
+		GFXPipe*  pipe)
+{
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	struct GFX_BucketRef* bucket = _gfx_mesh_find_bucket(internal, pipe);
+
+	return (bucket != internal->buckets.end);
+}
+
+/******************************************************/
 void _gfx_mesh_remove_bucket(
 
 		GFXMesh*  mesh,

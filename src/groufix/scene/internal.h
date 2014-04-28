@@ -96,6 +96,15 @@ size_t _gfx_material_add_bucket_unit(
 		int            visible);
 
 /**
+ * Returns whether a material has units in a given bucket.
+ *
+ */
+int _gfx_material_has_bucket_units(
+
+		GFXMaterial*  material,
+		GFXPipe*      pipe);
+
+/**
  * Retrieves a number of bucket units from the material.
  *
  * @param num Returns the number of returned units.
@@ -175,6 +184,15 @@ void _gfx_material_remove_bucket_units(
  *
  */
 int _gfx_mesh_reference_bucket(
+
+		GFXMesh*  mesh,
+		GFXPipe*  pipe);
+
+/**
+ * Returns whether the mesh references a given bucket.
+ *
+ */
+int _gfx_mesh_has_bucket(
 
 		GFXMesh*  mesh,
 		GFXPipe*  pipe);

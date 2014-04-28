@@ -465,6 +465,18 @@ size_t _gfx_material_add_bucket_unit(
 }
 
 /******************************************************/
+int _gfx_material_has_bucket_units(
+
+		GFXMaterial*  material,
+		GFXPipe*      pipe)
+{
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	GFXVectorIterator bucket = _gfx_material_find_bucket(internal, pipe);
+
+	return (bucket != internal->buckets.end);
+}
+
+/******************************************************/
 void* _gfx_material_get_bucket_units(
 
 		GFXMaterial*  material,
