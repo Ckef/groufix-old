@@ -424,16 +424,10 @@ GFX_Window* _gfx_window_get_current(void);
 /**
  * Swaps the internal buffers of the current window.
  *
+ * Also polls errors of the context if error mode is debug.
+ *
  */
 void _gfx_window_swap_buffers(void);
-
-/**
- * Polls all errors associated with the current window.
- *
- * @return Number of errors reported.
- *
- */
-unsigned int _gfx_window_poll_errors(void);
 
 /**
  * Loads all extensions for the current window's context.

@@ -157,29 +157,16 @@ void _gfx_window_swap_buffers(void)
 	/* Swap buffers and poll errors while it's current */
 	_gfx_platform_context_swap_buffers();
 
-	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG)
-		_gfx_window_poll_errors();
-}
-
-/******************************************************/
-unsigned int _gfx_window_poll_errors(void)
-{
-	unsigned int count = 0;
-
-	/* Check if there is a context */
-	if(_gfx_current_window)
+	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG) if(_gfx_current_window)
 	{
 		/* Loop over all errors */
 		GLenum err = _gfx_current_window->extensions.GetError();
 		while(err != GL_NO_ERROR)
 		{
-			gfx_errors_push(err, "An OpenGL error occurred.");
+			gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
 			err = _gfx_current_window->extensions.GetError();
-
-			++count;
 		}
 	}
-	return count;
 }
 
 /******************************************************/
