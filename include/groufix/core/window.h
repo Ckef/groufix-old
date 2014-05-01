@@ -49,7 +49,7 @@ unsigned int gfx_get_num_screens(void);
 /**
  * Returns a screen.
  *
- * @param num The number of the screens (num < num_screens).
+ * @param num The number of the screens (num < gfx_get_num_screens()).
  *
  */
 GFXScreen gfx_get_screen(
@@ -158,18 +158,18 @@ void gfx_request_context(
 		GFXContext context);
 
 /**
- * Returns the number of windows.
+ * Returns the number of open windows.
  *
  */
 unsigned int gfx_get_num_windows(void);
 
 /**
- * Returns a window.
+ * Returns an open window.
  *
- * @param num The number of the window (num < num_windows).
+ * @param num The number of the window (num < gfx_get_num_windows()).
  * @return The window, NULL if not found.
  *
- * The number of a screen can change, this is meant purely for iteration.
+ * The number of a window can change, this is meant purely for iteration.
  *
  */
 GFXWindow* gfx_get_window(

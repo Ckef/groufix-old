@@ -1,10 +1,87 @@
 
 #include <groufix.h>
+#include <groufix/scene.h>
+
 #include <stdio.h>
 
 void print_error(GFXError error)
 {
 	printf("[Error #%x]: %s\n", error.code, error.description);
+}
+
+GFXMesh* create_mesh()
+{
+	GFXMesh* mesh = gfx_mesh_create();
+	GFXSubMesh* sub = gfx_mesh_add(mesh, 0, 1, 1);
+
+	GFXVertexAttribute attr;
+	attr.size          = 3;
+	attr.type.unpacked = GFX_FLOAT;
+	attr.interpret     = GFX_INTERPRET_FLOAT;
+	attr.stride        = sizeof(float) * 6;
+	attr.divisor       = 0;
+
+	GFXDrawCall call;
+	call.primitive = GFX_TRIANGLES;
+	call.first     = 0;
+	call.count     = 3;
+
+	gfx_vertex_layout_set_attribute(sub->layout, 0, &attr);
+	gfx_vertex_layout_set_attribute(sub->layout, 1, &attr);
+	gfx_vertex_layout_set_draw_call(sub->layout, 0, &call);
+
+	float triangle[] = {
+		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
+	};
+
+	size_t buff = gfx_submesh_add_buffer(sub, GFX_VERTEX_BUFFER, sizeof(triangle), triangle);
+	gfx_submesh_set_attribute_buffer(sub, 0, buff, 0);
+	gfx_submesh_set_attribute_buffer(sub, 1, buff, sizeof(float) * 3);
+
+	GFXVertexSource source = { 0, 1, 0, 0 };
+	gfx_submesh_set_source(sub, 0, source);
+
+	return mesh;
+}
+
+GFXMaterial* create_material()
+{
+	const char* vertSrc =
+		"in vec4 position;"
+		"in vec3 color;"
+		"out vec3 fragColor;"
+		"void main() {"
+		"gl_Position = position;"
+		"fragColor = color;"
+		"}";
+	const char* fragSrc =
+		"in vec3 fragColor;"
+		"out vec3 outColor;"
+		"void main() {"
+		"outColor = fragColor;"
+		"}";
+
+	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
+	GFXShader* frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
+	gfx_shader_set_source(vert, 1, &vertSrc);
+	gfx_shader_set_source(frag, 1, &fragSrc);
+
+	GFXShader* shaders[] = { vert, frag };
+
+	GFXProgram* program = gfx_program_create();
+	gfx_program_set_attribute(program, 0, "position");
+	gfx_program_set_attribute(program, 1, "color");
+	gfx_program_link(program, 2, shaders, 0);
+
+	GFXMaterial* mat = gfx_material_create();
+	gfx_material_add(mat, 0, program, 0);
+
+	gfx_shader_free(vert);
+	gfx_shader_free(frag);
+
+	return mat;
 }
 
 int main()
@@ -30,35 +107,8 @@ int main()
 	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
 	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
 
-
-	/* Specify a triangle */
-	float triangle[] = {
-		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
-	};
-
-	GFXSharedBuffer buffer;
-	gfx_shared_buffer_init(&buffer, GFX_VERTEX_BUFFER, sizeof(triangle), triangle);
-
-	GFXVertexAttribute attr;
-	attr.size          = 3;
-	attr.type.unpacked = GFX_FLOAT;
-	attr.interpret     = GFX_INTERPRET_FLOAT;
-	attr.stride        = sizeof(float) * 6;
-	attr.divisor       = 0;
-
-	GFXDrawCall call;
-	call.primitive = GFX_TRIANGLES;
-	call.first     = 0;
-	call.count     = 3;
-
-	GFXVertexLayout* layout = gfx_vertex_layout_create(1);
-	gfx_vertex_layout_set_attribute(layout, 0, &attr);
-	gfx_vertex_layout_set_attribute(layout, 1, &attr);
-	gfx_vertex_layout_set_attribute_shared_buffer(layout, 0, &buffer, 0);
-	gfx_vertex_layout_set_attribute_shared_buffer(layout, 1, &buffer, sizeof(float) * 3);
-	gfx_vertex_layout_set_draw_call(layout, 0, &call);
+	GFXMesh* mesh = create_mesh();
+	GFXMaterial* material = create_material();
 
 
 	/* Texture */
@@ -75,38 +125,23 @@ int main()
 	image.layer   = 0;
 
 
-	/* Shaders! */
+	/* Post processing */
 	const char* vertSrc =
-		"in vec4 position;"
-		"in vec3 color;"
-		"out vec3 fragColor;"
-		"void main() {"
-		"gl_Position = position;"
-		"fragColor = color;"
-		"}";
-	const char* fragSrc =
-		"in vec3 fragColor;"
-		"out vec3 outColor;"
-		"void main() {"
-		"outColor = fragColor;"
-		"}";
-
-	const char* vertSrc2 =
 		"in ivec4 data;"
 		"out vec2 coord;"
 		"void main() {"
 		"gl_Position = vec4(data.xy, 0, 1);"
 		"coord = data.zw;"
 		"}";
-	const char* fragSrc2 =
+
+	const char* fragSrcA =
 		"in vec2 coord;"
 		"out vec3 color;"
 		"uniform sampler2D tex;"
 		"void main() {"
 		"color = vec3(1.0f) - texture(tex, coord).rgb;"
 		"}";
-
-	const char* fragSrc3 =
+	const char* fragSrcB =
 		"in vec2 coord;"
 		"out vec3 color;"
 		"uniform sampler2D tex;"
@@ -117,40 +152,31 @@ int main()
 	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
 	GFXShader* frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
 	gfx_shader_set_source(vert, 1, &vertSrc);
-	gfx_shader_set_source(frag, 1, &fragSrc);
+	gfx_shader_set_source(frag, 1, &fragSrcA);
 
 	GFXShader* shaders[] = { vert, frag };
 
-	GFXProgram* program = gfx_program_create();
-	gfx_program_set_attribute(program, 0, "position");
-	gfx_program_set_attribute(program, 1, "color");
-	gfx_program_link(program, 2, shaders, 0);
+	GFXProgram* programA = gfx_program_create();
+	gfx_program_set_attribute(programA, 0, "data");
+	gfx_program_link(programA, 2, shaders, 0);
 
-	gfx_shader_set_source(vert, 1, &vertSrc2);
-	gfx_shader_set_source(frag, 1, &fragSrc2);
+	gfx_shader_set_source(frag, 1, &fragSrcB);
 
-	GFXProgram* program2 = gfx_program_create();
-	gfx_program_set_attribute(program2, 0, "data");
-	gfx_program_link(program2, 2, shaders, 0);
-
-	gfx_shader_set_source(frag, 1, &fragSrc3);
-
-	GFXProgram* program3 = gfx_program_create();
-	gfx_program_set_attribute(program3, 0, "data");
-	gfx_program_link(program3, 2, shaders, 0);
+	GFXProgram* programB = gfx_program_create();
+	gfx_program_set_attribute(programB, 0, "data");
+	gfx_program_link(programB, 2, shaders, 0);
 
 	gfx_shader_free(vert);
 	gfx_shader_free(frag);
 
 
 	/* Property map */
-	GFXPropertyMap* map = gfx_property_map_create(program, 0);
-	GFXPropertyMap* map2 = gfx_property_map_create(program2, 1);
-	GFXPropertyMap* map3 = gfx_property_map_create(program3, 1);
-	gfx_property_map_forward_named(map2, 0, 0, "tex");
-	gfx_property_map_set_sampler(map2, 0, 0, tex);
-	gfx_property_map_forward_named(map3, 0, 0, "tex");
-	gfx_property_map_set_sampler(map3, 0, 0, tex);
+	GFXPropertyMap* mapA = gfx_property_map_create(programA, 1);
+	GFXPropertyMap* mapB = gfx_property_map_create(programB, 1);
+	gfx_property_map_forward_named(mapA, 0, 0, "tex");
+	gfx_property_map_set_sampler(mapA, 0, 0, tex);
+	gfx_property_map_forward_named(mapB, 0, 0, "tex");
+	gfx_property_map_set_sampler(mapB, 0, 0, tex);
 
 
 	/* Pipeline */
@@ -162,18 +188,19 @@ int main()
 
 	GFXPipe* pipe = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	gfx_pipe_set_state(pipe, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
+	_gfx_mesh_reference_bucket(mesh, pipe);
 
-	GFXVertexSource source = { 0, 1, 0, 0 };
-	size_t src = gfx_bucket_add_source(pipe->bucket, layout);
-	gfx_bucket_set_source(pipe->bucket, src, source);
-	gfx_bucket_insert(pipe->bucket, src, map, 0, 1);
+	size_t num;
+	GFXSubMesh* sub = gfx_submesh_list_at(gfx_mesh_get(mesh, 0, &num), 0);
+	size_t src = _gfx_submesh_get_bucket_source(sub, pipe, 0);
+	_gfx_material_add_bucket_unit(material, 0, 0, pipe, src, 0, 1);
 
 	pipe = gfx_pipeline_push_process(pipeline);
-	gfx_pipe_process_set_source(pipe->process, map2, 0);
+	gfx_pipe_process_set_source(pipe->process, mapA, 0);
 	gfx_pipe_process_set_target(pipe->process, window1, 1);
 
 	pipe = gfx_pipeline_push_process(pipeline);
-	gfx_pipe_process_set_source(pipe->process, map3, 0);
+	gfx_pipe_process_set_source(pipe->process, mapB, 0);
 	gfx_pipe_process_set_target(pipe->process, window2, 1);
 
 
@@ -202,14 +229,12 @@ int main()
 
 
 	/* Free all the things */
-	gfx_vertex_layout_free(layout);
-	gfx_shared_buffer_clear(&buffer);
-	gfx_property_map_free(map);
-	gfx_property_map_free(map2);
-	gfx_property_map_free(map3);
-	gfx_program_free(program);
-	gfx_program_free(program2);
-	gfx_program_free(program3);
+	gfx_mesh_free(mesh);
+	gfx_material_free(material);
+	gfx_property_map_free(mapA);
+	gfx_property_map_free(mapB);
+	gfx_program_free(programA);
+	gfx_program_free(programB);
 	gfx_texture_free(tex);
 	gfx_pipeline_free(pipeline);
 

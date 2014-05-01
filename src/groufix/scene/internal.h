@@ -248,27 +248,22 @@ void _gfx_submesh_free(
 /**
  * Adds the bucket and increases a reference counter referencing the bucket.
  *
- * @param ref Amount to increase the reference counter with.
  * @return Zero on failure or overflow.
  *
  */
 int _gfx_submesh_reference_bucket(
 
 		GFXSubMesh*  mesh,
-		GFXPipe*     pipe,
-		size_t       ref);
+		GFXPipe*     pipe);
 
 /**
  * Decreases the reference counter, removes the submesh from the bucket if zero.
- *
- * @param ref Amount to decrease the reference count with.
  *
  */
 void _gfx_submesh_remove_bucket(
 
 		GFXSubMesh*  mesh,
-		GFXPipe*     pipe,
-		size_t       ref);
+		GFXPipe*     pipe);
 
 /**
  * Retrieves the bucket source ID from a submesh.
