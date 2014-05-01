@@ -217,37 +217,6 @@ int gfx_mesh_set_source_at(
 		GFXMeshSource  source);
 
 /**
- * Removes a submesh from a given level of detail of a mesh.
- *
- * @return Non-zero if it was found and removed.
- *
- * If this operation causes a level to be empty,
- * all levels above it will fall down one level.
- *
- */
-int gfx_mesh_remove(
-
-		GFXMesh*     mesh,
-		size_t       level,
-		GFXSubMesh*  sub);
-
-/**
- * Removes a submesh from a given level of detail of a mesh.
- *
- * @param index Index of the submesh within the level as seen in the return of gfx_mesh_get.
- * @return Non-zero if it was removed.
- *
- * If this operation causes a level to be empty,
- * all levels above it will fall down one level.
- *
- */
-int gfx_mesh_remove_at(
-
-		GFXMesh*  mesh,
-		size_t    level,
-		size_t    index);
-
-/**
  * Returns an abstract list of submeshes of a given level of detail.
  *
  * @param num Returns the number of submeshes in the returned list.

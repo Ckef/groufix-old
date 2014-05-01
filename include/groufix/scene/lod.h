@@ -34,11 +34,20 @@ extern "C" {
  * LOD Map (map given objects to a level of detail)
  *******************************************************/
 
-/** LodMap */
+/** LOD Flags */
+typedef enum GFXLodFlags
+{
+	GFX_LOD_ERASABLE  = 0x01
+
+} GFXLodFlags;
+
+
+/** LOD Map */
 typedef struct GFXLodMap
 {
-	size_t  levels;   /* Number of LODs */
-	size_t  compSize; /* Number of bytes to use for comparisons */
+	GFXLodFlags  flags;    /* Fixed flags */
+	size_t       levels;   /* Number of LODs */
+	size_t       compSize; /* Number of bytes to use for comparisons */
 
 } GFXLodMap;
 
@@ -46,6 +55,7 @@ typedef struct GFXLodMap
 /**
  * Creates a new LOD map.
  *
+ * @param flags    Flags to apply to this LOD map.
  * @param dataSize Size of each mapped object in bytes.
  * @param compSize Starting bytes of elements to use to compare said elements.
  * @return NULL on failure.
@@ -53,8 +63,9 @@ typedef struct GFXLodMap
  */
 GFXLodMap* gfx_lod_map_create(
 
-		size_t  dataSize,
-		size_t  compSize);
+		GFXLodFlags  flags,
+		size_t       dataSize,
+		size_t       compSize);
 
 /**
  * Makes sure the LOD map is freed properly.

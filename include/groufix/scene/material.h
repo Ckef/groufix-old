@@ -80,36 +80,6 @@ GFXPropertyMap* gfx_material_add(
 		unsigned char  properties);
 
 /**
- * Removes a property map from a material.
- *
- * @return Non-zero if it was found and removed.
- *
- * If this operation causes a level to be empty,
- * all levels above it will fall down one level.
- *
- */
-int gfx_material_remove(
-
-		GFXMaterial*     material,
-		GFXPropertyMap*  map);
-
-/**
- * Removes a property map from a given level of detail of a material.
- *
- * @param index Index of the property map within the level as seen in the return of gfx_material_get.
- * @return Non-zero if it was removed.
- *
- * If this operation causes a level to be empty,
- * all levels above it will fall down one level.
- *
- */
-int gfx_material_remove_at(
-
-		GFXMaterial*  material,
-		size_t        level,
-		size_t        index);
-
-/**
  * Returns an abstract list of property maps of a given level of detail.
  *
  * @param num Returns the number of property maps in the returned list.

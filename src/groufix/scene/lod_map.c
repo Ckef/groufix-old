@@ -69,9 +69,11 @@ static size_t _gfx_lod_map_find_data(
 void _gfx_lod_map_init(
 
 		GFX_LodMap*  map,
+		GFXLodFlags  flags,
 		size_t       dataSize,
 		size_t       compSize)
 {
+	map->map.flags = flags;
 	map->map.levels = 0;
 	map->map.compSize = (compSize > dataSize) ? dataSize : compSize;
 
@@ -91,14 +93,15 @@ void _gfx_lod_map_clear(
 /******************************************************/
 GFXLodMap* gfx_lod_map_create(
 
-		size_t  dataSize,
-		size_t  compSize)
+		GFXLodFlags  flags,
+		size_t       dataSize,
+		size_t       compSize)
 {
 	/* Allocate new map */
 	GFX_LodMap* map = calloc(1, sizeof(GFX_LodMap));
 	if(!map) return NULL;
 
-	_gfx_lod_map_init(map, dataSize, compSize);
+	_gfx_lod_map_init(map, flags, dataSize, compSize);
 
 	return (GFXLodMap*)map;
 }
@@ -234,7 +237,8 @@ int gfx_lod_map_remove(
 		size_t      level,
 		void*       data)
 {
-	if(level >= map->levels) return 0;
+	/* Check if erasable and level bounds */
+	if(!(map->flags & GFX_LOD_ERASABLE) || level >= map->levels) return 0;
 
 	GFX_LodMap* internal = (GFX_LodMap*)map;
 	GFXVectorIterator levIt = gfx_vector_at(
@@ -272,7 +276,8 @@ int gfx_lod_map_remove_at(
 		size_t      level,
 		size_t      index)
 {
-	if(level >= map->levels) return 0;
+	/* Check if erasable and level bounds */
+	if(!(map->flags & GFX_LOD_ERASABLE) || level >= map->levels) return 0;
 
 	/* Get level and remove */
 	GFX_LodMap* internal = (GFX_LodMap*)map;

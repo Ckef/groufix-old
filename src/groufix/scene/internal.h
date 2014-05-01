@@ -52,6 +52,7 @@ typedef struct GFX_LodMap
 /**
  * Initializes a LOD map.
  *
+ * @param flags    Flags to apply to this LOD map.
  * @param dataSize Size of each mapped object in bytes.
  * @param compSize Starting bytes of elements to use to compare said elements.
  *
@@ -59,6 +60,7 @@ typedef struct GFX_LodMap
 void _gfx_lod_map_init(
 
 		GFX_LodMap*  map,
+		GFXLodFlags  flags,
 		size_t       dataSize,
 		size_t       compSize);
 

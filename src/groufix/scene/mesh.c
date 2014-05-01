@@ -279,6 +279,7 @@ GFXMesh* gfx_mesh_create(void)
 	/* Initialize */
 	_gfx_lod_map_init(
 		(GFX_LodMap*)mesh,
+		0,
 		sizeof(struct GFX_SubData),
 		sizeof(GFXSubMesh*)
 	);
@@ -442,60 +443,6 @@ int gfx_mesh_set_source_at(
 	data[index].source = source;
 
 	return 1;
-}
-
-/******************************************************/
-int gfx_mesh_remove(
-
-		GFXMesh*     mesh,
-		size_t       level,
-		GFXSubMesh*  sub)
-{
-	/* Try to remove it */
-	if(gfx_lod_map_remove((GFXLodMap*)mesh, level, &sub))
-	{
-		_gfx_mesh_buckets_remove_submesh(
-			(struct GFX_Mesh*)mesh,
-			sub
-		);
-		_gfx_submesh_free(sub);
-
-		return 1;
-	}
-	return 0;
-}
-
-/******************************************************/
-int gfx_mesh_remove_at(
-
-		GFXMesh*  mesh,
-		size_t    level,
-		size_t    index)
-{
-	/* First get the submesh */
-	size_t num;
-	struct GFX_SubData* data = gfx_lod_map_get(
-		(GFXLodMap*)mesh,
-		level,
-		&num
-	);
-
-	if(index >= num) return 0;
-
-	/* Try to remove it */
-	GFXSubMesh* submesh = data[index].sub;
-
-	if(gfx_lod_map_remove_at((GFXLodMap*)mesh, level, index))
-	{
-		_gfx_mesh_buckets_remove_submesh(
-			(struct GFX_Mesh*)mesh,
-			submesh
-		);
-		_gfx_submesh_free(submesh);
-
-		return 1;
-	}
-	return 0;
 }
 
 /******************************************************/
