@@ -27,8 +27,6 @@
 #include "groufix/core/shading.h"
 #include "groufix/core/window.h"
 
-#define GFX_BUCKET_KEY_WIDTH_DEFAULT  16
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -164,23 +162,8 @@ typedef struct GFXBucket
 
 
 /** Key representing a state */
-typedef uint64_t GFXBatchState;
+typedef uint32_t GFXBatchState;
 
-
-/**
- * Sets the sorting key width limit (the default is GFX_BUCKET_KEY_WIDTH_DEFAULT).
- *
- * @param width Limit of program/vertex layout sorting keys (separate keys).
- * @param bits  Number of manual bits to sort by.
- *
- * Note: it can only be changed if no units are inserted yet.
- *
- */
-void gfx_bucket_set_key_width(
-
-		GFXBucket*     bucket,
-		unsigned char  width,
-		unsigned char  bits);
 
 /**
  * Adds a new source to the bucket.
@@ -221,7 +204,7 @@ void gfx_bucket_remove_source(
 /**
  * Insert a unit to be processed into the bucket.
  *
- * @param state    Manual bits of the state to associate this unit with.
+ * @param state    30 manual bits of the state to associate this unit with (2 MSB bits are ignored).
  * @param map      Property map (and thus program) to use for rendering this unit.
  * @param visible  Non-zero if visible, invisible otherwise.
  * @return The ID of the inserted unit, 0 on failure.
@@ -265,7 +248,7 @@ unsigned int gfx_bucket_get_instance_base(
 		size_t      unit);
 
 /**
- * Returns the manual bits of the state associated with a unit.
+ * Returns the 30 manual bits of the state associated with a unit.
  *
  */
 GFXBatchState gfx_bucket_get_state(
@@ -315,7 +298,9 @@ void gfx_bucket_set_instance_base(
 		unsigned int  base);
 
 /**
- * Sets the manual bits of the state to associate a unit with.
+ * Sets the 30 manual bits of the state to associate a unit with.
+ *
+ * Note: 2 MSB bits are ignored as they're used internally.
  *
  */
 void gfx_bucket_set_state(

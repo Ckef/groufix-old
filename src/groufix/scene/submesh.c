@@ -24,7 +24,6 @@
 #include "groufix/scene.h"
 #include "groufix/containers/vector.h"
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
