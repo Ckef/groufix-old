@@ -192,7 +192,7 @@ int main()
 
 	size_t num;
 	GFXSubMesh* sub = gfx_submesh_list_at(gfx_mesh_get(mesh, 0, &num), 0);
-	size_t src = _gfx_submesh_get_bucket_source(sub, pipe, 0);
+	size_t src = *(size_t*)_gfx_submesh_get_bucket_sources(sub, pipe, 0, 1);
 	_gfx_material_add_bucket_unit(material, 0, 0, pipe, src, 0, 1);
 
 	pipe = gfx_pipeline_push_process(pipeline);

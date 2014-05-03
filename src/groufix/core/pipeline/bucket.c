@@ -21,12 +21,12 @@
  *
  */
 
-#include "groufix/core/errors.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/shading/internal.h"
 #include "groufix/containers/vector.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 

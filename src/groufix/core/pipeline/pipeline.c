@@ -696,7 +696,7 @@ void gfx_pipeline_execute(
 	_gfx_pipeline_bind(internal->fbo, ext);
 
 	/* Iterate over all pipes */
-	unsigned int nolimit = num ? 0 : 1;
+	unsigned int nolimit = !num;
 	GFX_Pipe* pipe = internal->current ? internal->current : internal->first;
 
 	while(pipe && (nolimit | num--))

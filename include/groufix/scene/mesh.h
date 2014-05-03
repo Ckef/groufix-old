@@ -222,7 +222,7 @@ int gfx_mesh_set_source_at(
  * @param num Returns the number of submeshes in the returned list.
  * @return List of submeshes.
  *
- * Note: as soon as a submesh is added/removed the list is invalidated.
+ * Note: as soon as a submesh is added the list is invalidated.
  *
  */
 GFXSubMeshList gfx_mesh_get(
@@ -233,6 +233,8 @@ GFXSubMeshList gfx_mesh_get(
 
 /**
  * Returns an abstract list of submeshes of all levels.
+ *
+ * Note: as soon as a submesh is added the list is invalidated.
  *
  */
 GFXSubMeshList gfx_mesh_get_all(

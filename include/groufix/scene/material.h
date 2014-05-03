@@ -85,7 +85,7 @@ GFXPropertyMap* gfx_material_add(
  * @param num Returns the number of property maps in the returned list.
  * @return List of property maps.
  *
- * Note: as soon as a property map is added/removed the list is invalidated.
+ * Note: as soon as a property map is added the list is invalidated.
  *
  */
 GFXPropertyMapList gfx_material_get(
@@ -96,6 +96,8 @@ GFXPropertyMapList gfx_material_get(
 
 /**
  * Returns an abstract list of property maps of all levels.
+ *
+ * Note: as soon as a property map is added the list is invalidated.
  *
  */
 GFXPropertyMapList gfx_material_get_all(

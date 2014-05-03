@@ -268,18 +268,23 @@ void _gfx_submesh_remove_bucket(
 		GFXPipe*     pipe);
 
 /**
- * Retrieves the bucket source ID from a submesh.
+ * Retrieves the bucket source IDs from a submesh.
  *
- * @param index Index of the submesh source (must be < mesh->sources).
- * @param pipe  A bucket references in the submesh.
- * @return The ID of the source, 0 on failure.
+ * @param pipe  A bucket referenced in the submesh.
+ * @param index Index of the first source to retrieve.
+ * @param num   Number of sources to retrieve starting at index.
+ * @return An array of num source IDs, NULL on failure.
+ *
+ * Note: index + num must be <= mesh->sources.
+ * Any ID in the array can be 0 as well, meaning its creation failed.
  *
  */
-size_t _gfx_submesh_get_bucket_source(
+size_t* _gfx_submesh_get_bucket_sources(
 
 		GFXSubMesh*    mesh,
 		GFXPipe*       pipe,
-		unsigned char  index);
+		unsigned char  index,
+		unsigned char  num);
 
 
 #ifdef __cplusplus
