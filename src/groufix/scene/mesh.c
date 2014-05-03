@@ -37,8 +37,9 @@ struct GFX_Mesh
 /* Internal submesh data */
 struct GFX_SubData
 {
-	GFXSubMesh*    sub;    /* Super class */
-	GFXMeshSource  source; /* Sources to use within sub */
+	GFXSubMesh*    sub;      /* Super class */
+	size_t         material; /* Property map index within material */
+	GFXMeshSource  source;   /* Sources to use within sub */
 };
 
 /* Internal bucket reference */
@@ -333,8 +334,9 @@ GFXSubMesh* gfx_mesh_add(
 {
 	/* Create new submesh */
 	struct GFX_SubData data;
+	data.material           = 0;
 	data.source.startSource = 0;
-	data.source.numSource = sources;
+	data.source.numSource   = sources;
 
 	data.sub = _gfx_submesh_create(drawCalls, sources);
 	if(!data.sub) return NULL;
@@ -380,9 +382,10 @@ int gfx_mesh_add_share(
 
 	/* Add it to the LOD map */
 	struct GFX_SubData data;
-	data.sub = share;
+	data.sub                = share;
+	data.material           = 0;
 	data.source.startSource = 0;
-	data.source.numSource = share->sources;
+	data.source.numSource   = share->sources;
 
 	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))
 	{
@@ -391,6 +394,56 @@ int gfx_mesh_add_share(
 
 		return 0;
 	}
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_mesh_set_material(
+
+		GFXMesh*     mesh,
+		size_t       level,
+		GFXSubMesh*  sub,
+		size_t       material)
+{
+	/* First find the submesh */
+	size_t num;
+	struct GFX_SubData* data = gfx_lod_map_get(
+		(GFXLodMap*)mesh,
+		level,
+		&num
+	);
+
+	while(num--) if(data[num].sub == sub)
+	{
+		/* Set material if found */
+		data[num].material = material;
+		return 1;
+	}
+
+	return 0;
+}
+
+/******************************************************/
+int gfx_mesh_set_material_at(
+
+		GFXMesh*  mesh,
+		size_t    level,
+		size_t    index,
+		size_t    material)
+{
+	/* First get the submesh */
+	size_t num;
+	struct GFX_SubData* data = gfx_lod_map_get(
+		(GFXLodMap*)mesh,
+		level,
+		&num
+	);
+
+	if(index >= num) return 0;
+
+	/* Set the material */
+	data[index].material = material;
 
 	return 1;
 }
@@ -462,6 +515,15 @@ GFXSubMeshList gfx_mesh_get_all(
 		size_t*   num)
 {
 	return gfx_lod_map_get_all((GFXLodMap*)mesh, num);
+}
+
+/******************************************************/
+size_t gfx_submesh_list_material_at(
+
+		GFXSubMeshList  list,
+		size_t          index)
+{
+	return ((struct GFX_SubData*)list)[index].material;
 }
 
 /******************************************************/
