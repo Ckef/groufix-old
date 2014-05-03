@@ -151,21 +151,24 @@ static void _gfx_material_increase_bounds(
 		size_t                num,
 		int                   diff)
 {
-	size_t size = _gfx_material_get_bucket_size(material);
-	size_t u;
-
-	/* Adjust remaining maps of the current bucket */
-	for(u = index; u < num; ++u)
-		*_gfx_material_bucket_at(bucket, u) += diff;
-
-	/* Adjust other buckets */
-	for(
-		bucket = gfx_vector_advance(&material->buckets, bucket, size);
-		bucket != material->buckets.end;
-		bucket = gfx_vector_advance(&material->buckets, bucket, size))
+	if(bucket != material->buckets.end)
 	{
-		for(u = 0; u < num; ++u)
+		size_t size = _gfx_material_get_bucket_size(material);
+		size_t u;
+
+		/* Adjust remaining maps of the current bucket */
+		for(u = index; u < num; ++u)
 			*_gfx_material_bucket_at(bucket, u) += diff;
+
+		/* Adjust other buckets */
+		for(
+			bucket = gfx_vector_advance(&material->buckets, bucket, size);
+			bucket != material->buckets.end;
+			bucket = gfx_vector_advance(&material->buckets, bucket, size))
+		{
+			for(u = 0; u < num; ++u)
+				*_gfx_material_bucket_at(bucket, u) += diff;
+		}
 	}
 }
 
@@ -186,7 +189,7 @@ static void _gfx_material_erase_units(
 }
 
 /******************************************************/
-static void _gfx_material_unregister(
+static GFXVectorIterator _gfx_material_unregister(
 
 		struct GFX_Material*  material,
 		GFXVectorIterator     bucket)
@@ -199,7 +202,7 @@ static void _gfx_material_unregister(
 	gfx_pipe_unregister(*(GFXPipe**)bucket, call);
 
 	/* Erase bucket from vector */
-	bucket = gfx_vector_erase_range(
+	return gfx_vector_erase_range(
 		&material->buckets,
 		_gfx_material_get_bucket_size(material),
 		bucket
@@ -325,12 +328,13 @@ static size_t _gfx_material_find_units(
 }
 
 /******************************************************/
-size_t _gfx_material_add_bucket_unit(
+void* _gfx_material_add_bucket_units(
 
 		GFXMaterial*   material,
 		size_t         level,
 		size_t         index,
 		GFXPipe*       pipe,
+		size_t         num,
 		size_t         src,
 		GFXBatchState  state,
 		int            visible)
@@ -341,29 +345,42 @@ size_t _gfx_material_add_bucket_unit(
 	/* First get the property map */
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 
-	size_t num;
+	size_t numMaps;
 	GFXPropertyMap** data = gfx_lod_map_get(
 		(GFXLodMap*)material,
 		level,
-		&num);
+		&numMaps);
 
-	if(index >= num) return 0;
+	if(index >= numMaps) return 0;
 
-	/* Create the unit */
-	struct GFX_Unit unit;
-	unit.src = src;
-	unit.unit = gfx_bucket_insert(
-		pipe->bucket,
-		src,
-		data[index],
-		state,
-		visible
-	);
+	/* Create the units */
+	struct GFX_Unit units[num];
+	size_t n;
 
-	if(!unit.unit) return 0;
+	for(n = 0; n < num; ++n)
+	{
+		units[n].src = src;
+		units[n].unit = gfx_bucket_insert(
+			pipe->bucket,
+			src,
+			data[index],
+			state,
+			visible
+		);
+
+		/* Sigh, failed to create, erase everything */
+		if(!units[n].unit)
+		{
+			while(n) gfx_bucket_erase(
+				pipe->bucket,
+				units[--n].unit
+			);
+			return 0;
+		}
+	}
 
 	/* Get bucket index of the map */
-	size_t numMaps =
+	numMaps =
 		_gfx_material_get_num_maps((GFXLodMap*)internal);
 	size_t ind =
 		_gfx_material_get_map_index((GFXLodMap*)internal, level, index);
@@ -387,10 +404,11 @@ size_t _gfx_material_add_bucket_unit(
 
 		if(bucket != internal->buckets.end)
 		{
-			/* Try to insert a new unit */
-			GFXVectorIterator unitIt = gfx_vector_insert(
+			/* Try to insert the new units */
+			GFXVectorIterator unitIt = gfx_vector_insert_range(
 				&internal->units,
-				&unit,
+				num,
+				units,
 				internal->units.end
 			);
 
@@ -413,14 +431,18 @@ size_t _gfx_material_add_bucket_unit(
 							bucket,
 							numMaps
 						);
-						*set = (numMaps >= ind) ? upper : upper - 1;
+						*set = (numMaps >= ind) ? upper : upper - num;
 					}
 
-					return unit.unit;
+					return unitIt;
 				}
 
-				/* Failed, remove unit */
-				gfx_vector_erase(&internal->units, unitIt);
+				/* Failed, remove units */
+				gfx_vector_erase_range(
+					&internal->units,
+					num,
+					unitIt
+				);
 			}
 
 			/* Remove bucket */
@@ -438,42 +460,40 @@ size_t _gfx_material_add_bucket_unit(
 		size_t max;
 
 		_gfx_material_get_boundaries(internal, bucket, ind, &min, &max);
-		struct GFX_Unit* units = gfx_vector_at(&internal->units, min);
+		struct GFX_Unit* found = gfx_vector_at(&internal->units, min);
 
-		num = max - min;
-		min += _gfx_material_find_units(units, &num, src);
+		size_t range = max - min;
+		min += _gfx_material_find_units(found, &range, src);
 
 		/* Try to insert the unit */
-		GFXVectorIterator unitIt = gfx_vector_insert_at(
+		GFXVectorIterator unitIt = gfx_vector_insert_range_at(
 			&internal->units,
-			&unit,
-			min + num
+			num,
+			units,
+			min + range
 		);
 
 		if(unitIt != internal->units.end)
 		{
 			/* Increase bounds */
-			_gfx_material_increase_bounds(internal, bucket, ind, numMaps, 1);
-			return unit.unit;
+			_gfx_material_increase_bounds(
+				internal,
+				bucket,
+				ind,
+				numMaps,
+				num
+			);
+			return unitIt;
 		}
 	}
 
-	/* Erase unit from bucket */
-	gfx_bucket_erase(pipe->bucket, unit.unit);
+	/* Erase units from bucket */
+	while(n) gfx_bucket_erase(
+		pipe->bucket,
+		units[--n].unit
+	);
 
-	return 0;
-}
-
-/******************************************************/
-int _gfx_material_has_bucket_units(
-
-		GFXMaterial*  material,
-		GFXPipe*      pipe)
-{
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	GFXVectorIterator bucket = _gfx_material_find_bucket(internal, pipe);
-
-	return (bucket != internal->buckets.end);
+	return NULL;
 }
 
 /******************************************************/
@@ -575,10 +595,11 @@ void _gfx_material_remove_bucket_units(
 				_gfx_material_erase_units(internal, pipe->bucket, min, min + num);
 				gfx_vector_erase_range_at(&internal->units, num, min);
 
-				/* Decrease bounds and remove the bucket if no units are left */
-				_gfx_material_increase_bounds(internal, bucket, ind, numMaps, -num);
+				/* Remove the bucket if no units are left and decrease bounds */
 				_gfx_material_get_bucket_boundaries(internal, bucket, &min, &max);
-				if(!(max - min)) _gfx_material_unregister(internal, bucket);
+				if((max - min) <= num) bucket = _gfx_material_unregister(internal, bucket);
+
+				_gfx_material_increase_bounds(internal, bucket, 0, numMaps, -num);
 			}
 		}
 	}

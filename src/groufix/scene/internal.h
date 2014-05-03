@@ -78,33 +78,28 @@ void _gfx_lod_map_clear(
  *******************************************************/
 
 /**
- * Ads a bucket unit to the material.
+ * Adds multiple bucket units to the material.
  *
  * @param level Level of detail to add to (must be <= material->levels).
  * @param index Index of the property map within the level as seen in the return of gfx_material_get.
  * @param pipe  Bucket to add it to.
  * @param src   Source of the bucket to use for this unit.
- * @return The ID of the unit, 0 on failure.
+ * @param num   Number of units to add.
+ * @return Abstract array containing num units, NULL on failure.
+ *
+ * As soon as ny units are added or removed, the returned pointer is invalidated.
  *
  */
-size_t _gfx_material_add_bucket_unit(
+void* _gfx_material_add_bucket_units(
 
 		GFXMaterial*   material,
 		size_t         level,
 		size_t         index,
 		GFXPipe*       pipe,
+		size_t         num,
 		size_t         src,
 		GFXBatchState  state,
 		int            visible);
-
-/**
- * Returns whether a material has units in a given bucket.
- *
- */
-int _gfx_material_has_bucket_units(
-
-		GFXMaterial*  material,
-		GFXPipe*      pipe);
 
 /**
  * Retrieves a number of bucket units from the material.
@@ -144,7 +139,7 @@ size_t _gfx_material_find_bucket_units(
 		size_t*  num);
 
 /**
- * Indexes into the array returned by _gfx_material_get_bucket_units.
+ * Indexes into the array returned by _gfx_material_add_bucket_units or _gfx_material_get_bucket_units.
  *
  * @param array Abstract array to index into.
  * @param unit  Index into the array (bounds not checked).
