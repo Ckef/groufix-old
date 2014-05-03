@@ -72,8 +72,8 @@ struct GFX_Layout
 	GFXPrimitive          TFPrimitive;   /* Feedback output primitive */
 	size_t                TFNumBuffers;
 	struct GFX_TFBuffer*  TFBuffers;     /* Transform Feedback buffers */
-	GLint                 patchVertices; /* Number of vertices per patch */
 
+	GLint                 patchVertices; /* Number of vertices per patch */
 	GLuint                indexBuffer;
 	size_t                indexOffset;   /* Byte offset into index buffer */
 

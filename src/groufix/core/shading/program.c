@@ -366,6 +366,15 @@ static unsigned short _gfx_program_prepare_blocks(
 	size_t k;
 	for(k = 0; k < blocks; ++k)
 	{
+		GLint size;
+		ext->GetActiveUniformBlockiv(
+			program->handle,
+			k,
+			GL_UNIFORM_BLOCK_DATA_SIZE,
+			&size
+		);
+
+		/* Get associated uniform indices */
 		GLint uniforms;
 		ext->GetActiveUniformBlockiv(
 			program->handle,
@@ -382,7 +391,7 @@ static unsigned short _gfx_program_prepare_blocks(
 			uniformIndices
 		);
 
-		/* Retrieve uniforms */
+		/* Retrieve information for all associated uniforms */
 		GLuint indices[uniforms];
 		GLint offsets[uniforms];
 		GLint arrStrides[uniforms];
@@ -397,15 +406,18 @@ static unsigned short _gfx_program_prepare_blocks(
 
 		/* Create block property */
 		GFXPropertyBlock block;
+		block.size          = size;
 		block.numProperties = uniforms;
-		block.properties = malloc(sizeof(GFXPropertyBlockMember) * uniforms);
+		block.properties    = malloc(sizeof(GFXPropertyBlockMember) * uniforms);
 
 		if(block.properties) for(j = 0; j < uniforms; ++j)
 		{
 			block.properties[j].property = indices[j];
 			block.properties[j].offset = offsets[j];
-			block.properties[j].stride = matStrides[j] > 0 ? matStrides[j] :
-				(arrStrides[j] > 0 ? arrStrides[j] : 0);
+			block.properties[j].stride =
+				(matStrides[j] > 0) ? matStrides[j] :
+				(arrStrides[j] > 0) ? arrStrides[j] :
+				0;
 		}
 
 		gfx_vector_insert(

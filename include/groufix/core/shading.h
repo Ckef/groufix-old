@@ -160,7 +160,8 @@ typedef struct GFXPropertyBlockMember
 /** Property Block */
 typedef struct GFXPropertyBlock
 {
-	unsigned short           numProperties;
+	size_t                   size;          /* Byte size to hold all uniforms within the block */
+	unsigned short           numProperties; /* Number of elements in properties */
 	GFXPropertyBlockMember*  properties;
 
 } GFXPropertyBlock;
