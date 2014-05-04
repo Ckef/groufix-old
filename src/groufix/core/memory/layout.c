@@ -524,7 +524,7 @@ int gfx_vertex_layout_set_attribute(
 
 	set->size      = attr->size;
 	set->type      = packed ? attr->type.packed : attr->type.unpacked;
-	set->interpret = packed && attr->interpret & GFX_INTERPRET_INTEGER ? GFX_INTERPRET_FLOAT : attr->interpret;
+	set->interpret = packed && (attr->interpret & GFX_INTERPRET_INTEGER) ? GFX_INTERPRET_FLOAT : attr->interpret;
 	set->stride    = attr->stride;
 	set->divisor   = attr->divisor;
 
@@ -591,6 +591,49 @@ int gfx_vertex_layout_set_attribute_shared_buffer(
 }
 
 /******************************************************/
+unsigned int gfx_vertex_layout_get_max_attribute(
+
+		GFXVertexLayout* layout)
+{
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	if(!internal->ext) return 0;
+
+	/* Return max index */
+	size_t size = gfx_vector_get_size(&internal->attributes);
+	return size ? size - 1 : size;
+}
+
+/******************************************************/
+int gfx_vertex_layout_get_attribute(
+
+		GFXVertexLayout*     layout,
+		unsigned int         index,
+		GFXVertexAttribute*  attr)
+{
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	if(!internal->ext) return 0;
+
+	/* Validate index */
+	size_t size = gfx_vector_get_size(&internal->attributes);
+	if(index >= size) return 0;
+
+	/* Retrieve data */
+	struct GFX_Attribute* get = (struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
+	if(!get->size) return 0;
+
+	attr->size        = get->size;
+	attr->type.packed = get->type;
+	attr->interpret   = get->interpret;
+	attr->stride      = get->stride;
+	attr->divisor     = get->divisor;
+
+	if(_gfx_is_data_type_packed(attr->type))
+		attr->type.unpacked = get->type;
+
+	return 1;
+}
+
+/******************************************************/
 void gfx_vertex_layout_remove_attribute(
 
 		GFXVertexLayout*  layout,
@@ -613,7 +656,7 @@ void gfx_vertex_layout_remove_attribute(
 		rem->size = 0;
 		rem->buffer = 0;
 
-		/* Deallocate all empty attributes at the end */
+		/* Deallocate all trailing empty attributes */
 		unsigned int num;
 		GFXVectorIterator beg = internal->attributes.end;
 
