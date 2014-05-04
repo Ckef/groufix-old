@@ -24,8 +24,7 @@
 #ifndef GFX_SCENE_H
 #define GFX_SCENE_H
 
-#include "groufix/scene/material.h"
-#include "groufix/scene/mesh.h"
+#include "groufix/scene/batcher.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,9 +33,11 @@ extern "C" {
 /** Scene object keys */
 typedef enum GFXSceneKey
 {
+	GFX_SCENE_KEY_BATCH,
 	GFX_SCENE_KEY_MATERIAL,
-	GFX_SCENE_KEY_MESH,
-	GFX_SCENE_KEY_SUBMESH
+	GFX_SCENE_KEY_SUBMESH,
+
+	GFX_SCENE_KEY_EMPTY /* Start of empty range */
 
 } GFXSceneKey;
 

@@ -107,7 +107,12 @@ int main()
 	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
 	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
 
-	GFXMesh* mesh = create_mesh();
+
+	/* Mesh and material */
+	size_t num;
+
+	GFXMesh* mesh         = create_mesh();
+	GFXSubMesh* submesh   = gfx_submesh_list_at(gfx_mesh_get(mesh, 0, &num), 0);
 	GFXMaterial* material = create_material();
 
 
@@ -186,17 +191,14 @@ int main()
 	gfx_pipeline_target(pipeline, 800, 600, 1, targets);
 	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);
 
-	GFXPipe* pipe = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
-	gfx_pipe_set_state(pipe, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
+	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
+	gfx_pipe_set_state(bucket, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
-	size_t num;
-	GFXSubMesh* sub = gfx_submesh_list_at(gfx_mesh_get(mesh, 0, &num), 0);
-	_gfx_submesh_reference_bucket(sub, pipe);
+	GFXBatch* batch = gfx_batch_reference(bucket, material, submesh);
+	size_t src = *(size_t*)_gfx_submesh_get_bucket_sources(submesh, bucket, 0, 1);
+	_gfx_material_add_bucket_units(material, 0, 0, bucket, 1, src, 0, 1);
 
-	size_t src = *(size_t*)_gfx_submesh_get_bucket_sources(sub, pipe, 0, 1);
-	_gfx_material_add_bucket_units(material, 0, 0, pipe, 1, src, 0, 1);
-
-	pipe = gfx_pipeline_push_process(pipeline);
+	GFXPipe* pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapA, 0);
 	gfx_pipe_process_set_target(pipe->process, window1, 1);
 
@@ -230,6 +232,7 @@ int main()
 
 
 	/* Free all the things */
+	gfx_batch_dereference(batch, bucket);
 	gfx_mesh_free(mesh);
 	gfx_material_free(material);
 	gfx_property_map_free(mapA);

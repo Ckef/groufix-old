@@ -86,6 +86,7 @@ void _gfx_lod_map_clear(
 
 		GFX_LodMap* map)
 {
+	map->map.levels = 0;
 	gfx_vector_clear(&map->data);
 	gfx_vector_clear(&map->levels);
 }
