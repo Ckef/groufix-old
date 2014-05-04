@@ -169,42 +169,6 @@ void _gfx_material_remove_bucket_units(
 
 
 /********************************************************
- * Mesh management
- *******************************************************/
-
-/**
- * Adds a bucket to a mesh and increases a reference counter referencing the bucket.
- *
- * @return Zero on failure or overflow.
- *
- * This allows the mesh to handle bucket references to its submeshes.
- *
- */
-int _gfx_mesh_reference_bucket(
-
-		GFXMesh*  mesh,
-		GFXPipe*  pipe);
-
-/**
- * Returns whether the mesh references a given bucket.
- *
- */
-int _gfx_mesh_has_bucket(
-
-		GFXMesh*  mesh,
-		GFXPipe*  pipe);
-
-/**
- * Decreases the reference counter, removes the bucket if 0.
- *
- */
-void _gfx_mesh_remove_bucket(
-
-		GFXMesh*  mesh,
-		GFXPipe*  pipe);
-
-
-/********************************************************
  * SubMesh management
  *******************************************************/
 

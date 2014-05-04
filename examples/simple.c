@@ -188,10 +188,11 @@ int main()
 
 	GFXPipe* pipe = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	gfx_pipe_set_state(pipe, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
-	_gfx_mesh_reference_bucket(mesh, pipe);
 
 	size_t num;
 	GFXSubMesh* sub = gfx_submesh_list_at(gfx_mesh_get(mesh, 0, &num), 0);
+	_gfx_submesh_reference_bucket(sub, pipe);
+
 	size_t src = *(size_t*)_gfx_submesh_get_bucket_sources(sub, pipe, 0, 1);
 	_gfx_material_add_bucket_units(material, 0, 0, pipe, 1, src, 0, 1);
 
