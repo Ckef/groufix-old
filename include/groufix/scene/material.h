@@ -80,6 +80,36 @@ GFXPropertyMap* gfx_material_add(
 		unsigned char  properties);
 
 /**
+ * Sets the number of instances which can be drawn using the property map.
+ *
+ * @param instances Maximum number of drawable instances, 0 for unlimited.
+ * @return Non-zero if the property map was found.
+ *
+ * The default is 1.
+ *
+ */
+int gfx_material_set_instances(
+
+		GFXMaterial*     material,
+		GFXPropertyMap*  map,
+		size_t           instances);
+
+/**
+ * Sets the number of instances which can be drawn using the property map.
+ *
+ * @return Zero if the property map does not exist.
+ *
+ * The default is 1.
+ *
+ */
+int gfx_material_set_instances_at(
+
+		GFXMaterial*  material,
+		size_t        level,
+		size_t        index,
+		size_t        instances);
+
+/**
  * Returns an abstract list of property maps of a given level of detail.
  *
  * @param num Returns the number of property maps in the returned list.
@@ -106,11 +136,20 @@ GFXPropertyMapList gfx_material_get_all(
 		size_t*       num);
 
 /**
- * Index into a list of property maps.
+ * Index into a list of property maps, retrieving the instances.
  *
  * @param list List of property maps returned by gfx_material_get or gfx_material_get_all.
  *
- * Note: you can only retrieve a property map with index < numer of elements in list.
+ * Note: you can only retrieve a property map with index < number of elements in list.
+ *
+ */
+size_t gfx_property_map_list_instances_at(
+
+		GFXPropertyMapList  list,
+		size_t              index);
+
+/**
+ * Index into a list of property maps, retrieving the property map.
  *
  */
 GFXPropertyMap* gfx_property_map_list_at(

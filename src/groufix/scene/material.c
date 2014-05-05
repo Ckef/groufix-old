@@ -38,6 +38,13 @@ struct GFX_Material
 	GFXVector  buckets; /* Stores (GFXPipe* + size_t (upper bound in units) * propertyMaps) */
 };
 
+/* Internal Property Map data */
+struct GFX_MapData
+{
+	GFXPropertyMap*  map;       /* Super class */
+	size_t           instances; /* Number or renderable instances */
+};
+
 /* Internal unit */
 struct GFX_Unit
 {
@@ -346,7 +353,7 @@ void* _gfx_material_add_bucket_units(
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 
 	size_t numMaps;
-	GFXPropertyMap** data = gfx_lod_map_get(
+	struct GFX_MapData* data = gfx_lod_map_get(
 		(GFXLodMap*)material,
 		level,
 		&numMaps);
@@ -363,7 +370,7 @@ void* _gfx_material_add_bucket_units(
 		units[n].unit = gfx_bucket_insert(
 			pipe->bucket,
 			src,
-			data[index],
+			data[index].map,
 			state,
 			visible
 		);
@@ -616,7 +623,7 @@ GFXMaterial* gfx_material_create(void)
 	_gfx_lod_map_init(
 		(GFX_LodMap*)mat,
 		0,
-		sizeof(GFXPropertyMap*),
+		sizeof(struct GFX_MapData*),
 		sizeof(GFXPropertyMap*)
 	);
 
@@ -640,11 +647,11 @@ void gfx_material_free(
 
 		/* Free all property maps */
 		size_t num;
-		GFXPropertyMap** maps = gfx_lod_map_get_all(
+		struct GFX_MapData* maps = gfx_lod_map_get_all(
 			(GFXLodMap*)material,
 			&num);
 
-		while(num) gfx_property_map_free(maps[--num]);
+		while(num) gfx_property_map_free(maps[--num].map);
 
 		/* Clear and free */
 		_gfx_lod_map_clear((GFX_LodMap*)material);
@@ -662,23 +669,27 @@ GFXPropertyMap* gfx_material_add(
 {
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 
-	/* Get data from before anything is inserted */
-	size_t bucketSize = _gfx_material_get_bucket_size(internal);
-	size_t ind = gfx_lod_map_count((GFXLodMap*)internal, level + 1);
+	/* Create new property map */
+	struct GFX_MapData data;
+	data.instances = 1;
 
-	/* Create new property map and add it to the LOD map */
-	GFXPropertyMap* map = gfx_property_map_create(program, properties);
-	if(!map) return NULL;
+	data.map = gfx_property_map_create(program, properties);
+	if(!data.map) return NULL;
 
-	if(gfx_lod_map_add((GFXLodMap*)internal, level, &map))
+	/* Calculate new size and try to reserve it */
+	size_t bucketSize =
+		_gfx_material_get_bucket_size(internal);
+	size_t ind =
+		gfx_lod_map_count((GFXLodMap*)internal, level + 1);
+	size_t bucketIndex =
+		gfx_vector_get_byte_size(&internal->buckets);
+	size_t size =
+		bucketIndex + (bucketIndex / bucketSize) * sizeof(size_t);
+
+	if(gfx_vector_reserve(&internal->buckets, size))
 	{
-		/* Calculate new size and try to reserve it */
-		size_t bucketIndex =
-			gfx_vector_get_byte_size(&internal->buckets);
-		size_t size =
-			bucketIndex + (bucketIndex / bucketSize) * sizeof(size_t);
-
-		if(gfx_vector_reserve(&internal->buckets, size))
+		/* Add it to the LOD map */
+		if(gfx_lod_map_add((GFXLodMap*)internal, level, &data))
 		{
 			/* Iterate over all buckets and insert it */
 			while(bucketIndex)
@@ -697,17 +708,68 @@ GFXPropertyMap* gfx_material_add(
 					insert);
 			}
 
-			return map;
+			return data.map;
 		}
-
-		/* Nevermind */
-		gfx_lod_map_remove((GFXLodMap*)internal, level, &map);
 	}
 
 	/* All failed D: */
-	gfx_property_map_free(map);
+	gfx_property_map_free(data.map);
 
 	return NULL;
+}
+
+/******************************************************/
+int gfx_material_set_instances(
+
+		GFXMaterial*     material,
+		GFXPropertyMap*  map,
+		size_t           instances)
+{
+	/* First find the level it resides in */
+	size_t levels = material->lodMap.levels;
+
+	while(levels)
+	{
+		size_t num;
+		struct GFX_MapData* data = gfx_lod_map_get(
+			(GFXLodMap*)material,
+			--levels,
+			&num
+		);
+
+		/* Set instances if found */
+		while(num--) if(data[num].map == map)
+		{
+			data[num].instances = instances;
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/******************************************************/
+int gfx_material_set_instances_at(
+
+		GFXMaterial*  material,
+		size_t        level,
+		size_t        index,
+		size_t        instances)
+{
+	/* First get the property map */
+	size_t num;
+	struct GFX_MapData* data = gfx_lod_map_get(
+		(GFXLodMap*)material,
+		level,
+		&num
+	);
+
+	if(index >= num) return 0;
+
+	/* Set the instances */
+	data[index].instances = instances;
+
+	return 1;
 }
 
 /******************************************************/
@@ -730,10 +792,19 @@ GFXPropertyMapList gfx_material_get_all(
 }
 
 /******************************************************/
+size_t gfx_property_map_list_instances_at(
+
+		GFXPropertyMapList  list,
+		size_t              index)
+{
+	return ((struct GFX_MapData*)list)[index].instances;
+}
+
+/******************************************************/
 GFXPropertyMap* gfx_property_map_list_at(
 
 		GFXPropertyMapList  list,
 		size_t              index)
 {
-	return ((GFXPropertyMap**)list)[index];
+	return ((struct GFX_MapData*)list)[index].map;
 }

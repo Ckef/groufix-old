@@ -87,6 +87,8 @@ void _gfx_lod_map_clear(
  * @param num   Number of units to add.
  * @return Abstract array containing num units, NULL on failure.
  *
+ * The units will be added after units with an equal source,
+ * this means _gfx_material_find_bucket_units will point to the units in the same order as they were added.
  * As soon as ny units are added or removed, the returned pointer is invalidated.
  *
  */
