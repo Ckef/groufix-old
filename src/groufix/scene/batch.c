@@ -148,6 +148,63 @@ static void _gfx_batch_callback(
 }
 
 /******************************************************/
+static void _gfx_batch_erase_units(
+
+		struct GFX_Batch*  batch,
+		GFXPipe*           bucket)
+{
+	/* Get all bucket sources */
+	size_t* sources = _gfx_submesh_get_bucket_sources(
+		batch->batch.submesh,
+		bucket,
+		0,
+		batch->batch.submesh->sources
+	);
+
+	/* Iterate through all material LODs */
+	size_t l;
+	for(l = 0; l < batch->batch.material->lodMap.levels; ++l)
+	{
+		/* Iterate through all property maps */
+		size_t num;
+		gfx_material_get(batch->batch.material, l, &num);
+
+		while(num--)
+		{
+			/* Get all units associated with the property map */
+			size_t units;
+			void* data = _gfx_material_get_bucket_units(
+				batch->batch.material,
+				l,
+				num,
+				bucket,
+				&units);
+
+			/* Iterate through all sources */
+			size_t s;
+			for(s = 0; s < batch->batch.submesh->sources; ++s)
+			{
+				size_t found;
+				size_t index = _gfx_material_find_bucket_units(
+					data,
+					units,
+					sources[s],
+					&found);
+
+				/* And remove associated units */
+				_gfx_material_remove_bucket_units(
+					batch->batch.material,
+					l,
+					num,
+					bucket,
+					index,
+					found);
+			}
+		}
+	}
+}
+
+/******************************************************/
 GFXBatch* gfx_batch_reference(
 
 		GFXPipe*      bucket,
@@ -250,7 +307,8 @@ void gfx_batch_dereference(
 	if(found != internal->buckets.end)
 		if(!(--found->ref))
 		{
-			/* Dereference the bucket at the submesh */
+			/* Remove all units at the material and dereference at the submesh */
+			_gfx_batch_erase_units(internal, bucket);
 			_gfx_submesh_dereference_bucket(batch->submesh, bucket);
 
 			/* Unregister the batch at the pipe */

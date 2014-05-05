@@ -249,6 +249,26 @@ int _gfx_submesh_reference_bucket(
 		++bucket->ref;
 	}
 
+	/* Make sure all sources are added to the bucket */
+	size_t s;
+	for(s = 0; s < mesh->sources; ++s)
+	{
+		size_t* src = _gfx_submesh_get_src(bucket, s);
+
+		if(!(*src))
+		{
+			/* Add and set source of bucket if it doesn't exist yet */
+			*src = gfx_bucket_add_source(
+				pipe->bucket,
+				mesh->layout);
+
+			gfx_bucket_set_source(
+				pipe->bucket,
+				*src,
+				((GFXVertexSource*)(internal + 1))[s]);
+		}
+	}
+
 	return 1;
 }
 
@@ -301,26 +321,6 @@ size_t* _gfx_submesh_get_bucket_sources(
 
 	if(bucket == internal->buckets.end || index + num > mesh->sources)
 		return NULL;
-
-	/* Iterate over all source IDs */
-	while(num--)
-	{
-		unsigned char ind = index + num;
-		size_t* src = _gfx_submesh_get_src(bucket, ind);
-
-		if(!(*src))
-		{
-			/* Add and set source of bucket if it doesn't exist yet */
-			*src = gfx_bucket_add_source(
-				pipe->bucket,
-				internal->submesh.layout);
-
-			gfx_bucket_set_source(
-				pipe->bucket,
-				*src,
-				((GFXVertexSource*)(internal + 1))[ind]);
-		}
-	}
 
 	return _gfx_submesh_get_src(bucket, index);
 }
