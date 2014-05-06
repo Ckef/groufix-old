@@ -99,10 +99,10 @@ static int _gfx_bucket_qsort_program(
 	struct GFX_Unit* unit1 = (struct GFX_Unit*)u1;
 	struct GFX_Unit* unit2 = (struct GFX_Unit*)u2;
 
-	if(unit1->program < unit2->program) return -1;
-	if(unit1->program > unit2->program) return 1;
-
-	return 0;
+	return
+		(unit1->program < unit2->program) ? -1 :
+		(unit1->program > unit2->program) ? 1 :
+		0;
 }
 
 /******************************************************/
@@ -114,10 +114,10 @@ static int _gfx_bucket_qsort_layout(
 	struct GFX_Unit* unit1 = (struct GFX_Unit*)u1;
 	struct GFX_Unit* unit2 = (struct GFX_Unit*)u2;
 
-	if(unit1->layout < unit2->layout) return -1;
-	if(unit1->layout > unit2->layout) return 1;
-
-	return 0;
+	return
+		(unit1->layout < unit2->layout) ? -1 :
+		(unit1->layout > unit2->layout) ? 1 :
+		0;
 }
 
 /******************************************************/
@@ -129,13 +129,12 @@ static int _gfx_bucket_qsort_all(
 	struct GFX_Unit* unit1 = (struct GFX_Unit*)u1;
 	struct GFX_Unit* unit2 = (struct GFX_Unit*)u2;
 
-	if(unit1->program < unit2->program) return -1;
-	if(unit1->program > unit2->program) return 1;
-
-	if(unit1->layout < unit2->layout) return -1;
-	if(unit1->layout > unit2->layout) return 1;
-
-	return 0;
+	return
+		(unit1->program < unit2->program) ? -1 :
+		(unit1->program > unit2->program) ? 1 :
+		(unit1->layout < unit2->layout) ? -1 :
+		(unit1->layout > unit2->layout) ? 1 :
+		0;
 }
 
 /******************************************************/

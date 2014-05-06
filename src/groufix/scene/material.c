@@ -665,13 +665,14 @@ GFXPropertyMap* gfx_material_add(
 		GFXMaterial*   material,
 		size_t         level,
 		GFXProgram*    program,
-		unsigned char  properties)
+		unsigned char  properties,
+		size_t         instances)
 {
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 
 	/* Create new property map */
 	struct GFX_MapData data;
-	data.instances = 1;
+	data.instances = instances;
 
 	data.map = gfx_property_map_create(program, properties);
 	if(!data.map) return NULL;
@@ -716,60 +717,6 @@ GFXPropertyMap* gfx_material_add(
 	gfx_property_map_free(data.map);
 
 	return NULL;
-}
-
-/******************************************************/
-int gfx_material_set_instances(
-
-		GFXMaterial*     material,
-		GFXPropertyMap*  map,
-		size_t           instances)
-{
-	/* First find the level it resides in */
-	size_t levels = material->lodMap.levels;
-
-	while(levels)
-	{
-		size_t num;
-		struct GFX_MapData* data = gfx_lod_map_get(
-			(GFXLodMap*)material,
-			--levels,
-			&num
-		);
-
-		/* Set instances if found */
-		while(num--) if(data[num].map == map)
-		{
-			data[num].instances = instances;
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
-/******************************************************/
-int gfx_material_set_instances_at(
-
-		GFXMaterial*  material,
-		size_t        level,
-		size_t        index,
-		size_t        instances)
-{
-	/* First get the property map */
-	size_t num;
-	struct GFX_MapData* data = gfx_lod_map_get(
-		(GFXLodMap*)material,
-		level,
-		&num
-	);
-
-	if(index >= num) return 0;
-
-	/* Set the instances */
-	data[index].instances = instances;
-
-	return 1;
 }
 
 /******************************************************/

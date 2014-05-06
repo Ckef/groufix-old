@@ -52,6 +52,7 @@ typedef struct GFXBatch
  * @return Referenced batch, NULL on failure.
  *
  * Note: if the bucket is freed, the batch is automatically dereferenced.
+ * If either the material or submesh is freed before the batch, undefined behaviour is expected.
  *
  */
 GFXBatch* gfx_batch_reference(

@@ -76,7 +76,7 @@ GFXMaterial* create_material()
 	gfx_program_link(program, 2, shaders, 0);
 
 	GFXMaterial* mat = gfx_material_create();
-	gfx_material_add(mat, 0, program, 0);
+	gfx_material_add(mat, 0, program, 0, 1);
 
 	gfx_shader_free(vert);
 	gfx_shader_free(frag);

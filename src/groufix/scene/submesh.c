@@ -222,7 +222,8 @@ int _gfx_submesh_reference_bucket(
 			internal->buckets.end
 		);
 
-		if(bucket == internal->buckets.end) return 0;
+		if(bucket == internal->buckets.end)
+			return 0;
 
 		/* Register submesh at pipe */
 		GFXPipeCallback call;
