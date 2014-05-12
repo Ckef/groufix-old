@@ -347,7 +347,7 @@ void* _gfx_material_add_bucket_units(
 		int            visible)
 {
 	/* Validate pipe type */
-	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET) return 0;
+	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET || !num) return 0;
 
 	/* First get the property map */
 	struct GFX_Material* internal = (struct GFX_Material*)material;
@@ -574,7 +574,7 @@ void _gfx_material_remove_bucket_units(
 	size_t range;
 	gfx_lod_map_get((GFXLodMap*)material, level, &range);
 
-	if(index < range)
+	if(index < range && num)
 	{
 		/* Get bucket index of the map */
 		size_t numMaps =

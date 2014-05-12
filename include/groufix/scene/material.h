@@ -69,7 +69,7 @@ void gfx_material_free(
  * @param level      Level of detail to map to (must be <= material->levels).
  * @param program    Program to set inputs for.
  * @param properties Fixed number of property indices associated with this map.
- * @param instances  Number of instances which can be drawn using the property map.
+ * @param instances  Number of instances which can be drawn at once using the property map.
  * @return The new property map on success, NULL on failure.
  *
  * Note: instances can be 0 to signify unlimited instances.

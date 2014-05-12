@@ -90,6 +90,72 @@ void gfx_batch_dereference(
 		GFXBatch*  batch,
 		GFXPipe*   bucket);
 
+/**
+ * Increase the number of instances drawn within a bucket.
+ *
+ * @param bucket    Bucket to increase at, it must first be referenced.
+ * @param index     Index within all material levels to use for the instances.
+ * @param source    Index of the submesh source to use for the instances.
+ * @param instances Number of instances to add.
+ * @return Zero on failure.
+ *
+ */
+int gfx_batch_increase(
+
+		GFXBatch*      batch,
+		GFXPipe*       bucket,
+		size_t         index,
+		unsigned char  source,
+		size_t         instances);
+
+/**
+ * Returns the number of instances drawn within a bucket.
+ *
+ * @param bucket Bucket to retrieve the number of instances of, it must be referenced.
+ * @return Number of instances, 0 if the bucket is not referenced.
+ *
+ */
+size_t gfx_batch_get(
+
+		GFXBatch*      batch,
+		GFXPipe*       bucket,
+		size_t         index,
+		unsigned char  source);
+
+/**
+ * Decrease the number of instances drawn within a bucket.
+ *
+ * @param bucket    Bucket to decrease at, it must first be referenced.
+ * @param instances Number of instances to remove.
+ * @return Zero if the instances do not exist.
+ *
+ */
+int gfx_batch_decrease(
+
+		GFXBatch*      batch,
+		GFXPipe*       bucket,
+		size_t         index,
+		unsigned char  source,
+		size_t         instances);
+
+/**
+ * Sets a number of instances to be visible within a bucket.
+ *
+ * @param bucket  Bucket to change the visibility of units of.
+ * @param level   Level of detail of the material to change the visibility of.
+ * @param visible Number of instances to make visible, the rest will be made invisible.
+ * @return Zero if the instances do not exist.
+ *
+ */
+int gfx_batch_set_visible(
+
+		GFXBatch*      batch,
+		GFXPipe*       bucket,
+		size_t         level,
+		size_t         index,
+		unsigned char  source,
+		size_t         visible);
+
 
 #ifdef __cplusplus
 }

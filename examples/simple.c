@@ -195,8 +195,7 @@ int main()
 	gfx_pipe_set_state(bucket, GFX_STATE_DEFAULT | GFX_CLEAR_COLOR);
 
 	GFXBatch* batch = gfx_batch_reference(bucket, material, submesh);
-	size_t src = *(size_t*)_gfx_submesh_get_bucket_sources(submesh, bucket, 0, 1);
-	_gfx_material_add_bucket_units(material, 0, 0, bucket, 1, src, 0, 1);
+	gfx_batch_increase(batch, bucket, 0, 0, 1);
 
 	GFXPipe* pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapA, 0);
