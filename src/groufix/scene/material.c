@@ -514,9 +514,13 @@ void* _gfx_material_get_bucket_units(
 {
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 
+	/* First validate level and index */
+	size_t range;
+	gfx_lod_map_get((GFXLodMap*)material, level, &range);
+
 	/* Find the bucket */
 	GFXVectorIterator bucket = _gfx_material_find_bucket(internal, pipe);
-	if(bucket == internal->buckets.end)
+	if(index >= range || bucket == internal->buckets.end)
 	{
 		*num = 0;
 		return NULL;
@@ -623,7 +627,7 @@ GFXMaterial* gfx_material_create(void)
 	_gfx_lod_map_init(
 		(GFX_LodMap*)mat,
 		0,
-		sizeof(struct GFX_MapData*),
+		sizeof(struct GFX_MapData),
 		sizeof(GFXPropertyMap*)
 	);
 

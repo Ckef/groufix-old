@@ -110,7 +110,6 @@ void* _gfx_material_add_bucket_units(
  * @return Abstract array containing num units.
  *
  * As soon as any units are added or removed, the returned pointer is invalidated.
- * Note: index is not bound checked.
  *
  */
 void* _gfx_material_get_bucket_units(

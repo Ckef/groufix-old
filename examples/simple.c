@@ -4,6 +4,9 @@
 
 #include <stdio.h>
 
+static GFXProgram* program;
+
+
 void print_error(GFXError error)
 {
 	printf("[Error #%x]: %s\n", error.code, error.description);
@@ -70,7 +73,7 @@ GFXMaterial* create_material()
 
 	GFXShader* shaders[] = { vert, frag };
 
-	GFXProgram* program = gfx_program_create();
+	program = gfx_program_create();
 	gfx_program_set_attribute(program, 0, "position");
 	gfx_program_set_attribute(program, 1, "color");
 	gfx_program_link(program, 2, shaders, 0);
@@ -196,6 +199,7 @@ int main()
 
 	GFXBatch* batch = gfx_batch_reference(bucket, material, submesh);
 	gfx_batch_increase(batch, bucket, 0, 0, 1);
+	gfx_batch_set_visible(batch, bucket, 0, 0, 0, 1);
 
 	GFXPipe* pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapA, 0);
@@ -236,6 +240,7 @@ int main()
 	gfx_material_free(material);
 	gfx_property_map_free(mapA);
 	gfx_property_map_free(mapB);
+	gfx_program_free(program);
 	gfx_program_free(programA);
 	gfx_program_free(programB);
 	gfx_texture_free(tex);

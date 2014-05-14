@@ -68,31 +68,13 @@ static inline size_t* _gfx_batch_get_instances(
 }
 
 /******************************************************/
-static size_t _gfx_batch_get_instances_per_unit(
-
-		GFXMaterial*  material,
-		size_t        level,
-		size_t        index)
-{
-	/* Check index */
-	size_t num;
-	GFXPropertyMapList list = gfx_material_get(
-		material,
-		level,
-		&num);
-
-	if(index >= num) return 0;
-
-	return gfx_property_map_list_instances_at(list, index);
-}
-
-/******************************************************/
 static size_t _gfx_batch_get_units(
 
 		GFXMaterial*  material,
 		size_t        level,
 		size_t        index,
-		size_t        instances)
+		size_t        instances,
+		size_t*       perUnit)
 {
 	if(!instances) return 0;
 
@@ -109,7 +91,10 @@ static size_t _gfx_batch_get_units(
 	size_t inst = gfx_property_map_list_instances_at(list, index);
 
 	/* If infinite, use 1 unit, round up otherwise */
-	return !inst ? 1 : (instances - 1) / inst + 1;
+	size_t ret = !inst ? 1 : (instances - 1) / inst + 1;
+	*perUnit = inst;
+
+	return ret;
 }
 
 /******************************************************/
@@ -145,55 +130,6 @@ static void _gfx_batch_free(
 }
 
 /******************************************************/
-static void _gfx_batch_init_units(
-
-		GFXMaterial*  material,
-		GFXPipe*      bucket,
-		size_t        level,
-		size_t        index,
-		size_t        src,
-		size_t        instances)
-{
-	/* Refind all the units as adding/removing invalidates previous pointers */
-	/* Get instances per unit */
-	size_t perUnit = _gfx_batch_get_instances_per_unit(
-		material,
-		level,
-		index);
-
-	/* Get all units associated with the property map */
-	size_t num;
-	void* data = _gfx_material_get_bucket_units(
-		material,
-		level,
-		index,
-		bucket,
-		&num);
-
-	size_t ind = _gfx_material_find_bucket_units(
-		data,
-		num,
-		src,
-		&num);
-
-	/* Iterate over all units and initialize */
-	size_t i;
-	for(i = 0; i < num; ++i)
-	{
-		size_t id = _gfx_material_bucket_units_at(data, ind + i);
-
-		/* Increasing copies */
-		gfx_bucket_set_copy(bucket->bucket, id, i);
-
-		/* Distribute instances across units */
-		gfx_bucket_set_instances(bucket->bucket, id,
-			(instances < perUnit) ? instances : perUnit);
-
-		instances = (perUnit < instances) ? instances - perUnit : 0;
-	}
-}
-
-/******************************************************/
 static int _gfx_batch_insert_units(
 
 		GFXMaterial*  material,
@@ -207,13 +143,14 @@ static int _gfx_batch_insert_units(
 	for(l = 0; l < material->lodMap.levels; ++l)
 	{
 		/* Get number units needed */
-		size_t units = _gfx_batch_get_units(
+		size_t need = _gfx_batch_get_units(
 			material,
 			l,
 			index,
-			instances);
+			instances,
+			&instances);
 
-		if(units)
+		if(need)
 		{
 			/* Get all units associated with the property map */
 			size_t num;
@@ -231,25 +168,31 @@ static int _gfx_batch_insert_units(
 				&num);
 
 			/* Insert new units */
-			units = (num > units) ? 0 : units - num;
+			need = (num > need) ? 0 : need - num;
 			data = _gfx_material_add_bucket_units(
 				material,
 				l,
 				index,
 				bucket,
-				units,
-				src, 0, 1);
+				need,
+				src,
+				0,
+				0);
 
 			if(!data) return 0;
 
-			/* Initialize units */
-			_gfx_batch_init_units(
-				material,
-				bucket,
-				l,
-				index,
-				src,
-				instances);
+			/* Initializes used copies for new units */
+			while(need--)
+			{
+				size_t id = _gfx_material_bucket_units_at(
+					data,
+					need);
+
+				gfx_bucket_set_copy(
+					bucket->bucket,
+					id,
+					num + need);
+			}
 		}
 	}
 
@@ -270,11 +213,13 @@ static void _gfx_batch_erase_units(
 	for(l = 0; l < material->lodMap.levels; ++l)
 	{
 		/* Get number of units to keep */
+		size_t perUnit;
 		size_t keep = _gfx_batch_get_units(
 			material,
 			l,
 			index,
-			instances);
+			instances,
+			&perUnit);
 
 		/* Get all units associated with the property map */
 		size_t num;
@@ -291,24 +236,27 @@ static void _gfx_batch_erase_units(
 			src,
 			&num);
 
-		/* And remove associated units */
-		keep = (keep > num) ? num : keep;
-		_gfx_material_remove_bucket_units(
-			material,
-			l,
-			index,
-			bucket,
-			ind + keep,
-			num - keep);
+		if(num)
+		{
+			/* Set number of instances of last unit to keep */
+			/* This would be (number of wanted instances - instaces of previous units) */
+			keep = (keep > num) ? num : keep;
 
-		/* Initialize units */
-		if(keep) _gfx_batch_init_units(
-			material,
-			bucket,
-			l,
-			index,
-			src,
-			instances);
+			if(keep) gfx_bucket_set_instances(
+				bucket->bucket,
+				_gfx_material_bucket_units_at(data, ind + keep - 1),
+				instances - (keep - 1) * perUnit
+			);
+
+			/* And remove associated units */
+			_gfx_material_remove_bucket_units(
+				material,
+				l,
+				index,
+				bucket,
+				ind + keep,
+				num - keep);
+		}
 	}
 }
 
@@ -716,5 +664,53 @@ int gfx_batch_set_visible(
 		unsigned char  source,
 		size_t         visible)
 {
-	return 0;
+	/* Validate index and source */
+	struct GFX_Batch* internal = (struct GFX_Batch*)batch;
+	if(index >= internal->numIndices || source >= batch->submesh->sources)
+		return 0;
+
+	/* Get the source */
+	size_t src = *_gfx_submesh_get_bucket_sources(
+		batch->submesh,
+		bucket,
+		source,
+		1);
+
+	/* Get all units associated with the property map */
+	size_t num;
+	void* data = _gfx_material_get_bucket_units(
+		batch->material,
+		level,
+		index,
+		bucket,
+		&num);
+
+	size_t ind = _gfx_material_find_bucket_units(data, num, src, &num);
+	if(!num) return 0;
+
+	/* Get number of instances per unit */
+	size_t perUnit;
+	_gfx_batch_get_units(
+		batch->material,
+		level,
+		index,
+		visible,
+		&perUnit);
+
+	/* Iterate over all units */
+	size_t i;
+	for(i = 0; i < num; ++i)
+	{
+		/* Set visibility */
+		size_t id = _gfx_material_bucket_units_at(data, ind + i);
+		gfx_bucket_set_visible(bucket->bucket, id, visible);
+
+		/* Distribute instances across units */
+		gfx_bucket_set_instances(bucket->bucket, id,
+			(visible < perUnit) ? visible : perUnit);
+
+		visible = (perUnit < visible) ? visible - perUnit : 0;
+	}
+
+	return 1;
 }
