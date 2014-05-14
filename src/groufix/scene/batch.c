@@ -341,9 +341,9 @@ static void _gfx_batch_callback(
 /******************************************************/
 GFXBatch* gfx_batch_reference(
 
-		GFXPipe*      bucket,
 		GFXMaterial*  material,
-		GFXSubMesh*   submesh)
+		GFXSubMesh*   submesh,
+		GFXPipe*      bucket)
 {
 	/* Find the batch */
 	struct GFX_Batch* batch = _gfx_batch_find(material, submesh);

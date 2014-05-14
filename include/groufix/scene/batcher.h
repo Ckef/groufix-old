@@ -46,9 +46,9 @@ typedef struct GFXBatch
 /**
  * References a bucket at a batch, created if it doesn't exist yet.
  *
- * @param bucket   Pipe to reference, must be a bucket pipe.
  * @param material Material of the batch to reference.
  * @param submesh  Submesh of the batch to reference.
+ * @param bucket   Pipe to reference, must be a bucket pipe.
  * @return Referenced batch, NULL on failure.
  *
  * Note: if the bucket is freed, the batch is automatically dereferenced.
@@ -57,9 +57,9 @@ typedef struct GFXBatch
  */
 GFXBatch* gfx_batch_reference(
 
-		GFXPipe*      bucket,
 		GFXMaterial*  material,
-		GFXSubMesh*   submesh);
+		GFXSubMesh*   submesh,
+		GFXPipe*      bucket);
 
 /**
  * References a bucket at an existing, already found batch.
