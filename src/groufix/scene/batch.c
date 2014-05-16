@@ -76,7 +76,11 @@ static size_t _gfx_batch_get_units(
 		size_t        instances,
 		size_t*       perUnit)
 {
-	if(!instances) return 0;
+	if(!instances)
+	{
+		*perUnit = 0;
+		return 0;
+	}
 
 	/* Check index */
 	size_t num;
@@ -85,7 +89,11 @@ static size_t _gfx_batch_get_units(
 		level,
 		&num);
 
-	if(index >= num) return 0;
+	if(index >= num)
+	{
+		*perUnit = 0;
+		return 0;
+	}
 
 	/* Get instances per unit */
 	size_t inst = gfx_property_map_list_instances_at(list, index);
@@ -159,13 +167,9 @@ static int _gfx_batch_insert_units(
 				l,
 				index,
 				bucket,
-				&num);
-
-			_gfx_material_find_bucket_units(
-				data,
-				num,
-				src,
-				&num);
+				&num
+			);
+			_gfx_material_find_bucket_units(data, num, src, &num);
 
 			/* Insert new units */
 			need = (num > need) ? 0 : need - num;
@@ -239,7 +243,7 @@ static void _gfx_batch_erase_units(
 		if(num)
 		{
 			/* Set number of instances of last unit to keep */
-			/* This would be (number of wanted instances - instaces of previous units) */
+			/* This would be (number of wanted instances - instances of previous units) */
 			keep = (keep > num) ? num : keep;
 
 			if(keep) gfx_bucket_set_instances(
