@@ -27,6 +27,9 @@
 #include "groufix/core/shading.h"
 #include "groufix/core/window.h"
 
+/* Maximum bits used for batch states */
+#define GFX_BATCH_STATE_MAX_BITS  ((sizeof(GFXBatchState) << 3) - 2)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -156,7 +159,7 @@ typedef struct GFXVertexSource
 typedef struct GFXBucket
 {
 	GFXBucketFlags  flags;
-	unsigned char   bits; /* Number of state bits that can be changed */
+	unsigned char   bits; /* Number of state bits sorted on */
 
 } GFXBucket;
 
@@ -164,6 +167,17 @@ typedef struct GFXBucket
 /** Key representing a state */
 typedef uint32_t GFXBatchState;
 
+
+/**
+ * Sets the number of bits to sort on.
+ *
+ * @param bits Number of manual bits to sort by (clamped to [0, GFX_BATCH_STATE_MAX_BIT]).
+ *
+ */
+void gfx_bucket_set_bits(
+
+		GFXBucket*     bucket,
+		unsigned char  bits);
 
 /**
  * Adds a new source to the bucket.
@@ -248,7 +262,7 @@ unsigned int gfx_bucket_get_instance_base(
 		size_t      unit);
 
 /**
- * Returns the 30 manual bits of the state associated with a unit.
+ * Returns the bits to sort on of the state associated with a unit.
  *
  */
 GFXBatchState gfx_bucket_get_state(
@@ -298,7 +312,7 @@ void gfx_bucket_set_instance_base(
 		unsigned int  base);
 
 /**
- * Sets the 30 manual bits of the state to associate a unit with.
+ * Sets the bits to sort on of the state to associate a unit with.
  *
  * Note: 2 MSB bits are ignored as they're used internally.
  *
@@ -692,7 +706,7 @@ int gfx_pipeline_attach(
 /**
  * Adds a bucket to the pipeline.
  *
- * @param bits Number of manual bits to sort by.
+ * @param bits Number of manual bits to sort by (clamped to [0, GFX_BATCH_STATE_MAX_BIT]).
  * @return The new pipe (NULL on failure).
  *
  * Note: all state and parameters will be copied from the previous pipe.

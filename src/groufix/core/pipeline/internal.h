@@ -187,7 +187,7 @@ void _gfx_pipeline_bind(
 /**
  * Creates a new bucket.
  *
- * @param bits Number of manual bits to consider when sorting (LSB = 1st bit, 0 for all bits).
+ * @param bits Number of manual bits to consider when sorting (LSB = 1st bit).
  * @return NULL on failure.
  *
  */

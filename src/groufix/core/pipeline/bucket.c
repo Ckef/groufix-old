@@ -374,8 +374,10 @@ GFXBucket* _gfx_bucket_create(
 	gfx_vector_init(&bucket->refs, sizeof(size_t));
 	gfx_vector_init(&bucket->units, sizeof(struct GFX_Unit));
 
-	bucket->visible = bucket->units.end;
+	bucket->visible      = bucket->units.end;
 	bucket->bucket.flags = flags;
+	bucket->bucket.bits  = bits > GFX_BATCH_STATE_MAX_BITS ?
+		GFX_BATCH_STATE_MAX_BITS : bits;
 
 	/* Get comparison function from flags */
 	bucket->compare =
@@ -420,7 +422,7 @@ static void _gfx_bucket_preprocess(
 	if(bucket->flags & GFX_INT_BUCKET_SORT)
 		_gfx_bucket_sort_units(
 			bucket,
-			GFX_INT_UNIT_MANUAL_MSB,
+			(GFXBatchState)1 << (bucket->bucket.bits - 1),
 			0,
 			gfx_vector_get_index(&bucket->units, bucket->visible)
 		);
@@ -464,6 +466,19 @@ void _gfx_bucket_process(
 			unit->type
 		);
 	}
+}
+
+/******************************************************/
+void gfx_bucket_set_bits(
+
+		GFXBucket*     bucket,
+		unsigned char  bits)
+{
+	/* Make sure to resort */
+	if(bucket->bits != bits)
+		((struct GFX_Bucket*)bucket)->flags |= GFX_INT_BUCKET_SORT;
+
+	bucket->bits = bits;
 }
 
 /******************************************************/
