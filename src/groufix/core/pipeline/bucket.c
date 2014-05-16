@@ -474,6 +474,10 @@ void gfx_bucket_set_bits(
 		GFXBucket*     bucket,
 		unsigned char  bits)
 {
+	/* Clamp */
+	bits = bits > GFX_BATCH_STATE_MAX_BITS ?
+		GFX_BATCH_STATE_MAX_BITS : bits;
+
 	/* Make sure to resort */
 	if(bucket->bits != bits)
 		((struct GFX_Bucket*)bucket)->flags |= GFX_INT_BUCKET_SORT;

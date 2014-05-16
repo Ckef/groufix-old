@@ -171,7 +171,7 @@ typedef uint32_t GFXBatchState;
 /**
  * Sets the number of bits to sort on.
  *
- * @param bits Number of manual bits to sort by (clamped to [0, GFX_BATCH_STATE_MAX_BIT]).
+ * @param bits Number of manual bits to sort by (clamped to [0, GFX_BATCH_STATE_MAX_BITS]).
  *
  */
 void gfx_bucket_set_bits(
@@ -706,7 +706,7 @@ int gfx_pipeline_attach(
 /**
  * Adds a bucket to the pipeline.
  *
- * @param bits Number of manual bits to sort by (clamped to [0, GFX_BATCH_STATE_MAX_BIT]).
+ * @param bits Number of manual bits to sort by (clamped to [0, GFX_BATCH_STATE_MAX_BITS]).
  * @return The new pipe (NULL on failure).
  *
  * Note: all state and parameters will be copied from the previous pipe.
