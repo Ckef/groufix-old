@@ -189,7 +189,7 @@ static void _gfx_pipeline_push_pipe(
 		gfx_list_splice_after((GFXList*)pipe, (GFXList*)pipeline->last);
 
 		pipe->state = pipeline->last->state;
-		pipe->state.state &= ~GFX_CLEAR_ALL;
+		pipe->state.render.state &= ~GFX_CLEAR_ALL;
 	}
 
 	/* First pipe */

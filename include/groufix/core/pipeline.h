@@ -35,97 +35,6 @@ extern "C" {
 #endif
 
 /********************************************************
- * Pipe states and factors
- *******************************************************/
-
-/** Pipe state */
-typedef enum GFXPipeState
-{
-	GFX_CLEAR_COLOR          = 0x0001,
-	GFX_CLEAR_DEPTH          = 0x0002,
-	GFX_CLEAR_STENCIL        = 0x0004,
-	GFX_CLEAR_ALL            = 0x0007,
-
-	GFX_STATE_WIREFRAME      = 0x0008, /* Requires GFX_EXT_POLYGON_STATE */
-	GFX_STATE_POINTCLOUD     = 0x0010, /* Requires GFX_EXT_POLYGON_STATE */
-
-	GFX_STATE_NO_RASTERIZER  = 0x0020,
-	GFX_STATE_DEPTH_WRITE    = 0x0040,
-	GFX_STATE_DEPTH_TEST     = 0x0080,
-	GFX_STATE_CULL_FRONT     = 0x0100,
-	GFX_STATE_CULL_BACK      = 0x0200,
-	GFX_STATE_BLEND          = 0x0400,
-	GFX_STATE_STENCIL_TEST   = 0x0800,
-
-	GFX_STATE_DEFAULT = GFX_STATE_CULL_BACK
-
-} GFXPipeState;
-
-
-/** Fragment test equation */
-typedef enum GFXFragmentTest
-{
-	GFX_FRAG_NEVER          = 0x0200,
-	GFX_FRAG_LESS           = 0x0201,
-	GFX_FRAG_LESS_EQUAL     = 0x0203,
-	GFX_FRAG_GREATER        = 0x0204,
-	GFX_FRAG_GREATER_EQUAL  = 0x0206,
-	GFX_FRAG_EQUAL          = 0x0202,
-	GFX_FRAG_NOT_EQUAL      = 0x0205,
-	GFX_FRAG_ALWAYS         = 0x0207
-
-} GFXFragmentTest;
-
-
-/** Blend state */
-typedef enum GFXBlendState
-{
-	GFX_BLEND_ADD           = 0x8006,
-	GFX_BLEND_SUBTRACT      = 0x800a,
-	GFX_BLEND_REV_SUBTRACT  = 0x800b,
-	GFX_BLEND_MIN           = 0x8007,
-	GFX_BLEND_MAX           = 0x8008
-
-} GFXBlendState;
-
-
-/** Blend function */
-typedef enum GFXBlendFunc
-{
-	GFX_BLEND_ZERO                    = 0x0000,
-	GFX_BLEND_ONE                     = 0x0001,
-
-	GFX_BLEND_SOURCE                  = 0x0300,
-	GFX_BLEND_BUFFER                  = 0x0306,
-	GFX_BLEND_ONE_MINUS_SOURCE        = 0x0301,
-	GFX_BLEND_ONE_MINUS_BUFFER        = 0x0307,
-
-	GFX_BLEND_SOURCE_ALPHA            = 0x0302,
-	GFX_BLEND_BUFFER_ALPHA            = 0x0304,
-	GFX_BLEND_ONE_MINUS_SOURCE_ALPHA  = 0x0303,
-	GFX_BLEND_ONE_MINUS_BUFFER_ALPHA  = 0x0305,
-
-	GFX_BLEND_ALPHA_SATURATE          = 0x0308
-
-} GFXBlendFunc;
-
-
-/** Stencil function */
-typedef enum GFXStencilFunc
-{
-	GFX_STENCIL_KEEP           = 0x1e00,
-	GFX_STENCIL_ZERO           = 0x0000,
-	GFX_STENCIL_REPLACE        = 0x1e01,
-	GFX_STENCIL_INCREASE       = 0x1e02,
-	GFX_STENCIL_INCREASE_WRAP  = 0x8507,
-	GFX_STENCIL_DECREASE       = 0x1e03,
-	GFX_STENCIL_DECREASE_WRAP  = 0x8508,
-	GFX_STENCIL_INVERT         = 0x150a
-
-} GFXStencilFunc;
-
-
-/********************************************************
  * Bucket metadata
  *******************************************************/
 
@@ -381,7 +290,7 @@ void gfx_pipe_process_set_target(
 
 
 /********************************************************
- * Pipe (processes to transfer between states)
+ * Pipe metadata
  *******************************************************/
 
 /** Pipe types */
@@ -393,6 +302,153 @@ typedef enum GFXPipeType
 } GFXPipeType;
 
 
+/** Render state */
+typedef enum GFXRenderState
+{
+	GFX_CLEAR_COLOR          = 0x0001,
+	GFX_CLEAR_DEPTH          = 0x0002,
+	GFX_CLEAR_STENCIL        = 0x0004,
+	GFX_CLEAR_ALL            = 0x0007,
+
+	GFX_STATE_WIREFRAME      = 0x0008, /* Requires GFX_EXT_POLYGON_STATE */
+	GFX_STATE_POINTCLOUD     = 0x0010, /* Requires GFX_EXT_POLYGON_STATE */
+
+	GFX_STATE_NO_RASTERIZER  = 0x0020,
+	GFX_STATE_DEPTH_WRITE    = 0x0040,
+	GFX_STATE_DEPTH_TEST     = 0x0080,
+	GFX_STATE_CULL_FRONT     = 0x0100,
+	GFX_STATE_CULL_BACK      = 0x0200,
+	GFX_STATE_BLEND          = 0x0400,
+	GFX_STATE_STENCIL_TEST   = 0x0800,
+
+	GFX_STATE_DEFAULT = GFX_STATE_CULL_BACK
+
+} GFXRenderState;
+
+
+/** Fragment test equation */
+typedef enum GFXFragmentTest
+{
+	GFX_FRAG_NEVER          = 0x0200,
+	GFX_FRAG_LESS           = 0x0201,
+	GFX_FRAG_LESS_EQUAL     = 0x0203,
+	GFX_FRAG_GREATER        = 0x0204,
+	GFX_FRAG_GREATER_EQUAL  = 0x0206,
+	GFX_FRAG_EQUAL          = 0x0202,
+	GFX_FRAG_NOT_EQUAL      = 0x0205,
+	GFX_FRAG_ALWAYS         = 0x0207
+
+} GFXFragmentTest;
+
+
+/** Blend state */
+typedef enum GFXBlendState
+{
+	GFX_BLEND_ADD           = 0x8006,
+	GFX_BLEND_SUBTRACT      = 0x800a,
+	GFX_BLEND_REV_SUBTRACT  = 0x800b,
+	GFX_BLEND_MIN           = 0x8007,
+	GFX_BLEND_MAX           = 0x8008
+
+} GFXBlendState;
+
+
+/** Blend function */
+typedef enum GFXBlendFunc
+{
+	GFX_BLEND_ZERO                    = 0x0000,
+	GFX_BLEND_ONE                     = 0x0001,
+
+	GFX_BLEND_SOURCE                  = 0x0300,
+	GFX_BLEND_BUFFER                  = 0x0306,
+	GFX_BLEND_ONE_MINUS_SOURCE        = 0x0301,
+	GFX_BLEND_ONE_MINUS_BUFFER        = 0x0307,
+
+	GFX_BLEND_SOURCE_ALPHA            = 0x0302,
+	GFX_BLEND_BUFFER_ALPHA            = 0x0304,
+	GFX_BLEND_ONE_MINUS_SOURCE_ALPHA  = 0x0303,
+	GFX_BLEND_ONE_MINUS_BUFFER_ALPHA  = 0x0305,
+
+	GFX_BLEND_ALPHA_SATURATE          = 0x0308
+
+} GFXBlendFunc;
+
+
+/** Stencil function */
+typedef enum GFXStencilFunc
+{
+	GFX_STENCIL_KEEP           = 0x1e00,
+	GFX_STENCIL_ZERO           = 0x0000,
+	GFX_STENCIL_REPLACE        = 0x1e01,
+	GFX_STENCIL_INCREASE       = 0x1e02,
+	GFX_STENCIL_INCREASE_WRAP  = 0x8507,
+	GFX_STENCIL_DECREASE       = 0x1e03,
+	GFX_STENCIL_DECREASE_WRAP  = 0x8508,
+	GFX_STENCIL_INVERT         = 0x150a
+
+} GFXStencilFunc;
+
+
+/** Pipe state */
+typedef struct GFXPipeState
+{
+	/* Render state */
+	struct
+	{
+		GFXRenderState   state;
+
+	} render;
+
+
+	/* Depth test */
+	struct
+	{
+		GFXFragmentTest  test;
+
+	} depth;
+
+
+	/* Blending */
+	struct
+	{
+		GFXBlendState    stateRGB;
+		GFXBlendState    stateA;
+		GFXBlendFunc     sourceRGB;
+		GFXBlendFunc     sourceA;
+		GFXBlendFunc     bufferRGB;
+		GFXBlendFunc     bufferA;
+
+	} blend;
+
+
+	/* Stencil test */
+	struct
+	{
+		GFXFragmentTest  testFront;
+		GFXFragmentTest  testBack;
+
+		GFXStencilFunc   frontFail;
+		GFXStencilFunc   frontDepth;
+		GFXStencilFunc   frontPass;
+		int              frontRef;
+		unsigned int     frontMask;
+
+		GFXStencilFunc   backFail;
+		GFXStencilFunc   backDepth;
+		GFXStencilFunc   backPass;
+		int              backRef;
+		unsigned int     backMask;
+
+	} stencil;
+
+
+} GFXPipeState;
+
+
+/********************************************************
+ * Pipe (processes to transfer between states)
+ *******************************************************/
+
 /** Individual pipe */
 typedef union GFXPipe
 {
@@ -401,149 +457,6 @@ typedef union GFXPipe
 
 } GFXPipe;
 
-
-/**
- * Returns the type of a pipe.
- *
- */
-GFXPipeType gfx_pipe_get_type(
-
-		GFXPipe* pipe);
-
-/**
- * Returns the state of a pipe.
- *
- * The default is that of the previous pipe minus clearing bits,
- * the first pipe will have GFX_STATE_DEFAULT as default.
- *
- */
-GFXPipeState gfx_pipe_get_state(
-
-		GFXPipe* pipe);
-
-/**
- * Sets the state of a pipe.
- *
- */
-void gfx_pipe_set_state(
-
-		GFXPipe*      pipe,
-		GFXPipeState  state);
-
-/**
- * Sets the depth test function of a pipe.
- *
- */
-void gfx_pipe_set_depth_test(
-		GFXPipe*         pipe,
-		GFXFragmentTest  test);
-
-/**
- * Sets the blending state for the RGB channels of a pipe.
- *
- */
-void gfx_pipe_set_blend_state_rgb(
-
-		GFXPipe*       pipe,
-		GFXBlendState  state);
-
-/**
- * Sets the blending state for the alpha channel of a pipe.
- *
- */
-void gfx_pipe_set_blend_state_alpha(
-
-		GFXPipe*       pipe,
-		GFXBlendState  state);
-
-/**
- * Sets the blending function for the RGB channels of a pipe.
- *
- * @param source Factor to multiply with the fragment output.
- * @param buffer Factor to mulitply with the previous buffer value.
- *
- */
-void gfx_pipe_set_blend_function_rgb(
-
-		GFXPipe*      pipe,
-		GFXBlendFunc  source,
-		GFXBlendFunc  buffer);
-
-/**
- * Sets the blending function for the alpha channel of a pipe.
- *
- * @param source Factor to multiply with the fragment output.
- * @param buffer Factor to mulitply with the previous buffer value.
- *
- */
-void gfx_pipe_set_blend_function_alpha(
-
-		GFXPipe*      pipe,
-		GFXBlendFunc  source,
-		GFXBlendFunc  buffer);
-
-/**
- * Sets the stencil test for the front face of a pipe.
- *
- * @param ref  Reference value to compare against.
- * @param mask Bitmask to apply to the ref value and stored stencil value.
- *
- */
-void gfx_pipe_set_stencil_test_front(
-
-		GFXPipe*         pipe,
-		GFXFragmentTest  test,
-		int              ref,
-		unsigned int     mask);
-
-/**
- * Sets the stencil test for the back face of a pipe.
- *
- * @param ref  Reference value to compare against.
- * @param mask Bitmask to apply to the ref value and stored stencil value.
- *
- */
-void gfx_pipe_set_stencil_test_back(
-
-		GFXPipe*         pipe,
-		GFXFragmentTest  test,
-		int              ref,
-		unsigned int     mask);
-
-/**
- * Sets the stencil function to do when the stencil test fails for the front face.
- *
- * @param fail  Function for when the stencil test fails.
- * @param depth Function for when the depth test fails.
- * @param pass  Function for when both the stencil and depth test pass.
- *
- */
-void gfx_pipe_set_stencil_func_front(
-
-		GFXPipe*        pipe,
-		GFXStencilFunc  fail,
-		GFXStencilFunc  depth,
-		GFXStencilFunc  pass);
-
-/**
- * Sets the stencil function to do when the stencil test fails for the back face.
- *
- * @param fail  Function for when the stencil test fails.
- * @param depth Function for when the depth test fails.
- * @param pass  Function for when both the stencil and depth test pass.
- *
- */
-void gfx_pipe_set_stencil_func_back(
-
-		GFXPipe*        pipe,
-		GFXStencilFunc  fail,
-		GFXStencilFunc  depth,
-		GFXStencilFunc  pass);
-
-
-/********************************************************
- * Pipe callback objects (for pipe destruction)
- *******************************************************/
 
 /** Pipe callback object */
 typedef struct GFXPipeCallback
@@ -561,6 +474,26 @@ typedef void (*GFXPipeCallbackFunc) (GFXPipe*, GFXPipeCallback*);
 /** Pipe callback list */
 typedef void* GFXPipeCallbackList;
 
+
+/**
+ * Returns the type of a pipe.
+ *
+ */
+GFXPipeType gfx_pipe_get_type(
+
+		GFXPipe* pipe);
+
+/**
+ * Returns the state of a pipe.
+ *
+ * @return Pointer to a modifiable struct.
+ *
+ * Note: as soon as the pipe is removed the pointer is invalidated.
+ *
+ */
+GFXPipeState* gfx_pipe_get_state(
+
+		GFXPipe* pipe);
 
 /**
  * Register a new callback object for a pipe, it is issued when the pipe is freed.

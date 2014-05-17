@@ -44,7 +44,7 @@ extern "C" {
  */
 void _gfx_states_set_default(
 
-		GFX_State* state);
+		GFXPipeState* state);
 
 /**
  * Sets the state of a context.
@@ -54,7 +54,7 @@ void _gfx_states_set_default(
  */
 void _gfx_states_set(
 
-		GFX_State*       state,
+		GFXPipeState*    state,
 		GFX_Extensions*  ext);
 
 /**
@@ -66,7 +66,7 @@ void _gfx_states_set(
  */
 void _gfx_states_force_set(
 
-		GFX_State*       state,
+		GFXPipeState*    state,
 		GFX_Extensions*  ext);
 
 /**
@@ -127,7 +127,7 @@ typedef struct GFX_Pipe
 
 	GFXPipeType    type;
 	GFXPipe        ptr;  /* Public pointer */
-	GFX_State      state;
+	GFXPipeState   state;
 
 	/* Associated pipeline */
 	GFXPipeline*   pipeline;
@@ -211,7 +211,7 @@ void _gfx_bucket_free(
 void _gfx_bucket_process(
 
 		GFXBucket*       bucket,
-		GFX_State*       state,
+		GFXPipeState*    state,
 		GFX_Extensions*  ext);
 
 
@@ -245,7 +245,7 @@ void _gfx_pipe_process_free(
 void _gfx_pipe_process_execute(
 
 		GFXPipeProcess  process,
-		GFX_State*      state,
+		GFXPipeState*   state,
 		GFX_Window*     active);
 
 /**

@@ -438,7 +438,7 @@ static void _gfx_bucket_preprocess(
 void _gfx_bucket_process(
 
 		GFXBucket*       bucket,
-		GFX_State*       state,
+		GFXPipeState*    state,
 		GFX_Extensions*  ext)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
