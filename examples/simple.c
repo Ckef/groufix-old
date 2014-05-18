@@ -199,7 +199,7 @@ int main()
 
 	GFXBatcher* batcher = gfx_batcher_reference(material, submesh, bucket);
 	gfx_batcher_increase(batcher, bucket, 0, 0, 1);
-	gfx_batcher_set_visible(batcher, bucket, 0, 0, 0, 1);
+	gfx_batcher_increase_visible(batcher, bucket, 0, 0, 0, 1);
 
 	GFXPipe* pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapA, 0);

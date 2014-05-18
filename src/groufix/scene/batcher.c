@@ -84,10 +84,7 @@ static size_t _gfx_batcher_get_units(
 
 	/* Check index */
 	size_t num;
-	GFXPropertyMapList list = gfx_material_get(
-		material,
-		level,
-		&num);
+	GFXPropertyMapList list = gfx_material_get(material, level, &num);
 
 	if(index >= num)
 	{
@@ -95,11 +92,10 @@ static size_t _gfx_batcher_get_units(
 		return 0;
 	}
 
-	/* Get instances per unit */
+	/* Get instances per unit, if infinite, use 1 unit, round up otherwise */
 	size_t inst = gfx_property_map_list_instances_at(list, index);
-
-	/* If infinite, use 1 unit, round up otherwise */
 	size_t ret = !inst ? 1 : (instances - 1) / inst + 1;
+
 	*perUnit = inst;
 
 	return ret;
@@ -188,14 +184,11 @@ static int _gfx_batcher_insert_units(
 			/* Initializes used copies for new units */
 			while(need--)
 			{
-				size_t id = _gfx_material_bucket_units_at(
-					data,
-					need);
+				size_t id = _gfx_material_bucket_units_at(data, need);
+				gfx_bucket_set_copy(bucket->bucket, id, num + need);
 
-				gfx_bucket_set_copy(
-					bucket->bucket,
-					id,
-					num + need);
+				/* Also use 0 instances, as it is invisible */
+				gfx_bucket_set_instances(bucket->bucket, id, 0);
 			}
 		}
 	}
@@ -246,11 +239,19 @@ static void _gfx_batcher_erase_units(
 			/* This would be (number of wanted instances - instances of previous units) */
 			keep = (keep > num) ? num : keep;
 
-			if(keep) gfx_bucket_set_instances(
-				bucket->bucket,
-				_gfx_material_bucket_units_at(data, ind + keep - 1),
-				instances - (keep - 1) * perUnit
-			);
+			if(keep)
+			{
+				/* But only do this if it is visible */
+				size_t id = _gfx_material_bucket_units_at(
+					data,
+					ind + keep - 1);
+
+				if(gfx_bucket_is_visible(bucket->bucket, id))
+					gfx_bucket_set_instances(
+						bucket->bucket,
+						id,
+						instances - (keep - 1) * perUnit);
+			}
 
 			/* And remove associated units */
 			_gfx_material_remove_bucket_units(
@@ -659,19 +660,20 @@ int gfx_batcher_decrease(
 }
 
 /******************************************************/
-int gfx_batcher_set_visible(
+static void* _gfx_batcher_get_visible(
 
 		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
 		size_t         level,
 		size_t         index,
 		unsigned char  source,
-		size_t         visible)
+		size_t*        num,
+		size_t*        ind)
 {
 	/* Validate index and source */
 	struct GFX_Batcher* internal = (struct GFX_Batcher*)batcher;
 	if(index >= internal->numIndices || source >= batcher->submesh->sources)
-		return 0;
+		return NULL;
 
 	/* Get the source */
 	size_t src = *_gfx_submesh_get_bucket_sources(
@@ -681,39 +683,94 @@ int gfx_batcher_set_visible(
 		1);
 
 	/* Get all units associated with the property map */
-	size_t num;
 	void* data = _gfx_material_get_bucket_units(
 		batcher->material,
 		level,
 		index,
 		bucket,
-		&num);
+		num);
 
-	size_t ind = _gfx_material_find_bucket_units(data, num, src, &num);
-	if(!num) return 0;
+	*ind = _gfx_material_find_bucket_units(data, *num, src, num);
+
+	return data;
+}
+
+/******************************************************/
+int gfx_batcher_increase_visible(
+
+		GFXBatcher*    batcher,
+		GFXPipe*       bucket,
+		size_t         level,
+		size_t         index,
+		unsigned char  source,
+		size_t         visible)
+{
+	/* Get data */
+	size_t num;
+	size_t ind;
+	void* data = _gfx_batcher_get_visible(
+		batcher, bucket, level, index, source, &num, &ind);
+
+	if(!data || !num) return 0;
 
 	/* Get number of instances per unit */
-	size_t perUnit;
-	_gfx_batcher_get_units(
-		batcher->material,
-		level,
-		index,
-		visible,
-		&perUnit);
+	GFXPropertyMapList list = gfx_material_get(batcher->material, level, &level);
+	size_t perUnit = gfx_property_map_list_instances_at(list, index);
 
 	/* Iterate over all units */
 	size_t i;
-	for(i = 0; i < num; ++i)
+	for(i = 0; i < num && visible; ++i)
 	{
-		/* Set visibility */
+		/* Get how many instances can be added to this unit */
 		size_t id = _gfx_material_bucket_units_at(data, ind + i);
-		gfx_bucket_set_visible(bucket->bucket, id, visible);
+		size_t set = gfx_bucket_get_instances(bucket->bucket, id);
+		size_t diff = perUnit - set;
 
-		/* Distribute instances across units */
+		/* Set visibility, instances and reduce to be set instances */
+		gfx_bucket_set_visible(bucket->bucket, id, 1);
+
 		gfx_bucket_set_instances(bucket->bucket, id,
-			(visible < perUnit) ? visible : perUnit);
+			(visible < diff) ? set + visible : perUnit);
 
-		visible = (perUnit < visible) ? visible - perUnit : 0;
+		visible = (visible < diff) ? 0 : visible - diff;
+	}
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_batcher_decrease_visible(
+
+		GFXBatcher*    batcher,
+		GFXPipe*       bucket,
+		size_t         level,
+		size_t         index,
+		unsigned char  source,
+		size_t         visible)
+{
+	/* Get data */
+	size_t num;
+	size_t ind;
+	void* data = _gfx_batcher_get_visible(
+		batcher, bucket, level, index, source, &num, &ind);
+
+	if(!data || !num) return 0;
+
+	/* Iterate over all units */
+	size_t i;
+	for(i = num; i > 0 && visible; --i)
+	{
+		/* Get how many instances can be removed from this unit */
+		size_t id = _gfx_material_bucket_units_at(data, ind + i - 1);
+		size_t set = gfx_bucket_get_instances(bucket->bucket, id);
+
+		/* Set visibility, instances and reduce to be removed instances */
+		gfx_bucket_set_visible(bucket->bucket, id, set > visible);
+
+		gfx_bucket_set_instances(bucket->bucket, id,
+			(visible < set) ? set - visible : 0);
+
+		visible = (visible < set) ? 0 : visible - set;
 	}
 
 	return 1;

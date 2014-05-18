@@ -139,15 +139,32 @@ int gfx_batcher_decrease(
 		size_t         instances);
 
 /**
- * Sets a number of instances to be visible within a bucket.
+ * Increase the number of instances to be visible within a bucket.
  *
- * @param bucket  Bucket to change the visibility of units of.
+ * @param bucket  Bucket to increase at.
  * @param level   Level of detail of the material to change the visibility of.
- * @param visible Number of instances to make visible, the rest will be made invisible.
+ * @param visible Number of instances to make visible, result is clamped to existing instances.
  * @return Zero if the instances do not exist.
  *
  */
-int gfx_batcher_set_visible(
+int gfx_batcher_increase_visible(
+
+		GFXBatcher*    batcher,
+		GFXPipe*       bucket,
+		size_t         level,
+		size_t         index,
+		unsigned char  source,
+		size_t         visible);
+
+/**
+ * Decrease the number of instances to be visible within a bucket.
+ *
+ * @param bucket  Bucket to decrease at.
+ * @param visible Number of instances to make invisible, result is clamped to 0.
+ * @return Zero if the instances do not exist.
+ *
+ */
+int gfx_batcher_decrease_visible(
 
 		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
