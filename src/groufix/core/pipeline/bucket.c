@@ -35,9 +35,9 @@
 #define GFX_INT_BUCKET_SORT           0x02
 
 /* Internal unit state and action (for processing) */
-#define GFX_INT_UNIT_VISIBLE     ((~(UINT32_MAX >> 1)) >> 0)
-#define GFX_INT_UNIT_ERASE       ((~(UINT32_MAX >> 1)) >> 1)
-#define GFX_INT_UNIT_MANUAL_MSB  ((~(UINT32_MAX >> 1)) >> 2)
+#define GFX_INT_UNIT_VISIBLE     (1 << (GFX_BATCH_STATE_MAX_BITS +1))
+#define GFX_INT_UNIT_ERASE       (1 << (GFX_BATCH_STATE_MAX_BITS +0))
+#define GFX_INT_UNIT_MANUAL_MSB  (1 << (GFX_BATCH_STATE_MAX_BITS -1))
 #define GFX_INT_UNIT_MANUAL      (~((~(GFX_INT_UNIT_MANUAL_MSB << 1)) + 1))
 
 /******************************************************/

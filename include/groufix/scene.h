@@ -33,7 +33,7 @@ extern "C" {
 /** Scene object keys */
 typedef enum GFXSceneKey
 {
-	GFX_SCENE_KEY_BATCH,
+	GFX_SCENE_KEY_BATCHER,
 	GFX_SCENE_KEY_MATERIAL,
 	GFX_SCENE_KEY_SUBMESH,
 

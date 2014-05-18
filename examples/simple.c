@@ -197,9 +197,9 @@ int main()
 	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;
 
-	GFXBatch* batch = gfx_batch_reference(material, submesh, bucket);
-	gfx_batch_increase(batch, bucket, 0, 0, 1);
-	gfx_batch_set_visible(batch, bucket, 0, 0, 0, 1);
+	GFXBatcher* batcher = gfx_batcher_reference(material, submesh, bucket);
+	gfx_batcher_increase(batcher, bucket, 0, 0, 1);
+	gfx_batcher_set_visible(batcher, bucket, 0, 0, 0, 1);
 
 	GFXPipe* pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapA, 0);
@@ -235,7 +235,7 @@ int main()
 
 
 	/* Free all the things */
-	gfx_batch_dereference(batch, bucket);
+	gfx_batcher_dereference(batcher, bucket);
 	gfx_mesh_free(mesh);
 	gfx_material_free(material);
 	gfx_property_map_free(mapA);

@@ -30,12 +30,12 @@
 #include <string.h>
 
 /******************************************************/
-/* Internal batch */
-struct GFX_Batch
+/* Internal batcher */
+struct GFX_Batcher
 {
-	GFXBatch   batch;      /* Super class */
-	GFXVector  buckets;    /* Stores (GFX_BucketRef + size_t (instances) * (numIndices * submesh->sources) */
-	size_t     numIndices; /* Number of material indices used */
+	GFXBatcher  batcher;    /* Super class */
+	GFXVector   buckets;    /* Stores (GFX_BucketRef + size_t (instances) * (numIndices * submesh->sources) */
+	size_t      numIndices; /* Number of material indices used */
 };
 
 /* Internal bucket reference */
@@ -46,29 +46,29 @@ struct GFX_BucketRef
 };
 
 /******************************************************/
-static inline size_t _gfx_batch_get_bucket_size(
+static inline size_t _gfx_batcher_get_bucket_size(
 
-		struct GFX_Batch* batch)
+		struct GFX_Batcher* batcher)
 {
 	return
 		sizeof(struct GFX_BucketRef) + sizeof(size_t) *
-		(batch->numIndices * batch->batch.submesh->sources);
+		(batcher->numIndices * batcher->batcher.submesh->sources);
 }
 
 /******************************************************/
-static inline size_t* _gfx_batch_get_instances(
+static inline size_t* _gfx_batcher_get_instances(
 
-		struct GFX_Batch*       batch,
+		struct GFX_Batcher*     batcher,
 		struct GFX_BucketRef*   bucket,
 		size_t                  index,
 		unsigned char           source)
 {
 	return ((size_t*)(bucket + 1)) +
-		(index * batch->batch.submesh->sources + source);
+		(index * batcher->batcher.submesh->sources + source);
 }
 
 /******************************************************/
-static size_t _gfx_batch_get_units(
+static size_t _gfx_batcher_get_units(
 
 		GFXMaterial*  material,
 		size_t        level,
@@ -106,39 +106,39 @@ static size_t _gfx_batch_get_units(
 }
 
 /******************************************************/
-static struct GFX_Batch* _gfx_batch_create(
+static struct GFX_Batcher* _gfx_batcher_create(
 
 		GFXMaterial*  material,
 		GFXSubMesh*   submesh)
 {
-	/* Allocate batch */
-	struct GFX_Batch* batch = malloc(sizeof(struct GFX_Batch));
-	if(!batch) return NULL;
+	/* Allocate batcher */
+	struct GFX_Batcher* batcher = malloc(sizeof(struct GFX_Batcher));
+	if(!batcher) return NULL;
 
 	/* Initialize */
-	batch->numIndices = 0;
-	batch->batch.material = material;
-	batch->batch.submesh = submesh;
+	batcher->numIndices = 0;
+	batcher->batcher.material = material;
+	batcher->batcher.submesh = submesh;
 
-	gfx_vector_init(&batch->buckets, 1);
+	gfx_vector_init(&batcher->buckets, 1);
 
-	return batch;
+	return batcher;
 }
 
 /******************************************************/
-static void _gfx_batch_free(
+static void _gfx_batcher_free(
 
-		struct GFX_Batch* batch)
+		struct GFX_Batcher* batcher)
 {
-	if(batch)
+	if(batcher)
 	{
-		gfx_vector_clear(&batch->buckets);
-		free(batch);
+		gfx_vector_clear(&batcher->buckets);
+		free(batcher);
 	}
 }
 
 /******************************************************/
-static int _gfx_batch_insert_units(
+static int _gfx_batcher_insert_units(
 
 		GFXMaterial*  material,
 		GFXPipe*      bucket,
@@ -151,7 +151,7 @@ static int _gfx_batch_insert_units(
 	for(l = 0; l < material->lodMap.levels; ++l)
 	{
 		/* Get number units needed */
-		size_t need = _gfx_batch_get_units(
+		size_t need = _gfx_batcher_get_units(
 			material,
 			l,
 			index,
@@ -204,7 +204,7 @@ static int _gfx_batch_insert_units(
 }
 
 /******************************************************/
-static void _gfx_batch_erase_units(
+static void _gfx_batcher_erase_units(
 
 		GFXMaterial*  material,
 		GFXPipe*      bucket,
@@ -218,7 +218,7 @@ static void _gfx_batch_erase_units(
 	{
 		/* Get number of units to keep */
 		size_t perUnit;
-		size_t keep = _gfx_batch_get_units(
+		size_t keep = _gfx_batcher_get_units(
 			material,
 			l,
 			index,
@@ -265,7 +265,7 @@ static void _gfx_batch_erase_units(
 }
 
 /******************************************************/
-static struct GFX_Batch* _gfx_batch_find(
+static struct GFX_Batcher* _gfx_batcher_find(
 
 		GFXMaterial*  material,
 		GFXSubMesh*   submesh)
@@ -282,16 +282,16 @@ static struct GFX_Batch* _gfx_batch_find(
 		size_t num;
 		GFXPipeCallbackList list = gfx_pipe_find(
 			bucket,
-			GFX_SCENE_KEY_BATCH,
+			GFX_SCENE_KEY_BATCHER,
 			&num);
 
 		while(num)
 		{
 			/* Find the one with the given material/submesh pair */
-			GFXBatch* batch = gfx_pipe_at(list, --num)->data;
+			GFXBatcher* batcher = gfx_pipe_at(list, --num)->data;
 
-			if(batch->material == material && batch->submesh == submesh)
-				return (struct GFX_Batch*)batch;
+			if(batcher->material == material && batcher->submesh == submesh)
+				return (struct GFX_Batcher*)batcher;
 		}
 	}
 
@@ -299,19 +299,19 @@ static struct GFX_Batch* _gfx_batch_find(
 }
 
 /******************************************************/
-static struct GFX_BucketRef* _gfx_batch_find_bucket(
+static struct GFX_BucketRef* _gfx_batcher_find_bucket(
 
-		struct GFX_Batch*  batch,
-		GFXPipe*           pipe)
+		struct GFX_Batcher*  batcher,
+		GFXPipe*             pipe)
 {
 	/* Iterate and find */
-	size_t bucketSize = _gfx_batch_get_bucket_size(batch);
+	size_t bucketSize = _gfx_batcher_get_bucket_size(batcher);
 	struct GFX_BucketRef* it;
 
 	for(
-		it = batch->buckets.begin;
-		it != batch->buckets.end;
-		it = gfx_vector_advance(&batch->buckets, it, bucketSize))
+		it = batcher->buckets.begin;
+		it != batcher->buckets.end;
+		it = gfx_vector_advance(&batcher->buckets, it, bucketSize))
 	{
 		if(it->pipe == pipe) break;
 	}
@@ -320,75 +320,75 @@ static struct GFX_BucketRef* _gfx_batch_find_bucket(
 }
 
 /******************************************************/
-static void _gfx_batch_callback(
+static void _gfx_batcher_callback(
 
 		GFXPipe*          pipe,
 		GFXPipeCallback*  callback)
 {
-	struct GFX_Batch* batch = callback->data;
+	struct GFX_Batcher* batcher = callback->data;
 
 	/* Find the pipe and erase it */
 	/* Don't worry about the submesh or material as they're registered at the pipe as well */
-	struct GFX_BucketRef* ref = _gfx_batch_find_bucket(batch, pipe);
+	struct GFX_BucketRef* ref = _gfx_batcher_find_bucket(batcher, pipe);
 
-	if(ref != batch->buckets.end) gfx_vector_erase_range(
-		&batch->buckets,
-		_gfx_batch_get_bucket_size(batch),
+	if(ref != batcher->buckets.end) gfx_vector_erase_range(
+		&batcher->buckets,
+		_gfx_batcher_get_bucket_size(batcher),
 		ref
 	);
 
-	/* Free the batch if nothing references it anymore */
-	if(batch->buckets.begin == batch->buckets.end)
-		_gfx_batch_free(batch);
+	/* Free the batcher if nothing references it anymore */
+	if(batcher->buckets.begin == batcher->buckets.end)
+		_gfx_batcher_free(batcher);
 }
 
 /******************************************************/
-GFXBatch* gfx_batch_reference(
+GFXBatcher* gfx_batcher_reference(
 
 		GFXMaterial*  material,
 		GFXSubMesh*   submesh,
 		GFXPipe*      bucket)
 {
-	/* Find the batch */
-	struct GFX_Batch* batch = _gfx_batch_find(material, submesh);
+	/* Find the batcher */
+	struct GFX_Batcher* batcher = _gfx_batcher_find(material, submesh);
 
-	if(!batch)
+	if(!batcher)
 	{
 		/* Create it if not found */
-		batch = _gfx_batch_create(material, submesh);
-		if(!batch) return NULL;
+		batcher = _gfx_batcher_create(material, submesh);
+		if(!batcher) return NULL;
 
 		/* Try to reference it */
-		if(!gfx_batch_reference_direct((GFXBatch*)batch, bucket))
+		if(!gfx_batcher_reference_direct((GFXBatcher*)batcher, bucket))
 		{
-			_gfx_batch_free(batch);
+			_gfx_batcher_free(batcher);
 			return NULL;
 		}
 	}
 	else
 	{
-		/* Try to reference the found batch */
-		if(!gfx_batch_reference_direct((GFXBatch*)batch, bucket))
+		/* Try to reference the found batcher */
+		if(!gfx_batcher_reference_direct((GFXBatcher*)batcher, bucket))
 			return NULL;
 	}
 
-	return (GFXBatch*)batch;
+	return (GFXBatcher*)batcher;
 }
 
 /******************************************************/
-int gfx_batch_reference_direct(
+int gfx_batcher_reference_direct(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket)
+		GFXBatcher*  batcher,
+		GFXPipe*     bucket)
 {
 	/* Try to find the bucket */
-	struct GFX_Batch* internal = (struct GFX_Batch*)batch;
-	struct GFX_BucketRef* found = _gfx_batch_find_bucket(internal, bucket);
+	struct GFX_Batcher* internal = (struct GFX_Batcher*)batcher;
+	struct GFX_BucketRef* found = _gfx_batcher_find_bucket(internal, bucket);
 
 	if(found == internal->buckets.end)
 	{
 		/* Try to insert the bucket */
-		size_t size = _gfx_batch_get_bucket_size(internal);
+		size_t size = _gfx_batcher_get_bucket_size(internal);
 		found = gfx_vector_insert_range(
 			&internal->buckets,
 			size,
@@ -400,21 +400,21 @@ int gfx_batch_reference_direct(
 			return 0;
 
 		/* Reference the bucket at the submesh */
-		if(!_gfx_submesh_reference_bucket(batch->submesh, bucket))
+		if(!_gfx_submesh_reference_bucket(batcher->submesh, bucket))
 		{
 			gfx_vector_erase_range(&internal->buckets, size, found);
 			return 0;
 		}
 
-		/* Register the batch at the pipe */
+		/* Register the batcher at the pipe */
 		GFXPipeCallback call;
-		call.key = GFX_SCENE_KEY_BATCH;
-		call.data = batch;
+		call.key = GFX_SCENE_KEY_BATCHER;
+		call.data = batcher;
 
-		if(!gfx_pipe_register(bucket, call, _gfx_batch_callback))
+		if(!gfx_pipe_register(bucket, call, _gfx_batcher_callback))
 		{
 			gfx_vector_erase_range(&internal->buckets, size, found);
-			_gfx_submesh_dereference_bucket(batch->submesh, bucket);
+			_gfx_submesh_dereference_bucket(batcher->submesh, bucket);
 
 			return 0;
 		}
@@ -436,14 +436,14 @@ int gfx_batch_reference_direct(
 }
 
 /******************************************************/
-void gfx_batch_dereference(
+void gfx_batcher_dereference(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket)
+		GFXBatcher*  batcher,
+		GFXPipe*     bucket)
 {
 	/* Try to find the bucket */
-	struct GFX_Batch* internal = (struct GFX_Batch*)batch;
-	struct GFX_BucketRef* found = _gfx_batch_find_bucket(internal, bucket);
+	struct GFX_Batcher* internal = (struct GFX_Batcher*)batcher;
+	struct GFX_BucketRef* found = _gfx_batcher_find_bucket(internal, bucket);
 
 	/* Decrease references */
 	if(found != internal->buckets.end)
@@ -451,10 +451,10 @@ void gfx_batch_dereference(
 		{
 			/* Get all bucket sources */
 			size_t* sources = _gfx_submesh_get_bucket_sources(
-				batch->submesh,
+				batcher->submesh,
 				bucket,
 				0,
-				batch->submesh->sources
+				batcher->submesh->sources
 			);
 
 			size_t i;
@@ -462,10 +462,10 @@ void gfx_batch_dereference(
 
 			/* Iterate through indices and sources and remove units */
 			for(i = 0; i < internal->numIndices; ++i)
-				for(s = 0; s < batch->submesh->sources; ++s)
+				for(s = 0; s < batcher->submesh->sources; ++s)
 				{
-					_gfx_batch_erase_units(
-						batch->material,
+					_gfx_batcher_erase_units(
+						batcher->material,
 						bucket,
 						i,
 						sources[s],
@@ -473,51 +473,51 @@ void gfx_batch_dereference(
 					);
 				}
 
-			/* Unregister the batch at the pipe and dereference at submesh */
+			/* Unregister the batcher at the pipe and dereference at submesh */
 			GFXPipeCallback call;
-			call.key = GFX_SCENE_KEY_BATCH;
-			call.data = batch;
+			call.key = GFX_SCENE_KEY_BATCHER;
+			call.data = batcher;
 
 			gfx_pipe_unregister(bucket, call);
-			_gfx_submesh_dereference_bucket(batch->submesh, bucket);
+			_gfx_submesh_dereference_bucket(batcher->submesh, bucket);
 
 			/* Erase the bucket */
 			gfx_vector_erase_range(
 				&internal->buckets,
-				_gfx_batch_get_bucket_size(internal),
+				_gfx_batcher_get_bucket_size(internal),
 				found
 			);
 
-			/* Free batch if nothing references it anymore */
+			/* Free batcher if nothing references it anymore */
 			if(internal->buckets.begin == internal->buckets.end)
-				_gfx_batch_free(internal);
+				_gfx_batcher_free(internal);
 		}
 }
 
 /******************************************************/
-int gfx_batch_increase(
+int gfx_batcher_increase(
 
-		GFXBatch*      batch,
+		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
 		size_t         index,
 		unsigned char  source,
 		size_t         instances)
 {
 	/* Validate source */
-	if(source >= batch->submesh->sources) return 0;
+	if(source >= batcher->submesh->sources) return 0;
 
 	/* Insert indices */
-	struct GFX_Batch* internal = (struct GFX_Batch*)batch;
+	struct GFX_Batcher* internal = (struct GFX_Batcher*)batcher;
 	if(internal->numIndices <= index)
 	{
 		/* Calculate new size and try to reserve it */
 		size_t diff =
 			index - internal->numIndices + 1;
 		size_t sizeDiff =
-			diff * (sizeof(size_t) * batch->submesh->sources);
+			diff * (sizeof(size_t) * batcher->submesh->sources);
 
 		size_t bucketSize =
-			_gfx_batch_get_bucket_size(internal);
+			_gfx_batcher_get_bucket_size(internal);
 		size_t bucketIndex =
 			gfx_vector_get_byte_size(&internal->buckets);
 		size_t size =
@@ -550,18 +550,18 @@ int gfx_batch_increase(
 	}
 
 	/* Try to find the bucket */
-	struct GFX_BucketRef* found = _gfx_batch_find_bucket(internal, bucket);
+	struct GFX_BucketRef* found = _gfx_batcher_find_bucket(internal, bucket);
 	if(found == internal->buckets.end) return 0;
 
 	/* Get the source */
 	size_t src = *_gfx_submesh_get_bucket_sources(
-		batch->submesh,
+		batcher->submesh,
 		bucket,
 		source,
 		1);
 
 	/* Calculate number of instances, check for overflow! */
-	size_t* inst = _gfx_batch_get_instances(
+	size_t* inst = _gfx_batcher_get_instances(
 		internal,
 		found,
 		index,
@@ -571,8 +571,8 @@ int gfx_batch_increase(
 	size_t new = *inst + instances;
 
 	/* Insert the units in the material */
-	if(!_gfx_batch_insert_units(
-		batch->material,
+	if(!_gfx_batcher_insert_units(
+		batcher->material,
 		bucket,
 		index,
 		src,
@@ -585,25 +585,25 @@ int gfx_batch_increase(
 }
 
 /******************************************************/
-size_t gfx_batch_get(
+size_t gfx_batcher_get(
 
-		GFXBatch*      batch,
+		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
 		size_t         index,
 		unsigned char  source)
 {
 	/* Validate index and source */
-	struct GFX_Batch* internal = (struct GFX_Batch*)batch;
-	if(index >= internal->numIndices || source >= batch->submesh->sources)
+	struct GFX_Batcher* internal = (struct GFX_Batcher*)batcher;
+	if(index >= internal->numIndices || source >= batcher->submesh->sources)
 		return 0;
 
 	/* Try to find the bucket */
-	struct GFX_BucketRef* found = _gfx_batch_find_bucket(internal, bucket);
+	struct GFX_BucketRef* found = _gfx_batcher_find_bucket(internal, bucket);
 	if(found == internal->buckets.end)
 		return 0;
 
 	/* Retrieve instances */
-	return *_gfx_batch_get_instances(
+	return *_gfx_batcher_get_instances(
 		internal,
 		found,
 		index,
@@ -612,33 +612,33 @@ size_t gfx_batch_get(
 }
 
 /******************************************************/
-int gfx_batch_decrease(
+int gfx_batcher_decrease(
 
-		GFXBatch*      batch,
+		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
 		size_t         index,
 		unsigned char  source,
 		size_t         instances)
 {
 	/* Validate index and source */
-	struct GFX_Batch* internal = (struct GFX_Batch*)batch;
-	if(index >= internal->numIndices || source >= batch->submesh->sources)
+	struct GFX_Batcher* internal = (struct GFX_Batcher*)batcher;
+	if(index >= internal->numIndices || source >= batcher->submesh->sources)
 		return 0;
 
 	/* Get the source */
 	size_t src = *_gfx_submesh_get_bucket_sources(
-		batch->submesh,
+		batcher->submesh,
 		bucket,
 		source,
 		1);
 
 	/* Try to find the bucket */
-	struct GFX_BucketRef* found = _gfx_batch_find_bucket(internal, bucket);
+	struct GFX_BucketRef* found = _gfx_batcher_find_bucket(internal, bucket);
 	if(!src || found == internal->buckets.end)
 		return 0;
 
 	/* Calculate number of instances */
-	size_t* inst = _gfx_batch_get_instances(
+	size_t* inst = _gfx_batcher_get_instances(
 		internal,
 		found,
 		index,
@@ -647,8 +647,8 @@ int gfx_batch_decrease(
 	*inst = (instances > *inst) ? 0 : *inst - instances;
 
 	/* Erase the units from the material */
-	_gfx_batch_erase_units(
-		batch->material,
+	_gfx_batcher_erase_units(
+		batcher->material,
 		bucket,
 		index,
 		src,
@@ -659,9 +659,9 @@ int gfx_batch_decrease(
 }
 
 /******************************************************/
-int gfx_batch_set_visible(
+int gfx_batcher_set_visible(
 
-		GFXBatch*      batch,
+		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
 		size_t         level,
 		size_t         index,
@@ -669,13 +669,13 @@ int gfx_batch_set_visible(
 		size_t         visible)
 {
 	/* Validate index and source */
-	struct GFX_Batch* internal = (struct GFX_Batch*)batch;
-	if(index >= internal->numIndices || source >= batch->submesh->sources)
+	struct GFX_Batcher* internal = (struct GFX_Batcher*)batcher;
+	if(index >= internal->numIndices || source >= batcher->submesh->sources)
 		return 0;
 
 	/* Get the source */
 	size_t src = *_gfx_submesh_get_bucket_sources(
-		batch->submesh,
+		batcher->submesh,
 		bucket,
 		source,
 		1);
@@ -683,7 +683,7 @@ int gfx_batch_set_visible(
 	/* Get all units associated with the property map */
 	size_t num;
 	void* data = _gfx_material_get_bucket_units(
-		batch->material,
+		batcher->material,
 		level,
 		index,
 		bucket,
@@ -694,8 +694,8 @@ int gfx_batch_set_visible(
 
 	/* Get number of instances per unit */
 	size_t perUnit;
-	_gfx_batch_get_units(
-		batch->material,
+	_gfx_batcher_get_units(
+		batcher->material,
 		level,
 		index,
 		visible,

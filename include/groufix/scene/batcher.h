@@ -32,63 +32,63 @@ extern "C" {
 #endif
 
 /********************************************************
- * Batch (Handles draw calls of submesh/material pairs)
+ * Batcher (Handles units of submesh/material pairs)
  *******************************************************/
 
-typedef struct GFXBatch
+typedef struct GFXBatcher
 {
 	GFXMaterial*  material;
 	GFXSubMesh*   submesh;
 
-} GFXBatch;
+} GFXBatcher;
 
 
 /**
- * References a bucket at a batch, created if it doesn't exist yet.
+ * References a bucket at a batcher, created if it doesn't exist yet.
  *
- * @param material Material of the batch to reference.
- * @param submesh  Submesh of the batch to reference.
+ * @param material Material of the batcher to reference.
+ * @param submesh  Submesh of the batcher to reference.
  * @param bucket   Pipe to reference, must be a bucket pipe.
- * @return Referenced batch, NULL on failure.
+ * @return Referenced batcher, NULL on failure.
  *
- * Note: if the bucket is freed, the batch is automatically dereferenced.
+ * Note: if the bucket is freed, the batcher is automatically dereferenced.
  * If either the material or submesh is freed before the batch, undefined behaviour is expected.
  *
  */
-GFXBatch* gfx_batch_reference(
+GFXBatcher* gfx_batcher_reference(
 
 		GFXMaterial*  material,
 		GFXSubMesh*   submesh,
 		GFXPipe*      bucket);
 
 /**
- * References a bucket at an existing, already found batch.
+ * References a bucket at an existing, already found batcher.
  *
- * @param batch  Batch to reference.
- * @param bucket Pipe to reference, must be a bucket pipe.
+ * @param batcher Batcher to reference.
+ * @param bucket  Pipe to reference, must be a bucket pipe.
  * @return Zero on failure.
  *
- * Note: if the bucket is freed, the batch is automatically dereferenced.
+ * Note: if the bucket is freed, the batcher is automatically dereferenced.
  *
  */
-int gfx_batch_reference_direct(
+int gfx_batcher_reference_direct(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket);
+		GFXBatcher*  batcher,
+		GFXPipe*     bucket);
 
 /**
- * Dereferences a batch, freed if not referenced by anyone anymore.
+ * Dereferences a batcher, freed if not referenced by anyone anymore.
  *
- * @param batch  Batch to dereference.
- * @param bucket Bucket at the batch to dereference.
+ * @param batcher Batcher to dereference.
+ * @param bucket  Bucket at the batcher to dereference.
  *
- * Note: if freed, batch will be invalidated as pointer.
+ * Note: if freed, batcher will be invalidated as pointer.
  *
  */
-void gfx_batch_dereference(
+void gfx_batcher_dereference(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket);
+		GFXBatcher*  batch,
+		GFXPipe*     bucket);
 
 /**
  * Increase the number of instances drawn within a bucket.
@@ -100,9 +100,9 @@ void gfx_batch_dereference(
  * @return Zero on failure.
  *
  */
-int gfx_batch_increase(
+int gfx_batcher_increase(
 
-		GFXBatch*      batch,
+		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
 		size_t         index,
 		unsigned char  source,
@@ -115,9 +115,9 @@ int gfx_batch_increase(
  * @return Number of instances, 0 if the bucket is not referenced.
  *
  */
-size_t gfx_batch_get(
+size_t gfx_batcher_get(
 
-		GFXBatch*      batch,
+		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
 		size_t         index,
 		unsigned char  source);
@@ -130,9 +130,9 @@ size_t gfx_batch_get(
  * @return Zero if the instances do not exist.
  *
  */
-int gfx_batch_decrease(
+int gfx_batcher_decrease(
 
-		GFXBatch*      batch,
+		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
 		size_t         index,
 		unsigned char  source,
@@ -147,9 +147,9 @@ int gfx_batch_decrease(
  * @return Zero if the instances do not exist.
  *
  */
-int gfx_batch_set_visible(
+int gfx_batcher_set_visible(
 
-		GFXBatch*      batch,
+		GFXBatcher*    batcher,
 		GFXPipe*       bucket,
 		size_t         level,
 		size_t         index,
