@@ -435,8 +435,11 @@ int gfx_property_map_move(
  *
  * @param index    Index to forward to the program (must be < map->properties).
  * @param copies   Non-zero if this property should contain copies of itself.
+ * @param ptr      If non-zero, a vector/matrix value will store a pointer instead of the actual value.
  * @param property Index of the program property to forward to.
  * @return Zero on failure.
+ *
+ * If the property is not a vector/matrix, ptr is ignored.
  *
  */
 int gfx_property_map_forward(
@@ -444,14 +447,13 @@ int gfx_property_map_forward(
 		GFXPropertyMap*  map,
 		unsigned char    index,
 		int              copies,
+		int              ptr,
 		unsigned short   property);
 
 /**
  * Forwards data send to a given index to a given uniform name within the program.
  *
- * @param index  Index to forward to the program.
- * @param copies Non-zero if this property should contain copies of itself.
- * @param name   Uniform name within the program to forward to.
+ * @param name Uniform name within the program to forward to.
  * @return Zero on failure.
  *
  */
@@ -460,6 +462,7 @@ int gfx_property_map_forward_named(
 		GFXPropertyMap*  map,
 		unsigned char    index,
 		int              copies,
+		int              ptr,
 		const char*      name);
 
 /**
@@ -481,9 +484,7 @@ int gfx_property_map_forward_block(
 /**
  * Forwards data send to a given index to a given uniform block name within the program.
  *
- * @param index  Index to forward to the program.
- * @param copies Non-zero if this property should contain copies of itself.
- * @param name   Uniform block name within the program to forward to.
+ * @param name Uniform block name within the program to forward to.
  * @return Zero on failure.
  *
  */
@@ -502,7 +503,7 @@ int gfx_property_map_forward_named_block(
  * @param value  Value to set it to, the content will be copied.
  * @param offset Byte offset in the mapped value to write to.
  * @param size   Size of the given data in bytes (0 to calculate the size based on the property type).
- * @return Non-zero on success.
+ * @return Zero on failure or if a pointer value.
  *
  */
 int gfx_property_map_set_value(
@@ -515,10 +516,22 @@ int gfx_property_map_set_value(
 		size_t           size);
 
 /**
+ * Sets the pointer of a vector/matrix property.
+ *
+ * @param ptr Pointer to store for this vector/matrix property.
+ * @return Zero on failure or if not a pointer value.
+ *
+ */
+int gfx_property_map_set_value_pointer(
+
+		GFXPropertyMap*  map,
+		unsigned char    index,
+		size_t           copy,
+		const void*      ptr);
+
+/**
  * Sets the value of a sampler property.
  *
- * @param index Index of the property to set the value of.
- * @param copy  Index of the copy to set the value of.
  * @return Non-zero on success.
  *
  * Note: There can only be GFX_LIM_MAX_SAMPLER_PROPERTIES number of sampler properties forwarded.
@@ -534,8 +547,6 @@ int gfx_property_map_set_sampler(
 /**
  * Sets the value of a property block.
  *
- * @param index  Index of the property to set the value of.
- * @param copy   Index of the copy to set the value of.
  * @param offset Offset in the buffer in bytes.
  * @param size   Size of the data in bytes.
  * @return Non-zero on success.
@@ -555,10 +566,7 @@ int gfx_property_map_set_buffer(
 /**
  * Sets the value of a property block.
  *
- * @param index  Index of the property to set the value of.
- * @param copy   Index of the copy to set the value of.
  * @param offset Offset in the shared buffer in bytes.
- * @param size   Size of the data in bytes.
  * @return Non-zero on success.
  *
  */

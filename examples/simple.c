@@ -181,9 +181,9 @@ int main()
 	/* Property map */
 	GFXPropertyMap* mapA = gfx_property_map_create(programA, 1);
 	GFXPropertyMap* mapB = gfx_property_map_create(programB, 1);
-	gfx_property_map_forward_named(mapA, 0, 0, "tex");
+	gfx_property_map_forward_named(mapA, 0, 0, 0, "tex");
 	gfx_property_map_set_sampler(mapA, 0, 0, tex);
-	gfx_property_map_forward_named(mapB, 0, 0, "tex");
+	gfx_property_map_forward_named(mapB, 0, 0, 0, "tex");
 	gfx_property_map_set_sampler(mapB, 0, 0, tex);
 
 
