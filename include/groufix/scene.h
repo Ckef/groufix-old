@@ -24,7 +24,8 @@
 #ifndef GFX_SCENE_H
 #define GFX_SCENE_H
 
-#include "groufix/scene/batcher.h"
+#include "groufix/scene/material.h"
+#include "groufix/scene/mesh.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +34,6 @@ extern "C" {
 /** Scene object keys */
 typedef enum GFXSceneKey
 {
-	GFX_SCENE_KEY_BATCHER,
 	GFX_SCENE_KEY_MATERIAL,
 	GFX_SCENE_KEY_SUBMESH,
 

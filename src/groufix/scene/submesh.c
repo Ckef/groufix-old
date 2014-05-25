@@ -274,26 +274,6 @@ int _gfx_submesh_reference_bucket(
 }
 
 /******************************************************/
-size_t _gfx_submesh_num_buckets(
-
-		GFXSubMesh* mesh)
-{
-	return gfx_vector_get_size(&((struct GFX_SubMesh*)mesh)->buckets);
-}
-
-/******************************************************/
-GFXPipe* _gfx_submesh_get_bucket(
-
-		GFXSubMesh*  mesh,
-		size_t       index)
-{
-	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
-	struct GFX_BucketRef* bucket = gfx_vector_at(&internal->buckets, index);
-
-	return bucket->pipe;
-}
-
-/******************************************************/
 void _gfx_submesh_dereference_bucket(
 
 		GFXSubMesh*  mesh,

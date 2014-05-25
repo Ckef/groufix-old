@@ -219,25 +219,6 @@ int _gfx_submesh_reference_bucket(
 		GFXPipe*     pipe);
 
 /**
- * Returns the number of buckets referenced by a submesh.
- *
- */
-size_t _gfx_submesh_num_buckets(
-
-		GFXSubMesh* mesh);
-
-/**
- * Returns a bucket referenced by the submesh.
- *
- * @param index Index of the bucket in the submesh, must be < _gfx_submesh_num_buckets.
- *
- */
-GFXPipe* _gfx_submesh_get_bucket(
-
-		GFXSubMesh*  mesh,
-		size_t       index);
-
-/**
  * Decreases the reference counter, removes the submesh from the bucket if zero.
  *
  */
