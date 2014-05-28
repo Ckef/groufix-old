@@ -117,6 +117,7 @@ int main()
 	GFXMesh* mesh         = create_mesh();
 	GFXSubMesh* submesh   = gfx_submesh_list_at(gfx_mesh_get(mesh, 0, &num), 0);
 	GFXMaterial* material = create_material();
+	GFXPropertyMap* map   = gfx_property_map_list_at(gfx_material_get(material, 0, &num), 0);
 
 
 	/* Texture */
@@ -199,7 +200,7 @@ int main()
 
 	_gfx_submesh_reference_bucket(submesh, bucket);
 	size_t src = *(size_t*)_gfx_submesh_get_bucket_sources(submesh, bucket, 0, 1);
-	_gfx_material_add_bucket_units(material, 0, 0, bucket, 1, src, 0, 1);
+	gfx_bucket_insert(bucket->bucket, src, map, 0, 1);
 
 	GFXPipe* pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapA, 0);
