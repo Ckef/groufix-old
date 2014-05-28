@@ -96,13 +96,8 @@ int gfx_mesh_add_share(
 		size_t       level,
 		GFXSubMesh*  share)
 {
-	/* Check if it's already mapped to avoid another reference */
-	if(gfx_lod_map_has((GFXLodMap*)mesh, level, &share))
-		return 1;
-
 	/* Reference the submesh */
-	if(!_gfx_submesh_reference(share))
-		return 0;
+	if(!_gfx_submesh_reference(share)) return 0;
 
 	/* Add it to the LOD map */
 	struct GFX_SubData data;
@@ -121,7 +116,7 @@ int gfx_mesh_add_share(
 }
 
 /******************************************************/
-int gfx_mesh_set_material(
+size_t gfx_mesh_set_material(
 
 		GFXMesh*     mesh,
 		size_t       level,
@@ -136,14 +131,16 @@ int gfx_mesh_set_material(
 		&num
 	);
 
+	size_t count = 0;
+
 	while(num--) if(data[num].sub == sub)
 	{
 		/* Set material if found */
 		data[num].material = material;
-		return 1;
+		++count;
 	}
 
-	return 0;
+	return count;
 }
 
 /******************************************************/
@@ -171,7 +168,7 @@ int gfx_mesh_set_material_at(
 }
 
 /******************************************************/
-int gfx_mesh_set_source(
+size_t gfx_mesh_set_source(
 
 		GFXMesh*       mesh,
 		size_t         level,
@@ -186,14 +183,16 @@ int gfx_mesh_set_source(
 		&num
 	);
 
+	size_t count = 0;
+
 	while(num--) if(data[num].sub == sub)
 	{
 		/* Set source if found */
 		data[num].source = source;
-		return 1;
+		++count;
 	}
 
-	return 0;
+	return count;
 }
 
 /******************************************************/

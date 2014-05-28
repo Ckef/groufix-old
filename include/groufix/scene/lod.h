@@ -80,7 +80,7 @@ void gfx_lod_map_free(
  *
  * @param level Level of detail to map to (must be <= map->levels).
  * @param data  Data of dataSize (see gfx_lod_map_create) bytes, copied into the map.
- * @return Non-zero if the data is mapped.
+ * @return Zero on failure.
  *
  * The data is appended to the end of the level (as seen in the return of gfx_lod_map_get).
  *
@@ -92,16 +92,30 @@ int gfx_lod_map_add(
 		void*       data);
 
 /**
- * Removes mapped data from a given level of detail.
+ * Retrieves the number of times given data is mapped.
+ *
+ * @param level Level of detail it should be mapped to.
+ * @param data  Data of compSize bytes to compare against.
+ * @return Number of times it is mapped.
+ *
+ */
+size_t gfx_lod_map_has(
+
+		GFXLodMap*  map,
+		size_t      level,
+		void*       data);
+
+/**
+ * Removes all instances mapped data from a given level of detail.
  *
  * @param data Data of compSize bytes to compare against.
- * @return Non-zero if it was found and removed.
+ * @return Number of removed instances.
  *
  * If this operation causes a level to be empty,
  * all levels above it will fall down one level.
  *
  */
-int gfx_lod_map_remove(
+size_t gfx_lod_map_remove(
 
 		GFXLodMap*  map,
 		size_t      level,
@@ -122,20 +136,6 @@ int gfx_lod_map_remove_at(
 		GFXLodMap*  map,
 		size_t      level,
 		size_t      index);
-
-/**
- * Retrieves wheter given data is mapped or not.
- *
- * @param level Level of detail it should be mapped to.
- * @param data  Data of compSize bytes to compare against.
- * @return Non-zero if the data is indeed mapped to the given level.
- *
- */
-int gfx_lod_map_has(
-
-		GFXLodMap*  map,
-		size_t      level,
-		void*       data);
 
 /**
  * Counts the number of data elements in a number of levels.

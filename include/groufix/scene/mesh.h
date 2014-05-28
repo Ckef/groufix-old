@@ -186,17 +186,17 @@ int gfx_mesh_add_share(
 		GFXSubMesh*  share);
 
 /**
- * Sets the material index to use for a submesh added to a mesh.
+ * Sets the material index to use for all instances of a submesh added to a mesh.
  *
  * @param material Index of the property map within a material level of detail to use.
- * @return Non-zero if the submesh was found.
+ * @return Number of found submeshes.
  *
  * Note: index is clamped to the number of property maps available when used.
  *
  * The default is 0.
  *
  */
-int gfx_mesh_set_material(
+size_t gfx_mesh_set_material(
 
 		GFXMesh*     mesh,
 		size_t       level,
@@ -206,6 +206,7 @@ int gfx_mesh_set_material(
 /**
  * Sets the material index to use for a submesh added to a mesh.
  *
+ * @param index Index of the submesh within the level as seen in the return of gfx_mesh_get.
  * @return Zero if the submesh does not exist.
  *
  * The default is 0.
@@ -219,14 +220,14 @@ int gfx_mesh_set_material_at(
 		size_t    material);
 
 /**
- * Sets the sources to sample from a submesh added to a mesh.
+ * Sets the sources to sample from all instances of a submesh added to a mesh.
  *
- * @return Non-zero if the submesh was found.
+ * @return Number of found submeshes.
  *
  * The default is all sources used.
  *
  */
-int gfx_mesh_set_source(
+size_t gfx_mesh_set_source(
 
 		GFXMesh*       mesh,
 		size_t         level,
@@ -236,7 +237,6 @@ int gfx_mesh_set_source(
 /**
  * Sets the sources to sample from a submesh added to a mesh.
  *
- * @param index Index of the submesh within the level as seen in the return of gfx_mesh_get.
  * @return Zero if the submesh does not exist.
  *
  * The default is all sources used.
