@@ -99,7 +99,7 @@ GFXLodMap* gfx_lod_map_create(
 		size_t       compSize)
 {
 	/* Allocate new map */
-	GFX_LodMap* map = calloc(1, sizeof(GFX_LodMap));
+	GFX_LodMap* map = malloc(sizeof(GFX_LodMap));
 	if(!map) return NULL;
 
 	_gfx_lod_map_init(map, flags, dataSize, compSize);

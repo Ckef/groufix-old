@@ -107,7 +107,6 @@ static inline int _gfx_buffer_sync(
 }
 
 /******************************************************/
-/* Create buffers in existing vector */
 static void _gfx_buffer_alloc_buffers(
 
 		struct GFX_Buffer*  buffer,
@@ -137,7 +136,6 @@ static void _gfx_buffer_alloc_buffers(
 }
 
 /******************************************************/
-/* Entirely delete buffers, but don't remove vector entry */
 static void _gfx_buffer_delete_buffers(
 
 		struct GFX_Buffer*  buffer,

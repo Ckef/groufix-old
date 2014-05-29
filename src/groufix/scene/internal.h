@@ -74,6 +74,83 @@ void _gfx_lod_map_clear(
 
 
 /********************************************************
+ * Batch references at mesh and material
+ *******************************************************/
+
+/**
+ * Fetches the ID of a batch at a material.
+ *
+ * @param mesh Mesh the batch is associated with.
+ * @return Material ID if found, 0 on failure.
+ *
+ */
+size_t _gfx_material_get_batch(
+
+		GFXMaterial*  material,
+		GFXMesh*      mesh);
+
+/**
+ * Fetches the ID of a batch at a mesh.
+ *
+ * @param material Material the batch is associated with.
+ * @return Mesh ID if found, 0 on failure.
+ *
+ */
+size_t _gfx_mesh_get_batch(
+
+		GFXMesh*      mesh,
+		GFXMaterial*  material);
+
+/**
+ * Sets the Mesh ID of a batch at a material.
+ *
+ * @param materialID Batch ID at the material to set.
+ * @param meshID     Mesh ID to set it to.
+ *
+ */
+void _gfx_material_set_batch(
+
+		GFXMaterial*  material,
+		size_t        materialID,
+		size_t        meshID);
+
+/**
+ * Sets the Material ID of a batch at a mesh.
+ *
+ * @param meshID     Batch ID at the mesh to set.
+ * @param materialID Material ID to set it to.
+ *
+ */
+void _gfx_mesh_set_batch(
+
+		GFXMesh*  mesh,
+		size_t    meshID,
+		size_t    materialID);
+
+/**
+ * Removes a batch at a material.
+ *
+ * @param materialID Batch ID at the material to remove.
+ *
+ */
+void _gfx_material_remove_batch(
+
+		GFXMaterial*  material,
+		size_t        materialID);
+
+/**
+ * Removes a batch at a mesh.
+ *
+ * @param meshID Batch ID at the mesh to remove.
+ *
+ */
+void _gfx_mesh_remove_batch(
+
+		GFXMesh*  mesh,
+		size_t    meshID);
+
+
+/********************************************************
  * SubMesh management
  *******************************************************/
 

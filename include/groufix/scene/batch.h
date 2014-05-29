@@ -21,27 +21,48 @@
  *
  */
 
-#ifndef GFX_SCENE_H
-#define GFX_SCENE_H
+#ifndef GFX_SCENE_BATCH_H
+#define GFX_SCENE_BATCH_H
 
-#include "groufix/scene/batch.h"
+#include "groufix/scene/material.h"
+#include "groufix/scene/mesh.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** Scene object keys */
-typedef enum GFXSceneKey
+/********************************************************
+ * Batch (render group consisting of a mesh and material)
+ *******************************************************/
+
+/** Batch */
+typedef struct GFXBatch
 {
-	GFX_SCENE_KEY_SUBMESH,
+	GFXMaterial*  material;
+	size_t        materialID;
+	GFXMesh*      mesh;
+	size_t        meshID;
 
-	GFX_SCENE_KEY_EMPTY /* Start of empty range */
+} GFXBatch;
 
-} GFXSceneKey;
+
+/**
+ * Fetches a batch associated with a given material and mesh.
+ *
+ * @return Non-zero on success (it will not touch batch on failure).
+ *
+ * Note: A batch with equal materials and meshes are themselves equal.
+ *
+ */
+int gfx_batch_get(
+
+		GFXBatch*     batch,
+		GFXMaterial*  material,
+		GFXMesh*      mesh);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // GFX_SCENE_H
+#endif // GFX_SCENE_BATCH_H

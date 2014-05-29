@@ -127,7 +127,7 @@ GFXSubMesh* _gfx_submesh_create(
 	/* Allocate submesh */
 	size_t size = sizeof(struct GFX_SubMesh) + sources * sizeof(GFXVertexSource);
 
-	struct GFX_SubMesh* sub = calloc(1, size);
+	struct GFX_SubMesh* sub = malloc(size);
 	if(!sub) return NULL;
 
 	/* Create layout */

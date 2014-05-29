@@ -23,7 +23,23 @@
 
 #include "groufix/scene/internal.h"
 
+#include <stdlib.h>
+
 /******************************************************/
+/* Internal mesh */
+struct GFX_Mesh
+{
+	GFX_LodMap  map;     /* Super class */
+	GFXVector   batches; /* Stores GFX_Batch, index + 1 = mesh ID of batch */
+};
+
+/* Internal batch (material reference) */
+struct GFX_Batch
+{
+	GFXMaterial*  material;  /* NULL when empty */
+	size_t        materialID;
+};
+
 /* Internal submesh data */
 struct GFX_SubData
 {
@@ -33,13 +49,137 @@ struct GFX_SubData
 };
 
 /******************************************************/
+static struct GFX_Batch* _gfx_mesh_find_material(
+
+		struct GFX_Mesh*  mesh,
+		GFXMaterial*      mat)
+{
+	/* Try to find the mesh */
+	struct GFX_Batch* empty = mesh->batches.end;
+	struct GFX_Batch* it;
+
+	for(
+		it = mesh->batches.begin;
+		it != mesh->batches.end;
+		it = gfx_vector_next(&mesh->batches, it))
+	{
+		if(it->material == mat)
+			return it;
+
+		else if(!it->material && empty == mesh->batches.end)
+			empty = it;
+	}
+
+	/* Construct new ID */
+	struct GFX_Batch new;
+	new.material = mat;
+	new.materialID = 0;
+
+	/* Replace an empty ID */
+	if(empty != mesh->batches.end)
+	{
+		*empty = new;
+		return empty;
+	}
+
+	/* Insert new ID */
+	return gfx_vector_insert(
+		&mesh->batches,
+		&new,
+		empty
+	);
+}
+
+/******************************************************/
+size_t _gfx_mesh_get_batch(
+
+		GFXMesh*      mesh,
+		GFXMaterial*  material)
+{
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	struct GFX_Batch* batch = _gfx_mesh_find_material(internal, material);
+
+	/* Return correct ID */
+	return (batch == internal->batches.end) ? 0 :
+		gfx_vector_get_index(&internal->batches, batch) + 1;
+}
+
+/******************************************************/
+void _gfx_mesh_set_batch(
+
+		GFXMesh*  mesh,
+		size_t    meshID,
+		size_t    materialID)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t max = gfx_vector_get_size(&internal->batches);
+
+	if(meshID && meshID <= max)
+	{
+		/* Get batch and set */
+		struct GFX_Batch* batch = gfx_vector_at(
+			&internal->batches,
+			meshID - 1
+		);
+
+		batch->materialID = materialID;
+	}
+}
+
+/******************************************************/
+void _gfx_mesh_remove_batch(
+
+		GFXMesh*  mesh,
+		size_t    meshID)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t size = gfx_vector_get_size(&internal->batches);
+
+	if(meshID && meshID <= size)
+	{
+		/* Get batch and mark as empty */
+		struct GFX_Batch* batch = gfx_vector_at(
+			&internal->batches,
+			meshID - 1
+		);
+
+		batch->material = NULL;
+
+		/* Remove trailing empty batches */
+		size_t num;
+		struct GFX_Batch* beg = internal->batches.end;
+
+		for(num = 0; num < size; ++num)
+		{
+			struct GFX_Batch* prev = gfx_vector_previous(&internal->batches, beg);
+			if(prev->material) break;
+
+			beg = prev;
+		}
+		gfx_vector_erase_range(&internal->batches, num, beg);
+	}
+}
+
+/******************************************************/
 GFXMesh* gfx_mesh_create(void)
 {
-	return (GFXMesh*)gfx_lod_map_create(
+	/* Allocate mesh */
+	struct GFX_Mesh* mesh = malloc(sizeof(struct GFX_Mesh));
+	if(!mesh) return NULL;
+
+	/* Initialize */
+	_gfx_lod_map_init(
+		(GFX_LodMap*)mesh,
 		0,
 		sizeof(struct GFX_SubData),
 		sizeof(GFXSubMesh*)
 	);
+
+	gfx_vector_init(&mesh->batches, sizeof(struct GFX_Batch));
+
+	return (GFXMesh*)mesh;
 }
 
 /******************************************************/
@@ -49,6 +189,21 @@ void gfx_mesh_free(
 {
 	if(mesh)
 	{
+		struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+
+		/* Remove all batches at the materials */
+		struct GFX_Batch* it;
+		for(
+			it = internal->batches.begin;
+			it != internal->batches.end;
+			it = gfx_vector_next(&internal->batches, it))
+		{
+			if(it->material) _gfx_material_remove_batch(
+				it->material,
+				it->materialID
+			);
+		}
+
 		/* Free all submeshes */
 		size_t num;
 		struct GFX_SubData* subs = gfx_lod_map_get_all(
@@ -58,7 +213,11 @@ void gfx_mesh_free(
 
 		while(num--) _gfx_submesh_free(subs[num].sub);
 
-		gfx_lod_map_free((GFXLodMap*)mesh);
+		/* Clear and free */
+		gfx_vector_clear(&internal->batches);
+		_gfx_lod_map_clear((GFX_LodMap*)internal);
+
+		free(mesh);
 	}
 }
 

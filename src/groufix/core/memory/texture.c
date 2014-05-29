@@ -43,7 +43,6 @@ struct GFX_Texture
 };
 
 /******************************************************/
-/* Calculates the number of mipmaps */
 static inline unsigned char _gfx_texture_get_num_mipmaps(
 
 		GFXTextureType  type,
@@ -76,7 +75,6 @@ static inline unsigned char _gfx_texture_get_num_mipmaps(
 }
 
 /******************************************************/
-/* Calculates the size of a given mipmap */
 static inline void _gfx_texture_get_mipmap_size(
 
 		unsigned char  mipmap,

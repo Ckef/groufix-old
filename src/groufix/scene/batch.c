@@ -21,27 +21,37 @@
  *
  */
 
-#ifndef GFX_SCENE_H
-#define GFX_SCENE_H
-
 #include "groufix/scene/batch.h"
+#include "groufix/scene/internal.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/******************************************************/
+int gfx_batch_get(
 
-/** Scene object keys */
-typedef enum GFXSceneKey
+		GFXBatch*     batch,
+		GFXMaterial*  material,
+		GFXMesh*      mesh)
 {
-	GFX_SCENE_KEY_SUBMESH,
+	/* Get batch at material and mesh */
+	size_t matID = _gfx_material_get_batch(material, mesh);
+	size_t meshID = _gfx_mesh_get_batch(mesh, material);
 
-	GFX_SCENE_KEY_EMPTY /* Start of empty range */
+	if(!matID || !meshID)
+	{
+		_gfx_material_remove_batch(material, matID);
+		_gfx_mesh_remove_batch(mesh, meshID);
 
-} GFXSceneKey;
+		return 0;
+	}
 
+	/* Now set the reference IDs to each other */
+	_gfx_material_set_batch(material, matID, meshID);
+	_gfx_mesh_set_batch(mesh, meshID, matID);
 
-#ifdef __cplusplus
+	/* Initialize batch struct */
+	batch->material   = material;
+	batch->materialID = matID;
+	batch->mesh       = mesh;
+	batch->meshID     = meshID;
+
+	return 1;
 }
-#endif
-
-#endif // GFX_SCENE_H

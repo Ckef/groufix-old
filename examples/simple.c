@@ -198,10 +198,6 @@ int main()
 	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;
 
-	_gfx_submesh_reference_bucket(submesh, bucket);
-	size_t src = *(size_t*)_gfx_submesh_get_bucket_sources(submesh, bucket, 0, 1);
-	gfx_bucket_insert(bucket->bucket, src, map, 0, 1);
-
 	GFXPipe* pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapA, 0);
 	gfx_pipe_process_set_target(pipe->process, window1, 1);
@@ -209,6 +205,15 @@ int main()
 	pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapB, 0);
 	gfx_pipe_process_set_target(pipe->process, window2, 1);
+
+
+	/* Batch */
+	GFXBatch batch;
+	gfx_batch_get(&batch, material, mesh);
+
+	_gfx_submesh_reference_bucket(submesh, bucket);
+	size_t src = *(size_t*)_gfx_submesh_get_bucket_sources(submesh, bucket, 0, 1);
+	gfx_bucket_insert(bucket->bucket, src, map, 0, 1);
 
 
 	/* Setup a loop */
