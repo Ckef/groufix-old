@@ -33,6 +33,7 @@ extern "C" {
 /** Scene object keys */
 typedef enum GFXSceneKey
 {
+	GFX_SCENE_KEY_MESH,
 	GFX_SCENE_KEY_SUBMESH,
 
 	GFX_SCENE_KEY_EMPTY /* Start of empty range */

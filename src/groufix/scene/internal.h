@@ -78,28 +78,16 @@ void _gfx_lod_map_clear(
  *******************************************************/
 
 /**
- * Fetches the ID of a batch at a material.
+ * Inserts a new batch at the material.
  *
  * @param mesh Mesh the batch is associated with.
- * @return Material ID if found, 0 on failure.
+ * @return Material ID, 0 on failure.
  *
  */
-size_t _gfx_material_get_batch(
+size_t _gfx_material_insert_batch(
 
 		GFXMaterial*  material,
 		GFXMesh*      mesh);
-
-/**
- * Fetches the ID of a batch at a mesh.
- *
- * @param material Material the batch is associated with.
- * @return Mesh ID if found, 0 on failure.
- *
- */
-size_t _gfx_mesh_get_batch(
-
-		GFXMesh*      mesh,
-		GFXMaterial*  material);
 
 /**
  * Sets the Mesh ID of a batch at a material.
@@ -115,6 +103,33 @@ void _gfx_material_set_batch(
 		size_t        meshID);
 
 /**
+ * Removes a batch at a material.
+ *
+ * @param materialID Batch ID at the material to remove.
+ *
+ */
+void _gfx_material_remove_batch(
+
+		GFXMaterial*  material,
+		size_t        materialID);
+
+/**
+ * Fetches the ID of a batch at a mesh.
+ *
+ * @param material   Material the batch is associated with.
+ * @param index      Index of the submesh within a mesh level of detail to use.
+ * @param materialID Returns the batch ID at the material, 0 if it does not exist.
+ * @return Mesh ID if found, 0 on failure.
+ *
+ */
+size_t _gfx_mesh_get_batch(
+
+		GFXMesh*      mesh,
+		GFXMaterial*  material,
+		size_t        index,
+		size_t*       materialID);
+
+/**
  * Sets the Material ID of a batch at a mesh.
  *
  * @param meshID     Batch ID at the mesh to set.
@@ -128,17 +143,6 @@ void _gfx_mesh_set_batch(
 		size_t    materialID);
 
 /**
- * Removes a batch at a material.
- *
- * @param materialID Batch ID at the material to remove.
- *
- */
-void _gfx_material_remove_batch(
-
-		GFXMaterial*  material,
-		size_t        materialID);
-
-/**
  * Removes a batch at a mesh.
  *
  * @param meshID Batch ID at the mesh to remove.
@@ -148,6 +152,33 @@ void _gfx_mesh_remove_batch(
 
 		GFXMesh*  mesh,
 		size_t    meshID);
+
+/**
+ * Increase the instance count of a batch for a given bucket.
+ *
+ * @param pipe Bucket to increase instances at.
+ * @return Zero on failure or if instances is 0.
+ *
+ */
+int _gfx_mesh_increase_instances(
+
+		GFXMesh*  mesh,
+		size_t    meshID,
+		GFXPipe*  pipe,
+		size_t    instances);
+
+/**
+ * Decrease the instance count of a batch for a given bucket.
+ *
+ * @param pipe Bucket to decrease instances at.
+ *
+ */
+void _gfx_mesh_decrease_instances(
+
+		GFXMesh*  mesh,
+		size_t    meshID,
+		GFXPipe*  pipe,
+		size_t    instances);
 
 
 /********************************************************

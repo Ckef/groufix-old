@@ -209,11 +209,11 @@ int main()
 
 	/* Batch */
 	GFXBatch batch;
-	gfx_batch_get(&batch, material, mesh);
+	gfx_batch_get(&batch, material, mesh, 0);
+	gfx_batch_increase(&batch, bucket, 1);
 
-	_gfx_submesh_reference_bucket(submesh, bucket);
-	size_t src = *(size_t*)_gfx_submesh_get_bucket_sources(submesh, bucket, 0, 1);
-	gfx_bucket_insert(bucket->bucket, src, map, 0, 1);
+	size_t* src = _gfx_submesh_get_bucket_sources(submesh, bucket, 0, 1);
+	if(src) gfx_bucket_insert(bucket->bucket, *src, map, 0, 1);
 
 
 	/* Setup a loop */

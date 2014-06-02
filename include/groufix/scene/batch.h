@@ -49,16 +49,45 @@ typedef struct GFXBatch
 /**
  * Fetches a batch associated with a given material and mesh.
  *
+ * @param index Index of the submesh within a mesh level of detail to use.
  * @return Non-zero on success (it will not touch batch on failure).
  *
- * Note: A batch with equal materials and meshes are themselves equal.
+ * Note: A batch with equal materials, meshes and indices are themselves equal.
  *
  */
 int gfx_batch_get(
 
 		GFXBatch*     batch,
 		GFXMaterial*  material,
-		GFXMesh*      mesh);
+		GFXMesh*      mesh,
+		size_t        index);
+
+/**
+ * Increase the number of instances at a bucket for a given batch.
+ *
+ * @param bucket    Bucket to increase instances at.
+ * @param instances Number of instances to add.
+ * @return Zero on failure or if instances is 0.
+ *
+ */
+int gfx_batch_increase(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket,
+		size_t     instances);
+
+/**
+ * Decrease the number of instances at a bucket for a given batch.
+ *
+ * @param bucket    Bucket to decrease instances at.
+ * @param instances Number of instances to remove.
+ *
+ */
+void gfx_batch_decrease(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket,
+		size_t     instances);
 
 
 #ifdef __cplusplus

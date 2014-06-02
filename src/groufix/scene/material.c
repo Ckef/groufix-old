@@ -48,31 +48,25 @@ struct GFX_MapData
 };
 
 /******************************************************/
-static struct GFX_Batch* _gfx_material_find_mesh(
+static struct GFX_Batch* _gfx_material_insert_mesh(
 
 		struct GFX_Material*  mat,
 		GFXMesh*              mesh)
 {
-	/* Try to find the mesh */
-	struct GFX_Batch* empty = mat->batches.end;
-	struct GFX_Batch* it;
-
-	for(
-		it = mat->batches.begin;
-		it != mat->batches.end;
-		it = gfx_vector_next(&mat->batches, it))
-	{
-		if(it->mesh == mesh)
-			return it;
-
-		else if(!it->mesh && empty == mat->batches.end)
-			empty = it;
-	}
-
 	/* Construct new ID */
 	struct GFX_Batch new;
 	new.mesh = mesh;
 	new.meshID = 0;
+
+	/* Try to find an empty batch */
+	struct GFX_Batch* empty;
+	for(
+		empty = mat->batches.begin;
+		empty != mat->batches.end;
+		empty = gfx_vector_next(&mat->batches, empty))
+	{
+		if(!empty->mesh) break;
+	}
 
 	/* Replace an empty ID */
 	if(empty != mat->batches.end)
@@ -90,13 +84,13 @@ static struct GFX_Batch* _gfx_material_find_mesh(
 }
 
 /******************************************************/
-size_t _gfx_material_get_batch(
+size_t _gfx_material_insert_batch(
 
 		GFXMaterial*  material,
 		GFXMesh*      mesh)
 {
 	struct GFX_Material* internal = (struct GFX_Material*)material;
-	struct GFX_Batch* batch = _gfx_material_find_mesh(internal, mesh);
+	struct GFX_Batch* batch = _gfx_material_insert_mesh(internal, mesh);
 
 	/* Return correct ID */
 	return (batch == internal->batches.end) ? 0 :
