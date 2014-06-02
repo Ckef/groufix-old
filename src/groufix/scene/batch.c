@@ -69,6 +69,15 @@ int gfx_batch_get(
 }
 
 /******************************************************/
+void gfx_batch_erase(
+
+		GFXBatch* batch)
+{
+	_gfx_material_remove_batch(batch->material, batch->materialID);
+	_gfx_mesh_remove_batch(batch->mesh, batch->meshID);
+}
+
+/******************************************************/
 int gfx_batch_increase(
 
 		GFXBatch*  batch,

@@ -461,7 +461,7 @@ void _gfx_mesh_remove_batch(
 
 	if(meshID && meshID <= size)
 	{
-		/* Get batch and bounds */
+		/* Get batch and bounds, and fix them */
 		struct GFX_Batch* batch = gfx_vector_at(
 			&internal->batches,
 			meshID - 1);
@@ -474,6 +474,12 @@ void _gfx_mesh_remove_batch(
 			&begin,
 			&end);
 
+		/* Fix bounds */
+		_gfx_mesh_increase_bucket_bounds(
+			internal,
+			batch,
+			(long int)begin - (long int)end);
+
 		/* Dereference and remove all buckets */
 		size_t i = end;
 		while(i > begin)
@@ -485,16 +491,9 @@ void _gfx_mesh_remove_batch(
 			_gfx_mesh_dereference_bucket(internal, pipe, batch->index);
 		}
 
-		/* Fix bounds and mark as empty */
-		_gfx_mesh_increase_bucket_bounds(
-			internal,
-			batch,
-			(long int)begin - (long int)end
-		);
-
+		/* Mark as empty and remove trailing empty batches */
 		batch->material = NULL;
 
-		/* Remove trailing empty batches */
 		size_t num;
 		struct GFX_Batch* beg = internal->batches.end;
 
@@ -665,22 +664,20 @@ void gfx_mesh_free(
 	{
 		struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
 
-		/* Remove all batches at the materials */
-		struct GFX_Batch* it;
-		for(
-			it = internal->batches.begin;
-			it != internal->batches.end;
-			it = gfx_vector_next(&internal->batches, it))
+		/* Remove all batches */
+		size_t b;
+		for(b = gfx_vector_get_size(&internal->batches); b > 0; --b)
 		{
+			struct GFX_Batch* it = gfx_vector_at(
+				&internal->batches,
+				b - 1);
+
 			if(it->material) _gfx_material_remove_batch(
 				it->material,
-				it->materialID
-			);
-		}
+				it->materialID);
 
-		/* Remove all batches */
-		size_t b = gfx_vector_get_size(&internal->batches);
-		while(b) _gfx_mesh_remove_batch(mesh, b--);
+			_gfx_mesh_remove_batch(mesh, b);
+		}
 
 		/* Free all submeshes */
 		size_t num;

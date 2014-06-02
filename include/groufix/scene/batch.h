@@ -63,6 +63,17 @@ int gfx_batch_get(
 		size_t        index);
 
 /**
+ * Force a batch to erase all its resources.
+ *
+ * Note: it is not required to make this call, it is simply meant to let the
+ * system know the batch is not required to exist any longer.
+ *
+ */
+void gfx_batch_erase(
+
+		GFXBatch* batch);
+
+/**
  * Increase the number of instances at a bucket for a given batch.
  *
  * @param bucket    Bucket to increase instances at.
