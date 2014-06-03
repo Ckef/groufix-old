@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/utils.h"
 #include "groufix/containers/vector.h"
 
 #include <limits.h>
@@ -175,31 +174,6 @@ void gfx_vector_clear(
 }
 
 /******************************************************/
-size_t gfx_vector_get_byte_size(
-
-		GFXVector* vector)
-{
-	return GFX_PTR_DIFF(vector->begin, vector->end);
-}
-
-/******************************************************/
-size_t gfx_vector_get_size(
-
-		GFXVector* vector)
-{
-	return GFX_PTR_DIFF(vector->begin, vector->end) / vector->elementSize;
-}
-
-/******************************************************/
-size_t gfx_vector_get_index(
-
-		GFXVector*         vector,
-		GFXVectorIterator  it)
-{
-	return GFX_PTR_DIFF(vector->begin, it) / vector->elementSize;
-}
-
-/******************************************************/
 int gfx_vector_reserve(
 
 		GFXVector*  vector,
@@ -214,43 +188,6 @@ int gfx_vector_reserve(
 		_gfx_vector_get_max_capacity(newSize));
 
 	return 1;
-}
-
-/******************************************************/
-GFXVectorIterator gfx_vector_at(
-
-		GFXVector*  vector,
-		size_t      index)
-{
-	return GFX_PTR_ADD_BYTES(vector->begin, index * vector->elementSize);
-}
-
-/******************************************************/
-GFXVectorIterator gfx_vector_next(
-
-		GFXVector*         vector,
-		GFXVectorIterator  it)
-{
-	return GFX_PTR_ADD_BYTES(it, vector->elementSize);
-}
-
-/******************************************************/
-GFXVectorIterator gfx_vector_previous(
-
-		GFXVector*         vector,
-		GFXVectorIterator  it)
-{
-	return GFX_PTR_SUB_BYTES(it, vector->elementSize);
-}
-
-/******************************************************/
-GFXVectorIterator gfx_vector_advance(
-
-		GFXVector*         vector,
-		GFXVectorIterator  it,
-		int                num)
-{
-	return GFX_PTR_ADD_BYTES(it, vector->elementSize * num);
 }
 
 /******************************************************/

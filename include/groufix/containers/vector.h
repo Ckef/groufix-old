@@ -24,6 +24,8 @@
 #ifndef GFX_CONTAINERS_VECTOR_H
 #define GFX_CONTAINERS_VECTOR_H
 
+#include "groufix/utils.h"
+
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -133,31 +135,6 @@ void gfx_vector_clear(
 		GFXVector* vector);
 
 /**
- * Returns the size of the vector in bytes.
- *
- */
-size_t gfx_vector_get_byte_size(
-
-		GFXVector* vector);
-
-/**
- * Returns the size of the vector in elements.
- *
- */
-size_t gfx_vector_get_size(
-
-		GFXVector* vector);
-
-/**
- * Returns the index of an iterator.
- *
- */
-size_t gfx_vector_get_index(
-
-		GFXVector*         vector,
-		GFXVectorIterator  it);
-
-/**
  * Requests a minimum capacity, which will hold as long as nothing is erased.
  *
  * @return If zero, out of memory.
@@ -167,45 +144,6 @@ int gfx_vector_reserve(
 
 		GFXVector*  vector,
 		size_t      numElements);
-
-/**
- * Returns an iterator of the element at a given index.
- *
- * This method does not check the bounds!
- *
- */
-GFXVectorIterator gfx_vector_at(
-
-		GFXVector*  vector,
-		size_t      index);
-
-/**
- * Increments an iterator to the next element.
- *
- */
-GFXVectorIterator gfx_vector_next(
-
-		GFXVector*         vector,
-		GFXVectorIterator  it);
-
-/**
- * Decrements an iterator to the previous element.
- *
- */
-GFXVectorIterator gfx_vector_previous(
-
-		GFXVector*         vector,
-		GFXVectorIterator  it);
-
-/**
- * Advances an iterator an arbitrary amount of elements (can be negative).
- *
- */
-GFXVectorIterator gfx_vector_advance(
-
-		GFXVector*         vector,
-		GFXVectorIterator  it,
-		int                num);
 
 /**
  * Inserts an element at a given iterator.
@@ -311,6 +249,91 @@ GFXVectorIterator gfx_vector_erase_range_at(
 		GFXVector*  vector,
 		size_t      num,
 		size_t      index);
+
+/**
+ * Returns the size of the vector in bytes.
+ *
+ */
+inline size_t gfx_vector_get_byte_size(
+
+		GFXVector* vector)
+{
+	return GFX_PTR_DIFF(vector->begin, vector->end);
+}
+
+/**
+ * Returns the size of the vector in elements.
+ *
+ */
+inline size_t gfx_vector_get_size(
+
+		GFXVector* vector)
+{
+	return GFX_PTR_DIFF(vector->begin, vector->end) / vector->elementSize;
+}
+
+/**
+ * Returns the index of an iterator.
+ *
+ */
+inline size_t gfx_vector_get_index(
+
+		GFXVector*         vector,
+		GFXVectorIterator  it)
+{
+	return GFX_PTR_DIFF(vector->begin, it) / vector->elementSize;
+}
+
+/**
+ * Returns an iterator of the element at a given index.
+ *
+ * This method does not check the bounds!
+ *
+ */
+inline GFXVectorIterator gfx_vector_at(
+
+		GFXVector*  vector,
+		size_t      index)
+{
+	return GFX_PTR_ADD_BYTES(vector->begin, index * vector->elementSize);
+}
+
+/**
+ * Increments an iterator to the next element.
+ *
+ */
+inline GFXVectorIterator gfx_vector_next(
+
+		GFXVector*         vector,
+		GFXVectorIterator  it)
+{
+	return GFX_PTR_ADD_BYTES(it, vector->elementSize);
+}
+
+/**
+ * Decrements an iterator to the previous element.
+ *
+ */
+inline GFXVectorIterator gfx_vector_previous(
+
+		GFXVector*         vector,
+		GFXVectorIterator  it)
+{
+	return GFX_PTR_SUB_BYTES(it, vector->elementSize);
+}
+
+/**
+ * Advances an iterator an arbitrary amount of elements (can be negative).
+ *
+ */
+inline GFXVectorIterator gfx_vector_advance(
+
+		GFXVector*         vector,
+		GFXVectorIterator  it,
+		int                num)
+{
+	return GFX_PTR_ADD_BYTES(it, vector->elementSize * num);
+}
 
 
 #ifdef __cplusplus

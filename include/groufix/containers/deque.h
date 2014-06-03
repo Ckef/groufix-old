@@ -24,6 +24,8 @@
 #ifndef GFX_CONTAINERS_DEQUE_H
 #define GFX_CONTAINERS_DEQUE_H
 
+#include "groufix/utils.h"
+
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -135,31 +137,6 @@ void gfx_deque_clear(
 		GFXDeque* deque);
 
 /**
- * Returns the size of the deque in bytes.
- *
- */
-size_t gfx_deque_get_byte_size(
-
-		GFXDeque* deque);
-
-/**
- * Returns the size of the deque in elements.
- *
- */
-size_t gfx_deque_get_size(
-
-		GFXDeque* deque);
-
-/**
- * Returns the index of an iterator.
- *
- */
-size_t gfx_deque_get_index(
-
-		GFXDeque*         deque,
-		GFXDequeIterator  it);
-
-/**
  * Requests a minimum capacity, which will hold as long as nothing is erased.
  *
  * @return If zero, out of memory.
@@ -169,45 +146,6 @@ int gfx_deque_reserve(
 
 		GFXDeque*  deque,
 		size_t     numElements);
-
-/**
- * Returns an iterator of the element at a given index.
- *
- * This method does not check the bounds!
- *
- */
-GFXDequeIterator gfx_deque_at(
-
-		GFXDeque*  deque,
-		size_t     index);
-
-/**
- * Increments an iterator to the next element.
- *
- */
-GFXDequeIterator gfx_deque_next(
-
-		GFXDeque*         deque,
-		GFXDequeIterator  it);
-
-/**
- * Decrements an iterator to the previous element.
- *
- */
-GFXDequeIterator gfx_deque_previous(
-
-		GFXDeque*         deque,
-		GFXDequeIterator  it);
-
-/**
- * Advances an iterator an arbitrary amount of elements (can be negative).
- *
- */
-GFXDequeIterator gfx_deque_advance(
-
-		GFXDeque*         deque,
-		GFXDequeIterator  it,
-		int               num);
 
 /**
  * Adds an element to the front of the deque.
@@ -252,6 +190,82 @@ GFXDequeIterator gfx_deque_pop_front(
 GFXDequeIterator gfx_deque_pop_back(
 
 		GFXDeque* deque);
+
+/**
+ * Returns the size of the deque in bytes.
+ *
+ */
+size_t gfx_deque_get_byte_size(
+
+		GFXDeque* deque);
+
+/**
+ * Returns the index of an iterator.
+ *
+ */
+size_t gfx_deque_get_index(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it);
+
+/**
+ * Advances an iterator an arbitrary amount of elements (can be negative).
+ *
+ */
+GFXDequeIterator gfx_deque_advance(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it,
+		int               num);
+
+/**
+ * Returns the size of the deque in elements.
+ *
+ */
+inline size_t gfx_deque_get_size(
+
+		GFXDeque* deque)
+{
+	return gfx_deque_get_byte_size(deque) / deque->elementSize;
+}
+
+/**
+ * Returns an iterator of the element at a given index.
+ *
+ * This method does not check the bounds!
+ *
+ */
+inline GFXDequeIterator gfx_deque_at(
+
+		GFXDeque*  deque,
+		size_t     index)
+{
+	return gfx_deque_advance(deque, deque->begin, index);
+}
+
+/**
+ * Increments an iterator to the next element.
+ *
+ */
+inline GFXDequeIterator gfx_deque_next(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it)
+{
+	return gfx_deque_advance(deque, it, 1);
+}
+
+/**
+ * Decrements an iterator to the previous element.
+ *
+ */
+inline GFXDequeIterator gfx_deque_previous(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it)
+{
+	return gfx_deque_advance(deque, it, -1);
+}
 
 
 #ifdef __cplusplus

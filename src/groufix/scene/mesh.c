@@ -464,21 +464,19 @@ void _gfx_mesh_remove_batch(
 		/* Get batch and bounds, and fix them */
 		struct GFX_Batch* batch = gfx_vector_at(
 			&internal->batches,
-			meshID - 1);
+			meshID - 1
+		);
 
 		size_t begin;
 		size_t end;
-		_gfx_mesh_get_bucket_bounds(
-			internal,
-			batch,
-			&begin,
-			&end);
+		_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
 
 		/* Fix bounds */
 		_gfx_mesh_increase_bucket_bounds(
 			internal,
 			batch,
-			(long int)begin - (long int)end);
+			(long int)begin - (long int)end
+		);
 
 		/* Dereference and remove all buckets */
 		size_t i = end;
@@ -528,26 +526,19 @@ int _gfx_mesh_increase_instances(
 	/* Get batch and bounds */
 	struct GFX_Batch* batch = gfx_vector_at(
 		&internal->batches,
-		meshID - 1);
+		meshID - 1
+	);
 
 	size_t begin;
 	size_t end;
-	_gfx_mesh_get_bucket_bounds(
-		internal,
-		batch,
-		&begin,
-		&end);
+	_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
 
 	/* Find bucket */
-	size_t index = _gfx_mesh_find_bucket(
-		internal,
-		begin,
-		end,
-		pipe);
+	size_t index = _gfx_mesh_find_bucket(internal, begin, end, pipe);
 
-	/* Insert new bucket */
 	if(index == end)
 	{
+		/* Insert new bucket */
 		struct GFX_Bucket bucket;
 		bucket.pipe = pipe;
 		bucket.instances = instances;
@@ -555,7 +546,8 @@ int _gfx_mesh_increase_instances(
 		struct GFX_Bucket* it = gfx_vector_insert_at(
 			&internal->buckets,
 			&bucket,
-			end);
+			end
+		);
 
 		if(it == internal->buckets.end) return 0;
 
@@ -598,22 +590,15 @@ void _gfx_mesh_decrease_instances(
 		/* Get batch and bounds */
 		struct GFX_Batch* batch = gfx_vector_at(
 			&internal->batches,
-			meshID - 1);
+			meshID - 1
+		);
 
 		size_t begin;
 		size_t end;
-		_gfx_mesh_get_bucket_bounds(
-			internal,
-			batch,
-			&begin,
-			&end);
+		_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
 
 		/* Find bucket */
-		size_t index = _gfx_mesh_find_bucket(
-			internal,
-			begin,
-			end,
-			pipe);
+		size_t index = _gfx_mesh_find_bucket(internal, begin, end, pipe);
 
 		if(index != end)
 		{

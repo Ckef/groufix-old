@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/utils.h"
 #include "groufix/containers/deque.h"
 
 #include <limits.h>
@@ -106,27 +105,6 @@ static int _gfx_deque_realloc(
 	deque->capacity = capacity;
 
 	return 1;
-}
-
-/******************************************************/
-static GFXDequeIterator _gfx_deque_advance(
-
-		GFXDeque*         deque,
-		GFXDequeIterator  it,
-		long int          bytes)
-{
-	/* Get sequential iterator */
-	GFXDequeIterator new = GFX_PTR_ADD_BYTES(it, bytes);
-	long int diff = GFX_PTR_DIFF(deque->data, new);
-
-	/* Get actual pointer */
-	if(diff < 0)
-		return GFX_PTR_ADD_BYTES(deque->data, deque->capacity + diff);
-
-	if(diff >= deque->capacity && new != deque->end)
-		return GFX_PTR_ADD_BYTES(deque->data, diff - deque->capacity);
-
-	return new;
 }
 
 /******************************************************/
@@ -269,41 +247,6 @@ void gfx_deque_clear(
 }
 
 /******************************************************/
-size_t gfx_deque_get_byte_size(
-
-		GFXDeque* deque)
-{
-	/* Get pointer difference */
-	long int begToEnd = GFX_PTR_DIFF(deque->begin, deque->end);
-
-	/* Get actual storage used */
-	if(begToEnd < 0) return deque->capacity + begToEnd;
-	return begToEnd;
-}
-
-/******************************************************/
-size_t gfx_deque_get_size(
-
-		GFXDeque* deque)
-{
-	return gfx_deque_get_byte_size(deque) / deque->elementSize;
-}
-
-/******************************************************/
-size_t gfx_deque_get_index(
-
-		GFXDeque*         deque,
-		GFXDequeIterator  it)
-{
-	/* Get pointer difference */
-	long int diff = GFX_PTR_DIFF(deque->begin, it);
-
-	/* Get actual index */
-	if(diff < 0) return (deque->capacity + diff) / deque->elementSize;
-	else return diff / deque->elementSize;
-}
-
-/******************************************************/
 int gfx_deque_reserve(
 
 		GFXDeque*  deque,
@@ -316,43 +259,6 @@ int gfx_deque_reserve(
 		return _gfx_deque_realloc(deque, _gfx_deque_get_max_capacity(newSize));
 
 	return 1;
-}
-
-/******************************************************/
-GFXDequeIterator gfx_deque_at(
-
-		GFXDeque*  deque,
-		size_t     index)
-{
-	return _gfx_deque_advance(deque, deque->begin, index * deque->elementSize);
-}
-
-/******************************************************/
-GFXDequeIterator gfx_deque_next(
-
-		GFXDeque*         deque,
-		GFXDequeIterator  it)
-{
-	return _gfx_deque_advance(deque, it, deque->elementSize);
-}
-
-/******************************************************/
-GFXDequeIterator gfx_deque_previous(
-
-		GFXDeque*         deque,
-		GFXDequeIterator  it)
-{
-	return _gfx_deque_advance(deque, it, -deque->elementSize);
-}
-
-/******************************************************/
-GFXDequeIterator gfx_deque_advance(
-
-		GFXDeque*         deque,
-		GFXDequeIterator  it,
-		int               num)
-{
-	return _gfx_deque_advance(deque, it, deque->elementSize * num);
 }
 
 /******************************************************/
@@ -460,7 +366,7 @@ GFXDequeIterator gfx_deque_pop_front(
 	if(deque->begin != deque->end)
 	{
 		/* Just set a new begin iterator */
-		deque->begin = _gfx_deque_advance(deque, deque->begin, deque->elementSize);
+		deque->begin = gfx_deque_advance(deque, deque->begin, 1);
 
 		/* Reallocate if necessary */
 		/* Use upperbound/4 instead to avoid constant realloc */
@@ -489,7 +395,7 @@ GFXDequeIterator gfx_deque_pop_back(
 	if(deque->begin != deque->end)
 	{
 		/* Just set a new end iterator */
-		deque->end = _gfx_deque_advance(deque, deque->end, -deque->elementSize);
+		deque->end = gfx_deque_advance(deque, deque->end, -1);
 
 		if(deque->begin != deque->end)
 		{
@@ -513,4 +419,52 @@ GFXDequeIterator gfx_deque_pop_back(
 	}
 
 	return deque->end;
+}
+
+/******************************************************/
+size_t gfx_deque_get_byte_size(
+
+		GFXDeque* deque)
+{
+	/* Get pointer difference */
+	long int begToEnd = GFX_PTR_DIFF(deque->begin, deque->end);
+
+	/* Get actual storage used */
+	if(begToEnd < 0) return deque->capacity + begToEnd;
+	return begToEnd;
+}
+
+/******************************************************/
+size_t gfx_deque_get_index(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it)
+{
+	/* Get pointer difference */
+	long int diff = GFX_PTR_DIFF(deque->begin, it);
+
+	/* Get actual index */
+	if(diff < 0) return (deque->capacity + diff) / deque->elementSize;
+	else return diff / deque->elementSize;
+}
+
+/******************************************************/
+GFXDequeIterator gfx_deque_advance(
+
+		GFXDeque*         deque,
+		GFXDequeIterator  it,
+		int               num)
+{
+	/* Get sequential iterator */
+	GFXDequeIterator new = GFX_PTR_ADD_BYTES(it, deque->elementSize * num);
+	long int diff = GFX_PTR_DIFF(deque->data, new);
+
+	/* Get actual pointer */
+	if(diff < 0)
+		return GFX_PTR_ADD_BYTES(deque->data, deque->capacity + diff);
+
+	if(diff >= deque->capacity && new != deque->end)
+		return GFX_PTR_ADD_BYTES(deque->data, diff - deque->capacity);
+
+	return new;
 }
