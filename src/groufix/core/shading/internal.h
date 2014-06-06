@@ -38,12 +38,14 @@ extern "C" {
  * Sets the program handle as currently in use for the given context.
  *
  * @param copy Index of the copy of the map to use.
+ * @param base Base instance to use.
  *
  */
 void _gfx_property_map_use(
 
 		GFXPropertyMap*  map,
 		size_t           copy,
+		unsigned int     base,
 		GFX_Extensions*  ext);
 
 /**

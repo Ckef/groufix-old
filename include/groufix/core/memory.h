@@ -484,28 +484,14 @@ int gfx_vertex_layout_set_attribute_shared_buffer(
 		size_t                  offset);
 
 /**
- * Returns the highest index of all attributes within the vertex layout.
+ * Returns the number of instanced attributes.
  *
- * Note: if no attributes are present, 0 will be returned.
+ * This is equivalent to any attribute having a divisor not equal to zero.
  *
  */
-unsigned int gfx_vertex_layout_get_max_attribute(
+unsigned int gfx_vertex_layout_count_instanced(
 
 		GFXVertexLayout* layout);
-
-/**
- * Retrieves the used attribute parameters of a vertex layout.
- *
- * @param index Index of the attribute to get.
- * @param attr  Returns the attribute parameters, left untouched on failure (cannot be NULL).
- * @return Zero on failure.
- *
- */
-int gfx_vertex_layout_get_attribute(
-
-		GFXVertexLayout*     layout,
-		unsigned int         index,
-		GFXVertexAttribute*  attr);
 
 /**
  * Removes an attribute from a vertex layout.

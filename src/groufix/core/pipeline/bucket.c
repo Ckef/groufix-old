@@ -86,7 +86,7 @@ struct GFX_Unit
 
 	size_t           src;    /* Source of the bucket to use (ID - 1) */
 	size_t           inst;   /* Number of instances */
-	unsigned int     base;   /* Base instance for instanced vertex attributes */
+	unsigned int     base;   /* Base instance */
 	GFX_DrawType     type;
 };
 
@@ -456,15 +456,18 @@ void _gfx_bucket_process(
 		struct GFX_Source* src = gfx_vector_at(&internal->sources, unit->src);
 
 		/* Bind shader program & draw */
-		_gfx_property_map_use(unit->map, unit->copy, ext);
+		_gfx_property_map_use(
+			unit->map,
+			unit->copy,
+			unit->base,
+			ext);
 
 		_gfx_vertex_layout_draw(
 			src->layout,
 			src->source,
 			unit->inst,
 			unit->base,
-			unit->type
-		);
+			unit->type);
 	}
 }
 
@@ -599,12 +602,17 @@ void gfx_bucket_remove_source(
 }
 
 /******************************************************/
-static inline void _gfx_bucket_set_draw_type(
+static void _gfx_bucket_set_draw_type(
 
-		struct GFX_Unit* unit)
+		struct GFX_Bucket*  bucket,
+		struct GFX_Unit*    unit)
 {
+	/* Check at vertex layout whether to use base instances */
+	struct GFX_Source* src = gfx_vector_at(&bucket->sources, unit->src);
+	unsigned int inst = gfx_vertex_layout_count_instanced(src->layout);
+
 	unit->type =
-		(unit->base != 0) ?
+		(unit->base != 0 && inst) ?
 			GFX_INT_DRAW_INSTANCED_BASE :
 		(unit->inst != 1) ?
 			GFX_INT_DRAW_INSTANCED :
@@ -645,7 +653,7 @@ size_t gfx_bucket_insert(
 	unit.inst = 1;
 	unit.base = 0;
 
-	_gfx_bucket_set_draw_type(&unit);
+	_gfx_bucket_set_draw_type(internal, &unit);
 
 	/* Insert a reference for it */
 	unit.ref = _gfx_bucket_insert_ref(
@@ -742,7 +750,7 @@ void gfx_bucket_set_instances(
 	struct GFX_Unit* un = _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit);
 	un->inst = instances;
 
-	_gfx_bucket_set_draw_type(un);
+	_gfx_bucket_set_draw_type((struct GFX_Bucket*)bucket, un);
 }
 
 /******************************************************/
@@ -755,7 +763,7 @@ void gfx_bucket_set_instance_base(
 	struct GFX_Unit* un = _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit);
 	un->base = base;
 
-	_gfx_bucket_set_draw_type(un);
+	_gfx_bucket_set_draw_type((struct GFX_Bucket*)bucket, un);
 }
 
 /******************************************************/

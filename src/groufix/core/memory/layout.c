@@ -68,6 +68,7 @@ struct GFX_Layout
 	/* Hidden data */
 	GLuint                vao;           /* OpenGL handle */
 	GFXVector             attributes;    /* Stores GFX_Attribute */
+	unsigned int          instanced;     /* Non zero if any attribute has a divisor */
 
 	GFXPrimitive          TFPrimitive;   /* Feedback output primitive */
 	size_t                TFNumBuffers;
@@ -518,8 +519,17 @@ int gfx_vertex_layout_set_attribute(
 
 	if(!_gfx_layout_set_attribute(internal, index)) return 0;
 
-	/* Set attribute */
+	/* Check whether it is instanced */
 	struct GFX_Attribute* set = (struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
+
+	if(!set->size && attr->divisor)
+		++internal->instanced;
+	else if(set->size && !set->divisor && attr->divisor)
+		++internal->instanced;
+	else if(set->size && set->divisor && !attr->divisor)
+		--internal->instanced;
+
+	/* Set attribute */
 	int packed = _gfx_is_data_type_packed(attr->type);
 
 	set->size      = attr->size;
@@ -591,46 +601,11 @@ int gfx_vertex_layout_set_attribute_shared_buffer(
 }
 
 /******************************************************/
-unsigned int gfx_vertex_layout_get_max_attribute(
+unsigned int gfx_vertex_layout_count_instanced(
 
 		GFXVertexLayout* layout)
 {
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	if(!internal->ext) return 0;
-
-	/* Return max index */
-	size_t size = gfx_vector_get_size(&internal->attributes);
-	return size ? size - 1 : size;
-}
-
-/******************************************************/
-int gfx_vertex_layout_get_attribute(
-
-		GFXVertexLayout*     layout,
-		unsigned int         index,
-		GFXVertexAttribute*  attr)
-{
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	if(!internal->ext) return 0;
-
-	/* Validate index */
-	size_t size = gfx_vector_get_size(&internal->attributes);
-	if(index >= size) return 0;
-
-	/* Retrieve data */
-	struct GFX_Attribute* get = (struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
-	if(!get->size) return 0;
-
-	attr->size        = get->size;
-	attr->type.packed = get->type;
-	attr->interpret   = get->interpret;
-	attr->stride      = get->stride;
-	attr->divisor     = get->divisor;
-
-	if(_gfx_is_data_type_packed(attr->type))
-		attr->type.unpacked = get->type;
-
-	return 1;
+	return ((struct GFX_Layout*)layout)->instanced;
 }
 
 /******************************************************/
@@ -644,15 +619,17 @@ void gfx_vertex_layout_remove_attribute(
 
 	/* Check what index is being removed */
 	size_t size = gfx_vector_get_size(&internal->attributes);
-	if(index >= size) return;
-
-	if(size > 1)
+	if(index < size)
 	{
-		/* Mark attribute as 'empty' */
+		/* Check if it had a divisor */
 		struct GFX_Attribute* rem = (struct GFX_Attribute*)gfx_vector_at(
 			&internal->attributes,
 			index
 		);
+
+		if(rem->size && rem->divisor) --internal->instanced;
+
+		/* Mark attribute as 'empty' */
 		rem->size = 0;
 		rem->buffer = 0;
 
@@ -671,9 +648,6 @@ void gfx_vertex_layout_remove_attribute(
 		}
 		gfx_vector_erase_range(&internal->attributes, num, beg);
 	}
-
-	/* Clear vector */
-	else gfx_vector_clear(&internal->attributes);
 
 	/* Send request to OpenGL */
 	_gfx_vertex_layout_bind(internal->vao, internal->ext);

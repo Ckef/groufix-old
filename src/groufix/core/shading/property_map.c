@@ -47,6 +47,7 @@ typedef void (*GFX_PropertyFunc)(
 	GLuint,
 	GLuint,
 	void*,
+	unsigned int,
 	GFX_Extensions*);
 
 
@@ -80,6 +81,9 @@ struct GFX_Value
 	GFXUnpackedType  type;
 	unsigned char    components;
 	size_t           count;
+
+	size_t           offset;     /* Instance offset in bytes */
+	unsigned int     offsetSize; /* Number of array elements of the instance offset */
 };
 
 /* Internal vector/matrix pointer property */
@@ -150,6 +154,7 @@ static void _gfx_property_set_unknown(
 		GLuint           program,
 		GLuint           location,
 		void*            data,
+		unsigned int     base,
 		GFX_Extensions*  ext)
 {
 	/* Some unknown property type, ignore :D */
@@ -161,34 +166,38 @@ static void _gfx_property_set_vector_val(
 		GLuint             location,
 		struct GFX_Value*  val,
 		const void*        data,
+		unsigned int       base,
 		GFX_Extensions*    ext)
 {
+	data = GFX_PTR_ADD_BYTES(data, base * val->offset);
+	size_t cnt = val->count - base * val->offsetSize;
+
 	switch(val->type)
 	{
 		case GFX_FLOAT : switch(val->components)
 		{
-			case 1 : ext->Uniform1fv(location, val->count, data); break;
-			case 2 : ext->Uniform2fv(location, val->count, data); break;
-			case 3 : ext->Uniform3fv(location, val->count, data); break;
-			case 4 : ext->Uniform4fv(location, val->count, data); break;
+			case 1 : ext->Uniform1fv(location, cnt, data); break;
+			case 2 : ext->Uniform2fv(location, cnt, data); break;
+			case 3 : ext->Uniform3fv(location, cnt, data); break;
+			case 4 : ext->Uniform4fv(location, cnt, data); break;
 		}
 		break;
 
 		case GFX_INT : switch(val->components)
 		{
-			case 1 : ext->Uniform1iv(location, val->count, data); break;
-			case 2 : ext->Uniform2iv(location, val->count, data); break;
-			case 3 : ext->Uniform3iv(location, val->count, data); break;
-			case 4 : ext->Uniform4iv(location, val->count, data); break;
+			case 1 : ext->Uniform1iv(location, cnt, data); break;
+			case 2 : ext->Uniform2iv(location, cnt, data); break;
+			case 3 : ext->Uniform3iv(location, cnt, data); break;
+			case 4 : ext->Uniform4iv(location, cnt, data); break;
 		}
 		break;
 
 		case GFX_UNSIGNED_INT : switch(val->components)
 		{
-			case 1 : ext->Uniform1uiv(location, val->count, data); break;
-			case 2 : ext->Uniform2uiv(location, val->count, data); break;
-			case 3 : ext->Uniform3uiv(location, val->count, data); break;
-			case 4 : ext->Uniform4uiv(location, val->count, data); break;
+			case 1 : ext->Uniform1uiv(location, cnt, data); break;
+			case 2 : ext->Uniform2uiv(location, cnt, data); break;
+			case 3 : ext->Uniform3uiv(location, cnt, data); break;
+			case 4 : ext->Uniform4uiv(location, cnt, data); break;
 		}
 		break;
 
@@ -203,10 +212,11 @@ static void _gfx_property_set_vector(
 		GLuint           program,
 		GLuint           location,
 		void*            data,
+		unsigned int     base,
 		GFX_Extensions*  ext)
 {
 	struct GFX_Value* val = (struct GFX_Value*)data;
-	_gfx_property_set_vector_val(location, val, val + 1, ext);
+	_gfx_property_set_vector_val(location, val, val + 1, base, ext);
 }
 
 /******************************************************/
@@ -215,11 +225,12 @@ static void _gfx_property_set_vector_ptr(
 		GLuint           program,
 		GLuint           location,
 		void*            data,
+		unsigned int     base,
 		GFX_Extensions*  ext)
 {
 	struct GFX_ValuePtr* val = (struct GFX_ValuePtr*)data;
 	if(val->ptr)
-		_gfx_property_set_vector_val(location, &val->val, val->ptr, ext);
+		_gfx_property_set_vector_val(location, &val->val, val->ptr, base, ext);
 }
 
 /******************************************************/
@@ -228,15 +239,19 @@ static void _gfx_property_set_matrix_val(
 		GLuint             location,
 		struct GFX_Value*  val,
 		const void*        data,
+		unsigned int       base,
 		GFX_Extensions*    ext)
 {
+	data = GFX_PTR_ADD_BYTES(data, base * val->offset);
+	size_t cnt = val->count - base * val->offsetSize;
+
 	switch(val->type)
 	{
 		case GFX_FLOAT : switch(val->components)
 		{
-			case 4  : ext->UniformMatrix2fv(location, val->count, GL_FALSE, data); break;
-			case 9  : ext->UniformMatrix3fv(location, val->count, GL_FALSE, data); break;
-			case 16 : ext->UniformMatrix4fv(location, val->count, GL_FALSE, data); break;
+			case 4  : ext->UniformMatrix2fv(location, cnt, GL_FALSE, data); break;
+			case 9  : ext->UniformMatrix3fv(location, cnt, GL_FALSE, data); break;
+			case 16 : ext->UniformMatrix4fv(location, cnt, GL_FALSE, data); break;
 		}
 		break;
 
@@ -251,10 +266,11 @@ static void _gfx_property_set_matrix(
 		GLuint           program,
 		GLuint           location,
 		void*            data,
+		unsigned int     base,
 		GFX_Extensions*  ext)
 {
 	struct GFX_Value* val = (struct GFX_Value*)data;
-	_gfx_property_set_matrix_val(location, val, val + 1, ext);
+	_gfx_property_set_matrix_val(location, val, val + 1, base, ext);
 }
 
 /******************************************************/
@@ -263,11 +279,12 @@ static void _gfx_property_set_matrix_ptr(
 		GLuint           program,
 		GLuint           location,
 		void*            data,
+		unsigned int     base,
 		GFX_Extensions*  ext)
 {
 	struct GFX_ValuePtr* val = (struct GFX_ValuePtr*)data;
 	if(val->ptr)
-		_gfx_property_set_matrix_val(location, &val->val, val->ptr, ext);
+		_gfx_property_set_matrix_val(location, &val->val, val->ptr, base, ext);
 }
 
 /******************************************************/
@@ -276,6 +293,7 @@ static void _gfx_property_set_sampler(
 		GLuint           program,
 		GLuint           location,
 		void*            data,
+		unsigned int     base,
 		GFX_Extensions*  ext)
 {
 	struct GFX_Sampler* samp = (struct GFX_Sampler*)data;
@@ -295,6 +313,7 @@ static void _gfx_property_set_block(
 		GLuint           program,
 		GLuint           location,
 		void*            data,
+		unsigned int     base,
 		GFX_Extensions*  ext)
 {
 	struct GFX_Block* block = (struct GFX_Block*)data;
@@ -315,6 +334,7 @@ static void _gfx_property_set(
 		struct GFX_Map*       map,
 		struct GFX_Property*  prop,
 		size_t                copy,
+		unsigned int          base,
 		GFX_Extensions*       ext)
 {
 	/* Jump table */
@@ -337,6 +357,7 @@ static void _gfx_property_set(
 		map->handle,
 		prop->location,
 		data,
+		base,
 		ext
 	);
 }
@@ -346,6 +367,7 @@ void _gfx_property_map_use(
 
 		GFXPropertyMap*  map,
 		size_t           copy,
+		unsigned int     base,
 		GFX_Extensions*  ext)
 {
 	struct GFX_Map* internal = (struct GFX_Map*)map;
@@ -365,7 +387,7 @@ void _gfx_property_map_use(
 	unsigned char properties = map->properties;
 
 	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
-		_gfx_property_set(internal, prop, copy, ext);
+		_gfx_property_set(internal, prop, copy, base, ext);
 }
 
 /******************************************************/
@@ -803,6 +825,8 @@ int gfx_property_map_forward(
 			val.val.type       = prop->dataType;
 			val.val.components = prop->components;
 			val.val.count      = prop->count;
+			val.val.offset     = 0;
+			val.val.offsetSize = 0;
 
 			init = &val;
 			break;
@@ -818,6 +842,8 @@ int gfx_property_map_forward(
 			val.val.type       = prop->dataType;
 			val.val.components = prop->components;
 			val.val.count      = prop->count;
+			val.val.offset     = 0;
+			val.val.offsetSize = 0;
 			val.ptr            = NULL;
 
 			init = &val;
@@ -1000,6 +1026,45 @@ int gfx_property_map_set_value_pointer(
 	/* Set pointer */
 	struct GFX_ValuePtr* val = _gfx_property_get_value(internal, prop, copy);
 	val->ptr = ptr;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_property_map_set_instance_offset(
+
+		GFXPropertyMap*  map,
+		unsigned char    index,
+		unsigned int     offset)
+{
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
+
+	if(!prop) return 0;
+
+	/* Check type */
+	unsigned char type = _gfx_property_get_type(prop->type);
+	if(
+		type != GFX_INT_PROPERTY_VECTOR &&
+		type != GFX_INT_PROPERTY_VECTOR_PTR &&
+		type != GFX_INT_PROPERTY_MATRIX &&
+		type != GFX_INT_PROPERTY_MATRIX_PTR) return 0;
+
+	/* Iterate through copies */
+	size_t c;
+	for(c = 0; c < map->copies; ++c)
+	{
+		struct GFX_Value* val = _gfx_property_get_value(internal, prop, c);
+
+		/* Calculate array element size and multiply by offset */
+		GFXDataType dataType;
+		dataType.unpacked = val->type;
+
+		val->offsetSize = offset;
+		val->offset = offset *
+			(size_t)val->components *
+			(size_t)_gfx_sizeof_data_type(dataType);
+	}
 
 	return 1;
 }

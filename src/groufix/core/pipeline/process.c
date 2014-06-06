@@ -59,7 +59,7 @@ static inline void _gfx_pipe_process_draw(
 		GFX_Extensions*  ext)
 {
 	_gfx_states_set(state, ext);
-	_gfx_property_map_use(map, copy, ext);
+	_gfx_property_map_use(map, copy, 0, ext);
 	_gfx_vertex_layout_bind(layout, ext);
 
 	ext->DrawArrays(GL_TRIANGLE_FAN, 0, 4);

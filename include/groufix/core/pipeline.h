@@ -162,7 +162,7 @@ size_t gfx_bucket_get_instances(
 		size_t      unit);
 
 /**
- * Returns the starting instance offset for instanced vertex attributes.
+ * Returns the starting instance offset.
  *
  */
 unsigned int gfx_bucket_get_instance_base(
@@ -209,9 +209,10 @@ void gfx_bucket_set_instances(
 		size_t      instances);
 
 /**
- * Sets the starting instance offset for instanced vertex attributes.
+ * Sets the starting instance offset.
  *
- * Note: requires GFX_EXT_INSTANCED_BASE_ATTRIBUTES.
+ * Note: requires GFX_EXT_INSTANCED_BASE_ATTRIBUTES for it to work
+ * on instanced vertex attributes.
  *
  */
 void gfx_bucket_set_instance_base(
