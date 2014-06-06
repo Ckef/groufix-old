@@ -30,14 +30,14 @@ int gfx_batch_get(
 		GFXBatch*     batch,
 		GFXMaterial*  material,
 		GFXMesh*      mesh,
-		size_t        index)
+		GFXBatchLod   params)
 {
 	/* Get batch at mesh */
 	size_t matID;
 	size_t meshID = _gfx_mesh_get_batch(
 		mesh,
 		material,
-		index,
+		params,
 		&matID
 	);
 
@@ -66,6 +66,17 @@ int gfx_batch_get(
 	batch->meshID     = meshID;
 
 	return 1;
+}
+
+/******************************************************/
+GFXBatchLod gfx_batch_get_lod(
+
+		GFXBatch* batch)
+{
+	GFXBatchLod params;
+	_gfx_mesh_get_batch_lod(batch->mesh, batch->meshID, &params);
+
+	return params;
 }
 
 /******************************************************/

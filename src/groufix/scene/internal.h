@@ -24,8 +24,7 @@
 #ifndef GFX_SCENE_INTERNAL_H
 #define GFX_SCENE_INTERNAL_H
 
-#include "groufix/scene/material.h"
-#include "groufix/scene/mesh.h"
+#include "groufix/scene/batch.h"
 #include "groufix/containers/vector.h"
 
 #ifdef __cplusplus
@@ -117,7 +116,7 @@ void _gfx_material_remove_batch(
  * Fetches the ID of a batch at a mesh.
  *
  * @param material   Material the batch is associated with.
- * @param index      Index of the submesh within a mesh level of detail to use.
+ * @param params     Level of detail parameters to use.
  * @param materialID Returns the batch ID at the material, 0 if it does not exist.
  * @return Mesh ID if found, 0 on failure.
  *
@@ -126,7 +125,7 @@ size_t _gfx_mesh_get_batch(
 
 		GFXMesh*      mesh,
 		GFXMaterial*  material,
-		size_t        index,
+		GFXBatchLod   params,
 		size_t*       materialID);
 
 /**
@@ -152,6 +151,19 @@ void _gfx_mesh_remove_batch(
 
 		GFXMesh*  mesh,
 		size_t    meshID);
+
+/**
+ * Return the level of detail parameters of a batch at a mesh.
+ *
+ * @param params Returns the level of detail params, not touched if batch does not exist.
+ * @return Zero if the batch does not exist.
+ *
+ */
+int _gfx_mesh_get_batch_lod(
+
+		GFXMesh*      mesh,
+		size_t        meshID,
+		GFXBatchLod*  params);
 
 /**
  * Increase the instance count of a batch for a given bucket.

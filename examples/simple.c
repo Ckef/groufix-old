@@ -208,8 +208,13 @@ int main()
 
 
 	/* Batch */
+	GFXBatchLod params;
+	params.mesh     = 0;
+	params.index    = 0;
+	params.material = 0;
+
 	GFXBatch batch;
-	gfx_batch_get(&batch, material, mesh, 0);
+	gfx_batch_get(&batch, material, mesh, params);
 	gfx_batch_increase(&batch, bucket, 1);
 
 	size_t* src = _gfx_submesh_get_bucket_sources(submesh, bucket, 0, 1);

@@ -46,13 +46,23 @@ typedef struct GFXBatch
 } GFXBatch;
 
 
+/** Batch level of detail parameters */
+typedef struct GFXBatchLod
+{
+	size_t  mesh;     /* Level of detail within the mesh */
+	size_t  index;    /* Index of the submesh within the mesh LOD to use */
+	size_t  material; /* Level of detail within the material */
+
+} GFXBatchLod;
+
+
 /**
  * Fetches a batch associated with a given material and mesh.
  *
- * @param index Index of the submesh within a mesh level of detail to use.
+ * @param params Level of detail parameters to use.
  * @return Non-zero on success (it will not touch batch on failure).
  *
- * Note: A batch with equal materials, meshes and indices are themselves equal.
+ * Note: Two batches with equal materials, meshes and lod parameters are equal.
  *
  */
 int gfx_batch_get(
@@ -60,7 +70,19 @@ int gfx_batch_get(
 		GFXBatch*     batch,
 		GFXMaterial*  material,
 		GFXMesh*      mesh,
-		size_t        index);
+		GFXBatchLod   params);
+
+/**
+ * Return the level of detail parameters of a batch.
+ *
+ * @return Level of detail parameters, undefined if the batch does not exist.
+ *
+ * Note: Two batches are strictly inequal if their parameters differ.
+ *
+ */
+GFXBatchLod gfx_batch_get_lod(
+
+		GFXBatch* batch);
 
 /**
  * Force a batch to erase all its resources.

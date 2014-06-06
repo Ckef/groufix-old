@@ -26,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
 /* Internal mesh */
@@ -44,7 +45,7 @@ struct GFX_Batch
 {
 	GFXMaterial*  material;  /* NULL when empty */
 	size_t        materialID;
-	size_t        index;     /* Submesh index for each LOD */
+	GFXBatchLod   params;    /* Level of detail parameters */
 	size_t        upper;     /* Upper bound in buckets vector */
 };
 
@@ -138,13 +139,14 @@ static void _gfx_mesh_callback(
 		while(begin < end)
 		{
 			struct GFX_Bucket* bucket = gfx_vector_at(
-				&mesh->buckets, begin++);
+				&mesh->buckets, begin);
 
 			if(bucket->pipe == pipe)
 			{
 				gfx_vector_erase(&mesh->buckets, bucket);
 				_gfx_mesh_increase_bucket_bounds(mesh, it, -1);
 			}
+			else ++begin;
 		}
 	}
 }
@@ -154,63 +156,39 @@ static int _gfx_mesh_reference_bucket(
 
 		struct GFX_Mesh*  mesh,
 		GFXPipe*          pipe,
+		size_t            level,
 		size_t            index)
 {
+	/* Get submesh */
+	size_t num;
+	struct GFX_SubData* data = gfx_lod_map_get(
+		(GFXLodMap*)mesh,
+		level,
+		&num
+	);
+
+	if(index < num)
+	{
+		/* Reference the bucket at the submesh */
+		if(!_gfx_submesh_reference_bucket(data[index].sub, pipe))
+			return 0;
+	}
+
 	/* Register the mesh at the pipe */
 	GFXPipeCallback call;
 	call.key = GFX_SCENE_KEY_MESH;
 	call.data = mesh;
 
-	/* Only register if not yet registered */
-	int exists = gfx_pipe_exists(pipe, call);
+	if(gfx_pipe_exists(pipe, call))
+		return 1;
+	if(gfx_pipe_register(pipe, call, _gfx_mesh_callback))
+		return 1;
 
-	if(!exists)
-	{
-		if(!gfx_pipe_register(pipe, call, _gfx_mesh_callback))
-			return 0;
-	}
+	/* Well nevermind then */
+	if(index < num)
+		_gfx_submesh_dereference_bucket(data[index].sub, pipe);
 
-	/* Reference the bucket at all associated submeshes */
-	size_t level;
-	for(level = 0; level < mesh->map.map.levels; ++level)
-	{
-		size_t num;
-		struct GFX_SubData* data = gfx_lod_map_get(
-			(GFXLodMap*)mesh,
-			level,
-			&num
-		);
-
-		/* Skip if index does not exist */
-		if(index >= num)
-			continue;
-		if(!_gfx_submesh_reference_bucket(data[index].sub, pipe))
-			break;
-	}
-
-	/* Undo all */
-	if(level < mesh->map.map.levels)
-	{
-		while(level--)
-		{
-			size_t num;
-			struct GFX_SubData* data = gfx_lod_map_get(
-				(GFXLodMap*)mesh,
-				level,
-				&num
-			);
-
-			if(index >= num) continue;
-			_gfx_submesh_dereference_bucket(data[index].sub, pipe);
-		}
-
-		/* Also unregister if necessary */
-		if(!exists) gfx_pipe_unregister(pipe, call);
-
-		return 0;
-	}
-
-	return 1;
+	return 0;
 }
 
 /******************************************************/
@@ -218,23 +196,20 @@ static void _gfx_mesh_dereference_bucket(
 
 		struct GFX_Mesh*  mesh,
 		GFXPipe*          pipe,
+		size_t            level,
 		size_t            index)
 {
-	/* Dereference the bucket at all associated submeshes */
-	size_t level;
-	for(level = 0; level < mesh->map.map.levels; ++level)
-	{
-		size_t num;
-		struct GFX_SubData* data = gfx_lod_map_get(
-			(GFXLodMap*)mesh,
-			level,
-			&num
-		);
+	/* Get submesh */
+	size_t num;
+	struct GFX_SubData* data = gfx_lod_map_get(
+		(GFXLodMap*)mesh,
+		level,
+		&num
+	);
 
-		/* Skip if index does not exist */
-		if(index >= num) continue;
+	/* Dereference the bucket at the submesh */
+	if(index < num)
 		_gfx_submesh_dereference_bucket(data[index].sub, pipe);
-	}
 
 	/* Unregister at the pipe if it is not present at any batch */
 	size_t max = gfx_vector_get_size(&mesh->buckets);
@@ -255,6 +230,7 @@ static int _gfx_mesh_reference_submesh(
 
 		struct GFX_Mesh*  mesh,
 		GFXSubMesh*       sub,
+		size_t            level,
 		size_t            index)
 {
 	/* Iterate through all batches */
@@ -264,7 +240,7 @@ static int _gfx_mesh_reference_submesh(
 		it != mesh->batches.end;
 		it = gfx_vector_next(&mesh->batches, it))
 	{
-		if(it->index == index)
+		if(it->params.mesh == level && it->params.index == index)
 		{
 			size_t begin;
 			size_t end;
@@ -329,6 +305,7 @@ static void _gfx_mesh_dereference_submesh(
 
 		struct GFX_Mesh*  mesh,
 		GFXSubMesh*       sub,
+		size_t            level,
 		size_t            index)
 {
 	/* Iterate through all batches */
@@ -338,7 +315,7 @@ static void _gfx_mesh_dereference_submesh(
 		it != mesh->batches.end;
 		it = gfx_vector_next(&mesh->batches, it))
 	{
-		if(it->index == index)
+		if(it->params.mesh == level && it->params.index == index)
 		{
 			size_t begin;
 			size_t end;
@@ -357,11 +334,11 @@ static void _gfx_mesh_dereference_submesh(
 }
 
 /******************************************************/
-static struct GFX_Batch* _gfx_mesh_find_material(
+static struct GFX_Batch* _gfx_mesh_find_batch(
 
 		struct GFX_Mesh*  mesh,
 		GFXMaterial*      mat,
-		size_t            index)
+		GFXBatchLod       params)
 {
 	/* Try to find the material */
 	struct GFX_Batch* empty = mesh->batches.end;
@@ -372,7 +349,7 @@ static struct GFX_Batch* _gfx_mesh_find_material(
 		it != mesh->batches.end;
 		it = gfx_vector_next(&mesh->batches, it))
 	{
-		if(it->material == mat && it->index == index)
+		if(it->material == mat && !memcmp(&it->params, &params, sizeof(GFXBatchLod)))
 			return it;
 
 		else if(!it->material && empty == mesh->batches.end)
@@ -383,7 +360,7 @@ static struct GFX_Batch* _gfx_mesh_find_material(
 	struct GFX_Batch new;
 	new.material   = mat;
 	new.materialID = 0;
-	new.index      = index;
+	new.params     = params;
 
 	/* Replace an empty ID */
 	if(empty != mesh->batches.end)
@@ -409,11 +386,11 @@ size_t _gfx_mesh_get_batch(
 
 		GFXMesh*      mesh,
 		GFXMaterial*  material,
-		size_t        index,
+		GFXBatchLod   params,
 		size_t*       materialID)
 {
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
-	struct GFX_Batch* batch = _gfx_mesh_find_material(internal, material, index);
+	struct GFX_Batch* batch = _gfx_mesh_find_batch(internal, material, params);
 
 	/* Return correct IDs */
 	if(batch == internal->batches.end)
@@ -471,23 +448,33 @@ void _gfx_mesh_remove_batch(
 		size_t end;
 		_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
 
-		/* Fix bounds */
-		_gfx_mesh_increase_bucket_bounds(
-			internal,
-			batch,
-			(long int)begin - (long int)end
-		);
-
-		/* Dereference and remove all buckets */
+		/* Dereference all buckets */
 		size_t i = end;
 		while(i > begin)
 		{
 			struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, --i);
-			GFXPipe* pipe = it->pipe;
 
-			gfx_vector_erase(&internal->buckets, it);
-			_gfx_mesh_dereference_bucket(internal, pipe, batch->index);
+			GFXPipe* pipe = it->pipe;
+			it->pipe = NULL;
+
+			_gfx_mesh_dereference_bucket(
+				internal,
+				pipe,
+				batch->params.mesh,
+				batch->params.index
+			);
 		}
+
+		/* Remove all buckets and fix bounds */
+		gfx_vector_erase_range_at(
+			&internal->buckets,
+			end - begin,
+			begin);
+
+		_gfx_mesh_increase_bucket_bounds(
+			internal,
+			batch,
+			(long int)begin - (long int)end);
 
 		/* Mark as empty and remove trailing empty batches */
 		batch->material = NULL;
@@ -504,6 +491,29 @@ void _gfx_mesh_remove_batch(
 		}
 		gfx_vector_erase_range(&internal->batches, num, beg);
 	}
+}
+
+/******************************************************/
+int _gfx_mesh_get_batch_lod(
+
+		GFXMesh*      mesh,
+		size_t        meshID,
+		GFXBatchLod*  params)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t max = gfx_vector_get_size(&internal->batches);
+
+	if(!meshID || meshID > max) return 0;
+
+	/* Get batch */
+	struct GFX_Batch* batch = gfx_vector_at(
+		&internal->batches,
+		meshID - 1
+	);
+
+	*params = batch->params;
+	return 1;
 }
 
 /******************************************************/
@@ -552,7 +562,11 @@ int _gfx_mesh_increase_instances(
 		if(it == internal->buckets.end) return 0;
 
 		/* Reference the bucket */
-		if(!_gfx_mesh_reference_bucket(internal, pipe, batch->index))
+		if(!_gfx_mesh_reference_bucket(
+			internal,
+			pipe,
+			batch->params.mesh,
+			batch->params.index))
 		{
 			gfx_vector_erase(&internal->buckets, it);
 			return 0;
@@ -610,7 +624,12 @@ void _gfx_mesh_decrease_instances(
 				_gfx_mesh_increase_bucket_bounds(internal, batch, -1);
 
 				/* Dereference bucket */
-				_gfx_mesh_dereference_bucket(internal, pipe, batch->index);
+				_gfx_mesh_dereference_bucket(
+					internal,
+					pipe,
+					batch->params.mesh,
+					batch->params.index
+				);
 			}
 
 			/* Decrease instances */
@@ -703,7 +722,11 @@ GFXSubMesh* gfx_mesh_add(
 	size_t num;
 	gfx_lod_map_get((GFXLodMap*)mesh, level, &num);
 
-	if(!_gfx_mesh_reference_submesh((struct GFX_Mesh*)mesh, data.sub, num))
+	if(!_gfx_mesh_reference_submesh(
+		(struct GFX_Mesh*)mesh,
+		data.sub,
+		level,
+		num))
 	{
 		_gfx_submesh_free(data.sub);
 		return NULL;
@@ -733,7 +756,11 @@ int gfx_mesh_add_share(
 	size_t num;
 	gfx_lod_map_get((GFXLodMap*)mesh, level, &num);
 
-	if(!_gfx_mesh_reference_submesh((struct GFX_Mesh*)mesh, share, num))
+	if(!_gfx_mesh_reference_submesh(
+		(struct GFX_Mesh*)mesh,
+		share,
+		level,
+		num))
 	{
 		_gfx_submesh_free(share);
 		return 0;
@@ -748,7 +775,12 @@ int gfx_mesh_add_share(
 
 	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))
 	{
-		_gfx_mesh_dereference_submesh((struct GFX_Mesh*)mesh, share, num);
+		_gfx_mesh_dereference_submesh(
+			(struct GFX_Mesh*)mesh,
+			share,
+			level,
+			num
+		);
 		_gfx_submesh_free(share);
 
 		return 0;
