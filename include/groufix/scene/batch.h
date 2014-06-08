@@ -32,6 +32,31 @@ extern "C" {
 #endif
 
 /********************************************************
+ * Batch metadata
+ *******************************************************/
+
+/** Batch data upload classification */
+typedef enum GFXBatchType
+{
+	GFX_BATCH_SINGLE_DATA,
+	GFX_BATCH_MULTIPLE_DATA,
+
+	GFX_BATCH_DEFAULT = GFX_BATCH_SINGLE_DATA
+
+} GFXBatchType;
+
+
+/** Batch level of detail parameters */
+typedef struct GFXBatchLod
+{
+	size_t  mesh;     /* Level of detail within the mesh */
+	size_t  index;    /* Index of the submesh within the mesh LOD to use */
+	size_t  material; /* Level of detail within the material */
+
+} GFXBatchLod;
+
+
+/********************************************************
  * Batch (render group consisting of a mesh and material)
  *******************************************************/
 
@@ -44,16 +69,6 @@ typedef struct GFXBatch
 	size_t        meshID;
 
 } GFXBatch;
-
-
-/** Batch level of detail parameters */
-typedef struct GFXBatchLod
-{
-	size_t  mesh;     /* Level of detail within the mesh */
-	size_t  index;    /* Index of the submesh within the mesh LOD to use */
-	size_t  material; /* Level of detail within the material */
-
-} GFXBatchLod;
 
 
 /**

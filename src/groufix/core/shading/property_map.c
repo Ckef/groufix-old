@@ -82,8 +82,8 @@ struct GFX_Value
 	unsigned char    components;
 	size_t           count;
 
-	size_t           offset;     /* Instance offset in bytes */
-	unsigned int     offsetSize; /* Number of array elements of the instance offset */
+	size_t           offset;      /* Instance offset in bytes */
+	unsigned int     countOffset; /* Number of array values to subtract for each instance offset */
 };
 
 /* Internal vector/matrix pointer property */
@@ -170,7 +170,9 @@ static void _gfx_property_set_vector_val(
 		GFX_Extensions*    ext)
 {
 	data = GFX_PTR_ADD_BYTES(data, base * val->offset);
-	size_t cnt = val->count - base * val->offsetSize;
+
+	size_t cnt = base * val->countOffset;
+	cnt = (cnt > val->count) ? 0 : val->count - cnt;
 
 	switch(val->type)
 	{
@@ -243,7 +245,9 @@ static void _gfx_property_set_matrix_val(
 		GFX_Extensions*    ext)
 {
 	data = GFX_PTR_ADD_BYTES(data, base * val->offset);
-	size_t cnt = val->count - base * val->offsetSize;
+
+	size_t cnt = base * val->countOffset;
+	cnt = (cnt > val->count) ? 0 : val->count - cnt;
 
 	switch(val->type)
 	{
@@ -822,11 +826,11 @@ int gfx_property_map_forward(
 				(size_t)_gfx_sizeof_data_type(dataType) *
 				(size_t)prop->count;
 
-			val.val.type       = prop->dataType;
-			val.val.components = prop->components;
-			val.val.count      = prop->count;
-			val.val.offset     = 0;
-			val.val.offsetSize = 0;
+			val.val.type        = prop->dataType;
+			val.val.components  = prop->components;
+			val.val.count       = prop->count;
+			val.val.offset      = 0;
+			val.val.countOffset = 0;
 
 			init = &val;
 			break;
@@ -839,12 +843,12 @@ int gfx_property_map_forward(
 			initSize = sizeof(struct GFX_ValuePtr);
 			size = initSize;
 
-			val.val.type       = prop->dataType;
-			val.val.components = prop->components;
-			val.val.count      = prop->count;
-			val.val.offset     = 0;
-			val.val.offsetSize = 0;
-			val.ptr            = NULL;
+			val.val.type        = prop->dataType;
+			val.val.components  = prop->components;
+			val.val.count       = prop->count;
+			val.val.offset      = 0;
+			val.val.countOffset = 0;
+			val.ptr             = NULL;
 
 			init = &val;
 			break;
@@ -1011,7 +1015,8 @@ int gfx_property_map_set_value_pointer(
 		GFXPropertyMap*  map,
 		unsigned char    index,
 		size_t           copy,
-		const void*      ptr)
+		const void*      ptr,
+		size_t           offset)
 {
 	struct GFX_Map* internal = (struct GFX_Map*)map;
 	struct GFX_Property* prop = _gfx_property_map_get_at(internal, index);
@@ -1023,9 +1028,18 @@ int gfx_property_map_set_value_pointer(
 	if(type != GFX_INT_PROPERTY_VECTOR_PTR && type != GFX_INT_PROPERTY_MATRIX_PTR)
 		return 0;
 
-	/* Set pointer */
 	struct GFX_ValuePtr* val = _gfx_property_get_value(internal, prop, copy);
-	val->ptr = ptr;
+
+	/* Scale offset by array element size */
+	GFXDataType dataType;
+	dataType.unpacked = val->val.type;
+
+	offset *=
+		(size_t)val->val.components *
+		(size_t)_gfx_sizeof_data_type(dataType);
+
+	/* Set pointer */
+	val->ptr = GFX_PTR_ADD_BYTES(ptr, offset);
 
 	return 1;
 }
@@ -1060,7 +1074,7 @@ int gfx_property_map_set_instance_offset(
 		GFXDataType dataType;
 		dataType.unpacked = val->type;
 
-		val->offsetSize = offset;
+		val->countOffset = offset;
 		val->offset = offset *
 			(size_t)val->components *
 			(size_t)_gfx_sizeof_data_type(dataType);
