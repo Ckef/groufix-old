@@ -24,7 +24,6 @@
 #include "groufix/scene.h"
 #include "groufix/scene/internal.h"
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -53,7 +52,7 @@ struct GFX_Batch
 struct GFX_Bucket
 {
 	GFXPipe*  pipe;
-	size_t    instances;
+	size_t    unitsID; /* ID of unit group at material */
 };
 
 /* Internal submesh data */
@@ -143,6 +142,8 @@ static void _gfx_mesh_callback(
 
 			if(bucket->pipe == pipe)
 			{
+				/* Also destory the units at the material */
+				_gfx_material_remove_units(it->material, bucket->unitsID);
 				gfx_vector_erase(&mesh->buckets, bucket);
 				_gfx_mesh_increase_bucket_bounds(mesh, it, -1);
 			}
@@ -448,12 +449,18 @@ void _gfx_mesh_remove_batch(
 		size_t end;
 		_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
 
-		/* Dereference all buckets */
+		/* Iterate through all buckets */
 		size_t i = end;
 		while(i > begin)
 		{
 			struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, --i);
 
+			/* Destroy units */
+			_gfx_material_remove_units(
+				batch->material,
+				it->unitsID);
+
+			/* Dereference it */
 			GFXPipe* pipe = it->pipe;
 			it->pipe = NULL;
 
@@ -461,8 +468,7 @@ void _gfx_mesh_remove_batch(
 				internal,
 				pipe,
 				batch->params.mesh,
-				batch->params.index
-			);
+				batch->params.index);
 		}
 
 		/* Remove all buckets and fix bounds */
@@ -517,21 +523,19 @@ int _gfx_mesh_get_batch_lod(
 }
 
 /******************************************************/
-int _gfx_mesh_increase_instances(
+size_t _gfx_mesh_get_units(
 
 		GFXMesh*  mesh,
 		size_t    meshID,
-		GFXPipe*  pipe,
-		size_t    instances)
+		GFXPipe*  pipe)
 {
-	/* Validate pipe type */
-	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET || !instances) return 0;
-
-	/* Bound check */
+	/* Validate pipe type & bound check */
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
 	size_t max = gfx_vector_get_size(&internal->batches);
 
-	if(!meshID || meshID > max) return 0;
+	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET ||
+		!meshID ||
+		meshID > max) return 0;
 
 	/* Get batch and bounds */
 	struct GFX_Batch* batch = gfx_vector_at(
@@ -545,55 +549,60 @@ int _gfx_mesh_increase_instances(
 
 	/* Find bucket */
 	size_t index = _gfx_mesh_find_bucket(internal, begin, end, pipe);
-
-	if(index == end)
+	if(index < end)
 	{
-		/* Insert new bucket */
-		struct GFX_Bucket bucket;
-		bucket.pipe = pipe;
-		bucket.instances = instances;
+		struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, index);
+		return it->unitsID;
+	}
 
+	/* Create new unit group */
+	struct GFX_Bucket bucket;
+	bucket.pipe = pipe;
+
+	bucket.unitsID = _gfx_material_insert_units(
+		batch->material,
+		batch->materialID
+	);
+
+	if(bucket.unitsID)
+	{
+		/* Insert the bucket */
 		struct GFX_Bucket* it = gfx_vector_insert_at(
 			&internal->buckets,
 			&bucket,
 			end
 		);
 
-		if(it == internal->buckets.end) return 0;
-
-		/* Reference the bucket */
-		if(!_gfx_mesh_reference_bucket(
-			internal,
-			pipe,
-			batch->params.mesh,
-			batch->params.index))
+		if(it != internal->buckets.end)
 		{
+			if(_gfx_mesh_reference_bucket(
+				internal,
+				pipe,
+				batch->params.mesh,
+				batch->params.index))
+			{
+				/* Increase bounds at last */
+				_gfx_mesh_increase_bucket_bounds(internal, batch, 1);
+				return bucket.unitsID;
+			}
+
+			/* Failed, erase bucket */
 			gfx_vector_erase(&internal->buckets, it);
-			return 0;
 		}
 
-		/* Finally increase bounds */
-		_gfx_mesh_increase_bucket_bounds(internal, batch, 1);
-	}
-	else
-	{
-		/* Increase instances, first check for overflow */
-		struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, index);
-
-		if(SIZE_MAX - instances < it->instances) return 0;
-		it->instances += instances;
+		/* Destroy unit group */
+		_gfx_material_remove_units(batch->material, bucket.unitsID);
 	}
 
-	return 1;
+	return 0;
 }
 
 /******************************************************/
-void _gfx_mesh_decrease_instances(
+void _gfx_mesh_remove_units(
 
 		GFXMesh*  mesh,
 		size_t    meshID,
-		GFXPipe*  pipe,
-		size_t    instances)
+		GFXPipe*  pipe)
 {
 	/* Bound check */
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
@@ -613,27 +622,22 @@ void _gfx_mesh_decrease_instances(
 
 		/* Find bucket */
 		size_t index = _gfx_mesh_find_bucket(internal, begin, end, pipe);
-
-		if(index != end)
+		if(index < end)
 		{
 			struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, index);
-			if(it->instances <= instances)
-			{
-				/* Remove the bucket */
-				gfx_vector_erase(&internal->buckets, it);
-				_gfx_mesh_increase_bucket_bounds(internal, batch, -1);
 
-				/* Dereference bucket */
-				_gfx_mesh_dereference_bucket(
-					internal,
-					pipe,
-					batch->params.mesh,
-					batch->params.index
-				);
-			}
+			/* Destroy unit group & remove the bucket */
+			_gfx_material_remove_units(batch->material, it->unitsID);
+			gfx_vector_erase(&internal->buckets, it);
+			_gfx_mesh_increase_bucket_bounds(internal, batch, -1);
 
-			/* Decrease instances */
-			else it->instances -= instances;
+			/* Dereference bucket */
+			_gfx_mesh_dereference_bucket(
+				internal,
+				pipe,
+				batch->params.mesh,
+				batch->params.index
+			);
 		}
 	}
 }

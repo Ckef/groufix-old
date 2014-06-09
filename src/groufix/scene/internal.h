@@ -165,32 +165,82 @@ int _gfx_mesh_get_batch_lod(
 		size_t        meshID,
 		GFXBatchLod*  params);
 
+
+/********************************************************
+ * Unit group management at mesh and material
+ *******************************************************/
+
 /**
- * Increase the instance count of a batch for a given bucket.
+ * Inserts a new unit group at the material.
  *
- * @param pipe Bucket to increase instances at.
- * @return Zero on failure or if instances is 0.
+ * @param materialID Batch ID at the material to use.
+ * @return Unit group ID, 0 on failure.
  *
  */
-int _gfx_mesh_increase_instances(
+size_t _gfx_material_insert_units(
+
+		GFXMaterial*  material,
+		size_t        materialID);
+
+/**
+ * Removes a unit group at a material.
+ *
+ * @param unitsID Unit group ID at the material to remove.
+ *
+ */
+void _gfx_material_remove_units(
+
+		GFXMaterial*  material,
+		size_t        unitsID);
+
+/**
+ * Increase the instance count of a unit group.
+ *
+ * @return Zero on failure.
+ *
+ */
+int _gfx_material_increase(
+
+		GFXMaterial*  material,
+		size_t        unitsID,
+		size_t        instances);
+
+/**
+ * Decrease the instance count of a unit group.
+ *
+ * @return Zero if the counter hits zero.
+ *
+ */
+int _gfx_material_decrease(
+
+		GFXMaterial*  material,
+		size_t        unitsID,
+		size_t        instances);
+
+/**
+ * Fetch a unit group associated with a batch for a given bucket.
+ *
+ * @param pipe Bucket to fetch the unit group of.
+ * @return Unit group ID at the associated material, 0 on failure.
+ *
+ */
+size_t _gfx_mesh_get_units(
 
 		GFXMesh*  mesh,
 		size_t    meshID,
-		GFXPipe*  pipe,
-		size_t    instances);
+		GFXPipe*  pipe);
 
 /**
- * Decrease the instance count of a batch for a given bucket.
+ * Forcefully remove a unit group associated with a batch for a given bucket.
  *
- * @param pipe Bucket to decrease instances at.
+ * @param pipe Bucket to remove the unit group of.
  *
  */
-void _gfx_mesh_decrease_instances(
+void _gfx_mesh_remove_units(
 
 		GFXMesh*  mesh,
 		size_t    meshID,
-		GFXPipe*  pipe,
-		size_t    instances);
+		GFXPipe*  pipe);
 
 
 /********************************************************

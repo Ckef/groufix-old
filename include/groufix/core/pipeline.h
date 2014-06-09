@@ -211,8 +211,12 @@ void gfx_bucket_set_instances(
 /**
  * Sets the starting instance offset.
  *
+ *
  * Note: requires GFX_EXT_INSTANCED_BASE_ATTRIBUTES for it to work
  * on instanced vertex attributes.
+ *
+ * Furthermore, for this call to have any effect on vertex attributes,
+ * it has to be called after the vertex layout has set any divisors.
  *
  */
 void gfx_bucket_set_instance_base(

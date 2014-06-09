@@ -115,7 +115,7 @@ void gfx_batch_erase(
  *
  * @param bucket    Bucket to increase instances at.
  * @param instances Number of instances to add.
- * @return Zero on failure or if instances is 0.
+ * @return Zero on failure.
  *
  */
 int gfx_batch_increase(

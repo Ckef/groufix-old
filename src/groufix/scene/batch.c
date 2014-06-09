@@ -95,11 +95,21 @@ int gfx_batch_increase(
 		GFXPipe*   bucket,
 		size_t     instances)
 {
-	return _gfx_mesh_increase_instances(
+	/* Get units */
+	size_t unitID = _gfx_mesh_get_units(
 		batch->mesh,
 		batch->meshID,
-		bucket,
-		instances);
+		bucket
+	);
+
+	if(!unitID) return 0;
+
+	/* Increase */
+	return _gfx_material_increase(
+		batch->material,
+		unitID,
+		instances
+	);
 }
 
 /******************************************************/
@@ -109,9 +119,23 @@ void gfx_batch_decrease(
 		GFXPipe*   bucket,
 		size_t     instances)
 {
-	_gfx_mesh_decrease_instances(
+	/* Get units */
+	size_t unitID = _gfx_mesh_get_units(
 		batch->mesh,
 		batch->meshID,
-		bucket,
-		instances);
+		bucket
+	);
+
+	/* Decrease */
+	if(unitID) if(!_gfx_material_decrease(
+		batch->material,
+		unitID,
+		instances))
+	{
+		_gfx_mesh_remove_units(
+			batch->mesh,
+			batch->meshID,
+			bucket
+		);
+	}
 }

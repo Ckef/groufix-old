@@ -29,23 +29,85 @@
 /* Internal material */
 struct GFX_Material
 {
-	GFX_LodMap  map;     /* Super class */
-	GFXVector   batches; /* Stores GFX_Batch, index + 1 = material ID of batch */
+	/* Super class */
+	GFX_LodMap map;
+
+	/* Hidden data */
+	GFXVector  batches; /* Stores GFX_Batch, index + 1 = material ID of batch */
+	GFXVector  units;   /* Stores GFX_Unit, index + 1 = ID */
 };
 
 /* Internal batch (mesh reference) */
 struct GFX_Batch
 {
-	GFXMesh*  mesh;  /* NULL when empty */
-	size_t    meshID;
+	GFXMesh*      mesh;  /* NULL when empty */
+	size_t        meshID;
+	GFXBatchType  type;
+};
+
+/* Internal unit group */
+struct GFX_Unit
+{
+	size_t     batch;     /* Material ID, 0 when empty */
+	GFXVector  units;     /* Stores size_t */
+	size_t     instances;
 };
 
 /* Internal Property Map data */
 struct GFX_MapData
 {
 	GFXPropertyMap*  map;       /* Super class */
-	size_t           instances; /* Number or renderable instances */
+	size_t           instances; /* Number or renderable instances per unit (constant) */
+	size_t           copies;    /* Number of copies used by units */
 };
+
+/******************************************************/
+static void _gfx_material_get_batch_data(
+
+		struct GFX_Material*  material,
+		struct GFX_Batch*     batch,
+		GFXSubMesh**          sub,
+		struct GFX_MapData**  data)
+{
+	/* Get batch parameters */
+	GFXBatchLod params;
+	_gfx_mesh_get_batch_lod(
+		batch->mesh,
+		batch->meshID,
+		&params);
+
+	/* Get submesh */
+	size_t num;
+	GFXSubMeshList list = gfx_mesh_get(
+		batch->mesh,
+		params.mesh,
+		&num);
+
+	if(params.index >= num)
+	{
+		*sub = NULL;
+		*data = NULL;
+	}
+	else
+	{
+		/* Get submesh and material index */
+		*sub = gfx_submesh_list_at(
+			list,
+			params.index);
+
+		size_t index = gfx_submesh_list_material_at(
+			list,
+			params.index);
+
+		/* Get property map */
+		struct GFX_MapData* maps = gfx_lod_map_get(
+			(GFXLodMap*)material,
+			params.material,
+			&num);
+
+		*data = (index >= num) ? NULL : maps + index;
+	}
+}
 
 /******************************************************/
 static struct GFX_Batch* _gfx_material_insert_mesh(
@@ -55,8 +117,9 @@ static struct GFX_Batch* _gfx_material_insert_mesh(
 {
 	/* Construct new ID */
 	struct GFX_Batch new;
-	new.mesh = mesh;
+	new.mesh   = mesh;
 	new.meshID = 0;
+	new.type   = GFX_BATCH_DEFAULT;
 
 	/* Try to find an empty batch */
 	struct GFX_Batch* empty;
@@ -156,6 +219,43 @@ void _gfx_material_remove_batch(
 }
 
 /******************************************************/
+size_t _gfx_material_insert_units(
+
+		GFXMaterial*  material,
+		size_t        materialID)
+{
+	return 1;
+}
+
+/******************************************************/
+void _gfx_material_remove_units(
+
+		GFXMaterial*  material,
+		size_t        unitsID)
+{
+}
+
+/******************************************************/
+int _gfx_material_increase(
+
+		GFXMaterial*  material,
+		size_t        unitsID,
+		size_t        instances)
+{
+	return 1;
+}
+
+/******************************************************/
+int _gfx_material_decrease(
+
+		GFXMaterial*  material,
+		size_t        unitsID,
+		size_t        instances)
+{
+	return 0;
+}
+
+/******************************************************/
 GFXMaterial* gfx_material_create(void)
 {
 	/* Allocate material */
@@ -171,6 +271,7 @@ GFXMaterial* gfx_material_create(void)
 	);
 
 	gfx_vector_init(&mat->batches, sizeof(struct GFX_Batch));
+	gfx_vector_init(&mat->units, sizeof(struct GFX_Unit));
 
 	return (GFXMaterial*)mat;
 }
@@ -208,6 +309,7 @@ void gfx_material_free(
 
 		/* Clear and free */
 		gfx_vector_clear(&internal->batches);
+		gfx_vector_clear(&internal->units);
 		_gfx_lod_map_clear((GFX_LodMap*)internal);
 
 		free(material);
@@ -226,6 +328,7 @@ GFXPropertyMap* gfx_material_add(
 	/* Create new property map */
 	struct GFX_MapData data;
 	data.instances = instances;
+	data.copies    = 0;
 
 	data.map = gfx_property_map_create(program, properties);
 	if(!data.map) return NULL;
