@@ -126,15 +126,6 @@ typedef struct GFXMesh
 } GFXMesh;
 
 
-/** Source to sample from a submesh */
-typedef struct GFXMeshSource
-{
-	unsigned char startSource;
-	unsigned char numSource;
-
-} GFXMeshSource;
-
-
 /** Submesh list */
 typedef void* GFXSubMeshList;
 
@@ -178,6 +169,8 @@ GFXSubMesh* gfx_mesh_add(
  * @param share Submesh to share.
  * @return Zero on failure.
  *
+ * Note: A submesh can be added multiple times to the same mesh.
+ *
  */
 int gfx_mesh_add_share(
 
@@ -220,11 +213,11 @@ int gfx_mesh_set_material_at(
 		size_t    material);
 
 /**
- * Sets the sources to sample from all instances of a submesh added to a mesh.
+ * Sets the source to sample from all instances of a submesh added to a mesh.
  *
  * @return Number of found submeshes.
  *
- * The default is all sources used.
+ * The default is 0
  *
  */
 size_t gfx_mesh_set_source(
@@ -232,14 +225,12 @@ size_t gfx_mesh_set_source(
 		GFXMesh*       mesh,
 		size_t         level,
 		GFXSubMesh*    sub,
-		GFXMeshSource  source);
+		unsigned char  source);
 
 /**
- * Sets the sources to sample from a submesh added to a mesh.
+ * Sets the source to sample from a submesh added to a mesh.
  *
  * @return Zero if the submesh does not exist.
- *
- * The default is all sources used.
  *
  */
 int gfx_mesh_set_source_at(
@@ -247,7 +238,7 @@ int gfx_mesh_set_source_at(
 		GFXMesh*       mesh,
 		size_t         level,
 		size_t         index,
-		GFXMeshSource  source);
+		unsigned char  source);
 
 /**
  * Returns an abstract list of submeshes of a given level of detail.
@@ -292,7 +283,7 @@ size_t gfx_submesh_list_material_at(
  * Index into a list of submeshes, retrieving the mesh source.
  *
  */
-GFXMeshSource gfx_submesh_list_source_at(
+unsigned char gfx_submesh_list_source_at(
 
 		GFXSubMeshList  list,
 		size_t          index);
