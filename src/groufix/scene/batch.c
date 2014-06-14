@@ -96,18 +96,18 @@ int gfx_batch_increase(
 		size_t     instances)
 {
 	/* Get units */
-	size_t unitID = _gfx_mesh_get_units(
+	size_t groupID = _gfx_mesh_get_group(
 		batch->mesh,
 		batch->meshID,
 		bucket
 	);
 
-	if(!unitID) return 0;
+	if(!groupID) return 0;
 
 	/* Increase */
 	return _gfx_material_increase(
 		batch->material,
-		unitID,
+		groupID,
 		instances
 	);
 }
@@ -120,19 +120,19 @@ void gfx_batch_decrease(
 		size_t     instances)
 {
 	/* Get units */
-	size_t unitID = _gfx_mesh_get_units(
+	size_t groupID = _gfx_mesh_get_group(
 		batch->mesh,
 		batch->meshID,
 		bucket
 	);
 
 	/* Decrease */
-	if(unitID) if(!_gfx_material_decrease(
+	if(groupID) if(!_gfx_material_decrease(
 		batch->material,
-		unitID,
+		groupID,
 		instances))
 	{
-		_gfx_mesh_remove_units(
+		_gfx_mesh_remove_group(
 			batch->mesh,
 			batch->meshID,
 			bucket

@@ -174,10 +174,10 @@ int _gfx_mesh_get_batch_lod(
  * Inserts a new unit group at the material.
  *
  * @param materialID Batch ID at the material to use.
- * @return Unit group ID, 0 on failure.
+ * @return Unit group ID, 0 on failure or if materialID is 0.
  *
  */
-size_t _gfx_material_insert_units(
+size_t _gfx_material_insert_group(
 
 		GFXMaterial*  material,
 		size_t        materialID);
@@ -185,13 +185,13 @@ size_t _gfx_material_insert_units(
 /**
  * Removes a unit group at a material.
  *
- * @param unitsID Unit group ID at the material to remove.
+ * @param groupID Unit group ID at the material to remove.
  *
  */
-void _gfx_material_remove_units(
+void _gfx_material_remove_group(
 
 		GFXMaterial*  material,
-		size_t        unitsID);
+		size_t        groupID);
 
 /**
  * Increase the instance count of a unit group.
@@ -202,19 +202,19 @@ void _gfx_material_remove_units(
 int _gfx_material_increase(
 
 		GFXMaterial*  material,
-		size_t        unitsID,
+		size_t        groupID,
 		size_t        instances);
 
 /**
  * Decrease the instance count of a unit group.
  *
- * @return Zero if the counter hits zero.
+ * @return Zero if the counter hits zero or if the unit group does not exist.
  *
  */
 int _gfx_material_decrease(
 
 		GFXMaterial*  material,
-		size_t        unitsID,
+		size_t        groupID,
 		size_t        instances);
 
 /**
@@ -224,7 +224,7 @@ int _gfx_material_decrease(
  * @return Unit group ID at the associated material, 0 on failure.
  *
  */
-size_t _gfx_mesh_get_units(
+size_t _gfx_mesh_get_group(
 
 		GFXMesh*  mesh,
 		size_t    meshID,
@@ -236,7 +236,7 @@ size_t _gfx_mesh_get_units(
  * @param pipe Bucket to remove the unit group of.
  *
  */
-void _gfx_mesh_remove_units(
+void _gfx_mesh_remove_group(
 
 		GFXMesh*  mesh,
 		size_t    meshID,

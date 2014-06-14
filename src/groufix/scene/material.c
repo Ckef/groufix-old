@@ -23,6 +23,7 @@
 
 #include "groufix/scene/internal.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 
 /******************************************************/
@@ -34,7 +35,8 @@ struct GFX_Material
 
 	/* Hidden data */
 	GFXVector  batches; /* Stores GFX_Batch, index + 1 = material ID of batch */
-	GFXVector  units;   /* Stores GFX_Unit, index + 1 = ID */
+	GFXVector  groups;  /* Stores GFX_Group, index + 1 = ID */
+	GFXVector  units;   /* Stores size_t */
 };
 
 /* Internal batch (mesh reference) */
@@ -46,10 +48,11 @@ struct GFX_Batch
 };
 
 /* Internal unit group */
-struct GFX_Unit
+struct GFX_Group
 {
-	size_t     batch;     /* Material ID, 0 when empty */
-	size_t     instances;
+	size_t  batch;     /* Material ID, 0 when empty */
+	size_t  instances; /* Number of existing instances */
+	size_t  upper;     /* Upper bound in units vector */
 };
 
 /* Internal Property Map data */
@@ -59,6 +62,38 @@ struct GFX_MapData
 	size_t           instances; /* Number or renderable instances per unit (constant) */
 	size_t           copies;    /* Number of copies used by units */
 };
+
+/******************************************************/
+static void _gfx_material_increase_unit_bounds(
+
+		struct GFX_Material*  mat,
+		struct GFX_Group*     group,
+		long int              diff)
+{
+	while(group != mat->groups.end)
+	{
+		group->upper += diff;
+		group = gfx_vector_next(&mat->groups, group);
+	}
+}
+
+/******************************************************/
+static void _gfx_material_get_unit_bounds(
+
+		struct GFX_Material*  mat,
+		struct GFX_Group*     group,
+		size_t*               begin,
+		size_t*               end)
+{
+	*end = group->upper;
+
+	if(group != mat->groups.begin)
+	{
+		group = gfx_vector_previous(&mat->groups, group);
+		*begin = group->upper;
+	}
+	else *begin = 0;
+}
 
 /******************************************************/
 static void _gfx_material_get_batch_data(
@@ -218,29 +253,96 @@ void _gfx_material_remove_batch(
 }
 
 /******************************************************/
-size_t _gfx_material_insert_units(
+size_t _gfx_material_insert_group(
 
 		GFXMaterial*  material,
 		size_t        materialID)
 {
-	return 1;
+	/* Derp */
+	if(!materialID) return 0;
+
+	/* Try to find an empty group */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	struct GFX_Group* it;
+
+	for(
+		it = internal->groups.begin;
+		it != internal->groups.end;
+		it = gfx_vector_next(&internal->groups, it))
+	{
+		if(!(it->batch)) break;
+	}
+
+	/* Construct new group and insert */
+	struct GFX_Group group;
+	group.batch     = materialID;
+	group.instances = 0;
+	group.upper     = gfx_vector_get_size(&internal->units);
+
+	it = gfx_vector_insert(&internal->groups, &group, it);
+
+	return (it == internal->groups.end) ? 0 :
+		gfx_vector_get_index(&internal->groups, it) + 1;
 }
 
 /******************************************************/
-void _gfx_material_remove_units(
+void _gfx_material_remove_group(
 
 		GFXMaterial*  material,
-		size_t        unitsID)
+		size_t        groupID)
 {
+	/* Bound check */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	size_t size = gfx_vector_get_size(&internal->groups);
+
+	if(groupID && groupID <= size)
+	{
+		/* Get group and mark as empty */
+		struct GFX_Group* group = gfx_vector_at(
+			&internal->groups,
+			groupID - 1
+		);
+
+		group->batch = 0;
+
+		/* Remove trailing empty groups */
+		size_t num;
+		struct GFX_Group* beg = internal->groups.end;
+
+		for(num = 0; num < size; ++num)
+		{
+			struct GFX_Group* prev = gfx_vector_previous(&internal->groups, beg);
+			if(prev->batch) break;
+
+			beg = prev;
+		}
+		gfx_vector_erase_range(&internal->groups, num, beg);
+	}
 }
 
 /******************************************************/
 int _gfx_material_increase(
 
 		GFXMaterial*  material,
-		size_t        unitsID,
+		size_t        groupID,
 		size_t        instances)
 {
+	/* Bound check */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	size_t max = gfx_vector_get_size(&internal->groups);
+
+	if(!groupID || groupID > max) return 0;
+
+	/* Get group */
+	struct GFX_Group* group = gfx_vector_at(
+		&internal->groups,
+		groupID - 1
+	);
+
+	/* Check for overflow */
+	if(SIZE_MAX - instances < group->instances) return 0;
+	group->instances += instances;
+
 	return 1;
 }
 
@@ -248,10 +350,24 @@ int _gfx_material_increase(
 int _gfx_material_decrease(
 
 		GFXMaterial*  material,
-		size_t        unitsID,
+		size_t        groupID,
 		size_t        instances)
 {
-	return 0;
+	/* Bound check */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	size_t max = gfx_vector_get_size(&internal->groups);
+
+	if(!groupID || groupID > max) return 0;
+
+	/* Get group and decrease */
+	struct GFX_Group* group = gfx_vector_at(
+		&internal->groups,
+		groupID - 1
+	);
+
+	return group->instances =
+		(instances > group->instances) ? 0 :
+		group->instances - instances;
 }
 
 /******************************************************/
@@ -270,7 +386,8 @@ GFXMaterial* gfx_material_create(void)
 	);
 
 	gfx_vector_init(&mat->batches, sizeof(struct GFX_Batch));
-	gfx_vector_init(&mat->units, sizeof(struct GFX_Unit));
+	gfx_vector_init(&mat->groups, sizeof(struct GFX_Group));
+	gfx_vector_init(&mat->units, sizeof(size_t));
 
 	return (GFXMaterial*)mat;
 }
@@ -308,6 +425,7 @@ void gfx_material_free(
 
 		/* Clear and free */
 		gfx_vector_clear(&internal->batches);
+		gfx_vector_clear(&internal->groups);
 		gfx_vector_clear(&internal->units);
 		_gfx_lod_map_clear((GFX_LodMap*)internal);
 
