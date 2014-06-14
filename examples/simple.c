@@ -217,8 +217,8 @@ int main()
 	gfx_batch_get(&batch, material, mesh, params);
 	gfx_batch_increase(&batch, bucket, 1);
 
-	size_t* src = _gfx_submesh_get_bucket_sources(submesh, bucket, 0, 1);
-	if(src) gfx_bucket_insert(bucket->bucket, *src, map, 0, 1);
+	size_t src = _gfx_submesh_get_bucket_source(submesh, bucket, 0);
+	gfx_bucket_insert(bucket->bucket, src, map, 0, 1);
 
 
 	/* Setup a loop */
