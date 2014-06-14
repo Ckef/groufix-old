@@ -301,46 +301,47 @@ static void _gfx_bucket_sort_units(
 		size_t              start,
 		size_t              num)
 {
-	/* Skip on range of 1 or no bit */
-	if(num > 1 && bit)
+	if(num > 1)
 	{
-		/* Radix sort based on state :) */
-		/* Start, mid, end */
-		size_t st = start;
-		size_t mi = start + num;
-		size_t en = mi;
-
-		while(st < mi)
+		if(!bit)
 		{
-			struct GFX_Unit* unit = (struct GFX_Unit*)gfx_vector_at(
-				&bucket->units,
-				st);
-
-			/* If 1, put in 1 bucket */
-			if(unit->state & bit)
-			{
-				_gfx_bucket_swap_units(bucket, unit, gfx_vector_at(
-					&bucket->units,
-					--mi));
-			}
-			else ++st;
+			/* Quicksort equal states based on bucket flags */
+			if(bucket->compare) qsort(
+				gfx_vector_at(&bucket->units, start),
+				num,
+				sizeof(struct GFX_Unit),
+				bucket->compare
+			);
 		}
+		else
+		{
+			/* Radix sort based on state :) */
+			/* Start, mid, end */
+			size_t st = start;
+			size_t mi = start + num;
+			size_t en = mi;
 
-		/* Sort both buckets */
-		bit >>= 1;
-		_gfx_bucket_sort_units(bucket, bit, start, mi - start);
-		_gfx_bucket_sort_units(bucket, bit, mi, en - mi);
-	}
+			while(st < mi)
+			{
+				struct GFX_Unit* unit = (struct GFX_Unit*)gfx_vector_at(
+					&bucket->units,
+					st);
 
-	else if(num)
-	{
-		/* Quicksort equal states based on bucket flags */
-		if(bucket->compare) qsort(
-			gfx_vector_at(&bucket->units, start),
-			num,
-			sizeof(struct GFX_Unit),
-			bucket->compare
-		);
+				/* If 1, put in 1 bucket */
+				if(unit->state & bit)
+				{
+					_gfx_bucket_swap_units(bucket, unit, gfx_vector_at(
+						&bucket->units,
+						--mi));
+				}
+				else ++st;
+			}
+
+			/* Sort both buckets */
+			bit >>= 1;
+			_gfx_bucket_sort_units(bucket, bit, start, mi - start);
+			_gfx_bucket_sort_units(bucket, bit, mi, en - mi);
+		}
 	}
 }
 

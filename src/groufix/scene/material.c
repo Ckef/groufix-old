@@ -49,7 +49,6 @@ struct GFX_Batch
 struct GFX_Unit
 {
 	size_t     batch;     /* Material ID, 0 when empty */
-	GFXVector  units;     /* Stores size_t */
 	size_t     instances;
 };
 
