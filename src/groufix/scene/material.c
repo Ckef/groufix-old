@@ -229,6 +229,7 @@ void _gfx_material_remove_batch(
 			materialID - 1
 		);
 
+		batch->type = GFX_BATCH_DEFAULT;
 		batch->mesh = NULL;
 
 		/* Remove trailing empty batches */
@@ -286,7 +287,7 @@ void _gfx_material_set_batch_type(
 			materialID - 1
 		);
 
-		batch->type = type;
+		if(batch->mesh) batch->type = type;
 	}
 }
 
