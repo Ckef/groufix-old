@@ -52,7 +52,7 @@ static int _gfx_deque_realloc(
 	size_t end = GFX_PTR_DIFF(deque->data, deque->end);
 
 	long int diff =
-		capacity - deque->capacity;
+		(long int)capacity - (long int)deque->capacity;
 	long int elemDiff =
 		diff -
 		(capacity % deque->elementSize) +

@@ -64,20 +64,6 @@ struct GFX_MapData
 };
 
 /******************************************************/
-static void _gfx_material_increase_unit_bounds(
-
-		struct GFX_Material*  mat,
-		struct GFX_Group*     group,
-		long int              diff)
-{
-	while(group != mat->groups.end)
-	{
-		group->upper += diff;
-		group = gfx_vector_next(&mat->groups, group);
-	}
-}
-
-/******************************************************/
 static void _gfx_material_get_unit_bounds(
 
 		struct GFX_Material*  mat,
@@ -135,6 +121,65 @@ static struct GFX_MapData* _gfx_material_get_group_map(
 		&num);
 
 	return (index >= num) ? NULL : maps + index;
+}
+
+/******************************************************/
+static size_t _gfx_material_get_group_size(
+
+		struct GFX_Material*  material,
+		struct GFX_Group*     group)
+{
+	if(!group->instances) return 0;
+
+	/* Get the property map associated with the group */
+	struct GFX_MapData* map = _gfx_material_get_group_map(material, group);
+	if(!map) return 0;
+
+	/* Calculate the number of units */
+	/* Divide and round up to get the number of units required */
+	if(!map->instances) return 1;
+	return (group->instances - 1) / map->instances + 1;
+}
+
+/******************************************************/
+static int _gfx_material_reserve_units(
+
+		struct GFX_Material*  material,
+		struct GFX_Group*     group)
+{
+	size_t begin;
+	size_t end;
+	_gfx_material_get_unit_bounds(material, group, &begin, &end);
+
+	/* Get difference in units */
+	size_t units = _gfx_material_get_group_size(material, group);
+	long int diff = (long int)units - (long int)(end - begin);
+
+	/* Insert new units */
+	if(diff > 0)
+	{
+		if(gfx_vector_insert_range_at(
+			&material->units,
+			diff,
+			NULL,
+			end) == material->units.end) return 0;
+	}
+
+	/* Erase units */
+	else gfx_vector_erase_range_at(
+		&material->units,
+		-diff,
+		end + diff
+	);
+
+	/* Adjust bounds */
+	while(group != material->groups.end)
+	{
+		group->upper += diff;
+		group = gfx_vector_next(&material->groups, group);
+	}
+
+	return 1;
 }
 
 /******************************************************/
@@ -346,15 +391,19 @@ void _gfx_material_remove_group(
 
 	if(groupID && groupID <= size)
 	{
-		/* Get group and mark as empty */
+		/* Get group */
 		struct GFX_Group* group = gfx_vector_at(
 			&internal->groups,
 			groupID - 1
 		);
 
+		/* Erase units */
+		group->instances = 0;
+		_gfx_material_reserve_units(internal, group);
+
+		/* Mark as empty and remove trailing empty groups */
 		group->batch = 0;
 
-		/* Remove trailing empty groups */
 		size_t num;
 		struct GFX_Group* beg = internal->groups.end;
 
@@ -392,17 +441,11 @@ size_t* _gfx_material_get_group(
 		groupID - 1
 	);
 
-	/* Get bounds */
+	/* Return correct values */
 	size_t begin;
 	size_t end;
-	_gfx_material_get_unit_bounds(
-		internal,
-		group,
-		&begin,
-		&end
-	);
+	_gfx_material_get_unit_bounds(internal, group, &begin, &end);
 
-	/* Return correct values */
 	*units = end - begin;
 	return gfx_vector_at(&internal->units, begin);
 }
@@ -429,6 +472,13 @@ int _gfx_material_increase(
 	/* Check for overflow */
 	if(SIZE_MAX - instances < group->instances) return 0;
 	group->instances += instances;
+
+	/* Reserve the correct amount of units */
+	if(!_gfx_material_reserve_units(internal, group))
+	{
+		group->instances -= instances;
+		return 0;
+	}
 
 	return 1;
 }
@@ -473,9 +523,13 @@ int _gfx_material_decrease(
 		groupID - 1
 	);
 
-	return group->instances =
-		(instances > group->instances) ? 0 :
+	group->instances = (instances > group->instances) ? 0 :
 		group->instances - instances;
+
+	/* Reserve the correct amount of units */
+	_gfx_material_reserve_units(internal, group);
+
+	return group->instances ? 1 : 0;
 }
 
 /******************************************************/
