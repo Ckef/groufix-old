@@ -129,25 +129,23 @@ static void _gfx_mesh_callback(
 		it != mesh->batches.end;
 		it = gfx_vector_next(&mesh->batches, it))
 	{
+		/* Find pipe within the batch and erase it */
 		size_t begin;
 		size_t end;
-		_gfx_mesh_get_bucket_bounds(mesh, it, &begin, &end);
 
-		/* Iterate through buckets and erase them */
+		_gfx_mesh_get_bucket_bounds(mesh, it, &begin, &end);
+		size_t index = _gfx_mesh_find_bucket(mesh, begin, end, pipe);
+
 		/* Don't worry about submeshes, as they are registered at the bucket as well */
-		while(begin < end)
+		if(index < end)
 		{
 			struct GFX_Bucket* bucket = gfx_vector_at(
-				&mesh->buckets, begin);
+				&mesh->buckets, index);
 
-			if(bucket->pipe == pipe)
-			{
-				/* Also destory the units at the material */
-				_gfx_material_remove_group(it->material, bucket->groupID);
-				gfx_vector_erase(&mesh->buckets, bucket);
-				_gfx_mesh_increase_bucket_bounds(mesh, it, -1);
-			}
-			else ++begin;
+			/* Also destory the units at the material */
+			_gfx_material_remove_group(it->material, bucket->groupID);
+			gfx_vector_erase(&mesh->buckets, bucket);
+			_gfx_mesh_increase_bucket_bounds(mesh, it, -1);
 		}
 	}
 }
@@ -439,7 +437,7 @@ void _gfx_mesh_remove_batch(
 
 	if(meshID && meshID <= size)
 	{
-		/* Get batch and bounds, and fix them */
+		/* Get batch and bounds */
 		struct GFX_Batch* batch = gfx_vector_at(
 			&internal->batches,
 			meshID - 1
@@ -455,7 +453,7 @@ void _gfx_mesh_remove_batch(
 		{
 			struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, --i);
 
-			/* Destroy units */
+			/* Destroy unit groups */
 			_gfx_material_remove_group(
 				batch->material,
 				it->groupID);

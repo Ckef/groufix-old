@@ -113,6 +113,27 @@ void _gfx_material_remove_batch(
 		size_t        materialID);
 
 /**
+ * Returns the type of a batch at a material.
+ *
+ * @return GFX_BATCH_DEFAULT if the batch does not exist.
+ *
+ */
+GFXBatchType _gfx_material_get_batch_type(
+
+		GFXMaterial*  material,
+		size_t        materialID);
+
+/**
+ * Sets the type of a batch at a material.
+ *
+ */
+void _gfx_material_set_batch_type(
+
+		GFXMaterial*  material,
+		size_t        materialID,
+		GFXBatchType  type);
+
+/**
  * Fetches the ID of a batch at a mesh.
  *
  * @param material   Material the batch is associated with.
@@ -194,6 +215,21 @@ void _gfx_material_remove_group(
 		size_t        groupID);
 
 /**
+ * Returns memory reserved for units associated with a group.
+ *
+ * @param units Returns the number of units in the returned array.
+ * @return Array of size_t elements, reserved to be units, but not created.
+ *
+ * Note: the pointer is only valid as long as no group at the material is changed.
+ *
+ */
+size_t* _gfx_material_get_group(
+
+		GFXMaterial*  material,
+		size_t        groupID,
+		size_t*       units);
+
+/**
  * Increase the instance count of a unit group.
  *
  * @return Zero on failure.
@@ -204,6 +240,15 @@ int _gfx_material_increase(
 		GFXMaterial*  material,
 		size_t        groupID,
 		size_t        instances);
+
+/**
+ * Returns the number of instances of a unit group.
+ *
+ */
+size_t _gfx_material_get(
+
+		GFXMaterial*  material,
+		size_t        groupID);
 
 /**
  * Decrease the instance count of a unit group.

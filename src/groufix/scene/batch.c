@@ -89,6 +89,49 @@ void gfx_batch_erase(
 }
 
 /******************************************************/
+GFXBatchType gfx_batch_get_type(
+
+		GFXBatch* batch)
+{
+	return _gfx_material_get_batch_type(
+		batch->material,
+		batch->materialID
+	);
+}
+
+/******************************************************/
+size_t gfx_batch_get_instances(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket)
+{
+	/* Get unit group */
+	size_t groupID = _gfx_mesh_get_group(
+		batch->mesh,
+		batch->meshID,
+		bucket
+	);
+
+	return _gfx_material_get(
+		batch->material,
+		groupID
+	);
+}
+
+/******************************************************/
+void gfx_batch_set_type(
+
+		GFXBatch*     batch,
+		GFXBatchType  type)
+{
+	_gfx_material_set_batch_type(
+		batch->material,
+		batch->materialID,
+		type
+	);
+}
+
+/******************************************************/
 int gfx_batch_increase(
 
 		GFXBatch*  batch,
@@ -101,8 +144,6 @@ int gfx_batch_increase(
 		batch->meshID,
 		bucket
 	);
-
-	if(!groupID) return 0;
 
 	/* Increase */
 	return _gfx_material_increase(
@@ -127,7 +168,7 @@ void gfx_batch_decrease(
 	);
 
 	/* Decrease */
-	if(groupID) if(!_gfx_material_decrease(
+	if(!_gfx_material_decrease(
 		batch->material,
 		groupID,
 		instances))

@@ -111,6 +111,36 @@ void gfx_batch_erase(
 		GFXBatch* batch);
 
 /**
+ * Returns the type of a given batch.
+ *
+ * @return GFX_BATCH_DEFAULT on failure.
+ *
+ */
+GFXBatchType gfx_batch_get_type(
+
+		GFXBatch* batch);
+
+/**
+ * Returns the number of intsances at a bucket for a given batch.
+ *
+ */
+size_t gfx_batch_get_instances(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket);
+
+/**
+ * Sets the type of a given batch.
+ *
+ * Note: the default is GFX_BATCH_DEFAULT.
+ *
+ */
+void gfx_batch_set_type(
+
+		GFXBatch*     batch,
+		GFXBatchType  type);
+
+/**
  * Increase the number of instances at a bucket for a given batch.
  *
  * @param bucket    Bucket to increase instances at.
