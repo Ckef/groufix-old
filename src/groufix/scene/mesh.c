@@ -453,32 +453,20 @@ void _gfx_mesh_remove_batch(
 		{
 			struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, --i);
 
-			/* Destroy unit groups */
-			_gfx_material_remove_group(
-				batch->material,
-				it->groupID);
+			/* Destroy units of the group */
+			/* Automatically destroying the group in the process */
+			GFXBatch bat;
+			bat.material   = batch->material;
+			bat.materialID = batch->materialID;
+			bat.mesh       = mesh;
+			bat.meshID     = meshID;
 
-			/* Dereference it */
-			GFXPipe* pipe = it->pipe;
-			it->pipe = NULL;
-
-			_gfx_mesh_dereference_bucket(
-				internal,
-				pipe,
-				batch->params.mesh,
-				batch->params.index);
+			gfx_batch_decrease(
+				&bat,
+				it->pipe,
+				_gfx_material_get(bat.material, it->groupID)
+			);
 		}
-
-		/* Remove all buckets and fix bounds */
-		gfx_vector_erase_range_at(
-			&internal->buckets,
-			end - begin,
-			begin);
-
-		_gfx_mesh_increase_bucket_bounds(
-			internal,
-			batch,
-			(long int)begin - (long int)end);
 
 		/* Mark as empty and remove trailing empty batches */
 		batch->material = NULL;

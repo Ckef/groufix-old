@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
 /* Internal material */
@@ -151,18 +152,23 @@ static int _gfx_material_reserve_units(
 	size_t end;
 	_gfx_material_get_unit_bounds(material, group, &begin, &end);
 
-	/* Get difference in units */
 	size_t units = _gfx_material_get_group_size(material, group);
 	long int diff = (long int)units - (long int)(end - begin);
 
 	/* Insert new units */
 	if(diff > 0)
 	{
-		if(gfx_vector_insert_range_at(
+		GFXVectorIterator it = gfx_vector_insert_range_at(
 			&material->units,
 			diff,
 			NULL,
-			end) == material->units.end) return 0;
+			end
+		);
+
+		if(it == material->units.end) return 0;
+
+		/* Initialize all to 0 */
+		memset(it, 0, (size_t)diff * sizeof(size_t));
 	}
 
 	/* Erase units */
