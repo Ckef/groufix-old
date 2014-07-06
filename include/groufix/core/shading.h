@@ -520,6 +520,7 @@ int gfx_property_map_set_value(
  *
  * @param ptr    Pointer to store for this vector/matrix property.
  * @param offset Offset to add to the pointer measured in array elements.
+ * @param size   Size of the readable data pointed to by ptr measured in array elements.
  * @return Zero on failure or if not a pointer value.
  *
  * Note: it will copy the amount of bytes to fill the entire property.
@@ -531,13 +532,14 @@ int gfx_property_map_set_value_pointer(
 		unsigned char    index,
 		size_t           copy,
 		const void*      ptr,
-		size_t           offset);
+		size_t           offset,
+		size_t           size);
 
 /**
- * Sets the offset of each instance of a vector/matrix property.
+ * Sets the offset of each instance of a pointer vector/matrix property.
  *
  * @param offset Relative offset of instances measured in array elements.
- * @return Zero if not a vector/matrix value.
+ * @return Zero if not a pointer vector/matrix value.
  *
  * Note: a base instance will subtract from the number of uploaded instances.
  *
@@ -546,6 +548,7 @@ int gfx_property_map_set_instance_offset(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
+		size_t           copy,
 		unsigned int     offset);
 
 /**
