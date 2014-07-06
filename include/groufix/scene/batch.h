@@ -145,7 +145,10 @@ void gfx_batch_set_type(
  *
  * @param bucket    Bucket to increase instances at.
  * @param instances Number of instances to add.
- * @return Zero on failure.
+ * @return Zero on failure or if instances is 0.
+ *
+ * Note: if this batch identifies a submesh or property map that does not exist,
+ * it will fail and return 0.
  *
  */
 int gfx_batch_increase(

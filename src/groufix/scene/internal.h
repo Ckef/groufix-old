@@ -232,7 +232,7 @@ size_t* _gfx_material_get_group(
 /**
  * Increase the instance count of a unit group.
  *
- * @return Zero on failure.
+ * @return Zero on failure or if instances is 0.
  *
  */
 int _gfx_material_increase(

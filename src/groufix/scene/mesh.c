@@ -323,10 +323,51 @@ static void _gfx_mesh_dereference_submesh(
 			/* Iterate through buckets and dereference them */
 			while(begin < end)
 			{
-				struct GFX_Bucket* bucket = gfx_vector_at(
-					&mesh->buckets, begin++);
-
+				struct GFX_Bucket* bucket = gfx_vector_at(&mesh->buckets, begin++);
 				_gfx_submesh_dereference_bucket(sub, bucket->pipe);
+			}
+		}
+	}
+}
+
+/******************************************************/
+static void _gfx_mesh_rebuild_batches(
+
+		struct GFX_Mesh*  mesh,
+		size_t            level,
+		size_t            index)
+{
+	/* Iterate through all batches */
+	size_t meshID = 1;
+	struct GFX_Batch* batch;
+
+	for(
+		batch = mesh->batches.begin;
+		batch != mesh->batches.end;
+		batch = gfx_vector_next(&mesh->batches, batch), ++meshID)
+	{
+		if(batch->params.mesh == level && batch->params.index == index)
+		{
+			size_t begin;
+			size_t end;
+			_gfx_mesh_get_bucket_bounds(mesh, batch, &begin, &end);
+
+			/* Iterate through all buckets */
+			while(begin < end)
+			{
+				struct GFX_Bucket* it = gfx_vector_at(&mesh->buckets, begin++);
+				size_t instances = _gfx_material_get(batch->material, it->groupID);
+
+				/* Remove all instances then add them again */
+				/* This to allow the batch to recreate the units with new properties */
+				GFXBatch bat;
+				bat.material   = batch->material;
+				bat.materialID = batch->materialID;
+				bat.mesh       = (GFXMesh*)mesh;
+				bat.meshID     = meshID;
+
+				gfx_batch_decrease(&bat, it->pipe, instances);
+				gfx_batch_increase(&bat, it->pipe, instances);
 			}
 		}
 	}
@@ -448,10 +489,9 @@ void _gfx_mesh_remove_batch(
 		_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
 
 		/* Iterate through all buckets */
-		size_t i = end;
-		while(i > begin)
+		while(end > begin)
 		{
-			struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, --i);
+			struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, --end);
 
 			/* Destroy units of the group */
 			/* Automatically destroying the group in the process */
@@ -798,7 +838,11 @@ size_t gfx_mesh_set_material(
 	while(num--) if(data[num].sub == sub)
 	{
 		/* Set material if found */
-		data[num].material = material;
+		if(data[num].material != material)
+		{
+			data[num].material = material;
+			_gfx_mesh_rebuild_batches((struct GFX_Mesh*)mesh, level, num);
+		}
 		++count;
 	}
 
@@ -824,7 +868,11 @@ int gfx_mesh_set_material_at(
 	if(index >= num) return 0;
 
 	/* Set the material */
-	data[index].material = material;
+	if(data[index].material != material)
+	{
+		data[index].material = material;
+		_gfx_mesh_rebuild_batches((struct GFX_Mesh*)mesh, level, index);
+	}
 
 	return 1;
 }
@@ -850,7 +898,11 @@ size_t gfx_mesh_set_source(
 	while(num--) if(data[num].sub == sub)
 	{
 		/* Set source if found */
-		data[num].source = source;
+		if(data[num].source != source)
+		{
+			data[num].source = source;
+			_gfx_mesh_rebuild_batches((struct GFX_Mesh*)mesh, level, num);
+		}
 		++count;
 	}
 
@@ -876,7 +928,11 @@ int gfx_mesh_set_source_at(
 	if(index >= num) return 0;
 
 	/* Set the source */
-	data[index].source = source;
+	if(data[index].source != source)
+	{
+		data[index].source = source;
+		_gfx_mesh_rebuild_batches((struct GFX_Mesh*)mesh, level, index);
+	}
 
 	return 1;
 }

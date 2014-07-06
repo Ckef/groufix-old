@@ -155,6 +155,8 @@ static int _gfx_material_reserve_units(
 	size_t units = _gfx_material_get_group_size(material, group);
 	long int diff = (long int)units - (long int)(end - begin);
 
+	int ret = 0;
+
 	/* Insert new units */
 	if(diff > 0)
 	{
@@ -169,6 +171,7 @@ static int _gfx_material_reserve_units(
 
 		/* Initialize all to 0 */
 		memset(it, 0, (size_t)diff * sizeof(size_t));
+		ret = 1;
 	}
 
 	/* Erase units */
@@ -185,7 +188,7 @@ static int _gfx_material_reserve_units(
 		group = gfx_vector_next(&material->groups, group);
 	}
 
-	return 1;
+	return ret;
 }
 
 /******************************************************/
