@@ -6,7 +6,7 @@ Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in 
 
 Supported targets and their APIs _(windowing / OGL extension / OGL version, status / compiler collection)_:
 
-* __Unix__,    Xlib / GLX / OGL, (_working_ / _GCC__
+* __Unix__,    Xlib / GLX / OGL, (_working_ / _GCC_)
 * __Windows__, Win32 (XP and up) / WGL / OGL, (_working_ / _MinGW_)
 * __OS X__,    Cocoa / CGL / OGL, (_planned_)
 * __Android__, NDK / OGL ES, (_considered_)
