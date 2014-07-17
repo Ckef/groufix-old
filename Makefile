@@ -46,8 +46,6 @@ help:
 # Compiler/Linker options for all build targets
 #################################################################
 
-# Use MinGW on windows
-CC      = gcc
 BIN     = bin
 OUT     = obj
 DEPEND  = depend
@@ -182,14 +180,14 @@ OBJS_UNIX_X11 = \
 
 # Shared Library
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
-	$(CC) $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LFLAGS_UNIX_X11)
+	gcc $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LFLAGS_UNIX_X11)
 
 # Examples
 unix-x11-minimal: examples/minimal.c unix-x11
-	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 unix-x11-simple: examples/simple.c unix-x11
-	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 # Directories
 before-unix-x11:
@@ -203,7 +201,7 @@ before-unix-x11:
 
 # All the object files
 $(OUT)/unix-x11%.o: $(SRC)%.c $(HEADERS_UNIX_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+	gcc $(OBJFLAGS_UNIX_X11) $< -o $@
 
 
 #################################################################
@@ -251,14 +249,14 @@ OBJS_WIN32 = \
 
 # Shared Library
 win32: before-win32 $(OBJS_WIN32)
-	$(CC) $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
+	gcc $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
 
 # Examples
 win32-minimal: examples/minimal.c win32
-	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
+	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
 
 win32-simple: examples/simple.c win32
-	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
+	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
 
 # Directories
 before-win32:
@@ -272,4 +270,4 @@ before-win32:
 
 # All the object files
 $(OUT)/win32%.o: $(SRC)%.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+	gcc $(OBJFLAGS_WIN32) $< -o $@

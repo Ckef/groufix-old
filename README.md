@@ -4,12 +4,12 @@
 
 Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in C using OpenGL. The library has no external dependencies besides native windowing APIs and OpenGL to access the GPU. Desktop OpenGL is supported from 3.2 and up. OpenGL ES is supported from 3.0 and up.
 
-Supported targets and their APIs _(windowing, OGL extension and/or OGL version)_:
+Supported targets and their APIs _(windowing / OGL extension / OGL version, status / compiler collection)_:
 
-* __Unix__,    X11 (Xlib), GLX, OGL _(working)_
-* __Windows__, Win32 (Windows XP and up), WGL, OGL _(working)_
-* __OS X__,    Cocoa, CGL, OGL _(planned)_
-* __Android__, NDK, OGL ES _(considered)_
+* __Unix__,    Xlib / GLX / OGL, _working / GCC_
+* __Windows__, Win32 (XP and up) / WGL / OGL, _working / MinGW_
+* __OS X__,    Cocoa / CGL / OGL, _planned_
+* __Android__, NDK / OGL ES, _considered_
 
 The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 
@@ -31,7 +31,7 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 ### Threading
 
-_The library is thread affine_. All functonality should be executed from the same thread at all times. Due to the complex nature of GPU interaction and windowing on most platforms is it faster and safer to execute all graphics related operations on the same thread. The engine itself might or might not thread its internal workings, but the external interface can be viewed as if it is executed on the calling thread. It is the calling application's responsibility to execute the engine in a dedicated thread if this is necessary.
+_The library is thread affine_. All functonality should be executed from the same thread at all times. The engine itself might or might not thread its internal workings, but the external interface can be viewed as if it is executed on the calling thread. It is the calling application's responsibility to execute the engine in a dedicated thread if this is necessary.
 
 ### Termination
 
