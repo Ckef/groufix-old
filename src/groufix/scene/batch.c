@@ -53,8 +53,8 @@ int gfx_batch_get(
 	/* Remove on failure */
 	if(!matID || !meshID)
 	{
-		_gfx_material_remove_batch(material, matID);
 		_gfx_mesh_remove_batch(mesh, meshID);
+		_gfx_material_remove_batch(material, matID);
 
 		return 0;
 	}
@@ -84,8 +84,8 @@ void gfx_batch_erase(
 
 		GFXBatch* batch)
 {
-	_gfx_material_remove_batch(batch->material, batch->materialID);
 	_gfx_mesh_remove_batch(batch->mesh, batch->meshID);
+	_gfx_material_remove_batch(batch->material, batch->materialID);
 }
 
 /******************************************************/

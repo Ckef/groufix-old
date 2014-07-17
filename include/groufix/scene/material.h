@@ -113,6 +113,7 @@ GFXPropertyMapList gfx_material_get_all(
  * Index into a list of property maps, retrieving the instances.
  *
  * @param list List of property maps returned by gfx_material_get or gfx_material_get_all.
+ * @return Number of instances which can be drawn at once using the property map.
  *
  * Note: you can only retrieve a property map with index < number of elements in list.
  *

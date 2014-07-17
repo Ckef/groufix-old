@@ -704,13 +704,14 @@ void gfx_mesh_free(
 		{
 			struct GFX_Batch* it = gfx_vector_at(
 				&internal->batches,
-				b - 1);
+				b - 1
+			);
 
-			if(it->material) _gfx_material_remove_batch(
-				it->material,
-				it->materialID);
+			GFXMaterial* mat = it->material;
+			size_t matID = it->materialID;
 
 			_gfx_mesh_remove_batch(mesh, b);
+			if(mat) _gfx_material_remove_batch(mat, matID);
 		}
 
 		/* Free all submeshes */

@@ -147,6 +147,8 @@ void gfx_batch_set_type(
  * @param instances Number of instances to add.
  * @return Zero on failure or if instances is 0.
  *
+ * This is very expensive relative to simply changing the amount of visible instances!
+ *
  * Note: if this batch identifies a submesh or property map that does not exist,
  * it will fail and return 0.
  *
@@ -162,6 +164,8 @@ int gfx_batch_increase(
  *
  * @param bucket    Bucket to decrease instances at.
  * @param instances Number of instances to remove.
+ *
+ * This is very expensive relative to simply changing the amount of visible instances!
  *
  */
 void gfx_batch_decrease(

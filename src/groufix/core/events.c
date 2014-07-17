@@ -29,10 +29,12 @@ void _gfx_event_window_close(
 		GFX_PlatformWindow handle)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-
-	/* Destroy window if it has no callback */
-	if(window->callbacks.windowClose) window->callbacks.windowClose(window);
-	else _gfx_window_destroy((GFX_Window*)window);
+	if(window)
+	{
+		/* Destroy window if it has no callback */
+		if(window->callbacks.windowClose) window->callbacks.windowClose(window);
+		else _gfx_window_destroy((GFX_Window*)window);
+	}
 }
 
 /******************************************************/
@@ -43,10 +45,11 @@ void _gfx_event_window_move(
 		int                 y)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.windowMove) window->callbacks.windowMove(
-		window,
-		x, y
-	);
+	if(window)
+	{
+		if(window->callbacks.windowMove) window->callbacks.windowMove(
+			window, x, y);
+	}
 }
 
 /******************************************************/
@@ -57,14 +60,13 @@ void _gfx_event_window_resize(
 		unsigned int        height)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-
-	/* Resize all processes */
-	_gfx_pipe_process_resize((GFX_Window*)window, width, height);
-	if(window->callbacks.windowResize) window->callbacks.windowResize(
-		window,
-		width,
-		height
-	);
+	if(window)
+	{
+		/* Resize all processes */
+		_gfx_pipe_process_resize((GFX_Window*)window, width, height);
+		if(window->callbacks.windowResize) window->callbacks.windowResize(
+			window, width, height);
+	}
 }
 
 /******************************************************/
@@ -75,11 +77,11 @@ void _gfx_event_key_press(
 		GFXKeyState         state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.keyPress) window->callbacks.keyPress(
-		window,
-		key,
-		state
-	);
+	if(window)
+	{
+		if(window->callbacks.keyPress) window->callbacks.keyPress(
+			window, key, state);
+	}
 }
 
 /******************************************************/
@@ -90,11 +92,11 @@ void _gfx_event_key_release(
 		GFXKeyState         state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.keyRelease) window->callbacks.keyRelease(
-		window,
-		key,
-		state
-	);
+	if(window)
+	{
+		if(window->callbacks.keyRelease) window->callbacks.keyRelease(
+			window, key, state);
+	}
 }
 
 /******************************************************/
@@ -106,11 +108,11 @@ void _gfx_event_mouse_move(
 		GFXKeyState         state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.mouseMove) window->callbacks.mouseMove(
-		window,
-		x, y,
-		state
-	);
+	if(window)
+	{
+		if(window->callbacks.mouseMove) window->callbacks.mouseMove(
+			window, x, y, state);
+	}
 }
 
 /******************************************************/
@@ -122,11 +124,11 @@ void _gfx_event_mouse_enter(
 		GFXKeyState         state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.mouseEnter) window->callbacks.mouseEnter(
-		window,
-		x, y,
-		state
-	);
+	if(window)
+	{
+		if(window->callbacks.mouseEnter) window->callbacks.mouseEnter(
+			window, x, y, state);
+	}
 }
 
 /******************************************************/
@@ -138,11 +140,11 @@ void _gfx_event_mouse_leave(
 		GFXKeyState         state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.mouseLeave) window->callbacks.mouseLeave(
-		window,
-		x, y,
-		state
-	);
+	if(window)
+	{
+		if(window->callbacks.mouseLeave) window->callbacks.mouseLeave(
+			window, x, y, state);
+	}
 }
 
 /******************************************************/
@@ -155,12 +157,11 @@ void _gfx_event_mouse_press(
 		GFXKeyState         state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.mousePress) window->callbacks.mousePress(
-		window,
-		key,
-		x, y,
-		state
-	);
+	if(window)
+	{
+		if(window->callbacks.mousePress) window->callbacks.mousePress(
+			window, key, x, y, state);
+	}
 }
 
 /******************************************************/
@@ -173,12 +174,11 @@ void _gfx_event_mouse_release(
 		GFXKeyState         state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.mouseRelease) window->callbacks.mouseRelease(
-		window,
-		key,
-		x, y,
-		state
-	);
+	if(window)
+	{
+		if(window->callbacks.mouseRelease) window->callbacks.mouseRelease(
+			window, key, x, y, state);
+	}
 }
 
 /******************************************************/
@@ -192,11 +192,9 @@ void _gfx_event_mouse_wheel(
 		GFXKeyState         state)
 {
 	GFXWindow* window = (GFXWindow*)_gfx_window_get_from_handle(handle);
-	if(window->callbacks.mouseWheel) window->callbacks.mouseWheel(
-		window,
-		xoffset,
-		yoffset,
-		x, y,
-		state
-	);
+	if(window)
+	{
+		if(window->callbacks.mouseWheel) window->callbacks.mouseWheel(
+			window, xoffset, yoffset, x, y, state);
+	}
 }

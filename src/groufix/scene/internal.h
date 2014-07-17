@@ -106,6 +106,8 @@ void _gfx_material_set_batch(
  *
  * @param materialID Batch ID at the material to remove.
  *
+ * Note: _gfx_mesh_remove_batch must be called first.
+ *
  */
 void _gfx_material_remove_batch(
 
@@ -166,6 +168,8 @@ void _gfx_mesh_set_batch(
  * Removes a batch at a mesh.
  *
  * @param meshID Batch ID at the mesh to remove.
+ *
+ * Note: this must be called before _gfx_material_remove_batch.
  *
  */
 void _gfx_mesh_remove_batch(

@@ -579,10 +579,7 @@ void gfx_material_free(
 			it != internal->batches.end;
 			it = gfx_vector_next(&internal->batches, it))
 		{
-			if(it->mesh) _gfx_mesh_remove_batch(
-				it->mesh,
-				it->meshID
-			);
+			if(it->mesh) _gfx_mesh_remove_batch(it->mesh, it->meshID);
 		}
 
 		/* Free all property maps */
