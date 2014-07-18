@@ -69,6 +69,15 @@ int gfx_batch_get(
 }
 
 /******************************************************/
+void gfx_batch_erase(
+
+		GFXBatch* batch)
+{
+	_gfx_mesh_remove_batch(batch->mesh, batch->meshID);
+	_gfx_material_remove_batch(batch->material, batch->materialID);
+}
+
+/******************************************************/
 GFXBatchLod gfx_batch_get_lod(
 
 		GFXBatch* batch)
@@ -77,15 +86,6 @@ GFXBatchLod gfx_batch_get_lod(
 	_gfx_mesh_get_batch_lod(batch->mesh, batch->meshID, &params);
 
 	return params;
-}
-
-/******************************************************/
-void gfx_batch_erase(
-
-		GFXBatch* batch)
-{
-	_gfx_mesh_remove_batch(batch->mesh, batch->meshID);
-	_gfx_material_remove_batch(batch->material, batch->materialID);
 }
 
 /******************************************************/
@@ -145,7 +145,6 @@ int gfx_batch_increase(
 		bucket
 	);
 
-	/* Increase */
 	return _gfx_material_increase(
 		batch->material,
 		groupID,

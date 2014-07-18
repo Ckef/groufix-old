@@ -142,7 +142,8 @@ static void _gfx_mesh_callback(
 			struct GFX_Bucket* bucket = gfx_vector_at(
 				&mesh->buckets, index);
 
-			/* Also destory the units at the material */
+			/* Also destroy the units at the material */
+			/* ALSO don't worry about destroying the units, as the bucket destroys them */
 			_gfx_material_remove_group(it->material, bucket->groupID);
 			gfx_vector_erase(&mesh->buckets, bucket);
 			_gfx_mesh_increase_bucket_bounds(mesh, it, -1);
@@ -541,10 +542,11 @@ int _gfx_mesh_get_batch_lod(
 	/* Get batch */
 	struct GFX_Batch* batch = gfx_vector_at(
 		&internal->batches,
-		meshID - 1
-	);
+		meshID - 1);
 
+	if(!batch->material) return 0;
 	*params = batch->params;
+
 	return 1;
 }
 
@@ -555,40 +557,39 @@ size_t _gfx_mesh_get_group(
 		size_t    meshID,
 		GFXPipe*  pipe)
 {
-	/* Validate pipe type & bound check */
+	/* Bound check */
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
 	size_t max = gfx_vector_get_size(&internal->batches);
 
-	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET ||
-		!meshID ||
-		meshID > max) return 0;
+	if(!meshID || meshID > max) return 0;
 
-	/* Get batch and bounds */
+	/* Get batch */
 	struct GFX_Batch* batch = gfx_vector_at(
 		&internal->batches,
-		meshID - 1
-	);
+		meshID - 1);
 
+	if(!batch->material) return 0;
+
+	/* Get bound and find bucket */
 	size_t begin;
 	size_t end;
-	_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
 
-	/* Find bucket */
+	_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
 	size_t index = _gfx_mesh_find_bucket(internal, begin, end, pipe);
+
 	if(index < end)
 	{
 		struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, index);
 		return it->groupID;
 	}
 
+	/* Validate pipe type before creating a new group */
+	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET) return 0;
+
 	/* Create new unit group */
 	struct GFX_Bucket bucket;
 	bucket.pipe = pipe;
-
-	bucket.groupID = _gfx_material_insert_group(
-		batch->material,
-		batch->materialID
-	);
+	bucket.groupID = _gfx_material_insert_group(batch->material);
 
 	if(bucket.groupID)
 	{
@@ -596,8 +597,7 @@ size_t _gfx_mesh_get_group(
 		struct GFX_Bucket* it = gfx_vector_insert_at(
 			&internal->buckets,
 			&bucket,
-			end
-		);
+			end);
 
 		if(it != internal->buckets.end)
 		{
@@ -704,14 +704,16 @@ void gfx_mesh_free(
 		{
 			struct GFX_Batch* it = gfx_vector_at(
 				&internal->batches,
-				b - 1
-			);
+				b - 1);
 
-			GFXMaterial* mat = it->material;
-			size_t matID = it->materialID;
+			if(it->material)
+			{
+				GFXMaterial* mat = it->material;
+				size_t matID = it->materialID;
 
-			_gfx_mesh_remove_batch(mesh, b);
-			if(mat) _gfx_material_remove_batch(mat, matID);
+				_gfx_mesh_remove_batch(mesh, b);
+				_gfx_material_remove_batch(mat, matID);
+			}
 		}
 
 		/* Free all submeshes */

@@ -88,6 +88,17 @@ int gfx_batch_get(
 		GFXBatchLod   params);
 
 /**
+ * Force a batch to erase all its resources.
+ *
+ * Note: it is not required to make this call, it is simply meant to let the
+ * system know the batch is not required to exist any longer.
+ *
+ */
+void gfx_batch_erase(
+
+		GFXBatch* batch);
+
+/**
  * Return the level of detail parameters of a batch.
  *
  * @return Level of detail parameters, undefined if the batch does not exist.
@@ -96,17 +107,6 @@ int gfx_batch_get(
  *
  */
 GFXBatchLod gfx_batch_get_lod(
-
-		GFXBatch* batch);
-
-/**
- * Force a batch to erase all its resources.
- *
- * Note: it is not required to make this call, it is simply meant to let the
- * system know the batch is not required to exist any longer.
- *
- */
-void gfx_batch_erase(
 
 		GFXBatch* batch);
 
@@ -145,12 +145,12 @@ void gfx_batch_set_type(
  *
  * @param bucket    Bucket to increase instances at.
  * @param instances Number of instances to add.
- * @return Zero on failure or if instances is 0.
- *
- * This is very expensive relative to simply changing the amount of visible instances!
+ * @return Zero on failure.
  *
  * Note: if this batch identifies a submesh or property map that does not exist,
- * it will fail and return 0.
+ * it will fail and return zero.
+ *
+ * This is very expensive relative to simply changing the amount of visible instances!
  *
  */
 int gfx_batch_increase(
@@ -165,7 +165,7 @@ int gfx_batch_increase(
  * @param bucket    Bucket to decrease instances at.
  * @param instances Number of instances to remove.
  *
- * This is very expensive relative to simply changing the amount of visible instances!
+ * Note: if the number of instances hits 0, the batch's resources for the bucket are freed.
  *
  */
 void gfx_batch_decrease(

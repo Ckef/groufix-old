@@ -663,9 +663,9 @@ void _gfx_extensions_load(void)
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
 
-		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)
+		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC)
 			_gfx_gl_get_program_binary;
-		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)
+		ext->ProgramBinary = (PFNGLPROGRAMBINARYPROC)
 			_gfx_gl_program_binary;
 		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)
 			_gfx_gl_program_parameter_i;

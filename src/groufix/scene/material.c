@@ -27,6 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define GFX_GROUP_EMPTY          (SIZE_MAX)
+#define GFX_GROUP_MAX_INSTANCES  (SIZE_MAX - 1)
+
 /******************************************************/
 /* Internal material */
 struct GFX_Material
@@ -51,8 +54,7 @@ struct GFX_Batch
 /* Internal unit group */
 struct GFX_Group
 {
-	size_t  batch;     /* Material ID, 0 when empty */
-	size_t  instances; /* Number of existing instances */
+	size_t  instances; /* Number of existing instances, GFX_GROUP_EMPTY when empty */
 	size_t  upper;     /* Upper bound in units vector */
 };
 
@@ -83,112 +85,52 @@ static void _gfx_material_get_unit_bounds(
 }
 
 /******************************************************/
-static struct GFX_MapData* _gfx_material_get_group_map(
-
-		struct GFX_Material*  material,
-		struct GFX_Group*     group)
-{
-	if(!group->batch) return NULL;
-
-	/* Get batch & parameters */
-	struct GFX_Batch* batch = gfx_vector_at(
-		&material->batches,
-		group->batch - 1);
-
-	GFXBatchLod params;
-	_gfx_mesh_get_batch_lod(
-		batch->mesh,
-		batch->meshID,
-		&params);
-
-	/* Get submesh */
-	size_t num;
-	GFXSubMeshList list = gfx_mesh_get(
-		batch->mesh,
-		params.mesh,
-		&num);
-
-	if(params.index >= num) return NULL;
-
-	/* Get material index */
-	size_t index = gfx_submesh_list_material_at(
-		list,
-		params.index);
-
-	/* Get property map */
-	struct GFX_MapData* maps = gfx_lod_map_get(
-		(GFXLodMap*)material,
-		params.material,
-		&num);
-
-	return (index >= num) ? NULL : maps + index;
-}
-
-/******************************************************/
-static size_t _gfx_material_get_group_size(
-
-		struct GFX_Material*  material,
-		struct GFX_Group*     group)
-{
-	if(!group->instances) return 0;
-
-	/* Get the property map associated with the group */
-	struct GFX_MapData* map = _gfx_material_get_group_map(material, group);
-	if(!map) return 0;
-
-	/* Calculate the number of units */
-	/* Divide and round up to get the number of units required */
-	if(!map->instances) return 1;
-	return (group->instances - 1) / map->instances + 1;
-}
-
-/******************************************************/
 static int _gfx_material_reserve_units(
 
 		struct GFX_Material*  material,
-		struct GFX_Group*     group)
+		struct GFX_Group*     group,
+		size_t                units)
 {
 	size_t begin;
 	size_t end;
-	_gfx_material_get_unit_bounds(material, group, &begin, &end);
 
-	size_t units = _gfx_material_get_group_size(material, group);
+	_gfx_material_get_unit_bounds(material, group, &begin, &end);
 	long int diff = (long int)units - (long int)(end - begin);
 
-	int ret = 0;
-
-	/* Insert new units */
-	if(diff > 0)
+	if(diff)
 	{
-		GFXVectorIterator it = gfx_vector_insert_range_at(
+		/* Insert new units */
+		if(diff > 0)
+		{
+			GFXVectorIterator it = gfx_vector_insert_range_at(
+				&material->units,
+				diff,
+				NULL,
+				end
+			);
+
+			if(it == material->units.end) return 0;
+
+			/* Initialize all to 0 */
+			memset(it, 0, (size_t)diff * sizeof(size_t));
+		}
+
+		/* Erase units */
+		else gfx_vector_erase_range_at(
 			&material->units,
-			diff,
-			NULL,
-			end
+			-diff,
+			end + diff
 		);
 
-		if(it == material->units.end) return 0;
-
-		/* Initialize all to 0 */
-		memset(it, 0, (size_t)diff * sizeof(size_t));
-		ret = 1;
+		/* Adjust bounds */
+		while(group != material->groups.end)
+		{
+			group->upper += diff;
+			group = gfx_vector_next(&material->groups, group);
+		}
 	}
 
-	/* Erase units */
-	else gfx_vector_erase_range_at(
-		&material->units,
-		-diff,
-		end + diff
-	);
-
-	/* Adjust bounds */
-	while(group != material->groups.end)
-	{
-		group->upper += diff;
-		group = gfx_vector_next(&material->groups, group);
-	}
-
-	return ret;
+	return 1;
 }
 
 /******************************************************/
@@ -283,6 +225,7 @@ void _gfx_material_remove_batch(
 			materialID - 1
 		);
 
+		/* Also set type to that of a non existent batch */
 		batch->type = GFX_BATCH_DEFAULT;
 		batch->mesh = NULL;
 
@@ -348,12 +291,8 @@ void _gfx_material_set_batch_type(
 /******************************************************/
 size_t _gfx_material_insert_group(
 
-		GFXMaterial*  material,
-		size_t        materialID)
+		GFXMaterial* material)
 {
-	/* Derp */
-	if(!materialID) return 0;
-
 	/* Try to find an empty group */
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 	struct GFX_Group* it;
@@ -363,12 +302,11 @@ size_t _gfx_material_insert_group(
 		it != internal->groups.end;
 		it = gfx_vector_next(&internal->groups, it))
 	{
-		if(!(it->batch)) break;
+		if(it->instances == GFX_GROUP_EMPTY) break;
 	}
 
 	/* Construct new group and insert */
 	struct GFX_Group group;
-	group.batch = materialID;
 	group.instances = 0;
 
 	if(it != internal->groups.end)
@@ -407,11 +345,10 @@ void _gfx_material_remove_group(
 		);
 
 		/* Erase units */
-		group->instances = 0;
-		_gfx_material_reserve_units(internal, group);
+		_gfx_material_reserve_units(internal, group, 0);
 
 		/* Mark as empty and remove trailing empty groups */
-		group->batch = 0;
+		group->instances = GFX_GROUP_EMPTY;
 
 		size_t num;
 		struct GFX_Group* beg = internal->groups.end;
@@ -419,7 +356,7 @@ void _gfx_material_remove_group(
 		for(num = 0; num < size; ++num)
 		{
 			struct GFX_Group* prev = gfx_vector_previous(&internal->groups, beg);
-			if(prev->batch) break;
+			if(prev->instances != GFX_GROUP_EMPTY) break;
 
 			beg = prev;
 		}
@@ -428,7 +365,115 @@ void _gfx_material_remove_group(
 }
 
 /******************************************************/
-size_t* _gfx_material_get_group(
+int _gfx_material_increase(
+
+		GFXMaterial*      material,
+		size_t            groupID,
+		size_t            instances)
+{
+	/* Bound check */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	size_t max = gfx_vector_get_size(&internal->groups);
+
+	if(!groupID || groupID > max) return 0;
+
+	/* Get group */
+	struct GFX_Group* group = gfx_vector_at(
+		&internal->groups,
+		groupID - 1
+	);
+
+	/* Check for overflow */
+	if(
+		GFX_GROUP_MAX_INSTANCES - instances < group->instances ||
+		group->instances == GFX_GROUP_EMPTY)
+	{
+		return 0;
+	}
+
+	group->instances += instances;
+
+	return 1;
+}
+
+/******************************************************/
+int _gfx_material_decrease(
+
+		GFXMaterial*  material,
+		size_t        groupID,
+		size_t        instances)
+{
+	/* Bound check */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	size_t max = gfx_vector_get_size(&internal->groups);
+
+	if(!groupID || groupID > max) return 0;
+
+	/* Get group and map */
+	struct GFX_Group* group = gfx_vector_at(
+		&internal->groups,
+		groupID - 1
+	);
+
+	if(group->instances == GFX_GROUP_EMPTY) return 0;
+
+	/* Decrease */
+	group->instances =
+		(instances > group->instances) ? 0 :
+		group->instances - instances;
+
+	return (group->instances > 0);
+}
+
+/******************************************************/
+size_t _gfx_material_get(
+
+		GFXMaterial*  material,
+		size_t        groupID)
+{
+	/* Bound check */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	size_t max = gfx_vector_get_size(&internal->groups);
+
+	if(!groupID || groupID > max) return 0;
+
+	/* Get group */
+	struct GFX_Group* group = gfx_vector_at(
+		&internal->groups,
+		groupID - 1
+	);
+
+	return (group->instances == GFX_GROUP_EMPTY) ? 0 :
+		group->instances;
+}
+
+/******************************************************/
+int _gfx_material_reserve(
+
+		GFXMaterial*  material,
+		size_t        groupID,
+		size_t        units)
+{
+	/* Bound check */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	size_t max = gfx_vector_get_size(&internal->groups);
+
+	if(!groupID || groupID > max) return 0;
+
+	/* Get group */
+	struct GFX_Group* group = gfx_vector_at(
+		&internal->groups,
+		groupID - 1
+	);
+
+	if(group->instances == GFX_GROUP_EMPTY) return 0;
+
+	/* Reserve units */
+	return _gfx_material_reserve_units(internal, group, units);
+}
+
+/******************************************************/
+size_t* _gfx_material_get_reserved(
 
 		GFXMaterial*  material,
 		size_t        groupID,
@@ -457,88 +502,6 @@ size_t* _gfx_material_get_group(
 
 	*units = end - begin;
 	return gfx_vector_at(&internal->units, begin);
-}
-
-/******************************************************/
-int _gfx_material_increase(
-
-		GFXMaterial*  material,
-		size_t        groupID,
-		size_t        instances)
-{
-	/* Bound check */
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	size_t max = gfx_vector_get_size(&internal->groups);
-
-	if(!groupID || groupID > max) return 0;
-
-	/* Get group */
-	struct GFX_Group* group = gfx_vector_at(
-		&internal->groups,
-		groupID - 1
-	);
-
-	/* Check for overflow */
-	if(SIZE_MAX - instances < group->instances) return 0;
-	group->instances += instances;
-
-	/* Reserve the correct amount of units */
-	if(!_gfx_material_reserve_units(internal, group))
-	{
-		group->instances -= instances;
-		return 0;
-	}
-
-	return 1;
-}
-
-/******************************************************/
-size_t _gfx_material_get(
-
-		GFXMaterial*  material,
-		size_t        groupID)
-{
-	/* Bound check */
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	size_t max = gfx_vector_get_size(&internal->groups);
-
-	if(!groupID || groupID > max) return 0;
-
-	/* Get group */
-	struct GFX_Group* group = gfx_vector_at(
-		&internal->groups,
-		groupID - 1
-	);
-
-	return group->instances;
-}
-
-/******************************************************/
-int _gfx_material_decrease(
-
-		GFXMaterial*  material,
-		size_t        groupID,
-		size_t        instances)
-{
-	/* Bound check */
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	size_t max = gfx_vector_get_size(&internal->groups);
-
-	if(!groupID || groupID > max) return 0;
-
-	/* Get group and decrease */
-	struct GFX_Group* group = gfx_vector_at(
-		&internal->groups,
-		groupID - 1
-	);
-
-	group->instances = (instances > group->instances) ? 0 :
-		group->instances - instances;
-
-	/* Reserve the correct amount of units */
-	_gfx_material_reserve_units(internal, group);
-
-	return group->instances ? 1 : 0;
 }
 
 /******************************************************/

@@ -198,19 +198,19 @@ int _gfx_mesh_get_batch_lod(
 /**
  * Inserts a new unit group at the material.
  *
- * @param materialID Batch ID at the material to use.
  * @return Unit group ID, 0 on failure or if materialID is 0.
  *
  */
 size_t _gfx_material_insert_group(
 
-		GFXMaterial*  material,
-		size_t        materialID);
+		GFXMaterial* material);
 
 /**
  * Removes a unit group at a material.
  *
  * @param groupID Unit group ID at the material to remove.
+ *
+ * Note: this also invalidates any pointers fetched using _gfx_material_get_group.
  *
  */
 void _gfx_material_remove_group(
@@ -219,24 +219,9 @@ void _gfx_material_remove_group(
 		size_t        groupID);
 
 /**
- * Returns memory reserved for units associated with a group.
+ * Increase the instance counter of a group.
  *
- * @param units Returns the number of units in the returned array.
- * @return Array of size_t elements, reserved to be units, but not created.
- *
- * Note: the pointer is only valid as long as no group at the material is changed.
- *
- */
-size_t* _gfx_material_get_group(
-
-		GFXMaterial*  material,
-		size_t        groupID,
-		size_t*       units);
-
-/**
- * Increase the instance count of a unit group.
- *
- * @return Zero on failure or if instances is 0.
+ * @return Zero on overflow or if the group does not exist.
  *
  */
 int _gfx_material_increase(
@@ -246,7 +231,19 @@ int _gfx_material_increase(
 		size_t        instances);
 
 /**
- * Returns the number of instances of a unit group.
+ * Decreases the instance counter of a group.
+ *
+ * @return Zero if the counter hits 0.
+ *
+ */
+int _gfx_material_decrease(
+
+		GFXMaterial*  material,
+		size_t        groupID,
+		size_t        instances);
+
+/**
+ * Returns the instance counter of a unit group.
  *
  */
 size_t _gfx_material_get(
@@ -255,16 +252,34 @@ size_t _gfx_material_get(
 		size_t        groupID);
 
 /**
- * Decrease the instance count of a unit group.
+ * Reserves a given amount of units associated with a group.
  *
- * @return Zero if the counter hits zero or if the unit group does not exist.
+ * @param units Number of units to reserve at the given group.
+ * @return Zero on failure.
+ *
+ * Note: This overrides any previous reservation.
  *
  */
-int _gfx_material_decrease(
+int _gfx_material_reserve(
 
 		GFXMaterial*  material,
 		size_t        groupID,
-		size_t        instances);
+		size_t        units);
+
+/**
+ * Returns memory reserved for units associated with a group.
+ *
+ * @param units Returns the number of units in the returned array.
+ * @return Array of size_t elements, reserved to be units, initialized to 0.
+ *
+ * Note: the pointer is only valid as long as no group at the material reserves any units.
+ *
+ */
+size_t* _gfx_material_get_reserved(
+
+		GFXMaterial*  material,
+		size_t        groupID,
+		size_t*       units);
 
 /**
  * Fetch a unit group associated with a batch for a given bucket.
