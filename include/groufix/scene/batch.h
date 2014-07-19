@@ -174,6 +174,19 @@ void gfx_batch_decrease(
 		GFXPipe*   bucket,
 		size_t     instances);
 
+/**
+ * Sets the number of visible instances to draw.
+ *
+ * @param instances Number of instances to draw.
+ * @return Number of instances actually made visible.
+ *
+ */
+size_t gfx_batch_set_visible(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket,
+		size_t     instances);
+
 
 #ifdef __cplusplus
 }

@@ -212,6 +212,7 @@ int main()
 	GFXBatch batch;
 	gfx_batch_get(&batch, material, mesh, params);
 	gfx_batch_increase(&batch, bucket, 1);
+	gfx_batch_set_visible(&batch, bucket, 1);
 
 
 	/* Setup a loop */
