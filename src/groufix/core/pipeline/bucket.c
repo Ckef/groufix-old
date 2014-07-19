@@ -24,7 +24,7 @@
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/shading/internal.h"
-#include "groufix/containers/vector.h"
+#include "groufix/containers/deque.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -56,18 +56,21 @@ struct GFX_Bucket
 
 	/* Hidden data */
 	unsigned char      flags;
-	GFX_BucketComp     compare;  /* Quicksort compare */
+	GFX_BucketComp     compare;      /* Quicksort compare */
 
-	GFXVector          sources;  /* Stores GFX_Source */
-	GFXVector          refs;     /* References to units (units[refs[ID - 1] - 1] = unit, 0 is empty) */
-	GFXVector          units;    /* Stores GFX_Unit */
-	GFXVectorIterator  visible;  /* Everything after is not visible */
+	GFXVector          sources;      /* Stores GFX_Source */
+	GFXDeque           emptySources; /* Free source IDs */
+
+	GFXVector          refs;         /* References to units (units[refs[ID - 1] - 1] = unit, 0 when empty) */
+	GFXDeque           emptyRefs;    /* Free (empty) reference IDs */
+	GFXVector          units;        /* Stores GFX_Unit */
+	GFXVectorIterator  visible;      /* Everything after is not visible */
 };
 
 /* Internal source */
 struct GFX_Source
 {
-	GFXVertexLayout*  layout;
+	GFXVertexLayout*  layout; /* NULL when empty */
 	GFXVertexSource   source;
 };
 
@@ -144,30 +147,27 @@ static size_t _gfx_bucket_insert_ref(
 		size_t              unitIndex)
 {
 	++unitIndex;
+	size_t ref = 0;
 
-	/* Search for an empty reference */
-	GFXVectorIterator it;
-	for(
-		it = bucket->refs.begin;
-		it != bucket->refs.end;
-		it = gfx_vector_next(&bucket->refs, it))
+	if(bucket->emptyRefs.begin != bucket->emptyRefs.end)
 	{
-		if(!(*(size_t*)it))
-		{
-			*(size_t*)it = unitIndex;
-			break;
-		}
+		/* Replace an empty reference */
+		ref = *(size_t*)bucket->emptyRefs.begin;
+		gfx_deque_pop_front(&bucket->emptyRefs);
+
+		*(size_t*)gfx_vector_at(&bucket->refs, ref - 1) = unitIndex;
 	}
+	else
+	{
+		/* Get index + 1 as reference, check for overflow */
+		ref = gfx_vector_get_size(&bucket->refs) + 1;
+		if(!ref) return 0;
 
-	/* Insert a new one */
-	if(it == bucket->refs.end) it = gfx_vector_insert(
-		&bucket->refs,
-		&unitIndex,
-		bucket->refs.end
-	);
-
-	/* Return index + 1, 0 would be a failure */
-	return (it == bucket->refs.end) ? 0 : gfx_vector_get_index(&bucket->refs, it) + 1;
+		/* Insert a new reference at the end */
+		if(gfx_vector_insert(&bucket->refs, &unitIndex, bucket->refs.end) == bucket->refs.end)
+			return 0;
+	}
+	return ref;
 }
 
 /******************************************************/
@@ -188,23 +188,27 @@ static void _gfx_bucket_erase_ref(
 		struct GFX_Bucket*  bucket,
 		size_t              index)
 {
-	GFXVectorIterator it = gfx_vector_at(&bucket->refs, index);
-	*(size_t*)it = 0;
+	size_t size = gfx_vector_get_size(&bucket->refs);
+	++index;
 
-	/* Erase trailing zeros */
-	if(index + 1 >= gfx_vector_get_size(&bucket->refs))
+	if(index < size)
 	{
-		size_t del = 1;
-		while(it != bucket->refs.begin)
-		{
-			GFXVectorIterator prev = gfx_vector_previous(&bucket->refs, it);
-			if(*(size_t*)prev) break;
+		/* Save ID and mark as empty */
+		gfx_deque_push_back(&bucket->emptyRefs, &index);
+		*(size_t*)gfx_vector_at(&bucket->refs, index - 1) = 0;
+	}
+	else
+	{
+		/* Remove last element */
+		gfx_vector_erase_at(&bucket->refs, index - 1);
+		--size;
+	}
 
-			it = prev;
-			++del;
-		}
-
-		gfx_vector_erase_range(&bucket->refs, del, it);
+	/* Clear both deque and vector */
+	if(!size || size == gfx_deque_get_size(&bucket->emptyRefs))
+	{
+		gfx_vector_clear(&bucket->refs);
+		gfx_deque_clear(&bucket->emptyRefs);
 	}
 }
 
@@ -249,14 +253,14 @@ static void _gfx_bucket_process_units(
 		/* Swap out if it should be erased */
 		if(GFX_INT_UNIT_ERASE & ((struct GFX_Unit*)it)->state)
 		{
-			end = gfx_vector_previous(&bucket->units, end);
-			_gfx_bucket_swap_units(bucket, it, end);
-
 			/* Erase precautions */
 			_gfx_bucket_erase_ref(
 				bucket,
-				((struct GFX_Unit*)it)->ref
-			);
+				((struct GFX_Unit*)it)->ref);
+
+			end = gfx_vector_previous(&bucket->units, end);
+			_gfx_bucket_swap_units(bucket, it, end);
+
 			++num;
 		}
 		else it = gfx_vector_next(&bucket->units, it);
@@ -372,7 +376,10 @@ GFXBucket* _gfx_bucket_create(
 	if(!bucket) return NULL;
 
 	gfx_vector_init(&bucket->sources, sizeof(struct GFX_Source));
+	gfx_deque_init(&bucket->emptySources, sizeof(size_t));
+
 	gfx_vector_init(&bucket->refs, sizeof(size_t));
+	gfx_deque_init(&bucket->emptyRefs, sizeof(size_t));
 	gfx_vector_init(&bucket->units, sizeof(struct GFX_Unit));
 
 	bucket->visible      = bucket->units.end;
@@ -403,7 +410,10 @@ void _gfx_bucket_free(
 		struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 
 		gfx_vector_clear(&internal->sources);
+		gfx_deque_clear(&internal->emptySources);
+
 		gfx_vector_clear(&internal->refs);
+		gfx_deque_clear(&internal->emptyRefs);
 		gfx_vector_clear(&internal->units);
 
 		free(bucket);
@@ -502,34 +512,30 @@ size_t gfx_bucket_add_source(
 
 	/* Create source */
 	struct GFX_Source src;
+	size_t id = 0;
 
 	memset(&src, 0, sizeof(struct GFX_Source));
 	src.layout = layout;
 
-	/* Find disabled source to replace */
-	GFXVectorIterator it;
-	for(
-		it = internal->sources.begin;
-		it != internal->sources.end;
-		it = gfx_vector_next(&internal->sources, it))
+	if(internal->emptySources.begin != internal->emptySources.end)
 	{
-		struct GFX_Source* source = it;
-		if(!source->layout)
-		{
-			*source = src;
-			break;
-		}
+		/* replace an empty ID */
+		id = *(size_t*)internal->emptySources.begin;
+		gfx_deque_pop_front(&internal->emptySources);
+
+		*(struct GFX_Source*)gfx_vector_at(&internal->sources, id - 1) = src;
 	}
+	else
+	{
+		/* Get index + 1 as ID, check for overflow, yet again */
+		id = gfx_vector_get_size(&internal->sources) + 1;
+		if(!id) return 0;
 
-	/* Insert as a new source */
-	if(it == internal->sources.end) it = gfx_vector_insert(
-		&internal->sources,
-		&src,
-		internal->sources.end
-	);
-
-	/* Return index + 1 */
-	return (it == internal->sources.end) ? 0 : gfx_vector_get_index(&internal->sources, it) + 1;
+		/* Insert a new source at the end */
+		if(gfx_vector_insert(&internal->sources, &src, internal->sources.end) == internal->sources.end)
+			return 0;
+	}
+	return id;
 }
 
 /******************************************************/
@@ -548,6 +554,7 @@ int gfx_bucket_set_source(
 	if(src >= cnt) return 0;
 
 	struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
+	if(!source->layout) return 0;
 
 	/* Check draw call boundaries */
 	if(values.startDraw + values.numDraw > source->layout->drawCalls) return 0;
@@ -562,42 +569,42 @@ void gfx_bucket_remove_source(
 		GFXBucket*  bucket,
 		size_t      src)
 {
-	--src;
-
-	/* Validate index */
-	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
-	size_t cnt = gfx_vector_get_size(&internal->sources);
-
-	if(src < cnt)
+	/* Derpsies */
+	if(src)
 	{
-		/* Disable source */
-		struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
-		source->layout = NULL;
+		struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+		size_t size = gfx_vector_get_size(&internal->sources);
+
+		if(src < size)
+		{
+			/* Save ID and mark as empty */
+			gfx_deque_push_back(&internal->emptySources, &src);
+			((struct GFX_Source*)gfx_vector_at(&internal->sources, src))->layout = NULL;
+		}
+		else
+		{
+			/* Remove last element */
+			gfx_vector_erase_at(&internal->sources, src - 1);
+			--size;
+		}
+
+		/* Clear both deque and vector */
+		if(!size || size == gfx_deque_get_size(&internal->emptySources))
+		{
+			gfx_vector_clear(&internal->sources);
+			gfx_deque_clear(&internal->emptySources);
+		}
 
 		/* Erase any unit using the source */
 		struct GFX_Unit* unit;
+		--src;
+
 		for(
 			unit = internal->units.begin;
 			unit != internal->units.end;
 			unit = gfx_vector_next(&internal->units, unit))
 		{
 			if(unit->src == src) _gfx_bucket_erase_unit(internal, unit);
-		}
-
-		/* Erase trailing disabled sources */
-		if(src + 1 >= cnt)
-		{
-			size_t del = 1;
-			while(source != internal->sources.begin)
-			{
-				struct GFX_Source* prev = gfx_vector_previous(&internal->sources, source);
-				if(prev->layout) break;
-
-				source = prev;
-				++del;
-			}
-
-			gfx_vector_erase_range(&internal->sources, del, source);
 		}
 	}
 }

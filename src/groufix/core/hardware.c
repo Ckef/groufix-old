@@ -32,7 +32,7 @@
 /* Created objects, index = ID */
 static GFXVector* _gfx_hw_objects = NULL;
 
-/* Free IDs, not at the end */
+/* Free IDs */
 static GFXDeque* _gfx_hw_ids = NULL;
 
 /* Actual object storage */
@@ -136,9 +136,12 @@ void _gfx_hardware_object_unregister(
 		else if(id < size)
 		{
 			/* Check if it is already empty */
-			struct GFX_HardwareObject* obj = gfx_vector_at(_gfx_hw_objects, id - 1);
-			if(!obj->funcs) return;
+			struct GFX_HardwareObject* obj = gfx_vector_at(
+				_gfx_hw_objects,
+				id - 1
+			);
 
+			if(!obj->funcs) return;
 			memset(obj, 0, sizeof(struct GFX_HardwareObject));
 
 			/* Save ID */
