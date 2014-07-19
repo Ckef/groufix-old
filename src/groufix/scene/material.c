@@ -25,7 +25,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define GFX_GROUP_EMPTY          (SIZE_MAX)
 #define GFX_GROUP_MAX_INSTANCES  (SIZE_MAX - 1)
@@ -85,7 +84,7 @@ static void _gfx_material_get_unit_bounds(
 }
 
 /******************************************************/
-static int _gfx_material_reserve_units(
+static size_t* _gfx_material_reserve_units(
 
 		struct GFX_Material*  material,
 		struct GFX_Group*     group,
@@ -109,10 +108,7 @@ static int _gfx_material_reserve_units(
 				end
 			);
 
-			if(it == material->units.end) return 0;
-
-			/* Initialize all to 0 */
-			memset(it, 0, (size_t)diff * sizeof(size_t));
+			if(it == material->units.end) return NULL;
 		}
 
 		/* Erase units */
@@ -130,7 +126,7 @@ static int _gfx_material_reserve_units(
 		}
 	}
 
-	return 1;
+	return gfx_vector_at(&material->units, begin);
 }
 
 /******************************************************/
@@ -448,7 +444,7 @@ size_t _gfx_material_get(
 }
 
 /******************************************************/
-int _gfx_material_reserve(
+size_t* _gfx_material_reserve(
 
 		GFXMaterial*  material,
 		size_t        groupID,

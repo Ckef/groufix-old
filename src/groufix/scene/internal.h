@@ -255,12 +255,12 @@ size_t _gfx_material_get(
  * Reserves a given amount of units associated with a group.
  *
  * @param units Number of units to reserve at the given group.
- * @return Zero on failure.
+ * @return Array of size_t elements of size units, NULL on failure.
  *
- * Note: This overrides any previous reservation.
+ * Note: The pointer is only valid as long as no group at the material reserves any units.
  *
  */
-int _gfx_material_reserve(
+size_t* _gfx_material_reserve(
 
 		GFXMaterial*  material,
 		size_t        groupID,
@@ -270,9 +270,7 @@ int _gfx_material_reserve(
  * Returns memory reserved for units associated with a group.
  *
  * @param units Returns the number of units in the returned array.
- * @return Array of size_t elements, reserved to be units, initialized to 0.
- *
- * Note: the pointer is only valid as long as no group at the material reserves any units.
+ * @return Array of size_t elements, reserved to be units.
  *
  */
 size_t* _gfx_material_get_reserved(

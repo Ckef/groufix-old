@@ -121,7 +121,7 @@ GFXBatchType gfx_batch_get_type(
 		GFXBatch* batch);
 
 /**
- * Returns the number of intsances at a bucket for a given batch.
+ * Returns the number of instances at a bucket for a given batch.
  *
  */
 size_t gfx_batch_get_instances(

@@ -112,12 +112,8 @@ int main()
 
 
 	/* Mesh and material */
-	size_t num;
-
-	GFXMesh* mesh         = create_mesh();
-	GFXSubMesh* submesh   = gfx_submesh_list_at(gfx_mesh_get(mesh, 0, &num), 0);
+	GFXMesh* mesh = create_mesh();
 	GFXMaterial* material = create_material();
-	GFXPropertyMap* map   = gfx_property_map_list_at(gfx_material_get(material, 0, &num), 0);
 
 
 	/* Texture */
@@ -216,9 +212,6 @@ int main()
 	GFXBatch batch;
 	gfx_batch_get(&batch, material, mesh, params);
 	gfx_batch_increase(&batch, bucket, 1);
-
-	size_t src = _gfx_submesh_get_bucket_source(submesh, bucket, 0);
-	gfx_bucket_insert(bucket->bucket, src, map, 0, 1);
 
 
 	/* Setup a loop */
