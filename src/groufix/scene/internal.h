@@ -73,6 +73,20 @@ void _gfx_lod_map_clear(
 
 
 /********************************************************
+ * Batch modification
+ *******************************************************/
+
+/**
+ * Rebuilds the units of a given batch associated with a given bucket.
+ *
+ */
+void _gfx_batch_rebuild(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket);
+
+
+/********************************************************
  * Batch references at mesh and material
  *******************************************************/
 

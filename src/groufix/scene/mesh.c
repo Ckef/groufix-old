@@ -353,22 +353,18 @@ static void _gfx_mesh_rebuild_batches(
 			size_t end;
 			_gfx_mesh_get_bucket_bounds(mesh, batch, &begin, &end);
 
+			GFXBatch bat;
+			bat.material   = batch->material;
+			bat.materialID = batch->materialID;
+			bat.mesh       = (GFXMesh*)mesh;
+			bat.meshID     = meshID;
+
 			/* Iterate through all buckets */
-			while(begin < end)
+			while(end > begin)
 			{
-				struct GFX_Bucket* it = gfx_vector_at(&mesh->buckets, begin++);
-				size_t instances = _gfx_material_get(batch->material, it->groupID);
-
-				/* Remove all instances then add them again */
-				/* This to allow the batch to recreate the units with new properties */
-				GFXBatch bat;
-				bat.material   = batch->material;
-				bat.materialID = batch->materialID;
-				bat.mesh       = (GFXMesh*)mesh;
-				bat.meshID     = meshID;
-
-				gfx_batch_decrease(&bat, it->pipe, instances);
-				gfx_batch_increase(&bat, it->pipe, instances);
+				/* Rebuild the batch at the given bucket */
+				struct GFX_Bucket* it = gfx_vector_at(&mesh->buckets, --end);
+				_gfx_batch_rebuild(&bat, it->pipe);
 			}
 		}
 	}
@@ -888,6 +884,9 @@ size_t gfx_mesh_set_source(
 		GFXSubMesh*    sub,
 		unsigned char  source)
 {
+	/* Bound check */
+	if(source >= sub->sources) return 0;
+
 	/* First find the submesh */
 	size_t num;
 	struct GFX_SubData* data = gfx_lod_map_get(
@@ -929,6 +928,9 @@ int gfx_mesh_set_source_at(
 	);
 
 	if(index >= num) return 0;
+
+	/* Bound check */
+	if(source >= data[index].sub->sources) return 0;
 
 	/* Set the source */
 	if(data[index].source != source)

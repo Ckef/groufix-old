@@ -184,10 +184,9 @@ int gfx_mesh_add_share(
  * @param material Index of the property map within a material level of detail to use.
  * @return Number of found submeshes.
  *
- * Changing this while the submesh is already in use by a batch can be expensive!
  * Note: index is clamped to the number of property maps available when used.
  *
- * The default is 0.
+ * Changing this while the submesh is already in use by a batch can be expensive!
  *
  */
 size_t gfx_mesh_set_material(
@@ -203,10 +202,6 @@ size_t gfx_mesh_set_material(
  * @param index Index of the submesh within the level as seen in the return of gfx_mesh_get.
  * @return Zero if the submesh does not exist.
  *
- * Changing this while the submesh is already in use by a batch can be expensive!
- *
- * The default is 0.
- *
  */
 int gfx_mesh_set_material_at(
 
@@ -218,11 +213,9 @@ int gfx_mesh_set_material_at(
 /**
  * Sets the source to sample from all instances of a submesh added to a mesh.
  *
- * @return Number of found submeshes.
+ * @return Number of found submeshes (0 if source >= sub->sources).
  *
  * Changing this while the submesh is already in use by a batch can be expensive!
- *
- * The default is 0
  *
  */
 size_t gfx_mesh_set_source(
@@ -235,9 +228,7 @@ size_t gfx_mesh_set_source(
 /**
  * Sets the source to sample from a submesh added to a mesh.
  *
- * Changing this while the submesh is already in use by a batch can be expensive!
- *
- * @return Zero if the submesh does not exist.
+ * @return Zero if the submesh does not exist (or if source >= sources of the submesh).
  *
  */
 int gfx_mesh_set_source_at(
