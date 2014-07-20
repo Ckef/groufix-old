@@ -101,7 +101,13 @@ static int _gfx_window_insert(
 	}
 
 	/* Try to insert, destroy on failure */
-	if(gfx_vector_insert(_gfx_windows, &window, _gfx_windows->end) == _gfx_windows->end)
+	GFXVectorIterator it = gfx_vector_insert(
+		_gfx_windows,
+		&window,
+		_gfx_windows->end
+	);
+
+	if(it == _gfx_windows->end)
 	{
 		if(_gfx_windows->begin == _gfx_windows->end)
 		{
@@ -157,7 +163,7 @@ void _gfx_window_swap_buffers(void)
 	/* Swap buffers and poll errors while it's current */
 	_gfx_platform_context_swap_buffers();
 
-	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG) if(_gfx_current_window)
+	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG && _gfx_current_window)
 	{
 		/* Loop over all errors */
 		GLenum err = _gfx_current_window->extensions.GetError();
@@ -304,8 +310,15 @@ GFXWindow* gfx_window_recreate(
 	int x;
 	int y;
 
-	_gfx_platform_window_get_size(internal->handle, &width, &height);
-	_gfx_platform_window_get_position(internal->handle, &x, &y);
+	_gfx_platform_window_get_size(
+		internal->handle,
+		&width,
+		&height);
+
+	_gfx_platform_window_get_position(
+		internal->handle,
+		&x,
+		&y);
 
 	/* Make sure to copy callbacks to the new window */
 	GFXWindow* new = gfx_window_create(

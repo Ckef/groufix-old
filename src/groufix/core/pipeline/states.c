@@ -195,8 +195,7 @@ void _gfx_states_set(
 
 	if(comp) ext->BlendEquationSeparate(
 		state->blend.stateRGB,
-		state->blend.stateA
-	);
+		state->blend.stateA);
 
 	/* Blend functions */
 	comp =
@@ -209,8 +208,7 @@ void _gfx_states_set(
 		state->blend.sourceRGB,
 		state->blend.bufferRGB,
 		state->blend.sourceA,
-		state->blend.bufferA
-	);
+		state->blend.bufferA);
 
 	/* Stencil front face functions */
 	comp =
@@ -222,8 +220,7 @@ void _gfx_states_set(
 		GL_FRONT,
 		state->stencil.testFront,
 		state->stencil.frontRef,
-		state->stencil.frontMask
-	);
+		state->stencil.frontMask);
 
 	/* Stencil back face functions */
 	comp =
@@ -235,8 +232,7 @@ void _gfx_states_set(
 		GL_BACK,
 		state->stencil.testBack,
 		state->stencil.backRef,
-		state->stencil.backMask
-	);
+		state->stencil.backMask);
 
 	/* Stencil front face operations */
 	comp =
@@ -248,8 +244,7 @@ void _gfx_states_set(
 		GL_FRONT,
 		state->stencil.frontFail,
 		state->stencil.frontDepth,
-		state->stencil.frontPass
-	);
+		state->stencil.frontPass);
 
 	/* Stencil back face operations */
 	comp =
@@ -261,8 +256,7 @@ void _gfx_states_set(
 		GL_BACK,
 		state->stencil.backFail,
 		state->stencil.backDepth,
-		state->stencil.backPass
-	);
+		state->stencil.backPass);
 
 	/* Set all values */
 	ext->state = *state;
@@ -294,40 +288,38 @@ void _gfx_states_force_set(
 	/* Blending */
 	ext->BlendEquationSeparate(
 		state->blend.stateRGB,
-		state->blend.stateA
-	);
+		state->blend.stateA);
+
 	ext->BlendFuncSeparate(
 		state->blend.sourceRGB,
 		state->blend.bufferRGB,
 		state->blend.sourceA,
-		state->blend.bufferA
-	);
+		state->blend.bufferA);
 
 	/* Stencil test */
 	ext->StencilFuncSeparate(
 		GL_FRONT,
 		state->stencil.testFront,
 		state->stencil.frontRef,
-		state->stencil.frontMask
-	);
+		state->stencil.frontMask);
+
 	ext->StencilFuncSeparate(
 		GL_BACK,
 		state->stencil.testBack,
 		state->stencil.backRef,
-		state->stencil.backMask
-	);
+		state->stencil.backMask);
+
 	ext->StencilOpSeparate(
 		GL_FRONT,
 		state->stencil.frontFail,
 		state->stencil.frontDepth,
-		state->stencil.frontPass
-	);
+		state->stencil.frontPass);
+
 	ext->StencilOpSeparate(
 		GL_BACK,
 		state->stencil.backFail,
 		state->stencil.backDepth,
-		state->stencil.backPass
-	);
+		state->stencil.backPass);
 
 	/* Set all values */
 	ext->state = *state;

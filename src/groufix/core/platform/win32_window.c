@@ -178,7 +178,9 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			int xS = 0;
 			int yS = 0;
 
-			GFX_Win32_Screen* screen = _gfx_platform_window_get_screen(window);
+			GFX_Win32_Screen* screen =
+				_gfx_platform_window_get_screen(window);
+
 			if(screen) _gfx_win32_get_screen_position(screen, &xS, &yS);
 
 			int x = (int)(short)LOWORD(lParam);
@@ -192,7 +194,11 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		/* Resize */
 		case WM_SIZE :
 		{
-			_gfx_event_window_resize(window, LOWORD(lParam), HIWORD(lParam));
+			_gfx_event_window_resize(
+				window,
+				LOWORD(lParam),
+				HIWORD(lParam)
+			);
 			return 0;
 		}
 
@@ -201,8 +207,11 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		case WM_SYSKEYDOWN :
 		{
 			GFXKey key;
-			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
-			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
+			if(wParam > GFX_WIN32_MAX_KEYCODE)
+				key = GFX_KEY_UNKNOWN;
+			else key = _gfx_win32_get_extended_key(
+				_gfx_win32->keys[wParam],
+				lParam);
 
 			_gfx_event_key_press(window, key, _gfx_win32_get_key_state());
 
@@ -214,8 +223,11 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		case WM_SYSKEYUP :
 		{
 			GFXKey key;
-			if(wParam > GFX_WIN32_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
-			else key = _gfx_win32_get_extended_key(_gfx_win32->keys[wParam], lParam);
+			if(wParam > GFX_WIN32_MAX_KEYCODE)
+				key = GFX_KEY_UNKNOWN;
+			else key = _gfx_win32_get_extended_key(
+				_gfx_win32->keys[wParam],
+				lParam);
 
 			_gfx_event_key_release(window, key, _gfx_win32_get_key_state());
 
@@ -232,7 +244,9 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			_gfx_event_mouse_move(window, x, y, state);
 
 			/* Check mouse enter event */
-			GFX_Win32_Window* internal = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+			GFX_Win32_Window* internal =
+				(GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+
 			if(!(internal->flags & GFX_WIN32_MOUSEINSIDE))
 			{
 				internal->flags |= GFX_WIN32_MOUSEINSIDE;
@@ -247,7 +261,9 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		/* Mouse leave */
 		case WM_MOUSELEAVE :
 		{
-			GFX_Win32_Window* internal = (GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+			GFX_Win32_Window* internal =
+				(GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+
 			internal->flags &= ~GFX_WIN32_MOUSEINSIDE;
 
 			/* Untrack */
@@ -267,7 +283,12 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 
 			ScreenToClient(handle, &pnt);
 
-			_gfx_event_mouse_leave(window, pnt.x, pnt.y, _gfx_win32_get_key_state());
+			_gfx_event_mouse_leave(
+				window,
+				pnt.x,
+				pnt.y,
+				_gfx_win32_get_key_state()
+			);
 
 			return 0;
 		}
@@ -507,10 +528,19 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		}
 
 		/* Add window to vector */
-		if(gfx_vector_insert(&_gfx_win32->windows, &window, _gfx_win32->windows.end) != _gfx_win32->windows.end)
+		GFXVectorIterator it = gfx_vector_insert(
+			&_gfx_win32->windows,
+			&window,
+			_gfx_win32->windows.end
+		);
+
+		if(it != _gfx_win32->windows.end)
 		{
 			/* Set pixel format */
-			_gfx_win32_set_pixel_format(window.handle, &attributes->depth);
+			_gfx_win32_set_pixel_format(
+				window.handle,
+				&attributes->depth
+			);
 
 			/* Start tracking the mouse */
 			_gfx_win32_track_mouse(window.handle);
@@ -522,7 +552,13 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	/* Undo fullscreen */
 	if(window.flags & GFX_WIN32_FULLSCREEN)
-		ChangeDisplaySettingsEx(window.screen->name, NULL, NULL, CDS_FULLSCREEN, NULL);
+		ChangeDisplaySettingsEx(
+			window.screen->name,
+			NULL,
+			NULL,
+			CDS_FULLSCREEN,
+			NULL
+		);
 
 	return NULL;
 }
@@ -537,7 +573,13 @@ void _gfx_platform_window_free(
 		/* Make sure to undo fullscreen */
 		GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
 		if(it->flags & GFX_WIN32_FULLSCREEN)
-			ChangeDisplaySettingsEx(it->screen->name, NULL, NULL, CDS_FULLSCREEN, NULL);
+			ChangeDisplaySettingsEx(
+				it->screen->name,
+				NULL,
+				NULL,
+				CDS_FULLSCREEN,
+				NULL
+			);
 
 		/* Destroy the context and window */
 		_gfx_platform_context_free(handle);

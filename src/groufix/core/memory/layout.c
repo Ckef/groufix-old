@@ -326,7 +326,12 @@ static void _gfx_layout_obj_restore(
 	GFXVectorIterator it = layout->attributes.begin;
 	while(it != layout->attributes.end)
 	{
-		_gfx_layout_init_attrib(layout->vao, i++, (struct GFX_Attribute*)it, ext);
+		_gfx_layout_init_attrib(
+			layout->vao,
+			i++,
+			(struct GFX_Attribute*)it, ext
+		);
+
 		it = gfx_vector_next(&layout->attributes, it);
 	}
 }
@@ -403,7 +408,10 @@ void gfx_vertex_layout_free(
 			if(internal->ext->layout == internal->vao)
 				internal->ext->layout = 0;
 
-			internal->ext->DeleteVertexArrays(1, &internal->vao);
+			internal->ext->DeleteVertexArrays(
+				1,
+				&internal->vao
+			);
 		}
 
 		gfx_vector_clear(&internal->attributes);
@@ -425,7 +433,8 @@ int gfx_vertex_layout_set_feedback(
 	if(!internal->ext) return 0;
 
 	/* Check number of buffers */
-	if(num > internal->ext->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS]) return 0;
+	if(num > internal->ext->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS])
+		return 0;
 
 	free(internal->TFBuffers);
 	internal->TFPrimitive  = primitive;
@@ -520,7 +529,8 @@ int gfx_vertex_layout_set_attribute(
 	if(!_gfx_layout_set_attribute(internal, index)) return 0;
 
 	/* Check whether it is instanced */
-	struct GFX_Attribute* set = (struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
+	struct GFX_Attribute* set =
+		(struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
 
 	if(!set->size && attr->divisor)
 		++internal->instanced;
@@ -534,9 +544,10 @@ int gfx_vertex_layout_set_attribute(
 
 	set->size      = attr->size;
 	set->type      = packed ? attr->type.packed : attr->type.unpacked;
-	set->interpret = packed && (attr->interpret & GFX_INTERPRET_INTEGER) ? GFX_INTERPRET_FLOAT : attr->interpret;
 	set->stride    = attr->stride;
 	set->divisor   = attr->divisor;
+	set->interpret = packed && (attr->interpret & GFX_INTERPRET_INTEGER) ?
+		GFX_INTERPRET_FLOAT : attr->interpret;
 
 	/* Send attribute to OpenGL */
 	_gfx_layout_init_attrib(internal->vao, index, set, internal->ext);
@@ -558,7 +569,9 @@ static int _gfx_layout_set_attribute_buffer(
 	if(!_gfx_layout_set_attribute(internal, index)) return 0;
 
 	/* Set attribute */
-	struct GFX_Attribute* set = (struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
+	struct GFX_Attribute* set =
+		(struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
+
 	set->buffer = buffer;
 	set->offset = offset;
 
@@ -579,7 +592,12 @@ int gfx_vertex_layout_set_attribute_buffer(
 	GLuint buff = 0;
 	if(buffer) buff = _gfx_buffer_get_handle(buffer);
 
-	return _gfx_layout_set_attribute_buffer(layout, index, buff, offset);
+	return _gfx_layout_set_attribute_buffer(
+		layout,
+		index,
+		buff,
+		offset
+	);
 }
 
 /******************************************************/
@@ -597,7 +615,12 @@ int gfx_vertex_layout_set_attribute_shared_buffer(
 		offset += buffer->offset;
 	}
 
-	return _gfx_layout_set_attribute_buffer(layout, index, buff, offset);
+	return _gfx_layout_set_attribute_buffer(
+		layout,
+		index,
+		buff,
+		offset
+	);
 }
 
 /******************************************************/
@@ -639,7 +662,10 @@ void gfx_vertex_layout_remove_attribute(
 
 		for(num = 0; num < size; ++num)
 		{
-			GFXVectorIterator prev = gfx_vector_previous(&internal->attributes, beg);
+			GFXVectorIterator prev = gfx_vector_previous(
+				&internal->attributes,
+				beg
+			);
 
 			rem = (struct GFX_Attribute*)prev;
 			if(rem->size || rem->buffer) break;
@@ -668,8 +694,12 @@ int gfx_vertex_layout_set_draw_call(
 		return 0;
 
 	/* Check extensions */
-	if(call->primitive == GFX_PATCHES && !internal->ext->flags[GFX_EXT_TESSELLATION_SHADER])
+	if(
+		call->primitive == GFX_PATCHES &&
+		!internal->ext->flags[GFX_EXT_TESSELLATION_SHADER])
+	{
 		return 0;
+	}
 
 	((GFXDrawCall*)(internal + 1))[index] = *call;
 
@@ -743,13 +773,17 @@ void _gfx_vertex_layout_draw(
 	/* Bind VAO & Index buffer & Tessellation vertices */
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
-	_gfx_vertex_layout_bind(internal->vao, internal->ext);
-	internal->ext->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, internal->indexBuffer);
+	_gfx_vertex_layout_bind(
+		internal->vao,
+		internal->ext);
+
+	internal->ext->BindBuffer(
+		GL_ELEMENT_ARRAY_BUFFER,
+		internal->indexBuffer);
 
 	_gfx_states_set_patch_vertices(
 		internal->patchVertices,
-		internal->ext
-	);
+		internal->ext);
 
 	/* Draw using a feedback buffer */
 	if(source.numFeedback)

@@ -233,8 +233,7 @@ static void _gfx_x11_create_key_table(void)
 	/* Use the first symbol of all keycodes */
 	size_t i;
 	for(i = minKey; i <= maxKey; ++i) _gfx_x11->keys[i] = _gfx_x11_get_key(
-		symbols[(i - minKey) * symbolsPerKey]
-	);
+		symbols[(i - minKey) * symbolsPerKey]);
 
 	XFree(symbols);
 }
@@ -263,9 +262,12 @@ int _gfx_platform_init(void)
 		/* Setup Xlib */
 		XSetErrorHandler(_gfx_x11_error_handler);
 
-		_gfx_x11->wmDeleteWindow    = XInternAtom(_gfx_x11->display, "WM_DELETE_WINDOW", False);
-		_gfx_x11->wmState           = XInternAtom(_gfx_x11->display, "_NET_WM_STATE", False);
-		_gfx_x11->wmStateFullscreen = XInternAtom(_gfx_x11->display, "_NET_WM_STATE_FULLSCREEN", False);
+		_gfx_x11->wmDeleteWindow =
+			XInternAtom(_gfx_x11->display, "WM_DELETE_WINDOW", False);
+		_gfx_x11->wmState =
+			XInternAtom(_gfx_x11->display, "_NET_WM_STATE", False);
+		_gfx_x11->wmStateFullscreen =
+			XInternAtom(_gfx_x11->display, "_NET_WM_STATE_FULLSCREEN", False);
 	}
 	return 1;
 }

@@ -320,9 +320,13 @@ int gfx_pipe_register(
 	call.callback = callback;
 	call.func = func;
 
-	if(gfx_vector_insert(&internal->callbacks, &call, internal->callbacks.end) == internal->callbacks.end)
-		return 0;
+	GFXVectorIterator it = gfx_vector_insert(
+		&internal->callbacks,
+		&call,
+		internal->callbacks.end
+	);
 
+	if(it == internal->callbacks.end) return 0;
 	internal->flags = 0;
 
 	return 1;

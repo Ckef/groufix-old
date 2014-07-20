@@ -99,10 +99,12 @@ static void _gfx_binder_increase(
 		/* Check against minimum and increase according to sign */
 		if(unit->counter >= min)
 		{
-			if(sign >= 0) unit->counter = (unit->counter != GFX_BINDER_COUNTER_MAX) ?
+			if(sign >= 0) unit->counter =
+				(unit->counter != GFX_BINDER_COUNTER_MAX) ?
 				unit->counter + 1 : unit->counter;
 
-			else unit->counter = (unit->counter != GFX_BINDER_COUNTER_MIN) ?
+			else unit->counter =
+				(unit->counter != GFX_BINDER_COUNTER_MIN) ?
 				unit->counter - 1 : unit->counter;
 		}
 
@@ -163,7 +165,12 @@ static size_t _gfx_binder_request(
 	if(!bindings) return 0;
 
 	/* First increase all counters */
-	if(prioritize) _gfx_binder_increase(1, 0, bindings, num, size);
+	if(prioritize) _gfx_binder_increase(
+		1, 0,
+		bindings,
+		num,
+		size
+	);
 
 	struct GFX_Unit* pos = NULL;
 	size_t unitSize = sizeof(struct GFX_Unit) + size;
@@ -191,7 +198,9 @@ static size_t _gfx_binder_request(
 	pos = pos ? pos : high;
 
 	/* Prioritize itself and copy data */
-	pos->counter = prioritize ? GFX_BINDER_COUNTER_MIN : GFX_BINDER_COUNTER_MAX;
+	pos->counter = prioritize ?
+		GFX_BINDER_COUNTER_MIN : GFX_BINDER_COUNTER_MAX;
+
 	memcpy(pos + 1, data, size);
 
 	return GFX_PTR_DIFF(bindings, pos) / unitSize;

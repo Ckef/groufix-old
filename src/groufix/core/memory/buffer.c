@@ -128,8 +128,15 @@ static void _gfx_buffer_alloc_buffers(
 	{
 		/* Only write data to the first buffer */
 		*(GLuint*)it = handles[i];
-		ext->BindBuffer(buffer->buffer.target, *(GLuint*)it);
-		ext->BufferData(buffer->buffer.target, buffer->buffer.size, i ? NULL : data, us);
+
+		ext->BindBuffer(
+			buffer->buffer.target,
+			*(GLuint*)it);
+
+		ext->BufferData(
+			buffer->buffer.target,
+			buffer->buffer.size,
+			i ? NULL : data, us);
 
 		it = gfx_vector_next(&buffer->handles, it);
 	}
@@ -144,7 +151,9 @@ static void _gfx_buffer_delete_buffers(
 		GFX_Extensions*     ext)
 {
 	GLuint handles[num];
-	unsigned char segs = buffer->buffer.size / buffer->buffer.segSize;
+
+	unsigned char segs =
+		buffer->buffer.size / buffer->buffer.segSize;
 
 	/* Iterate over buffers */
 	unsigned char i, s;
@@ -172,11 +181,14 @@ static void _gfx_buffer_obj_free(
 		GFX_Extensions*  ext)
 {
 	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
-
 	unsigned char num = buffer->buffer.multi + 1;
 
 	/* Reset memory */
-	memset(buffer->handles.begin, 0, buffer->handles.elementSize * num);
+	memset(
+		buffer->handles.begin,
+		0,
+		buffer->handles.elementSize * num
+	);
 	buffer->buffer.id = 0;
 }
 
@@ -212,7 +224,8 @@ GFXBuffer* gfx_buffer_create(
 	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return NULL;
 
-	if(!_gfx_buffer_eval_target(target, &window->extensions)) return NULL;
+	if(!_gfx_buffer_eval_target(target, &window->extensions))
+		return NULL;
 
 	/* Create new buffer */
 	struct GFX_Buffer* buffer = calloc(1, sizeof(struct GFX_Buffer));
@@ -231,8 +244,12 @@ GFXBuffer* gfx_buffer_create(
 	}
 
 	/* Force at least dynamic when multi buffering and/or segmenting */
-	if(!(usage & (GFX_BUFFER_STREAM | GFX_BUFFER_DYNAMIC)) && (multi | segments))
+	if(
+		!(usage & (GFX_BUFFER_STREAM | GFX_BUFFER_DYNAMIC)) &&
+		(multi | segments))
+	{
 		usage |= GFX_BUFFER_DYNAMIC;
+	}
 
 	/* Calculate segment size, force at least one segment */
 	buffer->buffer.segSize = size / ++segments;
@@ -370,8 +387,10 @@ int gfx_buffer_shrink(
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	/* Get where to remove buffers */
-	unsigned char rem = num > buffer->multi ? buffer->multi : num;
-	unsigned char aft = buffer->multi - internal->current;
+	unsigned char rem =
+		num > buffer->multi ? buffer->multi : num;
+	unsigned char aft =
+		buffer->multi - internal->current;
 
 	aft = aft > rem ? rem : aft;
 	unsigned char bef = rem - aft;
@@ -425,11 +444,16 @@ size_t gfx_buffer_swap(
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	/* Create a sync object */
-	GFXVectorIterator it = gfx_vector_at(&internal->handles, internal->current);
-	GLsync* sync = ((GLsync*)(((GLuint*)it) + 1)) + internal->currentSeg;
+	GFXVectorIterator it =
+		gfx_vector_at(&internal->handles, internal->current);
+	GLsync* sync =
+		((GLsync*)(((GLuint*)it) + 1)) + internal->currentSeg;
 
 	window->extensions.DeleteSync(*sync);
-	*sync = window->extensions.FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	*sync = window->extensions.FenceSync(
+		GL_SYNC_GPU_COMMANDS_COMPLETE,
+		0
+	);
 
 	/* Advance segment */
 	++internal->currentSeg;
@@ -442,7 +466,9 @@ size_t gfx_buffer_swap(
 		offset = 0;
 
 		++internal->current;
-		internal->current = internal->current > buffer->multi ? 0 : internal->current;
+		internal->current =
+			(internal->current > buffer->multi) ?
+			0 : internal->current;
 	}
 
 	return offset;
@@ -515,12 +541,15 @@ void* gfx_buffer_map(
 	/* Do the actual mapping */
 	access &= GFX_BUFFER_READ | GFX_BUFFER_WRITE;
 
-	GFXVectorIterator it = gfx_vector_at(&internal->handles, internal->current);
-	GLsync* sync = ((GLsync*)(((GLuint*)it) + 1)) + internal->currentSeg;
+	GFXVectorIterator it =
+		gfx_vector_at(&internal->handles, internal->current);
+	GLsync* sync =
+		((GLsync*)(((GLuint*)it) + 1)) + internal->currentSeg;
 
 	/* Sync the client with the previous fence object */
-	if(*sync && (access & GFX_BUFFER_WRITE))
-		access |= _gfx_buffer_sync(*sync, &window->extensions) ? GL_MAP_UNSYNCHRONIZED_BIT : 0;
+	if(*sync && (access & GFX_BUFFER_WRITE)) access |=
+		_gfx_buffer_sync(*sync, &window->extensions) ?
+		GL_MAP_UNSYNCHRONIZED_BIT : 0;
 
 	window->extensions.BindBuffer(GL_ARRAY_BUFFER, *(GLuint*)it);
 

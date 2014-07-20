@@ -105,7 +105,11 @@ void _gfx_platform_context_make_current(
 
 	if(window)
 	{
-		glXMakeCurrent(_gfx_x11->display, window->handle, window->context);
+		glXMakeCurrent(
+			_gfx_x11->display,
+			window->handle,
+			window->context
+		);
 		_gfx_x11->current = window->handle;
 	}
 }

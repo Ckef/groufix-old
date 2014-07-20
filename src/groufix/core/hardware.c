@@ -85,7 +85,8 @@ size_t _gfx_hardware_object_register(
 		id = *(size_t*)_gfx_hw_ids->begin;
 		gfx_deque_pop_front(_gfx_hw_ids);
 
-		*(struct GFX_HardwareObject*)gfx_vector_at(_gfx_hw_objects, id - 1) = internal;
+		*(struct GFX_HardwareObject*)gfx_vector_at(_gfx_hw_objects, id - 1) =
+			internal;
 
 		/* Erase deque */
 		if(_gfx_hw_ids->begin == _gfx_hw_ids->end)
@@ -99,7 +100,9 @@ size_t _gfx_hardware_object_register(
 		if(!_gfx_hw_objects)
 		{
 			/* Create vector if it doesn't exist yet */
-			_gfx_hw_objects = gfx_vector_create(sizeof(struct GFX_HardwareObject));
+			_gfx_hw_objects =
+				gfx_vector_create(sizeof(struct GFX_HardwareObject));
+
 			if(!_gfx_hw_objects) return 0;
 		}
 
@@ -108,7 +111,13 @@ size_t _gfx_hardware_object_register(
 		if(!id) return 0;
 
 		/* Insert a new object at the end */
-		if(gfx_vector_insert(_gfx_hw_objects, &internal, _gfx_hw_objects->end) == _gfx_hw_objects->end)
+		GFXVectorIterator it = gfx_vector_insert(
+			_gfx_hw_objects,
+			&internal,
+			_gfx_hw_objects->end
+		);
+
+		if(it == _gfx_hw_objects->end)
 		{
 			if(_gfx_hw_objects->begin == _gfx_hw_objects->end)
 			{

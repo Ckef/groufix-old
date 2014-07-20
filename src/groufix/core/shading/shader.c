@@ -282,7 +282,11 @@ int gfx_shader_set_source(
 
 	/* Preprocess */
 	int success;
-	success = _gfx_shader_preprocess_version(&num, &newSrc, window);
+	success = _gfx_shader_preprocess_version(
+		&num,
+		&newSrc,
+		window
+	);
 
 	if(success)
 	{
@@ -377,18 +381,18 @@ int gfx_shader_compile(
 			window->extensions.GetShaderiv(
 				internal->handle,
 				GL_INFO_LOG_LENGTH,
-				&len
-			);
+				&len);
 
 			char buff[len];
 			window->extensions.GetShaderInfoLog(
 				internal->handle,
 				len,
 				NULL,
-				buff
-			);
+				buff);
 
-			gfx_errors_push(GFX_ERROR_COMPILE_FAIL, buff);
+			gfx_errors_push(
+				GFX_ERROR_COMPILE_FAIL,
+				buff);
 
 			return 0;
 		}

@@ -231,9 +231,10 @@ void _gfx_material_remove_batch(
 
 		for(num = 0; num < size; ++num)
 		{
-			struct GFX_Batch* prev = gfx_vector_previous(&internal->batches, beg);
-			if(prev->mesh) break;
+			struct GFX_Batch* prev =
+				gfx_vector_previous(&internal->batches, beg);
 
+			if(prev->mesh) break;
 			beg = prev;
 		}
 		gfx_vector_erase_range(&internal->batches, num, beg);
@@ -351,9 +352,10 @@ void _gfx_material_remove_group(
 
 		for(num = 0; num < size; ++num)
 		{
-			struct GFX_Group* prev = gfx_vector_previous(&internal->groups, beg);
-			if(prev->instances != GFX_GROUP_EMPTY) break;
+			struct GFX_Group* prev =
+				gfx_vector_previous(&internal->groups, beg);
 
+			if(prev->instances != GFX_GROUP_EMPTY) break;
 			beg = prev;
 		}
 		gfx_vector_erase_range(&internal->groups, num, beg);

@@ -130,8 +130,8 @@ static void _gfx_x11_event_proc(
 		/* Resize & Move */
 		case ConfigureNotify :
 		{
-			GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(
-				event->xany.window);
+			GFX_X11_Window* internal =
+				_gfx_x11_get_window_from_handle(event->xany.window);
 
 			if(
 				internal->x != event->xconfigure.x ||
@@ -147,7 +147,12 @@ static void _gfx_x11_event_proc(
 			{
 				internal->width = event->xconfigure.width;
 				internal->height = event->xconfigure.height;
-				_gfx_event_window_resize(window, internal->width, internal->height);
+
+				_gfx_event_window_resize(
+					window,
+					internal->width,
+					internal->height
+				);
 			}
 
 			break;
@@ -160,7 +165,11 @@ static void _gfx_x11_event_proc(
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_x11->keys[event->xkey.keycode];
 
-			_gfx_event_key_press(window, key, _gfx_x11_get_key_state(event->xkey.state));
+			_gfx_event_key_press(
+				window,
+				key,
+				_gfx_x11_get_key_state(event->xkey.state)
+			);
 
 			break;
 		}
@@ -172,7 +181,11 @@ static void _gfx_x11_event_proc(
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
 			else key = _gfx_x11->keys[event->xkey.keycode];
 
-			_gfx_event_key_release(window, key, _gfx_x11_get_key_state(event->xkey.state));
+			_gfx_event_key_release(
+				window,
+				key,
+				_gfx_x11_get_key_state(event->xkey.state)
+			);
 
 			break;
 		}
@@ -277,7 +290,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	window.context = NULL;
 
 	/* Get visual from config */
-	XVisualInfo* visual = glXGetVisualFromFBConfig(_gfx_x11->display, *config);
+	XVisualInfo* visual = glXGetVisualFromFBConfig(
+		_gfx_x11->display,
+		*config
+	);
 	XFree(config);
 
 	/* Create the window attributes */
@@ -343,7 +359,13 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	window.height = get.height;
 
 	/* Add window to vector */
-	if(gfx_vector_insert(&_gfx_x11->windows, &window, _gfx_x11->windows.end) == _gfx_x11->windows.end)
+	GFXVectorIterator it = gfx_vector_insert(
+		&_gfx_x11->windows,
+		&window,
+		_gfx_x11->windows.end
+	);
+
+	if(it == _gfx_x11->windows.end)
 	{
 		XDestroyWindow(_gfx_x11->display, window.handle);
 		XFreeColormap(_gfx_x11->display, attr.colormap);
@@ -372,8 +394,18 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	}
 
 	/* Set protocols */
-	XSetWMProtocols(_gfx_x11->display, window.handle, &_gfx_x11->wmDeleteWindow, 1);
-	XStoreName(_gfx_x11->display, window.handle, attributes->name);
+	XSetWMProtocols(
+		_gfx_x11->display,
+		window.handle,
+		&_gfx_x11->wmDeleteWindow,
+		1
+	);
+
+	XStoreName(
+		_gfx_x11->display,
+		window.handle,
+		attributes->name
+	);
 
 	return GFX_UINT_TO_VOID(window.handle);
 }
@@ -408,7 +440,9 @@ void _gfx_platform_window_free(
 		XFreeColormap(_gfx_x11->display, attr.colormap);
 
 		/* Remove from vector */
-		GFXVectorIterator it = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+		GFXVectorIterator it =
+			_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+
 		gfx_vector_erase(&_gfx_x11->windows, it);
 	}
 }
@@ -455,8 +489,8 @@ void _gfx_platform_window_get_size(
 		unsigned int*       width,
 		unsigned int*       height)
 {
-	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(
-		GFX_VOID_TO_UINT(handle));
+	GFX_X11_Window* internal =
+		_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 
 	if(!internal)
 	{
@@ -477,8 +511,8 @@ void _gfx_platform_window_get_position(
 		int*                x,
 		int*                y)
 {
-	GFX_X11_Window* internal = _gfx_x11_get_window_from_handle(
-		GFX_VOID_TO_UINT(handle));
+	GFX_X11_Window* internal =
+		_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 
 	if(!internal)
 	{

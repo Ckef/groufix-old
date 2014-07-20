@@ -73,7 +73,9 @@ void _gfx_platform_context_free(
 		GFX_PlatformWindow handle)
 {
 	/* Get the window and destroy its context */
-	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
+	GFX_Win32_Window* window =
+		_gfx_win32_get_window_from_handle(handle);
+
 	if(window)
 	{
 		wglDeleteContext(window->context);
@@ -86,7 +88,9 @@ void _gfx_platform_context_make_current(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
+	GFX_Win32_Window* window =
+		_gfx_win32_get_window_from_handle(handle);
+
 	if(window)
 	{
 		_gfx_win32->current = GetDC(handle);
@@ -127,9 +131,10 @@ int _gfx_platform_is_extension_supported(
 	if(!_gfx_win32) return 0;
 
 	/* Get extensions */
-	const char* extensions = _gfx_win32->extensions.GetExtensionsStringARB(GetDC(handle));
-	if(!extensions) return 0;
+	const char* extensions =
+		_gfx_win32->extensions.GetExtensionsStringARB(GetDC(handle));
 
+	if(!extensions) return 0;
 	return _gfx_extensions_is_in_string(extensions, ext);
 }
 
@@ -138,8 +143,9 @@ GFX_ProcAddress _gfx_platform_get_proc_address(
 
 		const char* proc)
 {
-	GFX_ProcAddress address = (GFX_ProcAddress)wglGetProcAddress(proc);
-	if(address) return address;
+	GFX_ProcAddress address =
+		(GFX_ProcAddress)wglGetProcAddress(proc);
 
+	if(address) return address;
 	return (GFX_ProcAddress)GetProcAddress(GetModuleHandle(NULL), proc);
 }

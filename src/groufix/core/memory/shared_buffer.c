@@ -113,7 +113,8 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 
 	/* Initialize buffer */
 	buff->target = target;
-	buff->size = (_gfx_shared_buffer_size < minSize) ? minSize : _gfx_shared_buffer_size;
+	buff->size = (_gfx_shared_buffer_size < minSize) ?
+		minSize : _gfx_shared_buffer_size;
 
 	ext->GenBuffers(1, &buff->handle);
 	ext->BindBuffer(target, buff->handle);
@@ -180,9 +181,10 @@ static int _gfx_shared_buffer_insert_segment(
 		}
 
 		/* Great, try to insert the segment */
-		if(gfx_vector_insert(&buffer->segments, &new, it) == buffer->segments.end) return 0;
-		*offset = new.offset;
+		it = gfx_vector_insert(&buffer->segments, &new, it);
+		if(it == buffer->segments.end) return 0;
 
+		*offset = new.offset;
 		return 1;
 	}
 
@@ -190,7 +192,13 @@ static int _gfx_shared_buffer_insert_segment(
 	if(size <= (buffer->size - new.offset))
 	{
 		/* Try to insert at the end */
-		if(gfx_vector_insert(&buffer->segments, &new, buffer->segments.end) != buffer->segments.end)
+		it = gfx_vector_insert(
+			&buffer->segments,
+			&new,
+			buffer->segments.end
+		);
+
+		if(it != buffer->segments.end)
 		{
 			*offset = new.offset;
 			return 1;
@@ -233,7 +241,8 @@ static void _gfx_shared_buffer_erase_segment(
 	if(it)
 	{
 		struct GFX_Segment* seg = it;
-		if(seg->offset == offset) gfx_vector_erase(&buffer->segments, it);
+		if(seg->offset == offset)
+			gfx_vector_erase(&buffer->segments, it);
 	}
 }
 
@@ -276,7 +285,9 @@ int gfx_shared_buffer_init(
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_shared_buffers)
 	{
-		_gfx_shared_buffers = gfx_vector_create(sizeof(struct GFX_SharedBuffer*));
+		_gfx_shared_buffers =
+			gfx_vector_create(sizeof(struct GFX_SharedBuffer*));
+
 		if(!_gfx_shared_buffers) return 0;
 	}
 
@@ -297,15 +308,27 @@ int gfx_shared_buffer_init(
 			buffer->reference = buff;
 			buffer->offset = offset;
 
-			window->extensions.BindBuffer(buff->target, buff->handle);
-			window->extensions.BufferSubData(buff->target, offset, size, data);
+			window->extensions.BindBuffer(
+				buff->target,
+				buff->handle);
+
+			window->extensions.BufferSubData(
+				buff->target,
+				offset,
+				size,
+				data);
 
 			return 1;
 		}
 	}
 
 	/* Create new shared buffer */
-	it = _gfx_shared_buffer_create(target, size, &window->extensions);
+	it = _gfx_shared_buffer_create(
+		target,
+		size,
+		&window->extensions
+	);
+
 	if(it)
 	{
 		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
@@ -316,8 +339,15 @@ int gfx_shared_buffer_init(
 			buffer->reference = buff;
 			buffer->offset = offset;
 
-			window->extensions.BindBuffer(buff->target, buff->handle);
-			window->extensions.BufferSubData(buff->target, offset, size, data);
+			window->extensions.BindBuffer(
+				buff->target,
+				buff->handle);
+
+			window->extensions.BufferSubData(
+				buff->target,
+				offset,
+				size,
+				data);
 
 			return 1;
 		}

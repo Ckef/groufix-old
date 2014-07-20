@@ -398,11 +398,29 @@ static unsigned short _gfx_program_prepare_blocks(
 		GLint matStrides[uniforms];
 
 		size_t j;
-		for(j = 0; j < uniforms; ++j) indices[j] = uniformIndices[j];
+		for(j = 0; j < uniforms; ++j)
+			indices[j] = uniformIndices[j];
 
-		ext->GetActiveUniformsiv(program->handle, uniforms, indices, GL_UNIFORM_OFFSET, offsets);
-		ext->GetActiveUniformsiv(program->handle, uniforms, indices, GL_UNIFORM_ARRAY_STRIDE, arrStrides);
-		ext->GetActiveUniformsiv(program->handle, uniforms, indices, GL_UNIFORM_MATRIX_STRIDE, matStrides);
+		ext->GetActiveUniformsiv(
+			program->handle,
+			uniforms,
+			indices,
+			GL_UNIFORM_OFFSET,
+			offsets);
+
+		ext->GetActiveUniformsiv(
+			program->handle,
+			uniforms,
+			indices,
+			GL_UNIFORM_ARRAY_STRIDE,
+			arrStrides);
+
+		ext->GetActiveUniformsiv(
+			program->handle,
+			uniforms,
+			indices,
+			GL_UNIFORM_MATRIX_STRIDE,
+			matStrides);
 
 		/* Create block property */
 		GFXPropertyBlock block;
@@ -715,7 +733,10 @@ int gfx_program_link(
 	}
 
 	/* Prepare program */
-	else _gfx_program_prepare(internal, &window->extensions);
+	else _gfx_program_prepare(
+		internal,
+		&window->extensions
+	);
 
 	return status;
 }
@@ -777,11 +798,22 @@ int gfx_program_set_binary(
 
 	/* Set binary representation */
 	GLint status;
-	window->extensions.ProgramBinary(internal->handle, format, data, size);
-	window->extensions.GetProgramiv(internal->handle, GL_LINK_STATUS, &status);
+	window->extensions.ProgramBinary(
+		internal->handle,
+		format,
+		data,
+		size);
+
+	window->extensions.GetProgramiv(
+		internal->handle,
+		GL_LINK_STATUS,
+		&status);
 
 	/* Prepare program */
-	if(status) _gfx_program_prepare(internal, &window->extensions);
+	if(status) _gfx_program_prepare(
+		internal,
+		&window->extensions
+	);
 
 	return status;
 }

@@ -54,7 +54,11 @@ wchar_t* _gfx_win32_utf8_to_wchar(
 		const char* str)
 {
 	/* First get the required length in characters */
-	int length = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+	int length = MultiByteToWideChar(
+		CP_UTF8, 0,
+		str, -1,
+		NULL, 0
+	);
 	if(!length) return NULL;
 
 	wchar_t* out = malloc(sizeof(wchar_t) * length);
@@ -72,11 +76,20 @@ char* _gfx_win32_wchar_to_utf8(
 		const wchar_t* str)
 {
 	/* First get the required length in bytes */
-	int length = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
+	int length = WideCharToMultiByte(
+		CP_UTF8, 0,
+		str, -1,
+		NULL, 0,
+		NULL, NULL
+	);
 	if(!length) return NULL;
 
 	char* out = malloc(sizeof(char) * length);
-	if(!WideCharToMultiByte(CP_UTF8, 0, str, -1, out, length, NULL, NULL))
+	if(!WideCharToMultiByte(
+		CP_UTF8, 0,
+		str, -1,
+		out, length,
+		NULL, NULL))
 	{
 		free(out);
 		return NULL;
@@ -266,7 +279,10 @@ int _gfx_platform_init(void)
 		{
 			/* Validate adapter */
 			if(!(adapter.StateFlags & DISPLAY_DEVICE_ACTIVE) ||
-				adapter.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
+				adapter.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)
+			{
+				continue;
+			}
 
 			/* Get display device (screen) */
 			DISPLAY_DEVICE display;
@@ -279,13 +295,18 @@ int _gfx_platform_init(void)
 			GFX_Win32_Screen screen;
 			memcpy(screen.name, adapter.DeviceName, sizeof(screen.name));
 
-			HDC dc = CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
-			screen.width = GetDeviceCaps(dc, HORZRES);
-			screen.height = GetDeviceCaps(dc, VERTRES);
+			HDC dc =
+				CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
+			screen.width =
+				GetDeviceCaps(dc, HORZRES);
+			screen.height =
+				GetDeviceCaps(dc, VERTRES);
+
 			DeleteDC(dc);
 
 			/* Insert at beginning if primary */
-			GFXVectorIterator scrPos = (adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) ?
+			GFXVectorIterator scrPos =
+				(adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) ?
 				_gfx_win32->screens.begin : _gfx_win32->screens.end;
 
 			gfx_vector_insert(&_gfx_win32->screens, &screen, scrPos);

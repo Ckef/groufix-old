@@ -198,7 +198,13 @@ GFXPipeProcess _gfx_pipe_process_create(void)
 	}
 
 	/* Try to insert */
-	if(gfx_vector_insert(_gfx_pipes, &proc, _gfx_pipes->end) == _gfx_pipes->end)
+	GFXVectorIterator it = gfx_vector_insert(
+		_gfx_pipes,
+		&proc,
+		_gfx_pipes->end
+	);
+
+	if(it == _gfx_pipes->end)
 	{
 		if(_gfx_pipes->begin == _gfx_pipes->end)
 		{
@@ -271,7 +277,12 @@ void gfx_pipe_process_set_target(
 	/* Set viewport & swap buffers */
 	if(target)
 	{
-		gfx_window_get_size(target, &internal->width, &internal->height);
+		gfx_window_get_size(
+			target,
+			&internal->width,
+			&internal->height
+		);
+
 		internal->swap = swap ? 1 : 0;
 	}
 }
@@ -297,14 +308,17 @@ void _gfx_pipe_process_execute(
 			_gfx_window_make_current(internal->target);
 			_gfx_pipeline_bind(0, ext);
 
-			_gfx_states_set_viewport(internal->width, internal->height, ext);
+			_gfx_states_set_viewport(
+				internal->width,
+				internal->height,
+				ext);
+
 			_gfx_pipe_process_draw(
 				state,
 				internal->map,
 				internal->copy,
 				internal->target->layout,
-				ext
-			);
+				ext);
 
 			if(internal->swap) _gfx_window_swap_buffers();
 

@@ -346,8 +346,15 @@ int gfx_batch_increase(
 	}
 
 	/* Nevermind those instances */
-	if(!start) _gfx_mesh_remove_group(batch->mesh, batch->meshID, bucket);
-	else _gfx_material_decrease(batch->material, groupID, instances);
+	if(!start) _gfx_mesh_remove_group(
+		batch->mesh,
+		batch->meshID,
+		bucket);
+
+	else _gfx_material_decrease(
+		batch->material,
+		groupID,
+		instances);
 
 	return 0;
 }
@@ -419,10 +426,21 @@ void gfx_batch_decrease(
 	}
 
 	/* Decrease and reserve less units */
-	if(!_gfx_material_decrease(batch->material, groupID, instances))
-		_gfx_mesh_remove_group(batch->mesh, batch->meshID, bucket);
+	if(!_gfx_material_decrease(
+		batch->material,
+		groupID,
+		instances))
+	{
+		_gfx_mesh_remove_group(
+			batch->mesh,
+			batch->meshID,
+			bucket);
+	}
 
-	else _gfx_material_reserve(batch->material, groupID, start);
+	else _gfx_material_reserve(
+		batch->material,
+		groupID,
+		start);
 }
 
 /******************************************************/

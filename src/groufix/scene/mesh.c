@@ -324,7 +324,9 @@ static void _gfx_mesh_dereference_submesh(
 			/* Iterate through buckets and dereference them */
 			while(begin < end)
 			{
-				struct GFX_Bucket* bucket = gfx_vector_at(&mesh->buckets, begin++);
+				struct GFX_Bucket* bucket =
+					gfx_vector_at(&mesh->buckets, begin++);
+
 				_gfx_submesh_dereference_bucket(sub, bucket->pipe);
 			}
 		}
@@ -426,8 +428,10 @@ size_t _gfx_mesh_get_batch(
 		GFXBatchLod   params,
 		size_t*       materialID)
 {
-	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
-	struct GFX_Batch* batch = _gfx_mesh_find_batch(internal, material, params);
+	struct GFX_Mesh* internal =
+		(struct GFX_Mesh*)mesh;
+	struct GFX_Batch* batch =
+		_gfx_mesh_find_batch(internal, material, params);
 
 	/* Return correct IDs */
 	if(batch == internal->batches.end)
@@ -478,17 +482,21 @@ void _gfx_mesh_remove_batch(
 		/* Get batch and bounds */
 		struct GFX_Batch* batch = gfx_vector_at(
 			&internal->batches,
-			meshID - 1
-		);
+			meshID - 1);
 
 		size_t begin;
 		size_t end;
-		_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
+		_gfx_mesh_get_bucket_bounds(
+			internal,
+			batch,
+			&begin,
+			&end);
 
 		/* Iterate through all buckets */
 		while(end > begin)
 		{
-			struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, --end);
+			struct GFX_Bucket* it =
+				gfx_vector_at(&internal->buckets, --end);
 
 			/* Destroy units of the group */
 			/* Automatically destroying the group in the process */
@@ -513,9 +521,10 @@ void _gfx_mesh_remove_batch(
 
 		for(num = 0; num < size; ++num)
 		{
-			struct GFX_Batch* prev = gfx_vector_previous(&internal->batches, beg);
-			if(prev->material) break;
+			struct GFX_Batch* prev =
+				gfx_vector_previous(&internal->batches, beg);
 
+			if(prev->material) break;
 			beg = prev;
 		}
 		gfx_vector_erase_range(&internal->batches, num, beg);
@@ -570,12 +579,23 @@ size_t _gfx_mesh_get_group(
 	size_t begin;
 	size_t end;
 
-	_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
-	size_t index = _gfx_mesh_find_bucket(internal, begin, end, pipe);
+	_gfx_mesh_get_bucket_bounds(
+		internal,
+		batch,
+		&begin,
+		&end);
+
+	size_t index = _gfx_mesh_find_bucket(
+		internal,
+		begin,
+		end,
+		pipe);
 
 	if(index < end)
 	{
-		struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, index);
+		struct GFX_Bucket* it =
+			gfx_vector_at(&internal->buckets, index);
+
 		return it->groupID;
 	}
 
@@ -585,7 +605,8 @@ size_t _gfx_mesh_get_group(
 	/* Create new unit group */
 	struct GFX_Bucket bucket;
 	bucket.pipe = pipe;
-	bucket.groupID = _gfx_material_insert_group(batch->material);
+	bucket.groupID =
+		_gfx_material_insert_group(batch->material);
 
 	if(bucket.groupID)
 	{
@@ -604,7 +625,11 @@ size_t _gfx_mesh_get_group(
 				batch->params.index))
 			{
 				/* Increase bounds at last */
-				_gfx_mesh_increase_bucket_bounds(internal, batch, 1);
+				_gfx_mesh_increase_bucket_bounds(
+					internal,
+					batch,
+					1
+				);
 				return bucket.groupID;
 			}
 
@@ -613,7 +638,10 @@ size_t _gfx_mesh_get_group(
 		}
 
 		/* Destroy unit group */
-		_gfx_material_remove_group(batch->material, bucket.groupID);
+		_gfx_material_remove_group(
+			batch->material,
+			bucket.groupID
+		);
 	}
 
 	return 0;
@@ -640,13 +668,23 @@ void _gfx_mesh_remove_group(
 
 		size_t begin;
 		size_t end;
-		_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
+		_gfx_mesh_get_bucket_bounds(
+			internal,
+			batch,
+			&begin,
+			&end);
 
 		/* Find bucket */
-		size_t index = _gfx_mesh_find_bucket(internal, begin, end, pipe);
+		size_t index = _gfx_mesh_find_bucket(
+			internal,
+			begin,
+			end,
+			pipe);
+
 		if(index < end)
 		{
-			struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, index);
+			struct GFX_Bucket* it =
+				gfx_vector_at(&internal->buckets, index);
 
 			/* Destroy unit group & remove the bucket */
 			_gfx_material_remove_group(batch->material, it->groupID);

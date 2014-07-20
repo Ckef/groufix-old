@@ -164,8 +164,13 @@ static size_t _gfx_bucket_insert_ref(
 		if(!ref) return 0;
 
 		/* Insert a new reference at the end */
-		if(gfx_vector_insert(&bucket->refs, &unitIndex, bucket->refs.end) == bucket->refs.end)
-			return 0;
+		GFXVectorIterator it = gfx_vector_insert(
+			&bucket->refs,
+			&unitIndex,
+			bucket->refs.end
+		);
+
+		if(it == bucket->refs.end) return 0;
 	}
 	return ref;
 }
@@ -329,14 +334,16 @@ static void _gfx_bucket_sort_units(
 			{
 				struct GFX_Unit* unit = (struct GFX_Unit*)gfx_vector_at(
 					&bucket->units,
-					st);
+					st
+				);
 
 				/* If 1, put in 1 bucket */
 				if(unit->state & bit)
 				{
 					_gfx_bucket_swap_units(bucket, unit, gfx_vector_at(
 						&bucket->units,
-						--mi));
+						--mi)
+					);
 				}
 				else ++st;
 			}
@@ -464,7 +471,10 @@ void _gfx_bucket_process(
 		unit != internal->visible;
 		unit = gfx_vector_next(&internal->units, unit))
 	{
-		struct GFX_Source* src = gfx_vector_at(&internal->sources, unit->src);
+		struct GFX_Source* src = gfx_vector_at(
+			&internal->sources,
+			unit->src
+		);
 
 		/* Bind shader program & draw */
 		_gfx_property_map_use(
@@ -532,8 +542,13 @@ size_t gfx_bucket_add_source(
 		if(!id) return 0;
 
 		/* Insert a new source at the end */
-		if(gfx_vector_insert(&internal->sources, &src, internal->sources.end) == internal->sources.end)
-			return 0;
+		GFXVectorIterator it = gfx_vector_insert(
+			&internal->sources,
+			&src,
+			internal->sources.end
+		);
+
+		if(it == internal->sources.end) return 0;
 	}
 	return id;
 }
@@ -809,7 +824,8 @@ void gfx_bucket_set_visible(
 		visible = visible ? 1 : 0;
 		int cur = (un->state & GFX_INT_UNIT_VISIBLE) ? 1 : 0;
 
-		if(visible != cur) internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS | GFX_INT_BUCKET_SORT;
+		if(visible != cur)
+			internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS | GFX_INT_BUCKET_SORT;
 
 		if(visible) un->state |= GFX_INT_UNIT_VISIBLE;
 		else un->state &= ~GFX_INT_UNIT_VISIBLE;
