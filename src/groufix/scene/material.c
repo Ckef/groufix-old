@@ -48,6 +48,7 @@ struct GFX_Batch
 	GFXMesh*      mesh;  /* NULL when empty */
 	size_t        meshID;
 	GFXBatchType  type;
+	size_t        copy;  /* First copy at the property map in use by this batch */
 };
 
 /* Internal unit group */
@@ -140,6 +141,7 @@ static struct GFX_Batch* _gfx_material_insert_mesh(
 	new.mesh   = mesh;
 	new.meshID = 0;
 	new.type   = GFX_BATCH_DEFAULT;
+	new.copy   = 0;
 
 	/* Try to find an empty batch */
 	struct GFX_Batch* empty;
@@ -574,7 +576,7 @@ GFXPropertyMap* gfx_material_add(
 	/* Create new property map */
 	struct GFX_MapData data;
 	data.instances = instances;
-	data.copies    = 0;
+	data.copies = 0;
 
 	data.map = gfx_property_map_create(program, properties);
 	if(!data.map) return NULL;
@@ -615,6 +617,15 @@ size_t gfx_property_map_list_instances_at(
 		size_t              index)
 {
 	return ((struct GFX_MapData*)list)[index].instances;
+}
+
+/******************************************************/
+size_t gfx_property_map_list_copies_at(
+
+		GFXPropertyMapList  list,
+		size_t              index)
+{
+	return ((struct GFX_MapData*)list)[index].copies;
 }
 
 /******************************************************/

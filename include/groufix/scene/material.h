@@ -124,6 +124,15 @@ size_t gfx_property_map_list_instances_at(
 		size_t              index);
 
 /**
+ * Index into a list of property maps, retrieving the number of used copies.
+ *
+ */
+size_t gfx_property_map_list_copies_at(
+
+		GFXPropertyMapList  list,
+		size_t              index);
+
+/**
  * Index into a list of property maps, retrieving the property map.
  *
  */

@@ -38,8 +38,8 @@ extern "C" {
 /** Batch data upload classification */
 typedef enum GFXBatchType
 {
-	GFX_BATCH_SINGLE_DATA,
-	GFX_BATCH_MULTIPLE_DATA,
+	GFX_BATCH_SINGLE_DATA,   /* A batch uses the same property map copy for all units */
+	GFX_BATCH_MULTIPLE_DATA, /* A batch uses different property map copies for each unit */
 
 	GFX_BATCH_DEFAULT = GFX_BATCH_SINGLE_DATA
 
