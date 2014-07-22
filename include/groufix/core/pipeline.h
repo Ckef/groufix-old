@@ -142,9 +142,23 @@ size_t gfx_bucket_insert(
 		int              visible);
 
 /**
- * Returns the index of the copy of the property map in use.
+ * Rebuilds a unit with a new source and property map.
  *
- * @param unit ID from a unit (if it is never inserted or erased, behaviour is undefined).
+ * @param unit ID from a unit (if it is never inserted, behaviour is undefined).
+ * @return Zero on failure, in which case the unit remains unaltered.
+ *
+ * Note: the original ID is reused.
+ *
+ */
+int gfx_bucket_rebuild(
+
+		GFXBucket*       bucket,
+		size_t           unit,
+		size_t           src,
+		GFXPropertyMap*  map);
+
+/**
+ * Returns the index of the copy of the property map in use.
  *
  */
 size_t gfx_bucket_get_copy(

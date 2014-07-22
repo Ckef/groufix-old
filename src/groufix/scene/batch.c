@@ -38,13 +38,10 @@ static inline size_t _gfx_batch_get_num_units(
 }
 
 /******************************************************/
-static int _gfx_batch_get_data(
+static size_t _gfx_batch_get_source(
 
-		GFXBatch*         batch,
-		GFXPipe*          bucket,
-		size_t*           source,
-		GFXPropertyMap**  map,
-		size_t*           unitSize)
+		GFXBatch*  batch,
+		GFXPipe*   bucket)
 {
 	/* Get LOD parameters */
 	GFXBatchLod params;
@@ -62,27 +59,11 @@ static int _gfx_batch_get_data(
 	if(params.index >= num) return 0;
 
 	/* Get source */
-	*source = _gfx_submesh_get_bucket_source(
+	return _gfx_submesh_get_bucket_source(
 		gfx_submesh_list_at(subs, params.index),
 		bucket,
 		gfx_submesh_list_source_at(subs, params.index)
 	);
-
-	/* Get property map */
-	GFXPropertyMapList maps = gfx_material_get(
-		batch->material,
-		params.material,
-		&num
-	);
-
-	size_t index = gfx_submesh_list_material_at(subs, params.index);
-	if(index >= num) return 0;
-
-	/* Get property map and instances per unit */
-	*map = gfx_property_map_list_at(maps, index);
-	*unitSize = gfx_property_map_list_instances_at(maps, index);
-
-	return 1;
 }
 
 /******************************************************/
@@ -92,79 +73,64 @@ void _gfx_batch_rebuild(
 		GFXPipe*   bucket)
 {
 	/* Get units and associated data */
-	size_t groupID = _gfx_mesh_get_group(
+	size_t groupID = _gfx_mesh_find_group(
 		batch->mesh,
 		batch->meshID,
-		bucket
+		bucket);
+
+	size_t index = _gfx_material_get_batch_map(
+		batch->material,
+		batch->materialID);
+
+	size_t source = _gfx_batch_get_source(batch, bucket);
+
+	/* Validate data */
+	size_t num;
+	GFXPropertyMapList list = gfx_material_get_all(
+		batch->material,
+		&num
 	);
 
-	size_t source;
-	GFXPropertyMap* map;
-	size_t unitSize;
-
-	if(!_gfx_batch_get_data(
-		batch,
-		bucket,
-		&source,
-		&map,
-		&unitSize))
+	if(source && index < num)
 	{
-		/* Remove all units */
-		size_t num;
 		size_t* units = _gfx_material_get_reserved(
 			batch->material,
 			groupID,
 			&num);
 
-		while(num) gfx_bucket_erase(
-			bucket->bucket,
-			units[--num]);
-
-		_gfx_mesh_remove_group(
-			batch->mesh,
-			batch->meshID,
-			bucket);
-	}
-
-	else
-	{
-		size_t num;
-		size_t* units = _gfx_material_get_reserved(
-			batch->material,
-			groupID,
-			&num);
-
-		/* Iterate through units and recreate them */
-		size_t i;
-		for(i = 0; i < num; ++i)
+		/* Iterate through units and rebuild them */
+		while(num)
 		{
-			size_t copy = gfx_bucket_get_copy(
-				bucket->bucket, units[i]);
-			size_t instances = gfx_bucket_get_instances(
-				bucket->bucket, units[i]);
-			unsigned int base = gfx_bucket_get_instance_base(
-				bucket->bucket, units[i]);
-			GFXBatchState state = gfx_bucket_get_state(
-				bucket->bucket, units[i]);
-			int visible = gfx_bucket_is_visible(
-				bucket->bucket, units[i]);
-
-			gfx_bucket_erase(bucket->bucket, units[i]);
-			units[i] = gfx_bucket_insert(
+			if(!gfx_bucket_rebuild(
 				bucket->bucket,
+				units[--num],
 				source,
-				map,
-				state,
-				visible);
-
-			gfx_bucket_set_copy(
-				bucket->bucket, units[i], copy);
-			gfx_bucket_set_instances(
-				bucket->bucket, units[i], instances);
-			gfx_bucket_set_instance_base(
-				bucket->bucket, units[i], base);
+				gfx_property_map_list_at(list, index)))
+			{
+				/* Uh, bail? */
+				num = 1;
+				break;
+			}
 		}
+
+		/* Success! */
+		if(!num) return;
 	}
+
+	/* Remove all units */
+	size_t* units = _gfx_material_get_reserved(
+		batch->material,
+		groupID,
+		&num);
+
+	while(num) gfx_bucket_erase(
+		bucket->bucket,
+		units[--num]);
+
+	_gfx_mesh_remove_group(
+		batch->mesh,
+		batch->meshID,
+		bucket);
 }
 
 /******************************************************/
@@ -249,7 +215,7 @@ size_t gfx_batch_get_instances(
 		GFXPipe*   bucket)
 {
 	/* Get unit group */
-	size_t groupID = _gfx_mesh_get_group(
+	size_t groupID = _gfx_mesh_find_group(
 		batch->mesh,
 		batch->meshID,
 		bucket
@@ -281,17 +247,13 @@ int gfx_batch_increase(
 		GFXPipe*   bucket,
 		size_t     instances)
 {
-	/* Get units and current instance counter */
+	/* Get units and increase */
 	size_t groupID = _gfx_mesh_get_group(
 		batch->mesh,
 		batch->meshID,
-		bucket);
+		bucket
+	);
 
-	size_t start = _gfx_material_get(
-		batch->material,
-		groupID);
-
-	/* Increase instances */
 	if(!_gfx_material_increase(
 		batch->material,
 		groupID,
@@ -300,61 +262,93 @@ int gfx_batch_increase(
 		return 0;
 	}
 
-	/* Fetch data associated with the units */
-	size_t source;
-	GFXPropertyMap* map;
-	size_t unitSize;
+	/* Get associated data */
+	size_t index = _gfx_material_get_batch_map(
+		batch->material,
+		batch->materialID);
 
-	if(_gfx_batch_get_data(
-		batch,
-		bucket,
-		&source,
-		&map,
-		&unitSize))
+	size_t num;
+	GFXPropertyMapList list = gfx_material_get_all(
+		batch->material,
+		&num);
+
+	size_t source = _gfx_batch_get_source(batch, bucket);
+
+	/* Validate data */
+	if(!source || index >= num)
 	{
-		/* Calculate the number of units and reserve them */
-		size_t num = _gfx_material_get(batch->material, groupID);
-		num = _gfx_batch_get_num_units(num, unitSize);
-
-		size_t* units = _gfx_material_reserve(
-			batch->material,
-			groupID,
-			num);
-
-		if(units)
-		{
-			/* Iterate through units and add them to the bucket */
-			/* Also set the base instance */
-			while(start < num)
-			{
-				units[start] = gfx_bucket_insert(
-					bucket->bucket,
-					source,
-					map,
-					0, 0);
-
-				gfx_bucket_set_instance_base(
-					bucket->bucket,
-					units[start],
-					start * unitSize);
-
-				++start;
-			}
-
-			return 1;
-		}
+		_gfx_mesh_remove_group(
+			batch->mesh,
+			batch->meshID,
+			bucket
+		);
+		return 0;
 	}
 
-	/* Nevermind those instances */
-	if(!start) _gfx_mesh_remove_group(
-		batch->mesh,
-		batch->meshID,
-		bucket);
+	/* Calculate the number of wanted units */
+	num = _gfx_material_get(
+		batch->material,
+		groupID);
+	num = _gfx_batch_get_num_units(
+		num,
+		gfx_property_map_list_instances_at(list, index));
 
-	else _gfx_material_decrease(
+	/* Get current number of units and reserve extra ones */
+	size_t start;
+	_gfx_material_get_reserved(
 		batch->material,
 		groupID,
-		instances);
+		&start);
+
+	size_t* units = _gfx_material_reserve(
+		batch->material,
+		groupID,
+		num);
+
+	if(units)
+	{
+		/* Iterate through units and add them to the bucket */
+		/* Also set the base instance */
+		size_t i;
+		for(i = start; i < num; ++i)
+		{
+			units[i] = gfx_bucket_insert(
+				bucket->bucket,
+				source,
+				gfx_property_map_list_at(list, index),
+				0, 0
+			);
+
+			/* Bail! Bail! */
+			if(!units[i]) break;
+
+			gfx_bucket_set_instance_base(
+				bucket->bucket,
+				units[i],
+				gfx_property_map_list_instances_at(list, index) * i
+			);
+		}
+
+		/* Woop Woop, sneaky success! */
+		if(i >= num) return 1;
+
+		/* This isn't going well, destroy them again and unreserve */
+		while(i > start) gfx_bucket_erase(
+			bucket->bucket,
+			units[--i]);
+
+		_gfx_material_reserve(
+			batch->material,
+			groupID,
+			start);
+	}
+
+	/* Nevermind D: */
+	_gfx_material_decrease(
+		batch->material,
+		groupID,
+		instances
+	);
 
 	return 0;
 }
@@ -366,81 +360,81 @@ void gfx_batch_decrease(
 		GFXPipe*   bucket,
 		size_t     instances)
 {
-	/* Get units and associated data */
-	size_t groupID = _gfx_mesh_get_group(
+	/* Get units */
+	size_t groupID = _gfx_mesh_find_group(
 		batch->mesh,
 		batch->meshID,
 		bucket
 	);
 
-	size_t temp;
-	GFXPropertyMap* map;
-	size_t unitSize = 0;
-
-	_gfx_batch_get_data(
-		batch,
-		bucket,
-		&temp,
-		&map,
-		&unitSize
-	);
-
-	/* Get the number of remaining instances */
-	/* Calculate the max number of instances of the last remaining unit */
-	size_t start = _gfx_material_get(batch->material, groupID);
-	start = (instances > start) ? 0 : start - instances;
-
-	size_t last = start;
-	if(unitSize) last = start % unitSize;
-
-	/* Calculate the number of remaining units */
-	start = _gfx_batch_get_num_units(start, unitSize);
-
-	size_t num;
-	size_t* units = _gfx_material_get_reserved(
-		batch->material,
-		groupID,
-		&num
-	);
-
-	if(num)
+	if(groupID)
 	{
-		/* Iterate through units and erase them */
-		for(temp = start; temp < num; ++temp)
-		{
-			gfx_bucket_erase(bucket->bucket, units[temp]);
-		}
+		/* Get associated data */
+		size_t num;
+		GFXPropertyMapList list = gfx_material_get_all(
+			batch->material,
+			&num);
+
+		num = _gfx_material_get_batch_map(
+			batch->material,
+			batch->materialID);
+
+		size_t unitSize = gfx_property_map_list_instances_at(
+			list, num);
+
+		/* Get the number of remaining instances */
+		/* Calculate the max number of instances of the last remaining unit */
+		size_t start = _gfx_material_get(batch->material, groupID);
+		start = (instances > start) ? 0 : start - instances;
+
+		size_t last = start;
+		if(unitSize) last = start % unitSize;
+
+		/* Calculate the number of remaining units */
+		start = _gfx_batch_get_num_units(start, unitSize);
+		size_t* units = _gfx_material_get_reserved(
+			batch->material,
+			groupID,
+			&num
+		);
 
 		if(last)
 		{
 			/* Fix the last remaining unit */
-			temp = gfx_bucket_get_instances(
+			unitSize = gfx_bucket_get_instances(
 				bucket->bucket,
 				units[start - 1]);
 
 			gfx_bucket_set_instances(
 				bucket->bucket,
 				units[start - 1],
-				last < temp ? last : temp);
+				(last < unitSize) ? last : unitSize);
 		}
-	}
 
-	/* Decrease and reserve less units */
-	if(!_gfx_material_decrease(
-		batch->material,
-		groupID,
-		instances))
-	{
-		_gfx_mesh_remove_group(
-			batch->mesh,
-			batch->meshID,
-			bucket);
-	}
+		/* Iterate through units and erase them */
+		while(num > start) gfx_bucket_erase(
+			bucket->bucket,
+			units[--num]
+		);
 
-	else _gfx_material_reserve(
-		batch->material,
-		groupID,
-		start);
+		/* Decrease and reserve less units */
+		if(!_gfx_material_decrease(
+			batch->material,
+			groupID,
+			instances))
+		{
+			_gfx_mesh_remove_group(
+				batch->mesh,
+				batch->meshID,
+				bucket);
+		}
+
+		else _gfx_material_reserve(
+			batch->material,
+			groupID,
+			start
+		);
+	}
 }
 
 /******************************************************/
@@ -451,26 +445,26 @@ size_t gfx_batch_set_visible(
 		size_t     instances)
 {
 	/* Get units */
-	size_t groupID = _gfx_mesh_get_group(
+	size_t groupID = _gfx_mesh_find_group(
 		batch->mesh,
 		batch->meshID,
 		bucket
 	);
 
-	/* Fetch data associated with the units */
-	size_t temp;
-	GFXPropertyMap* map;
-	size_t unitSize;
+	if(!groupID) return 0;
 
-	if(!_gfx_batch_get_data(
-		batch,
-		bucket,
-		&temp,
-		&map,
-		&unitSize))
-	{
-		return 0;
-	}
+	/* Get associated data */
+	size_t temp;
+	GFXPropertyMapList list = gfx_material_get_all(
+		batch->material,
+		&temp);
+
+	temp = _gfx_material_get_batch_map(
+		batch->material,
+		batch->materialID);
+
+	size_t unitSize = gfx_property_map_list_instances_at(
+		list, temp);
 
 	/* Get reserved units */
 	size_t num;
@@ -483,9 +477,9 @@ size_t gfx_batch_set_visible(
 	/* Clamp number of instances */
 	temp = _gfx_material_get(batch->material, groupID);
 	instances = (temp < instances) ? temp : instances;
-	size_t ret = instances;
 
 	/* Iterate and set visibility */
+	size_t ret = instances;
 	for(temp = 0; temp < num; ++temp)
 	{
 		unitSize = (unitSize < instances) ? unitSize : instances;

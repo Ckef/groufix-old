@@ -108,6 +108,9 @@ size_t _gfx_material_insert_batch(
  * @param materialID Batch ID at the material to set.
  * @param meshID     Mesh ID to set it to.
  *
+ * Note: this method should be called when the batch is associated with a new property map.
+ * This so the material can internally change a reference to said property map.
+ *
  */
 void _gfx_material_set_batch(
 
@@ -148,6 +151,17 @@ void _gfx_material_set_batch_type(
 		GFXMaterial*  material,
 		size_t        materialID,
 		GFXBatchType  type);
+
+/**
+ * Returns the index of the associated property map as seen in gfx_material_get_all.
+ *
+ * @return Property map index, out of bounds if it has no associated property map.
+ *
+ */
+size_t _gfx_material_get_batch_map(
+
+		GFXMaterial*  material,
+		size_t        materialID);
 
 /**
  * Fetches the ID of a batch at a mesh.
@@ -212,7 +226,7 @@ int _gfx_mesh_get_batch_lod(
 /**
  * Inserts a new unit group at the material.
  *
- * @return Unit group ID, 0 on failure or if materialID is 0.
+ * @return Unit group ID, 0 on failure.
  *
  */
 size_t _gfx_material_insert_group(
@@ -299,8 +313,23 @@ size_t* _gfx_material_get_reserved(
  * @param pipe Bucket to fetch the unit group of.
  * @return Unit group ID at the associated material, 0 on failure.
  *
+ * Note: this method will attempt to create the group if it does not exist.
+ * If the mesh does not have an associated submesh, the group fails to be created.
+ *
  */
 size_t _gfx_mesh_get_group(
+
+		GFXMesh*  mesh,
+		size_t    meshID,
+		GFXPipe*  pipe);
+
+/**
+ * Fetch a unit group associated with a batch for given bucket, but do not create a new one.
+ *
+ * @return Unit group ID at the associated material, 0 if not found.
+ *
+ */
+size_t _gfx_mesh_find_group(
 
 		GFXMesh*  mesh,
 		size_t    meshID,

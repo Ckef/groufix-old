@@ -48,6 +48,7 @@ struct GFX_Batch
 	GFXMesh*      mesh;  /* NULL when empty */
 	size_t        meshID;
 	GFXBatchType  type;
+	size_t        map;   /* Direct index of the property map of this batch */
 	size_t        copy;  /* First copy at the property map in use by this batch */
 };
 
@@ -141,6 +142,7 @@ static struct GFX_Batch* _gfx_material_insert_mesh(
 	new.mesh   = mesh;
 	new.meshID = 0;
 	new.type   = GFX_BATCH_DEFAULT;
+	new.map    = gfx_lod_map_count((GFXLodMap*)mat, SIZE_MAX);
 	new.copy   = 0;
 
 	/* Try to find an empty batch */
@@ -166,6 +168,38 @@ static struct GFX_Batch* _gfx_material_insert_mesh(
 		&new,
 		empty
 	);
+}
+
+/******************************************************/
+static void _gfx_material_update_batch_map(
+
+		struct GFX_Material*  mat,
+		struct GFX_Batch*     batch)
+{
+	/* Set to default (no map) */
+	batch->map = gfx_lod_map_count((GFXLodMap*)mat, SIZE_MAX);
+
+	/* Get parameters and submesh */
+	GFXBatchLod params;
+	_gfx_mesh_get_batch_lod(batch->mesh, batch->meshID, &params);
+
+	size_t num;
+	GFXSubMeshList subs = gfx_mesh_get(
+		batch->mesh,
+		params.mesh,
+		&num
+	);
+
+	if(params.index < num)
+	{
+		/* Get map index */
+		size_t index =
+			gfx_lod_map_count((GFXLodMap*)mat, params.material) +
+			gfx_submesh_list_material_at(subs, params.index);
+
+		if(index < gfx_lod_map_count((GFXLodMap*)mat, params.material + 1))
+			batch->map = index;
+	}
 }
 
 /******************************************************/
@@ -195,13 +229,17 @@ void _gfx_material_set_batch(
 
 	if(materialID && materialID <= max)
 	{
-		/* Get batch and set */
+		/* Get batch and set, also update the map index */
 		struct GFX_Batch* batch = gfx_vector_at(
 			&internal->batches,
 			materialID - 1
 		);
 
-		batch->meshID = meshID;
+		if(batch->mesh)
+		{
+			batch->meshID = meshID;
+			_gfx_material_update_batch_map(internal, batch);
+		}
 	}
 }
 
@@ -285,6 +323,28 @@ void _gfx_material_set_batch_type(
 
 		if(batch->mesh) batch->type = type;
 	}
+}
+
+/******************************************************/
+size_t _gfx_material_get_batch_map(
+
+		GFXMaterial*  material,
+		size_t        materialID)
+{
+	/* Bound check */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	size_t max = gfx_vector_get_size(&internal->batches);
+
+	if(!materialID || materialID > max)
+		return gfx_lod_map_count((GFXLodMap*)material, SIZE_MAX);
+
+	/* Get batch */
+	struct GFX_Batch* batch = gfx_vector_at(
+		&internal->batches,
+		materialID - 1
+	);
+
+	return batch->map;
 }
 
 /******************************************************/
@@ -458,7 +518,7 @@ size_t* _gfx_material_reserve(
 	struct GFX_Material* internal = (struct GFX_Material*)material;
 	size_t max = gfx_vector_get_size(&internal->groups);
 
-	if(!groupID || groupID > max) return 0;
+	if(!groupID || groupID > max) return NULL;
 
 	/* Get group */
 	struct GFX_Group* group = gfx_vector_at(
@@ -466,7 +526,7 @@ size_t* _gfx_material_reserve(
 		groupID - 1
 	);
 
-	if(group->instances == GFX_GROUP_EMPTY) return 0;
+	if(group->instances == GFX_GROUP_EMPTY) return NULL;
 
 	/* Reserve units */
 	return _gfx_material_reserve_units(internal, group, units);
@@ -573,6 +633,10 @@ GFXPropertyMap* gfx_material_add(
 		unsigned char  properties,
 		size_t         instances)
 {
+	/* Compute index of the map */
+	size_t max = gfx_lod_map_count((GFXLodMap*)material, SIZE_MAX);
+	size_t ind = gfx_lod_map_count((GFXLodMap*)material, level + 1);
+
 	/* Create new property map */
 	struct GFX_MapData data;
 	data.instances = instances;
@@ -586,6 +650,22 @@ GFXPropertyMap* gfx_material_add(
 	{
 		gfx_property_map_free(data.map);
 		return NULL;
+	}
+
+	/* Iterate through all batches */
+	struct GFX_Material* internal = (struct GFX_Material*)material;
+	struct GFX_Batch* it;
+
+	for(
+		it = internal->batches.begin;
+		it != internal->batches.end;
+		it = gfx_vector_next(&internal->batches, it))
+	{
+		/* Increase and/or calculate map index if necessary */
+		if(it->map == max && it->mesh)
+			_gfx_material_update_batch_map(internal, it);
+		else if(it->map >= ind)
+			++it->map;
 	}
 
 	return data.map;

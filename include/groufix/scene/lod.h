@@ -142,6 +142,8 @@ int gfx_lod_map_remove_at(
  *
  * @param levels Number of levels, starting at 0, to count the elements of.
  *
+ * levels will be clamped to the number of levels the map has.
+ *
  */
 size_t gfx_lod_map_count(
 

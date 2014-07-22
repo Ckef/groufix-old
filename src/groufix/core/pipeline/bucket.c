@@ -708,6 +708,43 @@ size_t gfx_bucket_insert(
 }
 
 /******************************************************/
+int gfx_bucket_rebuild(
+
+		GFXBucket*       bucket,
+		size_t           unit,
+		size_t           src,
+		GFXPropertyMap*  map)
+{
+	--src;
+
+	/* Validate index & source */
+	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
+	size_t cnt = gfx_vector_get_size(&internal->sources);
+
+	if(!map || src >= cnt) return 0;
+
+	struct GFX_Source* source = gfx_vector_at(&internal->sources, src);
+	if(!source->layout) return 0;
+
+	/* Get unit and 'rebuild' it */
+	/* If you know a better name for it, feel free */
+	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
+
+	un->program = map->program->id;
+	un->layout  = source->layout->id;
+	un->map     = map;
+	un->src     = src;
+
+	/* Force to process */
+	internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS;
+
+	if(un->state & GFX_INT_UNIT_VISIBLE)
+		internal->flags |= GFX_INT_BUCKET_SORT;
+
+	return 1;
+}
+
+/******************************************************/
 size_t gfx_bucket_get_copy(
 
 		GFXBucket*  bucket,
