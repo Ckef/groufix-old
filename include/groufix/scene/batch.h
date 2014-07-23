@@ -121,15 +121,6 @@ GFXBatchType gfx_batch_get_type(
 		GFXBatch* batch);
 
 /**
- * Returns the number of instances at a bucket for a given batch.
- *
- */
-size_t gfx_batch_get_instances(
-
-		GFXBatch*  batch,
-		GFXPipe*   bucket);
-
-/**
  * Sets the type of a given batch.
  *
  * Note: the default is GFX_BATCH_DEFAULT.
@@ -139,6 +130,15 @@ void gfx_batch_set_type(
 
 		GFXBatch*     batch,
 		GFXBatchType  type);
+
+/**
+ * Returns the number of instances at a bucket for a given batch.
+ *
+ */
+size_t gfx_batch_get_instances(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket);
 
 /**
  * Increase the number of instances at a bucket for a given batch.
@@ -164,11 +164,12 @@ int gfx_batch_increase(
  *
  * @param bucket    Bucket to decrease instances at.
  * @param instances Number of instances to remove.
+ * @return Zero if the number of instances hits 0.
  *
- * Note: if the number of instances hits 0, the batch's resources for the bucket are freed.
+ * Note: if zero is returned, the batch's resources for the bucket are freed.
  *
  */
-void gfx_batch_decrease(
+int gfx_batch_decrease(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket,

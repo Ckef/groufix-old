@@ -79,8 +79,10 @@ void _gfx_lod_map_clear(
 /**
  * Rebuilds the units of a given batch associated with a given bucket.
  *
+ * @return Zero if the batch units were removed.
+ *
  */
-void _gfx_batch_rebuild(
+int _gfx_batch_rebuild(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket);
@@ -220,132 +222,113 @@ int _gfx_mesh_get_batch_lod(
 
 
 /********************************************************
- * Unit group management at mesh and material
+ * Bucket unit management of batches at meshes
  *******************************************************/
 
 /**
- * Inserts a new unit group at the material.
+ * Fetch a bucket handle for a given batch and bucket.
  *
- * @return Unit group ID, 0 on failure.
+ * @param pipe Bucket to fetch a handle of.
+ * @return The handle of the bucket, invalid on failure.
  *
- */
-size_t _gfx_material_insert_group(
-
-		GFXMaterial* material);
-
-/**
- * Removes a unit group at a material.
- *
- * @param groupID Unit group ID at the material to remove.
- *
- * Note: this also invalidates any pointers fetched using _gfx_material_get_group.
+ * Note: if the batch does not have an associated submesh, the handle fails to be created.
+ * A handle is only valid as long as no other handle at the mesh is altered.
  *
  */
-void _gfx_material_remove_group(
+size_t _gfx_mesh_get_bucket(
 
-		GFXMaterial*  material,
-		size_t        groupID);
+		GFXMesh*  mesh,
+		size_t    meshID,
+		GFXPipe*  pipe);
 
 /**
- * Increase the instance counter of a group.
+ * Fetch an existing bucket handle for a given batch and bucket.
  *
- * @return Zero on overflow or if the group does not exist.
+ * @return The handle of the bucket, invalid on failure.
+ *
+ * Note: if the batch does not have an associated submesh, the function fails.
  *
  */
-int _gfx_material_increase(
+size_t _gfx_mesh_find_bucket(
 
-		GFXMaterial*  material,
-		size_t        groupID,
-		size_t        instances);
+		GFXMesh*  mesh,
+		size_t    meshID,
+		GFXPipe*  pipe);
 
 /**
- * Decreases the instance counter of a group.
+ * Forcefully remove a bucket handle associated with a batch for a given bucket.
+ *
+ * This will destroy all reserved units.
+ *
+ */
+void _gfx_mesh_remove_bucket(
+
+		GFXMesh*  mesh,
+		size_t    meshID,
+		GFXPipe*  pipe);
+
+/**
+ * Increase the instance counter of a bucket handle.
+ *
+ * @param bucket The handle of the bucket at the mesh.
+ * @return Zero on overflow or if the handle is invalid.
+ *
+ */
+int _gfx_mesh_increase(
+
+		GFXMesh*  mesh,
+		size_t    bucket,
+		size_t    instances);
+
+/**
+ * Decreases the instance counter of a bucket handle.
  *
  * @return Zero if the counter hits 0.
  *
  */
-int _gfx_material_decrease(
+int _gfx_mesh_decrease(
 
-		GFXMaterial*  material,
-		size_t        groupID,
-		size_t        instances);
+		GFXMesh*  mesh,
+		size_t    bucket,
+		size_t    instances);
 
 /**
- * Returns the instance counter of a unit group.
+ * Returns the instance counter of a bucket handle.
  *
  */
-size_t _gfx_material_get(
+size_t _gfx_mesh_get(
 
-		GFXMaterial*  material,
-		size_t        groupID);
+		GFXMesh*  mesh,
+		size_t    bucket);
 
 /**
- * Reserves a given amount of units associated with a group.
+ * Reserves a given amount of units associated with a bucket handle.
  *
- * @param units Number of units to reserve at the given group.
+ * @param units Number of units to reserve.
  * @return Array of size_t elements of size units, NULL on failure.
  *
- * Note: The pointer is only valid as long as no group at the material reserves any units.
+ * Note: The pointer is only valid as long as no handle at the mesh reserves any units.
  *
  */
-size_t* _gfx_material_reserve(
+size_t* _gfx_mesh_reserve(
 
-		GFXMaterial*  material,
-		size_t        groupID,
-		size_t        units);
+		GFXMesh*  mesh,
+		size_t    meshID,
+		size_t    bucket,
+		size_t    units);
 
 /**
- * Returns memory reserved for units associated with a group.
+ * Returns memory reserved for units associated with a bucket handle.
  *
  * @param units Returns the number of units in the returned array.
  * @return Array of size_t elements, reserved to be units.
  *
  */
-size_t* _gfx_material_get_reserved(
-
-		GFXMaterial*  material,
-		size_t        groupID,
-		size_t*       units);
-
-/**
- * Fetch a unit group associated with a batch for a given bucket.
- *
- * @param pipe Bucket to fetch the unit group of.
- * @return Unit group ID at the associated material, 0 on failure.
- *
- * Note: this method will attempt to create the group if it does not exist.
- * If the mesh does not have an associated submesh, the group fails to be created.
- *
- */
-size_t _gfx_mesh_get_group(
+size_t* _gfx_mesh_get_reserved(
 
 		GFXMesh*  mesh,
-		size_t    meshID,
-		GFXPipe*  pipe);
-
-/**
- * Fetch a unit group associated with a batch for given bucket, but do not create a new one.
- *
- * @return Unit group ID at the associated material, 0 if not found.
- *
- */
-size_t _gfx_mesh_find_group(
-
-		GFXMesh*  mesh,
-		size_t    meshID,
-		GFXPipe*  pipe);
-
-/**
- * Forcefully remove a unit group associated with a batch for a given bucket.
- *
- * @param pipe Bucket to remove the unit group of.
- *
- */
-void _gfx_mesh_remove_group(
-
-		GFXMesh*  mesh,
-		size_t    meshID,
-		GFXPipe*  pipe);
+		size_t    bucket,
+		size_t*   units);
 
 
 /********************************************************
