@@ -73,22 +73,6 @@ void _gfx_lod_map_clear(
 
 
 /********************************************************
- * Batch modification
- *******************************************************/
-
-/**
- * Rebuilds the units of a given batch associated with a given bucket.
- *
- * @return Zero if the batch units were removed.
- *
- */
-int _gfx_batch_rebuild(
-
-		GFXBatch*  batch,
-		GFXPipe*   bucket);
-
-
-/********************************************************
  * Batch references at mesh and material
  *******************************************************/
 
@@ -297,6 +281,27 @@ int _gfx_mesh_decrease(
  *
  */
 size_t _gfx_mesh_get(
+
+		GFXMesh*  mesh,
+		size_t    bucket);
+
+/**
+ * Sets the visible 'counter'.
+ *
+ * @return Actual set value (clamped by instances).
+ *
+ */
+size_t _gfx_mesh_set_visible(
+
+		GFXMesh*  mesh,
+		size_t    bucket,
+		size_t    instances);
+
+/**
+ * Gets the visible 'counter'.
+ *
+ */
+size_t _gfx_mesh_get_visible(
 
 		GFXMesh*  mesh,
 		size_t    bucket);

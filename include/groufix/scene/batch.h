@@ -132,15 +132,6 @@ void gfx_batch_set_type(
 		GFXBatchType  type);
 
 /**
- * Returns the number of instances at a bucket for a given batch.
- *
- */
-size_t gfx_batch_get_instances(
-
-		GFXBatch*  batch,
-		GFXPipe*   bucket);
-
-/**
  * Increase the number of instances at a bucket for a given batch.
  *
  * @param bucket    Bucket to increase instances at.
@@ -160,7 +151,7 @@ int gfx_batch_increase(
 		size_t     instances);
 
 /**
- * Decrease the number of instances at a bucket for a given batch.
+ * Decrease the number of instances at a bucket.
  *
  * @param bucket    Bucket to decrease instances at.
  * @param instances Number of instances to remove.
@@ -176,7 +167,16 @@ int gfx_batch_decrease(
 		size_t     instances);
 
 /**
- * Sets the number of visible instances to draw.
+ * Returns the number of instances at a bucket.
+ *
+ */
+size_t gfx_batch_get_instances(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket);
+
+/**
+ * Sets the number of visible instances to draw at a bucket.
  *
  * @param instances Number of instances to draw.
  * @return Number of instances actually made visible.
@@ -187,6 +187,15 @@ size_t gfx_batch_set_visible(
 		GFXBatch*  batch,
 		GFXPipe*   bucket,
 		size_t     instances);
+
+/**
+ * Returns the number of visible instances at a bucket.
+ *
+ */
+size_t gfx_batch_get_visible(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket);
 
 
 #ifdef __cplusplus

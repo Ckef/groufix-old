@@ -57,6 +57,7 @@ struct GFX_Bucket
 {
 	GFXPipe*  pipe;
 	size_t    instances; /* Number of instances */
+	size_t    visible;   /* Number of visible instances */
 	size_t    units;     /* Number of stored units */
 };
 
@@ -296,10 +297,17 @@ static void _gfx_mesh_rebuild_batches(
 					sizeof(struct GFX_Bucket) +
 					sizeof(size_t) * it->units;
 
-				if(_gfx_batch_rebuild(&bat, it->pipe))
-					begin += size;
+				/* Recreate, decrease end boundary */
+				/* as the bucket is reinserted at the end */
+				GFXPipe* pipe    = it->pipe;
+				size_t instances = it->instances;
+				size_t visible   = it->visible;
 
-				else end -= size;
+				gfx_batch_decrease(&bat, pipe, SIZE_MAX);
+				gfx_batch_increase(&bat, pipe, instances);
+				gfx_batch_set_visible(&bat, pipe, visible);
+
+				end -= size;
 			}
 		}
 	}
@@ -595,10 +603,12 @@ size_t _gfx_mesh_get_bucket(
 		return GFX_INT_INVALID_BUCKET_HANDLE;
 
 	/* Create new bucket */
+	/* Insert it at the end so we can rebuild */
 	struct GFX_Bucket insert;
-	insert.pipe = pipe;
+	insert.pipe      = pipe;
 	insert.instances = 0;
-	insert.units = 0;
+	insert.visible   = 0;
+	insert.units     = 0;
 
 	struct GFX_Bucket* it = gfx_vector_insert_range_at(
 		&internal->buckets,
@@ -770,13 +780,15 @@ int _gfx_mesh_decrease(
 	/* Get bucket */
 	struct GFX_Bucket* it = gfx_vector_at(
 		&internal->buckets,
-		bucket
-	);
+		bucket);
 
 	/* Decrease */
 	it->instances =
 		(instances > it->instances) ? 0 :
 		it->instances - instances;
+	it->visible =
+		(it->instances < it->visible) ?
+		it->instances : it->visible;
 
 	return (it->instances > 0);
 }
@@ -793,13 +805,49 @@ size_t _gfx_mesh_get(
 
 	if(bucket >= max) return 0;
 
+	return ((struct GFX_Bucket*)gfx_vector_at(
+		&internal->buckets, bucket))->instances;
+}
+
+/******************************************************/
+size_t _gfx_mesh_set_visible(
+
+		GFXMesh*  mesh,
+		size_t    bucket,
+		size_t    instances)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t max = gfx_vector_get_byte_size(&internal->buckets);
+
+	if(bucket >= max) return 0;
+
 	/* Get bucket */
 	struct GFX_Bucket* it = gfx_vector_at(
 		&internal->buckets,
-		bucket
-	);
+		bucket);
 
-	return it->instances;
+	/* Decrease */
+	return it->visible =
+		(it->instances < instances) ?
+		it->instances : instances;
+}
+
+
+/******************************************************/
+size_t _gfx_mesh_get_visible(
+
+		GFXMesh*  mesh,
+		size_t    bucket)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t max = gfx_vector_get_byte_size(&internal->buckets);
+
+	if(bucket >= max) return 0;
+
+	return ((struct GFX_Bucket*)gfx_vector_at(
+		&internal->buckets, bucket))->visible;
 }
 
 /******************************************************/
@@ -852,7 +900,9 @@ size_t* _gfx_mesh_reserve(
 		);
 
 		/* Adjust bounds */
+		it = gfx_vector_at(&internal->buckets, bucket);
 		it->units = units;
+
 		_gfx_mesh_increase_bucket_bounds(
 			internal,
 			batch,
