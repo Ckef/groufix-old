@@ -41,7 +41,6 @@ struct GFX_Batch
 {
 	GFXMesh*      mesh;  /* NULL when empty */
 	size_t        meshID;
-	GFXBatchType  type;
 	size_t        map;   /* Direct index of the property map of this batch */
 	size_t        copy;  /* First copy at the property map in use by this batch */
 };
@@ -64,7 +63,6 @@ static struct GFX_Batch* _gfx_material_insert_mesh(
 	struct GFX_Batch new;
 	new.mesh   = mesh;
 	new.meshID = 0;
-	new.type   = GFX_BATCH_DEFAULT;
 	new.map    = GFX_INT_INVALID_BATCH_MAP;
 	new.copy   = 0;
 
@@ -184,8 +182,6 @@ void _gfx_material_remove_batch(
 			materialID - 1
 		);
 
-		/* Also set type to that of a non existent batch */
-		batch->type = GFX_BATCH_DEFAULT;
 		batch->mesh = NULL;
 
 		/* Remove trailing empty batches */
@@ -201,50 +197,6 @@ void _gfx_material_remove_batch(
 			beg = prev;
 		}
 		gfx_vector_erase_range(&internal->batches, num, beg);
-	}
-}
-
-/******************************************************/
-GFXBatchType _gfx_material_get_batch_type(
-
-		GFXMaterial*  material,
-		size_t        materialID)
-{
-	/* Bound check */
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	size_t max = gfx_vector_get_size(&internal->batches);
-
-	if(!materialID || materialID > max) return GFX_BATCH_DEFAULT;
-
-	/* Get batch */
-	struct GFX_Batch* batch = gfx_vector_at(
-		&internal->batches,
-		materialID - 1
-	);
-
-	return batch->type;
-}
-
-/******************************************************/
-void _gfx_material_set_batch_type(
-
-		GFXMaterial*  material,
-		size_t        materialID,
-		GFXBatchType  type)
-{
-	/* Bound check */
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	size_t max = gfx_vector_get_size(&internal->batches);
-
-	if(materialID && materialID <= max)
-	{
-		/* Get batch and set */
-		struct GFX_Batch* batch = gfx_vector_at(
-			&internal->batches,
-			materialID - 1
-		);
-
-		if(batch->mesh) batch->type = type;
 	}
 }
 

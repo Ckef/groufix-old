@@ -45,10 +45,11 @@ struct GFX_Mesh
 /* Internal batch (material reference) */
 struct GFX_Batch
 {
-	GFXMaterial*  material;  /* NULL when empty */
+	GFXMaterial*  material;   /* NULL when empty */
 	size_t        materialID;
-	GFXBatchLod   params;    /* Level of detail parameters */
-	size_t        upper;     /* Upper bound in buckets vector */
+	GFXBatchLod   params;     /* Level of detail parameters */
+	GFXBatchType  type;
+	size_t        upper;      /* Upper bound in buckets vector */
 };
 
 /* Internal bucket reference */
@@ -332,6 +333,7 @@ static struct GFX_Batch* _gfx_mesh_find_batch(
 	new.material   = mat;
 	new.materialID = 0;
 	new.params     = params;
+	new.type       = GFX_BATCH_DEFAULT;
 
 	/* Replace an empty ID */
 	if(empty != mesh->batches.end)
@@ -447,6 +449,8 @@ void _gfx_mesh_remove_batch(
 		}
 
 		/* Mark as empty and remove trailing empty batches */
+		/* Also set type to that of a non existent batch */
+		batch->type = GFX_BATCH_DEFAULT;
 		batch->material = NULL;
 
 		size_t num;
@@ -487,6 +491,50 @@ int _gfx_mesh_get_batch_lod(
 	*params = batch->params;
 
 	return 1;
+}
+
+/******************************************************/
+GFXBatchType _gfx_mesh_get_batch_type(
+
+		GFXMesh*  mesh,
+		size_t    meshID)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t max = gfx_vector_get_size(&internal->batches);
+
+	if(!meshID || meshID > max) return GFX_BATCH_DEFAULT;
+
+	/* Get batch */
+	struct GFX_Batch* batch = gfx_vector_at(
+		&internal->batches,
+		meshID - 1
+	);
+
+	return batch->type;
+}
+
+/******************************************************/
+void _gfx_mesh_set_batch_type(
+
+		GFXMesh*      mesh,
+		size_t        meshID,
+		GFXBatchType  type)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t max = gfx_vector_get_size(&internal->batches);
+
+	if(meshID && meshID <= max)
+	{
+		/* Get batch and set */
+		struct GFX_Batch* batch = gfx_vector_at(
+			&internal->batches,
+			meshID - 1
+		);
+
+		if(batch->material) batch->type = type;
+	}
 }
 
 /******************************************************/

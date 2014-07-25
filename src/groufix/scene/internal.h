@@ -134,27 +134,6 @@ void _gfx_material_remove_batch(
 		size_t        materialID);
 
 /**
- * Returns the type of a batch at a material.
- *
- * @return GFX_BATCH_DEFAULT if the batch does not exist.
- *
- */
-GFXBatchType _gfx_material_get_batch_type(
-
-		GFXMaterial*  material,
-		size_t        materialID);
-
-/**
- * Sets the type of a batch at a material.
- *
- */
-void _gfx_material_set_batch_type(
-
-		GFXMaterial*  material,
-		size_t        materialID,
-		GFXBatchType  type);
-
-/**
  * Returns the index of the associated property map as seen in gfx_material_get_all.
  *
  * @return Property map index, out of bounds if it has no associated property map.
@@ -219,6 +198,27 @@ int _gfx_mesh_get_batch_lod(
 		GFXMesh*      mesh,
 		size_t        meshID,
 		GFXBatchLod*  params);
+
+/**
+ * Returns the type of a batch at a mesh.
+ *
+ * @return GFX_BATCH_DEFAULT if the batch does not exist.
+ *
+ */
+GFXBatchType _gfx_mesh_get_batch_type(
+
+		GFXMesh*  mesh,
+		size_t    meshID);
+
+/**
+ * Sets the type of a batch at a mesh.
+ *
+ */
+void _gfx_mesh_set_batch_type(
+
+		GFXMesh*      mesh,
+		size_t        meshID,
+		GFXBatchType  type);
 
 
 /********************************************************

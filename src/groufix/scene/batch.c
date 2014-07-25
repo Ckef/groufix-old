@@ -103,7 +103,7 @@ int _gfx_batch_rebuild(
 	/* Get and validate data */
 	size_t source = _gfx_batch_get_source(batch, bucket);
 	GFXPropertyMap* map;
-	size_t temp = 0;
+	size_t temp;
 
 	size_t num = _gfx_mesh_find_bucket(
 		batch->mesh,
@@ -118,28 +118,26 @@ int _gfx_batch_rebuild(
 	if(source && _gfx_batch_get_map(batch, &map, &temp))
 	{
 		/* Iterate through units and rebuild them */
-		temp = num;
-		while(temp)
+		for(temp = 0; temp < num; ++temp)
 		{
 			if(!gfx_bucket_rebuild(
 				bucket->bucket,
-				units[--temp],
+				units[temp],
 				source,
 				map))
 			{
 				/* Uh, bail? */
-				++temp;
 				break;
 			}
 		}
 
 		/* Success! */
-		if(!temp) return 1;
+		if(temp >= num) return 1;
 	}
 
 	/* Remove all units */
-	while(temp < num)
-		gfx_bucket_erase(bucket->bucket, units[temp++]);
+	while(num)
+		gfx_bucket_erase(bucket->bucket, units[--num]);
 
 	_gfx_mesh_remove_bucket(
 		batch->mesh,
@@ -218,10 +216,7 @@ GFXBatchType gfx_batch_get_type(
 
 		GFXBatch* batch)
 {
-	return _gfx_material_get_batch_type(
-		batch->material,
-		batch->materialID
-	);
+	return _gfx_mesh_get_batch_type(batch->mesh, batch->meshID);
 }
 
 /******************************************************/
@@ -230,11 +225,7 @@ void gfx_batch_set_type(
 		GFXBatch*     batch,
 		GFXBatchType  type)
 {
-	_gfx_material_set_batch_type(
-		batch->material,
-		batch->materialID,
-		type
-	);
+	_gfx_mesh_set_batch_type(batch->mesh, batch->meshID, type);
 }
 
 /******************************************************/
@@ -247,11 +238,10 @@ size_t gfx_batch_get_instances(
 	size_t handle = _gfx_mesh_find_bucket(
 		batch->mesh,
 		batch->meshID,
-		bucket);
+		bucket
+	);
 
-	return _gfx_mesh_get(
-		batch->mesh,
-		handle);
+	return _gfx_mesh_get(batch->mesh, handle);
 }
 
 /******************************************************/
