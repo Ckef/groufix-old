@@ -224,16 +224,6 @@ GFXVectorIterator gfx_vector_insert(
 }
 
 /******************************************************/
-GFXVectorIterator gfx_vector_insert_at(
-
-		GFXVector*   vector,
-		const void*  element,
-		size_t       index)
-{
-	return gfx_vector_insert(vector, element, gfx_vector_at(vector, index));
-}
-
-/******************************************************/
 GFXVectorIterator gfx_vector_insert_range(
 
 		GFXVector*         vector,
@@ -268,36 +258,6 @@ GFXVectorIterator gfx_vector_insert_range(
 	memcpy(pos, buff, diff);
 
 	return pos;
-}
-
-/******************************************************/
-GFXVectorIterator gfx_vector_insert_range_at(
-
-		GFXVector*         vector,
-		size_t             num,
-		GFXVectorIterator  start,
-		size_t             index)
-{
-	return gfx_vector_insert_range(vector, num, start, gfx_vector_at(vector, index));
-}
-
-/******************************************************/
-GFXVectorIterator gfx_vector_erase(
-
-		GFXVector*         vector,
-		GFXVectorIterator  pos)
-{
-	/* Call erase range to make sure a minimum capacity is reallocated */
-	return gfx_vector_erase_range(vector, 1, pos);
-}
-
-/******************************************************/
-GFXVectorIterator gfx_vector_erase_at(
-
-		GFXVector*  vector,
-		size_t      index)
-{
-	return gfx_vector_erase(vector, gfx_vector_at(vector, index));
 }
 
 /******************************************************/
@@ -342,14 +302,4 @@ GFXVectorIterator gfx_vector_erase_range(
 	else vector->end = GFX_PTR_ADD_BYTES(vector->begin, newSize);
 
 	return start;
-}
-
-/******************************************************/
-GFXVectorIterator gfx_vector_erase_range_at(
-
-		GFXVector*  vector,
-		size_t      num,
-		size_t      index)
-{
-	return gfx_vector_erase_range(vector, num, gfx_vector_at(vector, index));
 }

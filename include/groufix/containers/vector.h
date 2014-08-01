@@ -159,19 +159,6 @@ GFXVectorIterator gfx_vector_insert(
 		GFXVectorIterator  pos);
 
 /**
- * Inserts an element after a given index.
- *
- * @param element Data to copy into the new element, can be NULL to copy nothing.
- * @return The iterator to the new element (vector->end on failure).
- *
- */
-GFXVectorIterator gfx_vector_insert_at(
-
-		GFXVector*   vector,
-		const void*  element,
-		size_t       index);
-
-/**
  * Inserts a range of elements at a given iterator (can be this vector).
  *
  * @param num   Number of elements to insert.
@@ -187,43 +174,6 @@ GFXVectorIterator gfx_vector_insert_range(
 		GFXVectorIterator  pos);
 
 /**
- * Inserts a range of elements at a given index (can be this vector).
- *
- * @param num   Number of elements to insert.
- * @param start The start of the range, can also be an arbitrary pointer, or NULL to copy nothing.
- * @return The iterator to the beginning of the inserted range (vector->end on failure).
- *
- */
-GFXVectorIterator gfx_vector_insert_range_at(
-
-		GFXVector*         vector,
-		size_t             num,
-		GFXVectorIterator  start,
-		size_t             index);
-
-/**
- * Erases an element at a given iterator.
- *
- * @return The iterator to the element taking its place.
- *
- */
-GFXVectorIterator gfx_vector_erase(
-
-		GFXVector*         vector,
-		GFXVectorIterator  pos);
-
-/**
- * Erases an element at a given index.
- *
- * @return The iterator to the element taking its place.
- *
- */
-GFXVectorIterator gfx_vector_erase_at(
-
-		GFXVector*  vector,
-		size_t      index);
-
-/**
  * Erases a range of elements at a given iterator.
  *
  * @param num   Number of elements to erase.
@@ -236,19 +186,6 @@ GFXVectorIterator gfx_vector_erase_range(
 		GFXVector*         vector,
 		size_t             num,
 		GFXVectorIterator  start);
-
-/**
- * Erases a range of elements at a given index.
- *
- * @param num Number of elements to erase.
- * @return The iterator to the element taking its place.
- *
- */
-GFXVectorIterator gfx_vector_erase_range_at(
-
-		GFXVector*  vector,
-		size_t      num,
-		size_t      index);
 
 /**
  * Returns the size of the vector in bytes.
@@ -333,6 +270,84 @@ inline GFXVectorIterator gfx_vector_advance(
 		int                num)
 {
 	return GFX_PTR_ADD_BYTES(it, vector->elementSize * num);
+}
+
+/**
+ * Inserts an element after a given index.
+ *
+ * @param element Data to copy into the new element, can be NULL to copy nothing.
+ * @return The iterator to the new element (vector->end on failure).
+ *
+ */
+inline GFXVectorIterator gfx_vector_insert_at(
+
+		GFXVector*   vector,
+		const void*  element,
+		size_t       index)
+{
+	return gfx_vector_insert(vector, element, gfx_vector_at(vector, index));
+}
+
+/**
+ * Inserts a range of elements at a given index (can be this vector).
+ *
+ * @param num   Number of elements to insert.
+ * @param start The start of the range, can also be an arbitrary pointer, or NULL to copy nothing.
+ * @return The iterator to the beginning of the inserted range (vector->end on failure).
+ *
+ */
+inline GFXVectorIterator gfx_vector_insert_range_at(
+
+		GFXVector*         vector,
+		size_t             num,
+		GFXVectorIterator  start,
+		size_t             index)
+{
+	return gfx_vector_insert_range(vector, num, start, gfx_vector_at(vector, index));
+}
+
+/**
+ * Erases an element at a given iterator.
+ *
+ * @return The iterator to the element taking its place.
+ *
+ */
+inline GFXVectorIterator gfx_vector_erase(
+
+		GFXVector*         vector,
+		GFXVectorIterator  pos)
+{
+	return gfx_vector_erase_range(vector, 1, pos);
+}
+
+/**
+ * Erases an element at a given index.
+ *
+ * @return The iterator to the element taking its place.
+ *
+ */
+inline GFXVectorIterator gfx_vector_erase_at(
+
+		GFXVector*  vector,
+		size_t      index)
+{
+	return gfx_vector_erase_range(vector, 1, gfx_vector_at(vector, index));
+}
+
+/**
+ * Erases a range of elements at a given index.
+ *
+ * @param num Number of elements to erase.
+ * @return The iterator to the element taking its place.
+ *
+ */
+inline GFXVectorIterator gfx_vector_erase_range_at(
+
+		GFXVector*  vector,
+		size_t      num,
+		size_t      index)
+{
+	return gfx_vector_erase_range(vector, num, gfx_vector_at(vector, index));
 }
 
 
