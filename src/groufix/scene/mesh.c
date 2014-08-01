@@ -484,9 +484,10 @@ void _gfx_mesh_remove_batch(
 		}
 
 		/* Mark as empty and remove trailing empty batches */
-		/* Also set type to that of a non existent batch */
-		batch->type = GFX_BATCH_DEFAULT;
+		/* Also set units and type to that of a non existent batch */
 		batch->material = NULL;
+		batch->type = GFX_BATCH_DEFAULT;
+		batch->units = 0;
 
 		size_t num;
 		struct GFX_Batch* beg = internal->batches.end;
@@ -501,6 +502,25 @@ void _gfx_mesh_remove_batch(
 		}
 		gfx_vector_erase_range(&internal->batches, num, beg);
 	}
+}
+
+/******************************************************/
+size_t _gfx_mesh_get_batch_units(
+
+		GFXMesh*  mesh,
+		size_t    meshID)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t max = gfx_vector_get_size(&internal->batches);
+
+	if(!meshID || meshID > max) return 0;
+
+	/* Get batch */
+	struct GFX_Batch* batch =
+		gfx_vector_at(&internal->batches, meshID - 1);
+
+	return batch->units;
 }
 
 /******************************************************/

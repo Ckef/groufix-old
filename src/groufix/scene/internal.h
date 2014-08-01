@@ -176,6 +176,15 @@ size_t _gfx_material_get_batch_map(
 		size_t        materialID);
 
 /**
+ * Returns the maximum number of units reserved by any bucket within a batch.
+ *
+ */
+size_t _gfx_mesh_get_batch_units(
+
+		GFXMesh*  mesh,
+		size_t    meshID);
+
+/**
  * Return the level of detail parameters of a batch at a mesh.
  *
  * @param params Returns the level of detail params, not touched if batch does not exist.
