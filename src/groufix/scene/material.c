@@ -54,6 +54,43 @@ struct GFX_MapData
 };
 
 /******************************************************/
+static void _gfx_material_increase_batch_copies(
+
+		struct GFX_Material*  mat,
+		struct GFX_Batch*     batch,
+		long int              diff)
+{
+	/* Check if the property map exists */
+	size_t num;
+	struct GFX_MapData* data = gfx_lod_map_get_all(
+		(GFXLodMap*)mat,
+		&num
+	);
+
+	if(batch->map < num)
+	{
+		/* Adjust number of copies used */
+		data[batch->map].copies += diff;
+
+		/* Iterate through all batches and adjust their copy */
+		struct GFX_Batch* it;
+		for(
+			it = mat->batches.begin;
+			it != mat->batches.end;
+			it = gfx_vector_next(&mat->batches, it))
+		{
+			if(
+				it != batch &&
+				it->map == batch->map &&
+				it->copy >= batch->copy)
+			{
+				it->copy += diff;
+			}
+		}
+	}
+}
+
+/******************************************************/
 static struct GFX_Batch* _gfx_material_insert_mesh(
 
 		struct GFX_Material*  mat,
@@ -129,8 +166,10 @@ size_t _gfx_material_insert_batch(
 		GFXMaterial*  material,
 		GFXMesh*      mesh)
 {
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	struct GFX_Batch* batch = _gfx_material_insert_mesh(internal, mesh);
+	struct GFX_Material* internal =
+		(struct GFX_Material*)material;
+	struct GFX_Batch* batch =
+		_gfx_material_insert_mesh(internal, mesh);
 
 	/* Return correct ID */
 	return (batch == internal->batches.end) ? 0 :
@@ -145,16 +184,16 @@ void _gfx_material_set_batch(
 		size_t        meshID)
 {
 	/* Bound check */
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	size_t max = gfx_vector_get_size(&internal->batches);
+	struct GFX_Material* internal =
+		(struct GFX_Material*)material;
+	size_t max =
+		gfx_vector_get_size(&internal->batches);
 
 	if(materialID && materialID <= max)
 	{
 		/* Get batch and set, also update the map index */
-		struct GFX_Batch* batch = gfx_vector_at(
-			&internal->batches,
-			materialID - 1
-		);
+		struct GFX_Batch* batch =
+			gfx_vector_at(&internal->batches, materialID - 1);
 
 		if(batch->mesh)
 		{
@@ -171,18 +210,19 @@ void _gfx_material_remove_batch(
 		size_t        materialID)
 {
 	/* Bound check */
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	size_t size = gfx_vector_get_size(&internal->batches);
+	struct GFX_Material* internal =
+		(struct GFX_Material*)material;
+	size_t size =
+		gfx_vector_get_size(&internal->batches);
 
 	if(materialID && materialID <= size)
 	{
 		/* Get batch and mark as empty */
-		struct GFX_Batch* batch = gfx_vector_at(
-			&internal->batches,
-			materialID - 1
-		);
+		struct GFX_Batch* batch =
+			gfx_vector_at(&internal->batches, materialID - 1);
 
 		batch->mesh = NULL;
+		batch->map = GFX_INT_INVALID_BATCH_MAP;
 
 		/* Remove trailing empty batches */
 		size_t num;
@@ -207,17 +247,17 @@ size_t _gfx_material_get_batch_map(
 		size_t        materialID)
 {
 	/* Bound check */
-	struct GFX_Material* internal = (struct GFX_Material*)material;
-	size_t max = gfx_vector_get_size(&internal->batches);
+	struct GFX_Material* internal =
+		(struct GFX_Material*)material;
+	size_t max =
+		gfx_vector_get_size(&internal->batches);
 
 	if(!materialID || materialID > max)
 		return GFX_INT_INVALID_BATCH_MAP;
 
 	/* Get batch */
-	struct GFX_Batch* batch = gfx_vector_at(
-		&internal->batches,
-		materialID - 1
-	);
+	struct GFX_Batch* batch =
+		gfx_vector_at(&internal->batches, materialID - 1);
 
 	return batch->map;
 }
@@ -288,7 +328,10 @@ GFXPropertyMap* gfx_material_add(
 		size_t         instances)
 {
 	/* Compute index of the map */
-	size_t ind = gfx_lod_map_count((GFXLodMap*)material, level + 1);
+	size_t ind = gfx_lod_map_count(
+		(GFXLodMap*)material,
+		level + 1
+	);
 
 	/* Create new property map */
 	struct GFX_MapData data;
@@ -306,8 +349,9 @@ GFXPropertyMap* gfx_material_add(
 	}
 
 	/* Iterate through all batches */
-	struct GFX_Material* internal = (struct GFX_Material*)material;
 	struct GFX_Batch* it;
+	struct GFX_Material* internal =
+		(struct GFX_Material*)material;
 
 	for(
 		it = internal->batches.begin;
@@ -315,10 +359,13 @@ GFXPropertyMap* gfx_material_add(
 		it = gfx_vector_next(&internal->batches, it))
 	{
 		/* Increase and/or calculate map index if necessary */
-		if(it->map == GFX_INT_INVALID_BATCH_MAP && it->mesh)
-			_gfx_material_update_batch_map(internal, it);
-		else if(it->map >= ind)
-			++it->map;
+		if(it->mesh)
+		{
+			if(it->map == GFX_INT_INVALID_BATCH_MAP)
+				_gfx_material_update_batch_map(internal, it);
+			else if(it->map >= ind)
+				++it->map;
+		}
 	}
 
 	return data.map;

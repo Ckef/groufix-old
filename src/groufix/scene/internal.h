@@ -118,17 +118,6 @@ void _gfx_material_remove_batch(
 		size_t        materialID);
 
 /**
- * Returns the index of the associated property map as seen in gfx_material_get_all.
- *
- * @return Property map index, out of bounds if it has no associated property map.
- *
- */
-size_t _gfx_material_get_batch_map(
-
-		GFXMaterial*  material,
-		size_t        materialID);
-
-/**
  * Fetches the ID of a batch at a mesh.
  *
  * @param material   Material the batch is associated with.
@@ -169,6 +158,22 @@ void _gfx_mesh_remove_batch(
 
 		GFXMesh*  mesh,
 		size_t    meshID);
+
+
+/********************************************************
+ * Batch properties
+ *******************************************************/
+
+/**
+ * Returns the index of the associated property map as seen in gfx_material_get_all.
+ *
+ * @return Property map index, out of bounds if it has no associated property map.
+ *
+ */
+size_t _gfx_material_get_batch_map(
+
+		GFXMaterial*  material,
+		size_t        materialID);
 
 /**
  * Return the level of detail parameters of a batch at a mesh.
@@ -252,6 +257,35 @@ void _gfx_mesh_remove_bucket(
 		GFXPipe*  pipe);
 
 /**
+ * Reserves a given amount of units associated with a bucket handle.
+ *
+ * @param units Number of units to reserve.
+ * @return Array of size_t elements of size units, NULL on failure.
+ *
+ * Note: The pointer is only valid as long as no handle at the mesh reserves any units.
+ *
+ */
+size_t* _gfx_mesh_reserve(
+
+		GFXMesh*  mesh,
+		size_t    meshID,
+		size_t    bucket,
+		size_t    units);
+
+/**
+ * Returns memory reserved for units associated with a bucket handle.
+ *
+ * @param units Returns the number of units in the returned array.
+ * @return Array of size_t elements, reserved to be units.
+ *
+ */
+size_t* _gfx_mesh_get_reserved(
+
+		GFXMesh*  mesh,
+		size_t    bucket,
+		size_t*   units);
+
+/**
  * Increase the instance counter of a bucket handle.
  *
  * @param bucket The handle of the bucket at the mesh.
@@ -305,35 +339,6 @@ size_t _gfx_mesh_get_visible(
 
 		GFXMesh*  mesh,
 		size_t    bucket);
-
-/**
- * Reserves a given amount of units associated with a bucket handle.
- *
- * @param units Number of units to reserve.
- * @return Array of size_t elements of size units, NULL on failure.
- *
- * Note: The pointer is only valid as long as no handle at the mesh reserves any units.
- *
- */
-size_t* _gfx_mesh_reserve(
-
-		GFXMesh*  mesh,
-		size_t    meshID,
-		size_t    bucket,
-		size_t    units);
-
-/**
- * Returns memory reserved for units associated with a bucket handle.
- *
- * @param units Returns the number of units in the returned array.
- * @return Array of size_t elements, reserved to be units.
- *
- */
-size_t* _gfx_mesh_get_reserved(
-
-		GFXMesh*  mesh,
-		size_t    bucket,
-		size_t*   units);
 
 
 /********************************************************

@@ -241,8 +241,6 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			int y = GET_Y_LPARAM(lParam);
 			GFXKeyState state = _gfx_win32_get_key_state();
 
-			_gfx_event_mouse_move(window, x, y, state);
-
 			/* Check mouse enter event */
 			GFX_Win32_Window* internal =
 				(GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
@@ -254,6 +252,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 
 				_gfx_event_mouse_enter(window, x, y, state);
 			}
+
+			else _gfx_event_mouse_move(window, x, y, state);
 
 			return 0;
 		}

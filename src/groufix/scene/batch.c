@@ -283,8 +283,7 @@ int gfx_batch_increase(
 	size_t source =
 		_gfx_batch_get_source(batch, bucket);
 	size_t end = _gfx_batch_get_num_units(
-		_gfx_mesh_get(batch->mesh, handle),
-		unitSize);
+		_gfx_mesh_get(batch->mesh, handle), unitSize);
 
 	if(!end || !source || !_gfx_batch_get_map(batch, &map, &unitSize))
 	{
@@ -294,14 +293,11 @@ int gfx_batch_increase(
 
 	/* Get current number of units and reserve extra ones */
 	size_t start;
-	_gfx_mesh_get_reserved(batch->mesh, handle, &start);
 
+	_gfx_mesh_get_reserved(
+		batch->mesh, handle, &start);
 	size_t* units = _gfx_mesh_reserve(
-		batch->mesh,
-		batch->meshID,
-		handle,
-		end
-	);
+		batch->mesh, batch->meshID, handle, end);
 
 	if(units)
 	{
@@ -311,15 +307,9 @@ int gfx_batch_increase(
 		for(i = start; i < end; ++i)
 		{
 			units[i] = gfx_bucket_insert(
-				bucket->bucket,
-				source,
-				map,
-				0, 0);
-
+				bucket->bucket, source, map, 0, 0);
 			gfx_bucket_set_instance_base(
-				bucket->bucket,
-				units[i],
-				unitSize * i);
+				bucket->bucket, units[i], unitSize * i);
 
 			/* Bail! Fire! */
 			if(!units[i]) break;
@@ -371,11 +361,7 @@ int gfx_batch_decrease(
 
 	if(units)
 	{
-		/* Decrease */
-		if(_gfx_mesh_decrease(
-			batch->mesh,
-			handle,
-			instances))
+		if(_gfx_mesh_decrease(batch->mesh, handle, instances))
 		{
 			/* Get associated data */
 			GFXPropertyMap* map;
@@ -383,30 +369,21 @@ int gfx_batch_decrease(
 			_gfx_batch_get_map(batch, &map, &unitSize);
 
 			/* Get the number of remaining units and erase the rest */
-			instances = _gfx_mesh_get(batch->mesh, handle);
-			size_t start = _gfx_batch_get_num_units(
-				instances,
-				unitSize
-			);
+			instances =
+				_gfx_mesh_get(batch->mesh, handle);
+			size_t start =
+				_gfx_batch_get_num_units(instances, unitSize);
 
 			while(end > start)
 				gfx_bucket_erase(bucket->bucket, units[--end]);
 
-			/* Get the number of visible units and set visibility */
+			/* Get the number of visible units, set visibility and reserve */
 			/* Just pretend everything is visible at this point */
 			_gfx_batch_set_visible(
-				bucket->bucket,
-				units,
-				unitSize,
-				instances,
+				bucket->bucket, units, unitSize, instances,
 				_gfx_mesh_get_visible(batch->mesh, handle));
-
-			/* Reserve fewer units */
 			_gfx_mesh_reserve(
-				batch->mesh,
-				batch->meshID,
-				handle,
-				start);
+				batch->mesh, batch->meshID, handle, start);
 
 			return 1;
 		}
@@ -462,8 +439,10 @@ size_t gfx_batch_set_visible(
 	if(!num) return 0;
 
 	/* Get current and set number of visible instances */
-	size_t old = _gfx_mesh_get_visible(batch->mesh, handle);
-	instances = _gfx_mesh_set_visible(batch->mesh, handle, instances);
+	size_t old =
+		_gfx_mesh_get_visible(batch->mesh, handle);
+	instances =
+		_gfx_mesh_set_visible(batch->mesh, handle, instances);
 
 	/* Get associated data */
 	GFXPropertyMap* map;
