@@ -44,9 +44,9 @@
 /* Required platform headers */
 #if defined(GFX_WIN32)
 
-	/* Windows XP */
+	/* Windows Vista and up */
 	#ifndef WINVER
-	#define WINVER 0x0501
+	#define WINVER 0x0600
 	#endif
 
 	/* Nothing extra */
