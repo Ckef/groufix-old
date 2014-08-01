@@ -154,21 +154,15 @@ static void _gfx_batch_set_visible(
 		{
 			size_t sub = oldVisible - newVisible;
 
-			if(inst <= sub)
-			{
-				sub = inst;
-				gfx_bucket_set_visible(
-					bucket,
-					units[start],
-					0);
-			}
-			else
-			{
-				gfx_bucket_set_instances(
-					bucket,
-					units[start],
-					inst - sub);
-			}
+			if(inst <= sub) sub = inst, gfx_bucket_set_visible(
+				bucket,
+				units[start],
+				0);
+
+			else gfx_bucket_set_instances(
+				bucket,
+				units[start],
+				inst - sub);
 
 			oldVisible -= sub;
 			inst = unitSize;
@@ -279,55 +273,51 @@ int gfx_batch_increase(
 	/* Calculate the number of wanted units */
 	GFXPropertyMap* map;
 	size_t unitSize;
+	size_t start;
 
 	size_t source =
 		_gfx_batch_get_source(batch, bucket);
-	size_t end = _gfx_batch_get_num_units(
-		_gfx_mesh_get(batch->mesh, handle), unitSize);
-
-	if(!end || !source || !_gfx_batch_get_map(batch, &map, &unitSize))
-	{
-		_gfx_mesh_remove_bucket(batch->mesh, batch->meshID, bucket);
-		return 0;
-	}
-
-	/* Get current number of units and reserve extra ones */
-	size_t start;
-
 	_gfx_mesh_get_reserved(
 		batch->mesh, handle, &start);
-	size_t* units = _gfx_mesh_reserve(
-		batch->mesh, batch->meshID, handle, end);
 
-	if(units)
+	if(source && _gfx_batch_get_map(batch, &map, &unitSize))
 	{
-		/* iterate through units and add them to the bucket */
-		/* Also set the base instances */
-		size_t i;
-		for(i = start; i < end; ++i)
+		/* Get current number of units and reserve extra ones */
+		size_t end = _gfx_batch_get_num_units(
+			_gfx_mesh_get(batch->mesh, handle), unitSize);
+		size_t* units = _gfx_mesh_reserve(
+			batch->mesh, batch->meshID, handle, end);
+
+		if(end && units)
 		{
-			units[i] = gfx_bucket_insert(
-				bucket->bucket, source, map, 0, 0);
-			gfx_bucket_set_instance_base(
-				bucket->bucket, units[i], unitSize * i);
+			/* iterate through units and add them to the bucket */
+			/* Also set the base instances */
+			size_t i;
+			for(i = start; i < end; ++i)
+			{
+				units[i] = gfx_bucket_insert(
+					bucket->bucket, source, map, 0, 0);
+				gfx_bucket_set_instance_base(
+					bucket->bucket, units[i], unitSize * i);
 
-			/* Bail! Fire! */
-			if(!units[i]) break;
+				/* Bail! Fire! */
+				if(!units[i]) break;
+			}
+
+			/* Woop Woop, Victory! */
+			if(i >= end) return 1;
+
+			/* Well then, destroy units again and unreserve */
+			while(i > start)
+				gfx_bucket_erase(bucket->bucket, units[--i]);
+
+			_gfx_mesh_reserve(
+				batch->mesh,
+				batch->meshID,
+				handle,
+				start
+			);
 		}
-
-		/* Woop Woop, Victory! */
-		if(i >= end) return 1;
-
-		/* Well then, destroy units again and unreserve */
-		while(i > start)
-			gfx_bucket_erase(bucket->bucket, units[--i]);
-
-		_gfx_mesh_reserve(
-			batch->mesh,
-			batch->meshID,
-			handle,
-			start
-		);
 	}
 
 	/* Well nevermind */

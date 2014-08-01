@@ -297,13 +297,13 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	XFree(config);
 
 	/* Create the window attributes */
-	unsigned long mask = 0;
+	unsigned long mask = CWColormap | CWEventMask;
 	XSetWindowAttributes attr;
 
 	if(attributes->flags & GFX_WINDOW_BORDERLESS)
 	{
 		/* Borderless window */
-		mask = CWOverrideRedirect | CWBorderPixel;
+		mask |= CWOverrideRedirect | CWBorderPixel;
 
 		attr.override_redirect = True;
 		attr.border_pixel = 0;
@@ -339,7 +339,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		visual->depth,
 		InputOutput,
 		visual->visual,
-		mask | CWColormap | CWEventMask,
+		mask,
 		&attr
 	);
 
@@ -424,10 +424,7 @@ void _gfx_platform_window_free(
 {
 	if(_gfx_x11)
 	{
-		/* Destroy the context */
-		_gfx_platform_context_free(handle);
-
-		/* Remove all events of the window from the queue */
+		/* Get attributes */
 		XWindowAttributes attr;
 		XGetWindowAttributes(
 			_gfx_x11->display,
@@ -435,14 +432,8 @@ void _gfx_platform_window_free(
 			&attr
 		);
 
-		XEvent event;
-		while(XCheckWindowEvent(
-			_gfx_x11->display,
-			GFX_VOID_TO_UINT(handle),
-			attr.all_event_masks, &event)
-		);
-
-		/* Destroy the window and its colormap */
+		/* Destroy context, the window and its colormap */
+		_gfx_platform_context_free(handle);
 		XDestroyWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle));
 		XFreeColormap(_gfx_x11->display, attr.colormap);
 
