@@ -509,10 +509,12 @@ void _gfx_platform_screen_get_size(
  *******************************************************/
 
 /**
- * Creates a new window (not required to be visible).
+ * Creates a new window.
  *
  * @brief attributes The attributes to initialize the window with (cannot be NULL).
  * @return A handle to the window (NULL on failure).
+ *
+ * Note: if GFX_WINDOW_FULLSCREEN is set, all other flags may be ignored.
  *
  */
 GFX_PlatformWindow _gfx_platform_window_create(

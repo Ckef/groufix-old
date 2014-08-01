@@ -121,7 +121,8 @@ typedef enum GFXWindowFlags
 {
 	GFX_WINDOW_FULLSCREEN  = 0x01,
 	GFX_WINDOW_BORDERLESS  = 0x02,
-	GFX_WINDOW_RESIZABLE   = 0x04
+	GFX_WINDOW_RESIZABLE   = 0x04,
+	GFX_WINDOW_HIDDEN      = 0x08
 
 } GFXWindowFlags;
 
@@ -316,6 +317,8 @@ void gfx_window_set_position(
 /**
  * Makes a window visible.
  *
+ * Note: this might misbehave if directly called after gfx_window_hide.
+ *
  */
 void gfx_window_show(
 
@@ -323,6 +326,8 @@ void gfx_window_show(
 
 /**
  * Makes a window invisible.
+ *
+ * Note: this might misbehave if directly called after gfx_window_show.
  *
  */
 void gfx_window_hide(

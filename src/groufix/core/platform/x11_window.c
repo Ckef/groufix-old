@@ -375,7 +375,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	/* Set full screen */
 	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
+	{
 		_gfx_x11_set_fullscreen(window.handle, get.root);
+		XMapWindow(_gfx_x11->display, window.handle);
+	}
 
 	/* Set size hints */
 	else if(!(GFX_WINDOW_RESIZABLE & attributes->flags))
@@ -392,6 +395,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 		XFree(hints);
 	}
+
+	/* Make it visible */
+	if(!(attributes->flags & GFX_WINDOW_HIDDEN))
+		XMapWindow(_gfx_x11->display, window.handle);
 
 	/* Set protocols */
 	XSetWMProtocols(

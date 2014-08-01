@@ -434,8 +434,12 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	_gfx_win32_get_screen_position(attributes->screen, &xS, &yS);
 
 	/* Style and window rectangle */
-	DWORD styleEx = 0;
-	DWORD style = 0;
+	DWORD styleEx =
+		WS_EX_APPWINDOW;
+	DWORD style =
+		WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+		(!(attributes->flags & GFX_WINDOW_HIDDEN) ?
+		WS_VISIBLE : 0);
 
 	RECT rect;
 	rect.right = attributes->width;
@@ -453,7 +457,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		window.flags |= GFX_WIN32_FULLSCREEN;
 
 		/* Style and rectangle */
-		styleEx = WS_EX_TOPMOST;
+		styleEx |= WS_EX_TOPMOST;
 		style = WS_POPUP | WS_VISIBLE;
 
 		rect.left = xS;
@@ -464,10 +468,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		/* Create window style */
 		if(!(attributes->flags & GFX_WINDOW_BORDERLESS))
 		{
-			styleEx =
+			styleEx |=
 				WS_EX_WINDOWEDGE;
 
-			style =
+			style |=
 				WS_CAPTION |
 				WS_MINIMIZEBOX |
 				WS_OVERLAPPED |
@@ -480,8 +484,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		else
 		{
 			/* Borderless */
-			styleEx = WS_EX_TOPMOST;
-			style = WS_POPUP | WS_VISIBLE;
+			styleEx |= WS_EX_TOPMOST;
+			style |= WS_POPUP;
 		}
 
 		/* Rectangle */
@@ -498,10 +502,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	/* Create the actual window */
 	window.handle = CreateWindowEx(
-		styleEx | WS_EX_APPWINDOW,
+		styleEx,
 		GFX_WIN32_WND_CLASS,
 		name,
-		style | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		style,
 		rect.left,
 		rect.top,
 		rect.right - rect.left,
@@ -511,22 +515,11 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		GetModuleHandle(NULL),
 		NULL
 	);
+
 	free(name);
 
 	if(window.handle)
 	{
-		/* Some fullscreen options */
-		if(attributes->flags & GFX_WINDOW_FULLSCREEN)
-		{
-			SetWindowPos(
-				window.handle,
-				HWND_TOPMOST,
-				0,0,0,0,
-				SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE
-			);
-			ShowWindow(window.handle, SW_MAXIMIZE);
-		}
-
 		/* Add window to vector */
 		GFXVectorIterator it = gfx_vector_insert(
 			&_gfx_win32->windows,
@@ -541,6 +534,18 @@ GFX_PlatformWindow _gfx_platform_window_create(
 				window.handle,
 				&attributes->depth
 			);
+
+			/* Some fullscreen options */
+			if(attributes->flags & GFX_WINDOW_FULLSCREEN)
+			{
+				SetWindowPos(
+					window.handle,
+					HWND_TOPMOST,
+					0,0,0,0,
+					SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW
+				);
+				ShowWindow(window.handle, SW_MAXIMIZE);
+			}
 
 			/* Start tracking the mouse */
 			_gfx_win32_track_mouse(window.handle);

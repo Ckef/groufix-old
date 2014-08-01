@@ -266,9 +266,6 @@ GFXWindow* gfx_window_create(
 				if(!_gfx_main_window) _gfx_main_window = window;
 				_gfx_window_make_current(_gfx_main_window);
 
-				/* Also make it visible */
-				_gfx_platform_window_show(window->handle);
-
 				return (GFXWindow*)window;
 			}
 
