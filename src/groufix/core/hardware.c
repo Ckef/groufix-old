@@ -65,7 +65,7 @@ int gfx_hardware_get_limit(
 }
 
 /******************************************************/
-size_t _gfx_hardware_object_register(
+unsigned int _gfx_hardware_object_register(
 
 		void*                     object,
 		const GFX_HardwareFuncs*  funcs)
@@ -77,12 +77,12 @@ size_t _gfx_hardware_object_register(
 	internal.handle = object;
 	internal.funcs = funcs;
 
-	size_t id = 0;
+	unsigned int id = 0;
 
 	if(_gfx_hw_ids)
 	{
 		/* Replace an empty ID */
-		id = *(size_t*)_gfx_hw_ids->begin;
+		id = *(unsigned int*)_gfx_hw_ids->begin;
 		gfx_deque_pop_front(_gfx_hw_ids);
 
 		*(struct GFX_HardwareObject*)gfx_vector_at(_gfx_hw_objects, id - 1) =
@@ -107,8 +107,10 @@ size_t _gfx_hardware_object_register(
 		}
 
 		/* Get index + 1 as ID, overflow? omg, many objects! */
-		id = gfx_vector_get_size(_gfx_hw_objects) + 1;
-		if(!id) return 0;
+		size_t size = gfx_vector_get_size(_gfx_hw_objects);
+		id = size + 1;
+
+		if(id < size) return 0;
 
 		/* Insert a new object at the end */
 		GFXVectorIterator it = gfx_vector_insert(
@@ -127,13 +129,14 @@ size_t _gfx_hardware_object_register(
 			return 0;
 		}
 	}
+
 	return id;
 }
 
 /******************************************************/
 void _gfx_hardware_object_unregister(
 
-		size_t id)
+		unsigned int id)
 {
 	if(_gfx_hw_objects && id)
 	{
@@ -157,7 +160,7 @@ void _gfx_hardware_object_unregister(
 			if(!_gfx_hw_ids)
 			{
 				/* Create deque if it doesn't exist yet */
-				_gfx_hw_ids = gfx_deque_create(sizeof(size_t));
+				_gfx_hw_ids = gfx_deque_create(sizeof(unsigned int));
 				if(!_gfx_hw_ids) return;
 			}
 			gfx_deque_push_back(_gfx_hw_ids, &id);

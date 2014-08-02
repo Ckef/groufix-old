@@ -49,9 +49,9 @@ typedef enum GFXBatchType
 /** Batch level of detail parameters */
 typedef struct GFXBatchLod
 {
-	size_t  mesh;     /* Level of detail within the mesh */
-	size_t  index;    /* Index of the submesh within the mesh LOD to use */
-	size_t  material; /* Level of detail within the material */
+	unsigned int  mesh;     /* Level of detail within the mesh */
+	unsigned int  index;    /* Index of the submesh within the mesh LOD to use */
+	unsigned int  material; /* Level of detail within the material */
 
 } GFXBatchLod;
 
@@ -64,9 +64,9 @@ typedef struct GFXBatchLod
 typedef struct GFXBatch
 {
 	GFXMaterial*  material;
-	size_t        materialID;
+	unsigned int  materialID;
 	GFXMesh*      mesh;
-	size_t        meshID;
+	unsigned int  meshID;
 
 } GFXBatch;
 
@@ -146,9 +146,9 @@ void gfx_batch_set_type(
  */
 int gfx_batch_increase(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket,
-		size_t     instances);
+		GFXBatch*     batch,
+		GFXPipe*      bucket,
+		unsigned int  instances);
 
 /**
  * Decrease the number of instances at a bucket.
@@ -162,15 +162,15 @@ int gfx_batch_increase(
  */
 int gfx_batch_decrease(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket,
-		size_t     instances);
+		GFXBatch*     batch,
+		GFXPipe*      bucket,
+		unsigned int  instances);
 
 /**
  * Returns the number of instances at a bucket.
  *
  */
-size_t gfx_batch_get_instances(
+unsigned int gfx_batch_get_instances(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket);
@@ -182,17 +182,17 @@ size_t gfx_batch_get_instances(
  * @return Number of instances actually made visible.
  *
  */
-size_t gfx_batch_set_visible(
+unsigned int gfx_batch_set_visible(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket,
-		size_t     instances);
+		GFXBatch*     batch,
+		GFXPipe*      bucket,
+		unsigned int  instances);
 
 /**
  * Returns the number of visible instances at a bucket.
  *
  */
-size_t gfx_batch_get_visible(
+unsigned int gfx_batch_get_visible(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket);

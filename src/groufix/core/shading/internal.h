@@ -44,7 +44,7 @@ extern "C" {
 void _gfx_property_map_use(
 
 		GFXPropertyMap*  map,
-		size_t           copy,
+		unsigned int     copy,
 		unsigned int     base,
 		GFX_Extensions*  ext);
 

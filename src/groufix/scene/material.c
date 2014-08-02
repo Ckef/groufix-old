@@ -23,10 +23,11 @@
 
 #include "groufix/scene/internal.h"
 
+#include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#define GFX_INT_INVALID_BATCH_MAP  SIZE_MAX
+#define GFX_INT_INVALID_BATCH_MAP  UINT_MAX
 
 /******************************************************/
 /* Internal material */
@@ -40,9 +41,9 @@ struct GFX_Material
 struct GFX_Batch
 {
 	GFXMesh*      mesh;  /* NULL when empty */
-	size_t        meshID;
-	size_t        map;   /* Direct index of the property map of this batch */
-	size_t        copy;  /* First copy at the property map in use by this batch */
+	unsigned int  meshID;
+	unsigned int  map;   /* Direct index of the property map of this batch */
+	unsigned int  copy;  /* First copy at the property map in use by this batch */
 };
 
 /* Internal Property Map data */
@@ -50,7 +51,7 @@ struct GFX_MapData
 {
 	GFXPropertyMap*  map;       /* Super class */
 	size_t           instances; /* Number or renderable instances per unit (constant) */
-	size_t           copies;    /* Number of copies used by units */
+	unsigned int     copies;    /* Number of copies used by units */
 };
 
 /******************************************************/
@@ -61,7 +62,7 @@ static void _gfx_material_increase_batch_copies(
 		long int              diff)
 {
 	/* Check if the property map exists */
-	size_t num;
+	unsigned int num;
 	struct GFX_MapData* data = gfx_lod_map_get_all(
 		(GFXLodMap*)mat,
 		&num
@@ -120,6 +121,10 @@ static struct GFX_Batch* _gfx_material_insert_mesh(
 		return empty;
 	}
 
+	/* Overflow */
+	if(gfx_vector_get_size(&mat->batches) == UINT_MAX)
+		return mat->batches.end;
+
 	/* Insert new ID */
 	return gfx_vector_insert(
 		&mat->batches,
@@ -141,7 +146,7 @@ static void _gfx_material_update_batch_map(
 	GFXBatchLod params;
 	_gfx_mesh_get_batch_lod(batch->mesh, batch->meshID, &params);
 
-	size_t num;
+	unsigned int num;
 	GFXSubMeshList subs = gfx_mesh_get(
 		batch->mesh,
 		params.mesh,
@@ -151,7 +156,7 @@ static void _gfx_material_update_batch_map(
 	if(params.index < num)
 	{
 		/* Get map index */
-		size_t index =
+		unsigned int index =
 			gfx_lod_map_count((GFXLodMap*)mat, params.material) +
 			gfx_submesh_list_material_at(subs, params.index);
 
@@ -161,7 +166,7 @@ static void _gfx_material_update_batch_map(
 }
 
 /******************************************************/
-size_t _gfx_material_insert_batch(
+unsigned int _gfx_material_insert_batch(
 
 		GFXMaterial*  material,
 		GFXMesh*      mesh)
@@ -180,8 +185,8 @@ size_t _gfx_material_insert_batch(
 void _gfx_material_set_batch(
 
 		GFXMaterial*  material,
-		size_t        materialID,
-		size_t        meshID)
+		unsigned int  materialID,
+		unsigned int  meshID)
 {
 	/* Bound check */
 	struct GFX_Material* internal =
@@ -207,7 +212,7 @@ void _gfx_material_set_batch(
 void _gfx_material_remove_batch(
 
 		GFXMaterial*  material,
-		size_t        materialID)
+		unsigned int  materialID)
 {
 	/* Bound check */
 	struct GFX_Material* internal =
@@ -241,10 +246,10 @@ void _gfx_material_remove_batch(
 }
 
 /******************************************************/
-size_t _gfx_material_get_batch_map(
+unsigned int _gfx_material_get_batch_map(
 
 		GFXMaterial*  material,
-		size_t        materialID)
+		unsigned int  materialID)
 {
 	/* Bound check */
 	struct GFX_Material* internal =
@@ -302,7 +307,7 @@ void gfx_material_free(
 		}
 
 		/* Free all property maps */
-		size_t num;
+		unsigned int num;
 		struct GFX_MapData* maps = gfx_lod_map_get_all(
 			(GFXLodMap*)material,
 			&num
@@ -322,13 +327,13 @@ void gfx_material_free(
 GFXPropertyMap* gfx_material_add(
 
 		GFXMaterial*   material,
-		size_t         level,
+		unsigned int   level,
 		GFXProgram*    program,
 		unsigned char  properties,
 		size_t         instances)
 {
 	/* Compute index of the map */
-	size_t ind = gfx_lod_map_count(
+	unsigned int ind = gfx_lod_map_count(
 		(GFXLodMap*)material,
 		level + 1
 	);
@@ -350,8 +355,7 @@ GFXPropertyMap* gfx_material_add(
 
 	/* Iterate through all batches */
 	struct GFX_Batch* it;
-	struct GFX_Material* internal =
-		(struct GFX_Material*)material;
+	struct GFX_Material* internal = (struct GFX_Material*)material;
 
 	for(
 		it = internal->batches.begin;
@@ -374,9 +378,9 @@ GFXPropertyMap* gfx_material_add(
 /******************************************************/
 GFXPropertyMapList gfx_material_get(
 
-		GFXMaterial*  material,
-		size_t        level,
-		size_t*       num)
+		GFXMaterial*   material,
+		unsigned int   level,
+		unsigned int*  num)
 {
 	return gfx_lod_map_get((GFXLodMap*)material, level, num);
 }
@@ -384,8 +388,8 @@ GFXPropertyMapList gfx_material_get(
 /******************************************************/
 GFXPropertyMapList gfx_material_get_all(
 
-		GFXMaterial*  material,
-		size_t*       num)
+		GFXMaterial*   material,
+		unsigned int*  num)
 {
 	return gfx_lod_map_get_all((GFXLodMap*)material, num);
 }
@@ -394,16 +398,16 @@ GFXPropertyMapList gfx_material_get_all(
 size_t gfx_property_map_list_instances_at(
 
 		GFXPropertyMapList  list,
-		size_t              index)
+		unsigned int        index)
 {
 	return ((struct GFX_MapData*)list)[index].instances;
 }
 
 /******************************************************/
-size_t gfx_property_map_list_copies_at(
+unsigned int gfx_property_map_list_copies_at(
 
 		GFXPropertyMapList  list,
-		size_t              index)
+		unsigned int        index)
 {
 	return ((struct GFX_MapData*)list)[index].copies;
 }
@@ -412,7 +416,7 @@ size_t gfx_property_map_list_copies_at(
 GFXPropertyMap* gfx_property_map_list_at(
 
 		GFXPropertyMapList  list,
-		size_t              index)
+		unsigned int        index)
 {
 	return ((struct GFX_MapData*)list)[index].map;
 }

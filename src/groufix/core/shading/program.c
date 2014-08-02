@@ -302,7 +302,7 @@ static unsigned short _gfx_program_prepare_properties(
 	GLuint indices[properties];
 	GLint lens[properties];
 
-	size_t i;
+	unsigned short i;
 	for(i = 0; i < properties; ++i) indices[i] = i;
 	ext->GetActiveUniformsiv(
 		program->handle,
@@ -363,7 +363,7 @@ static unsigned short _gfx_program_prepare_blocks(
 	if(!gfx_vector_reserve(&program->blocks, blocks)) return 0;
 
 	/* Retrieve uniform blocks */
-	size_t k;
+	unsigned short k;
 	for(k = 0; k < blocks; ++k)
 	{
 		GLint size;

@@ -23,6 +23,7 @@
 
 #include "groufix/core/pipeline/internal.h"
 
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -54,7 +55,7 @@ struct GFX_Callback
 struct GFX_Range
 {
 	unsigned char  key; /* Callback key */
-	size_t         end; /* Upper bound */
+	unsigned int   end; /* Upper bound */
 };
 
 /******************************************************/
@@ -156,7 +157,7 @@ static GFXVectorIterator _gfx_pipe_find(
 
 		struct GFX_IntPipe*  pipe,
 		unsigned char        key,
-		size_t*              num)
+		unsigned int*        num)
 {
 	/* Find range element */
 	struct GFX_Range* it = bsearch(
@@ -174,7 +175,7 @@ static GFXVectorIterator _gfx_pipe_find(
 	}
 
 	/* Get previous range and calculate number of elements */
-	size_t begin = 0;
+	unsigned int begin = 0;
 	if(it != pipe->ranges.begin)
 		begin = ((struct GFX_Range*)gfx_vector_previous(&pipe->ranges, it))->end;
 
@@ -315,6 +316,10 @@ int gfx_pipe_register(
 		pipe,
 		offsetof(GFX_Pipe, ptr));
 
+	/* Overflow check */
+	if(gfx_vector_get_size(&internal->callbacks) == UINT_MAX)
+		return 0;
+
 	/* Insert the callback object */
 	struct GFX_Callback call;
 	call.callback = callback;
@@ -346,8 +351,8 @@ void gfx_pipe_unregister(
 	_gfx_pipe_sort(internal);
 
 	/* Find the callback object */
-	size_t max = gfx_vector_get_size(&internal->callbacks);
-	size_t min = 0;
+	unsigned int max = gfx_vector_get_size(&internal->callbacks);
+	unsigned int min = 0;
 
 	GFXVectorIterator found = bsearch(
 		&callback,
@@ -359,16 +364,16 @@ void gfx_pipe_unregister(
 
 	if(found)
 	{
-		size_t mid = gfx_vector_get_index(
+		unsigned int mid = gfx_vector_get_index(
 			&internal->callbacks,
 			found
 		);
 
 		/* Binary search for first equivalent callback */
-		size_t find = mid;
+		unsigned int find = mid;
 		while(find > min)
 		{
-			size_t quart = min + ((find - min) >> 1);
+			unsigned int quart = min + ((find - min) >> 1);
 			GFXVectorIterator it = gfx_vector_at(
 				&internal->callbacks,
 				quart
@@ -382,7 +387,7 @@ void gfx_pipe_unregister(
 		find = mid;
 		while(max > find)
 		{
-			size_t quart = find + ((max - find) >> 1);
+			unsigned int quart = find + ((max - find) >> 1);
 			GFXVectorIterator it = gfx_vector_at(
 				&internal->callbacks,
 				quart
@@ -425,7 +430,7 @@ GFXPipeCallbackList gfx_pipe_find(
 
 		GFXPipe*       pipe,
 		unsigned char  key,
-		size_t*        num)
+		unsigned int*  num)
 {
 	/* First make sure it's sorted and ranged */
 	struct GFX_IntPipe* internal = GFX_PTR_SUB_BYTES(
@@ -442,7 +447,7 @@ GFXPipeCallbackList gfx_pipe_find(
 GFXPipeCallback* gfx_pipe_at(
 
 		GFXPipeCallbackList  list,
-		size_t               index)
+		unsigned int         index)
 {
 	return (GFXPipeCallback*)(((struct GFX_Callback*)list) + index);
 }

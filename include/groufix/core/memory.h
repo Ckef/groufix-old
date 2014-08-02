@@ -119,7 +119,7 @@ typedef enum GFXBufferTarget
 /** Buffer */
 typedef struct GFXBuffer
 {
-	size_t           id;      /* Hardware Object ID */
+	unsigned int     id;      /* Hardware Object ID */
 
 	size_t           size;    /* Size of the buffer in bytes */
 	size_t           segSize; /* Size of a segment in the buffer (can equal size) */
@@ -377,7 +377,7 @@ typedef struct GFXDrawCall
 /** Vertex Layout */
 typedef struct GFXVertexLayout
 {
-	size_t         id;        /* Hardware Object ID */
+	unsigned int   id;        /* Hardware Object ID */
 	unsigned char  drawCalls; /* Number of draw calls */
 
 } GFXVertexLayout;
@@ -621,7 +621,7 @@ typedef struct GFXPixelTransfer
 /** Texture */
 typedef struct GFXTexture
 {
-	size_t          id;      /* Hardware Object ID */
+	unsigned int    id;      /* Hardware Object ID */
 
 	GFXTextureType  type;    /* Describes image arrangement and sampling */
 	unsigned char   mipmaps; /* Number of mipmaps (0 for none) */

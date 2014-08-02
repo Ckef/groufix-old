@@ -44,6 +44,10 @@ typedef struct GFXSubMesh
 } GFXSubMesh;
 
 
+/** SubMesh buffer */
+typedef unsigned int GFXSubMeshBuffer;
+
+
 /**
  * Sets a source of the submesh.
  *
@@ -76,7 +80,7 @@ GFXVertexSource gfx_submesh_get_source(
  * @return ID to identify the buffer (0 on failure).
  *
  */
-size_t gfx_submesh_add_buffer(
+GFXSubMeshBuffer gfx_submesh_add_buffer(
 
 		GFXSubMesh*      mesh,
 		GFXBufferTarget  target,
@@ -94,10 +98,10 @@ size_t gfx_submesh_add_buffer(
  */
 int gfx_submesh_set_attribute_buffer(
 
-		GFXSubMesh*   mesh,
-		unsigned int  index,
-		size_t        buffer,
-		size_t        offset);
+		GFXSubMesh*       mesh,
+		unsigned int      index,
+		GFXSubMeshBuffer  buffer,
+		size_t            offset);
 
 /**
  * Uses an index buffer for the submesh.
@@ -109,9 +113,9 @@ int gfx_submesh_set_attribute_buffer(
  */
 int gfx_submesh_set_index_buffer(
 
-		GFXSubMesh*  mesh,
-		size_t       buffer,
-		size_t       offset);
+		GFXSubMesh*       mesh,
+		GFXSubMeshBuffer  buffer,
+		size_t            offset);
 
 
 /********************************************************
@@ -158,7 +162,7 @@ void gfx_mesh_free(
 GFXSubMesh* gfx_mesh_add(
 
 		GFXMesh*       mesh,
-		size_t         level,
+		unsigned int   level,
 		unsigned char  drawCalls,
 		unsigned char  sources);
 
@@ -174,9 +178,9 @@ GFXSubMesh* gfx_mesh_add(
  */
 int gfx_mesh_add_share(
 
-		GFXMesh*     mesh,
-		size_t       level,
-		GFXSubMesh*  share);
+		GFXMesh*      mesh,
+		unsigned int  level,
+		GFXSubMesh*   share);
 
 /**
  * Sets the material index to use for all instances of a submesh added to a mesh.
@@ -189,12 +193,12 @@ int gfx_mesh_add_share(
  * Changing this while the submesh is already in use by a batch can be expensive!
  *
  */
-size_t gfx_mesh_set_material(
+unsigned int gfx_mesh_set_material(
 
-		GFXMesh*     mesh,
-		size_t       level,
-		GFXSubMesh*  sub,
-		size_t       material);
+		GFXMesh*      mesh,
+		unsigned int  level,
+		GFXSubMesh*   sub,
+		unsigned int  material);
 
 /**
  * Sets the material index to use for a submesh added to a mesh.
@@ -205,10 +209,10 @@ size_t gfx_mesh_set_material(
  */
 int gfx_mesh_set_material_at(
 
-		GFXMesh*  mesh,
-		size_t    level,
-		size_t    index,
-		size_t    material);
+		GFXMesh*      mesh,
+		unsigned int  level,
+		unsigned int  index,
+		unsigned int  material);
 
 /**
  * Sets the source to sample from all instances of a submesh added to a mesh.
@@ -218,10 +222,10 @@ int gfx_mesh_set_material_at(
  * Changing this while the submesh is already in use by a batch can be expensive!
  *
  */
-size_t gfx_mesh_set_source(
+unsigned int gfx_mesh_set_source(
 
 		GFXMesh*       mesh,
-		size_t         level,
+		unsigned int   level,
 		GFXSubMesh*    sub,
 		unsigned char  source);
 
@@ -234,8 +238,8 @@ size_t gfx_mesh_set_source(
 int gfx_mesh_set_source_at(
 
 		GFXMesh*       mesh,
-		size_t         level,
-		size_t         index,
+		unsigned int   level,
+		unsigned int   index,
 		unsigned char  source);
 
 /**
@@ -249,9 +253,9 @@ int gfx_mesh_set_source_at(
  */
 GFXSubMeshList gfx_mesh_get(
 
-		GFXMesh*  mesh,
-		size_t    level,
-		size_t*   num);
+		GFXMesh*       mesh,
+		unsigned int   level,
+		unsigned int*  num);
 
 /**
  * Returns an abstract list of submeshes of all levels.
@@ -261,8 +265,8 @@ GFXSubMeshList gfx_mesh_get(
  */
 GFXSubMeshList gfx_mesh_get_all(
 
-		GFXMesh*  mesh,
-		size_t*   num);
+		GFXMesh*       mesh,
+		unsigned int*  num);
 
 /**
  * Index into a list of submeshes, retrieving the material index.
@@ -272,10 +276,10 @@ GFXSubMeshList gfx_mesh_get_all(
  * Note: you can only retrieve a submesh with index < number of elements in list.
  *
  */
-size_t gfx_submesh_list_material_at(
+unsigned int gfx_submesh_list_material_at(
 
 		GFXSubMeshList  list,
-		size_t          index);
+		unsigned int    index);
 
 /**
  * Index into a list of submeshes, retrieving the mesh source.
@@ -284,7 +288,7 @@ size_t gfx_submesh_list_material_at(
 unsigned char gfx_submesh_list_source_at(
 
 		GFXSubMeshList  list,
-		size_t          index);
+		unsigned int    index);
 
 /**
  * Index into a list of submeshes, retrieving the submesh.
@@ -293,7 +297,7 @@ unsigned char gfx_submesh_list_source_at(
 GFXSubMesh* gfx_submesh_list_at(
 
 		GFXSubMeshList  list,
-		size_t          index);
+		unsigned int    index);
 
 
 #ifdef __cplusplus

@@ -43,7 +43,7 @@ typedef struct GFX_LodMap
 
 	/* Hidden data */
 	GFXVector data;   /* Stores elements of dataSize bytes */
-	GFXVector levels; /* Stores size_t, upper bound of the level */
+	GFXVector levels; /* Stores unsigned int, upper bound of the level */
 
 } GFX_LodMap;
 
@@ -83,7 +83,7 @@ void _gfx_lod_map_clear(
  * @return Material ID, 0 on failure.
  *
  */
-size_t _gfx_material_insert_batch(
+unsigned int _gfx_material_insert_batch(
 
 		GFXMaterial*  material,
 		GFXMesh*      mesh);
@@ -101,8 +101,8 @@ size_t _gfx_material_insert_batch(
 void _gfx_material_set_batch(
 
 		GFXMaterial*  material,
-		size_t        materialID,
-		size_t        meshID);
+		unsigned int  materialID,
+		unsigned int  meshID);
 
 /**
  * Removes a batch at a material.
@@ -115,7 +115,7 @@ void _gfx_material_set_batch(
 void _gfx_material_remove_batch(
 
 		GFXMaterial*  material,
-		size_t        materialID);
+		unsigned int  materialID);
 
 /**
  * Fetches the ID of a batch at a mesh.
@@ -126,12 +126,12 @@ void _gfx_material_remove_batch(
  * @return Mesh ID if found, 0 on failure.
  *
  */
-size_t _gfx_mesh_get_batch(
+unsigned int _gfx_mesh_get_batch(
 
-		GFXMesh*      mesh,
-		GFXMaterial*  material,
-		GFXBatchLod   params,
-		size_t*       materialID);
+		GFXMesh*       mesh,
+		GFXMaterial*   material,
+		GFXBatchLod    params,
+		unsigned int*  materialID);
 
 /**
  * Sets the Material ID of a batch at a mesh.
@@ -142,9 +142,9 @@ size_t _gfx_mesh_get_batch(
  */
 void _gfx_mesh_set_batch(
 
-		GFXMesh*  mesh,
-		size_t    meshID,
-		size_t    materialID);
+		GFXMesh*      mesh,
+		unsigned int  meshID,
+		unsigned int  materialID);
 
 /**
  * Removes a batch at a mesh.
@@ -156,8 +156,8 @@ void _gfx_mesh_set_batch(
  */
 void _gfx_mesh_remove_batch(
 
-		GFXMesh*  mesh,
-		size_t    meshID);
+		GFXMesh*      mesh,
+		unsigned int  meshID);
 
 
 /********************************************************
@@ -170,19 +170,19 @@ void _gfx_mesh_remove_batch(
  * @return Property map index, out of bounds if it has no associated property map.
  *
  */
-size_t _gfx_material_get_batch_map(
+unsigned int _gfx_material_get_batch_map(
 
 		GFXMaterial*  material,
-		size_t        materialID);
+		unsigned int  materialID);
 
 /**
  * Returns the maximum number of units reserved by any bucket within a batch.
  *
  */
-size_t _gfx_mesh_get_batch_units(
+unsigned int _gfx_mesh_get_batch_units(
 
-		GFXMesh*  mesh,
-		size_t    meshID);
+		GFXMesh*      mesh,
+		unsigned int  meshID);
 
 /**
  * Return the level of detail parameters of a batch at a mesh.
@@ -194,7 +194,7 @@ size_t _gfx_mesh_get_batch_units(
 int _gfx_mesh_get_batch_lod(
 
 		GFXMesh*      mesh,
-		size_t        meshID,
+		unsigned int  meshID,
 		GFXBatchLod*  params);
 
 /**
@@ -205,8 +205,8 @@ int _gfx_mesh_get_batch_lod(
  */
 GFXBatchType _gfx_mesh_get_batch_type(
 
-		GFXMesh*  mesh,
-		size_t    meshID);
+		GFXMesh*      mesh,
+		unsigned int  meshID);
 
 /**
  * Sets the type of a batch at a mesh.
@@ -215,7 +215,7 @@ GFXBatchType _gfx_mesh_get_batch_type(
 void _gfx_mesh_set_batch_type(
 
 		GFXMesh*      mesh,
-		size_t        meshID,
+		unsigned int  meshID,
 		GFXBatchType  type);
 
 
@@ -233,11 +233,11 @@ void _gfx_mesh_set_batch_type(
  * A handle is only valid as long as no other handle at the mesh is altered.
  *
  */
-size_t _gfx_mesh_get_bucket(
+unsigned int _gfx_mesh_get_bucket(
 
-		GFXMesh*  mesh,
-		size_t    meshID,
-		GFXPipe*  pipe);
+		GFXMesh*      mesh,
+		unsigned int  meshID,
+		GFXPipe*      pipe);
 
 /**
  * Fetch an existing bucket handle for a given batch and bucket.
@@ -247,11 +247,11 @@ size_t _gfx_mesh_get_bucket(
  * Note: if the batch does not have an associated submesh, the function fails.
  *
  */
-size_t _gfx_mesh_find_bucket(
+unsigned int _gfx_mesh_find_bucket(
 
-		GFXMesh*  mesh,
-		size_t    meshID,
-		GFXPipe*  pipe);
+		GFXMesh*      mesh,
+		unsigned int  meshID,
+		GFXPipe*      pipe);
 
 /**
  * Forcefully remove a bucket handle associated with a batch for a given bucket.
@@ -261,9 +261,9 @@ size_t _gfx_mesh_find_bucket(
  */
 void _gfx_mesh_remove_bucket(
 
-		GFXMesh*  mesh,
-		size_t    meshID,
-		GFXPipe*  pipe);
+		GFXMesh*      mesh,
+		unsigned int  meshID,
+		GFXPipe*      pipe);
 
 /**
  * Reserves a given amount of units associated with a bucket handle.
@@ -274,12 +274,12 @@ void _gfx_mesh_remove_bucket(
  * Note: The pointer is only valid as long as no handle at the mesh reserves any units.
  *
  */
-size_t* _gfx_mesh_reserve(
+GFXBucketUnit* _gfx_mesh_reserve(
 
-		GFXMesh*  mesh,
-		size_t    meshID,
-		size_t    bucket,
-		size_t    units);
+		GFXMesh*      mesh,
+		unsigned int  meshID,
+		unsigned int  bucket,
+		unsigned int  units);
 
 /**
  * Returns memory reserved for units associated with a bucket handle.
@@ -288,11 +288,11 @@ size_t* _gfx_mesh_reserve(
  * @return Array of size_t elements, reserved to be units.
  *
  */
-size_t* _gfx_mesh_get_reserved(
+GFXBucketUnit* _gfx_mesh_get_reserved(
 
-		GFXMesh*  mesh,
-		size_t    bucket,
-		size_t*   units);
+		GFXMesh*       mesh,
+		unsigned int   bucket,
+		unsigned int*  units);
 
 /**
  * Increase the instance counter of a bucket handle.
@@ -303,9 +303,9 @@ size_t* _gfx_mesh_get_reserved(
  */
 int _gfx_mesh_increase(
 
-		GFXMesh*  mesh,
-		size_t    bucket,
-		size_t    instances);
+		GFXMesh*      mesh,
+		unsigned int  bucket,
+		unsigned int  instances);
 
 /**
  * Decreases the instance counter of a bucket handle.
@@ -315,18 +315,18 @@ int _gfx_mesh_increase(
  */
 int _gfx_mesh_decrease(
 
-		GFXMesh*  mesh,
-		size_t    bucket,
-		size_t    instances);
+		GFXMesh*      mesh,
+		unsigned int  bucket,
+		unsigned int  instances);
 
 /**
  * Returns the instance counter of a bucket handle.
  *
  */
-size_t _gfx_mesh_get(
+unsigned int _gfx_mesh_get(
 
-		GFXMesh*  mesh,
-		size_t    bucket);
+		GFXMesh*      mesh,
+		unsigned int  bucket);
 
 /**
  * Sets the visible 'counter'.
@@ -334,20 +334,20 @@ size_t _gfx_mesh_get(
  * @return Actual set value (clamped by instances).
  *
  */
-size_t _gfx_mesh_set_visible(
+unsigned int _gfx_mesh_set_visible(
 
-		GFXMesh*  mesh,
-		size_t    bucket,
-		size_t    instances);
+		GFXMesh*      mesh,
+		unsigned int  bucket,
+		unsigned int  instances);
 
 /**
  * Gets the visible 'counter'.
  *
  */
-size_t _gfx_mesh_get_visible(
+unsigned int _gfx_mesh_get_visible(
 
-		GFXMesh*  mesh,
-		size_t    bucket);
+		GFXMesh*      mesh,
+		unsigned int  bucket);
 
 
 /********************************************************
@@ -416,7 +416,7 @@ void _gfx_submesh_dereference_bucket(
  * @return The source ID, 0 on failure.
  *
  */
-size_t _gfx_submesh_get_bucket_source(
+GFXBucketSource _gfx_submesh_get_bucket_source(
 
 		GFXSubMesh*    mesh,
 		GFXPipe*       pipe,

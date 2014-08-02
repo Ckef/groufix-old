@@ -341,7 +341,6 @@ typedef struct GFX_Window
 
 	/* Hidden data */
 	GFX_PlatformWindow  handle;
-
 	GFXContext          context;    /* Context version */
 	GFX_Extensions      extensions; /* Context extensions and state */
 	GLuint              layout;     /* Layout for post processing */
@@ -415,9 +414,9 @@ typedef void (*GFX_HardwareObjectFunc) (void* object, GFX_Extensions*);
 /** Hardware vtable, can all be NULL */
 typedef struct GFX_HardwareFuncs
 {
-	GFX_HardwareObjectFunc free;    /* GPU free request */
-	GFX_HardwareObjectFunc save;    /* Prepare for context destruction */
-	GFX_HardwareObjectFunc restore; /* Restore for new context */
+	GFX_HardwareObjectFunc  free;    /* GPU free request */
+	GFX_HardwareObjectFunc  save;    /* Prepare for context destruction */
+	GFX_HardwareObjectFunc  restore; /* Restore for new context */
 
 } GFX_HardwareFuncs;
 
@@ -433,7 +432,7 @@ typedef struct GFX_HardwareFuncs
  * or reconstructed when the main context is destroyed.
  *
  */
-size_t _gfx_hardware_object_register(
+unsigned int _gfx_hardware_object_register(
 
 		void*                     object,
 		const GFX_HardwareFuncs*  funcs);
@@ -444,7 +443,7 @@ size_t _gfx_hardware_object_register(
  */
 void _gfx_hardware_object_unregister(
 
-		size_t id);
+		unsigned int id);
 
 /**
  * Issue free request of all hardware objects, this happens when its parent context is destroyed.

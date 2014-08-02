@@ -25,10 +25,10 @@
 #include "groufix/scene/internal.h"
 
 /******************************************************/
-static inline size_t _gfx_batch_get_num_units(
+static inline unsigned int _gfx_batch_get_num_units(
 
-		size_t  instances,
-		size_t  unitSize)
+		unsigned int  instances,
+		size_t        unitSize)
 {
 	/* If infinite instances per unit, allocate a single unit */
 	if(!unitSize) return 1;
@@ -41,7 +41,7 @@ static inline size_t _gfx_batch_get_num_units(
 }
 
 /******************************************************/
-static size_t _gfx_batch_get_source(
+static GFXBucketSource _gfx_batch_get_source(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket)
@@ -52,7 +52,7 @@ static size_t _gfx_batch_get_source(
 		return 0;
 
 	/* Get submesh */
-	size_t num;
+	unsigned int num;
 	GFXSubMeshList subs = gfx_mesh_get(
 		batch->mesh,
 		params.mesh,
@@ -77,13 +77,13 @@ static int _gfx_batch_get_map(
 		size_t*           instances)
 {
 	/* Get property map index */
-	size_t index = _gfx_material_get_batch_map(
+	unsigned int index = _gfx_material_get_batch_map(
 		batch->material,
 		batch->materialID
 	);
 
 	/* Get map and retrieve */
-	size_t num;
+	unsigned int num;
 	GFXPropertyMapList list = gfx_material_get_all(
 		batch->material,
 		&num
@@ -100,11 +100,11 @@ static int _gfx_batch_get_map(
 /******************************************************/
 static void _gfx_batch_set_visible(
 
-		GFXBucket*  bucket,
-		size_t*     units,
-		size_t      unitSize,
-		size_t      oldVisible,
-		size_t      newVisible)
+		GFXBucket*      bucket,
+		GFXBucketUnit*  units,
+		size_t          unitSize,
+		unsigned int    oldVisible,
+		unsigned int    newVisible)
  {
 	if(!unitSize)
 	{
@@ -121,13 +121,13 @@ static void _gfx_batch_set_visible(
 	}
 	else
 	{
-		size_t start = oldVisible / unitSize;
-		size_t inst = oldVisible % unitSize;
+		unsigned int start = oldVisible / unitSize;
+		unsigned int inst = oldVisible % unitSize;
 
 		/* Start adding instances untill we have newVisible instances */
 		while(oldVisible < newVisible)
 		{
-			size_t add = newVisible - oldVisible;
+			unsigned int add = newVisible - oldVisible;
 			inst = unitSize - inst;
 			add = (inst < add) ? inst : add;
 
@@ -152,7 +152,7 @@ static void _gfx_batch_set_visible(
 
 		while(oldVisible > newVisible)
 		{
-			size_t sub = oldVisible - newVisible;
+			unsigned int sub = oldVisible - newVisible;
 
 			if(inst <= sub) sub = inst, gfx_bucket_set_visible(
 				bucket,
@@ -180,8 +180,8 @@ int gfx_batch_get(
 		GFXBatchLod   params)
 {
 	/* Get batch at mesh */
-	size_t matID;
-	size_t meshID = _gfx_mesh_get_batch(
+	unsigned int matID;
+	unsigned int meshID = _gfx_mesh_get_batch(
 		mesh,
 		material,
 		params,
@@ -255,12 +255,12 @@ void gfx_batch_set_type(
 /******************************************************/
 int gfx_batch_increase(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket,
-		size_t     instances)
+		GFXBatch*     batch,
+		GFXPipe*      bucket,
+		unsigned int  instances)
 {
 	/* Get bucket and increase */
-	size_t handle = _gfx_mesh_get_bucket(
+	unsigned int handle = _gfx_mesh_get_bucket(
 		batch->mesh,
 		batch->meshID,
 		bucket
@@ -273,9 +273,9 @@ int gfx_batch_increase(
 	/* Calculate the number of wanted units */
 	GFXPropertyMap* map;
 	size_t unitSize;
-	size_t start;
+	unsigned int start;
 
-	size_t source =
+	GFXBucketSource source =
 		_gfx_batch_get_source(batch, bucket);
 	_gfx_mesh_get_reserved(
 		batch->mesh, handle, &start);
@@ -283,16 +283,16 @@ int gfx_batch_increase(
 	if(source && _gfx_batch_get_map(batch, &map, &unitSize))
 	{
 		/* Get current number of units and reserve extra ones */
-		size_t end = _gfx_batch_get_num_units(
+		unsigned int end = _gfx_batch_get_num_units(
 			_gfx_mesh_get(batch->mesh, handle), unitSize);
-		size_t* units = _gfx_mesh_reserve(
+		GFXBucketUnit* units = _gfx_mesh_reserve(
 			batch->mesh, batch->meshID, handle, end);
 
 		if(end && units)
 		{
 			/* iterate through units and add them to the bucket */
 			/* Also set the base instances */
-			size_t i;
+			unsigned int i;
 			for(i = start; i < end; ++i)
 			{
 				units[i] = gfx_bucket_insert(
@@ -337,16 +337,16 @@ int gfx_batch_increase(
 /******************************************************/
 int gfx_batch_decrease(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket,
-		size_t     instances)
+		GFXBatch*     batch,
+		GFXPipe*      bucket,
+		unsigned int  instances)
 {
-	size_t end;
+	unsigned int end;
 
 	/* Get and validate units */
-	size_t handle =
+	unsigned int handle =
 		_gfx_mesh_find_bucket(batch->mesh, batch->meshID, bucket);
-	size_t* units =
+	GFXBucketUnit* units =
 		_gfx_mesh_get_reserved(batch->mesh, handle, &end);
 
 	if(units)
@@ -361,7 +361,7 @@ int gfx_batch_decrease(
 			/* Get the number of remaining units and erase the rest */
 			instances =
 				_gfx_mesh_get(batch->mesh, handle);
-			size_t start =
+			unsigned int start =
 				_gfx_batch_get_num_units(instances, unitSize);
 
 			while(end > start)
@@ -396,13 +396,13 @@ int gfx_batch_decrease(
 }
 
 /******************************************************/
-size_t gfx_batch_get_instances(
+unsigned int gfx_batch_get_instances(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket)
 {
 	/* Get bucket handle */
-	size_t handle = _gfx_mesh_find_bucket(
+	unsigned int handle = _gfx_mesh_find_bucket(
 		batch->mesh,
 		batch->meshID,
 		bucket
@@ -412,24 +412,24 @@ size_t gfx_batch_get_instances(
 }
 
 /******************************************************/
-size_t gfx_batch_set_visible(
+unsigned int gfx_batch_set_visible(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket,
-		size_t     instances)
+		GFXBatch*     batch,
+		GFXPipe*      bucket,
+		unsigned int  instances)
 {
-	size_t num;
+	unsigned int num;
 
 	/* Get and validate units */
-	size_t handle =
+	unsigned int handle =
 		_gfx_mesh_find_bucket(batch->mesh, batch->meshID, bucket);
-	size_t* units =
+	GFXBucketUnit* units =
 		_gfx_mesh_get_reserved(batch->mesh, handle, &num);
 
 	if(!num) return 0;
 
 	/* Get current and set number of visible instances */
-	size_t old =
+	unsigned int old =
 		_gfx_mesh_get_visible(batch->mesh, handle);
 	instances =
 		_gfx_mesh_set_visible(batch->mesh, handle, instances);
@@ -452,13 +452,13 @@ size_t gfx_batch_set_visible(
 }
 
 /******************************************************/
-size_t gfx_batch_get_visible(
+unsigned int gfx_batch_get_visible(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket)
 {
 	/* Get bucket handle */
-	size_t handle = _gfx_mesh_find_bucket(
+	unsigned int handle = _gfx_mesh_find_bucket(
 		batch->mesh,
 		batch->meshID,
 		bucket

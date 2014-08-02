@@ -144,7 +144,7 @@ static inline GFXVectorIterator _gfx_property_get_value(
 
 		struct GFX_Map*       map,
 		struct GFX_Property*  prop,
-		size_t                copy)
+		unsigned int          copy)
 {
 	return gfx_vector_at(
 		&map->values,
@@ -352,7 +352,7 @@ static void _gfx_property_set(
 
 		struct GFX_Map*       map,
 		struct GFX_Property*  prop,
-		size_t                copy,
+		unsigned int          copy,
 		unsigned int          base,
 		GFX_Extensions*       ext)
 {
@@ -385,7 +385,7 @@ static void _gfx_property_set(
 void _gfx_property_map_use(
 
 		GFXPropertyMap*  map,
-		size_t           copy,
+		unsigned int     copy,
 		unsigned int     base,
 		GFX_Extensions*  ext)
 {
@@ -483,7 +483,7 @@ static int _gfx_property_expand(
 
 		struct GFX_Map*       map,
 		struct GFX_Property*  prop,
-		size_t                num)
+		unsigned int          num)
 {
 	/* No copies to insert */
 	if(!(prop->type & GFX_INT_PROPERTY_HAS_COPIES) || !num || !prop->size)
@@ -531,7 +531,7 @@ static void _gfx_property_shrink(
 
 		struct GFX_Map*       map,
 		struct GFX_Property*  prop,
-		size_t                num)
+		unsigned int          num)
 {
 	/* No copies to remove */
 	if(prop->type & GFX_INT_PROPERTY_HAS_COPIES && num && prop->size)
@@ -563,8 +563,8 @@ static void _gfx_property_move(
 
 		struct GFX_Map*       map,
 		struct GFX_Property*  prop,
-		size_t                dest,
-		size_t                src)
+		unsigned int          dest,
+		unsigned int          src)
 {
 	/* No copies to move */
 	if(prop->type & GFX_INT_PROPERTY_HAS_COPIES && dest != src && prop->size)
@@ -658,10 +658,10 @@ void gfx_property_map_free(
 int gfx_property_map_expand(
 
 		GFXPropertyMap*  map,
-		size_t           num)
+		unsigned int     num)
 {
 	/* Overflow :o */
-	if(UCHAR_MAX - num < map->copies)
+	if(UINT_MAX - num < map->copies)
 		return 0;
 
 	struct GFX_Map* internal = (struct GFX_Map*)map;
@@ -693,10 +693,10 @@ int gfx_property_map_expand(
 }
 
 /******************************************************/
-size_t gfx_property_map_shrink(
+unsigned int gfx_property_map_shrink(
 
 		GFXPropertyMap*  map,
-		size_t           num)
+		unsigned int     num)
 {
 	struct GFX_Map* internal = (struct GFX_Map*)map;
 
@@ -720,8 +720,8 @@ size_t gfx_property_map_shrink(
 int gfx_property_map_move(
 
 		GFXPropertyMap*  map,
-		size_t           dest,
-		size_t           src)
+		unsigned int     dest,
+		unsigned int     src)
 {
 	struct GFX_Map* internal = (struct GFX_Map*)map;
 
@@ -1018,7 +1018,7 @@ int gfx_property_map_set_value(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
-		size_t           copy,
+		unsigned int     copy,
 		const void*      value,
 		size_t           offset,
 		size_t           size)
@@ -1060,7 +1060,7 @@ int gfx_property_map_set_value_pointer(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
-		size_t           copy,
+		unsigned int     copy,
 		const void*      ptr,
 		size_t           offset,
 		size_t           size)
@@ -1105,7 +1105,7 @@ int gfx_property_map_set_instance_offset(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
-		size_t           copy,
+		unsigned int     copy,
 		unsigned int     offset)
 {
 	struct GFX_Map* internal =
@@ -1144,7 +1144,7 @@ int gfx_property_map_set_sampler(
 
 		GFXPropertyMap*    map,
 		unsigned char      index,
-		size_t             copy,
+		unsigned int       copy,
 		const GFXTexture*  texture)
 {
 	struct GFX_Map* internal =
@@ -1173,7 +1173,7 @@ static int _gfx_property_map_set_block(
 
 		struct GFX_Map*  map,
 		unsigned char    index,
-		size_t           copy,
+		unsigned int     copy,
 		GLuint           buffer,
 		size_t           offset,
 		size_t           size)
@@ -1203,7 +1203,7 @@ int gfx_property_map_set_buffer(
 
 		GFXPropertyMap*   map,
 		unsigned char     index,
-		size_t            copy,
+		unsigned int      copy,
 		const GFXBuffer*  buffer,
 		size_t            offset,
 		size_t            size)
@@ -1224,7 +1224,7 @@ int gfx_property_map_set_shared_buffer(
 
 		GFXPropertyMap*         map,
 		unsigned char           index,
-		size_t                  copy,
+		unsigned int            copy,
 		const GFXSharedBuffer*  buffer,
 		size_t                  offset,
 		size_t                  size)

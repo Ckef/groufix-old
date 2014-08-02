@@ -49,7 +49,7 @@ typedef enum GFXShaderType
 /** Shader */
 typedef struct GFXShader
 {
-	size_t         id;       /* Hardware Object ID */
+	unsigned int   id;       /* Hardware Object ID */
 	GFXShaderType  type;     /* Shader stage of GPU pipeline */
 	char           compiled; /* Non-zero if compiled with latest changes. */
 
@@ -187,7 +187,7 @@ typedef enum GFXFeedbackMode
 /** Program */
 typedef struct GFXProgram
 {
-	size_t          id;         /* Hardware Object ID */
+	unsigned int    id;         /* Hardware Object ID */
 	unsigned short  properties; /* Accessible properties */
 	unsigned short  blocks;     /* Accessible property blocks */
 
@@ -364,7 +364,7 @@ typedef struct GFXPropertyMap
 {
 	GFXProgram*    program;    /* Program it references (cannot be changed or freed while the map is alive) */
 	unsigned char  properties; /* Number of properties */
-	size_t         copies;     /* Number of property copies present, the initial value is 1 */
+	unsigned int   copies;     /* Number of property copies present, the initial value is 1 */
 
 } GFXPropertyMap;
 
@@ -400,7 +400,7 @@ void gfx_property_map_free(
 int gfx_property_map_expand(
 
 		GFXPropertyMap*  map,
-		size_t           num);
+		unsigned int     num);
 
 /**
  * Removes multiple copies at the end of the properties containing copies.
@@ -409,10 +409,10 @@ int gfx_property_map_expand(
  * @return Number of copies actually removed.
  *
  */
-size_t gfx_property_map_shrink(
+unsigned int gfx_property_map_shrink(
 
 		GFXPropertyMap*  map,
-		size_t           num);
+		unsigned int     num);
 
 /**
  * Moves the values of all properties of a given copy to another copy.
@@ -427,8 +427,8 @@ size_t gfx_property_map_shrink(
 int gfx_property_map_move(
 
 		GFXPropertyMap*  map,
-		size_t           dest,
-		size_t           src);
+		unsigned int     dest,
+		unsigned int     src);
 
 /**
  * Forwards data send to a given index to a property within the program.
@@ -510,7 +510,7 @@ int gfx_property_map_set_value(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
-		size_t           copy,
+		unsigned int     copy,
 		const void*      value,
 		size_t           offset,
 		size_t           size);
@@ -530,7 +530,7 @@ int gfx_property_map_set_value_pointer(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
-		size_t           copy,
+		unsigned int     copy,
 		const void*      ptr,
 		size_t           offset,
 		size_t           size);
@@ -548,7 +548,7 @@ int gfx_property_map_set_instance_offset(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
-		size_t           copy,
+		unsigned int     copy,
 		unsigned int     offset);
 
 /**
@@ -563,7 +563,7 @@ int gfx_property_map_set_sampler(
 
 		GFXPropertyMap*    map,
 		unsigned char      index,
-		size_t             copy,
+		unsigned int       copy,
 		const GFXTexture*  texture);
 
 /**
@@ -580,7 +580,7 @@ int gfx_property_map_set_buffer(
 
 		GFXPropertyMap*   map,
 		unsigned char     index,
-		size_t            copy,
+		unsigned int      copy,
 		const GFXBuffer*  buffer,
 		size_t            offset,
 		size_t            size);
@@ -596,7 +596,7 @@ int gfx_property_map_set_shared_buffer(
 
 		GFXPropertyMap*         map,
 		unsigned char           index,
-		size_t                  copy,
+		unsigned int            copy,
 		const GFXSharedBuffer*  buffer,
 		size_t                  offset,
 		size_t                  size);

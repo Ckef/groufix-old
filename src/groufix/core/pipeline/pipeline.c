@@ -734,7 +734,7 @@ void gfx_pipeline_remove(
 void gfx_pipeline_execute(
 
 		GFXPipeline*  pipeline,
-		unsigned int  num)
+		size_t        num)
 {
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 	if(!internal->win) return;
@@ -744,7 +744,7 @@ void gfx_pipeline_execute(
 	_gfx_pipeline_bind(internal->fbo, ext);
 
 	/* Iterate over all pipes */
-	unsigned int nolimit = !num;
+	int nolimit = !num;
 	GFX_Pipe* pipe = internal->current ?
 		internal->current : internal->first;
 

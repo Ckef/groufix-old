@@ -78,7 +78,7 @@ void gfx_material_free(
 GFXPropertyMap* gfx_material_add(
 
 		GFXMaterial*   material,
-		size_t         level,
+		unsigned int   level,
 		GFXProgram*    program,
 		unsigned char  properties,
 		size_t         instances);
@@ -94,9 +94,9 @@ GFXPropertyMap* gfx_material_add(
  */
 GFXPropertyMapList gfx_material_get(
 
-		GFXMaterial*  material,
-		size_t        level,
-		size_t*       num);
+		GFXMaterial*   material,
+		unsigned int   level,
+		unsigned int*  num);
 
 /**
  * Returns an abstract list of property maps of all levels.
@@ -106,8 +106,8 @@ GFXPropertyMapList gfx_material_get(
  */
 GFXPropertyMapList gfx_material_get_all(
 
-		GFXMaterial*  material,
-		size_t*       num);
+		GFXMaterial*   material,
+		unsigned int*  num);
 
 /**
  * Index into a list of property maps, retrieving the instances.
@@ -121,16 +121,16 @@ GFXPropertyMapList gfx_material_get_all(
 size_t gfx_property_map_list_instances_at(
 
 		GFXPropertyMapList  list,
-		size_t              index);
+		unsigned int        index);
 
 /**
  * Index into a list of property maps, retrieving the number of used copies.
  *
  */
-size_t gfx_property_map_list_copies_at(
+unsigned int gfx_property_map_list_copies_at(
 
 		GFXPropertyMapList  list,
-		size_t              index);
+		unsigned int        index);
 
 /**
  * Index into a list of property maps, retrieving the property map.
@@ -139,7 +139,7 @@ size_t gfx_property_map_list_copies_at(
 GFXPropertyMap* gfx_property_map_list_at(
 
 		GFXPropertyMapList  list,
-		size_t              index);
+		unsigned int        index);
 
 
 #ifdef __cplusplus

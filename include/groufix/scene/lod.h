@@ -45,9 +45,9 @@ typedef enum GFXLodFlags
 /** LOD Map */
 typedef struct GFXLodMap
 {
-	GFXLodFlags  flags;    /* Fixed flags */
-	size_t       levels;   /* Number of LODs */
-	size_t       compSize; /* Number of bytes to use for comparisons */
+	GFXLodFlags   flags;    /* Fixed flags */
+	unsigned int  levels;   /* Number of LODs */
+	size_t        compSize; /* Number of bytes to use for comparisons */
 
 } GFXLodMap;
 
@@ -63,9 +63,9 @@ typedef struct GFXLodMap
  */
 GFXLodMap* gfx_lod_map_create(
 
-		GFXLodFlags  flags,
-		size_t       dataSize,
-		size_t       compSize);
+		GFXLodFlags   flags,
+		size_t        dataSize,
+		size_t        compSize);
 
 /**
  * Makes sure the LOD map is freed properly.
@@ -87,9 +87,9 @@ void gfx_lod_map_free(
  */
 int gfx_lod_map_add(
 
-		GFXLodMap*  map,
-		size_t      level,
-		void*       data);
+		GFXLodMap*    map,
+		unsigned int  level,
+		void*         data);
 
 /**
  * Retrieves the number of times given data is mapped.
@@ -99,11 +99,11 @@ int gfx_lod_map_add(
  * @return Number of times it is mapped.
  *
  */
-size_t gfx_lod_map_has(
+unsigned int gfx_lod_map_has(
 
-		GFXLodMap*  map,
-		size_t      level,
-		void*       data);
+		GFXLodMap*    map,
+		unsigned int  level,
+		void*         data);
 
 /**
  * Removes all instances mapped data from a given level of detail.
@@ -115,11 +115,11 @@ size_t gfx_lod_map_has(
  * all levels above it will fall down one level.
  *
  */
-size_t gfx_lod_map_remove(
+unsigned int gfx_lod_map_remove(
 
-		GFXLodMap*  map,
-		size_t      level,
-		void*       data);
+		GFXLodMap*    map,
+		unsigned int  level,
+		void*         data);
 
 /**
  * Removes mapped data from a given level of detail.
@@ -133,9 +133,9 @@ size_t gfx_lod_map_remove(
  */
 int gfx_lod_map_remove_at(
 
-		GFXLodMap*  map,
-		size_t      level,
-		size_t      index);
+		GFXLodMap*    map,
+		unsigned int  level,
+		unsigned int  index);
 
 /**
  * Counts the number of data elements in a number of levels.
@@ -145,10 +145,10 @@ int gfx_lod_map_remove_at(
  * levels will be clamped to the number of levels the map has.
  *
  */
-size_t gfx_lod_map_count(
+unsigned int gfx_lod_map_count(
 
-		GFXLodMap*  map,
-		size_t      levels);
+		GFXLodMap*    map,
+		unsigned int  levels);
 
 /**
  * Returns an array of data elements of dataSize bytes of a given level of detail.
@@ -161,9 +161,9 @@ size_t gfx_lod_map_count(
  */
 void* gfx_lod_map_get(
 
-		GFXLodMap*  map,
-		size_t      level,
-		size_t*     num);
+		GFXLodMap*     map,
+		unsigned int   level,
+		unsigned int*  num);
 
 /**
  * Returns an array of data elements of dataSize bytes of all levels.
@@ -171,8 +171,8 @@ void* gfx_lod_map_get(
  */
 void* gfx_lod_map_get_all(
 
-		GFXLodMap*  map,
-		size_t*     num);
+		GFXLodMap*     map,
+		unsigned int*  num);
 
 
 #ifdef __cplusplus

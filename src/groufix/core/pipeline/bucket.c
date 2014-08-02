@@ -59,10 +59,10 @@ struct GFX_Bucket
 	GFX_BucketComp     compare;      /* Quicksort compare */
 
 	GFXVector          sources;      /* Stores GFX_Source */
-	GFXDeque           emptySources; /* Free source IDs */
+	GFXDeque           emptySources; /* Stores GFXBucketSource, free source IDs */
 
-	GFXVector          refs;         /* References to units (units[refs[ID - 1] - 1] = unit, 0 when empty) */
-	GFXDeque           emptyRefs;    /* Free (empty) reference IDs */
+	GFXVector          refs;         /* Stores unsigned int (units[refs[ID - 1] - 1] = unit, 0 when empty) */
+	GFXDeque           emptyRefs;    /* Stores GFXBucketUnit, free (empty) reference IDs */
 	GFXVector          units;        /* Stores GFX_Unit */
 	GFXVectorIterator  visible;      /* Everything after is not visible */
 };
@@ -79,15 +79,15 @@ struct GFX_Unit
 {
 	/* Sorting and ID */
 	GFXBatchState    state;   /* Combination of unit state, action and manual state */
-	size_t           ref;     /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
-	size_t           program; /* ID of the program */
-	size_t           layout;  /* ID of the layout */
+	GFXBucketUnit    ref;     /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
+	unsigned int     program; /* ID of the program */
+	unsigned int     layout;  /* ID of the layout */
 
 	/* Drawing */
 	GFXPropertyMap*  map;
-	size_t           copy;   /* Copy of the property map to use */
+	unsigned int     copy;   /* Copy of the property map to use */
 
-	size_t           src;    /* Source of the bucket to use (ID - 1) */
+	GFXBucketSource  src;    /* Source of the bucket to use (ID - 1) */
 	size_t           inst;   /* Number of instances */
 	unsigned int     base;   /* Base instance */
 	GFX_DrawType     type;
@@ -141,27 +141,30 @@ static int _gfx_bucket_qsort_all(
 }
 
 /******************************************************/
-static size_t _gfx_bucket_insert_ref(
+static GFXBucketUnit _gfx_bucket_insert_ref(
 
 		struct GFX_Bucket*  bucket,
-		size_t              unitIndex)
+		unsigned int        unitIndex)
 {
 	++unitIndex;
-	size_t ref = 0;
+	GFXBucketUnit ref = 0;
 
 	if(bucket->emptyRefs.begin != bucket->emptyRefs.end)
 	{
 		/* Replace an empty reference */
-		ref = *(size_t*)bucket->emptyRefs.begin;
+		ref = *(GFXBucketUnit*)bucket->emptyRefs.begin;
 		gfx_deque_pop_front(&bucket->emptyRefs);
 
-		*(size_t*)gfx_vector_at(&bucket->refs, ref - 1) = unitIndex;
+		*(unsigned int*)gfx_vector_at(&bucket->refs, ref - 1) =
+			unitIndex;
 	}
 	else
 	{
 		/* Get index + 1 as reference, check for overflow */
-		ref = gfx_vector_get_size(&bucket->refs) + 1;
-		if(!ref) return 0;
+		size_t size = gfx_vector_get_size(&bucket->refs);
+		ref = size + 1;
+
+		if(ref < size) return 0;
 
 		/* Insert a new reference at the end */
 		GFXVectorIterator it = gfx_vector_insert(
@@ -172,6 +175,7 @@ static size_t _gfx_bucket_insert_ref(
 
 		if(it == bucket->refs.end) return 0;
 	}
+
 	return ref;
 }
 
@@ -179,11 +183,11 @@ static size_t _gfx_bucket_insert_ref(
 static inline struct GFX_Unit* _gfx_bucket_ref_get(
 
 		struct GFX_Bucket*  bucket,
-		size_t              id)
+		GFXBucketUnit       id)
 {
 	return gfx_vector_at(
 		&bucket->units,
-		*(size_t*)gfx_vector_at(&bucket->refs, id - 1) - 1
+		*(unsigned int*)gfx_vector_at(&bucket->refs, id - 1) - 1
 	);
 }
 
@@ -191,7 +195,7 @@ static inline struct GFX_Unit* _gfx_bucket_ref_get(
 static void _gfx_bucket_erase_ref(
 
 		struct GFX_Bucket*  bucket,
-		size_t              index)
+		GFXBucketUnit       index)
 {
 	size_t size = gfx_vector_get_size(&bucket->refs);
 	++index;
@@ -200,7 +204,7 @@ static void _gfx_bucket_erase_ref(
 	{
 		/* Save ID and mark as empty */
 		gfx_deque_push_back(&bucket->emptyRefs, &index);
-		*(size_t*)gfx_vector_at(&bucket->refs, index - 1) = 0;
+		*(unsigned int*)gfx_vector_at(&bucket->refs, index - 1) = 0;
 	}
 	else
 	{
@@ -251,7 +255,7 @@ static void _gfx_bucket_process_units(
 	/* Iterate and filter the ones to be erased */
 	GFXVectorIterator end = bucket->units.end;
 	GFXVectorIterator it = bucket->units.begin;
-	size_t num = 0;
+	unsigned int num = 0;
 
 	while(it != end)
 	{
@@ -307,8 +311,8 @@ static void _gfx_bucket_sort_units(
 
 		struct GFX_Bucket*  bucket,
 		GFXBatchState       bit,
-		size_t              start,
-		size_t              num)
+		unsigned int        start,
+		unsigned int        num)
 {
 	if(num > 1)
 	{
@@ -326,9 +330,9 @@ static void _gfx_bucket_sort_units(
 		{
 			/* Radix sort based on state :) */
 			/* Start, mid, end */
-			size_t st = start;
-			size_t mi = start + num;
-			size_t en = mi;
+			unsigned int st = start;
+			unsigned int mi = start + num;
+			unsigned int en = mi;
 
 			while(st < mi)
 			{
@@ -367,7 +371,7 @@ static void _gfx_bucket_fix_units(
 		it != bucket->units.end;
 		it = gfx_vector_next(&bucket->units, it))
 	{
-		*(size_t*)gfx_vector_at(&bucket->refs, ((struct GFX_Unit*)it)->ref) =
+		*(unsigned int*)gfx_vector_at(&bucket->refs, ((struct GFX_Unit*)it)->ref) =
 			gfx_vector_get_index(&bucket->units, it) + 1;
 	}
 }
@@ -383,16 +387,18 @@ GFXBucket* _gfx_bucket_create(
 	if(!bucket) return NULL;
 
 	gfx_vector_init(&bucket->sources, sizeof(struct GFX_Source));
-	gfx_deque_init(&bucket->emptySources, sizeof(size_t));
+	gfx_deque_init(&bucket->emptySources, sizeof(GFXBucketSource));
 
-	gfx_vector_init(&bucket->refs, sizeof(size_t));
-	gfx_deque_init(&bucket->emptyRefs, sizeof(size_t));
+	gfx_vector_init(&bucket->refs, sizeof(unsigned int));
+	gfx_deque_init(&bucket->emptyRefs, sizeof(GFXBucketUnit));
 	gfx_vector_init(&bucket->units, sizeof(struct GFX_Unit));
 
-	bucket->visible      = bucket->units.end;
-	bucket->bucket.flags = flags;
-	bucket->bucket.bits  = bits > GFX_BATCH_STATE_MAX_BITS ?
-		GFX_BATCH_STATE_MAX_BITS : bits;
+	bucket->visible
+		= bucket->units.end;
+	bucket->bucket.flags
+		= flags;
+	bucket->bucket.bits
+		= bits > GFX_BATCH_STATE_MAX_BITS ? GFX_BATCH_STATE_MAX_BITS : bits;
 
 	/* Get comparison function from flags */
 	bucket->compare =
@@ -510,7 +516,7 @@ void gfx_bucket_set_bits(
 }
 
 /******************************************************/
-size_t gfx_bucket_add_source(
+GFXBucketSource gfx_bucket_add_source(
 
 		GFXBucket*        bucket,
 		GFXVertexLayout*  layout)
@@ -522,7 +528,7 @@ size_t gfx_bucket_add_source(
 
 	/* Create source */
 	struct GFX_Source src;
-	size_t id = 0;
+	GFXBucketSource id = 0;
 
 	memset(&src, 0, sizeof(struct GFX_Source));
 	src.layout = layout;
@@ -530,7 +536,7 @@ size_t gfx_bucket_add_source(
 	if(internal->emptySources.begin != internal->emptySources.end)
 	{
 		/* replace an empty ID */
-		id = *(size_t*)internal->emptySources.begin;
+		id = *(GFXBucketSource*)internal->emptySources.begin;
 		gfx_deque_pop_front(&internal->emptySources);
 
 		*(struct GFX_Source*)gfx_vector_at(&internal->sources, id - 1) = src;
@@ -538,8 +544,10 @@ size_t gfx_bucket_add_source(
 	else
 	{
 		/* Get index + 1 as ID, check for overflow, yet again */
-		id = gfx_vector_get_size(&internal->sources) + 1;
-		if(!id) return 0;
+		size_t size = gfx_vector_get_size(&internal->sources);
+		id = size + 1;
+
+		if(id < size) return 0;
 
 		/* Insert a new source at the end */
 		GFXVectorIterator it = gfx_vector_insert(
@@ -550,6 +558,7 @@ size_t gfx_bucket_add_source(
 
 		if(it == internal->sources.end) return 0;
 	}
+
 	return id;
 }
 
@@ -557,7 +566,7 @@ size_t gfx_bucket_add_source(
 int gfx_bucket_set_source(
 
 		GFXBucket*       bucket,
-		size_t           src,
+		GFXBucketSource  src,
 		GFXVertexSource  values)
 {
 	--src;
@@ -581,8 +590,8 @@ int gfx_bucket_set_source(
 /******************************************************/
 void gfx_bucket_remove_source(
 
-		GFXBucket*  bucket,
-		size_t      src)
+		GFXBucket*       bucket,
+		GFXBucketSource  src)
 {
 	/* Derpsies */
 	if(src)
@@ -594,7 +603,7 @@ void gfx_bucket_remove_source(
 		{
 			/* Save ID and mark as empty */
 			gfx_deque_push_back(&internal->emptySources, &src);
-			((struct GFX_Source*)gfx_vector_at(&internal->sources, src))->layout = NULL;
+			((struct GFX_Source*)gfx_vector_at(&internal->sources, src - 1))->layout = NULL;
 		}
 		else
 		{
@@ -643,10 +652,10 @@ static void _gfx_bucket_set_draw_type(
 }
 
 /******************************************************/
-size_t gfx_bucket_insert(
+GFXBucketUnit gfx_bucket_insert(
 
 		GFXBucket*       bucket,
-		size_t           src,
+		GFXBucketSource  src,
 		GFXPropertyMap*  map,
 		GFXBatchState    state,
 		int              visible)
@@ -711,8 +720,8 @@ size_t gfx_bucket_insert(
 int gfx_bucket_rebuild(
 
 		GFXBucket*       bucket,
-		size_t           unit,
-		size_t           src,
+		GFXBucketUnit    unit,
+		GFXBucketSource  src,
 		GFXPropertyMap*  map)
 {
 	--src;
@@ -745,10 +754,10 @@ int gfx_bucket_rebuild(
 }
 
 /******************************************************/
-size_t gfx_bucket_get_copy(
+unsigned int gfx_bucket_get_copy(
 
-		GFXBucket*  bucket,
-		size_t      unit)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit)
 {
 	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->copy;
 }
@@ -756,8 +765,8 @@ size_t gfx_bucket_get_copy(
 /******************************************************/
 size_t gfx_bucket_get_instances(
 
-		GFXBucket*  bucket,
-		size_t      unit)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit)
 {
 	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->inst;
 }
@@ -765,8 +774,8 @@ size_t gfx_bucket_get_instances(
 /******************************************************/
 unsigned int gfx_bucket_get_instance_base(
 
-		GFXBucket*  bucket,
-		size_t      unit)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit)
 {
 	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->base;
 }
@@ -774,8 +783,8 @@ unsigned int gfx_bucket_get_instance_base(
 /******************************************************/
 GFXBatchState gfx_bucket_get_state(
 
-		GFXBucket*  bucket,
-		size_t      unit)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	return _gfx_bucket_ref_get(internal, unit)->state & GFX_INT_UNIT_MANUAL;
@@ -784,8 +793,8 @@ GFXBatchState gfx_bucket_get_state(
 /******************************************************/
 int gfx_bucket_is_visible(
 
-		GFXBucket*  bucket,
-		size_t      unit)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit)
 {
 	return _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->state & GFX_INT_UNIT_VISIBLE;
 }
@@ -793,9 +802,9 @@ int gfx_bucket_is_visible(
 /******************************************************/
 void gfx_bucket_set_copy(
 
-		GFXBucket*  bucket,
-		size_t      unit,
-		size_t      copy)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		unsigned int   copy)
 {
 	_gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit)->copy = copy;
 }
@@ -803,9 +812,9 @@ void gfx_bucket_set_copy(
 /******************************************************/
 void gfx_bucket_set_instances(
 
-		GFXBucket*  bucket,
-		size_t      unit,
-		size_t      instances)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		size_t         instances)
 {
 	struct GFX_Unit* un = _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit);
 	un->inst = instances;
@@ -816,9 +825,9 @@ void gfx_bucket_set_instances(
 /******************************************************/
 void gfx_bucket_set_instance_base(
 
-		GFXBucket*    bucket,
-		size_t        unit,
-		unsigned int  base)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		unsigned int   base)
 {
 	struct GFX_Unit* un = _gfx_bucket_ref_get((struct GFX_Bucket*)bucket, unit);
 	un->base = base;
@@ -830,7 +839,7 @@ void gfx_bucket_set_instance_base(
 void gfx_bucket_set_state(
 
 		GFXBucket*     bucket,
-		size_t         unit,
+		GFXBucketUnit  unit,
 		GFXBatchState  state)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
@@ -849,9 +858,9 @@ void gfx_bucket_set_state(
 /******************************************************/
 void gfx_bucket_set_visible(
 
-		GFXBucket*  bucket,
-		size_t      unit,
-		int         visible)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		int            visible)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
@@ -872,8 +881,8 @@ void gfx_bucket_set_visible(
 /******************************************************/
 void gfx_bucket_erase(
 
-		GFXBucket*  bucket,
-		size_t      unit)
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);

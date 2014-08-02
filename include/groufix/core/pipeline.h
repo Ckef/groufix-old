@@ -51,11 +51,11 @@ typedef enum GFXBucketFlags
 /** Source to sample from a vertex layout */
 typedef struct GFXVertexSource
 {
-	unsigned char startDraw;
-	unsigned char numDraw;
+	unsigned char  startDraw;
+	unsigned char  numDraw;
 
-	unsigned char startFeedback;
-	unsigned char numFeedback;
+	unsigned char  startFeedback;
+	unsigned char  numFeedback;
 
 } GFXVertexSource;
 
@@ -71,6 +71,14 @@ typedef struct GFXBucket
 	unsigned char   bits; /* Number of state bits sorted on */
 
 } GFXBucket;
+
+
+/** Bucket source */
+typedef unsigned int GFXBucketSource;
+
+
+/** Bucket unit */
+typedef unsigned int GFXBucketUnit;
 
 
 /** Key representing a state */
@@ -95,7 +103,7 @@ void gfx_bucket_set_bits(
  * @return The ID of the source, 0 on failure.
  *
  */
-size_t gfx_bucket_add_source(
+GFXBucketSource gfx_bucket_add_source(
 
 		GFXBucket*        bucket,
 		GFXVertexLayout*  layout);
@@ -110,7 +118,7 @@ size_t gfx_bucket_add_source(
 int gfx_bucket_set_source(
 
 		GFXBucket*       bucket,
-		size_t           src,
+		GFXBucketSource  src,
 		GFXVertexSource  values);
 
 /**
@@ -121,8 +129,8 @@ int gfx_bucket_set_source(
  */
 void gfx_bucket_remove_source(
 
-		GFXBucket*  bucket,
-		size_t      src);
+		GFXBucket*       bucket,
+		GFXBucketSource  src);
 
 /**
  * Insert a unit to be processed into the bucket.
@@ -133,10 +141,10 @@ void gfx_bucket_remove_source(
  * @return The ID of the inserted unit, 0 on failure.
  *
  */
-size_t gfx_bucket_insert(
+GFXBucketUnit gfx_bucket_insert(
 
 		GFXBucket*       bucket,
-		size_t           src,
+		GFXBucketSource  src,
 		GFXPropertyMap*  map,
 		GFXBatchState    state,
 		int              visible);
@@ -153,18 +161,18 @@ size_t gfx_bucket_insert(
 int gfx_bucket_rebuild(
 
 		GFXBucket*       bucket,
-		size_t           unit,
-		size_t           src,
+		GFXBucketUnit    unit,
+		GFXBucketSource  src,
 		GFXPropertyMap*  map);
 
 /**
  * Returns the index of the copy of the property map in use.
  *
  */
-size_t gfx_bucket_get_copy(
+unsigned int gfx_bucket_get_copy(
 
-		GFXBucket*  bucket,
-		size_t      unit);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit);
 
 /**
  * Returns the number of instances to draw.
@@ -172,8 +180,8 @@ size_t gfx_bucket_get_copy(
  */
 size_t gfx_bucket_get_instances(
 
-		GFXBucket*  bucket,
-		size_t      unit);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit);
 
 /**
  * Returns the starting instance offset.
@@ -181,8 +189,8 @@ size_t gfx_bucket_get_instances(
  */
 unsigned int gfx_bucket_get_instance_base(
 
-		GFXBucket*  bucket,
-		size_t      unit);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit);
 
 /**
  * Returns the bits to sort on of the state associated with a unit.
@@ -190,8 +198,8 @@ unsigned int gfx_bucket_get_instance_base(
  */
 GFXBatchState gfx_bucket_get_state(
 
-		GFXBucket*  bucket,
-		size_t      unit);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit);
 
 /**
  * Returns whether a unit is visible or not.
@@ -199,8 +207,8 @@ GFXBatchState gfx_bucket_get_state(
  */
 int gfx_bucket_is_visible(
 
-		GFXBucket*  bucket,
-		size_t      unit);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit);
 
 /**
  * Sets the index of the copy of the property map to use.
@@ -208,9 +216,9 @@ int gfx_bucket_is_visible(
  */
 void gfx_bucket_set_copy(
 
-		GFXBucket*  bucket,
-		size_t      unit,
-		size_t      copy);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		unsigned int   copy);
 
 /**
  * Sets the number of instances to draw.
@@ -218,9 +226,9 @@ void gfx_bucket_set_copy(
  */
 void gfx_bucket_set_instances(
 
-		GFXBucket*  bucket,
-		size_t      unit,
-		size_t      instances);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		size_t         instances);
 
 /**
  * Sets the starting instance offset.
@@ -234,9 +242,9 @@ void gfx_bucket_set_instances(
  */
 void gfx_bucket_set_instance_base(
 
-		GFXBucket*    bucket,
-		size_t        unit,
-		unsigned int  base);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		unsigned int   base);
 
 /**
  * Sets the bits to sort on of the state to associate a unit with.
@@ -247,7 +255,7 @@ void gfx_bucket_set_instance_base(
 void gfx_bucket_set_state(
 
 		GFXBucket*     bucket,
-		size_t         unit,
+		GFXBucketUnit  unit,
 		GFXBatchState  state);
 
 /**
@@ -258,9 +266,9 @@ void gfx_bucket_set_state(
  */
 void gfx_bucket_set_visible(
 
-		GFXBucket*  bucket,
-		size_t      unit,
-		int         visible);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		int            visible);
 
 /**
  * Erases and frees a unit from its bucket.
@@ -268,8 +276,8 @@ void gfx_bucket_set_visible(
  */
 void gfx_bucket_erase(
 
-		GFXBucket*  bucket,
-		size_t      unit);
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit);
 
 
 /********************************************************
@@ -563,7 +571,7 @@ GFXPipeCallbackList gfx_pipe_find(
 
 		GFXPipe*       pipe,
 		unsigned char  key,
-		size_t*        num);
+		unsigned int*  num);
 
 /**
  * Indexes into the list of callback objects.
@@ -576,7 +584,7 @@ GFXPipeCallbackList gfx_pipe_find(
 GFXPipeCallback* gfx_pipe_at(
 
 		GFXPipeCallbackList  list,
-		size_t               index);
+		unsigned int         index);
 
 
 /********************************************************
@@ -596,7 +604,7 @@ typedef enum GFXPipelineAttachment
 /** Pipeline */
 typedef struct GFXPipeline
 {
-	size_t id; /* Hardware Object ID */
+	unsigned int id; /* Hardware Object ID */
 
 } GFXPipeline;
 
@@ -756,7 +764,7 @@ void gfx_pipeline_remove(
 void gfx_pipeline_execute(
 
 		GFXPipeline*  pipeline,
-		unsigned int  num);
+		size_t        num);
 
 
 #ifdef __cplusplus
