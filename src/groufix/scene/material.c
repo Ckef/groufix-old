@@ -55,40 +55,53 @@ struct GFX_MapData
 };
 
 /******************************************************/
-static void _gfx_material_increase_batch_copies(
+static struct GFX_MapData* _gfx_material_increase_batch_copies(
 
-		struct GFX_Material*  mat,
-		struct GFX_Batch*     batch,
-		long int              diff)
+		struct GFX_Material*  material,
+		unsigned int          materialID,
+		long int              diff,
+		unsigned int*         upper)
 {
+	/* Bound check */
+	size_t max = gfx_vector_get_size(&material->batches);
+	if(!materialID || materialID > max || !diff) return NULL;
+
+	/* Get batch */
+	struct GFX_Batch* batch =
+		gfx_vector_at(&material->batches, materialID - 1);
+
 	/* Check if the property map exists */
 	unsigned int num;
 	struct GFX_MapData* data = gfx_lod_map_get_all(
-		(GFXLodMap*)mat,
+		(GFXLodMap*)material,
 		&num
 	);
 
-	if(batch->map < num)
-	{
-		/* Adjust number of copies used */
-		data[batch->map].copies += diff;
+	if(batch->map >= num) return NULL;
 
-		/* Iterate through all batches and adjust their copy */
-		struct GFX_Batch* it;
-		for(
-			it = mat->batches.begin;
-			it != mat->batches.end;
-			it = gfx_vector_next(&mat->batches, it))
+	/* Adjust number of copies used */
+	data[batch->map].copies += diff;
+	*upper = data[batch->map].copies;
+
+	/* Iterate through all batches and adjust their copy */
+	struct GFX_Batch* it;
+	for(
+		it = material->batches.begin;
+		it != material->batches.end;
+		it = gfx_vector_next(&material->batches, it))
+	{
+		if(
+			it != batch &&
+			it->map == batch->map &&
+			it->copy >= batch->copy)
 		{
-			if(
-				it != batch &&
-				it->map == batch->map &&
-				it->copy >= batch->copy)
-			{
-				it->copy += diff;
-			}
+			it->copy += diff;
+			*upper = (it->copy < *upper) ?
+				it->copy : *upper;
 		}
 	}
+
+	return data + batch->map;
 }
 
 /******************************************************/
@@ -265,6 +278,83 @@ unsigned int _gfx_material_get_batch_map(
 		gfx_vector_at(&internal->batches, materialID - 1);
 
 	return batch->map;
+}
+
+/******************************************************/
+int _gfx_material_increase(
+
+		GFXMaterial*  material,
+		unsigned int  materialID,
+		unsigned int  copies)
+{
+	struct GFX_Material* internal =
+		(struct GFX_Material*)material;
+
+	/* Increase */
+	unsigned int upper;
+	struct GFX_MapData* data = _gfx_material_increase_batch_copies(
+		internal,
+		materialID,
+		copies,
+		&upper
+	);
+
+	if(!data) return 0;
+
+	/* Expand property map if needed */
+	if(data->map->copies < data->copies)
+		gfx_property_map_expand(
+			data->map,
+			data->copies - data->map->copies
+		);
+
+	/* Move copies to higher copies */
+	/* Start at the upper bound */
+	unsigned int dest;
+	for(dest = data->copies; dest > upper; --dest)
+		gfx_property_map_move(
+			data->map,
+			dest - 1,
+			dest - 1 - copies
+		);
+
+	return 1;
+}
+
+/******************************************************/
+int _gfx_material_decrease(
+
+		GFXMaterial*  material,
+		unsigned int  materialID,
+		unsigned int  copies)
+{
+	struct GFX_Material* internal =
+		(struct GFX_Material*)material;
+
+	/* Decrease */
+	unsigned int lower;
+	struct GFX_MapData* data = _gfx_material_increase_batch_copies(
+		internal,
+		materialID,
+		-(long int)copies,
+		&lower
+	);
+
+	if(!data) return 0;
+
+	/* Move copies to lower copies */
+	/* Start at the lower bound */
+	unsigned int lim = data->copies + copies;
+	unsigned int src;
+
+	for(src = lower + copies; src < lim; ++src)
+		gfx_property_map_move(
+			data->map,
+			src - copies,
+			src
+		);
+
+	return 1;
 }
 
 /******************************************************/

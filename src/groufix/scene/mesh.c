@@ -530,7 +530,7 @@ unsigned int _gfx_mesh_get_batch_units(
 }
 
 /******************************************************/
-int _gfx_mesh_get_batch_lod(
+void _gfx_mesh_get_batch_lod(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID,
@@ -540,16 +540,14 @@ int _gfx_mesh_get_batch_lod(
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
 	size_t max = gfx_vector_get_size(&internal->batches);
 
-	if(!meshID || meshID > max) return 0;
+	if(meshID && meshID <= max)
+	{
+		/* Get batch */
+		struct GFX_Batch* batch =
+			gfx_vector_at(&internal->batches, meshID - 1);
 
-	/* Get batch */
-	struct GFX_Batch* batch =
-		gfx_vector_at(&internal->batches, meshID - 1);
-
-	if(!batch->material) return 0;
-	*params = batch->params;
-
-	return 1;
+		if(batch->material) *params = batch->params;
+	}
 }
 
 /******************************************************/

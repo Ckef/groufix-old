@@ -110,6 +110,7 @@ void _gfx_material_set_batch(
  * @param materialID Batch ID at the material to remove.
  *
  * Note: _gfx_mesh_remove_batch must be called first.
+ * This call does not remove the copies at the property map!
  *
  */
 void _gfx_material_remove_batch(
@@ -152,6 +153,7 @@ void _gfx_mesh_set_batch(
  * @param meshID Batch ID at the mesh to remove.
  *
  * Note: this must be called before _gfx_material_remove_batch.
+ * This call will call gfx_batch_decrease with UINT_MAX at each bucket.
  *
  */
 void _gfx_mesh_remove_batch(
@@ -176,6 +178,43 @@ unsigned int _gfx_material_get_batch_map(
 		unsigned int  materialID);
 
 /**
+ * Returns the first copy used in the associated property map of a batch.
+ *
+ */
+unsigned int _gfx_material_get_batch_copy(
+
+		GFXMaterial*  material,
+		unsigned int  materialID);
+
+/**
+ * Increase the number of copies used by a given batch.
+ *
+ * @return Zero on failure or if copies is 0.
+ *
+ * Note: bounds are not checked.
+ * Also, it moves copy data within the property map.
+ *
+ */
+int _gfx_material_increase(
+
+		GFXMaterial*  material,
+		unsigned int  materialID,
+		unsigned int  copies);
+
+/**
+ * Decrease the number of copies used by a given batch.
+ *
+ * @return Zero on failure or if copies is 0.
+ * Also, it moves copy data within the property map.
+ *
+ */
+int _gfx_material_decrease(
+
+		GFXMaterial*  material,
+		unsigned int  materialID,
+		unsigned int  copies);
+
+/**
  * Returns the maximum number of units reserved by any bucket within a batch.
  *
  */
@@ -188,10 +227,9 @@ unsigned int _gfx_mesh_get_batch_units(
  * Return the level of detail parameters of a batch at a mesh.
  *
  * @param params Returns the level of detail params, not touched if batch does not exist.
- * @return Zero if the batch does not exist.
  *
  */
-int _gfx_mesh_get_batch_lod(
+void _gfx_mesh_get_batch_lod(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID,

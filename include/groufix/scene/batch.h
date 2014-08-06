@@ -99,6 +99,26 @@ void gfx_batch_erase(
 		GFXBatch* batch);
 
 /**
+ * Retrieves the property map index as seen in gfx_material_get_all.
+ *
+ * @return The property map index, out of bounds if it does not exist.
+ *
+ */
+unsigned int gfx_batch_get_property_map(
+
+		GFXBatch* batch);
+
+/**
+ * Retrieves the submesh index as seen in gfx_mesh_get_all.
+ *
+ * @return The submesh index, out of bounds if it does not exist.
+ *
+ */
+unsigned int gfx_batch_get_submesh(
+
+		GFXBatch* batch);
+
+/**
  * Return the level of detail parameters of a batch.
  *
  * @return Level of detail parameters, undefined if the batch does not exist.
