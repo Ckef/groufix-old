@@ -152,10 +152,14 @@ int gfx_lod_map_add(
 		);
 
 		if(levIt == internal->levels.end) return 0;
-
 		++map->levels;
 	}
-	else levIt = gfx_vector_at(&internal->levels, level);
+	else
+	{
+		/* Check single data flag */
+		if(map->flags & GFX_LOD_SINGLE_DATA) return 0;
+		levIt = gfx_vector_at(&internal->levels, level);
+	}
 
 	/* Get boundaries */
 	unsigned int begin;

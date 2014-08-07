@@ -37,7 +37,8 @@ extern "C" {
 /** LOD Flags */
 typedef enum GFXLodFlags
 {
-	GFX_LOD_ERASABLE  = 0x01
+	GFX_LOD_ERASABLE     = 0x01,
+	GFX_LOD_SINGLE_DATA  = 0x02
 
 } GFXLodFlags;
 
@@ -83,6 +84,7 @@ void gfx_lod_map_free(
  * @return Zero on failure.
  *
  * The data is appended to the end of the level (as seen in the return of gfx_lod_map_get).
+ * Note: if GFX_LOD_SINGLE_DATA is set only a single element can be inserted per level.
  *
  */
 int gfx_lod_map_add(
