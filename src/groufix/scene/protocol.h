@@ -24,6 +24,7 @@
 #ifndef GFX_SCENE_PROTOCOL_H
 #define GFX_SCENE_PROTOCOL_H
 
+#include "groufix/scene/batch.h"
 #include "groufix/scene/internal.h"
 
 #ifdef __cplusplus

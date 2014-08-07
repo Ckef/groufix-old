@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/scene/batch.h"
 #include "groufix/scene/protocol.h"
 
 #include <limits.h>

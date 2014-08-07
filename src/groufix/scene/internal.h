@@ -24,7 +24,7 @@
 #ifndef GFX_SCENE_INTERNAL_H
 #define GFX_SCENE_INTERNAL_H
 
-#include "groufix/scene/batch.h"
+#include "groufix/scene/mesh.h"
 #include "groufix/containers/vector.h"
 
 #ifdef __cplusplus
