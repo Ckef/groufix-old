@@ -21,8 +21,8 @@
  *
  */
 
-#include "groufix/core/errors.h"
 #include "groufix/scene/protocol.h"
+#include "groufix/core/errors.h"
 
 #include <limits.h>
 #include <stdint.h>
