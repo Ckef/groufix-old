@@ -77,6 +77,8 @@ void _gfx_states_force_set(
  */
 void _gfx_states_set_viewport(
 
+		int              x,
+		int              y,
 		unsigned int     width,
 		unsigned int     height,
 		GFX_Extensions*  ext);

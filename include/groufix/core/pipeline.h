@@ -299,7 +299,7 @@ void gfx_pipe_process_set_source(
 
 		GFXPipeProcess   process,
 		GFXPropertyMap*  map,
-		size_t           copy);
+		unsigned int     copy);
 
 /**
  * Sets the target window to render to.
@@ -626,10 +626,25 @@ void gfx_pipeline_free(
 		GFXPipeline* pipeline);
 
 /**
+ * Specifies the screen space to rasterize to.
+ *
+ * @param x      The X offset relative to the left side of the target.
+ * @param y      The Y offset relative to the bottom side of the target.
+ * @param width  Width of the draw area.
+ * @param height Height of the draw area.
+ *
+ */
+void gfx_pipeline_viewport(
+
+		GFXPipeline*  pipeline,
+		int           x,
+		int           y,
+		unsigned int  width,
+		unsigned int  height);
+
+/**
  * Specifies what color attachments to draw to.
  *
- * @param width   Width of the drawn area.
- * @param height  Height of the draw area.
  * @param indices Array (num length) of color attachment indices to draw to.
  * @return Number of targets actually used.
  *
@@ -637,12 +652,10 @@ void gfx_pipeline_free(
  * Note: the number of indices must be < GFX_LIM_MAX_COLOR_TARGETS.
  *
  */
-size_t gfx_pipeline_target(
+unsigned int gfx_pipeline_target(
 
 		GFXPipeline*  pipeline,
-		unsigned int  width,
-		unsigned int  height,
-		size_t        num,
+		unsigned int  num,
 		const char*   indices);
 
 /**

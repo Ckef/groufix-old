@@ -713,6 +713,8 @@ void _gfx_extensions_load(void)
 		&ext->width,
 		&ext->height
 	);
+	ext->x = 0;
+	ext->y = 0;
 
 	ext->packAlignment = 0;
 	ext->unpackAlignment = 0;

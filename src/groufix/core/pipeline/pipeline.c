@@ -45,19 +45,21 @@ struct GFX_Pipeline
 	GFXPipeline pipeline;
 
 	/* Framebuffer */
-	GLuint     fbo;         /* OpenGL handle */
-	GFXVector  attachments; /* Stores GFX_Attachment */
-	size_t     numTargets;
-	GLenum*    targets;     /* OpenGL draw buffers */
+	GLuint        fbo;         /* OpenGL handle */
+	GFXVector     attachments; /* Stores GFX_Attachment */
+	unsigned int  numTargets;
+	GLenum*       targets;     /* OpenGL draw buffers */
 
-	GFX_Pipe*  first;
-	GFX_Pipe*  last;
-	GFX_Pipe*  current;
-	GFX_Pipe*  unlinked;
+	GFX_Pipe*     first;
+	GFX_Pipe*     last;
+	GFX_Pipe*     current;
+	GFX_Pipe*     unlinked;
 
 	/* Viewport */
-	unsigned int width;
-	unsigned int height;
+	int           x;
+	int           y;
+	unsigned int  width;
+	unsigned int  height;
 
 	/* Not a shared resource */
 	GFX_Window* win;
@@ -326,7 +328,10 @@ GFXPipeline* gfx_pipeline_create(void)
 	/* Create OpenGL resources */
 	pl->win = window;
 	pl->win->extensions.GenFramebuffers(1, &pl->fbo);
-	pl->width = 0;
+
+	pl->x      = 0;
+	pl->y      = 0;
+	pl->width  = 0;
 	pl->height = 0;
 
 	gfx_vector_init(&pl->attachments, sizeof(struct GFX_Attachment));
@@ -373,12 +378,27 @@ void gfx_pipeline_free(
 }
 
 /******************************************************/
-size_t gfx_pipeline_target(
+void gfx_pipeline_viewport(
 
 		GFXPipeline*  pipeline,
+		int           x,
+		int           y,
 		unsigned int  width,
-		unsigned int  height,
-		size_t        num,
+		unsigned int  height)
+{
+	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
+
+	internal->x      = x;
+	internal->y      = y;
+	internal->width  = width;
+	internal->height = height;
+}
+
+/******************************************************/
+unsigned int gfx_pipeline_target(
+
+		GFXPipeline*  pipeline,
+		unsigned int  num,
 		const char*   indices)
 {
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
@@ -406,7 +426,7 @@ size_t gfx_pipeline_target(
 	internal->targets = targets;
 	internal->numTargets = num;
 
-	size_t i;
+	unsigned int i;
 	int max = ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
 
 	for(i = 0; i < num; ++i)
@@ -418,9 +438,6 @@ size_t gfx_pipeline_target(
 	/* Pass to OGL */
 	_gfx_pipeline_bind(internal->fbo, ext);
 	ext->DrawBuffers(num, internal->targets);
-
-	internal->width = width;
-	internal->height = height;
 
 	return num;
 }
@@ -769,6 +786,8 @@ void gfx_pipeline_execute(
 	{
 		/* Set viewport */
 		_gfx_states_set_viewport(
+			internal->x,
+			internal->y,
 			internal->width,
 			internal->height,
 			ext

@@ -201,8 +201,11 @@ typedef struct GFX_Extensions
 	GLuint         program;  /* Currently used program */
 
 	/* Viewport & state values */
+	int            x;
+	int            y;
 	unsigned int   width;
 	unsigned int   height;
+
 	unsigned char  packAlignment;
 	unsigned char  unpackAlignment;
 	unsigned int   patchVertices;

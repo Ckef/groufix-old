@@ -329,14 +329,19 @@ void _gfx_states_force_set(
 /******************************************************/
 void _gfx_states_set_viewport(
 
+		int              x,
+		int              y,
 		unsigned int     width,
 		unsigned int     height,
 		GFX_Extensions*  ext)
 {
-	if(ext->width != width || ext->height != height)
+	if(ext->x != x || ext->y != y || ext->width != width || ext->height != height)
 	{
-		ext->Viewport(0, 0, width, height);
-		ext->width = width;
+		ext->Viewport(x, y, width, height);
+
+		ext->x      = x;
+		ext->y      = y;
+		ext->width  = width;
 		ext->height = height;
 	}
 }
