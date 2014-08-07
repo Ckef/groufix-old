@@ -342,7 +342,6 @@ void _gfx_extensions_load(void)
 	ext->BufferData                        = glBufferData;
 	ext->BufferSubData                     = glBufferSubData;
 	ext->Clear                             = glClear;
-	ext->ClientWaitSync                    = glClientWaitSync;
 	ext->CompileShader                     = glCompileShader;
 	ext->CopyBufferSubData                 = glCopyBufferSubData;
 	ext->CreateProgram                     = glCreateProgram;
@@ -352,7 +351,6 @@ void _gfx_extensions_load(void)
 	ext->DeleteFramebuffers                = glDeleteFramebuffers;
 	ext->DeleteProgram                     = glDeleteProgram;
 	ext->DeleteShader                      = glDeleteShader;
-	ext->DeleteSync                        = glDeleteSync;
 	ext->DeleteTextures                    = glDeleteTextures;
 	ext->DeleteVertexArrays                = glDeleteVertexArrays;
 	ext->DepthFunc                         = glDepthFunc;
@@ -370,7 +368,6 @@ void _gfx_extensions_load(void)
 	ext->Enable                            = glEnable;
 	ext->EnableVertexAttribArray           = glEnableVertexAttribArray;
 	ext->EndTransformFeedback              = glEndTransformFeedback;
-	ext->FenceSync                         = glFenceSync;
 	ext->FramebufferTexture1D              = _gfx_gles_framebuffer_texture_1d;
 	ext->FramebufferTexture2D              = glFramebufferTexture2D;
 	ext->FramebufferTextureLayer           = glFramebufferTextureLayer;
@@ -470,7 +467,6 @@ void _gfx_extensions_load(void)
 	ext->BufferData                = (PFNGLBUFFERDATAPROC)                _gfx_platform_get_proc_address("glBufferData");
 	ext->BufferSubData             = (PFNGLBUFFERSUBDATAPROC)             _gfx_platform_get_proc_address("glBufferSubData");
 	ext->Clear                     = (PFNGLCLEARPROC)                     glClear;
-	ext->ClientWaitSync            = (PFNGLCLIENTWAITSYNCPROC)            _gfx_platform_get_proc_address("glClientWaitSync");
 	ext->CompileShader             = (PFNGLCOMPILESHADERPROC)             _gfx_platform_get_proc_address("glCompileShader");
 	ext->CopyBufferSubData         = (PFNGLCOPYBUFFERSUBDATAPROC)         _gfx_platform_get_proc_address("glCopyBufferSubData");
 	ext->CreateProgram             = (PFNGLCREATEPROGRAMPROC)             _gfx_platform_get_proc_address("glCreateProgram");
@@ -480,7 +476,6 @@ void _gfx_extensions_load(void)
 	ext->DeleteFramebuffers        = (PFNGLDELETEFRAMEBUFFERSPROC)        _gfx_platform_get_proc_address("glDeleteFramebuffers");
 	ext->DeleteProgram             = (PFNGLDELETEPROGRAMPROC)             _gfx_platform_get_proc_address("glDeleteProgram");
 	ext->DeleteShader              = (PFNGLDELETESHADERPROC)              _gfx_platform_get_proc_address("glDeleteShader");
-	ext->DeleteSync                = (PFNGLDELETESYNCPROC)                _gfx_platform_get_proc_address("glDeleteSync");
 	ext->DeleteTextures            = (PFNGLDELETETEXTURESPROC)            glDeleteTextures;
 	ext->DeleteVertexArrays        = (PFNGLDELETEVERTEXARRAYSPROC)        _gfx_platform_get_proc_address("glDeleteVertexArrays");
 	ext->DepthFunc                 = (PFNGLDEPTHFUNCPROC)                 glDepthFunc;
@@ -496,7 +491,6 @@ void _gfx_extensions_load(void)
 	ext->Enable                    = (PFNGLENABLEPROC)                    glEnable;
 	ext->EnableVertexAttribArray   = (PFNGLENABLEVERTEXATTRIBARRAYPROC)   _gfx_platform_get_proc_address("glEnableVertexAttribArray");
 	ext->EndTransformFeedback      = (PFNGLENDTRANSFORMFEEDBACKPROC)      _gfx_platform_get_proc_address("glEndTransformFeedback");
-	ext->FenceSync                 = (PFNGLFENCESYNCPROC)                 _gfx_platform_get_proc_address("glFenceSync");
 	ext->FramebufferTexture1D      = (PFNGLFRAMEBUFFERTEXTURE1DPROC)      _gfx_platform_get_proc_address("glFramebufferTexture1D");
 	ext->FramebufferTexture2D      = (PFNGLFRAMEBUFFERTEXTURE2DPROC)      _gfx_platform_get_proc_address("glFramebufferTexture2D");
 	ext->FramebufferTextureLayer   = (PFNGLFRAMEBUFFERTEXTURELAYERPROC)   _gfx_platform_get_proc_address("glFramebufferTextureLayer");

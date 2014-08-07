@@ -119,14 +119,13 @@ typedef enum GFXBufferTarget
 /** Buffer */
 typedef struct GFXBuffer
 {
-	unsigned int     id;      /* Hardware Object ID */
+	unsigned int     id;     /* Hardware Object ID */
 
-	size_t           size;    /* Size of the buffer in bytes */
-	size_t           segSize; /* Size of a segment in the buffer (can equal size) */
-	unsigned char    multi;   /* Number of extra buffers (0 = regular buffering) */
+	size_t           size;   /* Size of the buffer in bytes */
+	unsigned char    multi;  /* Number of extra buffers (0 = regular buffering) */
 
-	GFXBufferUsage   usage;   /* Intended usage of the buffer */
-	GFXBufferTarget  target;  /* Storage type the buffer is targeted for */
+	GFXBufferUsage   usage;  /* Intended usage of the buffer */
+	GFXBufferTarget  target; /* Storage type the buffer is targeted for */
 
 } GFXBuffer;
 
@@ -136,9 +135,8 @@ typedef struct GFXBuffer
  *
  * @param usage    Usage bitflag, how the buffer is intended to be used.
  * @param target   Storage type the buffer is targeted for.
- * @param size     Size of each individual backbuffer, segments will be a fraction of this.
+ * @param size     Size of each individual backbuffer.
  * @param multi    Number of extra backbuffers to allocate (> 0 for multi buffering, 0 for regular buffering).
- * @param segments Number of extra segments per backbuffer (> 0 for segmentation, 0 for one big segment).
  * @return NULL on failure.
  *
  * Note: if data is not NULL, this data is NOT copied to any extra buffers.
@@ -150,8 +148,7 @@ GFXBuffer* gfx_buffer_create(
 		GFXBufferTarget  target,
 		size_t           size,
 		const void*      data,
-		unsigned char    multi,
-		unsigned char    segments);
+		unsigned char    multi);
 
 /**
  * Creates a copy of a buffer.
@@ -202,15 +199,10 @@ int gfx_buffer_shrink(
 		unsigned char  num);
 
 /**
- * Advances to the next segment and/or backbuffer.
- *
- * @return The byte offset of the now current segment in the now current backbuffer.
- *
- * Additionally, this is the command which issues a fence sync.
- * It is appropriate to call this immediately after writing/reading to/from the segment is done.
+ * Advances to the next backbuffer.
  *
  */
-size_t gfx_buffer_swap(
+void gfx_buffer_swap(
 
 		GFXBuffer* buffer);
 
@@ -245,13 +237,11 @@ void gfx_buffer_read(
 		size_t      offset);
 
 /**
- * Maps the buffer's current segment and returns a pointer to the mapped data.
+ * Maps the current backbuffer and returns a pointer to the mapped data.
  *
  * @param access Access rules to optimize (which must be followed by the client).
- * @param offset Offset within the segment.
+ * @param offset Offset within the buffer.
  * @return A pointer in client address space (NULL on failure).
- *
- * This method will automatically try to asynchronously upload to the current backbuffer.
  *
  */
 void* gfx_buffer_map(
@@ -262,9 +252,9 @@ void* gfx_buffer_map(
 		GFXBufferUsage  access);
 
 /**
- * Unmaps the buffer, invalidating the pointer returned by gfx_buffer_map or gfx_buffer_map_segment.
+ * Unmaps the buffer, invalidating the pointer returned by gfx_buffer_map.
  *
- * This method MUST be called immediately after gfx_buffer_map* in order to continue using the buffer.
+ * This method MUST be called immediately after gfx_buffer_map in order to continue using the buffer.
  *
  */
 void gfx_buffer_unmap(

@@ -93,7 +93,6 @@ typedef void (APIENTRYP GFX_BLENDFUNCSEPARATEPROC)                 (GLenum, GLen
 typedef void (APIENTRYP GFX_BUFFERDATAPROC)                        (GLenum, GLsizeiptr, const GLvoid*, GLenum);
 typedef void (APIENTRYP GFX_BUFFERSUBDATAPROC)                     (GLenum, GLintptr, GLsizeiptr, const GLvoid*);
 typedef void (APIENTRYP GFX_CLEARPROC)                             (GLbitfield);
-typedef GLenum (APIENTRYP GFX_CLIENTWAITSYNCPROC)                  (GLsync, GLbitfield, GLuint64);
 typedef void (APIENTRYP GFX_COMPILESHADERPROC)                     (GLuint);
 typedef void (APIENTRYP GFX_COPYBUFFERSUBDATAPROC)                 (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr);
 typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)                   (void);
@@ -103,7 +102,6 @@ typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)                     (GLsizei, con
 typedef void (APIENTRYP GFX_DELETEFRAMEBUFFERSPROC)                (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEPROGRAMPROC)                     (GLuint);
 typedef void (APIENTRYP GFX_DELETESHADERPROC)                      (GLuint);
-typedef void (APIENTRYP GFX_DELETESYNCPROC)                        (GLsync);
 typedef void (APIENTRYP GFX_DELETETEXTURESPROC)                    (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEVERTEXARRAYSPROC)                (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DEPTHFUNCPROC)                         (GLenum);
@@ -121,7 +119,6 @@ typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDBASEINSTANCEPROC) (GLenum, GLsi
 typedef void (APIENTRYP GFX_ENABLEPROC)                            (GLenum);
 typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)           (GLuint);
 typedef void (APIENTRYP GFX_ENDTRANSFORMFEEDBACKPROC)              (void);
-typedef GLsync (APIENTRYP GFX_FENCESYNCPROC)                       (GLenum, GLbitfield);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURE1DPROC)              (GLenum, GLenum, GLenum, GLuint, GLint);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURE2DPROC)              (GLenum, GLenum, GLenum, GLuint, GLint);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURELAYERPROC)           (GLenum, GLenum, GLuint, GLint, GLint);
@@ -230,7 +227,6 @@ typedef struct GFX_Extensions
 	GFX_BUFFERDATAPROC                         BufferData;
 	GFX_BUFFERSUBDATAPROC                      BufferSubData;
 	GFX_CLEARPROC                              Clear;
-	GFX_CLIENTWAITSYNCPROC                     ClientWaitSync;
 	GFX_COMPILESHADERPROC                      CompileShader;
 	GFX_COPYBUFFERSUBDATAPROC                  CopyBufferSubData;
 	GFX_CREATEPROGRAMPROC                      CreateProgram;
@@ -240,7 +236,6 @@ typedef struct GFX_Extensions
 	GFX_DELETEFRAMEBUFFERSPROC                 DeleteFramebuffers;
 	GFX_DELETEPROGRAMPROC                      DeleteProgram;
 	GFX_DELETESHADERPROC                       DeleteShader;
-	GFX_DELETESYNCPROC                         DeleteSync;
 	GFX_DELETETEXTURESPROC                     DeleteTextures;
 	GFX_DELETEVERTEXARRAYSPROC                 DeleteVertexArrays;
 	GFX_DEPTHFUNCPROC                          DepthFunc;
@@ -258,7 +253,6 @@ typedef struct GFX_Extensions
 	GFX_ENABLEPROC                             Enable;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC            EnableVertexAttribArray;
 	GFX_ENDTRANSFORMFEEDBACKPROC               EndTransformFeedback;
-	GFX_FENCESYNCPROC                          FenceSync;
 	GFX_FRAMEBUFFERTEXTURE1DPROC               FramebufferTexture1D;              /* GFX_EXT_TEXTURE_1D or GFX_EXT_BUFFER_TEXTURE */
 	GFX_FRAMEBUFFERTEXTURE2DPROC               FramebufferTexture2D;
 	GFX_FRAMEBUFFERTEXTURELAYERPROC            FramebufferTextureLayer;
