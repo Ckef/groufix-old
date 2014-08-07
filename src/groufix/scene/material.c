@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/scene/internal.h"
 
 #include <limits.h>
@@ -362,7 +363,15 @@ GFXMaterial* gfx_material_create(void)
 {
 	/* Allocate material */
 	struct GFX_Material* mat = malloc(sizeof(struct GFX_Material));
-	if(!mat) return NULL;
+	if(!mat)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Material could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Initialize */
 	_gfx_lod_map_init(

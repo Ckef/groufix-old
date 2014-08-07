@@ -22,6 +22,7 @@
  */
 
 #include "groufix/containers/list.h"
+#include "groufix/core/errors.h"
 
 #include <stdlib.h>
 
@@ -32,7 +33,12 @@ GFXList* gfx_list_create(
 {
 	/* Create a new list node */
 	GFXList* list = calloc(1, dataSize);
-	if(!list) return NULL;
+
+	/* Out of memory error */
+	if(!list) gfx_errors_push(
+		GFX_ERROR_OUT_OF_MEMORY,
+		"List could not be allocated."
+	);
 
 	return list;
 }
@@ -70,34 +76,6 @@ size_t gfx_list_get_size(
 		++cnt;
 	}
 	return cnt;
-}
-
-/******************************************************/
-GFXList* gfx_list_at(
-
-		GFXList*  list,
-		size_t    index)
-{
-	return gfx_list_advance(list, index);
-}
-
-/******************************************************/
-GFXList* gfx_list_advance(
-
-		GFXList*  node,
-		int       num)
-{
-	if(num > 0) while(num--)
-	{
-		node = node->next;
-		if(!node) break;
-	}
-	else while(num++)
-	{
-		node = node->previous;
-		if(!node) break;
-	}
-	return node;
 }
 
 /******************************************************/
@@ -385,4 +363,23 @@ void gfx_list_swap(
 	GFXList temp = *node1;
 	*node1 = *node2;
 	*node2 = temp;
+}
+
+/******************************************************/
+GFXList* gfx_list_advance(
+
+		GFXList*  node,
+		int       num)
+{
+	if(num > 0) while(num--)
+	{
+		node = node->next;
+		if(!node) break;
+	}
+	else while(num++)
+	{
+		node = node->previous;
+		if(!node) break;
+	}
+	return node;
 }

@@ -544,7 +544,15 @@ GFXProgram* gfx_program_create(void)
 
 	/* Create new program */
 	struct GFX_Program* prog = calloc(1, sizeof(struct GFX_Program));
-	if(!prog) return NULL;
+	if(!prog)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Program could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Register as object */
 	prog->program.id = _gfx_hardware_object_register(

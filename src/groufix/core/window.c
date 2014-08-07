@@ -226,7 +226,15 @@ GFXWindow* gfx_window_create(
 {
 	/* Setup top level window */
 	GFX_Window* window = calloc(1, sizeof(GFX_Window));
-	if(!window) return NULL;
+	if(!window)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Window could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Get screen */
 	GFX_PlatformScreen scr;
@@ -247,7 +255,13 @@ GFXWindow* gfx_window_create(
 	window->handle = _gfx_platform_window_create(&attr);
 	if(!window->handle)
 	{
+		/* Unknown error */
+		gfx_errors_push(
+			GFX_ERROR_UNKNOWN,
+			"Platform window could not be created."
+		);
 		free(window);
+
 		return NULL;
 	}
 
@@ -279,6 +293,12 @@ GFXWindow* gfx_window_create(
 		/* Failed, fall back to main window */
 		_gfx_window_make_current(_gfx_main_window);
 	}
+
+	/* Context error */
+	else gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"Platform context could not be created."
+	);
 
 	/* Destroy it */
 	_gfx_platform_window_free(window->handle);

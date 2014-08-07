@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/scene.h"
 #include "groufix/scene/internal.h"
 
@@ -976,7 +977,15 @@ GFXMesh* gfx_mesh_create(void)
 {
 	/* Allocate mesh */
 	struct GFX_Mesh* mesh = malloc(sizeof(struct GFX_Mesh));
-	if(!mesh) return NULL;
+	if(!mesh)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Mesh could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Initialize */
 	_gfx_lod_map_init(

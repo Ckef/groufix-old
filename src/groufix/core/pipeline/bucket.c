@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/shading/internal.h"
@@ -164,7 +165,15 @@ static GFXBucketUnit _gfx_bucket_insert_ref(
 		size_t size = gfx_vector_get_size(&bucket->refs);
 		ref = size + 1;
 
-		if(ref < size) return 0;
+		if(ref < size)
+		{
+			/* Overflow error */
+			gfx_errors_push(
+				GFX_ERROR_OVERFLOW,
+				"Overflow occurred during unit insertion at a bucket."
+			);
+			return 0;
+		}
 
 		/* Insert a new reference at the end */
 		GFXVectorIterator it = gfx_vector_insert(
@@ -384,7 +393,15 @@ GFXBucket* _gfx_bucket_create(
 {
 	/* Allocate bucket */
 	struct GFX_Bucket* bucket = calloc(1, sizeof(struct GFX_Bucket));
-	if(!bucket) return NULL;
+	if(!bucket)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Bucket could not be allocated."
+		);
+		return NULL;
+	}
 
 	gfx_vector_init(&bucket->sources, sizeof(struct GFX_Source));
 	gfx_deque_init(&bucket->emptySources, sizeof(GFXBucketSource));
@@ -547,7 +564,15 @@ GFXBucketSource gfx_bucket_add_source(
 		size_t size = gfx_vector_get_size(&internal->sources);
 		id = size + 1;
 
-		if(id < size) return 0;
+		if(id < size)
+		{
+			/* Overflow error */
+			gfx_errors_push(
+				GFX_ERROR_OVERFLOW,
+				"Overflow occurred during source insertion at a bucket."
+			);
+			return 0;
+		}
 
 		/* Insert a new source at the end */
 		GFXVectorIterator it = gfx_vector_insert(

@@ -220,7 +220,15 @@ static struct GFX_Texture* _gfx_texture_alloc(
 
 	/* Create new texture */
 	struct GFX_Texture* tex = calloc(1, sizeof(struct GFX_Texture));
-	if(!tex) return NULL;
+	if(!tex)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Texture could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Register as object */
 	tex->texture.id = _gfx_hardware_object_register(

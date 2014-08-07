@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/core/shading/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/containers/vector.h"
@@ -621,7 +622,15 @@ GFXPropertyMap* gfx_property_map_create(
 	size_t size = sizeof(struct GFX_Map) + properties * sizeof(struct GFX_Property);
 
 	struct GFX_Map* map = calloc(1, size);
-	if(!map) return NULL;
+	if(!map)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Property Map could not be allocated."
+		);
+		return NULL;
+	}
 
 	map->map.program = program;
 	map->map.properties = properties;
@@ -755,14 +764,13 @@ static int _gfx_property_map_forward(
 	unsigned char properties = map->map.properties;
 	unsigned char propType = _gfx_property_get_type(type);
 
-	for(it = (struct GFX_Property*)(map + 1); properties--; ++it)
-		if(
-			_gfx_property_get_type(it->type) == propType &&
-			it->location == location)
-		{
-			_gfx_property_disable(map, it);
-			break;
-		}
+	for(it = (struct GFX_Property*)(map + 1); properties--; ++it) if(
+		_gfx_property_get_type(it->type) == propType &&
+		it->location == location)
+	{
+		_gfx_property_disable(map, it);
+		break;
+	}
 
 	/* Reset property */
 	_gfx_property_disable(map, prop);

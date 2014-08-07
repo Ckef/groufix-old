@@ -301,13 +301,13 @@ void gfx_batch_set_type(
 			batch->meshID);
 
 		/* Fix number of copies */
-		if(units) switch(type)
+		if(units--) switch(type)
 		{
 			case GFX_BATCH_SINGLE_DATA :
 				_gfx_material_decrease(
 					batch->material,
 					batch->materialID,
-					units - 1
+					units
 				);
 				break;
 
@@ -315,7 +315,7 @@ void gfx_batch_set_type(
 				_gfx_material_increase(
 					batch->material,
 					batch->materialID,
-					units - 1
+					units
 				);
 				break;
 		}

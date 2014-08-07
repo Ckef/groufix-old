@@ -22,6 +22,7 @@
  */
 
 #include "groufix/containers/vector.h"
+#include "groufix/core/errors.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -51,7 +52,15 @@ static int _gfx_vector_realloc(
 {
 	/* Make sure to check if it worked */
 	void* new = realloc(vector->begin, capacity);
-	if(!new) return 0;
+	if(!new)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Vector ran out of memory during reallocation."
+		);
+		return 0;
+	}
 
 	/* Set new properties */
 	vector->begin = new;
@@ -69,6 +78,12 @@ GFXVector* gfx_vector_create(
 	/* Create a new vector */
 	GFXVector* vector = calloc(1, sizeof(GFXVector));
 	if(vector) vector->elementSize = elementSize;
+
+	/* Out of memory error */
+	else gfx_errors_push(
+		GFX_ERROR_OUT_OF_MEMORY,
+		"Vector could not be allocated."
+	);
 
 	return vector;
 }

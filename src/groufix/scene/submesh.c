@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/scene.h"
 #include "groufix/containers/vector.h"
 
@@ -127,7 +128,15 @@ GFXSubMesh* _gfx_submesh_create(
 	size_t size = sizeof(struct GFX_SubMesh) + sources * sizeof(GFXVertexSource);
 
 	struct GFX_SubMesh* sub = malloc(size);
-	if(!sub) return NULL;
+	if(!sub)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"SubMesh could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Create layout */
 	sub->submesh.layout = gfx_vertex_layout_create(drawCalls);
@@ -158,9 +167,17 @@ int _gfx_submesh_reference(
 {
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
 
-	if(!(internal->references + 1)) return 0;
-	++internal->references;
+	if(!(internal->references + 1))
+	{
+		/* Overflow error */
+		gfx_errors_push(
+			GFX_ERROR_OVERFLOW,
+			"Overflow occurred during SubMesh referencing."
+		);
+		return 0;
+	}
 
+	++internal->references;
 	return 1;
 }
 
@@ -251,7 +268,15 @@ int _gfx_submesh_reference_bucket(
 	else
 	{
 		/* Increase reference counter */
-		if(!(bucket->ref + 1)) return 0;
+		if(!(bucket->ref + 1))
+		{
+			/* Overflow error */
+			gfx_errors_push(
+				GFX_ERROR_OVERFLOW,
+				"Overflow occurred during SubMesh bucket referencing."
+			);
+			return 0;
+		};
 		++bucket->ref;
 	}
 

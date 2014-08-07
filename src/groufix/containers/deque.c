@@ -22,6 +22,7 @@
  */
 
 #include "groufix/containers/deque.h"
+#include "groufix/core/errors.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -92,6 +93,13 @@ static int _gfx_deque_realloc(
 			GFX_PTR_ADD_BYTES(deque->begin, elemDiff),
 			deque->capacity - (begin - elemDiff)
 		);
+
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Deque ran out of memory during reallocation."
+		);
+
 		return 0;
 	}
 
@@ -120,6 +128,12 @@ GFXDeque* gfx_deque_create(
 	/* Create a new deque */
 	GFXDeque* deque = calloc(1, sizeof(GFXDeque));
 	if(deque) deque->elementSize = elementSize;
+
+	/* Out of memory error */
+	else gfx_errors_push(
+		GFX_ERROR_OUT_OF_MEMORY,
+		"Deque could not be allocated."
+	);
 
 	return deque;
 }

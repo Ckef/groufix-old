@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/containers/vector.h"
@@ -366,7 +367,15 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	size_t size = sizeof(struct GFX_Layout) + drawCalls * sizeof(GFXDrawCall);
 
 	struct GFX_Layout* layout = calloc(1, size);
-	if(!layout) return NULL;
+	if(!layout)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Vertex Layout could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Register as object */
 	layout->layout.id = _gfx_hardware_object_register(
@@ -446,7 +455,15 @@ int gfx_vertex_layout_set_feedback(
 	{
 		/* Construct feedback buffers */
 		internal->TFBuffers = malloc(sizeof(struct GFX_TFBuffer) * num);
-		if(!internal->TFBuffers) return 0;
+		if(!internal->TFBuffers)
+		{
+			/* Out of memory error */
+			gfx_errors_push(
+				GFX_ERROR_OUT_OF_MEMORY,
+				"Vertex Layout ran out of memory during feedback allocation."
+			);
+			return 0;
+		}
 
 		size_t i;
 		for(i = 0; i < num; ++i)
@@ -802,15 +819,17 @@ void _gfx_vertex_layout_draw(
 		}
 
 		/* Begin feedback, draw, end feedback */
-		internal->ext->BeginTransformFeedback(internal->TFPrimitive);
+		internal->ext->BeginTransformFeedback(
+			internal->TFPrimitive);
+
 		_gfx_layout_invoke_draw(
 			internal,
 			source.startDraw,
 			source.numDraw,
 			inst,
 			base,
-			type
-		);
+			type);
+
 		internal->ext->EndTransformFeedback();
 	}
 

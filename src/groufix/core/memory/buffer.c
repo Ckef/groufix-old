@@ -229,7 +229,15 @@ GFXBuffer* gfx_buffer_create(
 
 	/* Create new buffer */
 	struct GFX_Buffer* buffer = calloc(1, sizeof(struct GFX_Buffer));
-	if(!buffer) return NULL;
+	if(!buffer)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Buffer could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Register as object */
 	buffer->buffer.id = _gfx_hardware_object_register(

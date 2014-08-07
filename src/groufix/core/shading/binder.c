@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/core/internal.h"
 
 #include <limits.h>
@@ -63,7 +64,15 @@ static void* _gfx_binder_init(
 
 	/* Allocate */
 	void* data = calloc(num, unitSize);
-	if(!data) return NULL;
+	if(!data)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Internal binder could not be allocated."
+		);
+		return NULL;
+	}
 
 	void* bindings = data;
 

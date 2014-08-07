@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/scene/internal.h"
 #include "groufix/containers/vector.h"
 
@@ -101,9 +102,13 @@ GFXLodMap* gfx_lod_map_create(
 {
 	/* Allocate new map */
 	GFX_LodMap* map = malloc(sizeof(GFX_LodMap));
-	if(!map) return NULL;
+	if(map) _gfx_lod_map_init(map, flags, dataSize, compSize);
 
-	_gfx_lod_map_init(map, flags, dataSize, compSize);
+	/* Out of memory error */
+	else gfx_errors_push(
+		GFX_ERROR_OUT_OF_MEMORY,
+		"Lod Map could not be allocated."
+	);
 
 	return (GFXLodMap*)map;
 }

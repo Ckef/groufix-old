@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 
@@ -300,7 +301,15 @@ GFXPipeline* gfx_pipeline_create(void)
 
 	/* Create new pipeline */
 	struct GFX_Pipeline* pl = calloc(1, sizeof(struct GFX_Pipeline));
-	if(!pl) return NULL;
+	if(!pl)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Pipeline could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Register as object */
 	pl->pipeline.id = _gfx_hardware_object_register(
@@ -383,7 +392,15 @@ size_t gfx_pipeline_target(
 
 	/* Construct attachment buffer */
 	GLenum* targets = malloc(sizeof(GLenum) * num);
-	if(!targets) return 0;
+	if(!targets)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Pipeline ran out of memory during target allocation."
+		);
+		return 0;
+	}
 
 	free(internal->targets);
 	internal->targets = targets;

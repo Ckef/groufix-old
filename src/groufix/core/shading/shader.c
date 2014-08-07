@@ -202,7 +202,15 @@ GFXShader* gfx_shader_create(
 
 	/* Create new shader */
 	struct GFX_Shader* shader = calloc(1, sizeof(struct GFX_Shader));
-	if(!shader) return NULL;
+	if(!shader)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Shader could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Register as object */
 	shader->shader.id = _gfx_hardware_object_register(

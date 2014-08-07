@@ -110,7 +110,15 @@ unsigned int _gfx_hardware_object_register(
 		size_t size = gfx_vector_get_size(_gfx_hw_objects);
 		id = size + 1;
 
-		if(id < size) return 0;
+		if(id < size)
+		{
+			/* Overflow error */
+			gfx_errors_push(
+				GFX_ERROR_OVERFLOW,
+				"Overflow occurred during hardware object registration."
+			);
+			return 0;
+		}
 
 		/* Insert a new object at the end */
 		GFXVectorIterator it = gfx_vector_insert(
@@ -126,6 +134,7 @@ unsigned int _gfx_hardware_object_register(
 				gfx_vector_free(_gfx_hw_objects);
 				_gfx_hw_objects = NULL;
 			}
+
 			return 0;
 		}
 	}

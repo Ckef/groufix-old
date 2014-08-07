@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/containers/vector.h"
 
@@ -84,7 +85,15 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 {
 	/* Create a new shared buffer */
 	struct GFX_SharedBuffer* buff = malloc(sizeof(struct GFX_SharedBuffer));
-	if(!buff) return NULL;
+	if(!buff)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Shared Buffer could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Insert the buffer */
 	GFXVectorIterator it = gfx_vector_insert(

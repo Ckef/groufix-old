@@ -21,6 +21,7 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/shading/internal.h"
@@ -184,7 +185,15 @@ GFXPipeProcess _gfx_pipe_process_create(void)
 {
 	/* Allocate */
 	struct GFX_Process* proc = calloc(1, sizeof(struct GFX_Process));
-	if(!proc) return NULL;
+	if(!proc)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Pipe Process could not be allocated."
+		);
+		return NULL;
+	}
 
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_pipes)

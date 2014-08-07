@@ -82,24 +82,6 @@ size_t gfx_list_get_size(
 		GFXList* list);
 
 /**
- * Returns a node at a given index, can be NULL.
- *
- */
-GFXList* gfx_list_at(
-
-		GFXList*  list,
-		size_t    index);
-
-/**
- * Advances a node an arbitrary amount of indices (can be negative).
- *
- */
-GFXList* gfx_list_advance(
-
-		GFXList*  node,
-		int       num);
-
-/**
  * Inserts an element after a given node.
  *
  * @param dataSize Size of the node, >= sizeof(List).
@@ -252,6 +234,27 @@ void gfx_list_swap(
 
 		GFXList*  node1,
 		GFXList*  node2);
+
+/**
+ * Advances a node an arbitrary amount of indices (can be negative).
+ *
+ */
+GFXList* gfx_list_advance(
+
+		GFXList*  node,
+		int       num);
+
+/**
+ * Returns a node at a given index, can be NULL.
+ *
+ */
+inline GFXList* gfx_list_at(
+
+		GFXList*  list,
+		size_t    index)
+{
+	return gfx_list_advance(list, index);
+}
 
 
 #ifdef __cplusplus
