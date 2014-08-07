@@ -1,8 +1,5 @@
 # Groufix
 
-
-## Introduction
-
 Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in C using OpenGL. The library has no external dependencies besides native windowing APIs and OpenGL to access the GPU. Desktop OpenGL is supported from 3.2 and up. OpenGL ES is supported from 3.0 and up.
 
 Supported targets and their APIs _(windowing / OGL extension / OGL version, status / compiler collection)_:
@@ -35,11 +32,11 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 #### Headers
 
-* `<groufix.h>` includes all _core_ functionality such as initialization, timing, window management, errors and all low level mechanisms. All core functionality can be found in `include/core/`.
+* `<groufix.h>` includes all _core_ functionality such as initialization, timing, window management, errors and all low level mechanisms. This header essentially exposes the bare minimum to work with Groufix.
 
 * `<groufix/math.h>` includes all mathematical functions associated with groufix. This includes a handful of constants and linear algebra, namely vectors, matrices and quaternions.
 
-* `<groufix/scene.h>` includes everything related to constructing a scene to render.
+* `<groufix/scene.h>` includes everything related to constructing a scene to render. This also includes high level constructs such as meshes, materials and manners to manage level of detail.
 
 * `<groufix/containers/*.h>` holds a set of headers defining useful container objects. All available containers are `vector`, `deque` and `list`. Replace the asterisk with one of these names.
 
@@ -51,7 +48,7 @@ _The library is thread affine_. All functonality should be executed from the sam
 
 #### Termination
 
-As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all hardware (GPU) and window manager related resources. This means the connection to both the GPU and windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
+As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all OpenGL and window manager related resources. This means the connection to both OpenGL and the windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
 
 _It will not free any other resources_. All user allocated resources must be freed by the user. To make sure everything is freed properly, every `*_create` method must be followed up by the appropriate `*_free` method and every `*_init` method must be followed up by the appropriate `*_clear` method. On a side note, any free method can take NULL as parameter and it will do nothing.
 
