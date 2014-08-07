@@ -99,7 +99,7 @@ void _gfx_platform_context_make_current(
 }
 
 /******************************************************/
-void _gfx_platform_context_set_swap_interval(
+int _gfx_platform_context_set_swap_interval(
 
 		GFX_PlatformWindow  handle,
 		int                 num)
@@ -114,6 +114,8 @@ void _gfx_platform_context_set_swap_interval(
 		_gfx_platform_context_make_current(handle);
 		_gfx_win32->extensions.SwapIntervalEXT(num);
 	}
+
+	return num;
 }
 
 /******************************************************/

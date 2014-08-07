@@ -692,14 +692,15 @@ const char* _gfx_platform_context_get_glsl(
 /**
  * Sets the minimum number of video frame periods per buffer swap.
  *
- * A value of 1 effectively enables vsync, use 0 to disable.
- * A value of -1 enables adaptive vsync, if not supported, the function behaves as if -num was passed.
+ * @return The actual value used.
  *
- * Note: a value > 1 or < -1 is allowed, depending on the implementation.
+ * A negative value enables adaptive vsync, if not supported, the function behaves as if -num was passed.
+ * The absolute value is always used for the minimum frame periods.
+ *
  * This method may make the window's context current.
  *
  */
-void _gfx_platform_context_set_swap_interval(
+int _gfx_platform_context_set_swap_interval(
 
 		GFX_PlatformWindow  handle,
 		int                 num);
@@ -725,7 +726,9 @@ int _gfx_platform_is_extension_supported(
  * @return NULL if the process does not exist.
  *
  */
-GFX_ProcAddress _gfx_platform_get_proc_address(const char* proc);
+GFX_ProcAddress _gfx_platform_get_proc_address(
+
+		const char* proc);
 
 
 #ifdef __cplusplus

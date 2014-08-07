@@ -337,11 +337,13 @@ void gfx_window_hide(
 /**
  * Sets the minimum number of video frame periods per buffer swap.
  *
- * A value of 1 effectively enables vsync, use 0 to disable.
- * A value of -1 enables adaptive vsync.
+ * @return The actual value used.
+ *
+ * A negative value enables adaptive vsync, if not supported, the function behaves as if -num was passed.
+ * The absolute value is always used for the minimum frame periods.
  *
  */
-void gfx_window_set_swap_interval(
+int gfx_window_set_swap_interval(
 
 		const GFXWindow*  window,
 		int               num);

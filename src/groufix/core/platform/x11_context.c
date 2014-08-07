@@ -115,7 +115,7 @@ void _gfx_platform_context_make_current(
 }
 
 /******************************************************/
-void _gfx_platform_context_set_swap_interval(
+int _gfx_platform_context_set_swap_interval(
 
 		GFX_PlatformWindow  handle,
 		int                 num)
@@ -129,6 +129,8 @@ void _gfx_platform_context_set_swap_interval(
 			_gfx_x11->display,
 			(Window)GFX_VOID_TO_UINT(handle), num
 		);
+
+	return num;
 }
 
 /******************************************************/

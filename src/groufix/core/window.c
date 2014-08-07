@@ -582,7 +582,7 @@ void gfx_window_hide(
 }
 
 /******************************************************/
-void gfx_window_set_swap_interval(
+int gfx_window_set_swap_interval(
 
 		const GFXWindow*  window,
 		int               num)
@@ -592,7 +592,9 @@ void gfx_window_set_swap_interval(
 	if(internal->handle)
 	{
 		/* Again make sure the main window is current afterwards */
-		_gfx_platform_context_set_swap_interval(internal->handle, num);
+		num = _gfx_platform_context_set_swap_interval(internal->handle, num);
 		_gfx_window_make_current(_gfx_main_window);
 	}
+
+	return num;
 }

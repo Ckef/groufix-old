@@ -163,7 +163,7 @@ void _gfx_mesh_remove_batch(
 
 
 /********************************************************
- * Batch properties
+ * Batch properties at material
  *******************************************************/
 
 /**
@@ -213,6 +213,11 @@ int _gfx_material_decrease(
 		GFXMaterial*  material,
 		unsigned int  materialID,
 		unsigned int  copies);
+
+
+/********************************************************
+ * Batch properties at mesh
+ *******************************************************/
 
 /**
  * Returns the maximum number of units reserved by any bucket within a batch.
