@@ -22,7 +22,7 @@
  */
 
 #include "groufix/scene/batch.h"
-#include "groufix/scene/internal.h"
+#include "groufix/scene/protocol.h"
 
 #include <limits.h>
 

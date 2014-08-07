@@ -22,7 +22,7 @@
  */
 
 #include "groufix/core/errors.h"
-#include "groufix/scene/internal.h"
+#include "groufix/scene/protocol.h"
 
 #include <limits.h>
 #include <stdint.h>
