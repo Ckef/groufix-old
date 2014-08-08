@@ -66,10 +66,10 @@
 
 #endif
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 /********************************************************
  * Platform process/thread definitions

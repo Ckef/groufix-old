@@ -69,5 +69,4 @@
 	#define GFX_SSE_ALIGN __attribute__ ((aligned(16)))
 #endif
 
-
 #endif // GFX_UTILS_H

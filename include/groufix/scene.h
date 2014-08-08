@@ -30,6 +30,7 @@
 extern "C" {
 #endif
 
+
 /** Scene object keys */
 typedef enum GFXSceneKey
 {

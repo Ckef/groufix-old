@@ -36,6 +36,7 @@
 extern "C" {
 #endif
 
+
 /* Mathematical constants */
 extern const long double GFX_MATH_PI;
 extern const long double GFX_MATH_TWO_PI;

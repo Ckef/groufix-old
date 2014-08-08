@@ -757,7 +757,7 @@ void _gfx_mesh_remove_bucket(
 /******************************************************/
 GFXBucketUnit* _gfx_mesh_reserve(
 
-		GFXMesh*  mesh,
+		GFXMesh*      mesh,
 		unsigned int  meshID,
 		unsigned int  bucket,
 		unsigned int  units)
