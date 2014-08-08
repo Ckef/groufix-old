@@ -31,6 +31,8 @@
 static const char* _gfx_glsl_versions[] =
 {
 	"150\0",
+	"300\0",
+	"310\0",
 	"330\0",
 	"400\0",
 	"410\0",
@@ -59,27 +61,45 @@ const char* _gfx_platform_context_get_glsl(
 		int  major,
 		int  minor)
 {
+#ifdef GFX_GLES
+
+	/* GLES context */
+	switch(major)
+	{
+		case 3 : switch(minor)
+		{
+			case 0 : return _gfx_glsl_versions[1];
+			case 1 : return _gfx_glsl_versions[2];
+		}
+
+		default : return NULL;
+	}
+
+#else
+
+	/* GL context */
 	switch(major)
 	{
 		case 3 : switch(minor)
 		{
 			case 2 : return _gfx_glsl_versions[0];
-			case 3 : return _gfx_glsl_versions[1];
+			case 3 : return _gfx_glsl_versions[3];
 			default : return NULL;
 		}
 		case 4 : switch(minor)
 		{
-			case 0 : return _gfx_glsl_versions[2];
-			case 1 : return _gfx_glsl_versions[3];
-			case 2 : return _gfx_glsl_versions[4];
-			case 3 : return _gfx_glsl_versions[5];
-			case 4 : return _gfx_glsl_versions[6];
+			case 0 : return _gfx_glsl_versions[4];
+			case 1 : return _gfx_glsl_versions[5];
+			case 2 : return _gfx_glsl_versions[6];
+			case 3 : return _gfx_glsl_versions[7];
+			case 4 : return _gfx_glsl_versions[8];
 			default : return NULL;
 		}
 
-		/* Good luck */
 		default : return NULL;
 	}
+
+#endif
 }
 
 /******************************************************/
