@@ -22,10 +22,101 @@
  */
 
 #define GL_GLEXT_PROTOTYPES
-#include "groufix/core/errors.h"
 #include "groufix/core/pipeline/internal.h"
+#include "groufix/core/errors.h"
 
 #include <string.h>
+
+
+/********************************************************
+ * Context extensions
+ *******************************************************/
+static const char* _gfx_glsl_versions[] =
+{
+	"150\0",
+	"300\0",
+	"310\0",
+	"330\0",
+	"400\0",
+	"410\0",
+	"420\0",
+	"430\0",
+	"440\0"
+};
+
+/******************************************************/
+const char* _gfx_extensions_get_glsl(
+
+		int  major,
+		int  minor)
+{
+#ifdef GFX_GLES
+
+	/* GLES context */
+	switch(major)
+	{
+		case 3 : switch(minor)
+		{
+			case 0 : return _gfx_glsl_versions[1];
+			case 1 : return _gfx_glsl_versions[2];
+		}
+
+		default : return NULL;
+	}
+
+#else
+
+	/* GL context */
+	switch(major)
+	{
+		case 3 : switch(minor)
+		{
+			case 2 : return _gfx_glsl_versions[0];
+			case 3 : return _gfx_glsl_versions[3];
+			default : return NULL;
+		}
+		case 4 : switch(minor)
+		{
+			case 0 : return _gfx_glsl_versions[4];
+			case 1 : return _gfx_glsl_versions[5];
+			case 2 : return _gfx_glsl_versions[6];
+			case 3 : return _gfx_glsl_versions[7];
+			case 4 : return _gfx_glsl_versions[8];
+			default : return NULL;
+		}
+
+		default : return NULL;
+	}
+
+#endif
+}
+
+/******************************************************/
+int _gfx_extensions_is_in_string(
+
+		const char*  str,
+		const char*  ext)
+{
+	/* Get extension length */
+	size_t len = strlen(ext);
+	if(!len) return 0;
+
+	/* Try to find a complete match */
+	char* found = strstr(str, ext);
+	while(found)
+	{
+		char* end = found + len;
+		if(*end == ' ' || *end == '\0')
+		{
+			/* To avoid segfault */
+			if(found == str) return 1;
+			if(*(found - 1) == ' ') return 1;
+		}
+		found = strstr(end, ext);
+	}
+
+	return 0;
+}
 
 
 /********************************************************

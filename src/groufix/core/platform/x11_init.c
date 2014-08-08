@@ -22,6 +22,7 @@
  */
 
 #include "groufix/core/errors.h"
+#include "groufix/core/internal.h"
 #include "groufix/core/platform/x11.h"
 
 #include <stdlib.h>

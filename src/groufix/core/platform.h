@@ -512,19 +512,6 @@ void _gfx_platform_context_get(
 		int*  minor);
 
 /**
- * Returns a string representing the GLSL version of the given context version.
- *
- * @return Null terminated string representing the GLSL version, NULL if not supported.
- *
- * Note: the string is formatted to be used for the #version preprocessor.
- *
- */
-const char* _gfx_platform_context_get_glsl(
-
-		int  major,
-		int  minor);
-
-/**
  * Sets the minimum number of video frame periods per buffer swap.
  *
  * @return The actual value used.

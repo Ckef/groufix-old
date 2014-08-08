@@ -84,7 +84,7 @@ static const char* _gfx_shader_eval_glsl(
 		int  major,
 		int  minor)
 {
-	const char* glsl = _gfx_platform_context_get_glsl(major, minor);
+	const char* glsl = _gfx_extensions_get_glsl(major, minor);
 	if(!glsl)
 	{
 		gfx_errors_push(

@@ -145,17 +145,6 @@ GFXVectorIterator _gfx_x11_get_window_from_handle(
 
 		Window handle);
 
-/**
- * Returns whether the OpenGL extension can be found in the space separated string.
- *
- * This method is primarily used in the platform implementations.
- *
- */
-int _gfx_extensions_is_in_string(
-
-		const char*  str,
-		const char*  ext);
-
 
 #ifdef __cplusplus
 }

@@ -393,6 +393,30 @@ GFX_Window* _gfx_window_get_current(void);
 void _gfx_window_swap_buffers(void);
 
 /**
+ * Returns a string representing the GLSL version of the given context version.
+ *
+ * @return Null terminated string representing the GLSL version, NULL if not supported.
+ *
+ * Note: the string is formatted to be used for the #version preprocessor.
+ *
+ */
+const char* _gfx_extensions_get_glsl(
+
+		int  major,
+		int  minor);
+
+/**
+ * Returns whether the OpenGL extension can be found in the space separated string.
+ *
+ * This method is primarily used in the platform implementations.
+ *
+ */
+int _gfx_extensions_is_in_string(
+
+		const char*  str,
+		const char*  ext);
+
+/**
  * Loads all extensions for the current window's context.
  *
  * Should not be called by the platform.
