@@ -41,10 +41,10 @@ struct GFX_Material
 /* Internal batch (mesh reference) */
 struct GFX_Batch
 {
-	GFXMesh*      mesh;  /* NULL when empty */
+	GFXMesh*      mesh;   /* NULL when empty */
 	unsigned int  meshID;
-	unsigned int  map;   /* Direct index of the property map of this batch */
-	unsigned int  copy;  /* First copy at the property map in use by this batch */
+	unsigned int  map;    /* Direct index of the property map of this batch, out of bounds when empty */
+	unsigned int  copy;   /* First copy at the property map in use by this batch */
 };
 
 /* Internal Property Map data */
@@ -84,7 +84,7 @@ static struct GFX_MapData* _gfx_material_increase_batch_copies(
 	data[batch->map].copies += diff;
 	*upper = data[batch->map].copies;
 
-	/* Iterate through all batches and adjust their copy */
+	/* Iterate through all batches */
 	struct GFX_Batch* it;
 	for(
 		it = material->batches.begin;
@@ -96,9 +96,19 @@ static struct GFX_MapData* _gfx_material_increase_batch_copies(
 			it->map == batch->map &&
 			it->copy >= batch->copy)
 		{
+			/* Increase their starting copy */
+			/* Also retrieve the batch following the given batch */
+			/* Do this by simply computing the lowest following copy */
 			it->copy += diff;
 			*upper = (it->copy < *upper) ?
 				it->copy : *upper;
+
+			/* And adjust all units */
+			_gfx_mesh_set_batch_copy(
+				it->mesh,
+				it->meshID,
+				it->copy
+			);
 		}
 	}
 
@@ -282,7 +292,29 @@ unsigned int _gfx_material_get_batch_map(
 }
 
 /******************************************************/
-int _gfx_material_increase(
+unsigned int _gfx_material_get_batch_copy(
+
+		GFXMaterial*  material,
+		unsigned int  materialID)
+{
+	/* Get batch */
+	struct GFX_Material* internal =
+		(struct GFX_Material*)material;
+	size_t max =
+		gfx_vector_get_size(&internal->batches);
+
+	if(!materialID || materialID > max)
+		return 0;
+
+	/* Get batch */
+	struct GFX_Batch* batch =
+		gfx_vector_at(&internal->batches, materialID - 1);
+
+	return batch->copy;
+}
+
+/******************************************************/
+int _gfx_material_increase_copies(
 
 		GFXMaterial*  material,
 		unsigned int  materialID,
@@ -323,7 +355,7 @@ int _gfx_material_increase(
 }
 
 /******************************************************/
-int _gfx_material_decrease(
+int _gfx_material_decrease_copies(
 
 		GFXMaterial*  material,
 		unsigned int  materialID,

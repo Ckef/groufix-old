@@ -180,6 +180,37 @@ static void _gfx_batch_set_visible(
 }
 
 /******************************************************/
+void _gfx_batch_set_copy(
+
+		GFXBucket*      bucket,
+		GFXBatchType    type,
+		GFXBucketUnit*  units,
+		unsigned int    num,
+		unsigned int    copy)
+{
+	unsigned int add = 0;
+	switch(type)
+	{
+		case GFX_BATCH_SINGLE_DATA :
+			add = 0;
+			break;
+
+		case GFX_BATCH_MULTIPLE_DATA :
+			add = 1;
+			break;
+	}
+
+	/* Set all the copies */
+	unsigned int u;
+	for(u = 0; u < num; ++u, copy += add)
+		gfx_bucket_set_copy(
+			bucket,
+			units[u],
+			copy
+		);
+}
+
+/******************************************************/
 int gfx_batch_get(
 
 		GFXBatch*     batch,
@@ -293,7 +324,8 @@ void gfx_batch_set_type(
 		_gfx_mesh_set_batch_type(
 			batch->mesh,
 			batch->meshID,
-			type);
+			type,
+			_gfx_material_get_batch_copy(batch->material, batch->materialID));
 
 		unsigned int units = _gfx_mesh_get_batch_units(
 			batch->mesh,
@@ -303,7 +335,7 @@ void gfx_batch_set_type(
 		if(units--) switch(type)
 		{
 			case GFX_BATCH_SINGLE_DATA :
-				_gfx_material_decrease(
+				_gfx_material_decrease_copies(
 					batch->material,
 					batch->materialID,
 					units
@@ -311,7 +343,7 @@ void gfx_batch_set_type(
 				break;
 
 			case GFX_BATCH_MULTIPLE_DATA :
-				_gfx_material_increase(
+				_gfx_material_increase_copies(
 					batch->material,
 					batch->materialID,
 					units
@@ -324,11 +356,17 @@ void gfx_batch_set_type(
 /******************************************************/
 static void _gfx_batch_increase_copies(
 
-		GFXBatch*     batch,
-		unsigned int  currentCopies)
+		GFXBatch*       batch,
+		GFXBucket*      bucket,
+		GFXBucketUnit*  units,
+		unsigned int    num,
+		unsigned int    first,
+		unsigned int    currentCopies)
 {
 	GFXBatchType type =
 		_gfx_mesh_get_batch_type(batch->mesh, batch->meshID);
+	unsigned int copy =
+		_gfx_material_get_batch_copy(batch->material, batch->materialID);
 
 	switch(type)
 	{
@@ -343,14 +381,22 @@ static void _gfx_batch_increase_copies(
 				batch->mesh,
 				batch->meshID) - currentCopies;
 
+			copy += first;
 			break;
 	}
 
-	_gfx_material_increase(
+	/* Increase batch copies and set copies of itself */
+	_gfx_material_increase_copies(
 		batch->material,
 		batch->materialID,
-		currentCopies
-	);
+		currentCopies);
+
+	_gfx_batch_set_copy(
+		bucket,
+		type,
+		units + first,
+		num - first,
+		copy);
 }
 
 /******************************************************/
@@ -367,7 +413,7 @@ int gfx_batch_increase(
 		bucket
 	);
 
-	if(!_gfx_mesh_increase(batch->mesh, handle, instances))
+	if(!_gfx_mesh_increase_instances(batch->mesh, handle, instances))
 		return 0;
 
 	/* Get and validate data */
@@ -388,7 +434,7 @@ int gfx_batch_increase(
 
 		/* Get current number of units and reserve extra ones */
 		unsigned int end = _gfx_batch_get_num_units(
-			_gfx_mesh_get(batch->mesh, handle), unitSize);
+			_gfx_mesh_get_instances(batch->mesh, handle), unitSize);
 		GFXBucketUnit* units = _gfx_mesh_reserve(
 			batch->mesh, batch->meshID, handle, end);
 
@@ -412,7 +458,11 @@ int gfx_batch_increase(
 			if(i >= end)
 			{
 				/* Increase copies */
-				_gfx_batch_increase_copies(batch, copies);
+				_gfx_batch_increase_copies(
+					batch, bucket->bucket,
+					units, end, start,
+					copies
+				);
 				return 1;
 			}
 
@@ -430,7 +480,7 @@ int gfx_batch_increase(
 	}
 
 	/* Well nevermind */
-	if(start) _gfx_mesh_decrease(
+	if(start) _gfx_mesh_decrease_instances(
 		batch->mesh,
 		handle,
 		instances);
@@ -471,7 +521,7 @@ static void _gfx_batch_decrease_copies(
 			break;
 	}
 
-	_gfx_material_decrease(
+	_gfx_material_decrease_copies(
 		batch->material,
 		batch->materialID,
 		currentCopies
@@ -498,7 +548,7 @@ int gfx_batch_decrease(
 
 	if(units)
 	{
-		if(_gfx_mesh_decrease(batch->mesh, handle, instances))
+		if(_gfx_mesh_decrease_instances(batch->mesh, handle, instances))
 		{
 			/* Get associated data */
 			GFXPropertyMap* map;
@@ -507,7 +557,7 @@ int gfx_batch_decrease(
 
 			/* Get the number of remaining units and erase the rest */
 			instances =
-				_gfx_mesh_get(batch->mesh, handle);
+				_gfx_mesh_get_instances(batch->mesh, handle);
 			unsigned int start =
 				_gfx_batch_get_num_units(instances, unitSize);
 
@@ -563,7 +613,7 @@ unsigned int gfx_batch_get_instances(
 		bucket
 	);
 
-	return _gfx_mesh_get(batch->mesh, handle);
+	return _gfx_mesh_get_instances(batch->mesh, handle);
 }
 
 /******************************************************/

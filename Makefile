@@ -104,7 +104,8 @@ HEADERS_LIB = \
  $(SRC)/groufix/core/shading/internal.h \
  $(SRC)/groufix/core/internal.h \
  $(SRC)/groufix/core/platform.h \
- $(SRC)/groufix/scene/internal.h
+ $(SRC)/groufix/scene/internal.h \
+ $(SRC)/groufix/scene/protocol.h
 
 HEADERS_UNIX_X11 = \
  $(HEADERS_LIB) \
@@ -152,7 +153,6 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/pipeline/pipeline.o \
  $(OUT)/unix-x11/groufix/core/pipeline/process.o \
  $(OUT)/unix-x11/groufix/core/pipeline/states.o \
- $(OUT)/unix-x11/groufix/core/platform/context.o \
  $(OUT)/unix-x11/groufix/core/platform/unix_thread.o \
  $(OUT)/unix-x11/groufix/core/platform/unix_time.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_context.o \
@@ -221,7 +221,6 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/pipeline/pipeline.o \
  $(OUT)/win32/groufix/core/pipeline/process.o \
  $(OUT)/win32/groufix/core/pipeline/states.o \
- $(OUT)/win32/groufix/core/platform/context.o \
  $(OUT)/win32/groufix/core/platform/win32_context.o \
  $(OUT)/win32/groufix/core/platform/win32_init.o \
  $(OUT)/win32/groufix/core/platform/win32_screen.o \

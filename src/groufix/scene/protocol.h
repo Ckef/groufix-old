@@ -33,6 +33,27 @@ extern "C" {
 
 
 /********************************************************
+ * Unit manipulation of batch
+ *******************************************************/
+
+/**
+ * Sets the copy of all given units according to a type.
+ *
+ * @param type  Type to set the copies accordingly to.
+ * @param num   Number of copies in units.
+ * @param copy  Starting copy to use.
+ *
+ */
+void _gfx_batch_set_copy(
+
+		GFXBucket*      bucket,
+		GFXBatchType    type,
+		GFXBucketUnit*  units,
+		unsigned int    num,
+		unsigned int    copy);
+
+
+/********************************************************
  * Batch references at mesh and material
  *******************************************************/
 
@@ -151,11 +172,11 @@ unsigned int _gfx_material_get_batch_copy(
  *
  * @return Zero on failure or if copies is 0.
  *
- * Note: bounds are not checked.
- * Also, it moves copy data within the property map.
+ * Note: it moves copy data within the property map and
+ * calls _gfx_mesh_set_batch_copy for all altered batches (except the given one).
  *
  */
-int _gfx_material_increase(
+int _gfx_material_increase_copies(
 
 		GFXMaterial*  material,
 		unsigned int  materialID,
@@ -165,10 +186,12 @@ int _gfx_material_increase(
  * Decrease the number of copies used by a given batch.
  *
  * @return Zero on failure or if copies is 0.
- * Also, it moves copy data within the property map.
+ *
+ * Note: it moves copy data within the property map and
+ * calls _gfx_mesh_set_batch_copy for all altered batches (except the given one).
  *
  */
-int _gfx_material_decrease(
+int _gfx_material_decrease_copies(
 
 		GFXMaterial*  material,
 		unsigned int  materialID,
@@ -214,12 +237,29 @@ GFXBatchType _gfx_mesh_get_batch_type(
 /**
  * Sets the type of a batch at a mesh.
  *
+ * In addition, it will also call _gfx_mesh_set_batch_copy for the given batch.
+ *
  */
 void _gfx_mesh_set_batch_type(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID,
-		GFXBatchType  type);
+		GFXBatchType  type,
+		unsigned int  copy);
+
+/**
+ * Calls _gfx_batch_set_copy for all associated buckets of a batch.
+ *
+ * This call will set the copy of all units for all buckets.
+ *
+ * Note: undefined behaviour if the batch does not exist!
+ *
+ */
+void _gfx_mesh_set_batch_copy(
+
+		GFXMesh*      mesh,
+		unsigned int  meshID,
+		unsigned int  copy);
 
 
 /********************************************************
@@ -304,7 +344,7 @@ GFXBucketUnit* _gfx_mesh_get_reserved(
  * @return Zero on overflow or if the handle is invalid.
  *
  */
-int _gfx_mesh_increase(
+int _gfx_mesh_increase_instances(
 
 		GFXMesh*      mesh,
 		unsigned int  bucket,
@@ -316,7 +356,7 @@ int _gfx_mesh_increase(
  * @return Zero if the counter hits 0.
  *
  */
-int _gfx_mesh_decrease(
+int _gfx_mesh_decrease_instances(
 
 		GFXMesh*      mesh,
 		unsigned int  bucket,
@@ -326,7 +366,7 @@ int _gfx_mesh_decrease(
  * Returns the instance counter of a bucket handle.
  *
  */
-unsigned int _gfx_mesh_get(
+unsigned int _gfx_mesh_get_instances(
 
 		GFXMesh*      mesh,
 		unsigned int  bucket);

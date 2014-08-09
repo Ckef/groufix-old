@@ -51,7 +51,7 @@ struct GFX_Batch
 	unsigned int  materialID;
 
 	GFXBatchLod   params;     /* Level of detail parameters */
-	GFXBatchType  type;
+	GFXBatchType  type;       /* GFX_BATCH_DEFAULT when empty */
 	unsigned int  units;      /* Max number of units reserved at any bucket */
 	unsigned int  upper;      /* Upper bound in buckets vector */
 };
@@ -279,7 +279,7 @@ static void _gfx_mesh_update_batch_maps(
 		batch != mesh->batches.end;
 		batch = gfx_vector_next(&mesh->batches, batch), ++meshID)
 	{
-		if(batch->params.mesh == level && batch->params.index == index)
+		if(batch->material && batch->params.mesh == level && batch->params.index == index)
 		{
 			/* Tell the material to update the map for this batch */
 			/* This will recalculate the map index */
@@ -575,7 +575,8 @@ void _gfx_mesh_set_batch_type(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID,
-		GFXBatchType  type)
+		GFXBatchType  type,
+		unsigned int  copy)
 {
 	/* Bound check */
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
@@ -587,7 +588,47 @@ void _gfx_mesh_set_batch_type(
 		struct GFX_Batch* batch =
 			gfx_vector_at(&internal->batches, meshID - 1);
 
-		if(batch->material) batch->type = type;
+		if(batch->material)
+		{
+			batch->type = type;
+			_gfx_mesh_set_batch_copy(mesh, meshID, copy);
+		}
+	}
+}
+
+/******************************************************/
+void _gfx_mesh_set_batch_copy(
+
+		GFXMesh*      mesh,
+		unsigned int  meshID,
+		unsigned int  copy)
+{
+	/* Get batch and bounds */
+	struct GFX_Mesh* internal =
+		(struct GFX_Mesh*)mesh;
+	struct GFX_Batch* batch =
+		gfx_vector_at(&internal->batches, meshID - 1);
+
+	unsigned int begin;
+	unsigned int end;
+	_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
+
+	/* Iterate through all buckets */
+	while(begin < end)
+	{
+		struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, begin);
+
+		/* Set the copy of all units */
+		_gfx_batch_set_copy(
+			it->pipe->bucket,
+			batch->type,
+			(GFXBucketUnit*)(it + 1),
+			it->units,
+			copy);
+
+		begin +=
+			sizeof(struct GFX_Bucket) +
+			sizeof(GFXBucketUnit) * it->units;
 	}
 }
 
@@ -598,8 +639,6 @@ static unsigned int _gfx_mesh_search_bucket(
 		struct GFX_Batch*  batch,
 		GFXPipe*           pipe)
 {
-	if(!batch->material) return batch->upper;
-
 	/* Get bound and find bucket */
 	unsigned int begin;
 	unsigned int end;
@@ -632,7 +671,7 @@ unsigned int _gfx_mesh_get_bucket(
 		return bucket;
 
 	/* Validate pipe type before creating a new bucket */
-	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET)
+	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET || !batch->material)
 		return GFX_INT_INVALID_BUCKET_HANDLE;
 
 	/* Create new bucket */
@@ -855,7 +894,7 @@ GFXBucketUnit* _gfx_mesh_get_reserved(
 }
 
 /******************************************************/
-int _gfx_mesh_increase(
+int _gfx_mesh_increase_instances(
 
 		GFXMesh*      mesh,
 		unsigned int  bucket,
@@ -881,7 +920,7 @@ int _gfx_mesh_increase(
 }
 
 /******************************************************/
-int _gfx_mesh_decrease(
+int _gfx_mesh_decrease_instances(
 
 		GFXMesh*      mesh,
 		unsigned int  bucket,
@@ -911,7 +950,7 @@ int _gfx_mesh_decrease(
 }
 
 /******************************************************/
-unsigned int _gfx_mesh_get(
+unsigned int _gfx_mesh_get_instances(
 
 		GFXMesh*      mesh,
 		unsigned int  bucket)
