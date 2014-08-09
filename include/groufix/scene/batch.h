@@ -36,15 +36,13 @@ extern "C" {
  * Batch metadata
  *******************************************************/
 
-/** Batch data upload classification */
-typedef enum GFXBatchType
+/** Batch flags */
+typedef enum GFXBatchFlags
 {
-	GFX_BATCH_SINGLE_DATA,   /* A batch uses the same property map copy for all units */
-	GFX_BATCH_MULTIPLE_DATA, /* A batch uses different property map copies for each unit */
+	GFX_BATCH_MULTIPLE_DATA       = 0x01, /* Use increasing copies for units */
+	GFX_BATCH_INITIAL_ZERO_STATE  = 0x02
 
-	GFX_BATCH_DEFAULT = GFX_BATCH_SINGLE_DATA
-
-} GFXBatchType;
+} GFXBatchFlags;
 
 
 /** Batch level of detail parameters */
@@ -132,25 +130,25 @@ GFXBatchLod gfx_batch_get_lod(
 		GFXBatch* batch);
 
 /**
- * Returns the type of a given batch.
+ * Returns the flags of a given batch.
  *
- * @return GFX_BATCH_DEFAULT on failure.
+ * @return 0 on failure.
  *
  */
-GFXBatchType gfx_batch_get_type(
+GFXBatchFlags gfx_batch_get_flags(
 
 		GFXBatch* batch);
 
 /**
- * Sets the type of a given batch.
+ * Sets the flags of a given batch.
  *
- * Note: the default is GFX_BATCH_DEFAULT.
+ * Note: the default is 0.
  *
  */
-void gfx_batch_set_type(
+void gfx_batch_set_flags(
 
-		GFXBatch*     batch,
-		GFXBatchType  type);
+		GFXBatch*      batch,
+		GFXBatchFlags  flags);
 
 /**
  * Increase the number of instances at a bucket for a given batch.

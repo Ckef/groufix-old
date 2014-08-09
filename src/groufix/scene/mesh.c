@@ -30,8 +30,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define GFX_INT_INVALID_BUCKET_HANDLE  UINT_MAX
-
 /******************************************************/
 /* Internal mesh */
 struct GFX_Mesh
@@ -47,13 +45,13 @@ struct GFX_Mesh
 /* Internal batch (material reference) */
 struct GFX_Batch
 {
-	GFXMaterial*  material;   /* NULL when empty */
-	unsigned int  materialID;
+	GFXMaterial*   material;   /* NULL when empty */
+	unsigned int   materialID;
 
-	GFXBatchLod   params;     /* Level of detail parameters */
-	GFXBatchType  type;       /* GFX_BATCH_DEFAULT when empty */
-	unsigned int  units;      /* Max number of units reserved at any bucket */
-	unsigned int  upper;      /* Upper bound in buckets vector */
+	GFXBatchLod    params;     /* Level of detail parameters */
+	GFXBatchFlags  flags;      /* 0 when empty */
+	unsigned int   units;      /* Max number of units reserved at any bucket */
+	unsigned int   upper;      /* Upper bound in buckets vector */
 };
 
 /* Internal bucket reference */
@@ -373,7 +371,7 @@ static struct GFX_Batch* _gfx_mesh_find_batch(
 	new.material   = mat;
 	new.materialID = 0;
 	new.params     = params;
-	new.type       = GFX_BATCH_DEFAULT;
+	new.flags      = 0;
 	new.units      = 0;
 
 	/* Replace an empty ID */
@@ -491,9 +489,9 @@ void _gfx_mesh_remove_batch(
 		}
 
 		/* Mark as empty and remove trailing empty batches */
-		/* Also set units and type to that of a non existent batch */
+		/* Also set units and flags to that of a non existent batch */
 		batch->material = NULL;
-		batch->type = GFX_BATCH_DEFAULT;
+		batch->flags = 0;
 		batch->units = 0;
 
 		size_t num;
@@ -552,7 +550,7 @@ void _gfx_mesh_get_batch_lod(
 }
 
 /******************************************************/
-GFXBatchType _gfx_mesh_get_batch_type(
+GFXBatchFlags _gfx_mesh_get_batch_flags(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID)
@@ -561,22 +559,22 @@ GFXBatchType _gfx_mesh_get_batch_type(
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
 	size_t max = gfx_vector_get_size(&internal->batches);
 
-	if(!meshID || meshID > max) return GFX_BATCH_DEFAULT;
+	if(!meshID || meshID > max) return 0;
 
 	/* Get batch */
 	struct GFX_Batch* batch =
 		gfx_vector_at(&internal->batches, meshID - 1);
 
-	return batch->type;
+	return batch->flags;
 }
 
 /******************************************************/
-void _gfx_mesh_set_batch_type(
+void _gfx_mesh_set_batch_flags(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
-		GFXBatchType  type,
-		unsigned int  copy)
+		GFXMesh*       mesh,
+		unsigned int   meshID,
+		GFXBatchFlags  flags,
+		unsigned int   copy)
 {
 	/* Bound check */
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
@@ -590,8 +588,12 @@ void _gfx_mesh_set_batch_type(
 
 		if(batch->material)
 		{
-			batch->type = type;
-			_gfx_mesh_set_batch_copy(mesh, meshID, copy);
+			/* Get difference and apply as appropriate */
+			GFXBatchFlags diff = flags ^ batch->flags;
+			batch->flags = flags;
+
+			if(diff & GFX_BATCH_MULTIPLE_DATA)
+				_gfx_mesh_set_batch_copy(mesh, meshID, copy);
 		}
 	}
 }
@@ -621,7 +623,7 @@ void _gfx_mesh_set_batch_copy(
 		/* Set the copy of all units */
 		_gfx_batch_set_copy(
 			it->pipe->bucket,
-			batch->type,
+			batch->flags,
 			(GFXBucketUnit*)(it + 1),
 			it->units,
 			copy);
@@ -648,18 +650,19 @@ static unsigned int _gfx_mesh_search_bucket(
 }
 
 /******************************************************/
-unsigned int _gfx_mesh_get_bucket(
+int _gfx_mesh_get_bucket(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
-		GFXPipe*      pipe)
+		GFXMesh*       mesh,
+		unsigned int   meshID,
+		GFXPipe*       pipe,
+		unsigned int*  handle)
 {
 	/* Bound check */
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
 	size_t max = gfx_vector_get_size(&internal->batches);
 
 	if(!meshID || meshID > max)
-		return GFX_INT_INVALID_BUCKET_HANDLE;
+		return 0;
 
 	/* Get batch and search */
 	struct GFX_Batch* batch =
@@ -668,11 +671,14 @@ unsigned int _gfx_mesh_get_bucket(
 		_gfx_mesh_search_bucket(internal, batch, pipe);
 
 	if(bucket < batch->upper)
-		return bucket;
+	{
+		*handle = bucket;
+		return 1;
+	}
 
 	/* Validate pipe type before creating a new bucket */
 	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET || !batch->material)
-		return GFX_INT_INVALID_BUCKET_HANDLE;
+		return 0;
 
 	/* Create new bucket */
 	/* Insert it at the end so we can rebuild */
@@ -702,7 +708,8 @@ unsigned int _gfx_mesh_get_bucket(
 			_gfx_mesh_increase_bucket_bounds(
 				internal, batch, sizeof(struct GFX_Bucket));
 
-			return bucket;
+			*handle = bucket;
+			return 1;
 		}
 
 		/* Failed, erase bucket */
@@ -710,22 +717,23 @@ unsigned int _gfx_mesh_get_bucket(
 			&internal->buckets, sizeof(struct GFX_Bucket), it);
 	}
 
-	return GFX_INT_INVALID_BUCKET_HANDLE;
+	return 0;
 }
 
 /******************************************************/
-unsigned int _gfx_mesh_find_bucket(
+int _gfx_mesh_find_bucket(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
-		GFXPipe*      pipe)
+		GFXMesh*       mesh,
+		unsigned int   meshID,
+		GFXPipe*       pipe,
+		unsigned int*  handle)
 {
 	/* Bound check */
 	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
 	size_t max = gfx_vector_get_size(&internal->batches);
 
 	if(!meshID || meshID > max)
-		return GFX_INT_INVALID_BUCKET_HANDLE;
+		return 0;
 
 	/* Get batch and search for bucket */
 	struct GFX_Batch* batch =
@@ -733,8 +741,13 @@ unsigned int _gfx_mesh_find_bucket(
 	unsigned int bucket =
 		_gfx_mesh_search_bucket(internal, batch, pipe);
 
-	return (bucket < batch->upper) ? bucket :
-		GFX_INT_INVALID_BUCKET_HANDLE;
+	if(bucket < batch->upper)
+	{
+		*handle = bucket;
+		return 1;
+	}
+
+	return 0;
 }
 
 /******************************************************/
@@ -801,14 +814,9 @@ GFXBucketUnit* _gfx_mesh_reserve(
 		unsigned int  bucket,
 		unsigned int  units)
 {
-	/* Bound check */
-	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
-	size_t maxID = gfx_vector_get_size(&internal->batches);
-	size_t max = gfx_vector_get_byte_size(&internal->buckets);
-
-	if(!meshID || meshID > maxID || bucket >= max) return NULL;
-
 	/* Get bucket, batch & difference */
+	struct GFX_Mesh* internal =
+		(struct GFX_Mesh*)mesh;
 	struct GFX_Batch* batch =
 		gfx_vector_at(&internal->batches, meshID - 1);
 	struct GFX_Bucket* it =
@@ -875,19 +883,9 @@ GFXBucketUnit* _gfx_mesh_get_reserved(
 		unsigned int   bucket,
 		unsigned int*  units)
 {
-	/* Bound check */
-	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
-	size_t max = gfx_vector_get_byte_size(&internal->buckets);
-
-	if(bucket >= max)
-	{
-		*units = 0;
-		return NULL;
-	}
-
 	/* Get bucket */
-	struct GFX_Bucket* it =
-		gfx_vector_at(&internal->buckets, bucket);
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, bucket);
 
 	*units = it->units;
 	return (GFXBucketUnit*)(it + 1);
@@ -900,17 +898,9 @@ int _gfx_mesh_increase_instances(
 		unsigned int  bucket,
 		unsigned int  instances)
 {
-	/* Bound check */
-	struct GFX_Mesh* internal =
-		(struct GFX_Mesh*)mesh;
-	size_t max =
-		gfx_vector_get_byte_size(&internal->buckets);
-
-	if(bucket >= max) return 0;
-
 	/* Get bucket */
-	struct GFX_Bucket* it =
-		gfx_vector_at(&internal->buckets, bucket);
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, bucket);
 
 	/* Check for overflow */
 	if(UINT_MAX - instances < it->instances) return 0;
@@ -926,17 +916,9 @@ int _gfx_mesh_decrease_instances(
 		unsigned int  bucket,
 		unsigned int  instances)
 {
-	/* Bound check */
-	struct GFX_Mesh* internal =
-		(struct GFX_Mesh*)mesh;
-	size_t max =
-		gfx_vector_get_byte_size(&internal->buckets);
-
-	if(bucket >= max) return 0;
-
 	/* Get bucket */
-	struct GFX_Bucket* it =
-		gfx_vector_at(&internal->buckets, bucket);
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, bucket);
 
 	/* Decrease */
 	it->instances =
@@ -955,13 +937,8 @@ unsigned int _gfx_mesh_get_instances(
 		GFXMesh*      mesh,
 		unsigned int  bucket)
 {
-	/* Bound check */
 	struct GFX_Mesh* internal =
 		(struct GFX_Mesh*)mesh;
-	size_t max =
-		gfx_vector_get_byte_size(&internal->buckets);
-
-	if(bucket >= max) return 0;
 
 	return ((struct GFX_Bucket*)gfx_vector_at(
 		&internal->buckets, bucket))->instances;
@@ -974,17 +951,9 @@ unsigned int _gfx_mesh_set_visible(
 		unsigned int  bucket,
 		unsigned int  instances)
 {
-	/* Bound check */
-	struct GFX_Mesh* internal =
-		(struct GFX_Mesh*)mesh;
-	size_t max =
-		gfx_vector_get_byte_size(&internal->buckets);
-
-	if(bucket >= max) return 0;
-
 	/* Get bucket */
-	struct GFX_Bucket* it =
-		gfx_vector_at(&internal->buckets, bucket);
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, bucket);
 
 	/* Decrease */
 	return it->visible =
@@ -999,13 +968,8 @@ unsigned int _gfx_mesh_get_visible(
 		GFXMesh*      mesh,
 		unsigned int  bucket)
 {
-	/* Bound check */
 	struct GFX_Mesh* internal =
 		(struct GFX_Mesh*)mesh;
-	size_t max =
-		gfx_vector_get_byte_size(&internal->buckets);
-
-	if(bucket >= max) return 0;
 
 	return ((struct GFX_Bucket*)gfx_vector_at(
 		&internal->buckets, bucket))->visible;

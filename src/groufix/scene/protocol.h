@@ -37,9 +37,9 @@ extern "C" {
  *******************************************************/
 
 /**
- * Sets the copy of all given units according to a type.
+ * Sets the copy of all given units according to given flags.
  *
- * @param type  Type to set the copies accordingly to.
+ * @param flags Flags to set the copies accordingly to.
  * @param num   Number of copies in units.
  * @param copy  Starting copy to use.
  *
@@ -47,7 +47,7 @@ extern "C" {
 void _gfx_batch_set_copy(
 
 		GFXBucket*      bucket,
-		GFXBatchType    type,
+		GFXBatchFlags   flags,
 		GFXBucketUnit*  units,
 		unsigned int    num,
 		unsigned int    copy);
@@ -224,28 +224,28 @@ void _gfx_mesh_get_batch_lod(
 		GFXBatchLod*  params);
 
 /**
- * Returns the type of a batch at a mesh.
+ * Returns the flags of a batch at a mesh.
  *
- * @return GFX_BATCH_DEFAULT if the batch does not exist.
+ * @return 0 if the batch does not exist.
  *
  */
-GFXBatchType _gfx_mesh_get_batch_type(
+GFXBatchFlags _gfx_mesh_get_batch_flags(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID);
 
 /**
- * Sets the type of a batch at a mesh.
+ * Sets the flags of a batch at a mesh.
  *
  * In addition, it will also call _gfx_mesh_set_batch_copy for the given batch.
  *
  */
-void _gfx_mesh_set_batch_type(
+void _gfx_mesh_set_batch_flags(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
-		GFXBatchType  type,
-		unsigned int  copy);
+		GFXMesh*       mesh,
+		unsigned int   meshID,
+		GFXBatchFlags  flags,
+		unsigned int   copy);
 
 /**
  * Calls _gfx_batch_set_copy for all associated buckets of a batch.
@@ -269,32 +269,36 @@ void _gfx_mesh_set_batch_copy(
 /**
  * Fetch a bucket handle for a given batch and bucket.
  *
- * @param pipe Bucket to fetch a handle of.
- * @return The handle of the bucket, invalid on failure.
+ * @param pipe   Bucket to fetch a handle of.
+ * @param handle Handle of the bucket.
+ * @return Zero on failure, the handle is untouched.
  *
  * Note: if the batch does not have an associated submesh, the handle fails to be created.
  * A handle is only valid as long as no other handle at the mesh is altered.
  *
  */
-unsigned int _gfx_mesh_get_bucket(
+int _gfx_mesh_get_bucket(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
-		GFXPipe*      pipe);
+		GFXMesh*       mesh,
+		unsigned int   meshID,
+		GFXPipe*       pipe,
+		unsigned int*  handle);
 
 /**
  * Fetch an existing bucket handle for a given batch and bucket.
  *
- * @return The handle of the bucket, invalid on failure.
+ * @param handle The handle of the bucket.
+ * @return Zero on failure, the handle is untouched.
  *
  * Note: if the batch does not have an associated submesh, the function fails.
  *
  */
-unsigned int _gfx_mesh_find_bucket(
+int _gfx_mesh_find_bucket(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
-		GFXPipe*      pipe);
+		GFXMesh*       mesh,
+		unsigned int   meshID,
+		GFXPipe*       pipe,
+		unsigned int*  handle);
 
 /**
  * Forcefully remove a bucket handle associated with a batch for a given bucket.
@@ -311,7 +315,9 @@ void _gfx_mesh_remove_bucket(
 /**
  * Reserves a given amount of units associated with a bucket handle.
  *
- * @param units Number of units to reserve.
+ * @param meshID Batch ID at the mesh the bucket is associated with, undefined behaviour if not correct.
+ * @param bucket The handle of the bucket at the mesh, undefined behaviour if invalid.
+ * @param units  Number of units to reserve.
  * @return Array of size_t elements of size units, NULL on failure.
  *
  * Note: The pointer is only valid as long as no handle at the mesh reserves any units.
@@ -340,8 +346,7 @@ GFXBucketUnit* _gfx_mesh_get_reserved(
 /**
  * Increase the instance counter of a bucket handle.
  *
- * @param bucket The handle of the bucket at the mesh.
- * @return Zero on overflow or if the handle is invalid.
+ * @return Zero on overflow.
  *
  */
 int _gfx_mesh_increase_instances(
