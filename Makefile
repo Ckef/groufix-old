@@ -123,16 +123,16 @@ HEADERS_WIN32 = \
 #################################################################
 clean:
 ifeq ($(OS),Windows_NT)
-	if exist $(OUT)\nul rmdir /s /q $(OUT)
+	@if exist $(OUT)\nul rmdir /s /q $(OUT)
 else
-	rm -Rf $(OUT)
+	@rm -Rf $(OUT)
 endif
 
 clean-all: clean
 ifeq ($(OS),Windows_NT)
-	if exist $(BIN)\nul rmdir /s /q $(BIN)
+	@if exist $(BIN)\nul rmdir /s /q $(BIN)
 else
-	rm -Rf $(BIN)
+	@rm -Rf $(BIN)
 endif
 
 
@@ -178,26 +178,23 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix.o
 
 
+# Directories
+before-unix-x11:
+	@mkdir -p $(BIN)/unix-x11
+	@mkdir -p $(OUT)/unix-x11/groufix/containers
+	@mkdir -p $(OUT)/unix-x11/groufix/core/memory
+	@mkdir -p $(OUT)/unix-x11/groufix/core/pipeline
+	@mkdir -p $(OUT)/unix-x11/groufix/core/platform
+	@mkdir -p $(OUT)/unix-x11/groufix/core/shading
+	@mkdir -p $(OUT)/unix-x11/groufix/scene
+
+# All examples
+unix-x11-%: examples/%.c unix-x11
+	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/% -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+
 # Shared Library
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
 	gcc $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LFLAGS_UNIX_X11)
-
-# Examples
-unix-x11-minimal: examples/minimal.c unix-x11
-	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
-
-unix-x11-simple: examples/simple.c unix-x11
-	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
-
-# Directories
-before-unix-x11:
-	mkdir -p $(BIN)/unix-x11
-	mkdir -p $(OUT)/unix-x11/groufix/containers
-	mkdir -p $(OUT)/unix-x11/groufix/core/memory
-	mkdir -p $(OUT)/unix-x11/groufix/core/pipeline
-	mkdir -p $(OUT)/unix-x11/groufix/core/platform
-	mkdir -p $(OUT)/unix-x11/groufix/core/shading
-	mkdir -p $(OUT)/unix-x11/groufix/scene
 
 # All the object files
 $(OUT)/unix-x11%.o: $(SRC)%.c $(HEADERS_UNIX_X11)
@@ -246,26 +243,23 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix.o
 
 
-# Shared Library
-win32: before-win32 $(OBJS_WIN32)
-	gcc $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
-
-# Examples
-win32-minimal: examples/minimal.c win32
-	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
-
-win32-simple: examples/simple.c win32
-	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
-
 # Directories
 before-win32:
-	if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
-	if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
-	if not exist $(OUT)\win32\groufix\core\memory\nul mkdir $(OUT)\win32\groufix\core\memory
-	if not exist $(OUT)\win32\groufix\core\pipeline\nul mkdir $(OUT)\win32\groufix\core\pipeline
-	if not exist $(OUT)\win32\groufix\core\platform\nul mkdir $(OUT)\win32\groufix\core\platform
-	if not exist $(OUT)\win32\groufix\core\shading\nul mkdir $(OUT)\win32\groufix\core\shading
-	if not exist $(OUT)\win32\groufix\scene\nul mkdir $(OUT)\win32\groufix\scene
+	@if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
+	@if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
+	@if not exist $(OUT)\win32\groufix\core\memory\nul mkdir $(OUT)\win32\groufix\core\memory
+	@if not exist $(OUT)\win32\groufix\core\pipeline\nul mkdir $(OUT)\win32\groufix\core\pipeline
+	@if not exist $(OUT)\win32\groufix\core\platform\nul mkdir $(OUT)\win32\groufix\core\platform
+	@if not exist $(OUT)\win32\groufix\core\shading\nul mkdir $(OUT)\win32\groufix\core\shading
+	@if not exist $(OUT)\win32\groufix\scene\nul mkdir $(OUT)\win32\groufix\scene
+
+# All examples
+win32-%: examples/%.c win32
+	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/% -L$(BIN)/win32/ -lGroufix
+
+# Shared library
+win32: before-win32 $(OBJS_WIN32)
+	gcc $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
 
 # All the object files
 $(OUT)/win32%.o: $(SRC)%.c $(HEADERS_WIN32)
