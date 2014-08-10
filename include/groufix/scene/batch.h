@@ -118,6 +118,18 @@ unsigned int gfx_batch_get_submesh(
 		GFXBatch* batch);
 
 /**
+ * Retrieves the copies used at a property map by the given batch.
+ *
+ * @param num The number of copies used, always 1 if GFX_BATCH_MULTIPLE_DATA was not set.
+ * @return Index of the first copy used.
+ *
+ */
+unsigned int gfx_batch_get_copies(
+
+		GFXBatch*      batch,
+		unsigned int*  num);
+
+/**
  * Return the level of detail parameters of a batch.
  *
  * @return Level of detail parameters, undefined if the batch does not exist.
@@ -163,6 +175,9 @@ void gfx_batch_set_flags(
 
 /**
  * Sets the state of a given batch.
+ *
+ * @param base    Is OR'd with the resulting variant state of each unit.
+ * @param variant Is added to each consecutive unit, the first is 0 if GFX_BATCH_INITIAL_ZERO_STATE is set.
  *
  * Note: the default is 0 for both the base and variant.
  *

@@ -60,10 +60,10 @@ struct GFX_Batch
 /* Internal bucket reference */
 struct GFX_Bucket
 {
-	GFXPipe*       pipe;
-	unsigned int   instances; /* Number of instances */
-	unsigned int   visible;   /* Number of visible instances */
-	unsigned int   units;     /* Number of stored units */
+	GFXPipe*      pipe;
+	unsigned int  instances; /* Number of instances */
+	unsigned int  visible;   /* Number of visible instances */
+	unsigned int  units;     /* Number of stored units */
 };
 
 /* Internal submesh data */
