@@ -44,13 +44,31 @@ extern "C" {
  * @param copy  Starting copy to use.
  *
  */
-void _gfx_batch_set_copy(
+void _gfx_batch_set_copies(
 
 		GFXBucket*      bucket,
 		GFXBatchFlags   flags,
 		GFXBucketUnit*  units,
 		unsigned int    num,
 		unsigned int    copy);
+
+/**
+ * Sets the state of all given units according to given flags.
+ *
+ * @param first   Displacement index to use for calculating the states.
+ * @param base    The base state which is OR'd with each variant.
+ * @param variant The variant, each unit adds the variant to the state (without base) of the previous unit.
+ *
+ */
+void _gfx_batch_set_states(
+
+		GFXBucket*      bucket,
+		GFXBatchFlags   flags,
+		GFXBucketUnit*  units,
+		unsigned int    num,
+		unsigned int    first,
+		GFXBatchState   base,
+		GFXBatchState   variant);
 
 
 /********************************************************
@@ -214,7 +232,7 @@ unsigned int _gfx_mesh_get_batch_units(
 /**
  * Return the level of detail parameters of a batch at a mesh.
  *
- * @param params Returns the level of detail params, not touched if batch does not exist.
+ * @param params Returns the level of detail params, all 0 if batch does not exist.
  *
  */
 void _gfx_mesh_get_batch_lod(
@@ -237,7 +255,8 @@ GFXBatchFlags _gfx_mesh_get_batch_flags(
 /**
  * Sets the flags of a batch at a mesh.
  *
- * In addition, it will also call _gfx_mesh_set_batch_copy for the given batch.
+ * In addition, it will also call _gfx_mesh_set_batch_copies and
+ * _gfx_mesh_set_batch_states for the given batch.
  *
  */
 void _gfx_mesh_set_batch_flags(
@@ -248,18 +267,58 @@ void _gfx_mesh_set_batch_flags(
 		unsigned int   copy);
 
 /**
- * Calls _gfx_batch_set_copy for all associated buckets of a batch.
+ * Returns the state of a batch at a mesh.
+ *
+ * @param base    Returns the base state, 0 if the batch does not exist.
+ * @param variant Returns the variant state, 0 if the batch does not exist.
+ *
+ */
+void _gfx_mesh_get_batch_state(
+
+		GFXMesh*        mesh,
+		unsigned int    meshID,
+		GFXBatchState*  base,
+		GFXBatchState*  variant);
+
+/**
+ * Sets the state of a batch at a mesh.
+ *
+ * In addition, it will also call _gfx_mesh_set_batch_states for the given batch.
+ *
+ */
+void _gfx_mesh_set_batch_state(
+
+		GFXMesh*       mesh,
+		unsigned int   meshID,
+		GFXBatchState  base,
+		GFXBatchState  variant);
+
+/**
+ * Calls _gfx_batch_set_copies for all associated buckets of a batch.
  *
  * This call will set the copy of all units for all buckets.
  *
  * Note: undefined behaviour if the batch does not exist!
  *
  */
-void _gfx_mesh_set_batch_copy(
+void _gfx_mesh_set_batch_copies(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID,
 		unsigned int  copy);
+
+/**
+ * Calls _gfx_batch_set_states for all associated buckets of a batch.
+ *
+ * This call will set the state of all units for all buckets with the stored states.
+ *
+ * Note: undefined behaviour if the batch does not exist!
+ *
+ */
+void _gfx_mesh_set_batch_states(
+
+		GFXMesh*      mesh,
+		unsigned int  meshID);
 
 
 /********************************************************
@@ -315,8 +374,6 @@ void _gfx_mesh_remove_bucket(
 /**
  * Reserves a given amount of units associated with a bucket handle.
  *
- * @param meshID Batch ID at the mesh the bucket is associated with, undefined behaviour if not correct.
- * @param bucket The handle of the bucket at the mesh, undefined behaviour if invalid.
  * @param units  Number of units to reserve.
  * @return Array of size_t elements of size units, NULL on failure.
  *

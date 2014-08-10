@@ -49,7 +49,10 @@ struct GFX_Batch
 	unsigned int   materialID;
 
 	GFXBatchLod    params;     /* Level of detail parameters */
-	GFXBatchFlags  flags;      /* 0 when empty */
+	GFXBatchFlags  flags;
+	GFXBatchState  base;
+	GFXBatchState  variant;
+
 	unsigned int   units;      /* Max number of units reserved at any bucket */
 	unsigned int   upper;      /* Upper bound in buckets vector */
 };
@@ -57,10 +60,10 @@ struct GFX_Batch
 /* Internal bucket reference */
 struct GFX_Bucket
 {
-	GFXPipe*      pipe;
-	unsigned int  instances; /* Number of instances */
-	unsigned int  visible;   /* Number of visible instances */
-	unsigned int  units;     /* Number of stored units */
+	GFXPipe*       pipe;
+	unsigned int   instances; /* Number of instances */
+	unsigned int   visible;   /* Number of visible instances */
+	unsigned int   units;     /* Number of stored units */
 };
 
 /* Internal submesh data */
@@ -368,11 +371,10 @@ static struct GFX_Batch* _gfx_mesh_find_batch(
 
 	/* Construct new ID */
 	struct GFX_Batch new;
-	new.material   = mat;
-	new.materialID = 0;
-	new.params     = params;
-	new.flags      = 0;
-	new.units      = 0;
+	memset(&new, 0, sizeof(struct GFX_Batch));
+
+	new.material = mat;
+	new.params = params;
 
 	/* Replace an empty ID */
 	if(empty != mesh->batches.end)
@@ -489,10 +491,7 @@ void _gfx_mesh_remove_batch(
 		}
 
 		/* Mark as empty and remove trailing empty batches */
-		/* Also set units and flags to that of a non existent batch */
-		batch->material = NULL;
-		batch->flags = 0;
-		batch->units = 0;
+		memset(batch, 0, sizeof(struct GFX_Batch));
 
 		size_t num;
 		struct GFX_Batch* beg = internal->batches.end;
@@ -545,8 +544,10 @@ void _gfx_mesh_get_batch_lod(
 		struct GFX_Batch* batch =
 			gfx_vector_at(&internal->batches, meshID - 1);
 
-		if(batch->material) *params = batch->params;
+		*params = batch->params;
 	}
+
+	else memset(params, 0, sizeof(GFXBatchLod));
 }
 
 /******************************************************/
@@ -593,13 +594,73 @@ void _gfx_mesh_set_batch_flags(
 			batch->flags = flags;
 
 			if(diff & GFX_BATCH_MULTIPLE_DATA)
-				_gfx_mesh_set_batch_copy(mesh, meshID, copy);
+				_gfx_mesh_set_batch_copies(mesh, meshID, copy);
+
+			if(diff & GFX_BATCH_INITIAL_ZERO_STATE)
+				_gfx_mesh_set_batch_states(mesh, meshID);
 		}
 	}
 }
 
 /******************************************************/
-void _gfx_mesh_set_batch_copy(
+void _gfx_mesh_get_batch_state(
+
+		GFXMesh*        mesh,
+		unsigned int    meshID,
+		GFXBatchState*  base,
+		GFXBatchState*  variant)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t max = gfx_vector_get_size(&internal->batches);
+
+	if(meshID && meshID <= max)
+	{
+		/* Get batch */
+		struct GFX_Batch* batch =
+			gfx_vector_at(&internal->batches, meshID - 1);
+
+		*base = batch->base;
+		*variant = batch->variant;
+	}
+	else
+	{
+		*base = 0;
+		*variant = 0;
+	}
+}
+
+/******************************************************/
+void _gfx_mesh_set_batch_state(
+
+		GFXMesh*       mesh,
+		unsigned int   meshID,
+		GFXBatchState  base,
+		GFXBatchState  variant)
+{
+	/* Bound check */
+	struct GFX_Mesh* internal = (struct GFX_Mesh*)mesh;
+	size_t max = gfx_vector_get_size(&internal->batches);
+
+	if(meshID && meshID <= max)
+	{
+		/* Get batch and set */
+		struct GFX_Batch* batch =
+			gfx_vector_at(&internal->batches, meshID - 1);
+
+		if(
+			batch->material &&
+			(batch->base != base || batch->variant != variant))
+		{
+			batch->base = base;
+			batch->variant = variant;
+			_gfx_mesh_set_batch_states(mesh, meshID);
+		}
+	}
+}
+
+/******************************************************/
+void _gfx_mesh_set_batch_copies(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID,
@@ -621,12 +682,49 @@ void _gfx_mesh_set_batch_copy(
 		struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, begin);
 
 		/* Set the copy of all units */
-		_gfx_batch_set_copy(
+		_gfx_batch_set_copies(
 			it->pipe->bucket,
 			batch->flags,
 			(GFXBucketUnit*)(it + 1),
 			it->units,
 			copy);
+
+		begin +=
+			sizeof(struct GFX_Bucket) +
+			sizeof(GFXBucketUnit) * it->units;
+	}
+}
+
+/******************************************************/
+void _gfx_mesh_set_batch_states(
+
+		GFXMesh*      mesh,
+		unsigned int  meshID)
+{
+	/* Get batch and bounds */
+	struct GFX_Mesh* internal =
+		(struct GFX_Mesh*)mesh;
+	struct GFX_Batch* batch =
+		gfx_vector_at(&internal->batches, meshID - 1);
+
+	unsigned int begin;
+	unsigned int end;
+	_gfx_mesh_get_bucket_bounds(internal, batch, &begin, &end);
+
+	/* Iterate through all buckets */
+	while(begin < end)
+	{
+		struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, begin);
+
+		/* Set the state of all units */
+		_gfx_batch_set_states(
+			it->pipe->bucket,
+			batch->flags,
+			(GFXBucketUnit*)(it + 1),
+			it->units,
+			0,
+			batch->base,
+			batch->variant);
 
 		begin +=
 			sizeof(struct GFX_Bucket) +

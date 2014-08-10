@@ -132,12 +132,23 @@ GFXBatchLod gfx_batch_get_lod(
 /**
  * Returns the flags of a given batch.
  *
- * @return 0 on failure.
- *
  */
 GFXBatchFlags gfx_batch_get_flags(
 
 		GFXBatch* batch);
+
+/**
+ * Returns the state of a given batch.
+ *
+ * @param base    Returns the base, it is OR'd with the final variant state of each unit.
+ * @param variant Returns the variant, what is added to each consecutive unit in a bucket.
+ *
+ */
+void gfx_batch_get_state(
+
+		GFXBatch*       batch,
+		GFXBatchState*  base,
+		GFXBatchState*  variant);
 
 /**
  * Sets the flags of a given batch.
@@ -149,6 +160,18 @@ void gfx_batch_set_flags(
 
 		GFXBatch*      batch,
 		GFXBatchFlags  flags);
+
+/**
+ * Sets the state of a given batch.
+ *
+ * Note: the default is 0 for both the base and variant.
+ *
+ */
+void gfx_batch_set_state(
+
+		GFXBatch*      batch,
+		GFXBatchState  base,
+		GFXBatchState  variant);
 
 /**
  * Increase the number of instances at a bucket for a given batch.
