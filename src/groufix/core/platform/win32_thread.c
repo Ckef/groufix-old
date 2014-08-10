@@ -160,3 +160,62 @@ void _gfx_platform_mutex_unlock(
 {
 	LeaveCriticalSection(mutex);
 }
+
+/******************************************************/
+int _gfx_platform_cond_init(
+
+		GFX_PlatformCond* cond)
+{
+	InitializeConditionVariable(cond);
+
+	return 1;
+}
+
+/******************************************************/
+void _gfx_platform_cond_clear(
+
+		GFX_PlatformCond* cond)
+{
+	/* No-op on windows */
+}
+
+/******************************************************/
+int _gfx_platform_cond_wait(
+
+		GFX_PlatformCond*   cond,
+		GFX_PlatformMutex*  mutex)
+{
+	return SleepConditionVariableCS(cond, mutex, INFINITE);
+}
+
+/******************************************************/
+int _gfx_platform_cond_wait_time(
+
+		GFX_PlatformCond*   cond,
+		GFX_PlatformMutex*  mutex,
+		uint64_t            nsec)
+{
+	/* Round up so nsec is a minimum */
+	DWORD time = nsec ? (nsec - 1) / 1000000 + 1 : 0;
+
+	if(!SleepConditionVariableCS(cond, mutex, time))
+		return (GetLastError() == ERROR_TIMEOUT) ? -1 : 0;
+
+	return 1;
+}
+
+/******************************************************/
+void _gfx_platform_cond_signal(
+
+		GFX_PlatformCond* cond)
+{
+	WakeConditionVariable(cond);
+}
+
+/******************************************************/
+void _gfx_platform_cond_broadcast(
+
+		GFX_PlatformCond* cond)
+{
+	WakeAllConditionVariable(cond);
+}

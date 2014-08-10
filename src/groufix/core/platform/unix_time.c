@@ -21,8 +21,8 @@
  *
  */
 
-#include <time.h>
 #include <stdint.h>
+#include <time.h>
 
 /******************************************************/
 /* The clock ID being used */

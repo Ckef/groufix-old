@@ -109,6 +109,19 @@ typedef void* GFX_PlatformMutex;
 #endif
 
 
+/** A Condition Variable */
+#if defined(GFX_WIN32)
+typedef CONDITION_VARIABLE GFX_PlatformCond;
+
+#elif defined(GFX_UNIX)
+typedef pthread_cond_t GFX_PlatformCond;
+
+#else
+typedef void* GFX_PlatformCond;
+
+#endif
+
+
 /********************************************************
  * Platform window manager definitions
  *******************************************************/
@@ -242,7 +255,7 @@ void _gfx_platform_mutex_clear(
 		GFX_PlatformMutex* mutex);
 
 /**
- * Blocks untill the calling thread is granted ownership of the mutex.
+ * Blocks until the calling thread is granted ownership of the mutex.
  *
  * @return Zero on failure (no blocking occurred).
  *
@@ -272,6 +285,76 @@ int _gfx_platform_mutex_try_lock(
 void _gfx_platform_mutex_unlock(
 
 		GFX_PlatformMutex* mutex);
+
+/**
+ * Initializes a new condition variable.
+ *
+ * @param cond Returns the condition object.
+ * @return Zero on failure.
+ *
+ * Note: NEVER copy the initialized condition, the same pointer must always be used!
+ *
+ */
+int _gfx_platform_cond_init(
+
+		GFX_PlatformCond* cond);
+
+/**
+ * Makes sure a condition variable is freed properly.
+ *
+ * Note: Clearing a condition upon which threads are waiting results in undefined behavior.
+ *
+ */
+void _gfx_platform_cond_clear(
+
+		GFX_PlatformCond* cond);
+
+/**
+ * Releases the mutex and blocks until the condition variable is signalled.
+ *
+ * @return Zero on failure (no blocking occurred), the mutex shall be locked when this call returns.
+ *
+ * Note: waiting with an unlocked mutex or with different mutexes is undefined behavior.
+ *
+ */
+int _gfx_platform_cond_wait(
+
+		GFX_PlatformCond*   cond,
+		GFX_PlatformMutex*  mutex);
+
+/**
+ * Behaves like _gfx_platform_cond_wait, except it returns when a nsec nanoseconds have passed.
+ *
+ * @return Negative if a minimum of nsec nanoseconds have passed, otherwise equivalent to cond_wait.
+ *
+ * Note: the time might not be as accurate on all implementations.
+ *
+ */
+int _gfx_platform_cond_wait_time(
+
+		GFX_PlatformCond*   cond,
+		GFX_PlatformMutex*  mutex,
+		uint64_t            nsec);
+
+/**
+ * Unblocks at least one of the threads waiting for the condition variable.
+ *
+ * If no threads are waiting, the call simply returns.
+ *
+ */
+void _gfx_platform_cond_signal(
+
+		GFX_PlatformCond* cond);
+
+/**
+ * Unblocks all threads waiting for the condition variable.
+ *
+ * If no threads are waiting, the call simply returns.
+ *
+ */
+void _gfx_platform_cond_broadcast(
+
+		GFX_PlatformCond* cond);
 
 
 /********************************************************

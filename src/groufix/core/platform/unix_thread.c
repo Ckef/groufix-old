@@ -23,7 +23,9 @@
 
 #include "groufix/core/platform.h"
 
+#include <errno.h>
 #include <stdlib.h>
+#include <time.h>
 
 /******************************************************/
 /* Internal thread arguments */
@@ -150,4 +152,66 @@ void _gfx_platform_mutex_unlock(
 		GFX_PlatformMutex* mutex)
 {
 	pthread_mutex_unlock(mutex);
+}
+
+/******************************************************/
+int _gfx_platform_cond_init(
+
+		GFX_PlatformCond* cond)
+{
+	return !pthread_cond_init(cond, NULL);
+}
+
+/******************************************************/
+void _gfx_platform_cond_clear(
+
+		GFX_PlatformCond* cond)
+{
+	pthread_cond_destroy(cond);
+}
+
+/******************************************************/
+int _gfx_platform_cond_wait(
+
+		GFX_PlatformCond*   cond,
+		GFX_PlatformMutex*  mutex)
+{
+	return !pthread_cond_wait(cond, mutex);
+}
+
+/******************************************************/
+int _gfx_platform_cond_wait_time(
+
+		GFX_PlatformCond*   cond,
+		GFX_PlatformMutex*  mutex,
+		uint64_t            nsec)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+
+	ts.tv_sec += nsec / 1000000000;
+	ts.tv_nsec += nsec % 1000000000;
+
+	ts.tv_sec += ts.tv_nsec / 1000000000;
+	ts.tv_nsec = ts.tv_nsec % 1000000000;
+
+	int ret = pthread_cond_timedwait(cond, mutex, &ts);
+
+	return (ret == ETIMEDOUT) ? -1 : (ret ? 0 : 1);
+}
+
+/******************************************************/
+void _gfx_platform_cond_signal(
+
+		GFX_PlatformCond* cond)
+{
+	pthread_cond_signal(cond);
+}
+
+/******************************************************/
+void _gfx_platform_cond_broadcast(
+
+		GFX_PlatformCond* cond)
+{
+	pthread_cond_broadcast(cond);
 }

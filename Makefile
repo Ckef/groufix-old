@@ -188,9 +188,14 @@ before-unix-x11:
 	@mkdir -p $(OUT)/unix-x11/groufix/core/shading
 	@mkdir -p $(OUT)/unix-x11/groufix/scene
 
+
 # All examples
-unix-x11-%: examples/%.c unix-x11
-	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/% -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+unix-x11-minimal: examples/minimal.c unix-x11
+	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+
+unix-x11-simple: examples/simple.c unix-x11
+	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+
 
 # Shared Library
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
@@ -253,9 +258,14 @@ before-win32:
 	@if not exist $(OUT)\win32\groufix\core\shading\nul mkdir $(OUT)\win32\groufix\core\shading
 	@if not exist $(OUT)\win32\groufix\scene\nul mkdir $(OUT)\win32\groufix\scene
 
+
 # All examples
-win32-%: examples/%.c win32
-	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/% -L$(BIN)/win32/ -lGroufix
+win32-minimal: examples/minimal.c win32
+	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
+
+win32-simple: examples/simple.c win32
+	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
+
 
 # Shared library
 win32: before-win32 $(OBJS_WIN32)

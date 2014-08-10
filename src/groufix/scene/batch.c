@@ -34,11 +34,8 @@ static inline unsigned int _gfx_batch_get_num_units(
 	/* If infinite instances per unit, allocate a single unit */
 	if(!unitSize) return 1;
 
-	/* Right, zero instances, good job */
-	if(!instances) return 0;
-
 	/* Divide and round up for the minimum number of units */
-	return (instances - 1) / unitSize + 1;
+	return instances ? (instances - 1) / unitSize + 1 : 0;
 }
 
 /******************************************************/
