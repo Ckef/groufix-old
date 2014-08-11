@@ -111,7 +111,7 @@ typedef void* GFX_PlatformMutex;
 
 /** A Condition Variable */
 #if defined(GFX_WIN32)
-typedef CONDITION_VARIABLE GFX_PlatformCond;
+typedef void* GFX_PlatformCond;
 
 #elif defined(GFX_UNIX)
 typedef pthread_cond_t GFX_PlatformCond;

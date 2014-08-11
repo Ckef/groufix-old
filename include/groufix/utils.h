@@ -26,15 +26,6 @@
 
 #include <stdint.h>
 
-/* Unicode */
-#ifndef UNICODE
-#define UNICODE
-#endif
-
-#ifndef _UNICODE
-#define _UNICODE
-#endif
-
 /* Stringification */
 #define GFX_STRIFY_BAD(x) #x
 #define GFX_STRIFY(x) GFX_STRIFY_BAD(x)

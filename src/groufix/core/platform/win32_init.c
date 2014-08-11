@@ -27,7 +27,11 @@
 #include <stdlib.h>
 
 /******************************************************/
+/* Instance */
 GFX_Win32_Instance* _gfx_win32 = NULL;
+
+/* Window class name */
+LPCTSTR _gfx_win32_window_class = "GROUFIX";
 
 /******************************************************/
 GFXVectorIterator _gfx_win32_get_window_from_handle(
@@ -49,55 +53,6 @@ GFXVectorIterator _gfx_win32_get_window_from_handle(
 }
 
 /******************************************************/
-wchar_t* _gfx_win32_utf8_to_wchar(
-
-		const char* str)
-{
-	/* First get the required length in characters */
-	int length = MultiByteToWideChar(
-		CP_UTF8, 0,
-		str, -1,
-		NULL, 0
-	);
-	if(!length) return NULL;
-
-	wchar_t* out = malloc(sizeof(wchar_t) * length);
-	if(!MultiByteToWideChar(CP_UTF8, 0, str, -1, out, length))
-	{
-		free(out);
-		return NULL;
-	}
-	return out;
-}
-
-/******************************************************/
-char* _gfx_win32_wchar_to_utf8(
-
-		const wchar_t* str)
-{
-	/* First get the required length in bytes */
-	int length = WideCharToMultiByte(
-		CP_UTF8, 0,
-		str, -1,
-		NULL, 0,
-		NULL, NULL
-	);
-	if(!length) return NULL;
-
-	char* out = malloc(sizeof(char) * length);
-	if(!WideCharToMultiByte(
-		CP_UTF8, 0,
-		str, -1,
-		out, length,
-		NULL, NULL))
-	{
-		free(out);
-		return NULL;
-	}
-	return out;
-}
-
-/******************************************************/
 static int _gfx_win32_load_extensions(void)
 {
 	int success = 1;
@@ -107,12 +62,12 @@ static int _gfx_win32_load_extensions(void)
 	ZeroMemory(&wc, sizeof(WNDCLASS));
 	wc.lpfnWndProc   = DefWindowProc;
 	wc.hInstance     = GetModuleHandle(NULL);
-	wc.lpszClassName = GFX_WIN32_WND_CLASS;
+	wc.lpszClassName = _gfx_win32_window_class;
 
 	if(!RegisterClass(&wc)) return 0;
 	HWND window = CreateWindow(
-		GFX_WIN32_WND_CLASS,
-		L"", 0, 0, 0, 0, 0, NULL, NULL,
+		_gfx_win32_window_class,
+		"", 0, 0, 0, 0, 0, NULL, NULL,
 		GetModuleHandle(NULL),
 		NULL
 	);
@@ -164,7 +119,7 @@ static int _gfx_win32_load_extensions(void)
 	/* Destroy dummy context and window */
 	wglDeleteContext(context);
 	DestroyWindow(window);
-	UnregisterClass(GFX_WIN32_WND_CLASS, GetModuleHandle(NULL));
+	UnregisterClass(_gfx_win32_window_class, GetModuleHandle(NULL));
 
 	return success;
 }
@@ -296,7 +251,7 @@ int _gfx_platform_init(void)
 			memcpy(screen.name, adapter.DeviceName, sizeof(screen.name));
 
 			HDC dc =
-				CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
+				CreateDC("DISPLAY", display.DeviceString, NULL, NULL);
 			screen.width =
 				GetDeviceCaps(dc, HORZRES);
 			screen.height =
@@ -351,7 +306,7 @@ void _gfx_platform_terminate(void)
 		gfx_vector_clear(&_gfx_win32->windows);
 
 		/* Unregister window class */
-		UnregisterClass(GFX_WIN32_WND_CLASS, GetModuleHandle(NULL));
+		UnregisterClass(_gfx_win32_window_class, GetModuleHandle(NULL));
 
 		/* Deallocate instance */
 		free(_gfx_win32);

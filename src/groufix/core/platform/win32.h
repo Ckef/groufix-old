@@ -58,9 +58,6 @@
 #define GFX_WIN32_MAX_KEYCODE   0x0ff
 #define GFX_WIN32_NUM_KEYCODES  0x100
 
-/* Groufix window class */
-#define GFX_WIN32_WND_CLASS L"GROUFIX"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -144,6 +141,12 @@ extern GFX_Win32_Instance* _gfx_win32;
 
 
 /**
+ * Window class name
+ */
+extern LPCTSTR _gfx_win32_window_class;
+
+
+/**
  * Sets the pixel format for a window.
  *
  */
@@ -159,26 +162,6 @@ void _gfx_win32_set_pixel_format(
 GFXVectorIterator _gfx_win32_get_window_from_handle(
 
 		HWND handle);
-
-/**
- * Converts a UTF-8 string to a wide string.
- *
- * If the returned pointer is not NULL, it should be freed manually.
- *
- */
-wchar_t* _gfx_win32_utf8_to_wchar(
-
-		const char* str);
-
-/**
- * Converts a wide string to a UTF-8 string.
- *
- * If the returned pointer is not NULL, it should be freed manually.
- *
- */
-char* _gfx_win32_wchar_to_utf8(
-
-		const wchar_t* str);
 
 
 #ifdef __cplusplus

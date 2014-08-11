@@ -407,7 +407,7 @@ static int _gfx_win32_register_window_class(void)
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = GFX_WIN32_WND_CLASS;
+	wc.lpszClassName = _gfx_win32_window_class;
 	wc.hIconSm       = NULL;
 
 	_gfx_win32->classRegistered = RegisterClassEx(&wc);
@@ -497,14 +497,11 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	rect.bottom += rect.top;
 	AdjustWindowRectEx(&rect, style, FALSE, styleEx);
 
-	/* Make sure to convert to wide character */
-	wchar_t* name = _gfx_win32_utf8_to_wchar(attributes->name);
-
 	/* Create the actual window */
 	window.handle = CreateWindowEx(
 		styleEx,
-		GFX_WIN32_WND_CLASS,
-		name,
+		_gfx_win32_window_class,
+		attributes->name,
 		style,
 		rect.left,
 		rect.top,
@@ -515,8 +512,6 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		GetModuleHandle(NULL),
 		NULL
 	);
-
-	free(name);
 
 	if(window.handle)
 	{
@@ -615,14 +610,10 @@ char* _gfx_platform_window_get_name(
 	int len = GetWindowTextLength(handle);
 	if(!len++) return NULL;
 
-	wchar_t* buff = malloc(sizeof(wchar_t) * len);
+	char* buff = malloc(sizeof(char) * len);
 	if(!GetWindowText(handle, buff, len)) return NULL;
 
-	/* Make sure to convert to utf-8 */
-	char* utf8 = _gfx_win32_wchar_to_utf8(buff);
-	free(buff);
-
-	return utf8;
+	return buff;
 }
 
 /******************************************************/
@@ -665,10 +656,7 @@ void _gfx_platform_window_set_name(
 		GFX_PlatformWindow  handle,
 		const char*         name)
 {
-	/* Make sure to convert to wide character */
-	wchar_t* wchar = _gfx_win32_utf8_to_wchar(name);
-	SetWindowText(handle, wchar);
-	free(wchar);
+	SetWindowText(handle, name);
 }
 
 /******************************************************/
