@@ -56,12 +56,12 @@ SSE     = YES
 # Flags for all object files
 CFLAGS            = -Os -O2 -Wall -pedantic -I$(INCLUDE) -DGFX_$(SSE)_SSE
 CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
-CFLAGS_WIN32      = $(CFLAGS) -std=c99 -DWINVER=0x0600 -D_WIN32_WINNT=0x0600
+CFLAGS_WIN32      = $(CFLAGS) -std=c99
 
 # Library object files only
 OBJFLAGS          = -c -s -I$(DEPEND) -I$(SRC)
 OBJFLAGS_UNIX_X11 = $(OBJFLAGS) $(CFLAGS_UNIX_X11) -fPIC -pthread
-OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32)
+OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32) -DWINVER=0x0600 -D_WIN32_WINNT=0x0600
 
 # Linker flags
 LFLAGS            = -shared -static-libgcc
