@@ -56,10 +56,10 @@
 
 	/* Maximal supported context */
 	#define GFX_CONTEXT_MAJOR_MAX 4
-	#define GFX_CONTEXT_MINOR_MAX 4
+	#define GFX_CONTEXT_MINOR_MAX 5
 
 	/* Greatest minor version possible */
-	#define GFX_CONTEXT_ALL_MINORS_MAX 4
+	#define GFX_CONTEXT_ALL_MINORS_MAX 5
 
 #endif
 
