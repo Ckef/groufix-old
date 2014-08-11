@@ -14,7 +14,7 @@ The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 
 ## Building
 
-A Makefile is shipped with the project, run make without a target to view all build targets. All necessary OpenGL headers are shipped with the project as well. On Unix and Windows GCC is used as compiler, the appropriate compiler is expected to be installed. On Windows the recommended compiler is MinGW-w64. Platform files are not shipped as they should be made available by the platform itself. Once the library is built, link against it using `-lGroufix`.
+A Makefile is shipped with the project, run make without a target to view all build targets. All necessary OpenGL headers are shipped with the project as well. The appropriate compiler is expected to be installed, this is expected to be a GCC compatible compiler for most platforms. On Windows the recommended compiler is [MinGW-w64](http://mingw-w64.sourceforge.net/). Once the library is built, link against it using `-lGroufix`.
 
 Groufix can be compiled with certain options. Some can only be set while compiling the library, others can be altered for both the library and the program which links against the library. All options are:
 
