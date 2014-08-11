@@ -44,19 +44,9 @@
 /* Required platform headers */
 #if defined(GFX_WIN32)
 
-	/* Windows Vista and up */
-	#ifndef WINVER
-	#define WINVER 0x0600
-	#endif
-
 	/* Nothing extra */
-	#ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN
-	#endif
-
-	#ifndef VC_EXTRALEAN
 	#define VC_EXTRALEAN
-	#endif
 
 	#include <windows.h>
 
@@ -111,7 +101,7 @@ typedef void* GFX_PlatformMutex;
 
 /** A Condition Variable */
 #if defined(GFX_WIN32)
-typedef void* GFX_PlatformCond;
+typedef CONDITION_VARIABLE GFX_PlatformCond;
 
 #elif defined(GFX_UNIX)
 typedef pthread_cond_t GFX_PlatformCond;
@@ -247,7 +237,7 @@ int _gfx_platform_mutex_init(
 /**
  * Makes sure a mutex is freed properly.
  *
- * Note: Clearing a locked mutex results in undefined behavior.
+ * Note: Clearing a locked mutex results in undefined behaviour.
  *
  */
 void _gfx_platform_mutex_clear(
@@ -259,7 +249,7 @@ void _gfx_platform_mutex_clear(
  *
  * @return Zero on failure (no blocking occurred).
  *
- * Note: locking a mutex you already own results in undefined behavior.
+ * Note: locking a mutex you already own results in undefined behaviour.
  *
  */
 int _gfx_platform_mutex_lock(
@@ -279,7 +269,7 @@ int _gfx_platform_mutex_try_lock(
 /**
  * Releases the mutex, making it available to other threads.
  *
- * Note: unlocking a mutex which was not locked results in undefined behavior.
+ * Note: unlocking a mutex which was not locked results in undefined behaviour.
  *
  */
 void _gfx_platform_mutex_unlock(
@@ -302,7 +292,7 @@ int _gfx_platform_cond_init(
 /**
  * Makes sure a condition variable is freed properly.
  *
- * Note: Clearing a condition upon which threads are waiting results in undefined behavior.
+ * Note: Clearing a condition upon which threads are waiting results in undefined behaviour.
  *
  */
 void _gfx_platform_cond_clear(
@@ -314,7 +304,7 @@ void _gfx_platform_cond_clear(
  *
  * @return Zero on failure (no blocking occurred), the mutex shall be locked when this call returns.
  *
- * Note: waiting with an unlocked mutex or with different mutexes is undefined behavior.
+ * Note: waiting with an unlocked mutex or with different mutexes is undefined behaviour.
  *
  */
 int _gfx_platform_cond_wait(
