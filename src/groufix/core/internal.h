@@ -99,8 +99,12 @@ typedef void (APIENTRYP GFX_BUFFERSUBDATAPROC)                     (GLenum, GLin
 typedef void (APIENTRYP GFX_CLEARPROC)                             (GLbitfield);
 typedef void (APIENTRYP GFX_COMPILESHADERPROC)                     (GLuint);
 typedef void (APIENTRYP GFX_COPYBUFFERSUBDATAPROC)                 (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr);
+typedef void (APIENTRYP GFX_COPYNAMEDBUFFERSUBDATAPROC)            (GLuint, GLuint, GLintptr, GLintptr, GLsizei);
+typedef void (APIENTRYP GFX_CREATEBUFFERSPROC)                     (GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_CREATEFRAMEBUFFERSPROC)                (GLsizei, GLuint*);
 typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)                   (void);
 typedef GLuint (APIENTRYP GFX_CREATESHADERPROC)                    (GLenum);
+typedef void (APIENTRYP GFX_CREATETEXTURESPROC)                    (GLenum, GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_CULLFACEPROC)                          (GLenum);
 typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)                     (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEFRAMEBUFFERSPROC)                (GLsizei, const GLuint*);
@@ -123,6 +127,7 @@ typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDBASEINSTANCEPROC) (GLenum, GLsi
 typedef void (APIENTRYP GFX_ENABLEPROC)                            (GLenum);
 typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)           (GLuint);
 typedef void (APIENTRYP GFX_ENDTRANSFORMFEEDBACKPROC)              (void);
+typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTUREPROC)                (GLenum, GLenum, GLuint, GLint);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURE1DPROC)              (GLenum, GLenum, GLenum, GLuint, GLint);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURE2DPROC)              (GLenum, GLenum, GLenum, GLuint, GLint);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURELAYERPROC)           (GLenum, GLenum, GLuint, GLint, GLint);
@@ -136,6 +141,7 @@ typedef void (APIENTRYP GFX_GETACTIVEUNIFORMBLOCKIVPROC)           (GLuint, GLui
 typedef void (APIENTRYP GFX_GETACTIVEUNIFORMSIVPROC)               (GLuint, GLsizei, const GLuint*, GLenum, GLint*);
 typedef void (APIENTRYP GFX_GETBUFFERSUBDATAPROC)                  (GLenum, GLintptr, GLsizeiptr, GLvoid*);
 typedef GLenum (APIENTRYP GFX_GETERRORPROC)                        (void);
+typedef void (APIENTRYP GFX_GETNAMEDBUFFERSUBDATAPROC)             (GLuint, GLintptr, GLsizei, void*);
 typedef void (APIENTRYP GFX_GETPROGRAMBINARYPROC)                  (GLuint, GLsizei, GLsizei*, GLenum*, void*);
 typedef void (APIENTRYP GFX_GETPROGRAMINFOLOGPROC)                 (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (APIENTRYP GFX_GETPROGRAMIVPROC)                      (GLuint, GLenum, GLint*);
@@ -145,9 +151,16 @@ typedef void (APIENTRYP GFX_GETSHADERSOURCEPROC)                   (GLuint, GLsi
 typedef GLuint (APIENTRYP GFX_GETUNIFORMBLOCKINDEXPROC)            (GLuint, const GLchar*);
 typedef void (APIENTRYP GFX_GETUNIFORMINDICESPROC)                 (GLuint, GLsizei, const GLchar*const*, GLuint*);
 typedef GLint (APIENTRYP GFX_GETUNIFORMLOCATIONPROC)               (GLuint, const GLchar*);
-typedef GLboolean (APIENTRYP GFX_ISTEXTUREPROC)                    (GLuint);
 typedef void (APIENTRYP GFX_LINKPROGRAMPROC)                       (GLuint);
 typedef void* (APIENTRYP GFX_MAPBUFFERRANGEPROC)                   (GLenum, GLintptr, GLsizeiptr, GLbitfield);
+typedef void* (APIENTRYP GFX_MAPNAMEDBUFFERRANGEPROC)              (GLuint, GLintptr, GLsizei, GLbitfield);
+typedef void (APIENTRYP GFX_NAMEDBUFFERDATAPROC)                   (GLuint, GLsizei, const void*, GLenum);
+typedef void (APIENTRYP GFX_NAMEDBUFFERSUBDATAPROC)                (GLuint, GLintptr, GLsizei, const void*);
+typedef void (APIENTRYP GFX_NAMEDFRAMEBUFFERDRAWBUFFERSPROC)       (GLuint, GLsizei, const GLenum*);
+typedef void (APIENTRYP GFX_NAMEDFRAMEBUFFERTEXTUREPROC)           (GLuint, GLenum, GLuint, GLint);
+typedef void (APIENTRYP GFX_NAMEDFRAMEBUFFERTEXTURE1DPROC)         (GLuint, GLenum, GLenum, GLuint, GLint);
+typedef void (APIENTRYP GFX_NAMEDFRAMEBUFFERTEXTURE2DPROC)         (GLuint, GLenum, GLenum, GLuint, GLint);
+typedef void (APIENTRYP GFX_NAMEDFRAMEBUFFERTEXTURELAYERPROC)      (GLuint, GLenum, GLuint, GLint, GLint);
 typedef void (APIENTRYP GFX_PATCHPARAMETERIPROC)                   (GLenum, GLint);
 typedef void (APIENTRYP GFX_PIXELSTOREIPROC)                       (GLenum, GLint);
 typedef void (APIENTRYP GFX_POLYGONMODEPROC)                       (GLenum, GLenum);
@@ -166,6 +179,7 @@ typedef void (APIENTRYP GFX_TEXPARAMETERIPROC)                     (GLenum, GLen
 typedef void (APIENTRYP GFX_TEXSUBIMAGE1DPROC)                     (GLenum, GLint, GLint, GLsizei, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXSUBIMAGE2DPROC)                     (GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXSUBIMAGE3DPROC)                     (GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*);
+typedef void (APIENTRYP GFX_TEXTUREBUFFERPROC)                     (GLuint, GLenum, GLuint);
 typedef void (APIENTRYP GFX_TRANSFORMFEEDBACKVARYINGSPROC)         (GLuint, GLsizei, const GLchar*const*, GLenum);
 typedef void (APIENTRYP GFX_UNIFORM1FVPROC)                        (GLint, GLsizei, const GLfloat*);
 typedef void (APIENTRYP GFX_UNIFORM1IVPROC)                        (GLint, GLsizei, const GLint*);
@@ -184,6 +198,7 @@ typedef void (APIENTRYP GFX_UNIFORMMATRIX2FVPROC)                  (GLint, GLsiz
 typedef void (APIENTRYP GFX_UNIFORMMATRIX3FVPROC)                  (GLint, GLsizei, GLboolean, const GLfloat*);
 typedef void (APIENTRYP GFX_UNIFORMMATRIX4FVPROC)                  (GLint, GLsizei, GLboolean, const GLfloat*);
 typedef GLboolean (APIENTRYP GFX_UNMAPBUFFERPROC)                  (GLenum);
+typedef GLboolean (APIENTRYP GFX_UNMAPNAMEDBUFFERPROC)             (GLuint);
 typedef void (APIENTRYP GFX_USEPROGRAMPROC)                        (GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBDIVISORPROC)               (GLuint, GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBIPOINTERPROC)              (GLuint, GLint, GLenum, GLsizei, const GLvoid*);
@@ -200,7 +215,7 @@ typedef struct GFX_Extensions
 
 	/* State & bound objects */
 	GFXPipeState   state;
-	GLuint         pipeline; /* Currently bound FBO */
+	GLuint         fbos[2];  /* Currently bound FBOs (0 = draw, 1 = read) */
 	GLuint         layout;   /* Currently bound VAO */
 	GLuint         program;  /* Currently used program */
 
@@ -236,8 +251,12 @@ typedef struct GFX_Extensions
 	GFX_CLEARPROC                              Clear;
 	GFX_COMPILESHADERPROC                      CompileShader;
 	GFX_COPYBUFFERSUBDATAPROC                  CopyBufferSubData;
+	GFX_COPYNAMEDBUFFERSUBDATAPROC             CopyNamedBufferSubData;
+	GFX_CREATEBUFFERSPROC                      CreateBuffers;
+	GFX_CREATEFRAMEBUFFERSPROC                 CreateFramebuffers;
 	GFX_CREATEPROGRAMPROC                      CreateProgram;
 	GFX_CREATESHADERPROC                       CreateShader;
+	GFX_CREATETEXTURESPROC                     CreateTextures;
 	GFX_CULLFACEPROC                           CullFace;
 	GFX_DELETEBUFFERSPROC                      DeleteBuffers;
 	GFX_DELETEFRAMEBUFFERSPROC                 DeleteFramebuffers;
@@ -260,6 +279,7 @@ typedef struct GFX_Extensions
 	GFX_ENABLEPROC                             Enable;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC            EnableVertexAttribArray;
 	GFX_ENDTRANSFORMFEEDBACKPROC               EndTransformFeedback;
+	GFX_FRAMEBUFFERTEXTUREPROC                 FramebufferTexture;
 	GFX_FRAMEBUFFERTEXTURE1DPROC               FramebufferTexture1D;              /* GFX_EXT_TEXTURE_1D or GFX_EXT_BUFFER_TEXTURE */
 	GFX_FRAMEBUFFERTEXTURE2DPROC               FramebufferTexture2D;
 	GFX_FRAMEBUFFERTEXTURELAYERPROC            FramebufferTextureLayer;
@@ -273,6 +293,7 @@ typedef struct GFX_Extensions
 	GFX_GETACTIVEUNIFORMSIVPROC                GetActiveUniformsiv;
 	GFX_GETBUFFERSUBDATAPROC                   GetBufferSubData;
 	GFX_GETERRORPROC                           GetError;
+	GFX_GETNAMEDBUFFERSUBDATAPROC              GetNamedBufferSubData;
 	GFX_GETPROGRAMBINARYPROC                   GetProgramBinary;                  /* GFX_EXT_PROGRAM_BINARY */
 	GFX_GETPROGRAMINFOLOGPROC                  GetProgramInfoLog;
 	GFX_GETPROGRAMIVPROC                       GetProgramiv;
@@ -282,9 +303,16 @@ typedef struct GFX_Extensions
 	GFX_GETUNIFORMBLOCKINDEXPROC               GetUniformBlockIndex;
 	GFX_GETUNIFORMINDICESPROC                  GetUniformIndices;
 	GFX_GETUNIFORMLOCATIONPROC                 GetUniformLocation;
-	GFX_ISTEXTUREPROC                          IsTexture;
 	GFX_LINKPROGRAMPROC                        LinkProgram;
 	GFX_MAPBUFFERRANGEPROC                     MapBufferRange;
+	GFX_MAPNAMEDBUFFERRANGEPROC                MapNamedBufferRange;
+	GFX_NAMEDBUFFERDATAPROC                    NamedBufferData;
+	GFX_NAMEDBUFFERSUBDATAPROC                 NamedBufferSubData;
+	GFX_NAMEDFRAMEBUFFERDRAWBUFFERSPROC        NamedFramebufferDrawBuffers;
+	GFX_NAMEDFRAMEBUFFERTEXTUREPROC            NamedFramebufferTexture;
+	GFX_NAMEDFRAMEBUFFERTEXTURE1DPROC          NamedFramebufferTexture1D;
+	GFX_NAMEDFRAMEBUFFERTEXTURE2DPROC          NamedFramebufferTexture2D;
+	GFX_NAMEDFRAMEBUFFERTEXTURELAYERPROC       NamedFramebufferTextureLayer;
 	GFX_PATCHPARAMETERIPROC                    PatchParameteri;                   /* GFX_EXT_TESSELLATION_SHADER */
 	GFX_PIXELSTOREIPROC                        PixelStorei;
 	GFX_POLYGONMODEPROC                        PolygonMode;                       /* GFX_EXT_POLYGON_STATE */
@@ -300,9 +328,10 @@ typedef struct GFX_Extensions
 	GFX_TEXIMAGE3DPROC                         TexImage3D;
 	GFX_TEXIMAGE3DMULTISAMPLEPROC              TexImage3DMultisample;             /* GFX_EXT_MULTISAMPLE_TEXTURE */
 	GFX_TEXPARAMETERIPROC                      TexParameteri;
-	GFX_TEXSUBIMAGE1DPROC                      TexSubImage1D;                     /* GFX_EXT_TEXTURE1D */
+	GFX_TEXSUBIMAGE1DPROC                      TexSubImage1D;                     /* GFX_EXT_TEXTURE_1D */
 	GFX_TEXSUBIMAGE2DPROC                      TexSubImage2D;
 	GFX_TEXSUBIMAGE3DPROC                      TexSubImage3D;
+	GFX_TEXTUREBUFFERPROC                      TextureBuffer;                     /* GFX_EXT_DIRECT_STATE_ACCESS */
 	GFX_TRANSFORMFEEDBACKVARYINGSPROC          TransformFeedbackVaryings;
 	GFX_UNIFORM1FVPROC                         Uniform1fv;
 	GFX_UNIFORM1IVPROC                         Uniform1iv;
@@ -321,6 +350,7 @@ typedef struct GFX_Extensions
 	GFX_UNIFORMMATRIX3FVPROC                   UniformMatrix3fv;
 	GFX_UNIFORMMATRIX4FVPROC                   UniformMatrix4fv;
 	GFX_UNMAPBUFFERPROC                        UnmapBuffer;
+	GFX_UNMAPNAMEDBUFFERPROC                   UnmapNamedBuffer;
 	GFX_USEPROGRAMPROC                         UseProgram;
 	GFX_VERTEXATTRIBDIVISORPROC                VertexAttribDivisor;               /* GFX_EXT_INSTANCED_ATTRIBUTES */
 	GFX_VERTEXATTRIBIPOINTERPROC               VertexAttribIPointer;

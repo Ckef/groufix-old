@@ -123,6 +123,52 @@ int _gfx_extensions_is_in_string(
  * GL core & GL ES emulators
  *******************************************************/
 
+static void _gfx_gl_copy_named_buffer_sub_data(
+
+		GLuint    readBuffer,
+		GLuint    writeBuffer,
+		GLintptr  readOffset,
+		GLintptr  writeOffset,
+		GLsizei   size)
+{
+	(GFX_EXT)->BindBuffer(GL_COPY_READ_BUFFER, readBuffer);
+	(GFX_EXT)->BindBuffer(GL_COPY_WRITE_BUFFER, writeBuffer);
+
+	(GFX_EXT)->CopyBufferSubData(
+		GL_COPY_READ_BUFFER,
+		GL_COPY_WRITE_BUFFER,
+		readOffset,
+		writeOffset,
+		size
+	);
+}
+
+static void _gfx_gl_create_buffers(
+
+		GLsizei  n,
+		GLuint*  buffers)
+{
+	(GFX_EXT)->GenBuffers(n, buffers);
+}
+
+static void _gfx_gl_create_framebuffers(
+
+		GLsizei  n,
+		GLuint*  ids)
+{
+	(GFX_EXT)->GenFramebuffers(n, ids);
+}
+
+static void _gfx_gl_create_textures(
+
+		GLenum   target,
+		GLsizei  n,
+		GLuint*  textures)
+{
+	(GFX_EXT)->GenTextures(n, textures);
+	while(n) (GFX_EXT)->BindTexture(target, textures[--n]);
+}
+
 static void _gfx_gl_base_instance_error(void)
 {
 	gfx_errors_push(
@@ -154,6 +200,99 @@ static void _gfx_gl_draw_elements_instanced_base_instance(
 	_gfx_gl_base_instance_error();
 }
 
+static void _gfx_gl_get_named_buffer_sub_data(
+
+		GLuint    buffer,
+		GLintptr  offset,
+		GLsizei   size,
+		void*     data)
+{
+	(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, buffer);
+	(GFX_EXT)->GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+}
+
+static void _gfx_gl_map_named_buffer_range(
+
+		GLuint      buffer,
+		GLintptr    offset,
+		GLsizei     length,
+		GLbitfield  access)
+{
+	(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, buffer);
+	(GFX_EXT)->MapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
+}
+
+static void _gfx_gl_named_buffer_data(
+
+		GLuint       buffer,
+		GLsizei      size,
+		const void*  data,
+		GLenum       usage)
+{
+	(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, buffer);
+	(GFX_EXT)->BufferData(GL_ARRAY_BUFFER, size, data, usage);
+}
+
+static void _gfx_gl_named_buffer_sub_data(
+
+		GLuint       buffer,
+		GLintptr     offset,
+		GLsizei      size,
+		const void*  data)
+{
+	(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, buffer);
+	(GFX_EXT)->BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+}
+
+static void _gfx_gl_named_framebuffer_draw_buffers(
+
+		GLuint         framebuffer,
+		GLsizei        n,
+		const GLenum*  bufs)
+{
+	(GFX_EXT)->fbos[0] = framebuffer;
+	(GFX_EXT)->BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+	(GFX_EXT)->DrawBuffers(n, bufs);
+}
+
+static void _gfx_gl_named_framebuffer_texture(
+
+		GLuint  framebuffer,
+		GLenum  attach,
+		GLuint  texture,
+		GLint   level)
+{
+	(GFX_EXT)->fbos[0] = framebuffer;
+	(GFX_EXT)->BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+
+	(GFX_EXT)->FramebufferTexture(
+		GL_DRAW_FRAMEBUFFER,
+		attach,
+		texture,
+		level
+	);
+}
+
+static void _gfx_gl_named_framebuffer_texture_layer(
+
+		GLuint  framebuffer,
+		GLenum  attach,
+		GLuint  texture,
+		GLint   level,
+		GLint   layer)
+{
+	(GFX_EXT)->fbos[0] = framebuffer;
+	(GFX_EXT)->BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+
+	(GFX_EXT)->FramebufferTextureLayer(
+		GL_DRAW_FRAMEBUFFER,
+		attach,
+		texture,
+		level,
+		layer
+	);
+}
+
 static void _gfx_gl_patch_parameter_i(
 
 		GLenum  pname,
@@ -165,12 +304,55 @@ static void _gfx_gl_patch_parameter_i(
 	);
 }
 
+static void _gfx_gl_direct_state_access_error(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_DIRECT_STATE_ACCESS is incompatible with this context."
+	);
+}
+
+static void _gfx_gl_texture_buffer(
+
+		GLuint  texture,
+		GLenum  format,
+		GLuint  buffer)
+{
+	_gfx_gl_direct_state_access_error();
+}
+
+static GLboolean _gfx_gl_unmap_named_buffer(
+
+		GLuint buffer)
+{
+	(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, buffer);
+	return (GFX_EXT)->UnmapBuffer(GL_ARRAY_BUFFER);
+}
+
 
 #ifdef GFX_GLES
 
 /********************************************************
  * GL ES emulators
  *******************************************************/
+
+static void _gfx_gles_tex_buffer_error(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_BUFFER_TEXTURE is incompatible with this context."
+	);
+}
+
+static void _gfx_gles_framebuffer_texture(
+
+		GLenum  target,
+		GLenum  attach,
+		GLuint  texture,
+		GLint   level)
+{
+	_gfx_gles_tex_buffer_error();
+}
 
 static void _gfx_gles_framebuffer_texture_1d(
 
@@ -182,7 +364,7 @@ static void _gfx_gles_framebuffer_texture_1d(
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_1D_TEXTURE and GFX_EXT_BUFFER_TEXTURE are incompatible with this context."
+		"GFX_EXT_1D_TEXTURE is incompatible with this context."
 	);
 }
 
@@ -211,16 +393,61 @@ static void _gfx_gles_get_buffer_sub_data(
 	}
 }
 
+static void _gfx_gles_named_framebuffer_texture_1d(
+
+		GLuint  framebuffer,
+		GLenum  attach,
+		GLenum  textarget,
+		GLuint  texture,
+		GLint   level)
+{
+	(GFX_EXT)->fbos[0] = framebuffer;
+	(GFX_EXT)->BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+
+	(GFX_EXT)->FramebufferTexture1D(
+		GL_DRAW_FRAMEBUFFER,
+		attach,
+		textarget,
+		texture,
+		level
+	);
+}
+
+static void _gfx_gles_named_framebuffer_texture_2d(
+
+		GLuint  framebuffer,
+		GLenum  attach,
+		GLenum  textarget,
+		GLuint  texture,
+		GLint   level)
+{
+	(GFX_EXT)->fbos[0] = framebuffer;
+	(GFX_EXT)->BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+
+	(GFX_EXT)->FramebufferTexture2D(
+		GL_DRAW_FRAMEBUFFER,
+		attach,
+		textarget,
+		texture,
+		level
+	);
+}
+
+static void _gfx_gles_polygon_mode(
+
+		GLenum  face,
+		GLenum  mode)
+{
+	/* Just ignore the call */
+}
+
 static void _gfx_gles_tex_buffer(
 
 		GLenum  target,
 		GLenum  internalFormat,
 		GLuint  buffer)
 {
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_BUFFER_TEXTURE is incompatible with this context."
-	);
+	_gfx_gles_tex_buffer_error();
 }
 
 static void _gfx_gles_tex_1d_error(void)
@@ -256,14 +483,6 @@ static void _gfx_gles_tex_sub_image_1d(
 		const GLvoid*  data)
 {
 	_gfx_gles_tex_1d_error();
-}
-
-static void _gfx_gles_polygon_mode(
-
-		GLenum  face,
-		GLenum  mode)
-{
-	/* Just ignore the call */
 }
 
 static void _gfx_gles_multisample_tex_error(void)
@@ -306,15 +525,26 @@ static void _gfx_gles_tex_image_3d_multisample(
  * GL core emulators
  *******************************************************/
 
-static void _gfx_gl_vertex_attrib_divisor(
+static void _gfx_gl_named_framebuffer_texture_1d(
 
-		GLuint  index,
-		GLuint  divisor)
+		GLuint  framebuffer,
+		GLenum  attach,
+		GLenum  textarget,
+		GLuint  texture,
+		GLint   level)
 {
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_INSTANCED_ATTRIBUTES is incompatible with this context."
-	);
+	(GFX_EXT)->NamedFramebufferTexture(framebuffer, attach, texture, level);
+}
+
+static void _gfx_gl_named_framebuffer_texture_2d(
+
+		GLuint  framebuffer,
+		GLenum  attach,
+		GLenum  textarget,
+		GLuint  texture,
+		GLint   level)
+{
+	(GFX_EXT)->NamedFramebufferTexture(framebuffer, attach, texture, level);
 }
 
 static void _gfx_gl_program_binary_error(void)
@@ -357,6 +587,17 @@ static void _gfx_gl_program_parameter_i(
 	_gfx_gl_program_binary_error();
 }
 
+static void _gfx_gl_vertex_attrib_divisor(
+
+		GLuint  index,
+		GLuint  divisor)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_INSTANCED_ATTRIBUTES is incompatible with this context."
+	);
+}
+
 #endif
 
 
@@ -367,7 +608,7 @@ void _gfx_extensions_load(void)
 	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return;
 
-	GFX_Extensions* ext = &window->extensions;
+	GFX_Extensions* ext = GFX_EXT;
 
 	/* Get OpenGL version */
 	_gfx_platform_context_get(
@@ -436,8 +677,12 @@ void _gfx_extensions_load(void)
 	ext->Clear                             = glClear;
 	ext->CompileShader                     = glCompileShader;
 	ext->CopyBufferSubData                 = glCopyBufferSubData;
+	ext->CopyNamedBufferSubData            = _gfx_gl_copy_named_buffer_sub_data;
+	ext->CreateBuffers                     = _gfx_gl_create_buffers;
+	ext->CreateFramebuffers                = _gfx_gl_create_framebuffers;
 	ext->CreateProgram                     = glCreateProgram;
 	ext->CreateShader                      = glCreateShader;
+	ext->CreateTextures                    = glCreateTextures;
 	ext->CullFace                          = glCullFace;
 	ext->DeleteBuffers                     = glDeleteBuffers;
 	ext->DeleteFramebuffers                = glDeleteFramebuffers;
@@ -460,6 +705,7 @@ void _gfx_extensions_load(void)
 	ext->Enable                            = glEnable;
 	ext->EnableVertexAttribArray           = glEnableVertexAttribArray;
 	ext->EndTransformFeedback              = glEndTransformFeedback;
+	ext->FramebufferTexture                = _gfx_gles_framebuffer_texture;
 	ext->FramebufferTexture1D              = _gfx_gles_framebuffer_texture_1d;
 	ext->FramebufferTexture2D              = glFramebufferTexture2D;
 	ext->FramebufferTextureLayer           = glFramebufferTextureLayer;
@@ -473,6 +719,7 @@ void _gfx_extensions_load(void)
 	ext->GetActiveUniformsiv               = glGetActiveUniformsiv;
 	ext->GetBufferSubData                  = _gfx_gles_get_buffer_sub_data;
 	ext->GetError                          = glGetError;
+	ext->GetNamedBufferSubData             = _gfx_gl_get_named_buffer_sub_data;
 	ext->GetProgramBinary                  = glGetProgramBinary;
 	ext->GetProgramInfoLog                 = glGetProgramInfoLog;
 	ext->GetProgramiv                      = glGetProgramiv;
@@ -482,9 +729,16 @@ void _gfx_extensions_load(void)
 	ext->GetUniformBlockIndex              = glGetUniformBlockIndex;
 	ext->GetUniformIndices                 = glGetUniformIndices;
 	ext->GetUniformLocation                = glGetUniformLocation;
-	ext->IsTexture                         = glIsTexture;
 	ext->LinkProgram                       = glLinkProgram;
 	ext->MapBufferRange                    = glMapBufferRange;
+	ext->MapNamedBufferRange               = glMapNamedBufferRange;
+	ext->NamedBufferData                   = _gfx_gl_named_buffer_data;
+	ext->NamedBufferSubData                = _gfx_gl_named_buffer_sub_data;
+	ext->NamedFramebufferDrawBuffers       = _gfx_gl_named_framebuffer_draw_buffers;
+	ext->NamedFramebufferTexture           = _gfx_gl_named_framebuffer_texture;
+	ext->NamedFramebufferTexture1D         = _gfx_gles_named_framebuffer_texture_1d;
+	ext->NamedFramebufferTexture2D         = _gfx_gles_named_framebuffer_texture_2d;
+	ext->NamedFramebufferTextureLayer      = _gfx_gl_named_framebuffer_texture_layer;
 	ext->PatchParameteri                   = _gfx_gl_patch_parameter_i;
 	ext->PixelStorei                       = glPixelStorei;
 	ext->PolygonMode                       = _gfx_gles_polygon_mode;
@@ -503,6 +757,7 @@ void _gfx_extensions_load(void)
 	ext->TexSubImage1D                     = _gfx_gles_tex_sub_image_1d;
 	ext->TexSubImage2D                     = glTexSubImage2D;
 	ext->TexSubImage3D                     = glTexSubImage3D;
+	ext->TextureBuffer                     = _gfx_gl_texture_buffer;
 	ext->TransformFeedbackVaryings         = glTransformFeedbackVaryings;
 	ext->Uniform1fv                        = glUniform1fv;
 	ext->Uniform1iv                        = glUniform1iv;
@@ -521,6 +776,7 @@ void _gfx_extensions_load(void)
 	ext->UniformMatrix3fv                  = glUniformMatrix3fv;
 	ext->UniformMatrix4fv                  = glUniformMatrix4fv;
 	ext->UnmapBuffer                       = glUnmapBuffer;
+	ext->UnmapNamedBuffer                  = _gfx_gl_unmap_named_buffer;
 	ext->UseProgram                        = glUseProgram;
 	ext->VertexAttribDivisor               = glVertexAttribDivisor;
 	ext->VertexAttribIPointer              = glVertexAttribIPointer;
@@ -583,6 +839,7 @@ void _gfx_extensions_load(void)
 	ext->Enable                    = (PFNGLENABLEPROC)                    glEnable;
 	ext->EnableVertexAttribArray   = (PFNGLENABLEVERTEXATTRIBARRAYPROC)   _gfx_platform_get_proc_address("glEnableVertexAttribArray");
 	ext->EndTransformFeedback      = (PFNGLENDTRANSFORMFEEDBACKPROC)      _gfx_platform_get_proc_address("glEndTransformFeedback");
+	ext->FramebufferTexture        = (PFNGLFRAMEBUFFERTEXTUREPROC)        _gfx_platform_get_proc_address("glFramebufferTexture");
 	ext->FramebufferTexture1D      = (PFNGLFRAMEBUFFERTEXTURE1DPROC)      _gfx_platform_get_proc_address("glFramebufferTexture1D");
 	ext->FramebufferTexture2D      = (PFNGLFRAMEBUFFERTEXTURE2DPROC)      _gfx_platform_get_proc_address("glFramebufferTexture2D");
 	ext->FramebufferTextureLayer   = (PFNGLFRAMEBUFFERTEXTURELAYERPROC)   _gfx_platform_get_proc_address("glFramebufferTextureLayer");
@@ -604,9 +861,10 @@ void _gfx_extensions_load(void)
 	ext->GetUniformBlockIndex      = (PFNGLGETUNIFORMBLOCKINDEXPROC)      _gfx_platform_get_proc_address("glGetUniformBlockIndex");
 	ext->GetUniformIndices         = (PFNGLGETUNIFORMINDICESPROC)         _gfx_platform_get_proc_address("glGetUniformIndices");
 	ext->GetUniformLocation        = (PFNGLGETUNIFORMLOCATIONPROC)        _gfx_platform_get_proc_address("glGetUniformLocation");
-	ext->IsTexture                 = (PFNGLISTEXTUREPROC)                 glIsTexture;
 	ext->LinkProgram               = (PFNGLLINKPROGRAMPROC)               _gfx_platform_get_proc_address("glLinkProgram");
 	ext->MapBufferRange            = (PFNGLMAPBUFFERRANGEPROC)            _gfx_platform_get_proc_address("glMapBufferRange");
+	ext->NamedFramebufferTexture1D = (GFX_NAMEDFRAMEBUFFERTEXTURE1DPROC)  _gfx_gl_named_framebuffer_texture_1d;
+	ext->NamedFramebufferTexture2D = (GFX_NAMEDFRAMEBUFFERTEXTURE2DPROC)  _gfx_gl_named_framebuffer_texture_2d;
 	ext->PixelStorei               = (PFNGLPIXELSTOREIPROC)               glPixelStorei;
 	ext->PolygonMode               = (PFNGLPOLYGONMODEPROC)               glPolygonMode;
 	ext->ShaderSource              = (PFNGLSHADERSOURCEPROC)              _gfx_platform_get_proc_address("glShaderSource");
@@ -651,16 +909,97 @@ void _gfx_extensions_load(void)
 		(window->context.major == 4 && window->context.minor > 4))
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
+
+		ext->CopyNamedBufferSubData = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)
+			_gfx_platform_get_proc_address("glCopyNamedBufferSubData");
+		ext->CreateBuffers = (PFNGLCREATEBUFFERSPROC)
+			_gfx_platform_get_proc_address("glCreateBuffers");
+		ext->CreateFramebuffers = (PFNGLCREATEFRAMEBUFFERSPROC)
+			_gfx_platform_get_proc_address("glCreateFramebuffers");
+		ext->CreateTextures = (PFNGLCREATETEXTURESPROC)
+			_gfx_platform_get_proc_address("glCreateTextures");
+		ext->GetNamedBufferSubData = (PFNGLGETNAMEDBUFFERSUBDATAPROC)
+			_gfx_platform_get_proc_address("glGetNamedBufferSubData");
+		ext->MapNamedBufferRange = (PFNGLMAPNAMEDBUFFERRANGEPROC)
+			_gfx_platform_get_proc_address("glMapNamedBufferRange");
+		ext->NamedBufferData = (PFNGLNAMEDBUFFERDATAPROC)
+			_gfx_platform_get_proc_address("glNamedBufferData");
+		ext->NamedBufferSubData = (PFNGLNAMEDBUFFERSUBDATAPROC)
+			_gfx_platform_get_proc_address("glNamedBufferSubData");
+		ext->NamedFramebufferDrawBuffers = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)
+			_gfx_platform_get_proc_address("glNamedFramebufferDrawBuffers");
+		ext->NamedFramebufferTexture = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)
+			_gfx_platform_get_proc_address("glNamedFramebufferTexture");
+		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC)
+			_gfx_platform_get_proc_address("glNamedFramebufferTextureLayer");
+		ext->TextureBuffer = (PFNGLTEXTUREBUFFERPROC)
+			_gfx_platform_get_proc_address("glTextureBuffer");
+		ext->UnmapNamedBuffer = (PFNGLUNMAPNAMEDBUFFERPROC)
+			_gfx_platform_get_proc_address("glUnmapNamedBuffer");
 	}
 
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_direct_state_access"))
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
+
+		ext->CopyNamedBufferSubData = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)
+			_gfx_platform_get_proc_address("glCopyNamedBufferSubDataARB");
+		ext->CreateBuffers = (PFNGLCREATEBUFFERSPROC)
+			_gfx_platform_get_proc_address("glCreateBuffersARB");
+		ext->CreateFramebuffers = (PFNGLCREATEFRAMEBUFFERSPROC)
+			_gfx_platform_get_proc_address("glCreateFramebuffersARB");
+		ext->CreateTextures = (PFNGLCREATETEXTURESPROC)
+			_gfx_platform_get_proc_address("glCreateTexturesARB");
+		ext->GetNamedBufferSubData = (PFNGLGETNAMEDBUFFERSUBDATAPROC)
+			_gfx_platform_get_proc_address("glGetNamedBufferSubDataARB");
+		ext->MapNamedBufferRange = (PFNGLMAPNAMEDBUFFERRANGEPROC)
+			_gfx_platform_get_proc_address("glMapNamedBufferRangeARB");
+		ext->NamedBufferData = (PFNGLNAMEDBUFFERDATAPROC)
+			_gfx_platform_get_proc_address("glNamedBufferDataARB");
+		ext->NamedBufferSubData = (PFNGLNAMEDBUFFERSUBDATAPROC)
+			_gfx_platform_get_proc_address("glNamedBufferSubDataARB");
+		ext->NamedFramebufferDrawBuffers = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)
+			_gfx_platform_get_proc_address("glNamedFramebufferDrawBuffersARB");
+		ext->NamedFramebufferTexture = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)
+			_gfx_platform_get_proc_address("glNamedFramebufferTextureARB");
+		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC)
+			_gfx_platform_get_proc_address("glNamedFramebufferTextureLayerARB");
+		ext->TextureBuffer = (PFNGLTEXTUREBUFFERPROC)
+			_gfx_platform_get_proc_address("glTextureBufferARB");
+		ext->UnmapNamedBuffer = (PFNGLUNMAPNAMEDBUFFERPROC)
+			_gfx_platform_get_proc_address("glUnmapNamedBufferARB");
 	}
 
 	else
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 0;
+
+		ext->CopyNamedBufferSubData = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)
+			_gfx_gl_copy_named_buffer_sub_data;
+		ext->CreateBuffers = (PFNGLCREATEBUFFERSPROC)
+			_gfx_gl_create_buffers;
+		ext->CreateFramebuffers = (PFNGLCREATEFRAMEBUFFERSPROC)
+			_gfx_gl_create_framebuffers;
+		ext->CreateTextures = (PFNGLCREATETEXTURESPROC)
+			_gfx_gl_create_textures;
+		ext->GetNamedBufferSubData = (PFNGLGETNAMEDBUFFERSUBDATAPROC)
+			_gfx_gl_get_named_buffer_sub_data;
+		ext->MapNamedBufferRange = (PFNGLMAPNAMEDBUFFERRANGEPROC)
+			_gfx_gl_map_named_buffer_range;
+		ext->NamedBufferData = (PFNGLNAMEDBUFFERDATAPROC)
+			_gfx_gl_named_buffer_data;
+		ext->NamedBufferSubData = (PFNGLNAMEDBUFFERSUBDATAPROC)
+			_gfx_gl_named_buffer_sub_data;
+		ext->NamedFramebufferDrawBuffers = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)
+			_gfx_gl_named_framebuffer_draw_buffers;
+		ext->NamedFramebufferTexture = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)
+			_gfx_gl_named_framebuffer_texture;
+		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC)
+			_gfx_gl_named_framebuffer_texture_layer;
+		ext->TextureBuffer = (PFNGLTEXTUREBUFFERPROC)
+			_gfx_gl_texture_buffer;
+		ext->UnmapNamedBuffer = (PFNGLUNMAPNAMEDBUFFERPROC)
+			_gfx_gl_unmap_named_buffer;
 	}
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
@@ -679,7 +1018,7 @@ void _gfx_extensions_load(void)
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 
 		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)
-			_gfx_platform_get_proc_address("VertexAttribDivisorARB");
+			_gfx_platform_get_proc_address("glVertexAttribDivisorARB");
 	}
 
 	else
@@ -708,9 +1047,9 @@ void _gfx_extensions_load(void)
 		ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
 
 		ext->DrawArraysInstancedBaseInstance = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)
-			_gfx_platform_get_proc_address("DrawArraysInstancedBaseInstance");
+			_gfx_platform_get_proc_address("glDrawArraysInstancedBaseInstanceARB");
 		ext->DrawElementsInstancedBaseInstance = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC)
-			_gfx_platform_get_proc_address("DrawElementsInstancedBaseInstace");
+			_gfx_platform_get_proc_address("glDrawElementsInstancedBaseInstaceARB");
 	}
 
 	else
@@ -756,11 +1095,11 @@ void _gfx_extensions_load(void)
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 
 		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC)
-			_gfx_platform_get_proc_address("GetProgramBinary");
+			_gfx_platform_get_proc_address("glGetProgramBinaryARB");
 		ext->ProgramBinary = (PFNGLPROGRAMBINARYPROC)
-			_gfx_platform_get_proc_address("ProgramBinary");
+			_gfx_platform_get_proc_address("glProgramBinaryARB");
 		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)
-			_gfx_platform_get_proc_address("ProgramParameteri");
+			_gfx_platform_get_proc_address("glProgramParameteriARB");
 	}
 
 	else
@@ -795,7 +1134,7 @@ void _gfx_extensions_load(void)
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
 
 		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC)
-			_gfx_platform_get_proc_address("PatchParameteri");
+			_gfx_platform_get_proc_address("glPatchParameteriARB");
 	}
 
 	else
@@ -814,7 +1153,8 @@ void _gfx_extensions_load(void)
 	_gfx_states_force_set(&ext->state);
 
 	/* Set other defaults */
-	ext->pipeline = 0;
+	ext->fbos[0] = 0;
+	ext->fbos[1] = 0;
 	ext->layout = 0;
 	ext->program = 0;
 

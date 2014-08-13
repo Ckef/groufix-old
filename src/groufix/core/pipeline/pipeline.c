@@ -65,13 +65,32 @@ struct GFX_Pipeline
 /******************************************************/
 void _gfx_pipeline_bind(
 
-		GLuint fbo)
+		GLenum  target,
+		GLuint  framebuffer)
 {
-	/* Prevent binding it twice */
-	if((GFX_EXT)->pipeline != fbo)
+	switch(target)
 	{
-		(GFX_EXT)->pipeline = fbo;
-		(GFX_EXT)->BindFramebuffer(GL_FRAMEBUFFER, fbo);
+		case GL_FRAMEBUFFER :
+			if((GFX_EXT)->fbos[0] != framebuffer && (GFX_EXT)->fbos[1] != framebuffer)
+				(GFX_EXT)->BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+			(GFX_EXT)->fbos[0] = framebuffer;
+			(GFX_EXT)->fbos[1] = framebuffer;
+			break;
+
+		case GL_DRAW_FRAMEBUFFER :
+			if((GFX_EXT)->fbos[0] != framebuffer)
+				(GFX_EXT)->BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+
+			(GFX_EXT)->fbos[0] = framebuffer;
+			break;
+
+		case GL_READ_FRAMEBUFFER :
+			if((GFX_EXT)->fbos[1] != framebuffer)
+				(GFX_EXT)->BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+
+			(GFX_EXT)->fbos[1] = framebuffer;
+			break;
 	}
 }
 
@@ -113,66 +132,50 @@ static void _gfx_pipeline_init_attachment(
 		struct GFX_Attachment*  attach)
 {
 	/* Check texture handle */
-	if((GFX_EXT)->IsTexture(attach->texture))
+	switch(attach->target)
 	{
-		/* Bind framebuffer and attach texture */
-		_gfx_pipeline_bind(fbo);
+		case GL_TEXTURE_BUFFER :
+			(GFX_EXT)->NamedFramebufferTexture(
+				fbo,
+				attach->attachment,
+				attach->texture,
+				0
+			);
+			break;
 
-		switch(attach->target)
-		{
-			case GL_TEXTURE_BUFFER :
-				(GFX_EXT)->FramebufferTexture1D(
-					GL_FRAMEBUFFER,
-					attach->attachment,
-					GL_TEXTURE_BUFFER,
-					attach->texture,
-					0
-				);
-				break;
+		case GL_TEXTURE_1D :
+			(GFX_EXT)->NamedFramebufferTexture1D(
+				fbo,
+				attach->attachment,
+				GL_TEXTURE_1D,
+				attach->texture,
+				attach->mipmap
+			);
+			break;
 
-			case GL_TEXTURE_1D :
-				(GFX_EXT)->FramebufferTexture1D(
-					GL_FRAMEBUFFER,
-					attach->attachment,
-					GL_TEXTURE_1D,
-					attach->texture,
-					attach->mipmap
-				);
-				break;
+		case GL_TEXTURE_2D :
+			(GFX_EXT)->NamedFramebufferTexture2D(
+				fbo,
+				attach->attachment,
+				GL_TEXTURE_2D,
+				attach->texture,
+				attach->mipmap
+			);
+			break;
 
-			case GL_TEXTURE_2D :
-				(GFX_EXT)->FramebufferTexture2D(
-					GL_FRAMEBUFFER,
-					attach->attachment,
-					GL_TEXTURE_2D,
-					attach->texture,
-					attach->mipmap
-				);
-				break;
-
-			case GL_TEXTURE_3D :
-			case GL_TEXTURE_1D_ARRAY :
-			case GL_TEXTURE_2D_ARRAY :
-			case GL_TEXTURE_CUBE_MAP_ARRAY :
-				(GFX_EXT)->FramebufferTextureLayer(
-					GL_FRAMEBUFFER,
-					attach->attachment,
-					attach->texture,
-					attach->mipmap,
-					attach->layer
-				);
-				break;
-
-			case GL_TEXTURE_CUBE_MAP :
-				(GFX_EXT)->FramebufferTexture2D(
-					GL_FRAMEBUFFER,
-					attach->attachment,
-					attach->layer,
-					attach->texture,
-					attach->mipmap
-				);
-				break;
-		}
+		case GL_TEXTURE_3D :
+		case GL_TEXTURE_1D_ARRAY :
+		case GL_TEXTURE_2D_ARRAY :
+		case GL_TEXTURE_CUBE_MAP :
+		case GL_TEXTURE_CUBE_MAP_ARRAY :
+			(GFX_EXT)->NamedFramebufferTextureLayer(
+				fbo,
+				attach->attachment,
+				attach->texture,
+				attach->mipmap,
+				attach->layer
+			);
+			break;
 	}
 }
 
@@ -238,7 +241,7 @@ static void _gfx_pipeline_obj_restore(
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
 	/* Create FBO */
-	(GFX_EXT)->GenFramebuffers(1, &pipeline->fbo);
+	(GFX_EXT)->CreateFramebuffers(1, &pipeline->fbo);
 
 	/* Restore attachments */
 	GFXVectorIterator it = pipeline->attachments.begin;
@@ -253,13 +256,11 @@ static void _gfx_pipeline_obj_restore(
 
 	/* Restore targets */
 	if(pipeline->numTargets)
-	{
-		_gfx_pipeline_bind(pipeline->fbo);
-
-		(GFX_EXT)->DrawBuffers(
+		(GFX_EXT)->NamedFramebufferDrawBuffers(
+			pipeline->fbo,
 			pipeline->numTargets,
-			pipeline->targets);
-	}
+			pipeline->targets
+		);
 }
 
 /******************************************************/
@@ -309,7 +310,7 @@ GFXPipeline* gfx_pipeline_create(void)
 	}
 
 	/* Create OpenGL resources */
-	(GFX_EXT)->GenFramebuffers(1, &pl->fbo);
+	(GFX_EXT)->CreateFramebuffers(1, &pl->fbo);
 
 	pl->x      = 0;
 	pl->y      = 0;
@@ -413,8 +414,11 @@ unsigned int gfx_pipeline_target(
 	}
 
 	/* Pass to OGL */
-	_gfx_pipeline_bind(internal->fbo);
-	(GFX_EXT)->DrawBuffers(num, internal->targets);
+	(GFX_EXT)->NamedFramebufferDrawBuffers(
+		internal->fbo,
+		num,
+		internal->targets
+	);
 
 	return num;
 }
@@ -446,7 +450,7 @@ int gfx_pipeline_attach(
 	switch(att.target)
 	{
 		case GL_TEXTURE_CUBE_MAP :
-			att.layer = image.face + GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+			att.layer = image.face;
 			break;
 
 		case GL_TEXTURE_CUBE_MAP_ARRAY :
@@ -749,7 +753,7 @@ void gfx_pipeline_execute(
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 
 	/* Bind as framebuffer */
-	_gfx_pipeline_bind(internal->fbo);
+	_gfx_pipeline_bind(GL_DRAW_FRAMEBUFFER, internal->fbo);
 
 	/* Iterate over all pipes */
 	int nolimit = !num;

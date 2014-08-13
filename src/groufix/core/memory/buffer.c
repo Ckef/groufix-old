@@ -399,12 +399,8 @@ void gfx_buffer_write(
 	if(!GFX_EXT) return;
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
-	(GFX_EXT)->BindBuffer(
-		GL_ARRAY_BUFFER,
-		*(GLuint*)gfx_vector_at(&internal->handles, internal->current));
-
-	(GFX_EXT)->BufferSubData(
-		GL_ARRAY_BUFFER,
+	(GFX_EXT)->NamedBufferSubData(
+		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
 		offset,
 		size,
 		data);
@@ -421,12 +417,8 @@ void gfx_buffer_read(
 	if(!GFX_EXT) return;
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
-	(GFX_EXT)->BindBuffer(
-		GL_ARRAY_BUFFER,
-		*(GLuint*)gfx_vector_at(&internal->handles, internal->current));
-
-	(GFX_EXT)->GetBufferSubData(
-		GL_ARRAY_BUFFER,
+	(GFX_EXT)->GetNamedBufferSubData(
+		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
 		offset,
 		size,
 		data);
@@ -447,12 +439,8 @@ void* gfx_buffer_map(
 	access &= GFX_BUFFER_READ | GFX_BUFFER_WRITE;
 
 	/* Do the actual mapping */
-	(GFX_EXT)->BindBuffer(
-		GL_ARRAY_BUFFER,
-		*(GLuint*)gfx_vector_at(&internal->handles, internal->current));
-
-	return (GFX_EXT)->MapBufferRange(
-		GL_ARRAY_BUFFER,
+	return (GFX_EXT)->MapNamedBufferRange(
+		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
 		offset,
 		size,
 		access
@@ -467,11 +455,10 @@ void gfx_buffer_unmap(
 	if(!GFX_EXT) return;
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
-	(GFX_EXT)->BindBuffer(
-		GL_ARRAY_BUFFER,
+	GLboolean success = (GFX_EXT)->UnmapNamedBuffer(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 
-	if(!(GFX_EXT)->UnmapBuffer(GL_ARRAY_BUFFER)) gfx_errors_push(
+	if(!success) gfx_errors_push(
 		GFX_ERROR_MEMORY_CORRUPTION,
 		"Mapping a buffer might have corrupted its memory."
 	);

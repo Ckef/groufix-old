@@ -240,7 +240,7 @@ static struct GFX_Texture* _gfx_texture_alloc(
 	}
 
 	/* Allocate OGL resources */
-	(GFX_EXT)->GenTextures(1, &tex->handle);
+	(GFX_EXT)->CreateTextures(target, 1, &tex->handle);
 
 	tex->target = target;
 	tex->format = form;
@@ -578,17 +578,27 @@ GFXTexture* gfx_texture_create_buffer_link(
 	tex->texture.depth  = 1;
 
 	/* Link buffer */
-	int old;
-	_gfx_binder_bind_texture(
-		tex->handle,
-		tex->target,
-		0,
-		&old);
+	if((GFX_EXT)->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+	{
+		(GFX_EXT)->TextureBuffer(
+			tex->handle,
+			tex->format,
+			tex->buffer);
+	}
+	else
+	{
+		int old;
+		_gfx_binder_bind_texture(
+			tex->handle,
+			tex->target,
+			0,
+			&old);
 
-	(GFX_EXT)->TexBuffer(
-		tex->target,
-		tex->format,
-		tex->buffer);
+		(GFX_EXT)->TexBuffer(
+			tex->target,
+			tex->format,
+			tex->buffer);
+	}
 
 	return (GFXTexture*)tex;
 }
@@ -640,12 +650,8 @@ void gfx_texture_write(
 		size_t size = transfer->format.components *
 			_gfx_sizeof_data_type(transfer->format.type);
 
-		(GFX_EXT)->BindBuffer(
-			GL_ARRAY_BUFFER,
-			internal->buffer);
-
-		(GFX_EXT)->BufferSubData(
-			GL_ARRAY_BUFFER,
+		(GFX_EXT)->NamedBufferSubData(
+			internal->buffer,
 			transfer->xOffset * size,
 			transfer->width * size,
 			data);
@@ -790,20 +796,12 @@ void gfx_texture_write_from_buffer(
 	if(internal->buffer)
 	{
 		/* Copy the buffer data to the linked buffer */
-		(GFX_EXT)->BindBuffer(
-			GL_COPY_READ_BUFFER,
-			_gfx_buffer_get_handle(buffer));
-
-		(GFX_EXT)->BindBuffer(
-			GL_COPY_WRITE_BUFFER,
-			internal->buffer);
-
 		size_t size = transfer->format.components *
 			_gfx_sizeof_data_type(transfer->format.type);
 
-		(GFX_EXT)->CopyBufferSubData(
-			GL_COPY_READ_BUFFER,
-			GL_COPY_WRITE_BUFFER,
+		(GFX_EXT)->CopyNamedBufferSubData(
+			_gfx_buffer_get_handle(buffer),
+			internal->buffer,
 			offset,
 			transfer->xOffset * size,
 			transfer->width * size);

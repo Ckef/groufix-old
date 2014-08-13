@@ -82,9 +82,8 @@ int _gfx_pipe_process_prepare(
 			-1,  1, 0, 1
 		};
 
-		ext->GenBuffers(1, &_gfx_process_buffer);
-		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
-		ext->BufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+		ext->CreateBuffers(1, &_gfx_process_buffer);
+		ext->NamedBufferData(_gfx_process_buffer, sizeof(data), data, GL_STATIC_DRAW);
 
 		if(!_gfx_process_buffer) return 0;
 	}
@@ -312,8 +311,8 @@ void _gfx_pipe_process_execute(
 		{
 			/* Make target current, draw, swap, and switch back to previously active */
 			_gfx_window_make_current(internal->target);
-			GLuint fbo = (GFX_EXT)->pipeline;
-			_gfx_pipeline_bind(0);
+			GLuint fbo = (GFX_EXT)->fbos[0];
+			_gfx_pipeline_bind(GL_DRAW_FRAMEBUFFER, 0);
 
 			_gfx_states_set_viewport(
 				0, 0,
@@ -328,7 +327,7 @@ void _gfx_pipe_process_execute(
 
 			if(internal->swap) _gfx_window_swap_buffers();
 
-			_gfx_pipeline_bind(fbo);
+			_gfx_pipeline_bind(GL_DRAW_FRAMEBUFFER, fbo);
 			_gfx_window_make_current(active);
 		}
 

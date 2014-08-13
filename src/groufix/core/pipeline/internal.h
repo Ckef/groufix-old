@@ -162,7 +162,8 @@ GFX_Pipe* _gfx_pipe_free(
  */
 void _gfx_pipeline_bind(
 
-		GLuint handle);
+		GLenum  target,
+		GLuint  framebuffer);
 
 
 /********************************************************

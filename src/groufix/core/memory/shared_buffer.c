@@ -312,12 +312,8 @@ int gfx_shared_buffer_init(
 			buffer->reference = buff;
 			buffer->offset = offset;
 
-			(GFX_EXT)->BindBuffer(
-				buff->target,
-				buff->handle);
-
-			(GFX_EXT)->BufferSubData(
-				buff->target,
+			(GFX_EXT)->NamedBufferSubData(
+				buff->handle,
 				offset,
 				size,
 				data);
@@ -339,12 +335,8 @@ int gfx_shared_buffer_init(
 			buffer->reference = buff;
 			buffer->offset = offset;
 
-			(GFX_EXT)->BindBuffer(
-				buff->target,
-				buff->handle);
-
-			(GFX_EXT)->BufferSubData(
-				buff->target,
+			(GFX_EXT)->NamedBufferSubData(
+				buff->handle,
 				offset,
 				size,
 				data);
