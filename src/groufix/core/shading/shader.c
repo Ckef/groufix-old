@@ -41,8 +41,7 @@ struct GFX_Shader
 /******************************************************/
 static int _gfx_shader_eval_type(
 
-		GFXShaderType          type,
-		const GFX_Extensions*  ext)
+		GFXShaderType type)
 {
 	switch(type)
 	{
@@ -50,7 +49,7 @@ static int _gfx_shader_eval_type(
 		case GFX_TESS_CONTROL_SHADER :
 		case GFX_TESS_EVAL_SHADER :
 
-			if(!ext->flags[GFX_EXT_TESSELLATION_SHADER])
+			if(!(GFX_EXT)->flags[GFX_EXT_TESSELLATION_SHADER])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -63,7 +62,7 @@ static int _gfx_shader_eval_type(
 		/* GFX_EXT_GEOMETRY_SHADER */
 		case GFX_GEOMETRY_SHADER :
 
-			if(!ext->flags[GFX_EXT_GEOMETRY_SHADER])
+			if(!(GFX_EXT)->flags[GFX_EXT_GEOMETRY_SHADER])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -161,8 +160,7 @@ static int _gfx_shader_preprocess_version(
 /******************************************************/
 static void _gfx_shader_obj_free(
 
-		void*            object,
-		GFX_Extensions*  ext)
+		void* object)
 {
 	struct GFX_Shader* shader = (struct GFX_Shader*)object;
 
@@ -193,12 +191,8 @@ GFXShader* gfx_shader_create(
 
 		GFXShaderType type)
 {
-	/* Get current window and context */
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return NULL;
-
-	if(!_gfx_shader_eval_type(type, &window->extensions))
-		return NULL;
+	if(!GFX_EXT) return NULL;
+	if(!_gfx_shader_eval_type(type)) return NULL;
 
 	/* Create new shader */
 	struct GFX_Shader* shader = calloc(1, sizeof(struct GFX_Shader));
@@ -226,7 +220,7 @@ GFXShader* gfx_shader_create(
 
 	/* Create OpenGL resources */
 	shader->shader.type = type;
-	shader->handle = window->extensions.CreateShader(type);
+	shader->handle = (GFX_EXT)->CreateShader(type);
 
 	return (GFXShader*)shader;
 }
@@ -244,8 +238,7 @@ void gfx_shader_free(
 		_gfx_hardware_object_unregister(shader->id);
 
 		/* Get current window and context */
-		GFX_Window* window = _gfx_window_get_current();
-		if(window) window->extensions.DeleteShader(internal->handle);
+		if(GFX_EXT) (GFX_EXT)->DeleteShader(internal->handle);
 
 		free(shader);
 	}
@@ -258,10 +251,7 @@ int gfx_shader_set_source(
 		size_t        num,
 		const char**  src)
 {
-	/* Get current window and context */
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window || !num) return 0;
-
+	if(!GFX_EXT || !num) return 0;
 	struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
 	/* Copy sources for preprocessing */
@@ -293,13 +283,13 @@ int gfx_shader_set_source(
 	success = _gfx_shader_preprocess_version(
 		&num,
 		&newSrc,
-		window
+		_gfx_window_get_current()
 	);
 
 	if(success)
 	{
 		/* Set the source */
-		window->extensions.ShaderSource(
+		(GFX_EXT)->ShaderSource(
 			internal->handle,
 			num,
 			(const char**)newSrc,
@@ -321,9 +311,7 @@ char* gfx_shader_get_source(
 		GFXShader*  shader,
 		size_t*     length)
 {
-	/* Get current window and context */
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window)
+	if(!GFX_EXT)
 	{
 		if(length) *length = 0;
 		return NULL;
@@ -333,7 +321,7 @@ char* gfx_shader_get_source(
 
 	/* Get source length */
 	GLint len;
-	window->extensions.GetShaderiv(
+	(GFX_EXT)->GetShaderiv(
 		internal->handle,
 		GL_SHADER_SOURCE_LENGTH,
 		&len
@@ -347,7 +335,7 @@ char* gfx_shader_get_source(
 
 	/* Get actual source */
 	char* buff = malloc(len);
-	window->extensions.GetShaderSource(
+	(GFX_EXT)->GetShaderSource(
 		internal->handle,
 		len,
 		NULL,
@@ -367,16 +355,13 @@ int gfx_shader_compile(
 	/* Already compiled */
 	if(!shader->compiled)
 	{
-		/* Get current window and context */
-		GFX_Window* window = _gfx_window_get_current();
-		if(!window) return 0;
-
+		if(!GFX_EXT) return 0;
 		struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
 		/* Try to compile */
 		GLint status;
-		window->extensions.CompileShader(internal->handle);
-		window->extensions.GetShaderiv(
+		(GFX_EXT)->CompileShader(internal->handle);
+		(GFX_EXT)->GetShaderiv(
 			internal->handle,
 			GL_COMPILE_STATUS,
 			&status
@@ -386,13 +371,13 @@ int gfx_shader_compile(
 		if(!status)
 		{
 			GLint len;
-			window->extensions.GetShaderiv(
+			(GFX_EXT)->GetShaderiv(
 				internal->handle,
 				GL_INFO_LOG_LENGTH,
 				&len);
 
 			char buff[len];
-			window->extensions.GetShaderInfoLog(
+			(GFX_EXT)->GetShaderInfoLog(
 				internal->handle,
 				len,
 				NULL,

@@ -56,14 +56,13 @@ static inline void _gfx_pipe_process_draw(
 		GFXPipeState*    state,
 		GFXPropertyMap*  map,
 		unsigned int     copy,
-		GLuint           layout,
-		GFX_Extensions*  ext)
+		GLuint           layout)
 {
-	_gfx_states_set(state, ext);
-	_gfx_property_map_use(map, copy, 0, ext);
-	_gfx_vertex_layout_bind(layout, ext);
+	_gfx_states_set(state);
+	_gfx_property_map_use(map, copy, 0);
+	_gfx_vertex_layout_bind(layout);
 
-	ext->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	(GFX_EXT)->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
 /******************************************************/
@@ -94,7 +93,7 @@ int _gfx_pipe_process_prepare(
 	if(!target->layout)
 	{
 		ext->GenVertexArrays(1, &target->layout);
-		_gfx_vertex_layout_bind(target->layout, ext);
+		_gfx_vertex_layout_bind(target->layout);
 
 		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
 		ext->EnableVertexAttribArray(0);
@@ -300,9 +299,10 @@ void gfx_pipe_process_set_target(
 void _gfx_pipe_process_execute(
 
 		GFXPipeProcess  process,
-		GFXPipeState*   state,
-		GFX_Window*     active)
+		GFXPipeState*   state)
 {
+	/* Get current window */
+	GFX_Window* active = _gfx_window_get_current();
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 
 	/* Perform post-processing */
@@ -310,29 +310,25 @@ void _gfx_pipe_process_execute(
 	{
 		if(internal->target)
 		{
-			GFX_Extensions* ext = &internal->target->extensions;
-			GLuint fbo = ext->pipeline;
-
 			/* Make target current, draw, swap, and switch back to previously active */
 			_gfx_window_make_current(internal->target);
-			_gfx_pipeline_bind(0, ext);
+			GLuint fbo = (GFX_EXT)->pipeline;
+			_gfx_pipeline_bind(0);
 
 			_gfx_states_set_viewport(
 				0, 0,
 				internal->width,
-				internal->height,
-				ext);
+				internal->height);
 
 			_gfx_pipe_process_draw(
 				state,
 				internal->map,
 				internal->copy,
-				internal->target->layout,
-				ext);
+				internal->target->layout);
 
 			if(internal->swap) _gfx_window_swap_buffers();
 
-			_gfx_pipeline_bind(fbo, ext);
+			_gfx_pipeline_bind(fbo);
 			_gfx_window_make_current(active);
 		}
 
@@ -341,8 +337,7 @@ void _gfx_pipe_process_execute(
 			state,
 			internal->map,
 			internal->copy,
-			active->layout,
-			&active->extensions
+			active->layout
 		);
 	}
 }

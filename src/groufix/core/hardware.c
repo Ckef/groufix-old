@@ -38,8 +38,8 @@ static GFXDeque* _gfx_hw_ids = NULL;
 /* Actual object storage */
 struct GFX_HardwareObject
 {
-	void* handle;
-	const GFX_HardwareFuncs* funcs;
+	void*                     handle;
+	const GFX_HardwareFuncs*  funcs;
 };
 
 /******************************************************/
@@ -47,10 +47,8 @@ int gfx_hardware_is_extension_supported(
 
 		GFXExtension extension)
 {
-	GFX_Window* wind = _gfx_window_get_current();
-	if(!wind) return 0;
-
-	return wind->extensions.flags[extension];
+	if(!GFX_EXT) return 0;
+	return (GFX_EXT)->flags[extension];
 }
 
 /******************************************************/
@@ -58,10 +56,8 @@ int gfx_hardware_get_limit(
 
 		GFXLimit limit)
 {
-	GFX_Window* wind = _gfx_window_get_current();
-	if(!wind) return -1;
-
-	return wind->extensions.limits[limit];
+	if(!GFX_EXT) return -1;
+	return (GFX_EXT)->limits[limit];
 }
 
 /******************************************************/
@@ -194,9 +190,7 @@ void _gfx_hardware_object_unregister(
 }
 
 /******************************************************/
-void _gfx_hardware_objects_free(
-
-		GFX_Extensions* ext)
+void _gfx_hardware_objects_free(void)
 {
 	if(_gfx_hw_objects)
 	{
@@ -210,7 +204,7 @@ void _gfx_hardware_objects_free(
 			struct GFX_HardwareObject* obj = (struct GFX_HardwareObject*)it;
 
 			if(obj->funcs) if(obj->funcs->free)
-				obj->funcs->free(obj->handle, ext);
+				obj->funcs->free(obj->handle);
 		}
 
 		/* Unregister all */
@@ -223,9 +217,7 @@ void _gfx_hardware_objects_free(
 }
 
 /******************************************************/
-void _gfx_hardware_objects_save(
-
-		GFX_Extensions* ext)
+void _gfx_hardware_objects_save(void)
 {
 	/* Issue save method */
 	GFXVectorIterator it;
@@ -238,14 +230,12 @@ void _gfx_hardware_objects_save(
 		struct GFX_HardwareObject* obj = (struct GFX_HardwareObject*)it;
 
 		if(obj->funcs) if(obj->funcs->save)
-			obj->funcs->save(obj->handle, ext);
+			obj->funcs->save(obj->handle);
 	}
 }
 
 /******************************************************/
-void _gfx_hardware_objects_restore(
-
-		GFX_Extensions* ext)
+void _gfx_hardware_objects_restore(void)
 {
 	/* Issue restore method */
 	GFXVectorIterator it;
@@ -258,6 +248,6 @@ void _gfx_hardware_objects_restore(
 		struct GFX_HardwareObject* obj = (struct GFX_HardwareObject*)it;
 
 		if(obj->funcs) if(obj->funcs->restore)
-			obj->funcs->restore(obj->handle, ext);
+			obj->funcs->restore(obj->handle);
 	}
 }

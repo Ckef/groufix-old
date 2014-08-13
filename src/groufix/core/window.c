@@ -28,6 +28,9 @@
 #include <stdlib.h>
 
 /******************************************************/
+/* Current extensions */
+GFX_Extensions* _gfx_window_extensions = NULL;
+
 /* Current window */
 static GFX_Window* _gfx_current_window = NULL;
 
@@ -145,8 +148,16 @@ void _gfx_window_make_current(
 
 		GFX_Window* window)
 {
-	if(window && _gfx_current_window != window)
-		_gfx_platform_context_make_current(window->handle);
+	if(window)
+	{
+		_gfx_window_extensions = &window->extensions;
+		if(_gfx_current_window != window)
+			_gfx_platform_context_make_current(window->handle);
+	}
+	else
+	{
+		_gfx_window_extensions = NULL;
+	}
 
 	_gfx_current_window = window;
 }
@@ -163,14 +174,14 @@ void _gfx_window_swap_buffers(void)
 	/* Swap buffers and poll errors while it's current */
 	_gfx_platform_context_swap_buffers();
 
-	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG && _gfx_current_window)
+	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG && GFX_EXT)
 	{
 		/* Loop over all errors */
-		GLenum err = _gfx_current_window->extensions.GetError();
+		GLenum err = (GFX_EXT)->GetError();
 		while(err != GL_NO_ERROR)
 		{
 			gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
-			err = _gfx_current_window->extensions.GetError();
+			err = (GFX_EXT)->GetError();
 		}
 	}
 }
@@ -390,12 +401,13 @@ void _gfx_window_destroy(
 		{
 			/* Oh, also do a free request */
 			_gfx_pipe_process_untarget(window, 1);
-			_gfx_hardware_objects_free(&window->extensions);
+			_gfx_hardware_objects_free();
 			_gfx_platform_window_free(window->handle);
 
 			gfx_vector_free(_gfx_windows);
 			_gfx_windows = NULL;
 
+			_gfx_window_extensions = NULL;
 			_gfx_current_window = NULL;
 			_gfx_main_window = NULL;
 		}
@@ -404,14 +416,14 @@ void _gfx_window_destroy(
 		else if(_gfx_main_window == window)
 		{
 			_gfx_pipe_process_untarget(window, 0);
-			_gfx_hardware_objects_save(&window->extensions);
+			_gfx_hardware_objects_save();
 			_gfx_platform_window_free(window->handle);
 
 			/* Get new main window */
 			_gfx_main_window = *(GFX_Window**)_gfx_windows->begin;
 			_gfx_window_make_current(_gfx_main_window);
 
-			_gfx_hardware_objects_restore(&_gfx_main_window->extensions);
+			_gfx_hardware_objects_restore();
 		}
 		else
 		{

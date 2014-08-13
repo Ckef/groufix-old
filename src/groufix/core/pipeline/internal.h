@@ -48,74 +48,57 @@ void _gfx_states_set_default(
 		GFXPipeState* state);
 
 /**
- * Sets the state of a context.
- *
- * Note: this assumes the context is current.
+ * Sets the state of the current context.
  *
  */
 void _gfx_states_set(
 
-		GFXPipeState*    state,
-		GFX_Extensions*  ext);
+		GFXPipeState* state);
 
 /**
- * Forces all state fields of a context.
+ * Forces all state fields of the current context.
  *
  * This will reset all state fields, regardless of previous states.
- * Note: this assumes the context is current.
  *
  */
 void _gfx_states_force_set(
 
-		GFXPipeState*    state,
-		GFX_Extensions*  ext);
+		GFXPipeState* state);
 
 /**
- * Sets the viewport size of the context.
- *
- * Note: this assumes the context is current.
+ * Sets the viewport size of the current context.
  *
  */
 void _gfx_states_set_viewport(
 
-		int              x,
-		int              y,
-		unsigned int     width,
-		unsigned int     height,
-		GFX_Extensions*  ext);
+		int           x,
+		int           y,
+		unsigned int  width,
+		unsigned int  height);
 
 /**
- * Sets the pixel pack alignment of the context.
- *
- * Note: this assumes the context is current.
+ * Sets the pixel pack alignment of the current context.
  *
  */
 void _gfx_states_set_pixel_pack_alignment(
 
-		unsigned char    align,
-		GFX_Extensions*  ext);
+		unsigned char align);
 
 /**
- * Sets the pixel unpack alignment of the context.
- *
- * Note: this assumes the context is current.
+ * Sets the pixel unpack alignment of the current context.
  *
  */
 void _gfx_states_set_pixel_unpack_alignment(
 
-		unsigned char    align,
-		GFX_Extensions*  ext);
+		unsigned char align);
 
 /**
  * Sets the number of vertices per patch.
  *
- * Note: this assumes the context is current.
- *
  */
 void _gfx_states_set_patch_vertices(
 
-		unsigned int     vertices,
-		GFX_Extensions*  ext);
+		unsigned int vertices);
 
 
 /********************************************************
@@ -174,13 +157,12 @@ GFX_Pipe* _gfx_pipe_free(
 		GFX_Pipe* pipe);
 
 /**
- * Sets the framebuffer handle associated with a pipeline as current for the given context.
+ * Sets the framebuffer handle associated with a pipeline as current for the current context.
  *
  */
 void _gfx_pipeline_bind(
 
-		GLuint           handle,
-		GFX_Extensions*  ext);
+		GLuint handle);
 
 
 /********************************************************
@@ -213,9 +195,8 @@ void _gfx_bucket_free(
  */
 void _gfx_bucket_process(
 
-		GFXBucket*       bucket,
-		GFXPipeState*    state,
-		GFX_Extensions*  ext);
+		GFXBucket*     bucket,
+		GFXPipeState*  state);
 
 
 /********************************************************
@@ -242,14 +223,12 @@ void _gfx_pipe_process_free(
  * Executes the pipe process.
  *
  * @param pipeline Calling pipeline.
- * @param active Currently active window.
  *
  */
 void _gfx_pipe_process_execute(
 
 		GFXPipeProcess  process,
-		GFXPipeState*   state,
-		GFX_Window*     active);
+		GFXPipeState*   state);
 
 /**
  * Prepares a window for render to texture.

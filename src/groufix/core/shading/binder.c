@@ -222,14 +222,14 @@ size_t _gfx_binder_bind_uniform_buffer(
 		GLintptr         offset,
 		GLsizeiptr       size,
 		int              prioritize,
-		int*             old,
-		GFX_Extensions*  ext)
+		int*             old)
 {
 	/* Allocate binding points */
-	if(!ext->uniformBuffers) ext->uniformBuffers = _gfx_binder_init(
-		ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
-		sizeof(struct GFX_UniformBuffer)
-	);
+	if(!(GFX_EXT)->uniformBuffers)
+		(GFX_EXT)->uniformBuffers = _gfx_binder_init(
+			(GFX_EXT)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+			sizeof(struct GFX_UniformBuffer)
+		);
 
 	/* Get unit to bind it to */
 	struct GFX_UniformBuffer buff;
@@ -238,8 +238,8 @@ size_t _gfx_binder_bind_uniform_buffer(
 	buff.size = size;
 
 	size_t bind = _gfx_binder_request(
-		ext->uniformBuffers,
-		ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+		(GFX_EXT)->uniformBuffers,
+		(GFX_EXT)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
 		sizeof(struct GFX_UniformBuffer),
 		&buff,
 		prioritize,
@@ -247,7 +247,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 	);
 
 	/* Bind the buffer */
-	if(!*old) ext->BindBufferRange(
+	if(!*old) (GFX_EXT)->BindBufferRange(
 		GL_UNIFORM_BUFFER,
 		bind,
 		buffer,
@@ -261,17 +261,16 @@ size_t _gfx_binder_bind_uniform_buffer(
 /******************************************************/
 void _gfx_binder_unbind_uniform_buffer(
 
-		GLuint           buffer,
-		GFX_Extensions*  ext)
+		GLuint buffer)
 {
-	if(ext->uniformBuffers)
+	if((GFX_EXT)->uniformBuffers)
 	{
 		struct GFX_UniformBuffer buff;
 		buff.buffer = buffer;
 
 		_gfx_binder_unbind(
-			ext->uniformBuffers,
-			ext->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+			(GFX_EXT)->uniformBuffers,
+			(GFX_EXT)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(struct GFX_UniformBuffer),
 			sizeof(GLuint),
 			&buff
@@ -285,22 +284,22 @@ size_t _gfx_binder_bind_texture(
 		GLuint           texture,
 		GLenum           target,
 		int              prioritize,
-		int*             old,
-		GFX_Extensions*  ext)
+		int*             old)
 {
 	/* Allocate binding points */
-	if(!ext->textureUnits) ext->textureUnits = _gfx_binder_init(
-		ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
-		sizeof(struct GFX_TextureUnit)
-	);
+	if(!(GFX_EXT)->textureUnits)
+		(GFX_EXT)->textureUnits = _gfx_binder_init(
+			(GFX_EXT)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+			sizeof(struct GFX_TextureUnit)
+		);
 
 	/* Get unit to bind it to */
 	struct GFX_TextureUnit unit;
 	unit.texture = texture;
 
 	size_t bind = _gfx_binder_request(
-		ext->textureUnits,
-		ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+		(GFX_EXT)->textureUnits,
+		(GFX_EXT)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 		sizeof(struct GFX_TextureUnit),
 		&unit,
 		prioritize,
@@ -308,8 +307,8 @@ size_t _gfx_binder_bind_texture(
 	);
 
 	/* Bind the texture */
-	ext->ActiveTexture(GL_TEXTURE0 + bind);
-	if(!*old) ext->BindTexture(target, texture);
+	(GFX_EXT)->ActiveTexture(GL_TEXTURE0 + bind);
+	if(!*old) (GFX_EXT)->BindTexture(target, texture);
 
 	return bind;
 }
@@ -317,17 +316,16 @@ size_t _gfx_binder_bind_texture(
 /******************************************************/
 void _gfx_binder_unbind_texture(
 
-		GLuint           texture,
-		GFX_Extensions*  ext)
+		GLuint texture)
 {
-	if(ext->textureUnits)
+	if((GFX_EXT)->textureUnits)
 	{
 		struct GFX_TextureUnit unit;
 		unit.texture = texture;
 
 		_gfx_binder_unbind(
-			ext->textureUnits,
-			ext->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+			(GFX_EXT)->textureUnits,
+			(GFX_EXT)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(struct GFX_TextureUnit),
 			sizeof(GLuint),
 			&unit

@@ -407,6 +407,7 @@ void _gfx_extensions_load(void)
 
 	/* Default Extensions */
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]            = 0;
+	ext->flags[GFX_EXT_DIRECT_STATE_ACCESS]       = 0;
 	ext->flags[GFX_EXT_GEOMETRY_SHADER]           = 0;
 	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES]      = 1;
 	ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 0;
@@ -644,6 +645,24 @@ void _gfx_extensions_load(void)
 	ext->VertexAttribPointer       = (PFNGLVERTEXATTRIBPOINTERPROC)       _gfx_platform_get_proc_address("glVertexAttribPointer");
 	ext->Viewport                  = (PFNGLVIEWPORTPROC)                  glViewport;
 
+	/* GFX_EXT_DIRECT_STATE_ACCESS */
+	if(
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 4))
+	{
+		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
+	}
+
+	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_direct_state_access"))
+	{
+		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
+	}
+
+	else
+	{
+		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 0;
+	}
+
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(
 		window->context.major > 3 ||
@@ -792,7 +811,7 @@ void _gfx_extensions_load(void)
 
 	/* Set default state */
 	_gfx_states_set_default(&ext->state);
-	_gfx_states_force_set(&ext->state, ext);
+	_gfx_states_force_set(&ext->state);
 
 	/* Set other defaults */
 	ext->pipeline = 0;

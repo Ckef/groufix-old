@@ -478,15 +478,14 @@ static void _gfx_bucket_preprocess(
 /******************************************************/
 void _gfx_bucket_process(
 
-		GFXBucket*       bucket,
-		GFXPipeState*    state,
-		GFX_Extensions*  ext)
+		GFXBucket*     bucket,
+		GFXPipeState*  state)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 
 	/* Preprocess, set states and process */
 	_gfx_bucket_preprocess(internal);
-	_gfx_states_set(state, ext);
+	_gfx_states_set(state);
 
 	struct GFX_Unit* unit;
 	for(
@@ -503,8 +502,7 @@ void _gfx_bucket_process(
 		_gfx_property_map_use(
 			unit->map,
 			unit->copy,
-			unit->base,
-			ext);
+			unit->base);
 
 		_gfx_vertex_layout_draw(
 			src->layout,

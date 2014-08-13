@@ -66,13 +66,12 @@ typedef enum GFX_DrawType
 
 
 /**
- * Sets the layout handle as currently bound for the given context.
+ * Sets the layout handle as currently bound to the current context.
  *
  */
 void _gfx_vertex_layout_bind(
 
-		GLuint           handle,
-		GFX_Extensions*  ext);
+		GLuint handle);
 
 /**
  * Performs a complete draw operation.

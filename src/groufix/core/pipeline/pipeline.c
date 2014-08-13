@@ -60,22 +60,18 @@ struct GFX_Pipeline
 	int           y;
 	unsigned int  width;
 	unsigned int  height;
-
-	/* Not a shared resource */
-	GFX_Window* win;
 };
 
 /******************************************************/
 void _gfx_pipeline_bind(
 
-		GLuint           fbo,
-		GFX_Extensions*  ext)
+		GLuint fbo)
 {
 	/* Prevent binding it twice */
-	if(ext->pipeline != fbo)
+	if((GFX_EXT)->pipeline != fbo)
 	{
-		ext->pipeline = fbo;
-		ext->BindFramebuffer(GL_FRAMEBUFFER, fbo);
+		(GFX_EXT)->pipeline = fbo;
+		(GFX_EXT)->BindFramebuffer(GL_FRAMEBUFFER, fbo);
 	}
 }
 
@@ -114,19 +110,18 @@ static GFXVectorIterator _gfx_pipeline_find_attachment(
 static void _gfx_pipeline_init_attachment(
 
 		GLuint                  fbo,
-		struct GFX_Attachment*  attach,
-		GFX_Extensions*         ext)
+		struct GFX_Attachment*  attach)
 {
 	/* Check texture handle */
-	if(ext->IsTexture(attach->texture))
+	if((GFX_EXT)->IsTexture(attach->texture))
 	{
 		/* Bind framebuffer and attach texture */
-		_gfx_pipeline_bind(fbo, ext);
+		_gfx_pipeline_bind(fbo);
 
 		switch(attach->target)
 		{
 			case GL_TEXTURE_BUFFER :
-				ext->FramebufferTexture1D(
+				(GFX_EXT)->FramebufferTexture1D(
 					GL_FRAMEBUFFER,
 					attach->attachment,
 					GL_TEXTURE_BUFFER,
@@ -136,7 +131,7 @@ static void _gfx_pipeline_init_attachment(
 				break;
 
 			case GL_TEXTURE_1D :
-				ext->FramebufferTexture1D(
+				(GFX_EXT)->FramebufferTexture1D(
 					GL_FRAMEBUFFER,
 					attach->attachment,
 					GL_TEXTURE_1D,
@@ -146,7 +141,7 @@ static void _gfx_pipeline_init_attachment(
 				break;
 
 			case GL_TEXTURE_2D :
-				ext->FramebufferTexture2D(
+				(GFX_EXT)->FramebufferTexture2D(
 					GL_FRAMEBUFFER,
 					attach->attachment,
 					GL_TEXTURE_2D,
@@ -159,7 +154,7 @@ static void _gfx_pipeline_init_attachment(
 			case GL_TEXTURE_1D_ARRAY :
 			case GL_TEXTURE_2D_ARRAY :
 			case GL_TEXTURE_CUBE_MAP_ARRAY :
-				ext->FramebufferTextureLayer(
+				(GFX_EXT)->FramebufferTextureLayer(
 					GL_FRAMEBUFFER,
 					attach->attachment,
 					attach->texture,
@@ -169,7 +164,7 @@ static void _gfx_pipeline_init_attachment(
 				break;
 
 			case GL_TEXTURE_CUBE_MAP :
-				ext->FramebufferTexture2D(
+				(GFX_EXT)->FramebufferTexture2D(
 					GL_FRAMEBUFFER,
 					attach->attachment,
 					attach->layer,
@@ -209,12 +204,10 @@ static void _gfx_pipeline_push_pipe(
 /******************************************************/
 static void _gfx_pipeline_obj_free(
 
-		void*            object,
-		GFX_Extensions*  ext)
+		void* object)
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
-	pipeline->win = NULL;
 	pipeline->fbo = 0;
 	pipeline->pipeline.id = 0;
 
@@ -228,29 +221,24 @@ static void _gfx_pipeline_obj_free(
 /******************************************************/
 static void _gfx_pipeline_obj_save(
 
-		void*            object,
-		GFX_Extensions*  ext)
+		void* object)
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
 	/* Don't clear the attachments vector or target array */
-	ext->DeleteFramebuffers(1, &pipeline->fbo);
-
-	pipeline->win = NULL;
+	(GFX_EXT)->DeleteFramebuffers(1, &pipeline->fbo);
 	pipeline->fbo = 0;
 }
 
 /******************************************************/
 static void _gfx_pipeline_obj_restore(
 
-		void*            object,
-		GFX_Extensions*  ext)
+		void* object)
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
 	/* Create FBO */
-	pipeline->win = _gfx_window_get_current();
-	ext->GenFramebuffers(1, &pipeline->fbo);
+	(GFX_EXT)->GenFramebuffers(1, &pipeline->fbo);
 
 	/* Restore attachments */
 	GFXVectorIterator it = pipeline->attachments.begin;
@@ -258,8 +246,7 @@ static void _gfx_pipeline_obj_restore(
 	{
 		_gfx_pipeline_init_attachment(
 			pipeline->fbo,
-			(struct GFX_Attachment*)it,
-			ext
+			(struct GFX_Attachment*)it
 		);
 		it = gfx_vector_next(&pipeline->attachments, it);
 	}
@@ -267,11 +254,9 @@ static void _gfx_pipeline_obj_restore(
 	/* Restore targets */
 	if(pipeline->numTargets)
 	{
-		_gfx_pipeline_bind(
-			pipeline->fbo,
-			ext);
+		_gfx_pipeline_bind(pipeline->fbo);
 
-		ext->DrawBuffers(
+		(GFX_EXT)->DrawBuffers(
 			pipeline->numTargets,
 			pipeline->targets);
 	}
@@ -297,9 +282,7 @@ GLuint _gfx_pipeline_get_handle(
 /******************************************************/
 GFXPipeline* gfx_pipeline_create(void)
 {
-	/* Get current window and context */
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return NULL;
+	if(!GFX_EXT) return NULL;
 
 	/* Create new pipeline */
 	struct GFX_Pipeline* pl = calloc(1, sizeof(struct GFX_Pipeline));
@@ -326,8 +309,7 @@ GFXPipeline* gfx_pipeline_create(void)
 	}
 
 	/* Create OpenGL resources */
-	pl->win = window;
-	pl->win->extensions.GenFramebuffers(1, &pl->fbo);
+	(GFX_EXT)->GenFramebuffers(1, &pl->fbo);
 
 	pl->x      = 0;
 	pl->y      = 0;
@@ -352,15 +334,12 @@ void gfx_pipeline_free(
 		_gfx_hardware_object_unregister(pipeline->id);
 
 		/* Delete FBO */
-		if(internal->win)
+		if(GFX_EXT)
 		{
-			if(internal->win->extensions.program == internal->fbo)
-				internal->win->extensions.program = 0;
+			if((GFX_EXT)->program == internal->fbo)
+				(GFX_EXT)->program = 0;
 
-			internal->win->extensions.DeleteFramebuffers(
-				1,
-				&internal->fbo
-			);
+			(GFX_EXT)->DeleteFramebuffers(1, &internal->fbo);
 		}
 
 		/* Free all pipes */
@@ -401,14 +380,12 @@ unsigned int gfx_pipeline_target(
 		unsigned int  num,
 		const char*   indices)
 {
+	if(!num || !GFX_EXT) return 0;
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
-	if(!num || !internal->win) return 0;
-
-	GFX_Extensions* ext = &internal->win->extensions;
 
 	/* Limit number of targets */
-	num = (num > ext->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
-		ext->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
+	num = (num > (GFX_EXT)->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
+		(GFX_EXT)->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
 
 	/* Construct attachment buffer */
 	GLenum* targets = malloc(sizeof(GLenum) * num);
@@ -427,7 +404,7 @@ unsigned int gfx_pipeline_target(
 	internal->numTargets = num;
 
 	unsigned int i;
-	int max = ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
+	int max = (GFX_EXT)->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
 
 	for(i = 0; i < num; ++i)
 	{
@@ -436,8 +413,8 @@ unsigned int gfx_pipeline_target(
 	}
 
 	/* Pass to OGL */
-	_gfx_pipeline_bind(internal->fbo, ext);
-	ext->DrawBuffers(num, internal->targets);
+	_gfx_pipeline_bind(internal->fbo);
+	(GFX_EXT)->DrawBuffers(num, internal->targets);
 
 	return num;
 }
@@ -450,14 +427,12 @@ int gfx_pipeline_attach(
 		GFXPipelineAttachment  attach,
 		unsigned char          index)
 {
+	if(!GFX_EXT) return 0;
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
-	if(!internal->win) return 0;
-
-	GFX_Extensions* ext = &internal->win->extensions;
 
 	/* Check attachment limit */
 	if(attach != GFX_COLOR_ATTACHMENT) index = 0;
-	else if(index >= ext->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS])
+	else if(index >= (GFX_EXT)->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS])
 		return 0;
 
 	/* Init attachment */
@@ -499,7 +474,7 @@ int gfx_pipeline_attach(
 	else *((struct GFX_Attachment*)it) = att;
 
 	/* Send attachment to OGL */
-	_gfx_pipeline_init_attachment(internal->fbo, &att, ext);
+	_gfx_pipeline_init_attachment(internal->fbo, &att);
 
 	return 1;
 }
@@ -770,12 +745,11 @@ void gfx_pipeline_execute(
 		GFXPipeline*  pipeline,
 		size_t        num)
 {
+	if(!GFX_EXT) return;
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
-	if(!internal->win) return;
 
 	/* Bind as framebuffer */
-	GFX_Extensions* ext = &internal->win->extensions;
-	_gfx_pipeline_bind(internal->fbo, ext);
+	_gfx_pipeline_bind(internal->fbo);
 
 	/* Iterate over all pipes */
 	int nolimit = !num;
@@ -789,8 +763,7 @@ void gfx_pipeline_execute(
 			internal->x,
 			internal->y,
 			internal->width,
-			internal->height,
-			ext
+			internal->height
 		);
 
 		/* Process pipe */
@@ -799,15 +772,14 @@ void gfx_pipeline_execute(
 			case GFX_PIPE_BUCKET :
 				_gfx_bucket_process(
 					pipe->ptr.bucket,
-					&pipe->state, ext
+					&pipe->state
 				);
 				break;
 
 			case GFX_PIPE_PROCESS :
 				_gfx_pipe_process_execute(
 					pipe->ptr.process,
-					&pipe->state,
-					internal->win
+					&pipe->state
 				);
 				break;
 		}

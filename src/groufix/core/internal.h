@@ -70,6 +70,9 @@
 #define APIENTRYP APIENTRY *
 #endif
 
+/* Access to extensions */
+#define GFX_EXT _gfx_window_extensions
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -249,7 +252,7 @@ typedef struct GFX_Extensions
 	GFX_DISABLEVERTEXATTRIBARRAYPROC           DisableVertexAttribArray;
 	GFX_DRAWARRAYSPROC                         DrawArrays;
 	GFX_DRAWARRAYSINSTANCEDPROC                DrawArraysInstanced;
-	GFX_DRAWARRAYSINSTANCEDBASEINSTANCEPROC    DrawArraysInstancedBaseInstance;   /* GFX_EXT_INTSANCED_BASE_ATTRIBUTES */
+	GFX_DRAWARRAYSINSTANCEDBASEINSTANCEPROC    DrawArraysInstancedBaseInstance;   /* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
 	GFX_DRAWBUFFERSPROC                        DrawBuffers;
 	GFX_DRAWELEMENTSPROC                       DrawElements;
 	GFX_DRAWELEMENTSINSTANCEDPROC              DrawElementsInstanced;
@@ -347,6 +350,12 @@ typedef struct GFX_Window
 
 
 /**
+ * The current extensions (guaranteed to be of the current window).
+ */
+extern GFX_Extensions* _gfx_window_extensions;
+
+
+/**
  * Returns the top level window associated with a platform window.
  *
  */
@@ -430,7 +439,7 @@ void _gfx_extensions_load(void);
  *******************************************************/
 
 /** Generic hardware object operator */
-typedef void (*GFX_HardwareObjectFunc) (void* object, GFX_Extensions*);
+typedef void (*GFX_HardwareObjectFunc) (void* object);
 
 
 /** Hardware vtable, can all be NULL */
@@ -474,9 +483,7 @@ void _gfx_hardware_object_unregister(
  * Thus this callback is NOT allowed to unregister the object.
  *
  */
-void _gfx_hardware_objects_free(
-
-		GFX_Extensions* ext);
+void _gfx_hardware_objects_free(void);
 
 /**
  * Issue save method of all hardware objects.
@@ -485,9 +492,7 @@ void _gfx_hardware_objects_free(
  * It is guaranteed another context is still active, this is only meant for objects which can't be shared.
  *
  */
-void _gfx_hardware_objects_save(
-
-		GFX_Extensions* ext);
+void _gfx_hardware_objects_save(void);
 
 /**
  * Issue restore method of all hardware objects.
@@ -495,9 +500,7 @@ void _gfx_hardware_objects_save(
  * During this operation, a new window and context is current.
  *
  */
-void _gfx_hardware_objects_restore(
-
-		GFX_Extensions* ext);
+void _gfx_hardware_objects_restore(void);
 
 
 /********************************************************

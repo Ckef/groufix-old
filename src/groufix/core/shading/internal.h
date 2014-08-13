@@ -36,7 +36,7 @@ extern "C" {
  *******************************************************/
 
 /**
- * Sets the program handle as currently in use for the given context.
+ * Sets the program handle as currently in use for the current context.
  *
  * @param copy Index of the copy of the map to use.
  * @param base Base instance to use.
@@ -46,8 +46,7 @@ void _gfx_property_map_use(
 
 		GFXPropertyMap*  map,
 		unsigned int     copy,
-		unsigned int     base,
-		GFX_Extensions*  ext);
+		unsigned int     base);
 
 /**
  * Get the location of a property (a.k.a uniform).
@@ -79,8 +78,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 		GLintptr         offset,
 		GLsizeiptr       size,
 		int              prioritize,
-		int*             old,
-		GFX_Extensions*  ext);
+		int*             old);
 
 /**
  * Makes sure a buffer is unbound from any uniform buffer index.
@@ -88,8 +86,7 @@ size_t _gfx_binder_bind_uniform_buffer(
  */
 void _gfx_binder_unbind_uniform_buffer(
 
-		GLuint           buffer,
-		GFX_Extensions*  ext);
+		GLuint buffer);
 
 /**
  * Binds a texture to the appropriate unit.
@@ -105,8 +102,7 @@ size_t _gfx_binder_bind_texture(
 		GLuint           texture,
 		GLenum           target,
 		int              prioritize,
-		int*             old,
-		GFX_Extensions*  ext);
+		int*             old);
 
 /**
  * Makes sure a texture is unbound from any unit.
@@ -114,8 +110,7 @@ size_t _gfx_binder_bind_texture(
  */
 void _gfx_binder_unbind_texture(
 
-		GLuint           texture,
-		GFX_Extensions*  ext);
+		GLuint texture);
 
 
 #ifdef __cplusplus
