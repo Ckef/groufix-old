@@ -70,8 +70,6 @@ int _gfx_pipe_process_prepare(
 
 		GFX_Window* target)
 {
-	GFX_Extensions* ext = &target->extensions;
-
 	/* First make sure the buffer exists */
 	if(!_gfx_process_buffer)
 	{
@@ -82,8 +80,8 @@ int _gfx_pipe_process_prepare(
 			-1,  1, 0, 1
 		};
 
-		ext->CreateBuffers(1, &_gfx_process_buffer);
-		ext->NamedBufferData(_gfx_process_buffer, sizeof(data), data, GL_STATIC_DRAW);
+		(GFX_EXT)->CreateBuffers(1, &_gfx_process_buffer);
+		(GFX_EXT)->NamedBufferData(_gfx_process_buffer, sizeof(data), data, GL_STATIC_DRAW);
 
 		if(!_gfx_process_buffer) return 0;
 	}
@@ -91,12 +89,12 @@ int _gfx_pipe_process_prepare(
 	/* Next create the layout */
 	if(!target->layout)
 	{
-		ext->GenVertexArrays(1, &target->layout);
+		(GFX_EXT)->GenVertexArrays(1, &target->layout);
 		_gfx_vertex_layout_bind(target->layout);
 
-		ext->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
-		ext->EnableVertexAttribArray(0);
-		ext->VertexAttribIPointer(0, 4, GL_BYTE, 0, (GLvoid*)0);
+		(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
+		(GFX_EXT)->EnableVertexAttribArray(0);
+		(GFX_EXT)->VertexAttribIPointer(0, 4, GL_BYTE, 0, (GLvoid*)0);
 
 		return target->layout;
 	}
