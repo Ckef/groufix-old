@@ -166,7 +166,6 @@ static void _gfx_gl_create_textures(
 		GLuint*  textures)
 {
 	(GFX_EXT)->GenTextures(n, textures);
-	while(n) (GFX_EXT)->BindTexture(target, textures[--n]);
 }
 
 static void _gfx_gl_base_instance_error(void)
