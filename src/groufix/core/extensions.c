@@ -909,96 +909,57 @@ void _gfx_extensions_load(void)
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
 
-		ext->CopyNamedBufferSubData = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)
-			_gfx_platform_get_proc_address("glCopyNamedBufferSubData");
-		ext->CreateBuffers = (PFNGLCREATEBUFFERSPROC)
-			_gfx_platform_get_proc_address("glCreateBuffers");
-		ext->CreateFramebuffers = (PFNGLCREATEFRAMEBUFFERSPROC)
-			_gfx_platform_get_proc_address("glCreateFramebuffers");
-		ext->CreateTextures = (PFNGLCREATETEXTURESPROC)
-			_gfx_platform_get_proc_address("glCreateTextures");
-		ext->GetNamedBufferSubData = (PFNGLGETNAMEDBUFFERSUBDATAPROC)
-			_gfx_platform_get_proc_address("glGetNamedBufferSubData");
-		ext->MapNamedBufferRange = (PFNGLMAPNAMEDBUFFERRANGEPROC)
-			_gfx_platform_get_proc_address("glMapNamedBufferRange");
-		ext->NamedBufferData = (PFNGLNAMEDBUFFERDATAPROC)
-			_gfx_platform_get_proc_address("glNamedBufferData");
-		ext->NamedBufferSubData = (PFNGLNAMEDBUFFERSUBDATAPROC)
-			_gfx_platform_get_proc_address("glNamedBufferSubData");
-		ext->NamedFramebufferDrawBuffers = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)
-			_gfx_platform_get_proc_address("glNamedFramebufferDrawBuffers");
-		ext->NamedFramebufferTexture = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)
-			_gfx_platform_get_proc_address("glNamedFramebufferTexture");
-		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC)
-			_gfx_platform_get_proc_address("glNamedFramebufferTextureLayer");
-		ext->TextureBuffer = (PFNGLTEXTUREBUFFERPROC)
-			_gfx_platform_get_proc_address("glTextureBuffer");
-		ext->UnmapNamedBuffer = (PFNGLUNMAPNAMEDBUFFERPROC)
-			_gfx_platform_get_proc_address("glUnmapNamedBuffer");
+		ext->CopyNamedBufferSubData       = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)       _gfx_platform_get_proc_address("glCopyNamedBufferSubData");
+		ext->CreateBuffers                = (PFNGLCREATEBUFFERSPROC)                _gfx_platform_get_proc_address("glCreateBuffers");
+		ext->CreateFramebuffers           = (PFNGLCREATEFRAMEBUFFERSPROC)           _gfx_platform_get_proc_address("glCreateFramebuffers");
+		ext->CreateTextures               = (PFNGLCREATETEXTURESPROC)               _gfx_platform_get_proc_address("glCreateTextures");
+		ext->GetNamedBufferSubData        = (PFNGLGETNAMEDBUFFERSUBDATAPROC)        _gfx_platform_get_proc_address("glGetNamedBufferSubData");
+		ext->MapNamedBufferRange          = (PFNGLMAPNAMEDBUFFERRANGEPROC)          _gfx_platform_get_proc_address("glMapNamedBufferRange");
+		ext->NamedBufferData              = (PFNGLNAMEDBUFFERDATAPROC)              _gfx_platform_get_proc_address("glNamedBufferData");
+		ext->NamedBufferSubData           = (PFNGLNAMEDBUFFERSUBDATAPROC)           _gfx_platform_get_proc_address("glNamedBufferSubData");
+		ext->NamedFramebufferDrawBuffers  = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)  _gfx_platform_get_proc_address("glNamedFramebufferDrawBuffers");
+		ext->NamedFramebufferTexture      = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)      _gfx_platform_get_proc_address("glNamedFramebufferTexture");
+		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC) _gfx_platform_get_proc_address("glNamedFramebufferTextureLayer");
+		ext->TextureBuffer                = (PFNGLTEXTUREBUFFERPROC)                _gfx_platform_get_proc_address("glTextureBuffer");
+		ext->UnmapNamedBuffer             = (PFNGLUNMAPNAMEDBUFFERPROC)             _gfx_platform_get_proc_address("glUnmapNamedBuffer");
 	}
 
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_direct_state_access"))
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
 
-		ext->CopyNamedBufferSubData = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)
-			_gfx_platform_get_proc_address("glCopyNamedBufferSubDataARB");
-		ext->CreateBuffers = (PFNGLCREATEBUFFERSPROC)
-			_gfx_platform_get_proc_address("glCreateBuffersARB");
-		ext->CreateFramebuffers = (PFNGLCREATEFRAMEBUFFERSPROC)
-			_gfx_platform_get_proc_address("glCreateFramebuffersARB");
-		ext->CreateTextures = (PFNGLCREATETEXTURESPROC)
-			_gfx_platform_get_proc_address("glCreateTexturesARB");
-		ext->GetNamedBufferSubData = (PFNGLGETNAMEDBUFFERSUBDATAPROC)
-			_gfx_platform_get_proc_address("glGetNamedBufferSubDataARB");
-		ext->MapNamedBufferRange = (PFNGLMAPNAMEDBUFFERRANGEPROC)
-			_gfx_platform_get_proc_address("glMapNamedBufferRangeARB");
-		ext->NamedBufferData = (PFNGLNAMEDBUFFERDATAPROC)
-			_gfx_platform_get_proc_address("glNamedBufferDataARB");
-		ext->NamedBufferSubData = (PFNGLNAMEDBUFFERSUBDATAPROC)
-			_gfx_platform_get_proc_address("glNamedBufferSubDataARB");
-		ext->NamedFramebufferDrawBuffers = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)
-			_gfx_platform_get_proc_address("glNamedFramebufferDrawBuffersARB");
-		ext->NamedFramebufferTexture = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)
-			_gfx_platform_get_proc_address("glNamedFramebufferTextureARB");
-		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC)
-			_gfx_platform_get_proc_address("glNamedFramebufferTextureLayerARB");
-		ext->TextureBuffer = (PFNGLTEXTUREBUFFERPROC)
-			_gfx_platform_get_proc_address("glTextureBufferARB");
-		ext->UnmapNamedBuffer = (PFNGLUNMAPNAMEDBUFFERPROC)
-			_gfx_platform_get_proc_address("glUnmapNamedBufferARB");
+		ext->CopyNamedBufferSubData       = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)       _gfx_platform_get_proc_address("glCopyNamedBufferSubDataARB");
+		ext->CreateBuffers                = (PFNGLCREATEBUFFERSPROC)                _gfx_platform_get_proc_address("glCreateBuffersARB");
+		ext->CreateFramebuffers           = (PFNGLCREATEFRAMEBUFFERSPROC)           _gfx_platform_get_proc_address("glCreateFramebuffersARB");
+		ext->CreateTextures               = (PFNGLCREATETEXTURESPROC)               _gfx_platform_get_proc_address("glCreateTexturesARB");
+		ext->GetNamedBufferSubData        = (PFNGLGETNAMEDBUFFERSUBDATAPROC)        _gfx_platform_get_proc_address("glGetNamedBufferSubDataARB");
+		ext->MapNamedBufferRange          = (PFNGLMAPNAMEDBUFFERRANGEPROC)          _gfx_platform_get_proc_address("glMapNamedBufferRangeARB");
+		ext->NamedBufferData              = (PFNGLNAMEDBUFFERDATAPROC)              _gfx_platform_get_proc_address("glNamedBufferDataARB");
+		ext->NamedBufferSubData           = (PFNGLNAMEDBUFFERSUBDATAPROC)           _gfx_platform_get_proc_address("glNamedBufferSubDataARB");
+		ext->NamedFramebufferDrawBuffers  = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)  _gfx_platform_get_proc_address("glNamedFramebufferDrawBuffersARB");
+		ext->NamedFramebufferTexture      = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)      _gfx_platform_get_proc_address("glNamedFramebufferTextureARB");
+		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC) _gfx_platform_get_proc_address("glNamedFramebufferTextureLayerARB");
+		ext->TextureBuffer                = (PFNGLTEXTUREBUFFERPROC)                _gfx_platform_get_proc_address("glTextureBufferARB");
+		ext->UnmapNamedBuffer             = (PFNGLUNMAPNAMEDBUFFERPROC)             _gfx_platform_get_proc_address("glUnmapNamedBufferARB");
 	}
 
 	else
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 0;
 
-		ext->CopyNamedBufferSubData = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)
-			_gfx_gl_copy_named_buffer_sub_data;
-		ext->CreateBuffers = (PFNGLCREATEBUFFERSPROC)
-			_gfx_gl_create_buffers;
-		ext->CreateFramebuffers = (PFNGLCREATEFRAMEBUFFERSPROC)
-			_gfx_gl_create_framebuffers;
-		ext->CreateTextures = (PFNGLCREATETEXTURESPROC)
-			_gfx_gl_create_textures;
-		ext->GetNamedBufferSubData = (PFNGLGETNAMEDBUFFERSUBDATAPROC)
-			_gfx_gl_get_named_buffer_sub_data;
-		ext->MapNamedBufferRange = (PFNGLMAPNAMEDBUFFERRANGEPROC)
-			_gfx_gl_map_named_buffer_range;
-		ext->NamedBufferData = (PFNGLNAMEDBUFFERDATAPROC)
-			_gfx_gl_named_buffer_data;
-		ext->NamedBufferSubData = (PFNGLNAMEDBUFFERSUBDATAPROC)
-			_gfx_gl_named_buffer_sub_data;
-		ext->NamedFramebufferDrawBuffers = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)
-			_gfx_gl_named_framebuffer_draw_buffers;
-		ext->NamedFramebufferTexture = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)
-			_gfx_gl_named_framebuffer_texture;
-		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC)
-			_gfx_gl_named_framebuffer_texture_layer;
-		ext->TextureBuffer = (PFNGLTEXTUREBUFFERPROC)
-			_gfx_gl_texture_buffer;
-		ext->UnmapNamedBuffer = (PFNGLUNMAPNAMEDBUFFERPROC)
-			_gfx_gl_unmap_named_buffer;
+		ext->CopyNamedBufferSubData       = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)       _gfx_gl_copy_named_buffer_sub_data;
+		ext->CreateBuffers                = (PFNGLCREATEBUFFERSPROC)                _gfx_gl_create_buffers;
+		ext->CreateFramebuffers           = (PFNGLCREATEFRAMEBUFFERSPROC)           _gfx_gl_create_framebuffers;
+		ext->CreateTextures               = (PFNGLCREATETEXTURESPROC)               _gfx_gl_create_textures;
+		ext->GetNamedBufferSubData        = (PFNGLGETNAMEDBUFFERSUBDATAPROC)        _gfx_gl_get_named_buffer_sub_data;
+		ext->MapNamedBufferRange          = (PFNGLMAPNAMEDBUFFERRANGEPROC)          _gfx_gl_map_named_buffer_range;
+		ext->NamedBufferData              = (PFNGLNAMEDBUFFERDATAPROC)              _gfx_gl_named_buffer_data;
+		ext->NamedBufferSubData           = (PFNGLNAMEDBUFFERSUBDATAPROC)           _gfx_gl_named_buffer_sub_data;
+		ext->NamedFramebufferDrawBuffers  = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)  _gfx_gl_named_framebuffer_draw_buffers;
+		ext->NamedFramebufferTexture      = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)      _gfx_gl_named_framebuffer_texture;
+		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC) _gfx_gl_named_framebuffer_texture_layer;
+		ext->TextureBuffer                = (PFNGLTEXTUREBUFFERPROC)                _gfx_gl_texture_buffer;
+		ext->UnmapNamedBuffer             = (PFNGLUNMAPNAMEDBUFFERPROC)             _gfx_gl_unmap_named_buffer;
 	}
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
@@ -1007,25 +968,19 @@ void _gfx_extensions_load(void)
 		(window->context.major == 3 && window->context.minor > 2))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-
-		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)
-			_gfx_platform_get_proc_address("glVertexAttribDivisor");
+		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
 
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-
-		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)
-			_gfx_platform_get_proc_address("glVertexAttribDivisorARB");
+		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisorARB");
 	}
 
 	else
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
-
-		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)
-			_gfx_gl_vertex_attrib_divisor;
+		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_gl_vertex_attrib_divisor;
 	}
 
 	/* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
@@ -1081,68 +1036,49 @@ void _gfx_extensions_load(void)
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 
-		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC)
-			_gfx_platform_get_proc_address("glGetProgramBinary");
-		ext->ProgramBinary = (PFNGLPROGRAMBINARYPROC)
-			_gfx_platform_get_proc_address("glProgramBinary");
-		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)
-			_gfx_platform_get_proc_address("glProgramParameteri");
+		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
+		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
+		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteri");
 	}
 
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 
-		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC)
-			_gfx_platform_get_proc_address("glGetProgramBinaryARB");
-		ext->ProgramBinary = (PFNGLPROGRAMBINARYPROC)
-			_gfx_platform_get_proc_address("glProgramBinaryARB");
-		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)
-			_gfx_platform_get_proc_address("glProgramParameteriARB");
+		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinaryARB");
+		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinaryARB");
+		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteriARB");
 	}
 
 	else
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
 
-		ext->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC)
-			_gfx_gl_get_program_binary;
-		ext->ProgramBinary = (PFNGLPROGRAMBINARYPROC)
-			_gfx_gl_program_binary;
-		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)
-			_gfx_gl_program_parameter_i;
+		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC) _gfx_gl_get_program_binary;
+		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_gl_program_binary;
+		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_gl_program_parameter_i;
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
 	if(window->context.major > 3)
 	{
-		glGetIntegerv(GL_MAX_PATCH_VERTICES,
-			ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
-
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
-
-		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC)
-			_gfx_platform_get_proc_address("glPatchParameteri");
+		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("glPatchParameteri");
 	}
 
 	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
 	{
-		glGetIntegerv(GL_MAX_PATCH_VERTICES,
-			ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
-
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
-
-		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC)
-			_gfx_platform_get_proc_address("glPatchParameteriARB");
+		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("glPatchParameteriARB");
 	}
 
 	else
 	{
 		ext->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 0;
-
-		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC)
-			_gfx_gl_patch_parameter_i;
+		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_gl_patch_parameter_i;
 	}
 
 #endif
