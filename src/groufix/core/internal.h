@@ -148,6 +148,7 @@ typedef void (APIENTRYP GFX_GETPROGRAMIVPROC)                      (GLuint, GLen
 typedef void (APIENTRYP GFX_GETSHADERINFOLOGPROC)                  (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (APIENTRYP GFX_GETSHADERIVPROC)                       (GLuint, GLenum, GLint*);
 typedef void (APIENTRYP GFX_GETSHADERSOURCEPROC)                   (GLuint, GLsizei, GLsizei*, GLchar*);
+typedef const GLubyte* (APIENTRYP GFX_GETSTRINGIPROC)              (GLenum, GLuint);
 typedef GLuint (APIENTRYP GFX_GETUNIFORMBLOCKINDEXPROC)            (GLuint, const GLchar*);
 typedef void (APIENTRYP GFX_GETUNIFORMINDICESPROC)                 (GLuint, GLsizei, const GLchar*const*, GLuint*);
 typedef GLint (APIENTRYP GFX_GETUNIFORMLOCATIONPROC)               (GLuint, const GLchar*);
@@ -305,6 +306,7 @@ typedef struct GFX_Extensions
 	GFX_GETSHADERINFOLOGPROC                   GetShaderInfoLog;
 	GFX_GETSHADERIVPROC                        GetShaderiv;
 	GFX_GETSHADERSOURCEPROC                    GetShaderSource;
+	GFX_GETSTRINGIPROC                         GetStringi;
 	GFX_GETUNIFORMBLOCKINDEXPROC               GetUniformBlockIndex;
 	GFX_GETUNIFORMINDICESPROC                  GetUniformIndices;
 	GFX_GETUNIFORMLOCATIONPROC                 GetUniformLocation;

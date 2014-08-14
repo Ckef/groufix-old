@@ -22,6 +22,7 @@
  */
 
 #include "groufix/core/errors.h"
+#include "groufix/core/internal.h"
 #include "groufix/core/platform/win32.h"
 
 #include <stdlib.h>
@@ -89,8 +90,8 @@ static int _gfx_win32_load_extensions(void)
 	{
 		/* Check all vital extensions */
 		if(
-			!_gfx_platform_is_extension_supported(NULL, "WGL_ARB_create_context") ||
-			!_gfx_platform_is_extension_supported(NULL, "WGL_ARB_create_context_profile"))
+			!_gfx_win32_is_extension_supported("WGL_ARB_create_context") ||
+			!_gfx_win32_is_extension_supported("WGL_ARB_create_context_profile"))
 		{
 			gfx_errors_push(GFX_ERROR_INCOMPATIBLE_CONTEXT, "Vital WGL extensions are missing.");
 			success = 0;
@@ -102,10 +103,10 @@ static int _gfx_win32_load_extensions(void)
 		_gfx_win32->extensions.SwapIntervalEXT =
 			(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
 		_gfx_win32->extensions.EXT_swap_control_tear =
-			_gfx_platform_is_extension_supported(NULL, "WGL_EXT_swap_control_tear") ? 1 : 0;
+			_gfx_win32_is_extension_supported("WGL_EXT_swap_control_tear") ? 1 : 0;
 
 		/* Check non-vital extensions */
-		if(!_gfx_platform_is_extension_supported(NULL, "WGL_EXT_swap_control"))
+		if(!_gfx_win32_is_extension_supported("WGL_EXT_swap_control"))
 			_gfx_win32->extensions.SwapIntervalEXT = NULL;
 	}
 	else success = 0;

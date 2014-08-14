@@ -52,8 +52,12 @@ static int _gfx_is_extension_supported(
 	GLint num;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &num);
 
-	while(num) if(!strcmp((const char*)glGetStringi(GL_EXTENSIONS, --num), ext))
+	while(num) if(!strcmp(
+		(const char*)(GFX_EXT)->GetStringi(GL_EXTENSIONS, --num),
+		(const char*)ext))
+	{
 		return 1;
+	}
 
 	return 0;
 }
@@ -137,7 +141,7 @@ int _gfx_extensions_is_in_string(
  * GL core & GL ES emulators
  *******************************************************/
 
-static void _gfx_gl_error_base_instance(void)
+static void APIENTRY _gfx_gl_error_base_instance(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -145,7 +149,7 @@ static void _gfx_gl_error_base_instance(void)
 	);
 }
 
-static void _gfx_gl_error_direct_state_access(void)
+static void APIENTRY _gfx_gl_error_direct_state_access(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -153,7 +157,7 @@ static void _gfx_gl_error_direct_state_access(void)
 	);
 }
 
-static void _gfx_gl_copy_named_buffer_sub_data(
+static void APIENTRY _gfx_gl_copy_named_buffer_sub_data(
 
 		GLuint    readBuffer,
 		GLuint    writeBuffer,
@@ -173,7 +177,7 @@ static void _gfx_gl_copy_named_buffer_sub_data(
 	);
 }
 
-static void _gfx_gl_create_buffers(
+static void APIENTRY _gfx_gl_create_buffers(
 
 		GLsizei  n,
 		GLuint*  buffers)
@@ -181,7 +185,7 @@ static void _gfx_gl_create_buffers(
 	(GFX_EXT)->GenBuffers(n, buffers);
 }
 
-static void _gfx_gl_create_framebuffers(
+static void APIENTRY _gfx_gl_create_framebuffers(
 
 		GLsizei  n,
 		GLuint*  ids)
@@ -189,7 +193,7 @@ static void _gfx_gl_create_framebuffers(
 	(GFX_EXT)->GenFramebuffers(n, ids);
 }
 
-static void _gfx_gl_create_textures(
+static void APIENTRY _gfx_gl_create_textures(
 
 		GLenum   target,
 		GLsizei  n,
@@ -198,7 +202,7 @@ static void _gfx_gl_create_textures(
 	(GFX_EXT)->GenTextures(n, textures);
 }
 
-static void _gfx_gl_draw_arrays_instanced_base_instance(
+static void APIENTRY _gfx_gl_draw_arrays_instanced_base_instance(
 
 		GLenum   mode,
 		GLint    first,
@@ -209,7 +213,7 @@ static void _gfx_gl_draw_arrays_instanced_base_instance(
 	_gfx_gl_error_base_instance();
 }
 
-static void _gfx_gl_draw_elements_instanced_base_instance(
+static void APIENTRY _gfx_gl_draw_elements_instanced_base_instance(
 
 		GLenum         mode,
 		GLsizei        count,
@@ -221,7 +225,7 @@ static void _gfx_gl_draw_elements_instanced_base_instance(
 	_gfx_gl_error_base_instance();
 }
 
-static void _gfx_gl_get_named_buffer_sub_data(
+static void APIENTRY _gfx_gl_get_named_buffer_sub_data(
 
 		GLuint    buffer,
 		GLintptr  offset,
@@ -232,7 +236,7 @@ static void _gfx_gl_get_named_buffer_sub_data(
 	(GFX_EXT)->GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
-static void* _gfx_gl_map_named_buffer_range(
+static void* APIENTRY _gfx_gl_map_named_buffer_range(
 
 		GLuint      buffer,
 		GLintptr    offset,
@@ -243,7 +247,7 @@ static void* _gfx_gl_map_named_buffer_range(
 	return (GFX_EXT)->MapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
 }
 
-static void _gfx_gl_named_buffer_data(
+static void APIENTRY _gfx_gl_named_buffer_data(
 
 		GLuint       buffer,
 		GLsizei      size,
@@ -254,7 +258,7 @@ static void _gfx_gl_named_buffer_data(
 	(GFX_EXT)->BufferData(GL_ARRAY_BUFFER, size, data, usage);
 }
 
-static void _gfx_gl_named_buffer_sub_data(
+static void APIENTRY _gfx_gl_named_buffer_sub_data(
 
 		GLuint       buffer,
 		GLintptr     offset,
@@ -265,7 +269,7 @@ static void _gfx_gl_named_buffer_sub_data(
 	(GFX_EXT)->BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
-static void _gfx_gl_named_framebuffer_draw_buffers(
+static void APIENTRY _gfx_gl_named_framebuffer_draw_buffers(
 
 		GLuint         framebuffer,
 		GLsizei        n,
@@ -276,7 +280,7 @@ static void _gfx_gl_named_framebuffer_draw_buffers(
 	(GFX_EXT)->DrawBuffers(n, bufs);
 }
 
-static void _gfx_gl_named_framebuffer_texture(
+static void APIENTRY _gfx_gl_named_framebuffer_texture(
 
 		GLuint  framebuffer,
 		GLenum  attach,
@@ -294,7 +298,7 @@ static void _gfx_gl_named_framebuffer_texture(
 	);
 }
 
-static void _gfx_gl_named_framebuffer_texture_layer(
+static void APIENTRY _gfx_gl_named_framebuffer_texture_layer(
 
 		GLuint  framebuffer,
 		GLenum  attach,
@@ -314,7 +318,7 @@ static void _gfx_gl_named_framebuffer_texture_layer(
 	);
 }
 
-static void _gfx_gl_patch_parameter_i(
+static void APIENTRY _gfx_gl_patch_parameter_i(
 
 		GLenum  pname,
 		GLint   value)
@@ -325,7 +329,7 @@ static void _gfx_gl_patch_parameter_i(
 	);
 }
 
-static void _gfx_gl_texture_buffer(
+static void APIENTRY _gfx_gl_texture_buffer(
 
 		GLuint  texture,
 		GLenum  format,
@@ -334,7 +338,7 @@ static void _gfx_gl_texture_buffer(
 	_gfx_gl_error_direct_state_access();
 }
 
-static GLboolean _gfx_gl_unmap_named_buffer(
+static GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
 
 		GLuint buffer)
 {
@@ -349,7 +353,7 @@ static GLboolean _gfx_gl_unmap_named_buffer(
  * GL ES emulators
  *******************************************************/
 
-static void _gfx_gles_error_tex_buffer(void)
+static void APIENTRY _gfx_gles_error_tex_buffer(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -357,7 +361,7 @@ static void _gfx_gles_error_tex_buffer(void)
 	);
 }
 
-static void _gfx_gles_error_tex_1d(void)
+static void APIENTRY _gfx_gles_error_tex_1d(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -365,7 +369,7 @@ static void _gfx_gles_error_tex_1d(void)
 	);
 }
 
-static void _gfx_gles_error_multisample_tex(void)
+static void APIENTRY _gfx_gles_error_multisample_tex(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -373,7 +377,7 @@ static void _gfx_gles_error_multisample_tex(void)
 	);
 }
 
-static void _gfx_gles_error_layered_multisample_tex(void)
+static void APIENTRY _gfx_gles_error_layered_multisample_tex(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -381,7 +385,7 @@ static void _gfx_gles_error_layered_multisample_tex(void)
 	);
 }
 
-static void _gfx_gles_framebuffer_texture(
+static void APIENTRY _gfx_gles_framebuffer_texture(
 
 		GLenum  target,
 		GLenum  attach,
@@ -391,7 +395,7 @@ static void _gfx_gles_framebuffer_texture(
 	_gfx_gles_error_tex_buffer();
 }
 
-static void _gfx_gles_framebuffer_texture_1d(
+static void APIENTRY _gfx_gles_framebuffer_texture_1d(
 
 		GLenum  target,
 		GLenum  attach,
@@ -402,7 +406,7 @@ static void _gfx_gles_framebuffer_texture_1d(
 	_gfx_gles_error_tex_1d();
 }
 
-static void _gfx_gles_get_buffer_sub_data(
+static void APIENTRY _gfx_gles_get_buffer_sub_data(
 
 		GLenum      target,
 		GLintptr    offset,
@@ -427,7 +431,7 @@ static void _gfx_gles_get_buffer_sub_data(
 	}
 }
 
-static void _gfx_gles_named_framebuffer_texture_1d(
+static void APIENTRY _gfx_gles_named_framebuffer_texture_1d(
 
 		GLuint  framebuffer,
 		GLenum  attach,
@@ -447,7 +451,7 @@ static void _gfx_gles_named_framebuffer_texture_1d(
 	);
 }
 
-static void _gfx_gles_named_framebuffer_texture_2d(
+static void APIENTRY _gfx_gles_named_framebuffer_texture_2d(
 
 		GLuint  framebuffer,
 		GLenum  attach,
@@ -467,7 +471,7 @@ static void _gfx_gles_named_framebuffer_texture_2d(
 	);
 }
 
-static void _gfx_gles_polygon_mode(
+static void APIENTRY _gfx_gles_polygon_mode(
 
 		GLenum  face,
 		GLenum  mode)
@@ -475,7 +479,7 @@ static void _gfx_gles_polygon_mode(
 	/* Just ignore the call */
 }
 
-static void _gfx_gles_tex_buffer(
+static void APIENTRY _gfx_gles_tex_buffer(
 
 		GLenum  target,
 		GLenum  internalFormat,
@@ -484,7 +488,7 @@ static void _gfx_gles_tex_buffer(
 	_gfx_gles_error_tex_buffer();
 }
 
-static void _gfx_gles_tex_image_1d(
+static void APIENTRY _gfx_gles_tex_image_1d(
 
 		GLenum         target,
 		GLint          level,
@@ -498,7 +502,7 @@ static void _gfx_gles_tex_image_1d(
 	_gfx_gles_error_tex_1d();
 }
 
-static void _gfx_gles_tex_image_2d_multisample(
+static void APIENTRY _gfx_gles_tex_image_2d_multisample(
 
 		GLenum     target,
 		GLsizei    samples,
@@ -510,7 +514,7 @@ static void _gfx_gles_tex_image_2d_multisample(
 	_gfx_gles_error_multisample_tex();
 }
 
-static void _gfx_gles_tex_image_3d_multisample(
+static void APIENTRY _gfx_gles_tex_image_3d_multisample(
 
 		GLenum     target,
 		GLsizei    samples,
@@ -523,7 +527,7 @@ static void _gfx_gles_tex_image_3d_multisample(
 	_gfx_gles_error_layered_multisample_tex();
 }
 
-static void _gfx_gles_tex_storage_1d(
+static void APIENTRY _gfx_gles_tex_storage_1d(
 
 		GLenum   target,
 		GLsizei  levels,
@@ -533,7 +537,7 @@ static void _gfx_gles_tex_storage_1d(
 	_gfx_gles_error_tex_1d();
 }
 
-static void _gfx_gles_tex_storage_2d_multisample(
+static void APIENTRY _gfx_gles_tex_storage_2d_multisample(
 
 		GLenum     target,
 		GLsizei    samples,
@@ -545,7 +549,7 @@ static void _gfx_gles_tex_storage_2d_multisample(
 	_gfx_gles_error_multisample_tex();
 }
 
-static void _gfx_gles_tex_storage_3d_multisample(
+static void APIENTRY _gfx_gles_tex_storage_3d_multisample(
 
 		GLenum     target,
 		GLsizei    samples,
@@ -558,7 +562,7 @@ static void _gfx_gles_tex_storage_3d_multisample(
 	_gfx_gles_error_layered_multisample_tex();
 }
 
-static void _gfx_gles_tex_sub_image_1d(
+static void APIENTRY _gfx_gles_tex_sub_image_1d(
 
 		GLenum         target,
 		GLint          level,
@@ -578,7 +582,7 @@ static void _gfx_gles_tex_sub_image_1d(
  * GL core emulators
  *******************************************************/
 
-static void _gfx_gl_error_program_binary(void)
+static void APIENTRY _gfx_gl_error_program_binary(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -586,7 +590,7 @@ static void _gfx_gl_error_program_binary(void)
 	);
 }
 
-static void _gfx_gl_named_framebuffer_texture_1d(
+static void APIENTRY _gfx_gl_named_framebuffer_texture_1d(
 
 		GLuint  framebuffer,
 		GLenum  attach,
@@ -597,7 +601,7 @@ static void _gfx_gl_named_framebuffer_texture_1d(
 	(GFX_EXT)->NamedFramebufferTexture(framebuffer, attach, texture, level);
 }
 
-static void _gfx_gl_named_framebuffer_texture_2d(
+static void APIENTRY _gfx_gl_named_framebuffer_texture_2d(
 
 		GLuint  framebuffer,
 		GLenum  attach,
@@ -608,7 +612,7 @@ static void _gfx_gl_named_framebuffer_texture_2d(
 	(GFX_EXT)->NamedFramebufferTexture(framebuffer, attach, texture, level);
 }
 
-static void _gfx_gl_get_program_binary(
+static void APIENTRY _gfx_gl_get_program_binary(
 
 		GLuint    program,
 		GLsizei   bufsize,
@@ -621,7 +625,7 @@ static void _gfx_gl_get_program_binary(
 	_gfx_gl_error_program_binary();
 }
 
-static void _gfx_gl_program_binary(
+static void APIENTRY _gfx_gl_program_binary(
 
 		GLuint       program,
 		GLenum       binaryFormat,
@@ -631,7 +635,7 @@ static void _gfx_gl_program_binary(
 	_gfx_gl_error_program_binary();
 }
 
-static void _gfx_gl_program_parameter_i(
+static void APIENTRY _gfx_gl_program_parameter_i(
 
 		GLuint  program,
 		GLenum  pname,
@@ -640,7 +644,7 @@ static void _gfx_gl_program_parameter_i(
 	_gfx_gl_error_program_binary();
 }
 
-static void _gfx_gl_tex_storage_1d(
+static void APIENTRY _gfx_gl_tex_storage_1d(
 
 		GLenum   target,
 		GLsizei  levels,
@@ -655,7 +659,7 @@ static void _gfx_gl_tex_storage_1d(
 	}
 }
 
-static void _gfx_gl_tex_storage_2d(
+static void APIENTRY _gfx_gl_tex_storage_2d(
 
 		GLenum   target,
 		GLsizei  levels,
@@ -682,7 +686,7 @@ static void _gfx_gl_tex_storage_2d(
 	}
 }
 
-static void _gfx_gl_tex_storage_2d_multisample(
+static void APIENTRY _gfx_gl_tex_storage_2d_multisample(
 
 		GLenum     target,
 		GLsizei    samples,
@@ -694,7 +698,7 @@ static void _gfx_gl_tex_storage_2d_multisample(
 	(GFX_EXT)->TexImage2DMultisample(target, samples, internalFormat, w, h, f);
 }
 
-static void _gfx_gl_tex_storage_3d(
+static void APIENTRY _gfx_gl_tex_storage_3d(
 
 		GLenum   target,
 		GLsizei  levels,
@@ -716,7 +720,7 @@ static void _gfx_gl_tex_storage_3d(
 	}
 }
 
-static void _gfx_gl_tex_storage_3d_multisample(
+static void APIENTRY _gfx_gl_tex_storage_3d_multisample(
 
 		GLenum     target,
 		GLsizei    samples,
@@ -729,7 +733,7 @@ static void _gfx_gl_tex_storage_3d_multisample(
 	(GFX_EXT)->TexImage3DMultisample(target, samples, internalFormat, w, h, d, f);
 }
 
-static void _gfx_gl_vertex_attrib_divisor(
+static void APIENTRY _gfx_gl_vertex_attrib_divisor(
 
 		GLuint  index,
 		GLuint  divisor)
@@ -869,6 +873,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderInfoLog                  = glGetShaderInfoLog;
 	ext->GetShaderiv                       = glGetShaderiv;
 	ext->GetShaderSource                   = glGetShaderSource;
+	ext->GetStringi                        = glGetStringi;
 	ext->GetUniformBlockIndex              = glGetUniformBlockIndex;
 	ext->GetUniformIndices                 = glGetUniformIndices;
 	ext->GetUniformLocation                = glGetUniformLocation;
@@ -1024,6 +1029,7 @@ void _gfx_extensions_load(void)
 	ext->GetShaderInfoLog          = (PFNGLGETSHADERINFOLOGPROC)          _gfx_platform_get_proc_address("glGetShaderInfoLog");
 	ext->GetShaderiv               = (PFNGLGETSHADERIVPROC)               _gfx_platform_get_proc_address("glGetShaderiv");
 	ext->GetShaderSource           = (PFNGLGETSHADERSOURCEPROC)           _gfx_platform_get_proc_address("glGetShaderSource");
+	ext->GetStringi                = (PFNGLGETSTRINGIPROC)                _gfx_platform_get_proc_address("glGetStringi");
 	ext->GetUniformBlockIndex      = (PFNGLGETUNIFORMBLOCKINDEXPROC)      _gfx_platform_get_proc_address("glGetUniformBlockIndex");
 	ext->GetUniformIndices         = (PFNGLGETUNIFORMINDICESPROC)         _gfx_platform_get_proc_address("glGetUniformIndices");
 	ext->GetUniformLocation        = (PFNGLGETUNIFORMLOCATIONPROC)        _gfx_platform_get_proc_address("glGetUniformLocation");
