@@ -127,13 +127,25 @@ static int _gfx_texture_eval_target(
 
 		/* GFX_EXT_MULTISAMPLE_TEXTURE */
 		case GL_TEXTURE_2D_MULTISAMPLE :
-		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
 
 			if(!(GFX_EXT)->flags[GFX_EXT_MULTISAMPLE_TEXTURE])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
 					"GFX_EXT_MULTISAMPLE_TEXTURE is incompatible with this context."
+				);
+				return 0;
+			}
+			return 1;
+
+		/* GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE */
+		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
+
+			if(!(GFX_EXT)->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE is incompatible with this context."
 				);
 				return 0;
 			}

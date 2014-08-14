@@ -646,18 +646,19 @@ void _gfx_extensions_load(void)
 	ext->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
 
 	/* Default Extensions */
-	ext->flags[GFX_EXT_BUFFER_TEXTURE]            = 0;
-	ext->flags[GFX_EXT_DIRECT_STATE_ACCESS]       = 0;
-	ext->flags[GFX_EXT_GEOMETRY_SHADER]           = 0;
-	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES]      = 1;
-	ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 0;
-	ext->flags[GFX_EXT_LAYERED_CUBEMAP]           = 0;
-	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE]       = 0;
-	ext->flags[GFX_EXT_POLYGON_STATE]             = 0;
-	ext->flags[GFX_EXT_PROGRAM_BINARY]            = 1;
-	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]          = 0;
-	ext->flags[GFX_EXT_TESSELLATION_SHADER]       = 0;
-	ext->flags[GFX_EXT_TEXTURE_1D]                = 0;
+	ext->flags[GFX_EXT_BUFFER_TEXTURE]              = 0;
+	ext->flags[GFX_EXT_DIRECT_STATE_ACCESS]         = 0;
+	ext->flags[GFX_EXT_GEOMETRY_SHADER]             = 0;
+	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES]        = 1;
+	ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES]   = 0;
+	ext->flags[GFX_EXT_LAYERED_CUBEMAP]             = 0;
+	ext->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 0;
+	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE]         = 0;
+	ext->flags[GFX_EXT_POLYGON_STATE]               = 0;
+	ext->flags[GFX_EXT_PROGRAM_BINARY]              = 1;
+	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]            = 0;
+	ext->flags[GFX_EXT_TESSELLATION_SHADER]         = 0;
+	ext->flags[GFX_EXT_TEXTURE_1D]                  = 0;
 
 	/* GLES, assumes 3.0+ */
 	ext->ActiveTexture                     = glActiveTexture;
@@ -792,12 +793,13 @@ void _gfx_extensions_load(void)
 		ext->limits + GFX_LIM_MAX_BUFFER_TEXTURE_SIZE);
 
 	/* Default Extensions */
-	ext->flags[GFX_EXT_BUFFER_TEXTURE]      = 1;
-	ext->flags[GFX_EXT_GEOMETRY_SHADER]     = 1;
-	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
-	ext->flags[GFX_EXT_POLYGON_STATE]       = 1;
-	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]    = 1;
-	ext->flags[GFX_EXT_TEXTURE_1D]          = 1;
+	ext->flags[GFX_EXT_BUFFER_TEXTURE]              = 1;
+	ext->flags[GFX_EXT_GEOMETRY_SHADER]             = 1;
+	ext->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 1;
+	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE]         = 1;
+	ext->flags[GFX_EXT_POLYGON_STATE]               = 1;
+	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]            = 1;
+	ext->flags[GFX_EXT_TEXTURE_1D]                  = 1;
 
 	/* Core, assumes 3.2+ context */
 	ext->ActiveTexture             = (PFNGLACTIVETEXTUREPROC)             _gfx_platform_get_proc_address("glActiveTexture");

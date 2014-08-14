@@ -663,7 +663,8 @@ GFXTexture* gfx_texture_create(
  * @return NULL on failure.
  *
  * When rendered to, this texture will be multisampled, but you cannot write to this texture.
- * Note: requires GFX_EXT_MULTISAMPLE_TEXTURE.
+ * Note: requires GFX_EXT_MULTISAMPLE_TEXTURE,
+ * additionally, for depth GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE is required.
  *
  */
 GFXTexture* gfx_texture_create_multisample(
