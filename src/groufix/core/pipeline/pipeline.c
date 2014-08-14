@@ -163,6 +163,26 @@ static void _gfx_pipeline_init_attachment(
 			);
 			break;
 
+		case GL_TEXTURE_2D_MULTISAMPLE :
+			(GFX_EXT)->NamedFramebufferTexture2D(
+				fbo,
+				attach->attachment,
+				GL_TEXTURE_2D_MULTISAMPLE,
+				attach->texture,
+				0
+			);
+			break;
+
+		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
+			(GFX_EXT)->NamedFramebufferTextureLayer(
+				fbo,
+				attach->attachment,
+				attach->texture,
+				0,
+				attach->layer
+			);
+			break;
+
 		case GL_TEXTURE_3D :
 		case GL_TEXTURE_1D_ARRAY :
 		case GL_TEXTURE_2D_ARRAY :
