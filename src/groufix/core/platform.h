@@ -563,16 +563,6 @@ void _gfx_platform_context_free(
 		GFX_PlatformWindow handle);
 
 /**
- * Makes the current window the active render target.
- *
- * @return Whether it could make the context current or not.
- *
- */
-void _gfx_platform_context_make_current(
-
-		GFX_PlatformWindow handle);
-
-/**
  * Returns the context version of the current window.
  *
  * @param major Return parameter for the major version, 0 on failure.
@@ -583,6 +573,26 @@ void _gfx_platform_context_get(
 
 		int*  major,
 		int*  minor);
+
+/**
+ * Makes the current window the active render target.
+ *
+ * @return Whether it could make the context current or not.
+ *
+ */
+void _gfx_platform_context_make_current(
+
+		GFX_PlatformWindow handle);
+
+/**
+ * Returns the address to a process of the current context.
+ *
+ * @return NULL if the process does not exist.
+ *
+ */
+GFX_ProcAddress _gfx_platform_get_proc_address(
+
+		const char* proc);
 
 /**
  * Sets the minimum number of video frame periods per buffer swap.
@@ -605,25 +615,6 @@ int _gfx_platform_context_set_swap_interval(
  *
  */
 void _gfx_platform_context_swap_buffers(void);
-
-/**
- * Returns whether a platform specific extension is supported for a given window.
- *
- */
-int _gfx_platform_is_extension_supported(
-
-		GFX_PlatformWindow  handle,
-		const char*         ext);
-
-/**
- * Returns the address to a process of the current context.
- *
- * @return NULL if the process does not exist.
- *
- */
-GFX_ProcAddress _gfx_platform_get_proc_address(
-
-		const char* proc);
 
 
 /********************************************************

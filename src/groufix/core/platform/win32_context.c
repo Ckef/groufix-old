@@ -86,6 +86,20 @@ void _gfx_platform_context_free(
 }
 
 /******************************************************/
+void _gfx_platform_context_get(
+
+		int*  major,
+		int*  minor)
+{
+	GLint ma, mi;
+	glGetIntegerv(GL_MAJOR_VERSION, &ma);
+	glGetIntegerv(GL_MINOR_VERSION, &mi);
+
+	*major = ma;
+	*minor = mi;
+}
+
+/******************************************************/
 void _gfx_platform_context_make_current(
 
 		GFX_PlatformWindow handle)
@@ -101,17 +115,15 @@ void _gfx_platform_context_make_current(
 }
 
 /******************************************************/
-void _gfx_platform_context_get(
+GFX_ProcAddress _gfx_platform_get_proc_address(
 
-		int*  major,
-		int*  minor)
+		const char* proc)
 {
-	GLint ma, mi;
-	glGetIntegerv(GL_MAJOR_VERSION, &ma);
-	glGetIntegerv(GL_MINOR_VERSION, &mi);
+	GFX_ProcAddress address =
+		(GFX_ProcAddress)wglGetProcAddress(proc);
 
-	*major = ma;
-	*minor = mi;
+	if(address) return address;
+	return (GFX_ProcAddress)GetProcAddress(GetModuleHandle(NULL), proc);
 }
 
 /******************************************************/
@@ -138,32 +150,4 @@ int _gfx_platform_context_set_swap_interval(
 void _gfx_platform_context_swap_buffers(void)
 {
 	if(_gfx_win32) SwapBuffers(_gfx_win32->current);
-}
-
-/******************************************************/
-int _gfx_platform_is_extension_supported(
-
-		GFX_PlatformWindow  handle,
-		const char*         ext)
-{
-	if(!_gfx_win32) return 0;
-
-	/* Get extensions */
-	const char* extensions =
-		_gfx_win32->extensions.GetExtensionsStringARB(GetDC(handle));
-
-	if(!extensions) return 0;
-	return _gfx_extensions_is_in_string(extensions, ext);
-}
-
-/******************************************************/
-GFX_ProcAddress _gfx_platform_get_proc_address(
-
-		const char* proc)
-{
-	GFX_ProcAddress address =
-		(GFX_ProcAddress)wglGetProcAddress(proc);
-
-	if(address) return address;
-	return (GFX_ProcAddress)GetProcAddress(GetModuleHandle(NULL), proc);
 }

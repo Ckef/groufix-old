@@ -98,6 +98,20 @@ void _gfx_platform_context_free(
 }
 
 /******************************************************/
+void _gfx_platform_context_get(
+
+		int*  major,
+		int*  minor)
+{
+	GLint ma, mi;
+	glGetIntegerv(GL_MAJOR_VERSION, &ma);
+	glGetIntegerv(GL_MINOR_VERSION, &mi);
+
+	*major = ma;
+	*minor = mi;
+}
+
+/******************************************************/
 void _gfx_platform_context_make_current(
 
 		GFX_PlatformWindow handle)
@@ -117,17 +131,11 @@ void _gfx_platform_context_make_current(
 }
 
 /******************************************************/
-void _gfx_platform_context_get(
+GFX_ProcAddress _gfx_platform_get_proc_address(
 
-		int*  major,
-		int*  minor)
+		const char* proc)
 {
-	GLint ma, mi;
-	glGetIntegerv(GL_MAJOR_VERSION, &ma);
-	glGetIntegerv(GL_MINOR_VERSION, &mi);
-
-	*major = ma;
-	*minor = mi;
+	return (GFX_ProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
 }
 
 /******************************************************/
@@ -153,28 +161,4 @@ int _gfx_platform_context_set_swap_interval(
 void _gfx_platform_context_swap_buffers(void)
 {
 	if(_gfx_x11) glXSwapBuffers(_gfx_x11->display, _gfx_x11->current);
-}
-
-/******************************************************/
-int _gfx_platform_is_extension_supported(
-
-		GFX_PlatformWindow  handle,
-		const char*         ext)
-{
-	/* Get screen */
-	Screen* screen = (Screen*)_gfx_platform_window_get_screen(handle);
-	if(!screen) return 0;
-
-	return _gfx_x11_is_extension_supported(
-		XScreenNumberOfScreen(screen),
-		ext
-	);
-}
-
-/******************************************************/
-GFX_ProcAddress _gfx_platform_get_proc_address(
-
-		const char* proc)
-{
-	return (GFX_ProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
 }

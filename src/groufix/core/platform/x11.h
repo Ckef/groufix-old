@@ -129,15 +129,6 @@ extern GFX_X11_Connection* _gfx_x11;
 
 
 /**
- * Returns whether an extension is supported for a given screen.
- *
- */
-int _gfx_x11_is_extension_supported(
-
-		int          screenNumber,
-		const char*  ext);
-
-/**
  * Returns an X11 window from its handle.
  *
  */

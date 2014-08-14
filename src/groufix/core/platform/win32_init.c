@@ -34,22 +34,16 @@ GFX_Win32_Instance* _gfx_win32 = NULL;
 LPCTSTR _gfx_win32_window_class = "GROUFIX";
 
 /******************************************************/
-GFXVectorIterator _gfx_win32_get_window_from_handle(
+static int _gfx_win32_is_extension_supported(
 
-		HWND handle)
+		const char*  ext)
 {
-	if(!_gfx_win32) return NULL;
+	/* Get extensions */
+	const char* extensions =
+		_gfx_win32->extensions.GetExtensionsStringARB(GetDC(NULL));
 
-	GFXVectorIterator it;
-	for(
-		it = _gfx_win32->windows.begin;
-		it != _gfx_win32->windows.end;
-		it = gfx_vector_next(&_gfx_win32->windows, it))
-	{
-		if(((GFX_Win32_Window*)it)->handle == handle) break;
-	}
-
-	return it != _gfx_win32->windows.end ? it : NULL;
+	if(!extensions) return 0;
+	return _gfx_extensions_is_in_string(extensions, ext);
 }
 
 /******************************************************/
@@ -204,6 +198,25 @@ static inline void _gfx_win32_create_key_table(void)
 	size_t i;
 	for(i = 0; i <= GFX_WIN32_MAX_KEYCODE; ++i)
 		_gfx_win32->keys[i] = _gfx_win32_get_key(i);
+}
+
+/******************************************************/
+GFXVectorIterator _gfx_win32_get_window_from_handle(
+
+		HWND handle)
+{
+	if(!_gfx_win32) return NULL;
+
+	GFXVectorIterator it;
+	for(
+		it = _gfx_win32->windows.begin;
+		it != _gfx_win32->windows.end;
+		it = gfx_vector_next(&_gfx_win32->windows, it))
+	{
+		if(((GFX_Win32_Window*)it)->handle == handle) break;
+	}
+
+	return it != _gfx_win32->windows.end ? it : NULL;
 }
 
 /******************************************************/

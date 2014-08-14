@@ -32,13 +32,11 @@
 GFX_X11_Connection* _gfx_x11 = NULL;
 
 /******************************************************/
-int _gfx_x11_is_extension_supported(
+static int _gfx_x11_is_extension_supported(
 
 		int          screenNumber,
 		const char*  ext)
 {
-	if(!_gfx_x11) return 0;
-
 	/* Get extensions */
 	const char* extensions = glXQueryExtensionsString(
 		_gfx_x11->display,
@@ -46,27 +44,7 @@ int _gfx_x11_is_extension_supported(
 	);
 
 	if(!extensions) return 0;
-
 	return _gfx_extensions_is_in_string(extensions, ext);
-}
-
-/******************************************************/
-GFXVectorIterator _gfx_x11_get_window_from_handle(
-
-		Window handle)
-{
-	if(!_gfx_x11) return NULL;
-
-	GFXVectorIterator it;
-	for(
-		it = _gfx_x11->windows.begin;
-		it != _gfx_x11->windows.end;
-		it = gfx_vector_next(&_gfx_x11->windows, it))
-	{
-		if(((GFX_X11_Window*)it)->handle == handle) break;
-	}
-
-	return it != _gfx_x11->windows.end ? it : NULL;
 }
 
 /******************************************************/
@@ -238,6 +216,25 @@ static void _gfx_x11_create_key_table(void)
 		symbols[(i - minKey) * symbolsPerKey]);
 
 	XFree(symbols);
+}
+
+/******************************************************/
+GFXVectorIterator _gfx_x11_get_window_from_handle(
+
+		Window handle)
+{
+	if(!_gfx_x11) return NULL;
+
+	GFXVectorIterator it;
+	for(
+		it = _gfx_x11->windows.begin;
+		it != _gfx_x11->windows.end;
+		it = gfx_vector_next(&_gfx_x11->windows, it))
+	{
+		if(((GFX_X11_Window*)it)->handle == handle) break;
+	}
+
+	return it != _gfx_x11->windows.end ? it : NULL;
 }
 
 /******************************************************/
