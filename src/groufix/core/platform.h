@@ -607,7 +607,7 @@ int _gfx_platform_context_set_swap_interval(
 void _gfx_platform_context_swap_buffers(void);
 
 /**
- * Returns whether an extension is supported for a given window.
+ * Returns whether a platform specific extension is supported for a given window.
  *
  */
 int _gfx_platform_is_extension_supported(

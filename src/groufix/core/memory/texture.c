@@ -54,13 +54,11 @@ static inline unsigned char _gfx_texture_get_num_mipmaps(
 	switch(type)
 	{
 		case GFX_TEXTURE_1D :
-			h = d = 1;
-			break;
+			h = 1;
 
 		case GFX_TEXTURE_2D :
 		case GFX_CUBEMAP :
 			d = 1;
-			break;
 
 		default : break;
 	}
@@ -72,23 +70,6 @@ static inline unsigned char _gfx_texture_get_num_mipmaps(
 	while(max >>= 1) ++num;
 
 	return num;
-}
-
-/******************************************************/
-static inline void _gfx_texture_get_mipmap_size(
-
-		unsigned char  mipmap,
-		size_t*        w,
-		size_t*        h,
-		size_t*        d)
-{
-	size_t k = 1 << mipmap;
-	*w /= k;
-	*h /= k;
-	*d /= k;
-	*w = *w ? *w : 1;
-	*h = *h ? *h : 1;
-	*d = *d ? *d : 1;
 }
 
 /******************************************************/
@@ -262,165 +243,89 @@ static struct GFX_Texture* _gfx_texture_alloc(
 }
 
 /******************************************************/
-static void _gfx_texture_set_size(
+static void _gfx_texture_set_storage(
 
 		struct GFX_Texture*  tex,
 		size_t               width,
 		size_t               height,
 		size_t               depth)
 {
-	/* Get texture dimensions */
-	size_t w = width;
-	size_t h = height;
-	size_t d = depth;
-
-	switch(tex->target)
-	{
-		case GL_TEXTURE_1D :
-			h = d = height = depth = 1;
-			break;
-
-		case GL_TEXTURE_1D_ARRAY :
-			h = d = depth = 1;
-			break;
-
-		case GL_TEXTURE_2D :
-		case GL_TEXTURE_2D_MULTISAMPLE :
-		case GL_TEXTURE_CUBE_MAP :
-			d = depth = 1;
-			break;
-
-		case GL_TEXTURE_2D_ARRAY :
-		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
-		case GL_TEXTURE_CUBE_MAP_ARRAY :
-			d = 1;
-			break;
-
-		/* Dafuq are you doing ??? */
-		case GL_TEXTURE_BUFFER : return;
-	}
-
-	/* Remember dimensions + layers */
 	tex->texture.width  = width;
 	tex->texture.height = height;
 	tex->texture.depth  = depth;
 
-	/* Get pixel format and type */
-	GFXTextureFormat format =
-		_gfx_texture_format_from_internal(tex->format);
-	GLint pixForm =
-		_gfx_texture_format_to_pixel_format(format);
-	GLenum pixType =
-		_gfx_is_data_type_packed(format.type) ?
-		format.type.packed :
-		format.type.unpacked;
-
+	/* Allocate storage */
 	int old;
 	_gfx_binder_bind_texture(tex->handle, tex->target, 0, &old);
 
-	/* Allocate all mipmaps */
-	unsigned char m;
-	for(m = 0; m <= tex->texture.mipmaps; ++m)
+	switch(tex->target)
 	{
-		/* Get mipmap dimensions */
-		size_t mw = w;
-		size_t mh = h;
-		size_t md = d;
-		_gfx_texture_get_mipmap_size(m, &mw, &mh, &md);
+		case GL_TEXTURE_1D :
+			(GFX_EXT)->TexStorage1D(
+				tex->target,
+				tex->texture.mipmaps + 1,
+				tex->format,
+				width
+			);
+			break;
 
-		switch(tex->target)
-		{
-			case GL_TEXTURE_1D :
-				(GFX_EXT)->TexImage1D(
-					tex->target, m,
-					tex->format, mw, 0,
-					pixForm,
-					pixType,
-					NULL
-				);
-				break;
+		case GL_TEXTURE_1D_ARRAY :
+		case GL_TEXTURE_2D :
+		case GL_TEXTURE_CUBE_MAP :
+			(GFX_EXT)->TexStorage2D(
+				tex->target,
+				tex->texture.mipmaps + 1,
+				tex->format,
+				width,
+				height
+			);
+			break;
 
-			case GL_TEXTURE_1D_ARRAY :
-				(GFX_EXT)->TexImage2D(
-					tex->target, m,
-					tex->format, mw,
-					height, 0,
-					pixForm,
-					pixType,
-					NULL
-				);
-				break;
+		case GL_TEXTURE_2D_ARRAY :
+		case GL_TEXTURE_3D :
+			(GFX_EXT)->TexStorage3D(
+				tex->target,
+				tex->texture.mipmaps + 1,
+				tex->format,
+				width,
+				height,
+				depth
+			);
+			break;
 
-			case GL_TEXTURE_2D :
-				(GFX_EXT)->TexImage2D(
-					tex->target, m,
-					tex->format, mw, mh, 0,
-					pixForm,
-					pixType,
-					NULL
-				);
-				break;
+		case GL_TEXTURE_2D_MULTISAMPLE :
+			(GFX_EXT)->TexStorage2DMultisample(
+				tex->target,
+				tex->texture.samples,
+				tex->format,
+				width,
+				height,
+				GL_FALSE
+			);
+			break;
 
-			case GL_TEXTURE_2D_ARRAY :
-				(GFX_EXT)->TexImage3D(
-					tex->target, m,
-					tex->format, mw, mh,
-					depth, 0,
-					pixForm,
-					pixType,
-					NULL
-				);
-				break;
+		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
+			(GFX_EXT)->TexStorage3DMultisample(
+				tex->target,
+				tex->texture.samples,
+				tex->format,
+				width,
+				height,
+				depth,
+				GL_FALSE
+			);
+			break;
 
-			case GL_TEXTURE_2D_MULTISAMPLE :
-				(GFX_EXT)->TexImage2DMultisample(
-					tex->target,
-					tex->texture.samples,
-					tex->format, mw, mh,
-					GL_FALSE
-				);
-				break;
-
-			case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
-				(GFX_EXT)->TexImage3DMultisample(
-					tex->target,
-					tex->texture.samples,
-					tex->format, mw, mh,
-					depth,
-					GL_FALSE
-				);
-				break;
-
-			case GL_TEXTURE_3D :
-				(GFX_EXT)->TexImage3D(
-					tex->target, m,
-					tex->format, mw, mh, md, 0,
-					pixForm,
-					pixType,
-					NULL
-				);
-				break;
-
-			case GL_TEXTURE_CUBE_MAP :
-				(GFX_EXT)->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, m, tex->format, mw, mh, 0, pixForm, pixType, NULL);
-				(GFX_EXT)->TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, m, tex->format, mw, mh, 0, pixForm, pixType, NULL);
-				(GFX_EXT)->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, m, tex->format, mw, mh, 0, pixForm, pixType, NULL);
-				(GFX_EXT)->TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, m, tex->format, mw, mh, 0, pixForm, pixType, NULL);
-				(GFX_EXT)->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, m, tex->format, mw, mh, 0, pixForm, pixType, NULL);
-				(GFX_EXT)->TexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, m, tex->format, mw, mh, 0, pixForm, pixType, NULL);
-				break;
-
-			case GL_TEXTURE_CUBE_MAP_ARRAY :
-				(GFX_EXT)->TexImage3D(
-					tex->target, m,
-					tex->format, mw, mh,
-					depth * 6, 0,
-					pixForm,
-					pixType,
-					NULL
-				);
-				break;
-		}
+		case GL_TEXTURE_CUBE_MAP_ARRAY :
+			(GFX_EXT)->TexStorage3D(
+				tex->target,
+				tex->texture.mipmaps + 1,
+				tex->format,
+				width,
+				height,
+				depth * 6
+			);
+			break;
 	}
 }
 
@@ -478,7 +383,6 @@ GFXTexture* gfx_texture_create(
 
 	/* Allocate texture */
 	struct GFX_Texture* tex = _gfx_texture_alloc(target, format);
-
 	if(!tex) return NULL;
 
 	/* Limit mipmaps */
@@ -492,27 +396,11 @@ GFXTexture* gfx_texture_create(
 
 	/* Set parameters and allocate data */
 	int old;
-	_gfx_binder_bind_texture(
-		tex->handle,
-		target,
-		0,
-		&old);
+	_gfx_binder_bind_texture(tex->handle, target, 0, &old);
 
-	(GFX_EXT)->TexParameteri(
-		tex->target,
-		GL_TEXTURE_BASE_LEVEL,
-		0);
-
-	(GFX_EXT)->TexParameteri(
-		tex->target,
-		GL_TEXTURE_MAX_LEVEL,
-		mipmaps);
-
-	_gfx_texture_set_size(
-		tex,
-		width,
-		height,
-		depth);
+	(GFX_EXT)->TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
+	(GFX_EXT)->TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
+	_gfx_texture_set_storage(tex, width, height, depth);
 
 	return (GFXTexture*)tex;
 }
@@ -533,7 +421,6 @@ GFXTexture* gfx_texture_create_multisample(
 
 	/* Allocate texture */
 	struct GFX_Texture* tex = _gfx_texture_alloc(target, format);
-
 	if(!tex) return NULL;
 
 	/* Limit samples */
@@ -545,12 +432,7 @@ GFXTexture* gfx_texture_create_multisample(
 		(samples > maxSamples) ?
 		maxSamples : (samples < 2 ? 2 : samples);
 
-	_gfx_texture_set_size(
-		tex,
-		width,
-		height,
-		depth
-	);
+	_gfx_texture_set_storage(tex, width, height, depth);
 
 	return (GFXTexture*)tex;
 }
@@ -571,7 +453,6 @@ GFXTexture* gfx_texture_create_buffer_link(
 
 	/* Allocate texture */
 	struct GFX_Texture* tex = _gfx_texture_alloc(GL_TEXTURE_BUFFER, format);
-
 	if(!tex) return NULL;
 
 	tex->buffer = _gfx_buffer_get_handle(buffer);
@@ -592,24 +473,13 @@ GFXTexture* gfx_texture_create_buffer_link(
 	/* Link buffer */
 	if((GFX_EXT)->flags[GFX_EXT_DIRECT_STATE_ACCESS])
 	{
-		(GFX_EXT)->TextureBuffer(
-			tex->handle,
-			tex->format,
-			tex->buffer);
+		(GFX_EXT)->TextureBuffer(tex->handle, tex->format, tex->buffer);
 	}
 	else
 	{
 		int old;
-		_gfx_binder_bind_texture(
-			tex->handle,
-			tex->target,
-			0,
-			&old);
-
-		(GFX_EXT)->TexBuffer(
-			tex->target,
-			tex->format,
-			tex->buffer);
+		_gfx_binder_bind_texture(tex->handle, tex->target, 0, &old);
+		(GFX_EXT)->TexBuffer(tex->target, tex->format, tex->buffer);
 	}
 
 	return (GFXTexture*)tex;
@@ -833,24 +703,6 @@ void gfx_texture_write_from_buffer(
 		/* Also unbind for future transfers */
 		(GFX_EXT)->BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	}
-}
-
-/******************************************************/
-void gfx_texture_resize(
-
-		GFXTexture*  texture,
-		size_t       width,
-		size_t       height,
-		size_t       depth)
-{
-	if(!GFX_EXT) return;
-
-	_gfx_texture_set_size(
-		(struct GFX_Texture*)texture,
-		width,
-		height,
-		depth
-	);
 }
 
 /******************************************************/

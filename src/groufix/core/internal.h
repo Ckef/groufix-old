@@ -176,6 +176,11 @@ typedef void (APIENTRYP GFX_TEXIMAGE2DMULTISAMPLEPROC)             (GLenum, GLsi
 typedef void (APIENTRYP GFX_TEXIMAGE3DPROC)                        (GLenum, GLint, GLint, GLsizei, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXIMAGE3DMULTISAMPLEPROC)             (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei, GLboolean);
 typedef void (APIENTRYP GFX_TEXPARAMETERIPROC)                     (GLenum, GLenum, GLint);
+typedef void (APIENTRYP GFX_TEXSTORAGE1DPROC)                      (GLenum, GLsizei, GLenum, GLsizei);
+typedef void (APIENTRYP GFX_TEXSTORAGE2DPROC)                      (GLenum, GLsizei, GLenum, GLsizei, GLsizei);
+typedef void (APIENTRYP GFX_TEXSTORAGE2DMULTISAMPLEPROC)           (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLboolean);
+typedef void (APIENTRYP GFX_TEXSTORAGE3DPROC)                      (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei);
+typedef void (APIENTRYP GFX_TEXSTORAGE3DMULTISAMPLEPROC)           (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei, GLboolean);
 typedef void (APIENTRYP GFX_TEXSUBIMAGE1DPROC)                     (GLenum, GLint, GLint, GLsizei, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXSUBIMAGE2DPROC)                     (GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*);
 typedef void (APIENTRYP GFX_TEXSUBIMAGE3DPROC)                     (GLenum, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const GLvoid*);
@@ -279,8 +284,8 @@ typedef struct GFX_Extensions
 	GFX_ENABLEPROC                             Enable;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC            EnableVertexAttribArray;
 	GFX_ENDTRANSFORMFEEDBACKPROC               EndTransformFeedback;
-	GFX_FRAMEBUFFERTEXTUREPROC                 FramebufferTexture;
-	GFX_FRAMEBUFFERTEXTURE1DPROC               FramebufferTexture1D;              /* GFX_EXT_TEXTURE_1D or GFX_EXT_BUFFER_TEXTURE */
+	GFX_FRAMEBUFFERTEXTUREPROC                 FramebufferTexture;                /* GFX_EXT_BUFFER_TEXTURE */
+	GFX_FRAMEBUFFERTEXTURE1DPROC               FramebufferTexture1D;              /* GFX_EXT_TEXTURE_1D */
 	GFX_FRAMEBUFFERTEXTURE2DPROC               FramebufferTexture2D;
 	GFX_FRAMEBUFFERTEXTURELAYERPROC            FramebufferTextureLayer;
 	GFX_GENBUFFERSPROC                         GenBuffers;
@@ -309,8 +314,8 @@ typedef struct GFX_Extensions
 	GFX_NAMEDBUFFERDATAPROC                    NamedBufferData;
 	GFX_NAMEDBUFFERSUBDATAPROC                 NamedBufferSubData;
 	GFX_NAMEDFRAMEBUFFERDRAWBUFFERSPROC        NamedFramebufferDrawBuffers;
-	GFX_NAMEDFRAMEBUFFERTEXTUREPROC            NamedFramebufferTexture;
-	GFX_NAMEDFRAMEBUFFERTEXTURE1DPROC          NamedFramebufferTexture1D;
+	GFX_NAMEDFRAMEBUFFERTEXTUREPROC            NamedFramebufferTexture;           /* GFX_EXT_BUFFER_TEXTURE */
+	GFX_NAMEDFRAMEBUFFERTEXTURE1DPROC          NamedFramebufferTexture1D;         /* GFX_EXT_TEXTURE_1D */
 	GFX_NAMEDFRAMEBUFFERTEXTURE2DPROC          NamedFramebufferTexture2D;
 	GFX_NAMEDFRAMEBUFFERTEXTURELAYERPROC       NamedFramebufferTextureLayer;
 	GFX_PATCHPARAMETERIPROC                    PatchParameteri;                   /* GFX_EXT_TESSELLATION_SHADER */
@@ -324,10 +329,15 @@ typedef struct GFX_Extensions
 	GFX_TEXBUFFERPROC                          TexBuffer;                         /* GFX_EXT_BUFFER_TEXTURE */
 	GFX_TEXIMAGE1DPROC                         TexImage1D;                        /* GFX_EXT_TEXTURE_1D */
 	GFX_TEXIMAGE2DPROC                         TexImage2D;
-	GFX_TEXIMAGE2DMULTISAMPLEPROC              TexImage2DMultisample;             /* GFX_EXT_MULTISAMPLE_TEXTURE */
+	GFX_TEXIMAGE2DMULTISAMPLEPROC              TexImage2DMultisample;             /* No GLES */
 	GFX_TEXIMAGE3DPROC                         TexImage3D;
-	GFX_TEXIMAGE3DMULTISAMPLEPROC              TexImage3DMultisample;             /* GFX_EXT_MULTISAMPLE_TEXTURE */
+	GFX_TEXIMAGE3DMULTISAMPLEPROC              TexImage3DMultisample;             /* No GLES */
 	GFX_TEXPARAMETERIPROC                      TexParameteri;
+	GFX_TEXSTORAGE1DPROC                       TexStorage1D;                      /* GFX_EXT_TEXTURE_1D */
+	GFX_TEXSTORAGE2DPROC                       TexStorage2D;
+	GFX_TEXSTORAGE2DMULTISAMPLEPROC            TexStorage2DMultisample;           /* GFX_EXT_MULTISAMPLE_TEXTURE */
+	GFX_TEXSTORAGE3DPROC                       TexStorage3D;
+	GFX_TEXSTORAGE3DMULTISAMPLEPROC            TexStorage3DMultisample;           /* GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE */
 	GFX_TEXSUBIMAGE1DPROC                      TexSubImage1D;                     /* GFX_EXT_TEXTURE_1D */
 	GFX_TEXSUBIMAGE2DPROC                      TexSubImage2D;
 	GFX_TEXSUBIMAGE3DPROC                      TexSubImage3D;
@@ -445,9 +455,9 @@ const char* _gfx_extensions_get_glsl(
 		int  minor);
 
 /**
- * Returns whether the OpenGL extension can be found in the space separated string.
+ * Returns whether the extension can be found in the space separated string.
  *
- * This method is primarily used in the platform implementations.
+ * This method can be used in the platform implementations.
  *
  */
 int _gfx_extensions_is_in_string(

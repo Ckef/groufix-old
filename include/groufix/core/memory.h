@@ -615,7 +615,7 @@ typedef struct GFXTexture
 	unsigned int    id;      /* Hardware Object ID */
 
 	GFXTextureType  type;    /* Describes image arrangement and sampling */
-	unsigned char   mipmaps; /* Number of mipmaps (0 for none) */
+	unsigned char   mipmaps; /* Number of mipmaps (0 for base texture only) */
 	unsigned char   samples; /* Number of samples for multisampled textures (1 for other textures) */
 
 	size_t          width;
@@ -736,22 +736,6 @@ void gfx_texture_write_from_buffer(
 		const GFXPixelTransfer*  transfer,
 		const GFXBuffer*         buffer,
 		size_t                   offset);
-
-/**
- * Resizes the texture.
- *
- * @param height If 1D texture, acts as an array of images.
- * @param depth  If 2D texture, acts as an array of images.
- *
- * Note: resizing a texture will wipe all current pixel data AND is rather expensive.
- *
- */
-void gfx_texture_resize(
-
-		GFXTexture*  texture,
-		size_t       width,
-		size_t       height,
-		size_t       depth);
 
 /**
  * Auto generates all mipmap levels.

@@ -45,6 +45,20 @@ static const char* _gfx_glsl_versions[] =
 };
 
 /******************************************************/
+static int _gfx_is_extension_supported(
+
+		const char* ext)
+{
+	GLint num;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &num);
+
+	while(num) if(!strcmp((const char*)glGetStringi(GL_EXTENSIONS, --num), ext))
+		return 1;
+
+	return 0;
+}
+
+/******************************************************/
 const char* _gfx_extensions_get_glsl(
 
 		int  major,
@@ -123,6 +137,22 @@ int _gfx_extensions_is_in_string(
  * GL core & GL ES emulators
  *******************************************************/
 
+static void _gfx_gl_error_base_instance(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_INSTANCED_BASE_ATTRIBUTES is incompatible with this context."
+	);
+}
+
+static void _gfx_gl_error_direct_state_access(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_DIRECT_STATE_ACCESS is incompatible with this context."
+	);
+}
+
 static void _gfx_gl_copy_named_buffer_sub_data(
 
 		GLuint    readBuffer,
@@ -168,14 +198,6 @@ static void _gfx_gl_create_textures(
 	(GFX_EXT)->GenTextures(n, textures);
 }
 
-static void _gfx_gl_base_instance_error(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_INSTANCED_BASE_ATTRIBUTES is incompatible with this context."
-	);
-}
-
 static void _gfx_gl_draw_arrays_instanced_base_instance(
 
 		GLenum   mode,
@@ -184,7 +206,7 @@ static void _gfx_gl_draw_arrays_instanced_base_instance(
 		GLsizei  primcount,
 		GLuint   baseinstance)
 {
-	_gfx_gl_base_instance_error();
+	_gfx_gl_error_base_instance();
 }
 
 static void _gfx_gl_draw_elements_instanced_base_instance(
@@ -196,7 +218,7 @@ static void _gfx_gl_draw_elements_instanced_base_instance(
 		GLsizei        primcount,
 		GLuint         baseinstance)
 {
-	_gfx_gl_base_instance_error();
+	_gfx_gl_error_base_instance();
 }
 
 static void _gfx_gl_get_named_buffer_sub_data(
@@ -210,7 +232,7 @@ static void _gfx_gl_get_named_buffer_sub_data(
 	(GFX_EXT)->GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
-static void _gfx_gl_map_named_buffer_range(
+static void* _gfx_gl_map_named_buffer_range(
 
 		GLuint      buffer,
 		GLintptr    offset,
@@ -218,7 +240,7 @@ static void _gfx_gl_map_named_buffer_range(
 		GLbitfield  access)
 {
 	(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, buffer);
-	(GFX_EXT)->MapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
+	return (GFX_EXT)->MapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
 }
 
 static void _gfx_gl_named_buffer_data(
@@ -303,21 +325,13 @@ static void _gfx_gl_patch_parameter_i(
 	);
 }
 
-static void _gfx_gl_direct_state_access_error(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_DIRECT_STATE_ACCESS is incompatible with this context."
-	);
-}
-
 static void _gfx_gl_texture_buffer(
 
 		GLuint  texture,
 		GLenum  format,
 		GLuint  buffer)
 {
-	_gfx_gl_direct_state_access_error();
+	_gfx_gl_error_direct_state_access();
 }
 
 static GLboolean _gfx_gl_unmap_named_buffer(
@@ -335,11 +349,35 @@ static GLboolean _gfx_gl_unmap_named_buffer(
  * GL ES emulators
  *******************************************************/
 
-static void _gfx_gles_tex_buffer_error(void)
+static void _gfx_gles_error_tex_buffer(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
 		"GFX_EXT_BUFFER_TEXTURE is incompatible with this context."
+	);
+}
+
+static void _gfx_gles_error_tex_1d(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_TEXTURE_1D is incompatible with this context."
+	);
+}
+
+static void _gfx_gles_error_multisample_tex(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_MULTISAMPLE_TEXTURE is incompatible with this context."
+	);
+}
+
+static void _gfx_gles_error_layered_multisample_tex(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE is incompatible with this context."
 	);
 }
 
@@ -350,7 +388,7 @@ static void _gfx_gles_framebuffer_texture(
 		GLuint  texture,
 		GLint   level)
 {
-	_gfx_gles_tex_buffer_error();
+	_gfx_gles_error_tex_buffer();
 }
 
 static void _gfx_gles_framebuffer_texture_1d(
@@ -361,10 +399,7 @@ static void _gfx_gles_framebuffer_texture_1d(
 		GLuint  texture,
 		GLint   level)
 {
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_1D_TEXTURE is incompatible with this context."
-	);
+	_gfx_gles_error_tex_1d();
 }
 
 static void _gfx_gles_get_buffer_sub_data(
@@ -446,15 +481,7 @@ static void _gfx_gles_tex_buffer(
 		GLenum  internalFormat,
 		GLuint  buffer)
 {
-	_gfx_gles_tex_buffer_error();
-}
-
-static void _gfx_gles_tex_1d_error(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_TEXTURE_1D is incompatible with this context."
-	);
+	_gfx_gles_error_tex_buffer();
 }
 
 static void _gfx_gles_tex_image_1d(
@@ -468,28 +495,7 @@ static void _gfx_gles_tex_image_1d(
 		GLenum         type,
 		const GLvoid*  data)
 {
-	_gfx_gles_tex_1d_error();
-}
-
-static void _gfx_gles_tex_sub_image_1d(
-
-		GLenum         target,
-		GLint          level,
-		GLint          xoff,
-		GLsizei        w,
-		GLenum         format,
-		GLenum         type,
-		const GLvoid*  data)
-{
-	_gfx_gles_tex_1d_error();
-}
-
-static void _gfx_gles_multisample_tex_error(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_MULTISAMPLE_TEXTURE is incompatible with this context."
-	);
+	_gfx_gles_error_tex_1d();
 }
 
 static void _gfx_gles_tex_image_2d_multisample(
@@ -501,7 +507,7 @@ static void _gfx_gles_tex_image_2d_multisample(
 		GLsizei    h,
 		GLboolean  f)
 {
-	_gfx_gles_multisample_tex_error();
+	_gfx_gles_error_multisample_tex();
 }
 
 static void _gfx_gles_tex_image_3d_multisample(
@@ -514,7 +520,55 @@ static void _gfx_gles_tex_image_3d_multisample(
 		GLsizei    d,
 		GLboolean  f)
 {
-	_gfx_gles_multisample_tex_error();
+	_gfx_gles_error_layered_multisample_tex();
+}
+
+static void _gfx_gles_tex_storage_1d(
+
+		GLenum   target,
+		GLsizei  levels,
+		GLenum   internalFormat,
+		GLsizei  w)
+{
+	_gfx_gles_error_tex_1d();
+}
+
+static void _gfx_gles_tex_storage_2d_multisample(
+
+		GLenum     target,
+		GLsizei    samples,
+		GLenum     internalFormat,
+		GLsizei    w,
+		GLsizei    h,
+		GLboolean  f)
+{
+	_gfx_gles_error_multisample_tex();
+}
+
+static void _gfx_gles_tex_storage_3d_multisample(
+
+		GLenum     target,
+		GLsizei    samples,
+		GLenum     internalFormat,
+		GLsizei    w,
+		GLsizei    h,
+		GLsizei    d,
+		GLboolean  f)
+{
+	_gfx_gles_error_layered_multisample_tex();
+}
+
+static void _gfx_gles_tex_sub_image_1d(
+
+		GLenum         target,
+		GLint          level,
+		GLint          xoff,
+		GLsizei        w,
+		GLenum         format,
+		GLenum         type,
+		const GLvoid*  data)
+{
+	_gfx_gles_error_tex_1d();
 }
 
 
@@ -523,6 +577,14 @@ static void _gfx_gles_tex_image_3d_multisample(
 /********************************************************
  * GL core emulators
  *******************************************************/
+
+static void _gfx_gl_error_program_binary(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_PROGRAM_BINARY is incompatible with this context."
+	);
+}
 
 static void _gfx_gl_named_framebuffer_texture_1d(
 
@@ -546,14 +608,6 @@ static void _gfx_gl_named_framebuffer_texture_2d(
 	(GFX_EXT)->NamedFramebufferTexture(framebuffer, attach, texture, level);
 }
 
-static void _gfx_gl_program_binary_error(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_PROGRAM_BINARY is incompatible with this context."
-	);
-}
-
 static void _gfx_gl_get_program_binary(
 
 		GLuint    program,
@@ -564,7 +618,7 @@ static void _gfx_gl_get_program_binary(
 {
 	if(length) *length = 0;
 
-	_gfx_gl_program_binary_error();
+	_gfx_gl_error_program_binary();
 }
 
 static void _gfx_gl_program_binary(
@@ -574,7 +628,7 @@ static void _gfx_gl_program_binary(
 		const void*  binary,
 		GLsizei      length)
 {
-	_gfx_gl_program_binary_error();
+	_gfx_gl_error_program_binary();
 }
 
 static void _gfx_gl_program_parameter_i(
@@ -583,7 +637,96 @@ static void _gfx_gl_program_parameter_i(
 		GLenum  pname,
 		GLint   value)
 {
-	_gfx_gl_program_binary_error();
+	_gfx_gl_error_program_binary();
+}
+
+static void _gfx_gl_tex_storage_1d(
+
+		GLenum   target,
+		GLsizei  levels,
+		GLenum   internalFormat,
+		GLsizei  w)
+{
+	GLsizei l;
+	for(l = 0; l < levels; ++l)
+	{
+		(GFX_EXT)->TexImage1D(target, l, internalFormat, w, 0, GL_RED, GL_BYTE, NULL);
+		w >>= (w > 1) ? 1 : 0;
+	}
+}
+
+static void _gfx_gl_tex_storage_2d(
+
+		GLenum   target,
+		GLsizei  levels,
+		GLenum   internalFormat,
+		GLsizei  w,
+		GLsizei  h)
+{
+	GLsizei hf =
+		(target == GL_TEXTURE_1D || target == GL_TEXTURE_1D_ARRAY) ? 0 : 1;
+	GLenum first =
+		(target == GL_TEXTURE_CUBE_MAP) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : target;
+	GLenum last =
+		(target == GL_TEXTURE_CUBE_MAP) ? GL_TEXTURE_CUBE_MAP_NEGATIVE_Z : target;
+
+	GLsizei l;
+	for(l = 0; l < levels; ++l)
+	{
+		GLenum face;
+		for(face = first; face <= last; ++face)
+			(GFX_EXT)->TexImage2D(face, l, internalFormat, w, h, 0, GL_RED, GL_BYTE, NULL);
+
+		w >>= (w > 1) ? 1 : 0;
+		h >>= (h > 1) ? hf : 0;
+	}
+}
+
+static void _gfx_gl_tex_storage_2d_multisample(
+
+		GLenum     target,
+		GLsizei    samples,
+		GLenum     internalFormat,
+		GLsizei    w,
+		GLsizei    h,
+		GLboolean  f)
+{
+	(GFX_EXT)->TexImage2DMultisample(target, samples, internalFormat, w, h, f);
+}
+
+static void _gfx_gl_tex_storage_3d(
+
+		GLenum   target,
+		GLsizei  levels,
+		GLenum   internalFormat,
+		GLsizei  w,
+		GLsizei  h,
+		GLsizei  d)
+{
+	GLsizei df =
+		(target == GL_TEXTURE_3D || target == GL_PROXY_TEXTURE_3D) ? 1 : 0;
+
+	GLsizei l;
+	for(l = 0; l < levels; ++l)
+	{
+		(GFX_EXT)->TexImage3D(target, l, internalFormat, w, h, d, 0, GL_RED, GL_BYTE, NULL);
+		w >>= (w > 1) ? 1 : 0;
+		h >>= (h > 1) ? 1 : 0;
+		d >>= (d > 1) ? df : 0;
+	}
+}
+
+static void _gfx_gl_tex_storage_3d_multisample(
+
+		GLenum     target,
+		GLsizei    samples,
+		GLenum     internalFormat,
+		GLsizei    w,
+		GLsizei    h,
+		GLsizei    d,
+		GLboolean  f)
+{
+	(GFX_EXT)->TexImage3DMultisample(target, samples, internalFormat, w, h, d, f);
 }
 
 static void _gfx_gl_vertex_attrib_divisor(
@@ -649,11 +792,11 @@ void _gfx_extensions_load(void)
 	ext->flags[GFX_EXT_BUFFER_TEXTURE]              = 0;
 	ext->flags[GFX_EXT_DIRECT_STATE_ACCESS]         = 0;
 	ext->flags[GFX_EXT_GEOMETRY_SHADER]             = 0;
+	ext->flags[GFX_EXT_IMMUTABLE_TEXTURE]           = 1;
 	ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES]        = 1;
 	ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES]   = 0;
 	ext->flags[GFX_EXT_LAYERED_CUBEMAP]             = 0;
 	ext->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 0;
-	ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE]         = 0;
 	ext->flags[GFX_EXT_POLYGON_STATE]               = 0;
 	ext->flags[GFX_EXT_PROGRAM_BINARY]              = 1;
 	ext->flags[GFX_EXT_SEAMLESS_CUBEMAP]            = 0;
@@ -754,6 +897,10 @@ void _gfx_extensions_load(void)
 	ext->TexImage3D                        = glTexImage3D;
 	ext->TexImage3DMultisample             = _gfx_gles_tex_image_3d_multisample;
 	ext->TexParameteri                     = glTexParameteri;
+	ext->TexStorage1D                      = _gfx_gles_tex_storage_1d;
+	ext->TexStorage2D                      = glTexStorage2D;
+	ext->TexStorage3D                      = glTexStorage3D;
+	ext->TexStorage3DMultisample           = _gfx_gles_tex_storage_3d_multisample;
 	ext->TexSubImage1D                     = _gfx_gles_tex_sub_image_1d;
 	ext->TexSubImage2D                     = glTexSubImage2D;
 	ext->TexSubImage3D                     = glTexSubImage3D;
@@ -782,6 +929,24 @@ void _gfx_extensions_load(void)
 	ext->VertexAttribIPointer              = glVertexAttribIPointer;
 	ext->VertexAttribPointer               = glVertexAttribPointer;
 	ext->Viewport                          = glViewport;
+
+	/* GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE */
+	/* GFX_EXT_MULTISAMPLE_TEXTURE */
+	if(
+		window->context.major > 3 ||
+		(window->context.major == 3 && window->context.minor > 0))
+	{
+		ext->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
+		ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
+		ext->TexStorage2DMultisample = glTexStorage2DMultisample;
+	}
+
+	else
+	{
+		ext->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
+		ext->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 0;
+		ext->TexStorage2DMultisample = _gfx_gles_tex_storage_2d_multisample;
+	}
 
 #else
 
@@ -907,7 +1072,8 @@ void _gfx_extensions_load(void)
 	/* GFX_EXT_DIRECT_STATE_ACCESS */
 	if(
 		window->context.major > 4 ||
-		(window->context.major == 4 && window->context.minor > 4))
+		(window->context.major == 4 && window->context.minor > 4) ||
+		_gfx_is_extension_supported("GL_ARB_direct_state_access"))
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
 
@@ -926,42 +1092,63 @@ void _gfx_extensions_load(void)
 		ext->UnmapNamedBuffer             = (PFNGLUNMAPNAMEDBUFFERPROC)             _gfx_platform_get_proc_address("glUnmapNamedBuffer");
 	}
 
-	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_direct_state_access"))
-	{
-		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
-
-		ext->CopyNamedBufferSubData       = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)       _gfx_platform_get_proc_address("glCopyNamedBufferSubDataARB");
-		ext->CreateBuffers                = (PFNGLCREATEBUFFERSPROC)                _gfx_platform_get_proc_address("glCreateBuffersARB");
-		ext->CreateFramebuffers           = (PFNGLCREATEFRAMEBUFFERSPROC)           _gfx_platform_get_proc_address("glCreateFramebuffersARB");
-		ext->CreateTextures               = (PFNGLCREATETEXTURESPROC)               _gfx_platform_get_proc_address("glCreateTexturesARB");
-		ext->GetNamedBufferSubData        = (PFNGLGETNAMEDBUFFERSUBDATAPROC)        _gfx_platform_get_proc_address("glGetNamedBufferSubDataARB");
-		ext->MapNamedBufferRange          = (PFNGLMAPNAMEDBUFFERRANGEPROC)          _gfx_platform_get_proc_address("glMapNamedBufferRangeARB");
-		ext->NamedBufferData              = (PFNGLNAMEDBUFFERDATAPROC)              _gfx_platform_get_proc_address("glNamedBufferDataARB");
-		ext->NamedBufferSubData           = (PFNGLNAMEDBUFFERSUBDATAPROC)           _gfx_platform_get_proc_address("glNamedBufferSubDataARB");
-		ext->NamedFramebufferDrawBuffers  = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)  _gfx_platform_get_proc_address("glNamedFramebufferDrawBuffersARB");
-		ext->NamedFramebufferTexture      = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)      _gfx_platform_get_proc_address("glNamedFramebufferTextureARB");
-		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC) _gfx_platform_get_proc_address("glNamedFramebufferTextureLayerARB");
-		ext->TextureBuffer                = (PFNGLTEXTUREBUFFERPROC)                _gfx_platform_get_proc_address("glTextureBufferARB");
-		ext->UnmapNamedBuffer             = (PFNGLUNMAPNAMEDBUFFERPROC)             _gfx_platform_get_proc_address("glUnmapNamedBufferARB");
-	}
-
 	else
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 0;
 
-		ext->CopyNamedBufferSubData       = (PFNGLCOPYNAMEDBUFFERSUBDATAPROC)       _gfx_gl_copy_named_buffer_sub_data;
-		ext->CreateBuffers                = (PFNGLCREATEBUFFERSPROC)                _gfx_gl_create_buffers;
-		ext->CreateFramebuffers           = (PFNGLCREATEFRAMEBUFFERSPROC)           _gfx_gl_create_framebuffers;
-		ext->CreateTextures               = (PFNGLCREATETEXTURESPROC)               _gfx_gl_create_textures;
-		ext->GetNamedBufferSubData        = (PFNGLGETNAMEDBUFFERSUBDATAPROC)        _gfx_gl_get_named_buffer_sub_data;
-		ext->MapNamedBufferRange          = (PFNGLMAPNAMEDBUFFERRANGEPROC)          _gfx_gl_map_named_buffer_range;
-		ext->NamedBufferData              = (PFNGLNAMEDBUFFERDATAPROC)              _gfx_gl_named_buffer_data;
-		ext->NamedBufferSubData           = (PFNGLNAMEDBUFFERSUBDATAPROC)           _gfx_gl_named_buffer_sub_data;
-		ext->NamedFramebufferDrawBuffers  = (PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)  _gfx_gl_named_framebuffer_draw_buffers;
-		ext->NamedFramebufferTexture      = (PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)      _gfx_gl_named_framebuffer_texture;
-		ext->NamedFramebufferTextureLayer = (PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC) _gfx_gl_named_framebuffer_texture_layer;
-		ext->TextureBuffer                = (PFNGLTEXTUREBUFFERPROC)                _gfx_gl_texture_buffer;
-		ext->UnmapNamedBuffer             = (PFNGLUNMAPNAMEDBUFFERPROC)             _gfx_gl_unmap_named_buffer;
+		ext->CopyNamedBufferSubData       = _gfx_gl_copy_named_buffer_sub_data;
+		ext->CreateBuffers                = _gfx_gl_create_buffers;
+		ext->CreateFramebuffers           = _gfx_gl_create_framebuffers;
+		ext->CreateTextures               = _gfx_gl_create_textures;
+		ext->GetNamedBufferSubData        = _gfx_gl_get_named_buffer_sub_data;
+		ext->MapNamedBufferRange          = _gfx_gl_map_named_buffer_range;
+		ext->NamedBufferData              = _gfx_gl_named_buffer_data;
+		ext->NamedBufferSubData           = _gfx_gl_named_buffer_sub_data;
+		ext->NamedFramebufferDrawBuffers  = _gfx_gl_named_framebuffer_draw_buffers;
+		ext->NamedFramebufferTexture      = _gfx_gl_named_framebuffer_texture;
+		ext->NamedFramebufferTextureLayer = _gfx_gl_named_framebuffer_texture_layer;
+		ext->TextureBuffer                = _gfx_gl_texture_buffer;
+		ext->UnmapNamedBuffer             = _gfx_gl_unmap_named_buffer;
+	}
+
+	/* GFX_EXT_IMMUTABLE_TEXTURE */
+	if(
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 1) ||
+		_gfx_is_extension_supported("GL_ARB_texture_storage"))
+	{
+		ext->flags[GFX_EXT_IMMUTABLE_TEXTURE] = 1;
+		ext->TexStorage1D = (PFNGLTEXSTORAGE1DPROC) _gfx_platform_get_proc_address("glTexStorage1D");
+		ext->TexStorage2D = (PFNGLTEXSTORAGE2DPROC) _gfx_platform_get_proc_address("glTexStorage2D");
+		ext->TexStorage3D = (PFNGLTEXSTORAGE3DPROC) _gfx_platform_get_proc_address("glTexStorage3D");
+	}
+
+	else
+	{
+		ext->flags[GFX_EXT_IMMUTABLE_TEXTURE] = 0;
+		ext->TexStorage1D = _gfx_gl_tex_storage_1d;
+		ext->TexStorage2D = _gfx_gl_tex_storage_2d;
+		ext->TexStorage3D = _gfx_gl_tex_storage_3d;
+	}
+
+	/* GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE */
+	if(
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 2) ||
+		_gfx_is_extension_supported("GL_ARB_texture_storage_multisample"))
+	{
+		ext->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
+		ext->TexStorage2DMultisample =
+			(PFNGLTEXSTORAGE2DMULTISAMPLEPROC) _gfx_platform_get_proc_address("glTexStorage2DMultisample");
+		ext->TexStorage3DMultisample =
+			(PFNGLTEXSTORAGE3DMULTISAMPLEPROC) _gfx_platform_get_proc_address("glTexStorage3DMultisample");
+	}
+
+	else
+	{
+		ext->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
+		ext->TexStorage2DMultisample = _gfx_gl_tex_storage_2d_multisample;
+		ext->TexStorage3DMultisample = _gfx_gl_tex_storage_3d_multisample;
 	}
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
@@ -970,58 +1157,47 @@ void _gfx_extensions_load(void)
 		(window->context.major == 3 && window->context.minor > 2))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
+		ext->VertexAttribDivisor =
+			(PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
 
-	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_instanced_arrays"))
+	else if(_gfx_is_extension_supported("GL_ARB_instanced_arrays"))
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisorARB");
+		ext->VertexAttribDivisor =
+			(PFNGLVERTEXATTRIBDIVISORPROC) _gfx_platform_get_proc_address("glVertexAttribDivisorARB");
 	}
 
 	else
 	{
 		ext->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
-		ext->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) _gfx_gl_vertex_attrib_divisor;
+		ext->VertexAttribDivisor = _gfx_gl_vertex_attrib_divisor;
 	}
 
 	/* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
 	if(
 		window->context.major > 4 ||
-		(window->context.major == 4 && window->context.minor > 1))
+		(window->context.major == 4 && window->context.minor > 1) ||
+		_gfx_is_extension_supported("GL_ARB_base_instance"))
 	{
 		ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
-
-		ext->DrawArraysInstancedBaseInstance = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)
-			_gfx_platform_get_proc_address("glDrawArraysInstancedBaseInstance");
-		ext->DrawElementsInstancedBaseInstance = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC)
-			_gfx_platform_get_proc_address("glDrawElementsInstancedBaseInstance");
-	}
-
-	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_base_instance"))
-	{
-		ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
-
-		ext->DrawArraysInstancedBaseInstance = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)
-			_gfx_platform_get_proc_address("glDrawArraysInstancedBaseInstanceARB");
-		ext->DrawElementsInstancedBaseInstance = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC)
-			_gfx_platform_get_proc_address("glDrawElementsInstancedBaseInstaceARB");
+		ext->DrawArraysInstancedBaseInstance =
+			(PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC) _gfx_platform_get_proc_address("glDrawArraysInstancedBaseInstance");
+		ext->DrawElementsInstancedBaseInstance =
+			(PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC) _gfx_platform_get_proc_address("glDrawElementsInstancedBaseInstance");
 	}
 
 	else
 	{
 		ext->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 0;
-
-		ext->DrawArraysInstancedBaseInstance = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)
-			_gfx_gl_draw_arrays_instanced_base_instance;
-		ext->DrawElementsInstancedBaseInstance = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC)
-			_gfx_gl_draw_elements_instanced_base_instance;
+		ext->DrawArraysInstancedBaseInstance = _gfx_gl_draw_arrays_instanced_base_instance;
+		ext->DrawElementsInstancedBaseInstance = _gfx_gl_draw_elements_instanced_base_instance;
 	}
 
 	/* GFX_EXT_LAYERED_CUBEMAP */
 	if(
 		window->context.major > 3 ||
-		_gfx_platform_is_extension_supported(window->handle, "GL_ARB_texture_cube_map_array"))
+		_gfx_is_extension_supported("GL_ARB_texture_cube_map_array"))
 	{
 		ext->flags[GFX_EXT_LAYERED_CUBEMAP] = 1;
 	}
@@ -1034,53 +1210,38 @@ void _gfx_extensions_load(void)
 	/* GFX_EXT_PROGRAM_BINARY */
 	if(
 		window->context.major > 4 ||
-		(window->context.major == 4 && window->context.minor > 0))
+		(window->context.major == 4 && window->context.minor > 0) ||
+		_gfx_is_extension_supported("GL_ARB_get_program_binary"))
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-
 		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinary");
 		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinary");
 		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteri");
 	}
 
-	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_get_program_binary"))
-	{
-		ext->flags[GFX_EXT_PROGRAM_BINARY] = 1;
-
-		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC)  _gfx_platform_get_proc_address("glGetProgramBinaryARB");
-		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_platform_get_proc_address("glProgramBinaryARB");
-		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_platform_get_proc_address("glProgramParameteriARB");
-	}
-
 	else
 	{
 		ext->flags[GFX_EXT_PROGRAM_BINARY] = 0;
-
-		ext->GetProgramBinary  = (PFNGLGETPROGRAMBINARYPROC) _gfx_gl_get_program_binary;
-		ext->ProgramBinary     = (PFNGLPROGRAMBINARYPROC)     _gfx_gl_program_binary;
-		ext->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) _gfx_gl_program_parameter_i;
+		ext->GetProgramBinary  = _gfx_gl_get_program_binary;
+		ext->ProgramBinary     = _gfx_gl_program_binary;
+		ext->ProgramParameteri = _gfx_gl_program_parameter_i;
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
-	if(window->context.major > 3)
+	if(
+		window->context.major > 3 ||
+		_gfx_is_extension_supported("GL_ARB_tessellation_shader"))
 	{
-		glGetIntegerv(GL_MAX_PATCH_VERTICES, ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
 		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("glPatchParameteri");
-	}
-
-	else if(_gfx_platform_is_extension_supported(window->handle, "GL_ARB_tessellation_shader"))
-	{
-		glGetIntegerv(GL_MAX_PATCH_VERTICES, ext->limits + GFX_LIM_MAX_PATCH_VERTICES);
-		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
-		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_platform_get_proc_address("glPatchParameteriARB");
 	}
 
 	else
 	{
-		ext->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
 		ext->flags[GFX_EXT_TESSELLATION_SHADER] = 0;
-		ext->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) _gfx_gl_patch_parameter_i;
+		ext->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
+		ext->PatchParameteri = _gfx_gl_patch_parameter_i;
 	}
 
 #endif
