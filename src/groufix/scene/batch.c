@@ -154,7 +154,7 @@ static void _gfx_batch_set_visible(
 }
 
 /******************************************************/
-void _gfx_batch_set_copies(
+void _gfx_batch_set_unit_copies(
 
 		GFXBucket*      bucket,
 		GFXBatchFlags   flags,
@@ -172,7 +172,7 @@ void _gfx_batch_set_copies(
 }
 
 /******************************************************/
-void _gfx_batch_set_states(
+void _gfx_batch_set_unit_states(
 
 		GFXBucket*      bucket,
 		GFXBatchFlags   flags,
@@ -397,9 +397,9 @@ static void _gfx_batch_increase_copies(
 	units += first;
 	num -= first;
 
-	_gfx_batch_set_copies(
+	_gfx_batch_set_unit_copies(
 		bucket, flags, units, num, copy);
-	_gfx_batch_set_states(
+	_gfx_batch_set_unit_states(
 		bucket, flags, units, num, first, base, variant);
 
 	/* Increase batch copies */

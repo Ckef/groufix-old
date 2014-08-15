@@ -594,10 +594,10 @@ void _gfx_mesh_set_batch_flags(
 			batch->flags = flags;
 
 			if(diff & GFX_BATCH_MULTIPLE_DATA)
-				_gfx_mesh_set_batch_copies(mesh, meshID, copy);
+				_gfx_mesh_set_unit_copies(mesh, meshID, copy);
 
 			if(diff & GFX_BATCH_INITIAL_ZERO_STATE)
-				_gfx_mesh_set_batch_states(mesh, meshID);
+				_gfx_mesh_set_unit_states(mesh, meshID);
 		}
 	}
 }
@@ -654,13 +654,13 @@ void _gfx_mesh_set_batch_state(
 		{
 			batch->base = base;
 			batch->variant = variant;
-			_gfx_mesh_set_batch_states(mesh, meshID);
+			_gfx_mesh_set_unit_states(mesh, meshID);
 		}
 	}
 }
 
 /******************************************************/
-void _gfx_mesh_set_batch_copies(
+void _gfx_mesh_set_unit_copies(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID,
@@ -682,7 +682,7 @@ void _gfx_mesh_set_batch_copies(
 		struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, begin);
 
 		/* Set the copy of all units */
-		_gfx_batch_set_copies(
+		_gfx_batch_set_unit_copies(
 			it->pipe->bucket,
 			batch->flags,
 			(GFXBucketUnit*)(it + 1),
@@ -696,7 +696,7 @@ void _gfx_mesh_set_batch_copies(
 }
 
 /******************************************************/
-void _gfx_mesh_set_batch_states(
+void _gfx_mesh_set_unit_states(
 
 		GFXMesh*      mesh,
 		unsigned int  meshID)
@@ -717,7 +717,7 @@ void _gfx_mesh_set_batch_states(
 		struct GFX_Bucket* it = gfx_vector_at(&internal->buckets, begin);
 
 		/* Set the state of all units */
-		_gfx_batch_set_states(
+		_gfx_batch_set_unit_states(
 			it->pipe->bucket,
 			batch->flags,
 			(GFXBucketUnit*)(it + 1),
