@@ -112,7 +112,14 @@ int main()
 
 
 	/* Mesh and material */
+	unsigned int num;
+
 	GFXMesh* mesh = create_mesh();
+	GFXSubMesh* sub = gfx_submesh_list_at(
+		gfx_mesh_get_all(mesh, &num),
+		0
+	);
+
 	GFXMaterial* material = create_material();
 
 
@@ -205,14 +212,14 @@ int main()
 
 
 	/* Batch */
-	GFXBatchLod params;
-	params.mesh     = 0;
-	params.index    = 0;
-	params.material = 0;
+	GFXBatchParams params;
+	params.source = 0;
+	params.level  = 0;
+	params.index  = 0;
 
 	GFXBatch batch;
-	gfx_batch_get(&batch, material, mesh, params);
-	gfx_batch_increase(&batch, bucket, 1);
+	gfx_batch_get(&batch, material, sub, params);
+	gfx_batch_set_instances(&batch, bucket, 1);
 	gfx_batch_set_visible(&batch, bucket, 1);
 
 

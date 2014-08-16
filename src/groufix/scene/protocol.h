@@ -36,79 +36,85 @@ extern "C" {
  * Unit manipulation of batch
  *******************************************************/
 
+/** Batch metadata */
+typedef struct GFX_BatchData
+{
+	GFXBatchParams  params;
+	GFXBatchFlags   flags;
+	GFXBatchState   base;
+	GFXBatchState   variant;
+
+} GFX_BatchData;
+
+
 /**
  * Sets the copy of all given units according to given flags.
  *
- * @param flags Flags to set the copies accordingly to.
- * @param num   Number of copies in units.
- * @param copy  Starting copy to use.
+ * @param num  Number of copies in units.
+ * @param copy Starting copy to use.
  *
  */
 void _gfx_batch_set_unit_copies(
 
-		GFXBucket*      bucket,
-		GFXBatchFlags   flags,
-		GFXBucketUnit*  units,
-		unsigned int    num,
-		unsigned int    copy);
+		GFXBucket*            bucket,
+		GFXBucketUnit*        units,
+		const GFX_BatchData*  data,
+		unsigned int          num,
+		unsigned int          copy);
 
 /**
  * Sets the state of all given units according to given flags.
  *
- * @param first   Displacement index to use for calculating the states.
- * @param base    The base state which is OR'd with each variant.
- * @param variant The variant, each unit adds the variant to the state (without base) of the previous unit.
+ * @param first Displacement index to use for calculating the states.
  *
  */
 void _gfx_batch_set_unit_states(
 
-		GFXBucket*      bucket,
-		GFXBatchFlags   flags,
-		GFXBucketUnit*  units,
-		unsigned int    num,
-		unsigned int    first,
-		GFXBatchState   base,
-		GFXBatchState   variant);
+		GFXBucket*            bucket,
+		GFXBucketUnit*        units,
+		const GFX_BatchData*  data,
+		unsigned int          num,
+		unsigned int          first);
 
 
 /********************************************************
- * Batch references at mesh and material
+ * Batch references at material and submesh
  *******************************************************/
 
 /**
  * Inserts a new batch at the material.
  *
- * @param mesh Mesh the batch is associated with.
+ * @param mesh SubMesh the batch is associated with.
  * @return Material ID, 0 on failure.
  *
  */
 unsigned int _gfx_material_insert_batch(
 
 		GFXMaterial*  material,
-		GFXMesh*      mesh);
+		GFXSubMesh*   mesh);
 
 /**
- * Sets the Mesh ID of a batch at a material.
+ * Sets the SubMesh ID of a batch at a material.
  *
  * @param materialID Batch ID at the material to set.
- * @param meshID     Mesh ID to set it to.
+ * @param submeshID  SubMesh ID to set it to.
+ * @return Zero if the calculated property map does not exist.
  *
- * Note: this method should be called when the batch is associated with a new property map.
- * This so the material can internally change a reference to said property map.
+ * This will also calculate the map index of the batch.
  *
  */
-void _gfx_material_set_batch(
+int _gfx_material_set_batch(
 
 		GFXMaterial*  material,
 		unsigned int  materialID,
-		unsigned int  meshID);
+		unsigned int  submeshID);
 
 /**
  * Removes a batch at a material.
  *
  * @param materialID Batch ID at the material to remove.
  *
- * Note: _gfx_mesh_remove_batch must be called first.
+ * Note: _gfx_submesh_remove_batch must be called first.
  * This call does not remove the copies at the property map!
  *
  */
@@ -118,47 +124,47 @@ void _gfx_material_remove_batch(
 		unsigned int  materialID);
 
 /**
- * Fetches the ID of a batch at a mesh.
+ * Fetches the ID of a batch at a submesh.
  *
  * @param material   Material the batch is associated with.
- * @param params     Level of detail parameters to use.
+ * @param data       Metadata to use.
  * @param materialID Returns the batch ID at the material, 0 if it does not exist.
- * @return Mesh ID if found, 0 on failure.
+ * @return SubMesh ID if found, 0 on failure.
  *
  */
-unsigned int _gfx_mesh_get_batch(
+unsigned int _gfx_submesh_get_batch(
 
-		GFXMesh*       mesh,
-		GFXMaterial*   material,
-		GFXBatchLod    params,
-		unsigned int*  materialID);
+		GFXSubMesh*           mesh,
+		GFXMaterial*          material,
+		const GFX_BatchData*  data,
+		unsigned int*         materialID);
 
 /**
- * Sets the Material ID of a batch at a mesh.
+ * Sets the Material ID of a batch at a submesh.
  *
- * @param meshID     Batch ID at the mesh to set.
+ * @param submeshID  Batch ID at the submesh to set.
  * @param materialID Material ID to set it to.
  *
  */
-void _gfx_mesh_set_batch(
+void _gfx_submesh_set_batch(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
+		GFXSubMesh*   mesh,
+		unsigned int  submeshID,
 		unsigned int  materialID);
 
 /**
- * Removes a batch at a mesh.
+ * Removes a batch at a submesh.
  *
- * @param meshID Batch ID at the mesh to remove.
+ * @param submeshID Batch ID at the submesh to remove.
  *
  * Note: this must be called before _gfx_material_remove_batch.
- * This call will call gfx_batch_decrease with UINT_MAX at each bucket.
+ * This call will call gfx_batch_set_instances with 0 at each bucket.
  *
  */
-void _gfx_mesh_remove_batch(
+void _gfx_submesh_remove_batch(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID);
+		GFXSubMesh*   mesh,
+		unsigned int  submeshID);
 
 
 /********************************************************
@@ -191,10 +197,10 @@ unsigned int _gfx_material_get_batch_copy(
  * @return Zero on failure or if copies is 0.
  *
  * Note: it moves copy data within the property map and
- * calls _gfx_mesh_set_unit_copies for all altered batches (except the given one).
+ * calls _gfx_submesh_set_unit_copies for all altered batches (except the given one).
  *
  */
-int _gfx_material_increase_copies(
+int _gfx_material_increase_batch_copies(
 
 		GFXMaterial*  material,
 		unsigned int  materialID,
@@ -206,10 +212,10 @@ int _gfx_material_increase_copies(
  * @return Zero on failure or if copies is 0.
  *
  * Note: it moves copy data within the property map and
- * calls _gfx_mesh_set_unit_copies for all altered batches (except the given one).
+ * calls _gfx_submesh_set_unit_copies for all altered batches (except the given one).
  *
  */
-int _gfx_material_decrease_copies(
+int _gfx_material_decrease_batch_copies(
 
 		GFXMaterial*  material,
 		unsigned int  materialID,
@@ -217,81 +223,46 @@ int _gfx_material_decrease_copies(
 
 
 /********************************************************
- * Batch properties at mesh
+ * Batch properties at submesh
  *******************************************************/
 
 /**
  * Returns the maximum number of units reserved by any bucket within a batch.
  *
  */
-unsigned int _gfx_mesh_get_batch_units(
+unsigned int _gfx_submesh_get_batch_units(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID);
-
-/**
- * Return the level of detail parameters of a batch at a mesh.
- *
- * @param params Returns the level of detail params, all 0 if batch does not exist.
- *
- */
-void _gfx_mesh_get_batch_lod(
-
-		GFXMesh*      mesh,
-		unsigned int  meshID,
-		GFXBatchLod*  params);
+		GFXSubMesh*   mesh,
+		unsigned int  submeshID);
 
 /**
- * Returns the flags of a batch at a mesh.
+ * Return the metadata of a batch at a submesh.
  *
- * @return 0 if the batch does not exist.
+ * @return Batch metadata, NULL if batch does not exist.
  *
  */
-GFXBatchFlags _gfx_mesh_get_batch_flags(
+const GFX_BatchData* _gfx_submesh_get_batch_data(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID);
+		GFXSubMesh*   mesh,
+		unsigned int  submeshID);
 
 /**
- * Sets the flags of a batch at a mesh.
+ * Sets the metadata of a batch at a submesh.
  *
- * In addition, it will also call _gfx_mesh_set_unit_copies and
- * _gfx_mesh_set_batch_states for the given batch.
+ * In addition, it will also call _gfx_submesh_set_unit_copies and
+ * _gfx_submesh_set_unit_states for the given batch, if necessar.
+ *
+ * copy is ignored if flags is equal to the current flags.
  *
  */
-void _gfx_mesh_set_batch_flags(
+void _gfx_submesh_set_batch_data(
 
-		GFXMesh*       mesh,
-		unsigned int   meshID,
+		GFXSubMesh*    mesh,
+		unsigned int   submeshID,
 		GFXBatchFlags  flags,
-		unsigned int   copy);
-
-/**
- * Returns the state of a batch at a mesh.
- *
- * @param base    Returns the base state, 0 if the batch does not exist.
- * @param variant Returns the variant state, 0 if the batch does not exist.
- *
- */
-void _gfx_mesh_get_batch_state(
-
-		GFXMesh*        mesh,
-		unsigned int    meshID,
-		GFXBatchState*  base,
-		GFXBatchState*  variant);
-
-/**
- * Sets the state of a batch at a mesh.
- *
- * In addition, it will also call _gfx_mesh_set_unit_states for the given batch.
- *
- */
-void _gfx_mesh_set_batch_state(
-
-		GFXMesh*       mesh,
-		unsigned int   meshID,
 		GFXBatchState  base,
-		GFXBatchState  variant);
+		GFXBatchState  variant,
+		unsigned int   copy);
 
 /**
  * Calls _gfx_batch_set_unit_copies for all associated buckets of a batch.
@@ -301,10 +272,10 @@ void _gfx_mesh_set_batch_state(
  * Note: undefined behaviour if the batch does not exist!
  *
  */
-void _gfx_mesh_set_unit_copies(
+void _gfx_submesh_set_unit_copies(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
+		GFXSubMesh*   mesh,
+		unsigned int  submeshID,
 		unsigned int  copy);
 
 /**
@@ -315,10 +286,10 @@ void _gfx_mesh_set_unit_copies(
  * Note: undefined behaviour if the batch does not exist!
  *
  */
-void _gfx_mesh_set_unit_states(
+void _gfx_submesh_set_unit_states(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID);
+		GFXSubMesh*   mesh,
+		unsigned int  submeshID);
 
 
 /********************************************************
@@ -326,112 +297,97 @@ void _gfx_mesh_set_unit_states(
  *******************************************************/
 
 /**
- * Fetch a bucket handle for a given batch and bucket.
+ * Fetch an existing unit handle for a given batch and bucket.
  *
- * @param pipe   Bucket to fetch a handle of.
- * @param handle Handle of the bucket.
+ * @param pipe   Bucket to insert.
+ * @param handle Handle of the units associated with the bucket.
  * @return Zero on failure, the handle is untouched.
  *
- * Note: if the batch does not have an associated submesh, the handle fails to be created.
- * A handle is only valid as long as no other handle at the mesh is altered.
+ * A handle is only valid as long as no other handle at the submesh is altered.
  *
  */
-int _gfx_mesh_get_bucket(
+int _gfx_submesh_find_units(
 
-		GFXMesh*       mesh,
-		unsigned int   meshID,
+		GFXSubMesh*    mesh,
+		unsigned int   submeshID,
 		GFXPipe*       pipe,
 		unsigned int*  handle);
 
 /**
- * Fetch an existing bucket handle for a given batch and bucket.
+ * Insert a unit handle for a given batch and bucket.
  *
- * @param handle The handle of the bucket.
  * @return Zero on failure, the handle is untouched.
  *
- * Note: if the batch does not have an associated submesh, the function fails.
+ * Note: if a handle for a given bucket already exists, behaviour is undefined.
+ * Therefor, always use _gfx_submesh_find_units first!
  *
  */
-int _gfx_mesh_find_bucket(
+int _gfx_submesh_insert_units(
 
-		GFXMesh*       mesh,
-		unsigned int   meshID,
+		GFXSubMesh*    mesh,
+		unsigned int   submeshID,
 		GFXPipe*       pipe,
 		unsigned int*  handle);
 
 /**
- * Forcefully remove a bucket handle associated with a batch for a given bucket.
+ * Forcefully remove a unit handle associated with a batch for a given bucket.
  *
  * This will destroy all reserved units.
  *
  */
-void _gfx_mesh_remove_bucket(
+void _gfx_submesh_remove_units(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
+		GFXSubMesh*   mesh,
+		unsigned int  submeshID,
 		GFXPipe*      pipe);
 
 /**
- * Reserves a given amount of units associated with a bucket handle.
+ * Reserves a given amount of units associated with a unit handle.
  *
  * @param units  Number of units to reserve.
  * @return Array of size_t elements of size units, NULL on failure.
  *
- * Note: The pointer is only valid as long as no handle at the mesh reserves any units.
+ * Note: The pointer is only valid as long as no handle at the submesh reserves any units.
  *
  */
-GFXBucketUnit* _gfx_mesh_reserve(
+GFXBucketUnit* _gfx_submesh_reserve(
 
-		GFXMesh*      mesh,
-		unsigned int  meshID,
-		unsigned int  bucket,
+		GFXSubMesh*   mesh,
+		unsigned int  submeshID,
+		unsigned int  handle,
 		unsigned int  units);
 
 /**
- * Returns memory reserved for units associated with a bucket handle.
+ * Returns memory reserved for units associated with a unit handle.
  *
  * @param units Returns the number of units in the returned array.
  * @return Array of size_t elements, reserved to be units.
  *
  */
-GFXBucketUnit* _gfx_mesh_get_reserved(
+GFXBucketUnit* _gfx_submesh_get_reserved(
 
-		GFXMesh*       mesh,
-		unsigned int   bucket,
+		GFXSubMesh*    mesh,
+		unsigned int   handle,
 		unsigned int*  units);
 
 /**
- * Increase the instance counter of a bucket handle.
- *
- * @return Zero on overflow.
+ * Sets the instance counter of a unit handle.
  *
  */
-int _gfx_mesh_increase_instances(
+void _gfx_submesh_set_instances(
 
-		GFXMesh*      mesh,
-		unsigned int  bucket,
+		GFXSubMesh*   mesh,
+		unsigned int  handle,
 		unsigned int  instances);
 
 /**
- * Decreases the instance counter of a bucket handle.
- *
- * @return Zero if the counter hits 0.
+ * Returns the instance counter of a unit handle.
  *
  */
-int _gfx_mesh_decrease_instances(
+unsigned int _gfx_submesh_get_instances(
 
-		GFXMesh*      mesh,
-		unsigned int  bucket,
-		unsigned int  instances);
-
-/**
- * Returns the instance counter of a bucket handle.
- *
- */
-unsigned int _gfx_mesh_get_instances(
-
-		GFXMesh*      mesh,
-		unsigned int  bucket);
+		GFXSubMesh*   mesh,
+		unsigned int  handle);
 
 /**
  * Sets the visible 'counter'.
@@ -439,20 +395,20 @@ unsigned int _gfx_mesh_get_instances(
  * @return Actual set value (clamped by instances).
  *
  */
-unsigned int _gfx_mesh_set_visible(
+unsigned int _gfx_submesh_set_visible(
 
-		GFXMesh*      mesh,
-		unsigned int  bucket,
+		GFXSubMesh*   mesh,
+		unsigned int  handle,
 		unsigned int  instances);
 
 /**
  * Gets the visible 'counter'.
  *
  */
-unsigned int _gfx_mesh_get_visible(
+unsigned int _gfx_submesh_get_visible(
 
-		GFXMesh*      mesh,
-		unsigned int  bucket);
+		GFXSubMesh*   mesh,
+		unsigned int  handle);
 
 
 #ifdef __cplusplus

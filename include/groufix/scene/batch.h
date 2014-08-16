@@ -45,18 +45,18 @@ typedef enum GFXBatchFlags
 } GFXBatchFlags;
 
 
-/** Batch level of detail parameters */
-typedef struct GFXBatchLod
+/** Batch parameters */
+typedef struct GFXBatchParams
 {
-	unsigned int  mesh;     /* Level of detail within the mesh */
-	unsigned int  index;    /* Index of the submesh within the mesh LOD to use */
-	unsigned int  material; /* Level of detail within the material */
+	unsigned char  source; /* Source index to use at the submesh */
+	unsigned int   level;  /* Level of detail to use at the material */
+	unsigned int   index;  /* Index within the level of detail at the material */
 
-} GFXBatchLod;
+} GFXBatchParams;
 
 
 /********************************************************
- * Batch (render group consisting of a mesh and material)
+ * Batch (defined by a submesh and material)
  *******************************************************/
 
 /** Batch */
@@ -64,27 +64,28 @@ typedef struct GFXBatch
 {
 	GFXMaterial*  material;
 	unsigned int  materialID;
-	GFXMesh*      mesh;
-	unsigned int  meshID;
+	GFXSubMesh*   submesh;
+	unsigned int  submeshID;
 
 } GFXBatch;
 
 
 /**
- * Fetches a batch associated with a given material and mesh.
+ * Fetches a batch associated with a given material and submesh.
  *
- * @param params Level of detail parameters to use.
+ * @param params Parameters to use.
  * @return Non-zero on success (it will not touch batch on failure).
  *
- * Note: Two batches with equal materials, meshes and lod parameters are equal.
+ * If the parameters define a property map that does not exist, this call will fail.
+ * Note: Two batches with equal materials, submeshes and parameters are equal.
  *
  */
 int gfx_batch_get(
 
-		GFXBatch*     batch,
-		GFXMaterial*  material,
-		GFXMesh*      mesh,
-		GFXBatchLod   params);
+		GFXBatch*       batch,
+		GFXMaterial*    material,
+		GFXSubMesh*     submesh,
+		GFXBatchParams  params);
 
 /**
  * Force a batch to erase all its resources.
@@ -94,6 +95,16 @@ int gfx_batch_get(
  *
  */
 void gfx_batch_erase(
+
+		GFXBatch* batch);
+
+/**
+ * Returns the parameters of a batch.
+ *
+ * @return parameters, all 0 if the batch does not exist.
+ *
+ */
+GFXBatchParams gfx_batch_get_params(
 
 		GFXBatch* batch);
 
@@ -108,16 +119,6 @@ unsigned int gfx_batch_get_property_map(
 		GFXBatch* batch);
 
 /**
- * Retrieves the submesh index as seen in gfx_mesh_get_all.
- *
- * @return The submesh index, out of bounds if it does not exist.
- *
- */
-unsigned int gfx_batch_get_submesh(
-
-		GFXBatch* batch);
-
-/**
  * Retrieves the copies used at a property map by the given batch.
  *
  * @param num The number of copies used, always 1 if GFX_BATCH_MULTIPLE_DATA was not set.
@@ -128,18 +129,6 @@ unsigned int gfx_batch_get_copies(
 
 		GFXBatch*      batch,
 		unsigned int*  num);
-
-/**
- * Return the level of detail parameters of a batch.
- *
- * @return Level of detail parameters, undefined if the batch does not exist.
- *
- * Note: Two batches are strictly inequal if their parameters differ.
- *
- */
-GFXBatchLod gfx_batch_get_lod(
-
-		GFXBatch* batch);
 
 /**
  * Returns the flags of a given batch.
@@ -189,41 +178,6 @@ void gfx_batch_set_state(
 		GFXBatchState  variant);
 
 /**
- * Increase the number of instances at a bucket for a given batch.
- *
- * @param bucket    Bucket to increase instances at.
- * @param instances Number of instances to add.
- * @return Zero on failure.
- *
- * Note: if this batch identifies a submesh or property map that does not exist,
- * it will fail and return zero.
- *
- * This is very expensive relative to simply changing the amount of visible instances!
- *
- */
-int gfx_batch_increase(
-
-		GFXBatch*     batch,
-		GFXPipe*      bucket,
-		unsigned int  instances);
-
-/**
- * Decrease the number of instances at a bucket.
- *
- * @param bucket    Bucket to decrease instances at.
- * @param instances Number of instances to remove.
- * @return Zero if the number of instances hits 0.
- *
- * Note: if zero is returned, the batch's resources for the bucket are freed.
- *
- */
-int gfx_batch_decrease(
-
-		GFXBatch*     batch,
-		GFXPipe*      bucket,
-		unsigned int  instances);
-
-/**
  * Returns the number of instances at a bucket.
  *
  */
@@ -231,6 +185,32 @@ unsigned int gfx_batch_get_instances(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket);
+
+/**
+ * Returns the number of visible instances at a bucket.
+ *
+ */
+unsigned int gfx_batch_get_visible(
+
+		GFXBatch*  batch,
+		GFXPipe*   bucket);
+
+/**
+ * Sets the number of instances at a bucket for a given batch.
+ *
+ * @return Zero on failure.
+ *
+ * Note: the bucket cannot be freed while any batch has more than 0 instances at it,
+ * doing so nonetheless will result in undefined behaviour.
+ *
+ * This is very expensive relative to simply changing the amount of visible instances!
+ *
+ */
+int gfx_batch_set_instances(
+
+		GFXBatch*     batch,
+		GFXPipe*      bucket,
+		unsigned int  instances);
 
 /**
  * Sets the number of visible instances to draw at a bucket.
@@ -244,15 +224,6 @@ unsigned int gfx_batch_set_visible(
 		GFXBatch*     batch,
 		GFXPipe*      bucket,
 		unsigned int  instances);
-
-/**
- * Returns the number of visible instances at a bucket.
- *
- */
-unsigned int gfx_batch_get_visible(
-
-		GFXBatch*  batch,
-		GFXPipe*   bucket);
 
 
 #ifdef __cplusplus

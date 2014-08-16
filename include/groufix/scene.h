@@ -26,24 +26,4 @@
 
 #include "groufix/scene/batch.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-/** Scene object keys */
-typedef enum GFXSceneKey
-{
-	GFX_SCENE_KEY_MESH,
-	GFX_SCENE_KEY_SUBMESH,
-
-	GFX_SCENE_KEY_EMPTY /* Start of empty range */
-
-} GFXSceneKey;
-
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif // GFX_SCENE_H
