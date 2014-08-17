@@ -485,23 +485,6 @@ typedef union GFXPipe
 } GFXPipe;
 
 
-/** Pipe callback object */
-typedef struct GFXPipeCallback
-{
-	unsigned char  key;
-	void*          data;
-
-} GFXPipeCallback;
-
-
-/** Pipe register callback */
-typedef void (*GFXPipeCallbackFunc) (GFXPipe*, GFXPipeCallback*);
-
-
-/** Pipe callback list */
-typedef void* GFXPipeCallbackList;
-
-
 /**
  * Returns the type of a pipe.
  *
@@ -521,71 +504,6 @@ GFXPipeType gfx_pipe_get_type(
 GFXPipeState* gfx_pipe_get_state(
 
 		GFXPipe* pipe);
-
-/**
- * Register a new callback object for a pipe, it is issued when the pipe is freed.
- *
- * @param callback Key of the callback plus arbitrary data to store.
- * @param func     Function to be issued when the pipe is freed (can be NULL).
- * @return Zero on failure.
- *
- */
-int gfx_pipe_register(
-
-		GFXPipe*             pipe,
-		GFXPipeCallback      callback,
-		GFXPipeCallbackFunc  func);
-
-/**
- * Unregister a callback object from a pipe.
- *
- * An object can be registered multiple times, in that case it will unregister all of them.
- * Note: unregistering can be a costly operation.
- *
- */
-void gfx_pipe_unregister(
-
-		GFXPipe*         pipe,
-		GFXPipeCallback  callback);
-
-/**
- * Returns whether a given callback has been registered.
- *
- * @return Non-zero if it was found.
- *
- */
-int gfx_pipe_exists(
-
-		GFXPipe*         pipe,
-		GFXPipeCallback  callback);
-
-/**
- * Finds and returns an abstract list of callback objects with a given key.
- *
- * @param num Returns the number of callback objects found.
- * @return List of found objects.
- *
- * Note: as soon as a callback object is registered/unregistered the list is invalidated.
- *
- */
-GFXPipeCallbackList gfx_pipe_find(
-
-		GFXPipe*       pipe,
-		unsigned char  key,
-		unsigned int*  num);
-
-/**
- * Indexes into the list of callback objects.
- *
- * @param list List of callbacks returned by gfx_pipe_find.
- *
- * Note: you can only retrieve a callbacks with index < num returnd by gfx_pipe_find.
- *
- */
-GFXPipeCallback* gfx_pipe_at(
-
-		GFXPipeCallbackList  list,
-		unsigned int         index);
 
 
 /********************************************************

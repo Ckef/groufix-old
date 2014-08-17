@@ -70,6 +70,7 @@ void _gfx_pipeline_bind(
 {
 	switch(target)
 	{
+		/* Bind as both read and draw fbo */
 		case GL_FRAMEBUFFER :
 			if((GFX_EXT)->fbos[0] != framebuffer && (GFX_EXT)->fbos[1] != framebuffer)
 				(GFX_EXT)->BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -78,6 +79,7 @@ void _gfx_pipeline_bind(
 			(GFX_EXT)->fbos[1] = framebuffer;
 			break;
 
+		/* Bind as draw fbo */
 		case GL_DRAW_FRAMEBUFFER :
 			if((GFX_EXT)->fbos[0] != framebuffer)
 				(GFX_EXT)->BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
@@ -85,6 +87,7 @@ void _gfx_pipeline_bind(
 			(GFX_EXT)->fbos[0] = framebuffer;
 			break;
 
+		/* Bind as read fbo */
 		case GL_READ_FRAMEBUFFER :
 			if((GFX_EXT)->fbos[1] != framebuffer)
 				(GFX_EXT)->BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);

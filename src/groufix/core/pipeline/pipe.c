@@ -23,186 +23,22 @@
 
 #include "groufix/core/pipeline/internal.h"
 
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-
-/* Internal pipe flags */
-#define GFX_INT_PIPE_SORTED  0x01
-#define GFX_INT_PIPE_RANGED  0x02
-
 /******************************************************/
-/* Internal pipe */
-struct GFX_IntPipe
-{
-	/* Super class */
-	GFX_Pipe pipe;
-
-	/* Callbacks */
-	GFXVector      callbacks; /* Stores GFX_Callback */
-	GFXVector      ranges;    /* Stores GFX_Range */
-	unsigned char  flags;
-};
-
-/* Internal callback */
-struct GFX_Callback
-{
-	GFXPipeCallback      callback; /* Super class */
-	GFXPipeCallbackFunc  func;
-};
-
-/* Internal callback range */
-struct GFX_Range
-{
-	unsigned char  key; /* Callback key */
-	unsigned int   end; /* Upper bound */
-};
-
-/******************************************************/
-static int _gfx_pipe_callback_comp(
-
-		const void*  elem1,
-		const void*  elem2)
-{
-	GFXPipeCallback* c1 = (GFXPipeCallback*)elem1;
-	GFXPipeCallback* c2 = (GFXPipeCallback*)elem2;
-
-	if(c1->key < c2->key) return -1;
-	if(c1->key > c2->key) return 1;
-
-	if(GFX_PTR_LESS(c1->data, c2->data)) return -1;
-	if(GFX_PTR_LESS(c2->data, c1->data)) return 1;
-
-	return 0;
-}
-
-/******************************************************/
-static int _gfx_pipe_range_comp(
-
-		const void*  key,
-		const void*  elem)
-{
-	unsigned char k = GFX_VOID_TO_UINT(key);
-	struct GFX_Range* range = (struct GFX_Range*)elem;
-
-	if(range->key > k) return -1;
-	if(range->key < k) return 1;
-
-	return 0;
-}
-
-/******************************************************/
-static void _gfx_pipe_sort(
-
-		struct GFX_IntPipe* pipe)
-{
-	/* Sort if necessary */
-	if(!(pipe->flags & GFX_INT_PIPE_SORTED))
-	{
-		qsort(
-			pipe->callbacks.begin,
-			gfx_vector_get_size(&pipe->callbacks),
-			sizeof(struct GFX_Callback),
-			_gfx_pipe_callback_comp
-		);
-		pipe->flags |= GFX_INT_PIPE_SORTED;
-	}
-}
-
-/******************************************************/
-static void _gfx_pipe_range(
-
-		struct GFX_IntPipe* pipe)
-{
-	/* Range if necessary */
-	if(!(pipe->flags & GFX_INT_PIPE_RANGED))
-	{
-		gfx_vector_clear(&pipe->ranges);
-
-		if(pipe->callbacks.begin != pipe->callbacks.end)
-		{
-			/* Get first key */
-			GFXVectorIterator it = pipe->callbacks.begin;
-
-			struct GFX_Range range;
-			range.key = ((GFXPipeCallback*)it)->key;
-			range.end = 1;
-
-			/* Iterate through keys and extract ranges */
-			it = gfx_vector_next(&pipe->callbacks, it);
-			while(it != pipe->callbacks.end)
-			{
-				/* Insert range if a new key */
-				unsigned char key = ((GFXPipeCallback*)it)->key;
-				if(key != range.key)
-				{
-					gfx_vector_insert(&pipe->ranges, &range, pipe->ranges.end);
-					range.key = key;
-				}
-
-				it = gfx_vector_next(&pipe->callbacks, it);
-				++range.end;
-			}
-
-			/* Insert last range */
-			gfx_vector_insert(&pipe->ranges, &range, pipe->ranges.end);
-		}
-
-		pipe->flags |= GFX_INT_PIPE_RANGED;
-	}
-}
-
-/******************************************************/
-static GFXVectorIterator _gfx_pipe_find(
-
-		struct GFX_IntPipe*  pipe,
-		unsigned char        key,
-		unsigned int*        num)
-{
-	/* Find range element */
-	struct GFX_Range* it = bsearch(
-		GFX_UINT_TO_VOID(key),
-		pipe->ranges.begin,
-		gfx_vector_get_size(&pipe->ranges),
-		sizeof(struct GFX_Range),
-		_gfx_pipe_range_comp
-	);
-
-	if(!it)
-	{
-		*num = 0;
-		return NULL;
-	}
-
-	/* Get previous range and calculate number of elements */
-	unsigned int begin = 0;
-	if(it != pipe->ranges.begin)
-		begin = ((struct GFX_Range*)gfx_vector_previous(&pipe->ranges, it))->end;
-
-	*num = it->end - begin;
-	return gfx_vector_at(&pipe->callbacks, begin);
-}
-
-/******************************************************/
-static struct GFX_IntPipe* _gfx_pipe_create(
+static GFX_Pipe* _gfx_pipe_create(
 
 		GFXPipeType   type,
 		GFXPipeline*  pipeline)
 {
 	/* Create the pipe */
-	struct GFX_IntPipe* pipe =
-		(struct GFX_IntPipe*)gfx_list_create(sizeof(struct GFX_IntPipe));
+	GFX_Pipe* pipe = (GFX_Pipe*)gfx_list_create(sizeof(struct GFX_Pipe));
 
 	if(!pipe) return NULL;
 
-	pipe->pipe.type = type;
-	pipe->pipe.pipeline = pipeline;
-
-	gfx_vector_init(&pipe->callbacks, sizeof(struct GFX_Callback));
-	gfx_vector_init(&pipe->ranges, sizeof(struct GFX_Range));
+	pipe->type = type;
+	pipe->pipeline = pipeline;
 
 	/* Some defaults */
-	_gfx_states_set_default(&pipe->pipe.state);
+	_gfx_states_set_default(&pipe->state);
 
 	return pipe;
 }
@@ -214,7 +50,7 @@ GFX_Pipe* _gfx_pipe_create_bucket(
 		unsigned char   bits,
 		GFXBucketFlags  flags)
 {
-	struct GFX_IntPipe* pipe = _gfx_pipe_create(GFX_PIPE_BUCKET, pipeline);
+	GFX_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_BUCKET, pipeline);
 	if(!pipe) return NULL;
 
 	/* Create bucket */
@@ -224,9 +60,9 @@ GFX_Pipe* _gfx_pipe_create_bucket(
 		_gfx_pipe_free((GFX_Pipe*)pipe);
 		return 0;
 	}
-	pipe->pipe.ptr.bucket = bucket;
+	pipe->ptr.bucket = bucket;
 
-	return (GFX_Pipe*)pipe;
+	return pipe;
 }
 
 /******************************************************/
@@ -234,7 +70,7 @@ GFX_Pipe* _gfx_pipe_create_process(
 
 		GFXPipeline* pipeline)
 {
-	struct GFX_IntPipe* pipe = _gfx_pipe_create(GFX_PIPE_PROCESS, pipeline);
+	GFX_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_PROCESS, pipeline);
 	if(!pipe) return NULL;
 
 	/* Allocate process */
@@ -244,9 +80,9 @@ GFX_Pipe* _gfx_pipe_create_process(
 		_gfx_pipe_free((GFX_Pipe*)pipe);
 		return 0;
 	}
-	pipe->pipe.ptr.process = process;
+	pipe->ptr.process = process;
 
-	return (GFX_Pipe*)pipe;
+	return pipe;
 }
 
 /******************************************************/
@@ -254,22 +90,6 @@ GFX_Pipe* _gfx_pipe_free(
 
 		GFX_Pipe* pipe)
 {
-	struct GFX_IntPipe* internal = (struct GFX_IntPipe*)pipe;
-
-	/* Issue all callbacks */
-	GFXVectorIterator it;
-	for(
-		it = internal->callbacks.begin;
-		it != internal->callbacks.end;
-		it = gfx_vector_next(&internal->callbacks, it))
-	{
-		struct GFX_Callback* call = (struct GFX_Callback*)it;
-		if(call->func) call->func(&pipe->ptr, &call->callback);
-	}
-
-	gfx_vector_clear(&internal->callbacks);
-	gfx_vector_clear(&internal->ranges);
-
 	/* Free the actual pipe */
 	switch(pipe->type)
 	{
@@ -303,151 +123,4 @@ GFXPipeState* gfx_pipe_get_state(
 	return &((GFX_Pipe*)GFX_PTR_SUB_BYTES(
 		pipe,
 		offsetof(GFX_Pipe, ptr)))->state;
-}
-
-/******************************************************/
-int gfx_pipe_register(
-
-		GFXPipe*             pipe,
-		GFXPipeCallback      callback,
-		GFXPipeCallbackFunc  func)
-{
-	struct GFX_IntPipe* internal = GFX_PTR_SUB_BYTES(
-		pipe,
-		offsetof(GFX_Pipe, ptr));
-
-	/* Overflow check */
-	if(gfx_vector_get_size(&internal->callbacks) == UINT_MAX)
-		return 0;
-
-	/* Insert the callback object */
-	struct GFX_Callback call;
-	call.callback = callback;
-	call.func = func;
-
-	GFXVectorIterator it = gfx_vector_insert(
-		&internal->callbacks,
-		&call,
-		internal->callbacks.end
-	);
-
-	if(it == internal->callbacks.end) return 0;
-	internal->flags = 0;
-
-	return 1;
-}
-
-/******************************************************/
-void gfx_pipe_unregister(
-
-		GFXPipe*         pipe,
-		GFXPipeCallback  callback)
-{
-	/* Sort if necessary */
-	struct GFX_IntPipe* internal = GFX_PTR_SUB_BYTES(
-		pipe,
-		offsetof(GFX_Pipe, ptr));
-
-	_gfx_pipe_sort(internal);
-
-	/* Find the callback object */
-	unsigned int max = gfx_vector_get_size(&internal->callbacks);
-	unsigned int min = 0;
-
-	GFXVectorIterator found = bsearch(
-		&callback,
-		internal->callbacks.begin,
-		max,
-		sizeof(struct GFX_Callback),
-		_gfx_pipe_callback_comp
-	);
-
-	if(found)
-	{
-		unsigned int mid = gfx_vector_get_index(
-			&internal->callbacks,
-			found
-		);
-
-		/* Binary search for first equivalent callback */
-		unsigned int find = mid;
-		while(find > min)
-		{
-			unsigned int quart = min + ((find - min) >> 1);
-			GFXVectorIterator it = gfx_vector_at(
-				&internal->callbacks,
-				quart
-			);
-
-			if(_gfx_pipe_callback_comp(it, &callback) < 0) min = quart + 1;
-			else find = quart;
-		}
-
-		/* Binary search for last equivalent callback */
-		find = mid;
-		while(max > find)
-		{
-			unsigned int quart = find + ((max - find) >> 1);
-			GFXVectorIterator it = gfx_vector_at(
-				&internal->callbacks,
-				quart
-			);
-
-			if(_gfx_pipe_callback_comp(it, &callback) > 0) max = quart;
-			else find = quart + 1;
-		}
-
-		/* Erase the range */
-		gfx_vector_erase_range_at(&internal->callbacks, max - min, min);
-		internal->flags &= ~GFX_INT_PIPE_RANGED;
-	}
-}
-
-/******************************************************/
-int gfx_pipe_exists(
-
-		GFXPipe*         pipe,
-		GFXPipeCallback  callback)
-{
-	/* Sort if necessary */
-	struct GFX_IntPipe* internal = GFX_PTR_SUB_BYTES(
-		pipe,
-		offsetof(GFX_Pipe, ptr));
-
-	_gfx_pipe_sort(internal);
-
-	/* Find the callback object */
-	return bsearch(
-		&callback,
-		internal->callbacks.begin,
-		gfx_vector_get_size(&internal->callbacks),
-		sizeof(struct GFX_Callback),
-		_gfx_pipe_callback_comp) ? 1 : 0;
-}
-
-/******************************************************/
-GFXPipeCallbackList gfx_pipe_find(
-
-		GFXPipe*       pipe,
-		unsigned char  key,
-		unsigned int*  num)
-{
-	/* First make sure it's sorted and ranged */
-	struct GFX_IntPipe* internal = GFX_PTR_SUB_BYTES(
-		pipe,
-		offsetof(GFX_Pipe, ptr));
-
-	_gfx_pipe_sort(internal);
-	_gfx_pipe_range(internal);
-
-	return _gfx_pipe_find(internal, key, num);
-}
-
-/******************************************************/
-GFXPipeCallback* gfx_pipe_at(
-
-		GFXPipeCallbackList  list,
-		unsigned int         index)
-{
-	return (GFXPipeCallback*)(((struct GFX_Callback*)list) + index);
 }
