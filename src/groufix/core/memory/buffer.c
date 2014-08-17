@@ -98,20 +98,21 @@ static void _gfx_buffer_alloc_buffers(
 		const void*         data)
 {
 	/* Allocate buffers */
-	(GFX_EXT)->GenBuffers(num, it);
+	(GFX_EXT)->CreateBuffers(num, it);
 	GLenum us = _gfx_buffer_get_usage(buffer->buffer.usage);
 
 	/* Iterate over buffers */
 	unsigned char i;
 	for(i = 0; i < num; ++i)
 	{
-		/* Only write data to the first buffer */
+		/* Bind just so to hint the buffer type */
 		(GFX_EXT)->BindBuffer(
 			buffer->buffer.target,
 			*(GLuint*)it);
 
-		(GFX_EXT)->BufferData(
-			buffer->buffer.target,
+		/* Only write data to the first buffer */
+		(GFX_EXT)->NamedBufferData(
+			*(GLuint*)it,
 			buffer->buffer.size,
 			i ? NULL : data,
 			us);

@@ -255,77 +255,153 @@ static void _gfx_texture_set_storage(
 	tex->texture.depth  = depth;
 
 	/* Allocate storage */
-	int old;
-	_gfx_binder_bind_texture(tex->handle, tex->target, 0, &old);
-
-	switch(tex->target)
+	if((GFX_EXT)->flags[GFX_EXT_DIRECT_STATE_ACCESS])
 	{
-		case GL_TEXTURE_1D :
-			(GFX_EXT)->TexStorage1D(
-				tex->target,
-				tex->texture.mipmaps + 1,
-				tex->format,
-				width
-			);
-			break;
+		switch(tex->target)
+		{
+			case GL_TEXTURE_1D :
+				(GFX_EXT)->TextureStorage1D(
+					tex->handle,
+					tex->texture.mipmaps + 1,
+					tex->format,
+					width
+				);
+				break;
 
-		case GL_TEXTURE_1D_ARRAY :
-		case GL_TEXTURE_2D :
-		case GL_TEXTURE_CUBE_MAP :
-			(GFX_EXT)->TexStorage2D(
-				tex->target,
-				tex->texture.mipmaps + 1,
-				tex->format,
-				width,
-				height
-			);
-			break;
+			case GL_TEXTURE_1D_ARRAY :
+			case GL_TEXTURE_2D :
+			case GL_TEXTURE_CUBE_MAP :
+				(GFX_EXT)->TextureStorage2D(
+					tex->handle,
+					tex->texture.mipmaps + 1,
+					tex->format,
+					width,
+					height
+				);
+				break;
 
-		case GL_TEXTURE_2D_ARRAY :
-		case GL_TEXTURE_3D :
-			(GFX_EXT)->TexStorage3D(
-				tex->target,
-				tex->texture.mipmaps + 1,
-				tex->format,
-				width,
-				height,
-				depth
-			);
-			break;
+			case GL_TEXTURE_2D_ARRAY :
+			case GL_TEXTURE_3D :
+				(GFX_EXT)->TextureStorage3D(
+					tex->handle,
+					tex->texture.mipmaps + 1,
+					tex->format,
+					width,
+					height,
+					depth
+				);
+				break;
 
-		case GL_TEXTURE_2D_MULTISAMPLE :
-			(GFX_EXT)->TexStorage2DMultisample(
-				tex->target,
-				tex->texture.samples,
-				tex->format,
-				width,
-				height,
-				GL_FALSE
-			);
-			break;
+			case GL_TEXTURE_2D_MULTISAMPLE :
+				(GFX_EXT)->TextureStorage2DMultisample(
+					tex->handle,
+					tex->texture.samples,
+					tex->format,
+					width,
+					height,
+					GL_FALSE
+				);
+				break;
 
-		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
-			(GFX_EXT)->TexStorage3DMultisample(
-				tex->target,
-				tex->texture.samples,
-				tex->format,
-				width,
-				height,
-				depth,
-				GL_FALSE
-			);
-			break;
+			case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
+				(GFX_EXT)->TextureStorage3DMultisample(
+					tex->handle,
+					tex->texture.samples,
+					tex->format,
+					width,
+					height,
+					depth,
+					GL_FALSE
+				);
+				break;
 
-		case GL_TEXTURE_CUBE_MAP_ARRAY :
-			(GFX_EXT)->TexStorage3D(
-				tex->target,
-				tex->texture.mipmaps + 1,
-				tex->format,
-				width,
-				height,
-				depth * 6
-			);
-			break;
+			case GL_TEXTURE_CUBE_MAP_ARRAY :
+				(GFX_EXT)->TextureStorage3D(
+					tex->handle,
+					tex->texture.mipmaps + 1,
+					tex->format,
+					width,
+					height,
+					depth * 6
+				);
+				break;
+		}
+	}
+	else
+	{
+		/* Bind it to a unit if no direct state access */
+		int old;
+		_gfx_binder_bind_texture(tex->handle, tex->target, 0, &old);
+
+		switch(tex->target)
+		{
+			case GL_TEXTURE_1D :
+				(GFX_EXT)->TexStorage1D(
+					tex->target,
+					tex->texture.mipmaps + 1,
+					tex->format,
+					width
+				);
+				break;
+
+			case GL_TEXTURE_1D_ARRAY :
+			case GL_TEXTURE_2D :
+			case GL_TEXTURE_CUBE_MAP :
+				(GFX_EXT)->TexStorage2D(
+					tex->target,
+					tex->texture.mipmaps + 1,
+					tex->format,
+					width,
+					height
+				);
+				break;
+
+			case GL_TEXTURE_2D_ARRAY :
+			case GL_TEXTURE_3D :
+				(GFX_EXT)->TexStorage3D(
+					tex->target,
+					tex->texture.mipmaps + 1,
+					tex->format,
+					width,
+					height,
+					depth
+				);
+				break;
+
+			case GL_TEXTURE_2D_MULTISAMPLE :
+				(GFX_EXT)->TexStorage2DMultisample(
+					tex->target,
+					tex->texture.samples,
+					tex->format,
+					width,
+					height,
+					GL_FALSE
+				);
+				break;
+
+			case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
+				(GFX_EXT)->TexStorage3DMultisample(
+					tex->target,
+					tex->texture.samples,
+					tex->format,
+					width,
+					height,
+					depth,
+					GL_FALSE
+				);
+				break;
+
+			case GL_TEXTURE_CUBE_MAP_ARRAY :
+				(GFX_EXT)->TexStorage3D(
+					tex->target,
+					tex->texture.mipmaps + 1,
+					tex->format,
+					width,
+					height,
+					depth * 6
+				);
+				break;
+		}
 	}
 }
 
@@ -394,12 +470,22 @@ GFXTexture* gfx_texture_create(
 	tex->texture.type = type;
 	tex->texture.mipmaps = mipmaps;
 
-	/* Set parameters and allocate data */
-	int old;
-	_gfx_binder_bind_texture(tex->handle, target, 0, &old);
+	/* Set parameters */
+	if((GFX_EXT)->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+	{
+		(GFX_EXT)->TextureParameteri(tex->handle, GL_TEXTURE_BASE_LEVEL, 0);
+		(GFX_EXT)->TextureParameteri(tex->handle, GL_TEXTURE_MAX_LEVEL, mipmaps);
+	}
+	else
+	{
+		int old;
+		_gfx_binder_bind_texture(tex->handle, target, 0, &old);
 
-	(GFX_EXT)->TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
-	(GFX_EXT)->TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
+		(GFX_EXT)->TexParameteri(tex->target, GL_TEXTURE_BASE_LEVEL, 0);
+		(GFX_EXT)->TexParameteri(tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
+	}
+
+	/* Allocate data */
 	_gfx_texture_set_storage(tex, width, height, depth);
 
 	return (GFXTexture*)tex;
@@ -541,13 +627,6 @@ void gfx_texture_write(
 	else
 	{
 		/* Upload texture data */
-		int old;
-		_gfx_binder_bind_texture(
-			internal->handle,
-			internal->target,
-			0,
-			&old);
-
 		_gfx_states_set_pixel_unpack_alignment(transfer->alignment);
 
 		GLint pixForm =
@@ -557,109 +636,234 @@ void gfx_texture_write(
 			transfer->format.type.packed :
 			transfer->format.type.unpacked;
 
-		if(pixForm >= 0) switch(internal->target)
+		/* Say wut? */
+		if(pixForm < 0) return;
+
+		if((GFX_EXT)->flags[GFX_EXT_DIRECT_STATE_ACCESS])
 		{
-			case GL_TEXTURE_1D :
-				(GFX_EXT)->TexSubImage1D(
-					internal->target,
-					image.mipmap,
-					transfer->xOffset,
-					transfer->width,
-					pixForm,
-					pixType,
-					data
-				);
-				break;
+			switch(internal->target)
+			{
+				case GL_TEXTURE_1D :
+					(GFX_EXT)->TextureSubImage1D(
+						internal->handle,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->width,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
 
-			case GL_TEXTURE_1D_ARRAY :
-				(GFX_EXT)->TexSubImage2D(
-					internal->target,
-					image.mipmap,
-					transfer->xOffset,
-					transfer->yOffset + image.layer,
-					transfer->width,
-					transfer->height,
-					pixForm,
-					pixType,
-					data
-				);
-				break;
+				case GL_TEXTURE_1D_ARRAY :
+					(GFX_EXT)->TextureSubImage2D(
+						internal->handle,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset + image.layer,
+						transfer->width,
+						transfer->height,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
 
-			case GL_TEXTURE_2D :
-				(GFX_EXT)->TexSubImage2D(
-					internal->target,
-					image.mipmap,
-					transfer->xOffset,
-					transfer->yOffset,
-					transfer->width,
-					transfer->height,
-					pixForm,
-					pixType,
-					data
-				);
-				break;
+				case GL_TEXTURE_2D :
+					(GFX_EXT)->TextureSubImage2D(
+						internal->handle,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						transfer->width,
+						transfer->height,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
 
-			case GL_TEXTURE_2D_ARRAY :
-				(GFX_EXT)->TexSubImage3D(
-					internal->target,
-					image.mipmap,
-					transfer->xOffset,
-					transfer->yOffset,
-					transfer->zOffset + image.layer,
-					transfer->width,
-					transfer->height,
-					transfer->depth,
-					pixForm,
-					pixType,
-					data
-				);
-				break;
+				case GL_TEXTURE_2D_ARRAY :
+					(GFX_EXT)->TextureSubImage3D(
+						internal->handle,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						transfer->zOffset + image.layer,
+						transfer->width,
+						transfer->height,
+						transfer->depth,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
 
-			case GL_TEXTURE_3D :
-				(GFX_EXT)->TexSubImage3D(
-					internal->target,
-					image.mipmap,
-					transfer->xOffset,
-					transfer->yOffset,
-					transfer->zOffset,
-					transfer->width,
-					transfer->height,
-					transfer->depth,
-					pixForm,
-					pixType,
-					data
-				);
-				break;
+				case GL_TEXTURE_3D :
+					(GFX_EXT)->TextureSubImage3D(
+						internal->handle,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						transfer->zOffset,
+						transfer->width,
+						transfer->height,
+						transfer->depth,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
 
-			case GL_TEXTURE_CUBE_MAP :
-				(GFX_EXT)->TexSubImage2D(
-					image.face + GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-					image.mipmap,
-					transfer->xOffset,
-					transfer->yOffset,
-					transfer->width,
-					transfer->height,
-					pixForm,
-					pixType,
-					data
-				);
-				break;
+				case GL_TEXTURE_CUBE_MAP :
+					(GFX_EXT)->TextureSubImage3D(
+						internal->handle,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						image.face,
+						transfer->width,
+						transfer->height,
+						transfer->depth,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
 
-			case GL_TEXTURE_CUBE_MAP_ARRAY :
-				(GFX_EXT)->TexSubImage3D(
-					internal->target,
-					image.mipmap,
-					transfer->xOffset,
-					transfer->yOffset,
-					(transfer->zOffset + image.layer) * 6 + image.face,
-					transfer->width,
-					transfer->height,
-					transfer->depth,
-					pixForm,
-					pixType,
-					data
-				);
-				break;
+				case GL_TEXTURE_CUBE_MAP_ARRAY :
+					(GFX_EXT)->TextureSubImage3D(
+						internal->handle,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						(transfer->zOffset + image.layer) * 6 + image.face,
+						transfer->width,
+						transfer->height,
+						transfer->depth,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
+			}
+		}
+		else
+		{
+			/* Bind it to a unit if no direct state access */
+			int old;
+			_gfx_binder_bind_texture(
+				internal->handle,
+				internal->target,
+				0,
+				&old);
+
+			switch(internal->target)
+			{
+				case GL_TEXTURE_1D :
+					(GFX_EXT)->TexSubImage1D(
+						internal->target,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->width,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
+
+				case GL_TEXTURE_1D_ARRAY :
+					(GFX_EXT)->TexSubImage2D(
+						internal->target,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset + image.layer,
+						transfer->width,
+						transfer->height,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
+
+				case GL_TEXTURE_2D :
+					(GFX_EXT)->TexSubImage2D(
+						internal->target,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						transfer->width,
+						transfer->height,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
+
+				case GL_TEXTURE_2D_ARRAY :
+					(GFX_EXT)->TexSubImage3D(
+						internal->target,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						transfer->zOffset + image.layer,
+						transfer->width,
+						transfer->height,
+						transfer->depth,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
+
+				case GL_TEXTURE_3D :
+					(GFX_EXT)->TexSubImage3D(
+						internal->target,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						transfer->zOffset,
+						transfer->width,
+						transfer->height,
+						transfer->depth,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
+
+				case GL_TEXTURE_CUBE_MAP :
+					(GFX_EXT)->TexSubImage3D(
+						internal->target,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						image.face,
+						transfer->width,
+						transfer->height,
+						transfer->depth,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
+
+				case GL_TEXTURE_CUBE_MAP_ARRAY :
+					(GFX_EXT)->TexSubImage3D(
+						internal->target,
+						image.mipmap,
+						transfer->xOffset,
+						transfer->yOffset,
+						(transfer->zOffset + image.layer) * 6 + image.face,
+						transfer->width,
+						transfer->height,
+						transfer->depth,
+						pixForm,
+						pixType,
+						data
+					);
+					break;
+			}
 		}
 	}
 }
@@ -715,12 +919,19 @@ void gfx_texture_generate_mipmaps(
 	struct GFX_Texture* internal = (struct GFX_Texture*)texture;
 	int old;
 
-	_gfx_binder_bind_texture(
-		internal->handle,
-		internal->target,
-		0,
-		&old
-	);
+	if((GFX_EXT)->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+	{
+		(GFX_EXT)->GenerateTextureMipmap(internal->handle);
+	}
+	else
+	{
+		_gfx_binder_bind_texture(
+			internal->handle,
+			internal->target,
+			0,
+			&old
+		);
 
-	(GFX_EXT)->GenerateMipmap(internal->target);
+		(GFX_EXT)->GenerateMipmap(internal->target);
+	}
 }

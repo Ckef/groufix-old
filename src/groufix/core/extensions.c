@@ -141,7 +141,7 @@ int _gfx_extensions_is_in_string(
  * GL core & GL ES emulators
  *******************************************************/
 
-static void APIENTRY _gfx_gl_error_base_instance(void)
+static void _gfx_gl_error_base_instance(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -149,12 +149,20 @@ static void APIENTRY _gfx_gl_error_base_instance(void)
 	);
 }
 
-static void APIENTRY _gfx_gl_error_direct_state_access(void)
+static void _gfx_gl_error_direct_state_access(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
 		"GFX_EXT_DIRECT_STATE_ACCESS is incompatible with this context."
 	);
+}
+
+static void APIENTRY _gfx_gl_bind_texture_unit(
+
+		GLuint  unit,
+		GLuint  texture)
+{
+	_gfx_gl_error_direct_state_access();
 }
 
 static void APIENTRY _gfx_gl_copy_named_buffer_sub_data(
@@ -223,6 +231,13 @@ static void APIENTRY _gfx_gl_draw_elements_instanced_base_instance(
 		GLuint         baseinstance)
 {
 	_gfx_gl_error_base_instance();
+}
+
+static void APIENTRY _gfx_gl_generate_texture_mipmap(
+
+		GLuint texture)
+{
+	_gfx_gl_error_direct_state_access();
 }
 
 static void APIENTRY _gfx_gl_get_named_buffer_sub_data(
@@ -338,6 +353,118 @@ static void APIENTRY _gfx_gl_texture_buffer(
 	_gfx_gl_error_direct_state_access();
 }
 
+static void APIENTRY _gfx_gl_texture_parameter_i(
+
+		GLuint  texture,
+		GLenum  pname,
+		GLint   param)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
+static void APIENTRY _gfx_gl_texture_storage_1d(
+
+		GLuint   texture,
+		GLsizei  levels,
+		GLenum   internalFormat,
+		GLsizei  w)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
+static void APIENTRY _gfx_gl_texture_storage_2d(
+
+		GLuint   texture,
+		GLsizei  levels,
+		GLenum   internalFormat,
+		GLsizei  w,
+		GLsizei  h)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
+static void APIENTRY _gfx_gl_texture_storage_2d_multisample(
+
+		GLuint     texture,
+		GLsizei    samples,
+		GLenum     internalFormat,
+		GLsizei    w,
+		GLsizei    h,
+		GLboolean  f)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
+static void APIENTRY _gfx_gl_texture_storage_3d(
+
+		GLuint   texture,
+		GLsizei  levels,
+		GLenum   internalFormat,
+		GLsizei  w,
+		GLsizei  h,
+		GLsizei  d)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
+static void APIENTRY _gfx_gl_texture_storage_3d_multisample(
+
+		GLuint     texture,
+		GLsizei    samples,
+		GLenum     internalFormat,
+		GLsizei    w,
+		GLsizei    h,
+		GLsizei    d,
+		GLboolean  f)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
+static void APIENTRY _gfx_gl_texture_sub_image_1d(
+
+		GLuint       texture,
+		GLint        level,
+		GLint        xoffset,
+		GLsizei      w,
+		GLenum       format,
+		GLenum       type,
+		const void*  pixels)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
+static void APIENTRY _gfx_gl_texture_sub_image_2d(
+
+		GLuint       texture,
+		GLint        level,
+		GLint        xoffset,
+		GLint        yoffset,
+		GLsizei      w,
+		GLsizei      h,
+		GLenum       format,
+		GLenum       type,
+		const void*  pixels)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
+static void APIENTRY _gfx_gl_texture_sub_image_3d(
+
+		GLuint       texture,
+		GLint        level,
+		GLint        xoffset,
+		GLint        yoffset,
+		GLint        zoffset,
+		GLsizei      w,
+		GLsizei      h,
+		GLsizei      d,
+		GLenum       format,
+		GLenum       type,
+		const void*  pixels)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
 static GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
 
 		GLuint buffer)
@@ -353,7 +480,7 @@ static GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
  * GL ES emulators
  *******************************************************/
 
-static void APIENTRY _gfx_gles_error_tex_buffer(void)
+static void _gfx_gles_error_tex_buffer(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -361,7 +488,7 @@ static void APIENTRY _gfx_gles_error_tex_buffer(void)
 	);
 }
 
-static void APIENTRY _gfx_gles_error_tex_1d(void)
+static void _gfx_gles_error_tex_1d(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -369,7 +496,7 @@ static void APIENTRY _gfx_gles_error_tex_1d(void)
 	);
 }
 
-static void APIENTRY _gfx_gles_error_multisample_tex(void)
+static void _gfx_gles_error_multisample_tex(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -377,7 +504,7 @@ static void APIENTRY _gfx_gles_error_multisample_tex(void)
 	);
 }
 
-static void APIENTRY _gfx_gles_error_layered_multisample_tex(void)
+static void _gfx_gles_error_layered_multisample_tex(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -582,7 +709,7 @@ static void APIENTRY _gfx_gles_tex_sub_image_1d(
  * GL core emulators
  *******************************************************/
 
-static void APIENTRY _gfx_gl_error_program_binary(void)
+static void _gfx_gl_error_program_binary(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -816,6 +943,7 @@ void _gfx_extensions_load(void)
 	ext->BindBufferRange                   = glBindBufferRange;
 	ext->BindFramebuffer                   = glBindFramebuffer;
 	ext->BindTexture                       = glBindTexture;
+	ext->BindTextureUnit                   = glBindTextureUnit;
 	ext->BindVertexArray                   = glBindVertexArray;
 	ext->BlendEquationSeparate             = glBlendEquationSeparate;
 	ext->BlendFuncSeparate                 = glBlendFuncSeparate;
@@ -858,6 +986,7 @@ void _gfx_extensions_load(void)
 	ext->FramebufferTextureLayer           = glFramebufferTextureLayer;
 	ext->GenBuffers                        = glGenBuffers;
 	ext->GenerateMipmap                    = glGenerateMipmap;
+	ext->GenerateTextureMipmap             = glGenerateTextureMipmap;
 	ext->GenFramebuffers                   = glGenFramebuffers;
 	ext->GenTextures                       = glGenTextures;
 	ext->GenVertexArrays                   = glGenVertexArrays;
@@ -910,6 +1039,15 @@ void _gfx_extensions_load(void)
 	ext->TexSubImage2D                     = glTexSubImage2D;
 	ext->TexSubImage3D                     = glTexSubImage3D;
 	ext->TextureBuffer                     = _gfx_gl_texture_buffer;
+	ext->TextureParameteri                 = _gfx_gl_texture_parameter_i;
+	ext->TextureStorage1D                  = _gfx_gl_texture_storage_1d;
+	ext->TextureStorage2D                  = _gfx_gl_texture_storage_2d;
+	ext->TextureStorage2DMultisample       = _gfx_gl_texture_storage_2d_multisample;
+	ext->TextureStorage3D                  = _gfx_gl_texture_storage_3d;
+	ext->TextureStorage3DMultisample       = _gfx_gl_texture_storage_3d_multisample;
+	ext->TextureSubImage1D                 = _gfx_gl_texture_sub_image_1d;
+	ext->TextureSubImage2D                 = _gfx_gl_texture_sub_image_2d;
+	ext->TextureSubImage3D                 = _gfx_gl_texture_sub_image_3d;
 	ext->TransformFeedbackVaryings         = glTransformFeedbackVaryings;
 	ext->Uniform1fv                        = glUniform1fv;
 	ext->Uniform1iv                        = glUniform1iv;
@@ -1184,6 +1322,8 @@ void _gfx_extensions_load(void)
 		_gfx_is_extension_supported("GL_ARB_direct_state_access"))
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
+		ext->BindTextureUnit =
+			(PFNGLBINDTEXTUREUNITPROC)_gfx_platform_get_proc_address("glBindTextureUnit");
 		ext->CopyNamedBufferSubData =
 			(PFNGLCOPYNAMEDBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glCopyNamedBufferSubData");
 		ext->CreateBuffers =
@@ -1192,6 +1332,8 @@ void _gfx_extensions_load(void)
 			(PFNGLCREATEFRAMEBUFFERSPROC)_gfx_platform_get_proc_address("glCreateFramebuffers");
 		ext->CreateTextures =
 			(PFNGLCREATETEXTURESPROC)_gfx_platform_get_proc_address("glCreateTextures");
+		ext->GenerateTextureMipmap =
+			(PFNGLGENERATETEXTUREMIPMAPPROC)_gfx_platform_get_proc_address("glGenerateTextureMipmap");
 		ext->GetNamedBufferSubData =
 			(PFNGLGETNAMEDBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glGetNamedBufferSubData");
 		ext->MapNamedBufferRange =
@@ -1208,6 +1350,24 @@ void _gfx_extensions_load(void)
 			(PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC)_gfx_platform_get_proc_address("glNamedFramebufferTextureLayer");
 		ext->TextureBuffer =
 			(PFNGLTEXTUREBUFFERPROC)_gfx_platform_get_proc_address("glTextureBuffer");
+		ext->TextureParameteri =
+			(PFNGLTEXTUREPARAMETERIPROC)_gfx_platform_get_proc_address("glTextureParameteri");
+		ext->TextureStorage1D =
+			(PFNGLTEXTURESTORAGE1DPROC)_gfx_platform_get_proc_address("glTextureStorage1D");
+		ext->TextureStorage2D =
+			(PFNGLTEXTURESTORAGE2DPROC)_gfx_platform_get_proc_address("glTextureStorage2D");
+		ext->TextureStorage2DMultisample =
+			(PFNGLTEXTURESTORAGE2DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTextureStorage2DMultisample");
+		ext->TextureStorage3D =
+			(PFNGLTEXTURESTORAGE3DPROC)_gfx_platform_get_proc_address("glTextureStorage3D");
+		ext->TextureStorage3DMultisample =
+			(PFNGLTEXTURESTORAGE3DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTextureStorage3DMultisample");
+		ext->TextureSubImage1D =
+			(PFNGLTEXTURESUBIMAGE1DPROC)_gfx_platform_get_proc_address("glTextureSubImage1D");
+		ext->TextureSubImage2D =
+			(PFNGLTEXTURESUBIMAGE2DPROC)_gfx_platform_get_proc_address("glTextureSubImage2D");
+		ext->TextureSubImage3D =
+			(PFNGLTEXTURESUBIMAGE3DPROC)_gfx_platform_get_proc_address("glTextureSubImage3D");
 		ext->UnmapNamedBuffer =
 			(PFNGLUNMAPNAMEDBUFFERPROC)_gfx_platform_get_proc_address("glUnmapNamedBuffer");
 	}
@@ -1215,10 +1375,12 @@ void _gfx_extensions_load(void)
 	else
 	{
 		ext->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 0;
+		ext->BindTextureUnit              = _gfx_gl_bind_texture_unit;
 		ext->CopyNamedBufferSubData       = _gfx_gl_copy_named_buffer_sub_data;
 		ext->CreateBuffers                = _gfx_gl_create_buffers;
 		ext->CreateFramebuffers           = _gfx_gl_create_framebuffers;
 		ext->CreateTextures               = _gfx_gl_create_textures;
+		ext->GenerateTextureMipmap        = _gfx_gl_generate_texture_mipmap;
 		ext->GetNamedBufferSubData        = _gfx_gl_get_named_buffer_sub_data;
 		ext->MapNamedBufferRange          = _gfx_gl_map_named_buffer_range;
 		ext->NamedBufferData              = _gfx_gl_named_buffer_data;
@@ -1227,6 +1389,15 @@ void _gfx_extensions_load(void)
 		ext->NamedFramebufferTexture      = _gfx_gl_named_framebuffer_texture;
 		ext->NamedFramebufferTextureLayer = _gfx_gl_named_framebuffer_texture_layer;
 		ext->TextureBuffer                = _gfx_gl_texture_buffer;
+		ext->TextureParameteri            = _gfx_gl_texture_parameter_i;
+		ext->TextureStorage1D             = _gfx_gl_texture_storage_1d;
+		ext->TextureStorage2D             = _gfx_gl_texture_storage_2d;
+		ext->TextureStorage2DMultisample  = _gfx_gl_texture_storage_2d_multisample;
+		ext->TextureStorage3D             = _gfx_gl_texture_storage_3d;
+		ext->TextureStorage3DMultisample  = _gfx_gl_texture_storage_3d_multisample;
+		ext->TextureSubImage1D            = _gfx_gl_texture_sub_image_1d;
+		ext->TextureSubImage2D            = _gfx_gl_texture_sub_image_2d;
+		ext->TextureSubImage3D            = _gfx_gl_texture_sub_image_3d;
 		ext->UnmapNamedBuffer             = _gfx_gl_unmap_named_buffer;
 	}
 

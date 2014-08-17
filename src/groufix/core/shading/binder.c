@@ -307,8 +307,15 @@ size_t _gfx_binder_bind_texture(
 	);
 
 	/* Bind the texture */
-	(GFX_EXT)->ActiveTexture(GL_TEXTURE0 + bind);
-	if(!*old) (GFX_EXT)->BindTexture(target, texture);
+	if((GFX_EXT)->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+	{
+		if(!*old) (GFX_EXT)->BindTextureUnit(bind, texture);
+	}
+	else
+	{
+		(GFX_EXT)->ActiveTexture(GL_TEXTURE0 + bind);
+		if(!*old) (GFX_EXT)->BindTexture(target, texture);
+	}
 
 	return bind;
 }
