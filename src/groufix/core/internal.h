@@ -106,6 +106,7 @@ typedef void (APIENTRYP GFX_CREATEFRAMEBUFFERSPROC)                (GLsizei, GLu
 typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)                   (void);
 typedef GLuint (APIENTRYP GFX_CREATESHADERPROC)                    (GLenum);
 typedef void (APIENTRYP GFX_CREATETEXTURESPROC)                    (GLenum, GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_CREATEVERTEXARRAYSPROC)                (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_CULLFACEPROC)                          (GLenum);
 typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)                     (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEFRAMEBUFFERSPROC)                (GLsizei, const GLuint*);
@@ -117,6 +118,7 @@ typedef void (APIENTRYP GFX_DEPTHFUNCPROC)                         (GLenum);
 typedef void (APIENTRYP GFX_DEPTHMASKPROC)                         (GLboolean);
 typedef void (APIENTRYP GFX_DETACHSHADERPROC)                      (GLuint, GLuint);
 typedef void (APIENTRYP GFX_DISABLEPROC)                           (GLenum);
+typedef void (APIENTRYP GFX_DISABLEVERTEXARRAYATTRIBPROC)          (GLuint, GLuint);
 typedef void (APIENTRYP GFX_DISABLEVERTEXATTRIBARRAYPROC)          (GLuint);
 typedef void (APIENTRYP GFX_DRAWARRAYSPROC)                        (GLenum, GLint, GLsizei);
 typedef void (APIENTRYP GFX_DRAWARRAYSINSTANCEDPROC)               (GLenum, GLint, GLsizei, GLsizei);
@@ -126,6 +128,7 @@ typedef void (APIENTRYP GFX_DRAWELEMENTSPROC)                      (GLenum, GLsi
 typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDPROC)             (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei);
 typedef void (APIENTRYP GFX_DRAWELEMENTSINSTANCEDBASEINSTANCEPROC) (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei, GLuint);
 typedef void (APIENTRYP GFX_ENABLEPROC)                            (GLenum);
+typedef void (APIENTRYP GFX_ENABLEVERTEXARRAYATTRIBPROC)           (GLuint, GLuint);
 typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)           (GLuint);
 typedef void (APIENTRYP GFX_ENDTRANSFORMFEEDBACKPROC)              (void);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTUREPROC)                (GLenum, GLenum, GLuint, GLint);
@@ -233,7 +236,7 @@ typedef struct GFX_Extensions
 	/* State & bound objects */
 	GFXPipeState   state;
 	GLuint         fbos[2];  /* Currently bound FBOs (0 = draw, 1 = read) */
-	GLuint         layout;   /* Currently bound VAO */
+	GLuint         vao;      /* Currently bound VAO */
 	GLuint         program;  /* Currently used program */
 
 	/* Viewport & state values */
@@ -275,6 +278,7 @@ typedef struct GFX_Extensions
 	GFX_CREATEPROGRAMPROC                      CreateProgram;
 	GFX_CREATESHADERPROC                       CreateShader;
 	GFX_CREATETEXTURESPROC                     CreateTextures;
+	GFX_CREATEVERTEXARRAYSPROC                 CreateVertexArrays;
 	GFX_CULLFACEPROC                           CullFace;
 	GFX_DELETEBUFFERSPROC                      DeleteBuffers;
 	GFX_DELETEFRAMEBUFFERSPROC                 DeleteFramebuffers;
@@ -286,6 +290,7 @@ typedef struct GFX_Extensions
 	GFX_DEPTHMASKPROC                          DepthMask;
 	GFX_DETACHSHADERPROC                       DetachShader;
 	GFX_DISABLEPROC                            Disable;
+	GFX_DISABLEVERTEXARRAYATTRIBPROC           DisableVertexArrayAttrib;
 	GFX_DISABLEVERTEXATTRIBARRAYPROC           DisableVertexAttribArray;
 	GFX_DRAWARRAYSPROC                         DrawArrays;
 	GFX_DRAWARRAYSINSTANCEDPROC                DrawArraysInstanced;
@@ -295,6 +300,7 @@ typedef struct GFX_Extensions
 	GFX_DRAWELEMENTSINSTANCEDPROC              DrawElementsInstanced;
 	GFX_DRAWELEMENTSINSTANCEDBASEINSTANCEPROC  DrawElementsInstancedBaseInstance; /* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
 	GFX_ENABLEPROC                             Enable;
+	GFX_ENABLEVERTEXARRAYATTRIBPROC            EnableVertexArrayAttrib;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC            EnableVertexAttribArray;
 	GFX_ENDTRANSFORMFEEDBACKPROC               EndTransformFeedback;
 	GFX_FRAMEBUFFERTEXTUREPROC                 FramebufferTexture;                /* GFX_EXT_BUFFER_TEXTURE */
@@ -408,7 +414,7 @@ typedef struct GFX_Window
 	GFX_PlatformWindow  handle;
 	GFXContext          context;    /* Context version */
 	GFX_Extensions      extensions; /* Context extensions and state */
-	GLuint              layout;     /* Layout for post processing */
+	GLuint              vao;        /* Layout for post processing */
 
 } GFX_Window;
 

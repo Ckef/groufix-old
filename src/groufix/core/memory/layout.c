@@ -85,9 +85,9 @@ void _gfx_vertex_layout_bind(
 		GLuint vao)
 {
 	/* Prevent binding it twice */
-	if((GFX_EXT)->layout != vao)
+	if((GFX_EXT)->vao != vao)
 	{
-		(GFX_EXT)->layout = vao;
+		(GFX_EXT)->vao = vao;
 		(GFX_EXT)->BindVertexArray(vao);
 	}
 }
@@ -232,14 +232,13 @@ static void _gfx_layout_init_attrib(
 		unsigned int                 index,
 		const struct GFX_Attribute*  attr)
 {
-	_gfx_vertex_layout_bind(vao);
-
 	/* Check if enabled */
 	if(attr->size && attr->buffer)
 	{
 		/* Set the attribute */
-		(GFX_EXT)->EnableVertexAttribArray(index);
+		(GFX_EXT)->EnableVertexArrayAttrib(vao, index);
 		(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
+		_gfx_vertex_layout_bind(vao);
 
 		/* Check integer value */
 		if(attr->interpret & GFX_INTERPRET_INTEGER) (GFX_EXT)->VertexAttribIPointer(
@@ -263,7 +262,7 @@ static void _gfx_layout_init_attrib(
 	}
 
 	/* Disable it */
-	else (GFX_EXT)->DisableVertexAttribArray(index);
+	else (GFX_EXT)->DisableVertexArrayAttrib(vao, index);
 }
 
 /******************************************************/
@@ -299,7 +298,7 @@ static void _gfx_layout_obj_restore(
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Create VAO */
-	(GFX_EXT)->GenVertexArrays(1, &layout->vao);
+	(GFX_EXT)->CreateVertexArrays(1, &layout->vao);
 
 	/* Restore attributes */
 	unsigned int i = 0;
@@ -369,7 +368,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 
 	/* Create OpenGL resources */
 	layout->layout.drawCalls = drawCalls;
-	(GFX_EXT)->GenVertexArrays(1, &layout->vao);
+	(GFX_EXT)->CreateVertexArrays(1, &layout->vao);
 
 	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Attribute));
 
@@ -391,8 +390,8 @@ void gfx_vertex_layout_free(
 		/* Delete VAO */
 		if(GFX_EXT)
 		{
-			if((GFX_EXT)->layout == internal->vao)
-				(GFX_EXT)->layout = 0;
+			if((GFX_EXT)->vao == internal->vao)
+				(GFX_EXT)->vao = 0;
 
 			(GFX_EXT)->DeleteVertexArrays(1, &internal->vao);
 		}
@@ -668,8 +667,7 @@ void gfx_vertex_layout_remove_attribute(
 	}
 
 	/* Send request to OpenGL */
-	_gfx_vertex_layout_bind(internal->vao);
-	(GFX_EXT)->DisableVertexAttribArray(index);
+	(GFX_EXT)->DisableVertexArrayAttrib(internal->vao, index);
 }
 
 /******************************************************/

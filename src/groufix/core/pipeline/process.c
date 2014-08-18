@@ -56,11 +56,11 @@ static inline void _gfx_pipe_process_draw(
 		GFXPipeState*    state,
 		GFXPropertyMap*  map,
 		unsigned int     copy,
-		GLuint           layout)
+		GLuint           vao)
 {
 	_gfx_states_set(state);
 	_gfx_property_map_use(map, copy, 0);
-	_gfx_vertex_layout_bind(layout);
+	_gfx_vertex_layout_bind(vao);
 
 	(GFX_EXT)->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
@@ -87,16 +87,16 @@ int _gfx_pipe_process_prepare(
 	}
 
 	/* Next create the layout */
-	if(!target->layout)
+	if(!target->vao)
 	{
-		(GFX_EXT)->GenVertexArrays(1, &target->layout);
-		_gfx_vertex_layout_bind(target->layout);
+		(GFX_EXT)->CreateVertexArrays(1, &target->vao);
+		(GFX_EXT)->EnableVertexArrayAttrib(target->vao, 0);
 
+		_gfx_vertex_layout_bind(target->vao);
 		(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
-		(GFX_EXT)->EnableVertexAttribArray(0);
 		(GFX_EXT)->VertexAttribIPointer(0, 4, GL_BYTE, 0, (GLvoid*)0);
 
-		return target->layout;
+		return target->vao;
 	}
 
 	return 1;
@@ -172,8 +172,8 @@ void _gfx_pipe_process_untarget(
 	}
 
 	/* Also, destroy layout while we're at it */
-	target->extensions.DeleteVertexArrays(1, &target->layout);
-	target->layout = 0;
+	target->extensions.DeleteVertexArrays(1, &target->vao);
+	target->vao = 0;
 }
 
 /******************************************************/
@@ -321,7 +321,7 @@ void _gfx_pipe_process_execute(
 				state,
 				internal->map,
 				internal->copy,
-				internal->target->layout);
+				internal->target->vao);
 
 			if(internal->swap) _gfx_window_swap_buffers();
 
@@ -334,7 +334,7 @@ void _gfx_pipe_process_execute(
 			state,
 			internal->map,
 			internal->copy,
-			active->layout
+			active->vao
 		);
 	}
 }
