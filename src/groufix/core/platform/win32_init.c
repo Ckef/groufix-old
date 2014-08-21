@@ -73,7 +73,7 @@ static int _gfx_win32_load_extensions(void)
 	depth.greenBits = 0;
 	depth.blueBits  = 0;
 
-	_gfx_win32_set_pixel_format(window, &depth);
+	_gfx_win32_set_pixel_format(window, &depth, 0);
 	HDC dc = GetDC(window);
 
 	/* Create a dummy render context */

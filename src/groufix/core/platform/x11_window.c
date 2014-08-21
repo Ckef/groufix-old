@@ -30,7 +30,8 @@
 static GLXFBConfig* _gfx_x11_get_config(
 
 		Screen*               screen,
-		const GFXColorDepth*  depth)
+		const GFXColorDepth*  depth,
+		int                   backBuffer)
 {
 	if(!_gfx_x11) return NULL;
 
@@ -38,7 +39,7 @@ static GLXFBConfig* _gfx_x11_get_config(
 	int bufferAttr[] = {
 		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
 		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
-		GLX_DOUBLEBUFFER,  True,
+		GLX_DOUBLEBUFFER,  backBuffer ? True : False,
 		GLX_RED_SIZE,      depth->redBits,
 		GLX_GREEN_SIZE,    depth->greenBits,
 		GLX_BLUE_SIZE,     depth->blueBits,
@@ -279,7 +280,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	/* Get FB Config */
 	GLXFBConfig* config = _gfx_x11_get_config(
 		attributes->screen,
-		&attributes->depth
+		&attributes->depth,
+		attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 	);
 
 	if(!config) return NULL;

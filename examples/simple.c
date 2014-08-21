@@ -204,11 +204,11 @@ int main()
 
 	GFXPipe* pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapA, 0);
-	gfx_pipe_process_set_target(pipe->process, window1, 1);
+	gfx_pipe_process_set_target(pipe->process, window1, 0);
 
 	pipe = gfx_pipeline_push_process(pipeline);
 	gfx_pipe_process_set_source(pipe->process, mapB, 0);
-	gfx_pipe_process_set_target(pipe->process, window2, 1);
+	gfx_pipe_process_set_target(pipe->process, window2, 0);
 
 
 	/* Batch */

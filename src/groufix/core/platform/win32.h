@@ -149,11 +149,14 @@ extern LPCTSTR _gfx_win32_window_class;
 /**
  * Sets the pixel format for a window.
  *
+ * @param backBuffer Non-zero to enable double buffering.
+ *
  */
 void _gfx_win32_set_pixel_format(
 
 		HWND                  handle,
-		const GFXColorDepth*  depth);
+		const GFXColorDepth*  depth,
+		int                   backBuffer);
 
 /**
  * Returns an Win32 window from its handle.

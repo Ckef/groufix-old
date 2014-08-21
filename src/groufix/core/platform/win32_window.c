@@ -76,18 +76,20 @@ static void _gfx_win32_get_screen_position(
 void _gfx_win32_set_pixel_format(
 
 		HWND                  handle,
-		const GFXColorDepth*  depth)
+		const GFXColorDepth*  depth,
+		int                   backBuffer)
 {
 	PIXELFORMATDESCRIPTOR format;
 	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
 
 	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
 	format.nVersion   = 1;
-	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
 	format.iPixelType = PFD_TYPE_RGBA;
 	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
 	format.iLayerType = PFD_MAIN_PLANE;
 
+	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
 	HDC context = GetDC(handle);
 
 	/* Get format compatible with the window */
@@ -527,7 +529,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			/* Set pixel format */
 			_gfx_win32_set_pixel_format(
 				window.handle,
-				&attributes->depth
+				&attributes->depth,
+				attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 			);
 
 			/* Some fullscreen options */
