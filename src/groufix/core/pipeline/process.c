@@ -167,12 +167,12 @@ void _gfx_pipe_process_untarget(
 	if(last)
 	{
 		/* If last, destroy buffer as well */
-		target->extensions.DeleteBuffers(1, &_gfx_process_buffer);
+		(GFX_EXT)->DeleteBuffers(1, &_gfx_process_buffer);
 		_gfx_process_buffer = 0;
 	}
 
 	/* Also, destroy layout while we're at it */
-	target->extensions.DeleteVertexArrays(1, &target->vao);
+	(GFX_EXT)->DeleteVertexArrays(1, &target->vao);
 	target->vao = 0;
 }
 
