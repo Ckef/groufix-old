@@ -21,9 +21,9 @@
  *
  */
 
-#include "groufix/core/errors.h"
-#include "groufix/core/shading/internal.h"
 #include "groufix/containers/vector.h"
+#include "groufix/core/shading/internal.h"
+#include "groufix/core/errors.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -50,7 +50,7 @@ static int _gfx_buffer_eval_target(
 		/* GFX_EXT_BUFFER_TEXTURE */
 		case GFX_TEXTURE_BUFFER :
 
-			if(!(GFX_EXT)->flags[GFX_EXT_BUFFER_TEXTURE])
+			if(!(GFX_WND)->flags[GFX_EXT_BUFFER_TEXTURE])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -98,7 +98,7 @@ static void _gfx_buffer_alloc_buffers(
 		const void*         data)
 {
 	/* Allocate buffers */
-	(GFX_EXT)->CreateBuffers(num, it);
+	(GFX_RND).CreateBuffers(num, it);
 	GLenum us = _gfx_buffer_get_usage(buffer->buffer.usage);
 
 	/* Iterate over buffers */
@@ -106,12 +106,12 @@ static void _gfx_buffer_alloc_buffers(
 	for(i = 0; i < num; ++i)
 	{
 		/* Bind just so to hint the buffer type */
-		(GFX_EXT)->BindBuffer(
+		(GFX_RND).BindBuffer(
 			buffer->buffer.target,
 			*(GLuint*)it);
 
 		/* Only write data to the first buffer */
-		(GFX_EXT)->NamedBufferData(
+		(GFX_RND).NamedBufferData(
 			*(GLuint*)it,
 			buffer->buffer.size,
 			i ? NULL : data,
@@ -138,7 +138,7 @@ static void _gfx_buffer_delete_buffers(
 	}
 
 	/* And deallocate all buffers */
-	(GFX_EXT)->DeleteBuffers(num, it);
+	(GFX_RND).DeleteBuffers(num, it);
 }
 
 /******************************************************/
@@ -185,7 +185,7 @@ GFXBuffer* gfx_buffer_create(
 		const void*      data,
 		unsigned char    multi)
 {
-	if(!GFX_EXT) return NULL;
+	if(!GFX_WND) return NULL;
 
 	/* Validate target */
 	if(!_gfx_buffer_eval_target(target))
@@ -284,7 +284,7 @@ void gfx_buffer_free(
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(buffer->id);
 
-		if(GFX_EXT) _gfx_buffer_delete_buffers(
+		if(GFX_WND) _gfx_buffer_delete_buffers(
 			internal,
 			internal->handles.begin,
 			buffer->multi + 1
@@ -301,7 +301,7 @@ int gfx_buffer_expand(
 		GFXBuffer*     buffer,
 		unsigned char  num)
 {
-	if(!GFX_EXT || !num) return 0;
+	if(!GFX_WND || !num) return 0;
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	/* Allocate new handles */
@@ -332,7 +332,7 @@ int gfx_buffer_shrink(
 		GFXBuffer*     buffer,
 		unsigned char  num)
 {
-	if(!GFX_EXT) return 0;
+	if(!GFX_WND) return 0;
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	/* Get where to remove buffers */
@@ -397,10 +397,10 @@ void gfx_buffer_write(
 		const void*  data,
 		size_t       offset)
 {
-	if(!GFX_EXT) return;
+	if(!GFX_WND) return;
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
-	(GFX_EXT)->NamedBufferSubData(
+	(GFX_RND).NamedBufferSubData(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
 		offset,
 		size,
@@ -415,10 +415,10 @@ void gfx_buffer_read(
 		void*       data,
 		size_t      offset)
 {
-	if(!GFX_EXT) return;
+	if(!GFX_WND) return;
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
-	(GFX_EXT)->GetNamedBufferSubData(
+	(GFX_RND).GetNamedBufferSubData(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
 		offset,
 		size,
@@ -433,14 +433,14 @@ void* gfx_buffer_map(
 		size_t          offset,
 		GFXBufferUsage  access)
 {
-	if(!GFX_EXT) return NULL;
+	if(!GFX_WND) return NULL;
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
 	/* Strip access bits */
 	access &= GFX_BUFFER_READ | GFX_BUFFER_WRITE;
 
 	/* Do the actual mapping */
-	return (GFX_EXT)->MapNamedBufferRange(
+	return (GFX_RND).MapNamedBufferRange(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
 		offset,
 		size,
@@ -453,10 +453,10 @@ void gfx_buffer_unmap(
 
 		GFXBuffer* buffer)
 {
-	if(!GFX_EXT) return;
+	if(!GFX_WND) return;
 	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
-	GLboolean success = (GFX_EXT)->UnmapNamedBuffer(
+	GLboolean success = (GFX_RND).UnmapNamedBuffer(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current));
 
 	if(!success) gfx_errors_push(

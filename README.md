@@ -2,26 +2,28 @@
 
 Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in C using OpenGL. The library has no external dependencies besides native windowing APIs and OpenGL to access the GPU. Desktop OpenGL is supported from 3.2 and up. OpenGL ES is supported from 3.0 and up.
 
-Supported targets and their APIs _(windowing / OGL extension / OGL version, status / compiler collection)_:
+Supported targets and their APIs, _windowing / OGL extension / OGL version, (status / compiler collection)_:
 
 * __Unix__, Xlib / GLX / OGL, (_working_ / _GCC_)
-* __Windows__, Win32 (Vista and up) / WGL / OGL, (_working_ / _MinGW_)
+* __Windows__, Win32 (Vista+) / WGL / OGL, (_working_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)
 * __OS X__, Cocoa / CGL / OGL, (_planned_)
-* __Android__, NDK/ EGL / OGL ES, (_considered_)
+* __Android__, NDK / EGL / OGL ES, (_considered_)
 
 The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 
 
 ## Building
 
-A Makefile is shipped with the project, run make without a target to view all build targets. All necessary OpenGL headers are shipped with the project as well. The appropriate compiler is expected to be installed, this is expected to be a GCC compatible compiler for most platforms. On Windows the recommended compiler is [MinGW-w64](http://mingw-w64.sourceforge.net/). Once the library is built, link against it using `-lGroufix`.
+A Makefile is shipped with the project, run make without a target to view all build targets. All necessary OpenGL headers are shipped with the project as well. The appropriate compiler is expected to be installed, see above for all expected compiler collections. Once the library is built, link against it using `-lGroufix`.
 
-Groufix can be compiled with certain options. Some can only be set while compiling the library, others can be altered for both the library and the program which links against the library. All options are:
+Groufix can be compiled with different OGL renderers. This must be given as a makefile flag in the form of `RENDERER=VALUE`, in which `VALUE` can be:
 
-* __GFX_GLES__ _(library only)_ To compile Groufix, you need the standard headers for your platform and OpenGL. These headers should come with the appropriate GPU drivers. When developing for OGL ES, the library should be built specifically for it, `GFX_GLES` should be defined by the compiler to compile the correct extension loading mechanism (in most cases this is done automatically through the build target).
+* __GL__, To compile using desktop OpenGL, this is the default value.
+* __GLES__, To compile using OpenGL ES.
 
-* __GFX_NO_SSE__ _(library and program)_ Groufix will compile certain functions using SSE instructions. To disable this feature `GFX_NO_SSE` should be defined by the compiler to compile using ordinary instructions instead of SSE ones. Alternatively, if the makefile is used to compile Groufix, the flag `SSE=NO` can be passed along with the make command to disable SSE instructions.
+Along with the renderer value Groufix accepts more flags which can be defined while both compiling Groufix itself and any program or library using Groufix. All makefile flags are:
 
+* __SSE=NO__ Groufix will compile certain functions using SSE instructions. Use this flag to disable this feature. To disable it in a program or library using Groufix, `GFX_NO_SSE` should be defined by the compiler.
 
 ## Usage
 

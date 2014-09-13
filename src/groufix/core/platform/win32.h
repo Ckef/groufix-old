@@ -27,8 +27,8 @@
 /* Validate platform */
 #include "groufix/core/platform.h"
 
-#if defined(GFX_GLES)
-	#error "Cannot compile Win32 target using GL ES"
+#if !defined(GFX_GL)
+	#error "Must compile Win32 target using desktop GL"
 #elif !defined(GFX_WIN32)
 	#error "Cannot compile Win32 target on this platform"
 #endif

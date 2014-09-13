@@ -21,9 +21,9 @@
  *
  */
 
-#include "groufix/core/errors.h"
-#include "groufix/core/memory/internal.h"
 #include "groufix/containers/vector.h"
+#include "groufix/core/memory/internal.h"
+#include "groufix/core/errors.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -123,9 +123,9 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 	buff->size = (_gfx_shared_buffer_size < minSize) ?
 		minSize : _gfx_shared_buffer_size;
 
-	(GFX_EXT)->GenBuffers(1, &buff->handle);
-	(GFX_EXT)->BindBuffer(target, buff->handle);
-	(GFX_EXT)->BufferData(target, buff->size, NULL, GL_STATIC_DRAW);
+	(GFX_RND).CreateBuffers(1, &buff->handle);
+	(GFX_RND).BindBuffer(target, buff->handle);
+	(GFX_RND).NamedBufferData(buff->handle, buff->size, NULL, GL_STATIC_DRAW);
 
 	gfx_vector_init(&buff->segments, sizeof(struct GFX_Segment));
 
@@ -147,7 +147,7 @@ static void _gfx_shared_buffer_free(
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(buff->id);
 
-		if(GFX_EXT) (GFX_EXT)->DeleteBuffers(1, &buff->handle);
+		if(GFX_WND) (GFX_RND).DeleteBuffers(1, &buff->handle);
 		gfx_vector_clear(&buff->segments);
 
 		free(buff);
@@ -284,7 +284,7 @@ int gfx_shared_buffer_init(
 		size_t            size,
 		const void*       data)
 {
-	if(!GFX_EXT) return 0;
+	if(!GFX_WND) return 0;
 
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_shared_buffers)
@@ -312,7 +312,7 @@ int gfx_shared_buffer_init(
 			buffer->reference = buff;
 			buffer->offset = offset;
 
-			(GFX_EXT)->NamedBufferSubData(
+			(GFX_RND).NamedBufferSubData(
 				buff->handle,
 				offset,
 				size,
@@ -335,7 +335,7 @@ int gfx_shared_buffer_init(
 			buffer->reference = buff;
 			buffer->offset = offset;
 
-			(GFX_EXT)->NamedBufferSubData(
+			(GFX_RND).NamedBufferSubData(
 				buff->handle,
 				offset,
 				size,

@@ -21,11 +21,11 @@
  *
  */
 
-#include "groufix/core/errors.h"
+#include "groufix/containers/vector.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/shading/internal.h"
-#include "groufix/containers/vector.h"
+#include "groufix/core/errors.h"
 
 #include <stdlib.h>
 
@@ -55,20 +55,17 @@ static inline void _gfx_pipe_process_draw(
 
 		GFXPipeState*    state,
 		GFXPropertyMap*  map,
-		unsigned int     copy,
-		GLuint           vao)
+		unsigned int     copy)
 {
 	_gfx_states_set(state);
 	_gfx_property_map_use(map, copy, 0);
-	_gfx_vertex_layout_bind(vao);
+	_gfx_vertex_layout_bind((GFX_RND).post);
 
-	(GFX_EXT)->DrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	(GFX_RND).DrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
 /******************************************************/
-int _gfx_pipe_process_prepare(
-
-		GFX_Window* target)
+int _gfx_pipe_process_prepare(void)
 {
 	/* First make sure the buffer exists */
 	if(!_gfx_process_buffer)
@@ -80,26 +77,58 @@ int _gfx_pipe_process_prepare(
 			-1,  1, 0, 1
 		};
 
-		(GFX_EXT)->CreateBuffers(1, &_gfx_process_buffer);
-		(GFX_EXT)->NamedBufferData(_gfx_process_buffer, sizeof(data), data, GL_STATIC_DRAW);
+		(GFX_RND).CreateBuffers(1, &_gfx_process_buffer);
+		(GFX_RND).NamedBufferData(_gfx_process_buffer, sizeof(data), data, GL_STATIC_DRAW);
 
 		if(!_gfx_process_buffer) return 0;
 	}
 
 	/* Next create the layout */
-	if(!target->vao)
+	if(!(GFX_RND).post)
 	{
-		(GFX_EXT)->CreateVertexArrays(1, &target->vao);
-		(GFX_EXT)->EnableVertexArrayAttrib(target->vao, 0);
+		(GFX_RND).CreateVertexArrays(1, &(GFX_RND).post);
+		(GFX_RND).EnableVertexArrayAttrib((GFX_RND).post, 0);
 
-		_gfx_vertex_layout_bind(target->vao);
-		(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
-		(GFX_EXT)->VertexAttribIPointer(0, 4, GL_BYTE, 0, (GLvoid*)0);
+		_gfx_vertex_layout_bind((GFX_RND).post);
+		(GFX_RND).BindBuffer(GL_ARRAY_BUFFER, _gfx_process_buffer);
+		(GFX_RND).VertexAttribIPointer(0, 4, GL_BYTE, 0, (GLvoid*)0);
 
-		return target->vao;
+		return (GFX_RND).post;
 	}
 
 	return 1;
+}
+
+/******************************************************/
+void _gfx_pipe_process_unprepare(
+
+		int last)
+{
+	/* Reset pipes if not retargeting */
+	GFXVectorIterator it;
+	if(_gfx_pipes) for(
+		it = _gfx_pipes->begin;
+		it != _gfx_pipes->end;
+		it = gfx_vector_next(_gfx_pipes, it))
+	{
+		/* Check for equal target, if equal, reset post processing */
+		struct GFX_Process* proc = *(struct GFX_Process**)it;
+		if(GFX_WND == proc->target)
+		{
+			proc->map = NULL;
+			proc->target = NULL;
+		}
+	}
+	if(last)
+	{
+		/* If last, destroy buffer as well */
+		(GFX_RND).DeleteBuffers(1, &_gfx_process_buffer);
+		_gfx_process_buffer = 0;
+	}
+
+	/* Also, destroy layout while we're at it */
+	(GFX_RND).DeleteVertexArrays(1, &(GFX_RND).post);
+	(GFX_RND).post = 0;
 }
 
 /******************************************************/
@@ -141,39 +170,6 @@ void _gfx_pipe_process_retarget(
 		struct GFX_Process* proc = *(struct GFX_Process**)it;
 		if(replace == proc->target) proc->target = target;
 	}
-}
-
-/******************************************************/
-void _gfx_pipe_process_untarget(
-
-		GFX_Window*  target,
-		int          last)
-{
-	/* Reset pipes if not retargeting */
-	GFXVectorIterator it;
-	if(_gfx_pipes) for(
-		it = _gfx_pipes->begin;
-		it != _gfx_pipes->end;
-		it = gfx_vector_next(_gfx_pipes, it))
-	{
-		/* Check for equal target, if equal, reset post processing */
-		struct GFX_Process* proc = *(struct GFX_Process**)it;
-		if(target == proc->target)
-		{
-			proc->map = NULL;
-			proc->target = NULL;
-		}
-	}
-	if(last)
-	{
-		/* If last, destroy buffer as well */
-		(GFX_EXT)->DeleteBuffers(1, &_gfx_process_buffer);
-		_gfx_process_buffer = 0;
-	}
-
-	/* Also, destroy layout while we're at it */
-	(GFX_EXT)->DeleteVertexArrays(1, &target->vao);
-	target->vao = 0;
 }
 
 /******************************************************/
@@ -298,8 +294,6 @@ void _gfx_pipe_process_execute(
 		GFXPipeProcess  process,
 		GFXPipeState*   state)
 {
-	/* Get current window */
-	GFX_Window* active = _gfx_window_get_current();
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 
 	/* Perform post-processing */
@@ -308,8 +302,9 @@ void _gfx_pipe_process_execute(
 		if(internal->target)
 		{
 			/* Make target current, draw, swap, and switch back to previously active */
+			GFX_Window* active = GFX_WND;
 			_gfx_window_make_current(internal->target);
-			GLuint fbo = (GFX_EXT)->fbos[0];
+			GLuint fbo = (GFX_RND).fbos[0];
 			_gfx_pipeline_bind(GL_DRAW_FRAMEBUFFER, 0);
 
 			_gfx_states_set_viewport(
@@ -320,8 +315,7 @@ void _gfx_pipe_process_execute(
 			_gfx_pipe_process_draw(
 				state,
 				internal->map,
-				internal->copy,
-				internal->target->vao);
+				internal->copy);
 
 			if(internal->swap) _gfx_window_swap_buffers();
 
@@ -333,8 +327,7 @@ void _gfx_pipe_process_execute(
 		else _gfx_pipe_process_draw(
 			state,
 			internal->map,
-			internal->copy,
-			active->vao
+			internal->copy
 		);
 	}
 }

@@ -24,7 +24,7 @@
 #ifndef GFX_CORE_SHADING_INTERNAL_H
 #define GFX_CORE_SHADING_INTERNAL_H
 
-#include "groufix/core/internal.h"
+#include "groufix/core/renderer.h"
 
 #ifdef __cplusplus
 extern "C" {

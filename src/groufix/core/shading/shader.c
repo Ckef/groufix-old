@@ -22,12 +22,26 @@
  */
 
 #include "groufix/core/errors.h"
-#include "groufix/core/internal.h"
+#include "groufix/core/renderer.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 /******************************************************/
+/* GLSL version strings */
+static const char* _gfx_glsl_versions[] =
+{
+	"#version 150\n\0",
+	"#version 300\n\0",
+	"#version 310\n\0",
+	"#version 330\n\0",
+	"#version 400\n\0",
+	"#version 410\n\0",
+	"#version 420\n\0",
+	"#version 430\n\0",
+	"#version 440\n\0"
+};
+
 /* Internal Shader */
 struct GFX_Shader
 {
@@ -49,7 +63,7 @@ static int _gfx_shader_eval_type(
 		case GFX_TESS_CONTROL_SHADER :
 		case GFX_TESS_EVAL_SHADER :
 
-			if(!(GFX_EXT)->flags[GFX_EXT_TESSELLATION_SHADER])
+			if(!(GFX_WND)->flags[GFX_EXT_TESSELLATION_SHADER])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -62,7 +76,7 @@ static int _gfx_shader_eval_type(
 		/* GFX_EXT_GEOMETRY_SHADER */
 		case GFX_GEOMETRY_SHADER :
 
-			if(!(GFX_EXT)->flags[GFX_EXT_GEOMETRY_SHADER])
+			if(!(GFX_WND)->flags[GFX_EXT_GEOMETRY_SHADER])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -78,12 +92,59 @@ static int _gfx_shader_eval_type(
 }
 
 /******************************************************/
+static inline const char* _gfx_shader_get_glsl(
+
+		int  major,
+		int  minor)
+{
+#if defined(GFX_GLES)
+
+	/* GLES context */
+	switch(major)
+	{
+		case 3 : switch(minor)
+		{
+			case 0 : return _gfx_glsl_versions[1];
+			case 1 : return _gfx_glsl_versions[2];
+		}
+
+		default : return NULL;
+	}
+
+#elif defined(GFX_GL)
+
+	/* GL context */
+	switch(major)
+	{
+		case 3 : switch(minor)
+		{
+			case 2 : return _gfx_glsl_versions[0];
+			case 3 : return _gfx_glsl_versions[3];
+			default : return NULL;
+		}
+		case 4 : switch(minor)
+		{
+			case 0 : return _gfx_glsl_versions[4];
+			case 1 : return _gfx_glsl_versions[5];
+			case 2 : return _gfx_glsl_versions[6];
+			case 3 : return _gfx_glsl_versions[7];
+			case 4 : return _gfx_glsl_versions[8];
+			default : return NULL;
+		}
+
+		default : return NULL;
+	}
+
+#endif
+}
+
+/******************************************************/
 static const char* _gfx_shader_eval_glsl(
 
 		int  major,
 		int  minor)
 {
-	const char* glsl = _gfx_extensions_get_glsl(major, minor);
+	const char* glsl = _gfx_shader_get_glsl(major, minor);
 	if(!glsl)
 	{
 		gfx_errors_push(
@@ -98,12 +159,11 @@ static const char* _gfx_shader_eval_glsl(
 /******************************************************/
 static int _gfx_shader_preprocess_version(
 
-		size_t*      num,
-		char***      src,
-		GFX_Window*  window)
+		size_t*        num,
+		const char***  src)
 {
 	size_t newNum = *num;
-	char** newSrc = *src;
+	const char** newSrc = *src;
 
 	/* Search for #version preprocessor */
 	const char* vers = "#version";
@@ -117,35 +177,18 @@ static int _gfx_shader_preprocess_version(
 	{
 		/* Fetch version string */
 		const char* glsl = _gfx_shader_eval_glsl(
-			window->context.major,
-			window->context.minor
+			(GFX_WND)->context.major,
+			(GFX_WND)->context.minor
 		);
 
 		if(!glsl) return 0;
 
-		size_t len = strlen(glsl);
-		++newNum;
-
 		/* Allocate new sources */
-		newSrc = malloc(sizeof(char*) * newNum);
+		newSrc = malloc(sizeof(char*) * ++newNum);
 		if(!newSrc) return 0;
 
 		memcpy(newSrc + 1, *src, sizeof(char*) * (*num));
-
-		/* Construct preprocessor */
-		newSrc[0] = malloc(sizeof(char) * (11 + len));
-		if(!newSrc[0])
-		{
-			free(newSrc);
-			return 0;
-		}
-
-		newSrc[0][8]        = ' ';
-		newSrc[0][9 + len]  = '\n';
-		newSrc[0][10 + len] = '\0';
-
-		strncpy(newSrc[0], vers, 8);
-		strncpy(newSrc[0] + 9, glsl, len);
+		newSrc[0] = glsl;
 
 		/* Free original */
 		free(*src);
@@ -191,7 +234,7 @@ GFXShader* gfx_shader_create(
 
 		GFXShaderType type)
 {
-	if(!GFX_EXT) return NULL;
+	if(!GFX_WND) return NULL;
 	if(!_gfx_shader_eval_type(type)) return NULL;
 
 	/* Create new shader */
@@ -220,7 +263,7 @@ GFXShader* gfx_shader_create(
 
 	/* Create OpenGL resources */
 	shader->shader.type = type;
-	shader->handle = (GFX_EXT)->CreateShader(type);
+	shader->handle = (GFX_RND).CreateShader(type);
 
 	return (GFXShader*)shader;
 }
@@ -238,7 +281,7 @@ void gfx_shader_free(
 		_gfx_hardware_object_unregister(shader->id);
 
 		/* Get current window and context */
-		if(GFX_EXT) (GFX_EXT)->DeleteShader(internal->handle);
+		if(GFX_WND) (GFX_RND).DeleteShader(internal->handle);
 
 		free(shader);
 	}
@@ -251,55 +294,27 @@ int gfx_shader_set_source(
 		size_t        num,
 		const char**  src)
 {
-	if(!GFX_EXT || !num) return 0;
+	if(!GFX_WND || !num) return 0;
 	struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
 	/* Copy sources for preprocessing */
-	char** newSrc = malloc(sizeof(char*) * num);
+	const char** newSrc = malloc(sizeof(char*) * num);
 	if(!newSrc) return 0;
 
-	size_t n;
-	for(n = 0; n < num; ++n)
-	{
-		size_t len = strlen(src[n]);
-		newSrc[n] = malloc(sizeof(char*) * (len + 1));
-
-		/* Undo all */
-		if(!newSrc[n])
-		{
-			while(n) free(newSrc[--n]);
-			free(newSrc);
-
-			return 0;
-		}
-
-		/* Copy the string */
-		strncpy(newSrc[n], src[n], len);
-		newSrc[n][len] = '\0';
-	}
+	memcpy(newSrc, src, sizeof(char*) * num);
 
 	/* Preprocess */
 	int success;
-	success = _gfx_shader_preprocess_version(
-		&num,
-		&newSrc,
-		_gfx_window_get_current()
-	);
+	success = _gfx_shader_preprocess_version(&num, &newSrc);
 
 	if(success)
 	{
 		/* Set the source */
-		(GFX_EXT)->ShaderSource(
-			internal->handle,
-			num,
-			(const char**)newSrc,
-			NULL
-		);
+		(GFX_RND).ShaderSource(internal->handle, num, newSrc, NULL);
 		shader->compiled = 0;
 	}
 
 	/* Deallocate sources */
-	while(num) free(newSrc[--num]);
 	free(newSrc);
 
 	return success;
@@ -311,7 +326,7 @@ char* gfx_shader_get_source(
 		GFXShader*  shader,
 		size_t*     length)
 {
-	if(!GFX_EXT)
+	if(!GFX_WND)
 	{
 		if(length) *length = 0;
 		return NULL;
@@ -321,7 +336,7 @@ char* gfx_shader_get_source(
 
 	/* Get source length */
 	GLint len;
-	(GFX_EXT)->GetShaderiv(
+	(GFX_RND).GetShaderiv(
 		internal->handle,
 		GL_SHADER_SOURCE_LENGTH,
 		&len
@@ -335,7 +350,7 @@ char* gfx_shader_get_source(
 
 	/* Get actual source */
 	char* buff = malloc(len);
-	(GFX_EXT)->GetShaderSource(
+	(GFX_RND).GetShaderSource(
 		internal->handle,
 		len,
 		NULL,
@@ -355,13 +370,13 @@ int gfx_shader_compile(
 	/* Already compiled */
 	if(!shader->compiled)
 	{
-		if(!GFX_EXT) return 0;
+		if(!GFX_WND) return 0;
 		struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
 		/* Try to compile */
 		GLint status;
-		(GFX_EXT)->CompileShader(internal->handle);
-		(GFX_EXT)->GetShaderiv(
+		(GFX_RND).CompileShader(internal->handle);
+		(GFX_RND).GetShaderiv(
 			internal->handle,
 			GL_COMPILE_STATUS,
 			&status
@@ -371,13 +386,13 @@ int gfx_shader_compile(
 		if(!status)
 		{
 			GLint len;
-			(GFX_EXT)->GetShaderiv(
+			(GFX_RND).GetShaderiv(
 				internal->handle,
 				GL_INFO_LOG_LENGTH,
 				&len);
 
 			char buff[len];
-			(GFX_EXT)->GetShaderInfoLog(
+			(GFX_RND).GetShaderInfoLog(
 				internal->handle,
 				len,
 				NULL,

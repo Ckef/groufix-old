@@ -22,8 +22,8 @@
  */
 
 #define GL_GLEXT_PROTOTYPES
-#include "groufix/core/internal.h"
 #include "groufix/core/platform/win32.h"
+#include "groufix/core/renderer.h"
 
 /******************************************************/
 int _gfx_platform_context_create(

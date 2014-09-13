@@ -232,7 +232,7 @@ static void _gfx_submesh_dereference_bucket(
 		struct GFX_SubMesh*  mesh,
 		GFXPipe*             pipe)
 {
-	/* Find the bucket and remove it */
+	/* Find the bucket */
 	struct GFX_Bucket* bucket =
 		_gfx_submesh_find_bucket(mesh, pipe);
 
@@ -952,7 +952,6 @@ void _gfx_submesh_free(
 			gfx_vector_clear(&internal->buffers);
 
 			gfx_vertex_layout_free(mesh->layout);
-
 			free(mesh);
 		}
 	}
@@ -1040,7 +1039,6 @@ GFXVertexSource gfx_submesh_get_source(
 
 	/* Fetch source */
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
-
 	return ((GFXVertexSource*)(internal + 1))[index];
 }
 

@@ -46,15 +46,17 @@ help:
 # Compiler/Linker options for all build targets
 #################################################################
 
-BIN     = bin
-OUT     = obj
-DEPEND  = depend
-INCLUDE = include
-SRC     = src
-SSE     = YES
+CC       = gcc
+BIN      = bin
+OUT      = obj
+DEPEND   = depend
+INCLUDE  = include
+SRC      = src
+RENDERER = GL
+SSE      = YES
 
 # Flags for all object files
-CFLAGS            = -Os -O2 -Wall -pedantic -I$(INCLUDE) -DGFX_$(SSE)_SSE
+CFLAGS            = -Os -O2 -Wall -pedantic -I$(INCLUDE) -DGFX_$(RENDERER) -DGFX_$(SSE)_SSE
 CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32      = $(CFLAGS) -std=c99
 
@@ -64,9 +66,9 @@ OBJFLAGS_UNIX_X11 = $(OBJFLAGS) $(CFLAGS_UNIX_X11) -fPIC -pthread
 OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32) -DWINVER=0x0600 -D_WIN32_WINNT=0x0600
 
 # Linker flags
-LFLAGS            = -shared -static-libgcc
+LFLAGS            = -shared
 LFLAGS_UNIX_X11   = $(LFLAGS) -pthread -lX11 -lGL -lrt
-LFLAGS_WIN32      = $(LFLAGS) -lwinmm -lopengl32 -lgdi32
+LFLAGS_WIN32      = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
 
 
 #################################################################
@@ -102,9 +104,10 @@ HEADERS_LIB = \
  $(DEPEND)/KHR/khrplatform.h \
  $(SRC)/groufix/core/memory/internal.h \
  $(SRC)/groufix/core/pipeline/internal.h \
+ $(SRC)/groufix/core/renderer/gl.h \
  $(SRC)/groufix/core/shading/internal.h \
- $(SRC)/groufix/core/internal.h \
  $(SRC)/groufix/core/platform.h \
+ $(SRC)/groufix/core/renderer.h \
  $(SRC)/groufix/scene/internal.h \
  $(SRC)/groufix/scene/protocol.h
 
@@ -160,13 +163,14 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_screen.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_window.o \
+ $(OUT)/unix-x11/groufix/core/renderer/gl_emulate.o \
+ $(OUT)/unix-x11/groufix/core/renderer/gl_load.o \
  $(OUT)/unix-x11/groufix/core/shading/binder.o \
  $(OUT)/unix-x11/groufix/core/shading/program.o \
  $(OUT)/unix-x11/groufix/core/shading/property_map.o \
  $(OUT)/unix-x11/groufix/core/shading/shader.o \
  $(OUT)/unix-x11/groufix/core/errors.o \
  $(OUT)/unix-x11/groufix/core/events.o \
- $(OUT)/unix-x11/groufix/core/extensions.o \
  $(OUT)/unix-x11/groufix/core/hardware.o \
  $(OUT)/unix-x11/groufix/core/screen.o \
  $(OUT)/unix-x11/groufix/core/window.o \
@@ -186,25 +190,26 @@ before-unix-x11:
 	@mkdir -p $(OUT)/unix-x11/groufix/core/memory
 	@mkdir -p $(OUT)/unix-x11/groufix/core/pipeline
 	@mkdir -p $(OUT)/unix-x11/groufix/core/platform
+	@mkdir -p $(OUT)/unix-x11/groufix/core/renderer
 	@mkdir -p $(OUT)/unix-x11/groufix/core/shading
 	@mkdir -p $(OUT)/unix-x11/groufix/scene
 
 
 # All examples
 unix-x11-minimal: examples/minimal.c unix-x11
-	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 unix-x11-simple: examples/simple.c unix-x11
-	gcc $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 
 # Shared Library
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
-	gcc $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LFLAGS_UNIX_X11)
+	$(CC) $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LFLAGS_UNIX_X11)
 
 # All the object files
 $(OUT)/unix-x11%.o: $(SRC)%.c $(HEADERS_UNIX_X11)
-	gcc $(OBJFLAGS_UNIX_X11) $< -o $@
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 
 #################################################################
@@ -230,13 +235,14 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/platform/win32_thread.o \
  $(OUT)/win32/groufix/core/platform/win32_time.o \
  $(OUT)/win32/groufix/core/platform/win32_window.o \
+ $(OUT)/win32/groufix/core/renderer/gl_emulate.o \
+ $(OUT)/win32/groufix/core/renderer/gl_load.o \
  $(OUT)/win32/groufix/core/shading/binder.o \
  $(OUT)/win32/groufix/core/shading/program.o \
  $(OUT)/win32/groufix/core/shading/property_map.o \
  $(OUT)/win32/groufix/core/shading/shader.o \
  $(OUT)/win32/groufix/core/errors.o \
  $(OUT)/win32/groufix/core/events.o \
- $(OUT)/win32/groufix/core/extensions.o \
  $(OUT)/win32/groufix/core/hardware.o \
  $(OUT)/win32/groufix/core/screen.o \
  $(OUT)/win32/groufix/core/window.o \
@@ -256,22 +262,23 @@ before-win32:
 	@if not exist $(OUT)\win32\groufix\core\memory\nul mkdir $(OUT)\win32\groufix\core\memory
 	@if not exist $(OUT)\win32\groufix\core\pipeline\nul mkdir $(OUT)\win32\groufix\core\pipeline
 	@if not exist $(OUT)\win32\groufix\core\platform\nul mkdir $(OUT)\win32\groufix\core\platform
+	@if not exist $(OUT)\win32\groufix\core\renderer\nul mkdir $(OUT)\win32\groufix\core\renderer
 	@if not exist $(OUT)\win32\groufix\core\shading\nul mkdir $(OUT)\win32\groufix\core\shading
 	@if not exist $(OUT)\win32\groufix\scene\nul mkdir $(OUT)\win32\groufix\scene
 
 
 # All examples
 win32-minimal: examples/minimal.c win32
-	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
+	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
 
 win32-simple: examples/simple.c win32
-	gcc $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
+	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
 
 
 # Shared library
 win32: before-win32 $(OBJS_WIN32)
-	gcc $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
+	$(CC) $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
 
 # All the object files
 $(OUT)/win32%.o: $(SRC)%.c $(HEADERS_WIN32)
-	gcc $(OBJFLAGS_WIN32) $< -o $@
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@

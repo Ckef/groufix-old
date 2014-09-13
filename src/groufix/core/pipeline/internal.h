@@ -26,7 +26,7 @@
 
 #include "groufix/containers/list.h"
 #include "groufix/containers/vector.h"
-#include "groufix/core/internal.h"
+#include "groufix/core/renderer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -232,17 +232,24 @@ void _gfx_pipe_process_execute(
 		GFXPipeState*   state);
 
 /**
- * Prepares a window for render to texture.
+ * Prepares the current window for render to texture.
  *
  * @return Non-zero on success.
  *
  * If a window was never prepared, it would mean it cannot be used in post processing in any way.
- * Note: the given target window should be current.
  *
  */
-int _gfx_pipe_process_prepare(
+int _gfx_pipe_process_prepare(void);
 
-		GFX_Window* target);
+/**
+ * Makes sure no pipe process targets the current window anymore, ever.
+ *
+ * @param last Non-zero if this is the last window to be unprepared.
+ *
+ */
+void _gfx_pipe_process_unprepare(
+
+		int last);
 
 /**
  * Forwards a new size of a window to all processes.
@@ -269,20 +276,6 @@ void _gfx_pipe_process_retarget(
 
 		GFX_Window*  replace,
 		GFX_Window*  target);
-
-/**
- * Makes sure no pipe process targets the given window anymore, ever.
- *
- * @param target Window to be untargeted.
- * @param last   Non-zero if this is the last window to be untargeted.
- *
- * Note: the given target window should be current.
- *
- */
-void _gfx_pipe_process_untarget(
-
-		GFX_Window*  target,
-		int          last);
 
 
 #ifdef __cplusplus

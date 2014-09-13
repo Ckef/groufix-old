@@ -21,45 +21,38 @@
  *
  */
 
-#ifndef GFX_CORE_INTERNAL_H
-#define GFX_CORE_INTERNAL_H
+#ifndef GFX_CORE_RENDERER_GL_H
+#define GFX_CORE_RENDERER_GL_H
 
-#include "groufix/core/platform.h"
 #include "groufix/core/pipeline.h"
 
 /* Correct OGL header */
-#ifdef GFX_GLES
-	#include <GLES3/gl31.h>
-#else
+#if defined(GFX_GL)
 	#include <GL/glcorearb.h>
+#elif defined(GFX_GLES)
+	#include <GLES3/gl31.h>
 #endif
 
 /* Correct context versions */
-#ifdef GFX_GLES
+#if defined(GFX_GL)
 
-	/* Minimal supported context */
-	#define GFX_CONTEXT_MAJOR_MIN 3
-	#define GFX_CONTEXT_MINOR_MIN 0
-
-	/* Maximal supported context */
-	#define GFX_CONTEXT_MAJOR_MAX 3
-	#define GFX_CONTEXT_MINOR_MAX 1
-
-	/* Greatest minor version possible */
-	#define GFX_CONTEXT_ALL_MINORS_MAX 1
-
-#else
-
-	/* Minimal supported context */
 	#define GFX_CONTEXT_MAJOR_MIN 3
 	#define GFX_CONTEXT_MINOR_MIN 2
 
-	/* Maximal supported context */
 	#define GFX_CONTEXT_MAJOR_MAX 4
 	#define GFX_CONTEXT_MINOR_MAX 5
 
-	/* Greatest minor version possible */
 	#define GFX_CONTEXT_ALL_MINORS_MAX 5
+
+#elif defined(GFX_GLES)
+
+	#define GFX_CONTEXT_MAJOR_MIN 3
+	#define GFX_CONTEXT_MINOR_MIN 0
+
+	#define GFX_CONTEXT_MAJOR_MAX 3
+	#define GFX_CONTEXT_MINOR_MAX 1
+
+	#define GFX_CONTEXT_ALL_MINORS_MAX 1
 
 #endif
 
@@ -70,16 +63,13 @@
 #define APIENTRYP APIENTRY *
 #endif
 
-/* Access to extensions */
-#define GFX_EXT _gfx_window_extensions
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
 /********************************************************
- * OpenGL and Hardware Extensions
+ * OpenGL extensions & emulators
  *******************************************************/
 
 /* Extension function pointers */
@@ -226,18 +216,76 @@ typedef void (APIENTRYP GFX_VERTEXATTRIBPOINTERPROC)               (GLuint, GLin
 typedef void (APIENTRYP GFX_VIEWPORTPROC)                          (GLint, GLint, GLsizei, GLsizei);
 
 
-/** OpenGL extensions & context states */
-typedef struct GFX_Extensions
-{
-	/* Hardware Extensions & Limits */
-	unsigned char  flags[GFX_EXT_COUNT];
-	GLint          limits[GFX_LIM_COUNT];
+/* Emulators */
+void APIENTRY _gfx_gl_bind_texture_unit                     (GLuint, GLuint);
+void APIENTRY _gfx_gl_copy_named_buffer_sub_data            (GLuint, GLuint, GLintptr, GLintptr, GLsizei);
+void APIENTRY _gfx_gl_create_buffers                        (GLsizei, GLuint*);
+void APIENTRY _gfx_gl_create_framebuffers                   (GLsizei, GLuint*);
+void APIENTRY _gfx_gl_create_textures                       (GLenum, GLsizei, GLuint*);
+void APIENTRY _gfx_gl_create_vertex_arrays                  (GLsizei, GLuint*);
+void APIENTRY _gfx_gl_disable_vertex_array_attrib           (GLuint, GLuint);
+void APIENTRY _gfx_gl_draw_arrays_instanced_base_instance   (GLenum, GLint, GLsizei, GLsizei, GLuint);
+void APIENTRY _gfx_gl_draw_elements_instanced_base_instance (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei, GLuint);
+void APIENTRY _gfx_gl_enable_vertex_array_attrib            (GLuint, GLuint);
+void APIENTRY _gfx_gl_generate_texture_mipmap               (GLuint);
+void APIENTRY _gfx_gl_get_named_buffer_sub_data             (GLuint, GLintptr, GLsizei, void*);
+void* APIENTRY _gfx_gl_map_named_buffer_range               (GLuint, GLintptr, GLsizei, GLbitfield);
+void APIENTRY _gfx_gl_named_buffer_data                     (GLuint, GLsizei, const void*, GLenum);
+void APIENTRY _gfx_gl_named_buffer_sub_data                 (GLuint, GLintptr, GLsizei, const void*);
+void APIENTRY _gfx_gl_named_framebuffer_draw_buffers        (GLuint, GLsizei, const GLenum*);
+void APIENTRY _gfx_gl_named_framebuffer_texture             (GLuint, GLenum, GLuint, GLint);
+void APIENTRY _gfx_gl_named_framebuffer_texture_layer       (GLuint, GLenum, GLuint, GLint, GLint);
+void APIENTRY _gfx_gl_patch_parameter_i                     (GLenum, GLint);
+void APIENTRY _gfx_gl_texture_buffer                        (GLuint, GLenum, GLuint);
+void APIENTRY _gfx_gl_texture_parameter_i                   (GLuint, GLenum, GLint);
+void APIENTRY _gfx_gl_texture_storage_1d                    (GLuint, GLsizei, GLenum, GLsizei);
+void APIENTRY _gfx_gl_texture_storage_2d                    (GLuint, GLsizei, GLenum, GLsizei, GLsizei);
+void APIENTRY _gfx_gl_texture_storage_2d_multisample        (GLuint, GLsizei, GLenum, GLsizei, GLsizei, GLboolean);
+void APIENTRY _gfx_gl_texture_storage_3d                    (GLuint, GLsizei, GLenum, GLsizei, GLsizei, GLsizei);
+void APIENTRY _gfx_gl_texture_storage_3d_multisample        (GLuint, GLsizei, GLenum, GLsizei, GLsizei, GLsizei, GLboolean);
+void APIENTRY _gfx_gl_texture_sub_image_1d                  (GLuint, GLint, GLint, GLsizei, GLenum, GLenum, const void*);
+void APIENTRY _gfx_gl_texture_sub_image_2d                  (GLuint, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const void*);
+void APIENTRY _gfx_gl_texture_sub_image_3d                  (GLuint, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const void*);
+GLboolean APIENTRY _gfx_gl_unmap_named_buffer               (GLuint);
+void APIENTRY _gfx_gles_framebuffer_texture                 (GLenum, GLenum, GLuint, GLint);
+void APIENTRY _gfx_gles_framebuffer_texture_1d              (GLenum, GLenum, GLenum, GLuint, GLint);
+void APIENTRY _gfx_gles_get_buffer_sub_data                 (GLenum, GLintptr, GLsizeiptr, GLvoid*);
+void APIENTRY _gfx_gles_named_framebuffer_texture_1d        (GLuint, GLenum, GLenum, GLuint, GLint);
+void APIENTRY _gfx_gles_named_framebuffer_texture_2d        (GLuint, GLenum, GLenum, GLuint, GLint);
+void APIENTRY _gfx_gles_polygon_mode                        (GLenum, GLenum);
+void APIENTRY _gfx_gles_tex_buffer                          (GLenum, GLenum, GLuint);
+void APIENTRY _gfx_gles_tex_image_1d                        (GLenum, GLint, GLint, GLsizei, GLint, GLenum, GLenum, const GLvoid*);
+void APIENTRY _gfx_gles_tex_image_2d_multisample            (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLboolean);
+void APIENTRY _gfx_gles_tex_image_3d_multisample            (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei, GLboolean);
+void APIENTRY _gfx_gles_tex_storage_1d                      (GLenum, GLsizei, GLenum, GLsizei);
+void APIENTRY _gfx_gles_tex_storage_2d_multisample          (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLboolean);
+void APIENTRY _gfx_gles_tex_storage_3d_multisample          (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei, GLboolean);
+void APIENTRY _gfx_gles_tex_sub_image_1d                    (GLenum, GLint, GLint, GLsizei, GLenum, GLenum, const GLvoid*);
+void APIENTRY _gfx_gl_named_framebuffer_texture_1d          (GLuint, GLenum, GLenum, GLuint, GLint);
+void APIENTRY _gfx_gl_named_framebuffer_texture_2d          (GLuint, GLenum, GLenum, GLuint, GLint);
+void APIENTRY _gfx_gl_get_program_binary                    (GLuint, GLsizei, GLsizei*, GLenum*, void*);
+void APIENTRY _gfx_gl_program_binary                        (GLuint, GLenum, const void*, GLsizei);
+void APIENTRY _gfx_gl_program_parameter_i                   (GLuint, GLenum, GLint);
+void APIENTRY _gfx_gl_tex_storage_1d                        (GLenum, GLsizei, GLenum, GLsizei);
+void APIENTRY _gfx_gl_tex_storage_2d                        (GLenum, GLsizei, GLenum, GLsizei, GLsizei);
+void APIENTRY _gfx_gl_tex_storage_2d_multisample            (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLboolean);
+void APIENTRY _gfx_gl_tex_storage_3d                        (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei);
+void APIENTRY _gfx_gl_tex_storage_3d_multisample            (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei, GLboolean);
+void APIENTRY _gfx_gl_vertex_attrib_divisor                 (GLuint, GLuint);
 
+
+/********************************************************
+ * OpenGL renderer & context
+ *******************************************************/
+
+/** OpenGL context */
+typedef struct GFX_Renderer
+{
 	/* State & bound objects */
-	GFXPipeState   state;
 	GLuint         fbos[2];  /* Currently bound FBOs (0 = draw, 1 = read) */
 	GLuint         vao;      /* Currently bound VAO */
 	GLuint         program;  /* Currently used program */
+	GLuint         post;     /* Layout for post processing */
 
 	/* Viewport & state values */
 	int            x;
@@ -397,180 +445,7 @@ typedef struct GFX_Extensions
 	GFX_VERTEXATTRIBPOINTERPROC                VertexAttribPointer;
 	GFX_VIEWPORTPROC                           Viewport;
 
-} GFX_Extensions;
-
-
-/********************************************************
- * Internal window data & methods
- *******************************************************/
-
-/** Internal window */
-typedef struct GFX_Window
-{
-	/* Super class */
-	GFXWindow window;
-
-	/* Hidden data */
-	GFX_PlatformWindow  handle;
-	GFXContext          context;    /* Context version */
-	GFX_Extensions      extensions; /* Context extensions and state */
-	GLuint              vao;        /* Layout for post processing */
-
-} GFX_Window;
-
-
-/**
- * The current extensions (guaranteed to be of the current window).
- */
-extern GFX_Extensions* _gfx_window_extensions;
-
-
-/**
- * Returns the top level window associated with a platform window.
- *
- */
-GFX_Window* _gfx_window_get_from_handle(
-
-		GFX_PlatformWindow handle);
-
-/**
- * Destroys the server side window.
- *
- * Creates a zombie window, the window struct still exists, but is not registered.
- * Thus, it must still be freed.
- *
- */
-void _gfx_window_destroy(
-
-		GFX_Window* window);
-
-/**
- * Sets the window as the current render target.
- *
- * It will ignore NULL as argument.
- * Note: This SHOULD NOT be called unless you know damn well what you're doing.
- *
- */
-void _gfx_window_make_current(
-
-		GFX_Window* window);
-
-/**
- * Returns the current window.
- *
- * @return NULL if no window is active.
- *
- */
-GFX_Window* _gfx_window_get_current(void);
-
-/**
- * Swaps the internal buffers of the current window.
- *
- * Also polls errors of the context if error mode is debug.
- *
- */
-void _gfx_window_swap_buffers(void);
-
-/**
- * Returns a string representing the GLSL version of the given context version.
- *
- * @return Null terminated string representing the GLSL version, NULL if not supported.
- *
- * Note: the string is formatted to be used for the #version preprocessor.
- *
- */
-const char* _gfx_extensions_get_glsl(
-
-		int  major,
-		int  minor);
-
-/**
- * Returns whether the extension can be found in the space separated string.
- *
- * This method can be used in the platform implementations.
- *
- */
-int _gfx_extensions_is_in_string(
-
-		const char*  str,
-		const char*  ext);
-
-/**
- * Loads all extensions for the current window's context.
- *
- * Should not be called by the platform.
- *
- */
-void _gfx_extensions_load(void);
-
-
-/********************************************************
- * Generic hardware object reconstruction
- *******************************************************/
-
-/** Generic hardware object operator */
-typedef void (*GFX_HardwareObjectFunc) (void* object);
-
-
-/** Hardware vtable, can all be NULL */
-typedef struct GFX_HardwareFuncs
-{
-	GFX_HardwareObjectFunc  free;    /* GPU free request */
-	GFX_HardwareObjectFunc  save;    /* Prepare for context destruction */
-	GFX_HardwareObjectFunc  restore; /* Restore for new context */
-
-} GFX_HardwareFuncs;
-
-
-/**
- * Registers a new generic hardware object.
- *
- * @object Arbitrary data to identify with a number.
- * @funcs  Functions to associate with the object.
- * @return Identifier of the object, id > 1 (0 on failure).
- *
- * When an object is registered, it will be asked to free when all contexts are destroyed,
- * or reconstructed when the main context is destroyed.
- *
- */
-unsigned int _gfx_hardware_object_register(
-
-		void*                     object,
-		const GFX_HardwareFuncs*  funcs);
-
-/**
- * Unregisters a generic hardware object by identifier.
- *
- */
-void _gfx_hardware_object_unregister(
-
-		unsigned int id);
-
-/**
- * Issue free request of all hardware objects, this happens when its parent context is destroyed.
- *
- * This will issue the free request and unregister ALL objects.
- * Thus this callback is NOT allowed to unregister the object.
- *
- */
-void _gfx_hardware_objects_free(void);
-
-/**
- * Issue save method of all hardware objects.
- *
- * During this operation, the current window and context are considered "deleted".
- * It is guaranteed another context is still active, this is only meant for objects which can't be shared.
- *
- */
-void _gfx_hardware_objects_save(void);
-
-/**
- * Issue restore method of all hardware objects.
- *
- * During this operation, a new window and context is current.
- *
- */
-void _gfx_hardware_objects_restore(void);
+} GFX_Renderer;
 
 
 /********************************************************
@@ -638,4 +513,4 @@ GLuint _gfx_vertex_layout_get_handle(
 }
 #endif
 
-#endif // GFX_CORE_INTERNAL_H
+#endif // GFX_CORE_RENDERER_GL_H

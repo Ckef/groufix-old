@@ -21,11 +21,11 @@
  *
  */
 
-#include "groufix/core/errors.h"
-#include "groufix/core/internal.h"
 #include "groufix/core/platform/win32.h"
+#include "groufix/core/errors.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
 /* Instance */
@@ -43,8 +43,25 @@ static int _gfx_win32_is_extension_supported(
 	const char* extensions =
 		_gfx_win32->extensions.GetExtensionsStringARB(GetDC(NULL));
 
-	if(!extensions) return 0;
-	return _gfx_extensions_is_in_string(extensions, ext);
+	/* Get extension length */
+	size_t len = strlen(ext);
+	if(!extensions || !len) return 0;
+
+	/* Try to find a complete match */
+	char* found = strstr(extensions, ext);
+	while(found)
+	{
+		char* end = found + len;
+		if(*end == ' ' || *end == '\0')
+		{
+			/* To avoid segfault */
+			if(found == extensions) return 1;
+			if(*(found - 1) == ' ') return 1;
+		}
+		found = strstr(end, ext);
+	}
+
+	return 0;
 }
 
 /******************************************************/

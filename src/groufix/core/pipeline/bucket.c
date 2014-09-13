@@ -21,11 +21,11 @@
  *
  */
 
-#include "groufix/core/errors.h"
+#include "groufix/containers/deque.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/shading/internal.h"
-#include "groufix/containers/deque.h"
+#include "groufix/core/errors.h"
 
 #include <stdint.h>
 #include <stdlib.h>

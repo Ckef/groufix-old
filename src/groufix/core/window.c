@@ -21,18 +21,15 @@
  *
  */
 
-#include "groufix/core/errors.h"
-#include "groufix/core/pipeline/internal.h"
 #include "groufix/containers/vector.h"
+#include "groufix/core/pipeline/internal.h"
+#include "groufix/core/errors.h"
 
 #include <stdlib.h>
 
 /******************************************************/
-/* Current extensions */
-GFX_Extensions* _gfx_window_extensions = NULL;
-
 /* Current window */
-static GFX_Window* _gfx_current_window = NULL;
+GFX_Window* _gfx_window_current = NULL;
 
 /* Main window (main context) */
 static GFX_Window* _gfx_main_window = NULL;
@@ -148,24 +145,10 @@ void _gfx_window_make_current(
 
 		GFX_Window* window)
 {
-	if(window)
-	{
-		_gfx_window_extensions = &window->extensions;
-		if(_gfx_current_window != window)
-			_gfx_platform_context_make_current(window->handle);
-	}
-	else
-	{
-		_gfx_window_extensions = NULL;
-	}
+	if(window && _gfx_window_current != window)
+		_gfx_platform_context_make_current(window->handle);
 
-	_gfx_current_window = window;
-}
-
-/******************************************************/
-GFX_Window* _gfx_window_get_current(void)
-{
-	return _gfx_current_window;
+	_gfx_window_current = window;
 }
 
 /******************************************************/
@@ -174,14 +157,14 @@ void _gfx_window_swap_buffers(void)
 	/* Swap buffers and poll errors while it's current */
 	_gfx_platform_context_swap_buffers();
 
-	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG && GFX_EXT)
+	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG && GFX_WND)
 	{
 		/* Loop over all errors */
-		GLenum err = (GFX_EXT)->GetError();
+		GLenum err = (GFX_RND).GetError();
 		while(err != GL_NO_ERROR)
 		{
 			gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
-			err = (GFX_EXT)->GetError();
+			err = (GFX_RND).GetError();
 		}
 	}
 }
@@ -279,11 +262,20 @@ GFXWindow* gfx_window_create(
 	/* Create context */
 	if(_gfx_window_context_create(window->handle))
 	{
-		/* Load extensions and try to prepare the window for post processing */
 		_gfx_window_make_current(window);
-		_gfx_extensions_load();
 
-		if(_gfx_pipe_process_prepare(window))
+		/* Load renderer and initialize window */
+		_gfx_platform_context_get(
+			&window->context.major,
+			&window->context.minor
+		);
+
+		_gfx_renderer_load();
+		_gfx_states_set_default(&window->state);
+		_gfx_states_force_set(&window->state);
+
+		/* Try to prepare the window for post processing */
+		if(_gfx_pipe_process_prepare())
 		{
 			/* Finally attempt to insert the window into the vector */
 			if(_gfx_window_insert(window))
@@ -295,10 +287,7 @@ GFXWindow* gfx_window_create(
 			}
 
 			/* Failed, send failure to pipe processes */
-			_gfx_pipe_process_untarget(
-				window,
-				_gfx_windows ? 0 : 1
-			);
+			_gfx_pipe_process_unprepare(_gfx_windows ? 0 : 1);
 		}
 
 		/* Failed, fall back to main window */
@@ -400,22 +389,21 @@ void _gfx_window_destroy(
 		if(_gfx_windows->begin == _gfx_windows->end)
 		{
 			/* Oh, also do a free request */
-			_gfx_pipe_process_untarget(window, 1);
+			_gfx_pipe_process_unprepare(1);
 			_gfx_hardware_objects_free();
 			_gfx_platform_window_free(window->handle);
 
 			gfx_vector_free(_gfx_windows);
 			_gfx_windows = NULL;
 
-			_gfx_window_extensions = NULL;
-			_gfx_current_window = NULL;
+			_gfx_window_current = NULL;
 			_gfx_main_window = NULL;
 		}
 
 		/* If main window, save & restore hardware objects */
 		else if(_gfx_main_window == window)
 		{
-			_gfx_pipe_process_untarget(window, 0);
+			_gfx_pipe_process_unprepare(0);
 			_gfx_hardware_objects_save();
 			_gfx_platform_window_free(window->handle);
 
@@ -428,17 +416,17 @@ void _gfx_window_destroy(
 		else
 		{
 			/* Just, destroy it, thank you very much */
-			_gfx_pipe_process_untarget(window, 0);
+			_gfx_pipe_process_unprepare(0);
 			_gfx_platform_window_free(window->handle);
 			_gfx_window_make_current(_gfx_main_window);
 		}
 
 		/* Free binding points */
-		free(window->extensions.uniformBuffers);
-		free(window->extensions.textureUnits);
+		free(window->renderer.uniformBuffers);
+		free(window->renderer.textureUnits);
 
-		window->extensions.uniformBuffers = NULL;
-		window->extensions.textureUnits = NULL;
+		window->renderer.uniformBuffers = NULL;
+		window->renderer.textureUnits = NULL;
 
 		window->handle = NULL;
 	}

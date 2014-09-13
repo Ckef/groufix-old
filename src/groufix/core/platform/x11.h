@@ -27,8 +27,8 @@
 /* Validate platform */
 #include "groufix/core/platform.h"
 
-#if defined(GFX_GLES)
-	#error "Cannot compile X11 target using GL ES"
+#if !defined(GFX_GL)
+	#error "Must compile X11 target using desktop GL"
 #elif !defined(GFX_UNIX)
 	#error "Cannot compile X11 target on this platform"
 #endif

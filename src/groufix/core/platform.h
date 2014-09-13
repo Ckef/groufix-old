@@ -35,8 +35,7 @@
 #elif defined(__unix) || defined(__unix__) || defined(__linux__) || defined(__gnu_linux__)
 	#define GFX_UNIX
 
-/* Maybe GLES? */
-#elif !defined(GFX_GLES)
+#else
 	#error "Platform not supported"
 #endif
 

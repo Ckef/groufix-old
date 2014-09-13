@@ -24,7 +24,7 @@
 #ifndef GFX_CORE_MEMORY_INTERNAL_H
 #define GFX_CORE_MEMORY_INTERNAL_H
 
-#include "groufix/core/internal.h"
+#include "groufix/core/renderer.h"
 
 /* Compatibility defines */
 #ifndef GL_TEXTURE_1D

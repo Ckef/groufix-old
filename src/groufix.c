@@ -22,7 +22,7 @@
  */
 
 #include "groufix.h"
-#include "groufix/core/internal.h"
+#include "groufix/core/renderer.h"
 
 /******************************************************/
 /* Starting point of time */

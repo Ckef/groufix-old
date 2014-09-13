@@ -49,7 +49,7 @@ static inline void _gfx_states_clear_buffers(
 		(state & GFX_CLEAR_DEPTH ? GL_DEPTH_BUFFER_BIT : 0) |
 		(state & GFX_CLEAR_STENCIL ? GL_STENCIL_BUFFER_BIT : 0);
 
-	if(mask) (GFX_EXT)->Clear(mask);
+	if(mask) (GFX_RND).Clear(mask);
 }
 
 /******************************************************/
@@ -58,12 +58,12 @@ static inline void _gfx_state_set_polygon_mode(
 		GFXRenderState state)
 {
 	if(state & GFX_STATE_WIREFRAME)
-		(GFX_EXT)->PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		(GFX_RND).PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	else if(state & GFX_STATE_POINTCLOUD)
-		(GFX_EXT)->PolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		(GFX_RND).PolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	else (GFX_EXT)->PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	else (GFX_RND).PolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 /******************************************************/
@@ -71,8 +71,8 @@ static inline void _gfx_state_set_rasterizer(
 
 		GFXRenderState state)
 {
-	if(state & GFX_STATE_NO_RASTERIZER) (GFX_EXT)->Enable(GL_RASTERIZER_DISCARD);
-	else (GFX_EXT)->Disable(GL_RASTERIZER_DISCARD);
+	if(state & GFX_STATE_NO_RASTERIZER) (GFX_RND).Enable(GL_RASTERIZER_DISCARD);
+	else (GFX_RND).Disable(GL_RASTERIZER_DISCARD);
 }
 
 /******************************************************/
@@ -80,8 +80,8 @@ static inline void _gfx_state_set_depth_test(
 
 		GFXRenderState state)
 {
-	if(state & GFX_STATE_DEPTH_TEST) (GFX_EXT)->Enable(GL_DEPTH_TEST);
-	else (GFX_EXT)->Disable(GL_DEPTH_TEST);
+	if(state & GFX_STATE_DEPTH_TEST) (GFX_RND).Enable(GL_DEPTH_TEST);
+	else (GFX_RND).Disable(GL_DEPTH_TEST);
 }
 
 /******************************************************/
@@ -91,10 +91,10 @@ static inline void _gfx_state_set_cull_face(
 {
 	if(state & (GFX_STATE_CULL_FRONT | GFX_STATE_CULL_BACK))
 	{
-		(GFX_EXT)->Enable(GL_CULL_FACE);
-		(GFX_EXT)->CullFace(state & GFX_STATE_CULL_FRONT ? GL_FRONT : GL_BACK);
+		(GFX_RND).Enable(GL_CULL_FACE);
+		(GFX_RND).CullFace(state & GFX_STATE_CULL_FRONT ? GL_FRONT : GL_BACK);
 	}
-	else (GFX_EXT)->Disable(GL_CULL_FACE);
+	else (GFX_RND).Disable(GL_CULL_FACE);
 }
 
 /******************************************************/
@@ -102,8 +102,8 @@ static inline void _gfx_state_set_blend(
 
 		GFXRenderState state)
 {
-	if(state & GFX_STATE_BLEND) (GFX_EXT)->Enable(GL_BLEND);
-	else (GFX_EXT)->Disable(GL_BLEND);
+	if(state & GFX_STATE_BLEND) (GFX_RND).Enable(GL_BLEND);
+	else (GFX_RND).Disable(GL_BLEND);
 }
 
 /******************************************************/
@@ -111,8 +111,8 @@ static inline void _gfx_state_set_stencil_test(
 
 		GFXRenderState state)
 {
-	if(state & GFX_STATE_STENCIL_TEST) (GFX_EXT)->Enable(GL_STENCIL_TEST);
-	else (GFX_EXT)->Disable(GL_STENCIL_TEST);
+	if(state & GFX_STATE_STENCIL_TEST) (GFX_RND).Enable(GL_STENCIL_TEST);
+	else (GFX_RND).Disable(GL_STENCIL_TEST);
 }
 
 /******************************************************/
@@ -156,7 +156,7 @@ void _gfx_states_set(
 	_gfx_states_clear_buffers(state->render.state);
 	GFXRenderState extState = state->render.state & ~GFX_CLEAR_ALL;
 
-	GFXRenderState diff = extState ^ (GFX_EXT)->state.render.state;
+	GFXRenderState diff = extState ^ (GFX_WND)->state.render.state;
 
 	/* Set all boolean states */
 	if(diff & (GFX_STATE_WIREFRAME | GFX_STATE_POINTCLOUD))
@@ -164,7 +164,7 @@ void _gfx_states_set(
 	if(diff & GFX_STATE_NO_RASTERIZER)
 		_gfx_state_set_rasterizer(extState);
 	if(diff & GFX_STATE_DEPTH_WRITE)
-		(GFX_EXT)->DepthMask(extState & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
+		(GFX_RND).DepthMask(extState & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
 	if(diff & GFX_STATE_DEPTH_TEST)
 		_gfx_state_set_depth_test(extState);
 	if(diff & (GFX_STATE_CULL_FRONT | GFX_STATE_CULL_BACK))
@@ -177,26 +177,26 @@ void _gfx_states_set(
 	int comp;
 
 	/* Depth function */
-	comp = (GFX_EXT)->state.depth.test != state->depth.test;
-	if(comp) (GFX_EXT)->DepthFunc(state->depth.test);
+	comp = (GFX_WND)->state.depth.test != state->depth.test;
+	if(comp) (GFX_RND).DepthFunc(state->depth.test);
 
 	/* Blend equation */
 	comp =
-		((GFX_EXT)->state.blend.stateRGB != state->blend.stateRGB) |
-		((GFX_EXT)->state.blend.stateA != state->blend.stateA);
+		((GFX_WND)->state.blend.stateRGB != state->blend.stateRGB) |
+		((GFX_WND)->state.blend.stateA != state->blend.stateA);
 
-	if(comp) (GFX_EXT)->BlendEquationSeparate(
+	if(comp) (GFX_RND).BlendEquationSeparate(
 		state->blend.stateRGB,
 		state->blend.stateA);
 
 	/* Blend functions */
 	comp =
-		((GFX_EXT)->state.blend.sourceRGB != state->blend.sourceRGB) |
-		((GFX_EXT)->state.blend.bufferRGB != state->blend.bufferRGB) |
-		((GFX_EXT)->state.blend.sourceA != state->blend.sourceA) |
-		((GFX_EXT)->state.blend.bufferA != state->blend.bufferA);
+		((GFX_WND)->state.blend.sourceRGB != state->blend.sourceRGB) |
+		((GFX_WND)->state.blend.bufferRGB != state->blend.bufferRGB) |
+		((GFX_WND)->state.blend.sourceA != state->blend.sourceA) |
+		((GFX_WND)->state.blend.bufferA != state->blend.bufferA);
 
-	if(comp) (GFX_EXT)->BlendFuncSeparate(
+	if(comp) (GFX_RND).BlendFuncSeparate(
 		state->blend.sourceRGB,
 		state->blend.bufferRGB,
 		state->blend.sourceA,
@@ -204,11 +204,11 @@ void _gfx_states_set(
 
 	/* Stencil front face functions */
 	comp =
-		((GFX_EXT)->state.stencil.testFront != state->stencil.testFront) |
-		((GFX_EXT)->state.stencil.frontRef != state->stencil.frontRef) |
-		((GFX_EXT)->state.stencil.frontMask != state->stencil.frontMask);
+		((GFX_WND)->state.stencil.testFront != state->stencil.testFront) |
+		((GFX_WND)->state.stencil.frontRef != state->stencil.frontRef) |
+		((GFX_WND)->state.stencil.frontMask != state->stencil.frontMask);
 
-	if(comp) (GFX_EXT)->StencilFuncSeparate(
+	if(comp) (GFX_RND).StencilFuncSeparate(
 		GL_FRONT,
 		state->stencil.testFront,
 		state->stencil.frontRef,
@@ -216,11 +216,11 @@ void _gfx_states_set(
 
 	/* Stencil back face functions */
 	comp =
-		((GFX_EXT)->state.stencil.testBack != state->stencil.testBack) |
-		((GFX_EXT)->state.stencil.backRef != state->stencil.backRef) |
-		((GFX_EXT)->state.stencil.backMask != state->stencil.backMask);
+		((GFX_WND)->state.stencil.testBack != state->stencil.testBack) |
+		((GFX_WND)->state.stencil.backRef != state->stencil.backRef) |
+		((GFX_WND)->state.stencil.backMask != state->stencil.backMask);
 
-	if(comp) (GFX_EXT)->StencilFuncSeparate(
+	if(comp) (GFX_RND).StencilFuncSeparate(
 		GL_BACK,
 		state->stencil.testBack,
 		state->stencil.backRef,
@@ -228,11 +228,11 @@ void _gfx_states_set(
 
 	/* Stencil front face operations */
 	comp =
-		((GFX_EXT)->state.stencil.frontFail != state->stencil.frontFail) |
-		((GFX_EXT)->state.stencil.frontDepth != state->stencil.frontDepth) |
-		((GFX_EXT)->state.stencil.frontPass != state->stencil.frontPass);
+		((GFX_WND)->state.stencil.frontFail != state->stencil.frontFail) |
+		((GFX_WND)->state.stencil.frontDepth != state->stencil.frontDepth) |
+		((GFX_WND)->state.stencil.frontPass != state->stencil.frontPass);
 
-	if(comp) (GFX_EXT)->StencilOpSeparate(
+	if(comp) (GFX_RND).StencilOpSeparate(
 		GL_FRONT,
 		state->stencil.frontFail,
 		state->stencil.frontDepth,
@@ -240,19 +240,19 @@ void _gfx_states_set(
 
 	/* Stencil back face operations */
 	comp =
-		((GFX_EXT)->state.stencil.backFail != state->stencil.backFail) |
-		((GFX_EXT)->state.stencil.backDepth != state->stencil.backDepth) |
-		((GFX_EXT)->state.stencil.backPass != state->stencil.backPass);
+		((GFX_WND)->state.stencil.backFail != state->stencil.backFail) |
+		((GFX_WND)->state.stencil.backDepth != state->stencil.backDepth) |
+		((GFX_WND)->state.stencil.backPass != state->stencil.backPass);
 
-	if(comp) (GFX_EXT)->StencilOpSeparate(
+	if(comp) (GFX_RND).StencilOpSeparate(
 		GL_BACK,
 		state->stencil.backFail,
 		state->stencil.backDepth,
 		state->stencil.backPass);
 
 	/* Set all values */
-	(GFX_EXT)->state = *state;
-	(GFX_EXT)->state.render.state = extState;
+	(GFX_WND)->state = *state;
+	(GFX_WND)->state.render.state = extState;
 }
 
 /******************************************************/
@@ -267,54 +267,54 @@ void _gfx_states_force_set(
 	/* Set all boolean states */
 	_gfx_state_set_polygon_mode(extState);
 	_gfx_state_set_rasterizer(extState);
-	(GFX_EXT)->DepthMask(extState & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
+	(GFX_RND).DepthMask(extState & GFX_STATE_DEPTH_WRITE ? GL_TRUE : GL_FALSE);
 	_gfx_state_set_depth_test(extState);
 	_gfx_state_set_cull_face(extState);
 	_gfx_state_set_blend(extState);
 	_gfx_state_set_stencil_test(extState);
 
 	/* Depth function */
-	(GFX_EXT)->DepthFunc(state->depth.test);
+	(GFX_RND).DepthFunc(state->depth.test);
 
 	/* Blending */
-	(GFX_EXT)->BlendEquationSeparate(
+	(GFX_RND).BlendEquationSeparate(
 		state->blend.stateRGB,
 		state->blend.stateA);
 
-	(GFX_EXT)->BlendFuncSeparate(
+	(GFX_RND).BlendFuncSeparate(
 		state->blend.sourceRGB,
 		state->blend.bufferRGB,
 		state->blend.sourceA,
 		state->blend.bufferA);
 
 	/* Stencil test */
-	(GFX_EXT)->StencilFuncSeparate(
+	(GFX_RND).StencilFuncSeparate(
 		GL_FRONT,
 		state->stencil.testFront,
 		state->stencil.frontRef,
 		state->stencil.frontMask);
 
-	(GFX_EXT)->StencilFuncSeparate(
+	(GFX_RND).StencilFuncSeparate(
 		GL_BACK,
 		state->stencil.testBack,
 		state->stencil.backRef,
 		state->stencil.backMask);
 
-	(GFX_EXT)->StencilOpSeparate(
+	(GFX_RND).StencilOpSeparate(
 		GL_FRONT,
 		state->stencil.frontFail,
 		state->stencil.frontDepth,
 		state->stencil.frontPass);
 
-	(GFX_EXT)->StencilOpSeparate(
+	(GFX_RND).StencilOpSeparate(
 		GL_BACK,
 		state->stencil.backFail,
 		state->stencil.backDepth,
 		state->stencil.backPass);
 
 	/* Set all values */
-	(GFX_EXT)->state = *state;
-	(GFX_EXT)->state.render.state = extState;
+	(GFX_WND)->state = *state;
+	(GFX_WND)->state.render.state = extState;
 }
 
 /******************************************************/
@@ -326,17 +326,17 @@ void _gfx_states_set_viewport(
 		unsigned int  height)
 {
 	if(
-		(GFX_EXT)->x != x ||
-		(GFX_EXT)->y != y ||
-		(GFX_EXT)->width != width ||
-		(GFX_EXT)->height != height)
+		(GFX_RND).x != x ||
+		(GFX_RND).y != y ||
+		(GFX_RND).width != width ||
+		(GFX_RND).height != height)
 	{
-		(GFX_EXT)->Viewport(x, y, width, height);
+		(GFX_RND).Viewport(x, y, width, height);
 
-		(GFX_EXT)->x      = x;
-		(GFX_EXT)->y      = y;
-		(GFX_EXT)->width  = width;
-		(GFX_EXT)->height = height;
+		(GFX_RND).x      = x;
+		(GFX_RND).y      = y;
+		(GFX_RND).width  = width;
+		(GFX_RND).height = height;
 	}
 }
 
@@ -345,10 +345,10 @@ void _gfx_states_set_pixel_pack_alignment(
 
 		unsigned char align)
 {
-	if((GFX_EXT)->packAlignment != align)
+	if((GFX_RND).packAlignment != align)
 	{
-		(GFX_EXT)->PixelStorei(GL_PACK_ALIGNMENT, align);
-		(GFX_EXT)->packAlignment = align;
+		(GFX_RND).PixelStorei(GL_PACK_ALIGNMENT, align);
+		(GFX_RND).packAlignment = align;
 	}
 }
 
@@ -357,10 +357,10 @@ void _gfx_states_set_pixel_unpack_alignment(
 
 		unsigned char align)
 {
-	if((GFX_EXT)->unpackAlignment != align)
+	if((GFX_RND).unpackAlignment != align)
 	{
-		(GFX_EXT)->PixelStorei(GL_UNPACK_ALIGNMENT, align);
-		(GFX_EXT)->unpackAlignment = align;
+		(GFX_RND).PixelStorei(GL_UNPACK_ALIGNMENT, align);
+		(GFX_RND).unpackAlignment = align;
 	}
 }
 
@@ -369,9 +369,9 @@ void _gfx_states_set_patch_vertices(
 
 		unsigned int vertices)
 {
-	if((GFX_EXT)->patchVertices != vertices)
+	if((GFX_RND).patchVertices != vertices)
 	{
-		(GFX_EXT)->PatchParameteri(GL_PATCH_VERTICES, vertices);
-		(GFX_EXT)->patchVertices = vertices;
+		(GFX_RND).PatchParameteri(GL_PATCH_VERTICES, vertices);
+		(GFX_RND).patchVertices = vertices;
 	}
 }

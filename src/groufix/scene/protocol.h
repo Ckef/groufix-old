@@ -250,7 +250,7 @@ const GFX_BatchData* _gfx_submesh_get_batch_data(
  * Sets the metadata of a batch at a submesh.
  *
  * In addition, it will also call _gfx_submesh_set_unit_copies and
- * _gfx_submesh_set_unit_states for the given batch, if necessar.
+ * _gfx_submesh_set_unit_states for the given batch, if necessary.
  *
  * copy is ignored if flags is equal to the current flags.
  *

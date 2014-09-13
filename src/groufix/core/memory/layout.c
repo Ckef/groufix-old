@@ -21,10 +21,10 @@
  *
  */
 
-#include "groufix/core/errors.h"
+#include "groufix/containers/vector.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/pipeline/internal.h"
-#include "groufix/containers/vector.h"
+#include "groufix/core/errors.h"
 
 #include <stdlib.h>
 
@@ -85,10 +85,10 @@ void _gfx_vertex_layout_bind(
 		GLuint vao)
 {
 	/* Prevent binding it twice */
-	if((GFX_EXT)->vao != vao)
+	if((GFX_RND).vao != vao)
 	{
-		(GFX_EXT)->vao = vao;
-		(GFX_EXT)->BindVertexArray(vao);
+		(GFX_RND).vao = vao;
+		(GFX_RND).BindVertexArray(vao);
 	}
 }
 
@@ -100,7 +100,7 @@ static void _gfx_layout_draw(
 		size_t           inst,
 		unsigned int     base)
 {
-	(GFX_EXT)->DrawArrays(
+	(GFX_RND).DrawArrays(
 		call->primitive,
 		call->first,
 		call->count
@@ -115,7 +115,7 @@ static void _gfx_layout_draw_indexed(
 		size_t           inst,
 		unsigned int     base)
 {
-	(GFX_EXT)->DrawElements(
+	(GFX_RND).DrawElements(
 		call->primitive,
 		call->count,
 		call->indexType,
@@ -131,7 +131,7 @@ static void _gfx_layout_draw_instanced(
 		size_t           inst,
 		unsigned int     base)
 {
-	(GFX_EXT)->DrawArraysInstanced(
+	(GFX_RND).DrawArraysInstanced(
 		call->primitive,
 		call->first,
 		call->count,
@@ -147,7 +147,7 @@ static void _gfx_layout_draw_indexed_instanced(
 		size_t           inst,
 		unsigned int     base)
 {
-	(GFX_EXT)->DrawElementsInstanced(
+	(GFX_RND).DrawElementsInstanced(
 		call->primitive,
 		call->count,
 		call->indexType,
@@ -164,7 +164,7 @@ static void _gfx_layout_draw_instanced_base(
 		size_t           inst,
 		unsigned int     base)
 {
-	(GFX_EXT)->DrawArraysInstancedBaseInstance(
+	(GFX_RND).DrawArraysInstancedBaseInstance(
 		call->primitive,
 		call->first,
 		call->count,
@@ -181,7 +181,7 @@ static void _gfx_layout_draw_indexed_instanced_base(
 		size_t           inst,
 		unsigned int     base)
 {
-	(GFX_EXT)->DrawElementsInstancedBaseInstance(
+	(GFX_RND).DrawElementsInstancedBaseInstance(
 		call->primitive,
 		call->count,
 		call->indexType,
@@ -236,19 +236,19 @@ static void _gfx_layout_init_attrib(
 	if(attr->size && attr->buffer)
 	{
 		/* Set the attribute */
-		(GFX_EXT)->EnableVertexArrayAttrib(vao, index);
-		(GFX_EXT)->BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
+		(GFX_RND).EnableVertexArrayAttrib(vao, index);
+		(GFX_RND).BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
 		_gfx_vertex_layout_bind(vao);
 
 		/* Check integer value */
-		if(attr->interpret & GFX_INTERPRET_INTEGER) (GFX_EXT)->VertexAttribIPointer(
+		if(attr->interpret & GFX_INTERPRET_INTEGER) (GFX_RND).VertexAttribIPointer(
 			index,
 			attr->size,
 			attr->type,
 			attr->stride,
 			(GLvoid*)attr->offset
 		);
-		else (GFX_EXT)->VertexAttribPointer(
+		else (GFX_RND).VertexAttribPointer(
 			index,
 			attr->size,
 			attr->type,
@@ -258,11 +258,11 @@ static void _gfx_layout_init_attrib(
 		);
 
 		/* Check if non-zero to avoid extension error */
-		if(attr->divisor) (GFX_EXT)->VertexAttribDivisor(index, attr->divisor);
+		if(attr->divisor) (GFX_RND).VertexAttribDivisor(index, attr->divisor);
 	}
 
 	/* Disable it */
-	else (GFX_EXT)->DisableVertexArrayAttrib(vao, index);
+	else (GFX_RND).DisableVertexArrayAttrib(vao, index);
 }
 
 /******************************************************/
@@ -286,7 +286,7 @@ static void _gfx_layout_obj_save(
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Just don't clear the attribute vector */
-	(GFX_EXT)->DeleteVertexArrays(1, &layout->vao);
+	(GFX_RND).DeleteVertexArrays(1, &layout->vao);
 	layout->vao = 0;
 }
 
@@ -298,7 +298,7 @@ static void _gfx_layout_obj_restore(
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Create VAO */
-	(GFX_EXT)->CreateVertexArrays(1, &layout->vao);
+	(GFX_RND).CreateVertexArrays(1, &layout->vao);
 
 	/* Restore attributes */
 	unsigned int i = 0;
@@ -338,7 +338,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 
 		unsigned char drawCalls)
 {
-	if(!GFX_EXT || !drawCalls) return NULL;
+	if(!GFX_WND || !drawCalls) return NULL;
 
 	/* Create new layout, append draw calls to end of struct */
 	size_t size = sizeof(struct GFX_Layout) + drawCalls * sizeof(GFXDrawCall);
@@ -368,7 +368,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 
 	/* Create OpenGL resources */
 	layout->layout.drawCalls = drawCalls;
-	(GFX_EXT)->CreateVertexArrays(1, &layout->vao);
+	(GFX_RND).CreateVertexArrays(1, &layout->vao);
 
 	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Attribute));
 
@@ -388,12 +388,12 @@ void gfx_vertex_layout_free(
 		_gfx_hardware_object_unregister(layout->id);
 
 		/* Delete VAO */
-		if(GFX_EXT)
+		if(GFX_WND)
 		{
-			if((GFX_EXT)->vao == internal->vao)
-				(GFX_EXT)->vao = 0;
+			if((GFX_RND).vao == internal->vao)
+				(GFX_RND).vao = 0;
 
-			(GFX_EXT)->DeleteVertexArrays(1, &internal->vao);
+			(GFX_RND).DeleteVertexArrays(1, &internal->vao);
 		}
 
 		gfx_vector_clear(&internal->attributes);
@@ -411,11 +411,11 @@ int gfx_vertex_layout_set_feedback(
 		size_t                    num,
 		const GFXFeedbackBuffer*  buffers)
 {
-	if(!GFX_EXT) return 0;
+	if(!GFX_WND) return 0;
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Check number of buffers */
-	if(num > (GFX_EXT)->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS])
+	if(num > (GFX_WND)->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS])
 		return 0;
 
 	free(internal->TFBuffers);
@@ -459,11 +459,11 @@ int gfx_vertex_layout_set_patch_vertices(
 		GFXVertexLayout*  layout,
 		unsigned int      vertices)
 {
-	if(!GFX_EXT) return 0;
+	if(!GFX_WND) return 0;
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Bound check */
-	if(vertices > (GFX_EXT)->limits[GFX_LIM_MAX_PATCH_VERTICES])
+	if(vertices > (GFX_WND)->limits[GFX_LIM_MAX_PATCH_VERTICES])
 		return 0;
 
 	internal->patchVertices = vertices;
@@ -478,7 +478,7 @@ static int _gfx_layout_set_attribute(
 		unsigned int        index)
 {
 	/* Check index */
-	if(index >= (GFX_EXT)->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
+	if(index >= (GFX_WND)->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
 	size_t size = gfx_vector_get_size(&layout->attributes);
 
 	if(index >= size)
@@ -514,7 +514,7 @@ int gfx_vertex_layout_set_attribute(
 		unsigned int               index,
 		const GFXVertexAttribute*  attr)
 {
-	if(!GFX_EXT) return 0;
+	if(!GFX_WND) return 0;
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	if(!_gfx_layout_set_attribute(internal, index)) return 0;
@@ -554,7 +554,7 @@ static int _gfx_layout_set_attribute_buffer(
 		GLuint            buffer,
 		size_t            offset)
 {
-	if(!GFX_EXT) return 0;
+	if(!GFX_WND) return 0;
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	if(!_gfx_layout_set_attribute(internal, index)) return 0;
@@ -628,7 +628,7 @@ void gfx_vertex_layout_remove_attribute(
 		GFXVertexLayout*  layout,
 		unsigned int      index)
 {
-	if(!GFX_EXT) return;
+	if(!GFX_WND) return;
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Check what index is being removed */
@@ -667,7 +667,7 @@ void gfx_vertex_layout_remove_attribute(
 	}
 
 	/* Send request to OpenGL */
-	(GFX_EXT)->DisableVertexArrayAttrib(internal->vao, index);
+	(GFX_RND).DisableVertexArrayAttrib(internal->vao, index);
 }
 
 /******************************************************/
@@ -678,7 +678,7 @@ int gfx_vertex_layout_set_draw_call(
 		const GFXDrawCall*  call)
 {
 	/* Check index */
-	if(!GFX_EXT || index >= layout->drawCalls)
+	if(!GFX_WND || index >= layout->drawCalls)
 		return 0;
 
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
@@ -686,7 +686,7 @@ int gfx_vertex_layout_set_draw_call(
 	/* Check extensions */
 	if(
 		call->primitive == GFX_PATCHES &&
-		!(GFX_EXT)->flags[GFX_EXT_TESSELLATION_SHADER])
+		!(GFX_WND)->flags[GFX_EXT_TESSELLATION_SHADER])
 	{
 		return 0;
 	}
@@ -765,9 +765,10 @@ void _gfx_vertex_layout_draw(
 
 	_gfx_vertex_layout_bind(internal->vao);
 
-	(GFX_EXT)->BindBuffer(
+	(GFX_RND).BindBuffer(
 		GL_ELEMENT_ARRAY_BUFFER,
-		internal->indexBuffer);
+		internal->indexBuffer
+	);
 
 	_gfx_states_set_patch_vertices(internal->patchVertices);
 
@@ -778,7 +779,7 @@ void _gfx_vertex_layout_draw(
 		{
 			size_t i = source.startFeedback + source.numFeedback;
 
-			(GFX_EXT)->BindBufferRange(
+			(GFX_RND).BindBufferRange(
 				GL_TRANSFORM_FEEDBACK_BUFFER,
 				source.numFeedback,
 				internal->TFBuffers[i].buffer,
@@ -788,7 +789,7 @@ void _gfx_vertex_layout_draw(
 		}
 
 		/* Begin feedback, draw, end feedback */
-		(GFX_EXT)->BeginTransformFeedback(
+		(GFX_RND).BeginTransformFeedback(
 			internal->TFPrimitive);
 
 		_gfx_layout_invoke_draw(
@@ -799,7 +800,7 @@ void _gfx_vertex_layout_draw(
 			base,
 			type);
 
-		(GFX_EXT)->EndTransformFeedback();
+		(GFX_RND).EndTransformFeedback();
 	}
 
 	/* Draw without feedback buffer */

@@ -21,10 +21,10 @@
  *
  */
 
-#include "groufix/core/errors.h"
-#include "groufix/core/internal.h"
 #include "groufix/containers/deque.h"
 #include "groufix/containers/vector.h"
+#include "groufix/core/errors.h"
+#include "groufix/core/renderer.h"
 
 #include <string.h>
 
@@ -47,8 +47,8 @@ int gfx_hardware_is_extension_supported(
 
 		GFXExtension extension)
 {
-	if(!GFX_EXT) return 0;
-	return (GFX_EXT)->flags[extension];
+	if(!GFX_WND) return 0;
+	return (GFX_WND)->flags[extension];
 }
 
 /******************************************************/
@@ -56,8 +56,8 @@ int gfx_hardware_get_limit(
 
 		GFXLimit limit)
 {
-	if(!GFX_EXT) return -1;
-	return (GFX_EXT)->limits[limit];
+	if(!GFX_WND) return -1;
+	return (GFX_WND)->limits[limit];
 }
 
 /******************************************************/

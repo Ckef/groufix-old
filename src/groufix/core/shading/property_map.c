@@ -21,10 +21,10 @@
  *
  */
 
-#include "groufix/core/errors.h"
+#include "groufix/containers/vector.h"
 #include "groufix/core/shading/internal.h"
 #include "groufix/core/memory/internal.h"
-#include "groufix/containers/vector.h"
+#include "groufix/core/errors.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -176,28 +176,28 @@ static inline void _gfx_property_set_vector_val(
 	{
 		case GFX_FLOAT : switch(val->components)
 		{
-			case 1 : (GFX_EXT)->Uniform1fv(location, elements, data); break;
-			case 2 : (GFX_EXT)->Uniform2fv(location, elements, data); break;
-			case 3 : (GFX_EXT)->Uniform3fv(location, elements, data); break;
-			case 4 : (GFX_EXT)->Uniform4fv(location, elements, data); break;
+			case 1 : (GFX_RND).Uniform1fv(location, elements, data); break;
+			case 2 : (GFX_RND).Uniform2fv(location, elements, data); break;
+			case 3 : (GFX_RND).Uniform3fv(location, elements, data); break;
+			case 4 : (GFX_RND).Uniform4fv(location, elements, data); break;
 		}
 		break;
 
 		case GFX_INT : switch(val->components)
 		{
-			case 1 : (GFX_EXT)->Uniform1iv(location, elements, data); break;
-			case 2 : (GFX_EXT)->Uniform2iv(location, elements, data); break;
-			case 3 : (GFX_EXT)->Uniform3iv(location, elements, data); break;
-			case 4 : (GFX_EXT)->Uniform4iv(location, elements, data); break;
+			case 1 : (GFX_RND).Uniform1iv(location, elements, data); break;
+			case 2 : (GFX_RND).Uniform2iv(location, elements, data); break;
+			case 3 : (GFX_RND).Uniform3iv(location, elements, data); break;
+			case 4 : (GFX_RND).Uniform4iv(location, elements, data); break;
 		}
 		break;
 
 		case GFX_UNSIGNED_INT : switch(val->components)
 		{
-			case 1 : (GFX_EXT)->Uniform1uiv(location, elements, data); break;
-			case 2 : (GFX_EXT)->Uniform2uiv(location, elements, data); break;
-			case 3 : (GFX_EXT)->Uniform3uiv(location, elements, data); break;
-			case 4 : (GFX_EXT)->Uniform4uiv(location, elements, data); break;
+			case 1 : (GFX_RND).Uniform1uiv(location, elements, data); break;
+			case 2 : (GFX_RND).Uniform2uiv(location, elements, data); break;
+			case 3 : (GFX_RND).Uniform3uiv(location, elements, data); break;
+			case 4 : (GFX_RND).Uniform4uiv(location, elements, data); break;
 		}
 		break;
 
@@ -252,9 +252,9 @@ static inline void _gfx_property_set_matrix_val(
 	{
 		case GFX_FLOAT : switch(val->components)
 		{
-			case 4  : (GFX_EXT)->UniformMatrix2fv(location, elements, GL_FALSE, data); break;
-			case 9  : (GFX_EXT)->UniformMatrix3fv(location, elements, GL_FALSE, data); break;
-			case 16 : (GFX_EXT)->UniformMatrix4fv(location, elements, GL_FALSE, data); break;
+			case 4  : (GFX_RND).UniformMatrix2fv(location, elements, GL_FALSE, data); break;
+			case 9  : (GFX_RND).UniformMatrix3fv(location, elements, GL_FALSE, data); break;
+			case 16 : (GFX_RND).UniformMatrix4fv(location, elements, GL_FALSE, data); break;
 		}
 		break;
 
@@ -314,7 +314,7 @@ static void _gfx_property_set_sampler(
 		1,
 		&old
 	);
-	if(!old) (GFX_EXT)->Uniform1iv(location, 1, &unit);
+	if(!old) (GFX_RND).Uniform1iv(location, 1, &unit);
 }
 
 /******************************************************/
@@ -335,7 +335,7 @@ static void _gfx_property_set_block(
 		1,
 		&old
 	);
-	if(!old) (GFX_EXT)->UniformBlockBinding(program, location, index);
+	if(!old) (GFX_RND).UniformBlockBinding(program, location, index);
 }
 
 /******************************************************/
@@ -380,10 +380,10 @@ void _gfx_property_map_use(
 	struct GFX_Map* internal = (struct GFX_Map*)map;
 
 	/* Prevent binding it twice */
-	if((GFX_EXT)->program != internal->handle)
+	if((GFX_RND).program != internal->handle)
 	{
-		(GFX_EXT)->program = internal->handle;
-		(GFX_EXT)->UseProgram(internal->handle);
+		(GFX_RND).program = internal->handle;
+		(GFX_RND).UseProgram(internal->handle);
 	}
 
 	/* Clamp copy */
@@ -434,13 +434,13 @@ static int _gfx_property_enable(
 		if(type == GFX_INT_PROPERTY_SAMPLER)
 		{
 			sampDiff = 1;
-			if(map->samplers + sampDiff > (GFX_EXT)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES])
+			if(map->samplers + sampDiff > (GFX_WND)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES])
 				return 0;
 		}
 		else if(type == GFX_INT_PROPERTY_BLOCK)
 		{
 			blockDiff = 1;
-			if(map->blocks + blockDiff > (GFX_EXT)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES])
+			if(map->blocks + blockDiff > (GFX_WND)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES])
 				return 0;
 		}
 
@@ -806,7 +806,7 @@ int gfx_property_map_forward(
 	const GFXProperty* prop =
 		gfx_program_get_property(map->program, property);
 
-	if(!GFX_EXT || !forward || location < 0 || !prop)
+	if(!GFX_WND || !forward || location < 0 || !prop)
 		return 0;
 	if(!prop->components || !prop->count)
 		return 0;
@@ -953,7 +953,7 @@ int gfx_property_map_forward_block(
 		block
 	);
 
-	if(!GFX_EXT || !forward || !bl) return 0;
+	if(!GFX_WND || !forward || !bl) return 0;
 	if(!bl->numProperties || !bl->properties) return 0;
 
 	/* Forward property */
