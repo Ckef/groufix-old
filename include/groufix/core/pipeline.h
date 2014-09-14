@@ -515,7 +515,8 @@ typedef enum GFXPipelineAttachment
 {
 	GFX_COLOR_ATTACHMENT          = 0x8ce0,
 	GFX_DEPTH_ATTACHMENT          = 0x8d00,
-	GFX_DEPTH_STENCIL_ATTACHMENT  = 0x821a
+	GFX_DEPTH_STENCIL_ATTACHMENT  = 0x821a,
+	GFX_STENCIL_ATTACHMENT        = 0x8d20
 
 } GFXPipelineAttachment;
 
