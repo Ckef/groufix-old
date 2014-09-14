@@ -82,29 +82,29 @@ int _gfx_platform_thread_init(
 /******************************************************/
 void _gfx_platform_thread_detach(
 
-		GFX_PlatformThread handle)
+		GFX_PlatformThread thread)
 {
-	CloseHandle(handle);
+	CloseHandle(thread);
 }
 
 /******************************************************/
 int _gfx_platform_thread_join(
 
-		GFX_PlatformThread  handle,
+		GFX_PlatformThread  thread,
 		unsigned int*       ret)
 {
-	if(WaitForSingleObject(handle, INFINITE) == WAIT_FAILED)
+	if(WaitForSingleObject(thread, INFINITE) == WAIT_FAILED)
 		return 0;
 
 	if(ret)
 	{
 		DWORD val = 0;
-		GetExitCodeThread(handle, &val);
+		GetExitCodeThread(thread, &val);
 
 		*ret = val;
 	}
 
-	CloseHandle(handle);
+	CloseHandle(thread);
 
 	return 1;
 }
@@ -115,6 +115,41 @@ void _gfx_platform_thread_exit(
 		unsigned int ret)
 {
 	_endthreadex(ret);
+}
+
+/******************************************************/
+int _gfx_platform_key_init(
+
+		GFX_PlatformKey* key)
+{
+	*key = TlsAlloc();
+
+	return *key != TLS_OUT_OF_INDEXES;
+}
+
+/******************************************************/
+void _gfx_platform_key_clear(
+
+		GFX_PlatformKey key)
+{
+	TlsFree(key);
+}
+
+/******************************************************/
+int _gfx_platform_key_set(
+
+		GFX_PlatformKey  key,
+		void*            value)
+{
+	return TlsSetValue(key, value);
+}
+
+/******************************************************/
+void* _gfx_platform_key_get(
+
+		GFX_PlatformKey key)
+{
+	return TlsGetValue(key);
 }
 
 /******************************************************/
@@ -196,7 +231,7 @@ int _gfx_platform_cond_wait_time(
 		uint64_t            nsec)
 {
 	/* Round up so nsec is a minimum */
-	DWORD time = nsec ? (nsec -1) / 1000000 + 1 : 0;
+	DWORD time = nsec ? (nsec - 1) / 1000000 + 1 : 0;
 
 	if(!SleepConditionVariableCS(cond, mutex, time))
 		return (GetLastError() == ERROR_TIMEOUT) ? -1 : 0;

@@ -111,6 +111,19 @@ typedef void* GFX_PlatformCond;
 #endif
 
 
+/** Thread local data key */
+#if defined(GFX_WIN32)
+typedef DWORD GFX_PlatformKey;
+
+#elif defined(GFX_UNIX)
+typedef pthread_key_t GFX_PlatformKey;
+
+#else
+typedef void* GFX_PlatformKey;
+
+#endif
+
+
 /********************************************************
  * Platform window manager definitions
  *******************************************************/
@@ -194,7 +207,7 @@ int _gfx_platform_thread_init(
  */
 void _gfx_platform_thread_detach(
 
-		GFX_PlatformThread handle);
+		GFX_PlatformThread thread);
 
 /**
  * Wait for a thread to terminate and frees all resources associated with it.
@@ -207,7 +220,7 @@ void _gfx_platform_thread_detach(
  */
 int _gfx_platform_thread_join(
 
-		GFX_PlatformThread  handle,
+		GFX_PlatformThread  thread,
 		unsigned int*       ret);
 
 /**
@@ -219,6 +232,48 @@ int _gfx_platform_thread_join(
 void _gfx_platform_thread_exit(
 
 		unsigned int ret);
+
+/**
+ * Initializes a new thread local data key.
+ *
+ * @param key Returns the key object.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_platform_key_init(
+
+		GFX_PlatformKey* key);
+
+/**
+ * Makes sure the data key is freed properly.
+ *
+ * Note: this does not free any of the associated values!
+ *
+ */
+void _gfx_platform_key_clear(
+
+		GFX_PlatformKey key);
+
+/**
+ * Associate a thread specific value with a data key.
+ *
+ * @return Zero on failure.
+ *
+ */
+int _gfx_platform_key_set(
+
+		GFX_PlatformKey  key,
+		void*            value);
+
+/**
+ * Retrieve the thread specific value associated with a data key.
+ *
+ * @return The stored value, NULL if no value is associated.
+ *
+ */
+void* _gfx_platform_key_get(
+
+		GFX_PlatformKey key);
 
 /**
  * Initializes a new mutex.

@@ -87,19 +87,19 @@ int _gfx_platform_thread_init(
 /******************************************************/
 void _gfx_platform_thread_detach(
 
-		GFX_PlatformThread handle)
+		GFX_PlatformThread thread)
 {
-	pthread_detach(handle);
+	pthread_detach(thread);
 }
 
 /******************************************************/
 int _gfx_platform_thread_join(
 
-		GFX_PlatformThread  handle,
+		GFX_PlatformThread  thread,
 		unsigned int*       ret)
 {
 	void* val = NULL;
-	if(pthread_join(handle, &val)) return 0;
+	if(pthread_join(thread, &val)) return 0;
 
 	if(ret) *ret = GFX_VOID_TO_UINT(val);
 
@@ -112,6 +112,39 @@ void _gfx_platform_thread_exit(
 		unsigned int ret)
 {
 	pthread_exit(GFX_UINT_TO_VOID(ret));
+}
+
+/******************************************************/
+int _gfx_platform_key_init(
+
+		GFX_PlatformKey* key)
+{
+	return !pthread_key_create(key, NULL);
+}
+
+/******************************************************/
+void _gfx_platform_key_clear(
+
+		GFX_PlatformKey key)
+{
+	pthread_key_delete(key);
+}
+
+/******************************************************/
+int _gfx_platform_key_set(
+
+		GFX_PlatformKey  key,
+		void*            value)
+{
+	return !pthread_setspecific(key, value);
+}
+
+/******************************************************/
+void* _gfx_platform_key_get(
+
+		GFX_PlatformKey key)
+{
+	return pthread_getspecific(key);
 }
 
 /******************************************************/

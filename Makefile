@@ -46,6 +46,7 @@ help:
 # Compiler/Linker options for all build targets
 #################################################################
 
+# Flags
 CC       = gcc
 BIN      = bin
 OUT      = obj
