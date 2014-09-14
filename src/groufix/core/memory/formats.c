@@ -220,6 +220,20 @@
 	#define GL_DEPTH_COMPONENT32F  -0x003d
 #endif
 
+/* Define unsupported stencil formats */
+#ifndef GL_STENCIL_INDEX1
+	#define GL_STENCIL_INDEX1      -0x003e
+#endif
+#ifndef GL_STENCIL_INDEX4
+	#define GL_STENCIL_INDEX4      -0x003f
+#endif
+#ifndef GL_STENCIL_INDEX8
+	#define GL_STENCIL_INDEX8      -0x0040
+#endif
+#ifndef GL_STENCIL_INDEX16
+	#define GL_STENCIL_INDEX16     -0x0041
+#endif
+
 
 /******************************************************/
 int _gfx_is_data_type_packed(
@@ -251,6 +265,8 @@ unsigned char _gfx_sizeof_data_type(
 	/* Check for unpacked datatypes */
 	switch(type.unpacked)
 	{
+		case GFX_BIT :
+		case GFX_NIBBLE :
 		case GFX_BYTE :
 		case GFX_UNSIGNED_BYTE :
 			return 1;
@@ -324,6 +340,13 @@ GLint _gfx_texture_format_to_pixel_format(
 		case GFX_INTERPRET_DEPTH : switch(format.components)
 		{
 			case 1 : return GL_DEPTH_COMPONENT;
+			default : return GFX_INT_UNKNOWN_FORMAT;
+		}
+
+		/* Stencil format */
+		case GFX_INTERPRET_STENCIL : switch(format.components)
+		{
+			case 1 : return GL_STENCIL_INDEX;
 			default : return GFX_INT_UNKNOWN_FORMAT;
 		}
 
@@ -480,9 +503,27 @@ GLint _gfx_texture_format_to_internal(
 		{
 			case 1 : switch(format.type.unpacked)
 			{
+				case GFX_SHORT          : return GL_DEPTH_COMPONENT16;
 				case GFX_UNSIGNED_SHORT : return GL_DEPTH_COMPONENT16;
+				case GFX_INT            : return GL_DEPTH_COMPONENT24;
 				case GFX_UNSIGNED_INT   : return GL_DEPTH_COMPONENT24;
 				case GFX_FLOAT          : return GL_DEPTH_COMPONENT32F;
+				default                 : return GFX_INT_UNKNOWN_FORMAT;
+			}
+			default : return GFX_INT_UNKNOWN_FORMAT;
+		}
+
+		/* Stencil formats */
+		case GFX_INTERPRET_STENCIL : switch(format.components)
+		{
+			case 1 : switch(format.type.unpacked)
+			{
+				case GFX_BIT            : return GL_STENCIL_INDEX1;
+				case GFX_NIBBLE         : return GL_STENCIL_INDEX4;
+				case GFX_BYTE           : return GL_STENCIL_INDEX8;
+				case GFX_UNSIGNED_BYTE  : return GL_STENCIL_INDEX8;
+				case GFX_SHORT          : return GL_STENCIL_INDEX16;
+				case GFX_UNSIGNED_SHORT : return GL_STENCIL_INDEX16;
 				default                 : return GFX_INT_UNKNOWN_FORMAT;
 			}
 			default : return GFX_INT_UNKNOWN_FORMAT;
@@ -867,6 +908,31 @@ GFXTextureFormat _gfx_texture_format_from_internal(
 			ret.components    = 1;
 			ret.type.unpacked = GFX_FLOAT;
 			ret.interpret     = GFX_INTERPRET_DEPTH;
+			break;
+
+		/* Stencil formats */
+		case GL_STENCIL_INDEX1 :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_BIT;
+			ret.interpret     = GFX_INTERPRET_STENCIL;
+			break;
+
+		case GL_STENCIL_INDEX4 :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_NIBBLE;
+			ret.interpret     = GFX_INTERPRET_STENCIL;
+			break;
+
+		case GL_STENCIL_INDEX8 :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_UNSIGNED_BYTE;
+			ret.interpret     = GFX_INTERPRET_STENCIL;
+			break;
+
+		case GL_STENCIL_INDEX16 :
+			ret.components    = 1;
+			ret.type.unpacked = GFX_UNSIGNED_SHORT;
+			ret.interpret     = GFX_INTERPRET_STENCIL;
 			break;
 	}
 

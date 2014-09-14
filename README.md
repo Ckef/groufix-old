@@ -2,7 +2,7 @@
 
 Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in C using OpenGL. The library has no external dependencies besides native windowing APIs and OpenGL to access the GPU. Desktop OpenGL is supported from 3.2 and up. OpenGL ES is supported from 3.0 and up.
 
-Supported targets and their APIs
+Supported targets and their APIs:
 
 * __Unix__, Xlib / OGL, (_working_ / _[GCC](https://gcc.gnu.org/)_)
 * __Windows__, Win32 (Vista+) / OGL, (_working_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)

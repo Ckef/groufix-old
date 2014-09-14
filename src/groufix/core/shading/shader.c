@@ -45,11 +45,8 @@ static const char* _gfx_glsl_versions[] =
 /* Internal Shader */
 struct GFX_Shader
 {
-	/* Super class */
-	GFXShader shader;
-
-	/* Hidden data */
-	GLuint handle; /* OpenGL handle */
+	GFXShader  shader; /* Super class */
+	GLuint     handle; /* OpenGL handle */
 };
 
 /******************************************************/

@@ -514,8 +514,16 @@ int gfx_vertex_layout_set_attribute(
 		unsigned int               index,
 		const GFXVertexAttribute*  attr)
 {
-	if(!GFX_WND) return 0;
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+
+	if(
+		!GFX_WND ||
+		!attr->size ||
+		attr->type.unpacked == GFX_BIT ||
+		attr->type.unpacked == GFX_NIBBLE)
+	{
+		return 0;
+	}
 
 	if(!_gfx_layout_set_attribute(internal, index)) return 0;
 
@@ -537,8 +545,15 @@ int gfx_vertex_layout_set_attribute(
 	set->type      = packed ? attr->type.packed : attr->type.unpacked;
 	set->stride    = attr->stride;
 	set->divisor   = attr->divisor;
-	set->interpret = packed && (attr->interpret & GFX_INTERPRET_INTEGER) ?
-		GFX_INTERPRET_FLOAT : attr->interpret;
+	set->interpret = attr->interpret;
+
+	/* Resolve how to interpret */
+	set->interpret = (set->interpret & GFX_INTERPRET_DEPTH) ?
+		GFX_INTERPRET_FLOAT : set->interpret;
+	set->interpret = (set->interpret & GFX_INTERPRET_STENCIL) ?
+		GFX_INTERPRET_INTEGER : set->interpret;
+	set->interpret = packed && (set->interpret & GFX_INTERPRET_INTEGER) ?
+		GFX_INTERPRET_FLOAT : set->interpret;
 
 	/* Send attribute to OpenGL */
 	_gfx_layout_init_attrib(internal->vao, index, set);

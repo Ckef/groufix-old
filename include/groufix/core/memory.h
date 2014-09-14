@@ -42,6 +42,8 @@ extern "C" {
 /** Unpacked storage data type */
 typedef enum GFXUnpackedType
 {
+	GFX_BIT,
+	GFX_NIBBLE,
 	GFX_BYTE            = 0x1400,
 	GFX_UNSIGNED_BYTE   = 0x1401,
 	GFX_SHORT           = 0x1402,
@@ -73,10 +75,11 @@ typedef enum GFXPackedType
 /** Interpreted type */
 typedef enum GFXInterpretType
 {
-	GFX_INTERPRET_FLOAT       = 0x00,
-	GFX_INTERPRET_NORMALIZED  = 0x01,
-	GFX_INTERPRET_INTEGER     = 0x02,
-	GFX_INTERPRET_DEPTH       = 0x04
+	GFX_INTERPRET_FLOAT       = 0x001,
+	GFX_INTERPRET_NORMALIZED  = 0x002,
+	GFX_INTERPRET_INTEGER     = 0x004,
+	GFX_INTERPRET_DEPTH       = 0x008,
+	GFX_INTERPRET_STENCIL     = 0x010
 
 } GFXInterpretType;
 
@@ -333,7 +336,7 @@ typedef struct GFXVertexAttribute
 {
 	unsigned char     size;      /* Number of elements */
 	GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
-	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT */
+	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT and STENCIL is equal to INTEGER */
 	size_t            stride;    /* Byte offset between consecutive attributes, 0 is an alias for tightly packed */
 	unsigned int      divisor;   /* Rate at which to advance, 0 for no instancing, requires GFX_EXT_INSTANCED_ATTRIBUTES */
 
