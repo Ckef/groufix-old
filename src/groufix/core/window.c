@@ -28,8 +28,8 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Current window */
-GFX_Window* _gfx_window_current = NULL;
+/* Current window data key */
+static GFX_PlatformKey _gfx_current_window;
 
 /* Main window (main context) */
 static GFX_Window* _gfx_main_window = NULL;
@@ -64,7 +64,7 @@ static int _gfx_window_context_create(
 	while(
 		max.major > _gfx_context.major ||
 		(max.major == _gfx_context.major &&
-		 max.minor >= _gfx_context.minor))
+		max.minor >= _gfx_context.minor))
 	{
 		/* Try to create it */
 		if(_gfx_platform_context_create(window, max.major, max.minor, share))
@@ -145,10 +145,19 @@ void _gfx_window_make_current(
 
 		GFX_Window* window)
 {
-	if(window && _gfx_window_current != window)
+	GFX_Window* current =
+		_gfx_platform_key_get(_gfx_current_window);
+
+	if(window && current != window)
 		_gfx_platform_context_make_current(window->handle);
 
-	_gfx_window_current = window;
+	_gfx_platform_key_set(_gfx_current_window, window);
+}
+
+/******************************************************/
+GFX_Window* _gfx_window_get_current(void)
+{
+	return _gfx_platform_key_get(_gfx_current_window);
 }
 
 /******************************************************/
@@ -156,15 +165,16 @@ void _gfx_window_swap_buffers(void)
 {
 	/* Swap buffers and poll errors while it's current */
 	_gfx_platform_context_swap_buffers();
+	GFX_Window* window = _gfx_platform_key_get(_gfx_current_window);
 
-	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG && GFX_WND)
+	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG && window)
 	{
 		/* Loop over all errors */
-		GLenum err = (GFX_RND).GetError();
+		GLenum err = window->renderer.GetError();
 		while(err != GL_NO_ERROR)
 		{
 			gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
-			err = (GFX_RND).GetError();
+			err = window->renderer.GetError();
 		}
 	}
 }
@@ -230,12 +240,15 @@ GFXWindow* gfx_window_create(
 		return NULL;
 	}
 
-	/* Get screen */
+	/* Create data key */
+	if(!_gfx_main_window) if(!_gfx_platform_key_init(&_gfx_current_window))
+		return NULL;
+
+	/* Create platform window */
 	GFX_PlatformScreen scr;
 	if(screen) scr = (GFX_PlatformScreen)screen;
 	else scr = _gfx_platform_get_default_screen();
 
-	/* Create platform window */
 	GFX_PlatformAttributes attr;
 	attr.screen = scr;
 	attr.name   = name;
@@ -256,6 +269,9 @@ GFXWindow* gfx_window_create(
 		);
 		free(window);
 
+		if(!_gfx_main_window)
+			_gfx_platform_key_clear(_gfx_current_window);
+
 		return NULL;
 	}
 
@@ -272,7 +288,7 @@ GFXWindow* gfx_window_create(
 
 		_gfx_renderer_load();
 		_gfx_states_set_default(&window->state);
-		_gfx_states_force_set(&window->state);
+		_gfx_states_force_set(&window->state, window);
 
 		/* Try to prepare the window for post processing */
 		if(_gfx_pipe_process_prepare())
@@ -300,7 +316,10 @@ GFXWindow* gfx_window_create(
 		"Platform context could not be created."
 	);
 
-	/* Destroy it */
+	/* Destroy key & window */
+	if(!_gfx_main_window)
+		_gfx_platform_key_clear(_gfx_current_window);
+
 	_gfx_platform_window_free(window->handle);
 	free(window);
 
@@ -396,7 +415,7 @@ void _gfx_window_destroy(
 			gfx_vector_free(_gfx_windows);
 			_gfx_windows = NULL;
 
-			_gfx_window_current = NULL;
+			_gfx_platform_key_clear(_gfx_current_window);
 			_gfx_main_window = NULL;
 		}
 

@@ -48,7 +48,8 @@ typedef void (*GFX_PropertyFunc)(
 	GLuint,
 	GLuint,
 	void*,
-	unsigned int);
+	unsigned int,
+	GFX_Window*);
 
 
 /* Internal property map */
@@ -159,7 +160,8 @@ static void _gfx_property_set_unknown(
 		GLuint        program,
 		GLuint        location,
 		void*         data,
-		unsigned int  base)
+		unsigned int  base,
+		GFX_Window*   window)
 {
 	/* Some unknown property type, ignore :D */
 }
@@ -170,34 +172,35 @@ static inline void _gfx_property_set_vector_val(
 		GLuint             location,
 		struct GFX_Value*  val,
 		const void*        data,
-		size_t             elements)
+		size_t             elements,
+		GFX_Renderer*      rend)
 {
 	switch(val->type)
 	{
 		case GFX_FLOAT : switch(val->components)
 		{
-			case 1 : (GFX_RND).Uniform1fv(location, elements, data); break;
-			case 2 : (GFX_RND).Uniform2fv(location, elements, data); break;
-			case 3 : (GFX_RND).Uniform3fv(location, elements, data); break;
-			case 4 : (GFX_RND).Uniform4fv(location, elements, data); break;
+			case 1 : rend->Uniform1fv(location, elements, data); break;
+			case 2 : rend->Uniform2fv(location, elements, data); break;
+			case 3 : rend->Uniform3fv(location, elements, data); break;
+			case 4 : rend->Uniform4fv(location, elements, data); break;
 		}
 		break;
 
 		case GFX_INT : switch(val->components)
 		{
-			case 1 : (GFX_RND).Uniform1iv(location, elements, data); break;
-			case 2 : (GFX_RND).Uniform2iv(location, elements, data); break;
-			case 3 : (GFX_RND).Uniform3iv(location, elements, data); break;
-			case 4 : (GFX_RND).Uniform4iv(location, elements, data); break;
+			case 1 : rend->Uniform1iv(location, elements, data); break;
+			case 2 : rend->Uniform2iv(location, elements, data); break;
+			case 3 : rend->Uniform3iv(location, elements, data); break;
+			case 4 : rend->Uniform4iv(location, elements, data); break;
 		}
 		break;
 
 		case GFX_UNSIGNED_INT : switch(val->components)
 		{
-			case 1 : (GFX_RND).Uniform1uiv(location, elements, data); break;
-			case 2 : (GFX_RND).Uniform2uiv(location, elements, data); break;
-			case 3 : (GFX_RND).Uniform3uiv(location, elements, data); break;
-			case 4 : (GFX_RND).Uniform4uiv(location, elements, data); break;
+			case 1 : rend->Uniform1uiv(location, elements, data); break;
+			case 2 : rend->Uniform2uiv(location, elements, data); break;
+			case 3 : rend->Uniform3uiv(location, elements, data); break;
+			case 4 : rend->Uniform4uiv(location, elements, data); break;
 		}
 		break;
 
@@ -212,10 +215,12 @@ static void _gfx_property_set_vector(
 		GLuint        program,
 		GLuint        location,
 		void*         data,
-		unsigned int  base)
+		unsigned int  base,
+		GFX_Window*   window)
 {
 	struct GFX_Value* val = (struct GFX_Value*)data;
-	_gfx_property_set_vector_val(location, val, val + 1, val->count);
+	_gfx_property_set_vector_val(
+		location, val, val + 1, val->count, &window->renderer);
 }
 
 /******************************************************/
@@ -224,7 +229,8 @@ static void _gfx_property_set_vector_ptr(
 		GLuint        program,
 		GLuint        location,
 		void*         data,
-		unsigned int  base)
+		unsigned int  base,
+		GFX_Window*   window)
 {
 	struct GFX_ValuePtr* val = (struct GFX_ValuePtr*)data;
 
@@ -236,7 +242,8 @@ static void _gfx_property_set_vector_ptr(
 		location,
 		&val->val,
 		GFX_PTR_ADD_BYTES(val->ptr, base * val->byteOffset),
-		(elements > val->val.count) ? val->val.count : elements
+		(elements > val->val.count) ? val->val.count : elements,
+		&window->renderer
 	);
 }
 
@@ -246,15 +253,16 @@ static inline void _gfx_property_set_matrix_val(
 		GLuint             location,
 		struct GFX_Value*  val,
 		const void*        data,
-		size_t             elements)
+		size_t             elements,
+		GFX_Renderer*      rend)
 {
 	switch(val->type)
 	{
 		case GFX_FLOAT : switch(val->components)
 		{
-			case 4  : (GFX_RND).UniformMatrix2fv(location, elements, GL_FALSE, data); break;
-			case 9  : (GFX_RND).UniformMatrix3fv(location, elements, GL_FALSE, data); break;
-			case 16 : (GFX_RND).UniformMatrix4fv(location, elements, GL_FALSE, data); break;
+			case 4  : rend->UniformMatrix2fv(location, elements, GL_FALSE, data); break;
+			case 9  : rend->UniformMatrix3fv(location, elements, GL_FALSE, data); break;
+			case 16 : rend->UniformMatrix4fv(location, elements, GL_FALSE, data); break;
 		}
 		break;
 
@@ -269,10 +277,12 @@ static void _gfx_property_set_matrix(
 		GLuint        program,
 		GLuint        location,
 		void*         data,
-		unsigned int  base)
+		unsigned int  base,
+		GFX_Window*   window)
 {
 	struct GFX_Value* val = (struct GFX_Value*)data;
-	_gfx_property_set_matrix_val(location, val, val + 1, val->count);
+	_gfx_property_set_matrix_val(
+		location, val, val + 1, val->count, &window->renderer);
 }
 
 /******************************************************/
@@ -281,7 +291,8 @@ static void _gfx_property_set_matrix_ptr(
 		GLuint        program,
 		GLuint        location,
 		void*         data,
-		unsigned int  base)
+		unsigned int  base,
+		GFX_Window*   window)
 {
 	struct GFX_ValuePtr* val = (struct GFX_ValuePtr*)data;
 
@@ -293,7 +304,8 @@ static void _gfx_property_set_matrix_ptr(
 		location,
 		&val->val,
 		GFX_PTR_ADD_BYTES(val->ptr, base * val->byteOffset),
-		(elements > val->val.count) ? val->val.count : elements
+		(elements > val->val.count) ? val->val.count : elements,
+		&window->renderer
 	);
 }
 
@@ -303,7 +315,8 @@ static void _gfx_property_set_sampler(
 		GLuint        program,
 		GLuint        location,
 		void*         data,
-		unsigned int  base)
+		unsigned int  base,
+		GFX_Window*   window)
 {
 	struct GFX_Sampler* samp = (struct GFX_Sampler*)data;
 
@@ -312,9 +325,13 @@ static void _gfx_property_set_sampler(
 		samp->texture,
 		samp->target,
 		1,
-		&old
-	);
-	if(!old) (GFX_RND).Uniform1iv(location, 1, &unit);
+		&old,
+		window);
+
+	if(!old) window->renderer.Uniform1iv(
+		location,
+		1,
+		&unit);
 }
 
 /******************************************************/
@@ -323,7 +340,8 @@ static void _gfx_property_set_block(
 		GLuint        program,
 		GLuint        location,
 		void*         data,
-		unsigned int  base)
+		unsigned int  base,
+		GFX_Window*   window)
 {
 	struct GFX_Block* block = (struct GFX_Block*)data;
 
@@ -333,9 +351,13 @@ static void _gfx_property_set_block(
 		block->offset,
 		block->size,
 		1,
-		&old
-	);
-	if(!old) (GFX_RND).UniformBlockBinding(program, location, index);
+		&old,
+		window);
+
+	if(!old) window->renderer.UniformBlockBinding(
+		program,
+		location,
+		index);
 }
 
 /******************************************************/
@@ -344,7 +366,8 @@ static void _gfx_property_set(
 		struct GFX_Map*       map,
 		struct GFX_Property*  prop,
 		unsigned int          copy,
-		unsigned int          base)
+		unsigned int          base,
+		GFX_Window*           window)
 {
 	/* Jump table */
 	static const GFX_PropertyFunc jump[] =
@@ -366,7 +389,8 @@ static void _gfx_property_set(
 		map->handle,
 		prop->location,
 		data,
-		base
+		base,
+		window
 	);
 }
 
@@ -375,15 +399,16 @@ void _gfx_property_map_use(
 
 		GFXPropertyMap*  map,
 		unsigned int     copy,
-		unsigned int     base)
+		unsigned int     base,
+		GFX_Window*      window)
 {
 	struct GFX_Map* internal = (struct GFX_Map*)map;
 
 	/* Prevent binding it twice */
-	if((GFX_RND).program != internal->handle)
+	if(window->renderer.program != internal->handle)
 	{
-		(GFX_RND).program = internal->handle;
-		(GFX_RND).UseProgram(internal->handle);
+		window->renderer.program = internal->handle;
+		window->renderer.UseProgram(internal->handle);
 	}
 
 	/* Clamp copy */
@@ -394,7 +419,7 @@ void _gfx_property_map_use(
 	unsigned char properties = map->properties;
 
 	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
-		_gfx_property_set(internal, prop, copy, base);
+		_gfx_property_set(internal, prop, copy, base, window);
 }
 
 /******************************************************/
@@ -413,7 +438,8 @@ static int _gfx_property_enable(
 
 		struct GFX_Map*        map,
 		struct GFX_Property*   prop,
-		size_t                 size)
+		size_t                 size,
+		GFX_Window*            window)
 {
 	/* Nothing to enable */
 	if(prop->type == GFX_INT_PROPERTY_UNKNOWN || !size) return 0;
@@ -434,13 +460,13 @@ static int _gfx_property_enable(
 		if(type == GFX_INT_PROPERTY_SAMPLER)
 		{
 			sampDiff = 1;
-			if(map->samplers + sampDiff > (GFX_WND)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES])
+			if(map->samplers + sampDiff > window->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES])
 				return 0;
 		}
 		else if(type == GFX_INT_PROPERTY_BLOCK)
 		{
 			blockDiff = 1;
-			if(map->blocks + blockDiff > (GFX_WND)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES])
+			if(map->blocks + blockDiff > window->limits[GFX_LIM_MAX_BUFFER_PROPERTIES])
 				return 0;
 		}
 
@@ -742,7 +768,8 @@ static int _gfx_property_map_forward(
 		GLuint                location,
 		void*                 initData,
 		size_t                initSize,
-		size_t                dataSize)
+		size_t                dataSize,
+		GFX_Window*           window)
 {
 	/* Disable previous property with equal location */
 	struct GFX_Property* it;
@@ -763,7 +790,7 @@ static int _gfx_property_map_forward(
 	prop->location = location;
 
 	/* Try to enable it */
-	if(!_gfx_property_enable(map, prop, dataSize))
+	if(!_gfx_property_enable(map, prop, dataSize, window))
 	{
 		_gfx_property_disable(map, prop);
 		return 0;
@@ -795,6 +822,8 @@ int gfx_property_map_forward(
 		int              ptr,
 		unsigned short   property)
 {
+	GFX_Window* window = _gfx_window_get_current();
+
 	struct GFX_Map* internal =
 		(struct GFX_Map*)map;
 	struct GFX_Property* forward =
@@ -806,7 +835,7 @@ int gfx_property_map_forward(
 	const GFXProperty* prop =
 		gfx_program_get_property(map->program, property);
 
-	if(!GFX_WND || !forward || location < 0 || !prop)
+	if(!window || !forward || location < 0 || !prop)
 		return 0;
 	if(!prop->components || !prop->count)
 		return 0;
@@ -902,7 +931,8 @@ int gfx_property_map_forward(
 		location,
 		init,
 		initSize,
-		size
+		size,
+		window
 	);
 }
 
@@ -941,19 +971,19 @@ int gfx_property_map_forward_block(
 		int              copies,
 		unsigned short   block)
 {
+	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Map* internal = (struct GFX_Map*)map;
-	struct GFX_Property* forward = _gfx_property_map_get_at(
-		internal,
-		index
-	);
 
 	/* Get block */
+	struct GFX_Property* forward = _gfx_property_map_get_at(
+		internal,
+		index);
+
 	const GFXPropertyBlock* bl = gfx_program_get_property_block(
 		map->program,
-		block
-	);
+		block);
 
-	if(!GFX_WND || !forward || !bl) return 0;
+	if(!window || !forward || !bl) return 0;
 	if(!bl->numProperties || !bl->properties) return 0;
 
 	/* Forward property */
@@ -969,7 +999,8 @@ int gfx_property_map_forward_block(
 		block,
 		&init,
 		sizeof(struct GFX_Block),
-		sizeof(struct GFX_Block)
+		sizeof(struct GFX_Block),
+		window
 	);
 }
 

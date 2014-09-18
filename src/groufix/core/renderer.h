@@ -36,11 +36,6 @@
 	#error "Renderer not supported"
 #endif
 
-
-/* Access to window and renderer */
-#define GFX_WND (_gfx_window_current)
-#define GFX_RND (_gfx_window_current->renderer)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -70,20 +65,6 @@ typedef struct GFX_Window
 
 
 /**
- * The current window.
- */
-extern GFX_Window* _gfx_window_current;
-
-
-/**
- * Loads the renderer of the current window and sets flags and limits.
- *
- * Note: this method assumes the context version of the window is set.
- *
- */
-void _gfx_renderer_load(void);
-
-/**
  * Returns the top level window associated with a platform window.
  *
  */
@@ -103,9 +84,8 @@ void _gfx_window_destroy(
 		GFX_Window* window);
 
 /**
- * Sets the window as the current render target.
+ * Sets the window as the current context of the calling thread.
  *
- * It will ignore NULL as argument.
  * Note: This SHOULD NOT be called unless you know damn well what you're doing.
  *
  */
@@ -114,12 +94,28 @@ void _gfx_window_make_current(
 		GFX_Window* window);
 
 /**
+ * Returns the window as current context of the calling thread.
+ *
+ * @return The current window, can be NULL.
+ *
+ */
+GFX_Window* _gfx_window_get_current(void);
+
+/**
  * Swaps the internal buffers of the current window.
  *
  * Also polls errors of the context if error mode is debug.
  *
  */
 void _gfx_window_swap_buffers(void);
+
+/**
+ * Loads the renderer of the current window and sets flags and limits.
+ *
+ * Note: this method assumes the context version of the window is set.
+ *
+ */
+void _gfx_renderer_load(void);
 
 
 /********************************************************

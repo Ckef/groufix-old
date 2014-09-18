@@ -46,7 +46,8 @@ void _gfx_property_map_use(
 
 		GFXPropertyMap*  map,
 		unsigned int     copy,
-		unsigned int     base);
+		unsigned int     base,
+		GFX_Window*      window);
 
 /**
  * Get the location of a property (a.k.a uniform).
@@ -78,7 +79,8 @@ size_t _gfx_binder_bind_uniform_buffer(
 		GLintptr         offset,
 		GLsizeiptr       size,
 		int              prioritize,
-		int*             old);
+		int*             old,
+		GFX_Window*      window);
 
 /**
  * Makes sure a buffer is unbound from any uniform buffer index.
@@ -86,7 +88,8 @@ size_t _gfx_binder_bind_uniform_buffer(
  */
 void _gfx_binder_unbind_uniform_buffer(
 
-		GLuint buffer);
+		GLuint       buffer,
+		GFX_Window*  window);
 
 /**
  * Binds a texture to the appropriate unit.
@@ -102,7 +105,8 @@ size_t _gfx_binder_bind_texture(
 		GLuint           texture,
 		GLenum           target,
 		int              prioritize,
-		int*             old);
+		int*             old,
+		GFX_Window*      window);
 
 /**
  * Makes sure a texture is unbound from any unit.
@@ -110,7 +114,8 @@ size_t _gfx_binder_bind_texture(
  */
 void _gfx_binder_unbind_texture(
 
-		GLuint texture);
+		GLuint       texture,
+		GFX_Window*  window);
 
 
 #ifdef __cplusplus

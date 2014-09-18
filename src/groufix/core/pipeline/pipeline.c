@@ -65,34 +65,35 @@ struct GFX_Pipeline
 /******************************************************/
 void _gfx_pipeline_bind(
 
-		GLenum  target,
-		GLuint  framebuffer)
+		GLenum         target,
+		GLuint         framebuffer,
+		GFX_Renderer*  rend)
 {
 	switch(target)
 	{
 		/* Bind as both read and draw fbo */
 		case GL_FRAMEBUFFER :
-			if((GFX_RND).fbos[0] != framebuffer && (GFX_RND).fbos[1] != framebuffer)
-				(GFX_RND).BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+			if(rend->fbos[0] != framebuffer && rend->fbos[1] != framebuffer)
+				rend->BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-			(GFX_RND).fbos[0] = framebuffer;
-			(GFX_RND).fbos[1] = framebuffer;
+			rend->fbos[0] = framebuffer;
+			rend->fbos[1] = framebuffer;
 			break;
 
 		/* Bind as draw fbo */
 		case GL_DRAW_FRAMEBUFFER :
-			if((GFX_RND).fbos[0] != framebuffer)
-				(GFX_RND).BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+			if(rend->fbos[0] != framebuffer)
+				rend->BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
 
-			(GFX_RND).fbos[0] = framebuffer;
+			rend->fbos[0] = framebuffer;
 			break;
 
 		/* Bind as read fbo */
 		case GL_READ_FRAMEBUFFER :
-			if((GFX_RND).fbos[1] != framebuffer)
-				(GFX_RND).BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+			if(rend->fbos[1] != framebuffer)
+				rend->BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
 
-			(GFX_RND).fbos[1] = framebuffer;
+			rend->fbos[1] = framebuffer;
 			break;
 	}
 }
@@ -132,13 +133,14 @@ static GFXVectorIterator _gfx_pipeline_find_attachment(
 static void _gfx_pipeline_init_attachment(
 
 		GLuint                  fbo,
-		struct GFX_Attachment*  attach)
+		struct GFX_Attachment*  attach,
+		GFX_Renderer*           rend)
 {
 	/* Check texture handle */
 	switch(attach->target)
 	{
 		case GL_TEXTURE_BUFFER :
-			(GFX_RND).NamedFramebufferTexture(
+			rend->NamedFramebufferTexture(
 				fbo,
 				attach->attachment,
 				attach->texture,
@@ -147,7 +149,7 @@ static void _gfx_pipeline_init_attachment(
 			break;
 
 		case GL_TEXTURE_1D :
-			(GFX_RND).NamedFramebufferTexture1D(
+			rend->NamedFramebufferTexture1D(
 				fbo,
 				attach->attachment,
 				GL_TEXTURE_1D,
@@ -157,7 +159,7 @@ static void _gfx_pipeline_init_attachment(
 			break;
 
 		case GL_TEXTURE_2D :
-			(GFX_RND).NamedFramebufferTexture2D(
+			rend->NamedFramebufferTexture2D(
 				fbo,
 				attach->attachment,
 				GL_TEXTURE_2D,
@@ -167,7 +169,7 @@ static void _gfx_pipeline_init_attachment(
 			break;
 
 		case GL_TEXTURE_2D_MULTISAMPLE :
-			(GFX_RND).NamedFramebufferTexture2D(
+			rend->NamedFramebufferTexture2D(
 				fbo,
 				attach->attachment,
 				GL_TEXTURE_2D_MULTISAMPLE,
@@ -177,7 +179,7 @@ static void _gfx_pipeline_init_attachment(
 			break;
 
 		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
-			(GFX_RND).NamedFramebufferTextureLayer(
+			rend->NamedFramebufferTextureLayer(
 				fbo,
 				attach->attachment,
 				attach->texture,
@@ -191,7 +193,7 @@ static void _gfx_pipeline_init_attachment(
 		case GL_TEXTURE_2D_ARRAY :
 		case GL_TEXTURE_CUBE_MAP :
 		case GL_TEXTURE_CUBE_MAP_ARRAY :
-			(GFX_RND).NamedFramebufferTextureLayer(
+			rend->NamedFramebufferTextureLayer(
 				fbo,
 				attach->attachment,
 				attach->texture,
@@ -249,10 +251,11 @@ static void _gfx_pipeline_obj_save(
 
 		void* object)
 {
+	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
 	/* Don't clear the attachments vector or target array */
-	(GFX_RND).DeleteFramebuffers(1, &pipeline->fbo);
+	window->renderer.DeleteFramebuffers(1, &pipeline->fbo);
 	pipeline->fbo = 0;
 }
 
@@ -261,10 +264,11 @@ static void _gfx_pipeline_obj_restore(
 
 		void* object)
 {
+	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
 	/* Create FBO */
-	(GFX_RND).CreateFramebuffers(1, &pipeline->fbo);
+	window->renderer.CreateFramebuffers(1, &pipeline->fbo);
 
 	/* Restore attachments */
 	GFXVectorIterator it = pipeline->attachments.begin;
@@ -272,14 +276,15 @@ static void _gfx_pipeline_obj_restore(
 	{
 		_gfx_pipeline_init_attachment(
 			pipeline->fbo,
-			(struct GFX_Attachment*)it
+			(struct GFX_Attachment*)it,
+			&window->renderer
 		);
 		it = gfx_vector_next(&pipeline->attachments, it);
 	}
 
 	/* Restore targets */
 	if(pipeline->numTargets)
-		(GFX_RND).NamedFramebufferDrawBuffers(
+		window->renderer.NamedFramebufferDrawBuffers(
 			pipeline->fbo,
 			pipeline->numTargets,
 			pipeline->targets
@@ -306,7 +311,8 @@ GLuint _gfx_pipeline_get_handle(
 /******************************************************/
 GFXPipeline* gfx_pipeline_create(void)
 {
-	if(!GFX_WND) return NULL;
+	GFX_Window* window = _gfx_window_get_current();
+	if(!window) return NULL;
 
 	/* Create new pipeline */
 	struct GFX_Pipeline* pl = calloc(1, sizeof(struct GFX_Pipeline));
@@ -333,7 +339,7 @@ GFXPipeline* gfx_pipeline_create(void)
 	}
 
 	/* Create OpenGL resources */
-	(GFX_RND).CreateFramebuffers(1, &pl->fbo);
+	window->renderer.CreateFramebuffers(1, &pl->fbo);
 
 	pl->x      = 0;
 	pl->y      = 0;
@@ -352,20 +358,21 @@ void gfx_pipeline_free(
 {
 	if(pipeline)
 	{
+		GFX_Window* window = _gfx_window_get_current();
 		struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 
 		/* Unregister as object */
 		_gfx_hardware_object_unregister(pipeline->id);
 
 		/* Delete FBO */
-		if(GFX_WND)
+		if(window)
 		{
-			if((GFX_RND).fbos[0] == internal->fbo)
-				(GFX_RND).fbos[0] = 0;
-			if((GFX_RND).fbos[1] == internal->fbo)
-				(GFX_RND).fbos[1] = 0;
+			if(window->renderer.fbos[0] == internal->fbo)
+				window->renderer.fbos[0] = 0;
+			if(window->renderer.fbos[1] == internal->fbo)
+				window->renderer.fbos[1] = 0;
 
-			(GFX_RND).DeleteFramebuffers(1, &internal->fbo);
+			window->renderer.DeleteFramebuffers(1, &internal->fbo);
 		}
 
 		/* Free all pipes */
@@ -406,12 +413,14 @@ unsigned int gfx_pipeline_target(
 		unsigned int  num,
 		const char*   indices)
 {
-	if(!num || !GFX_WND) return 0;
+	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 
+	if(!num || !window) return 0;
+
 	/* Limit number of targets */
-	num = (num > (GFX_WND)->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
-		(GFX_WND)->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
+	num = (num > window->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
+		window->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
 
 	/* Construct attachment buffer */
 	GLenum* targets = malloc(sizeof(GLenum) * num);
@@ -430,7 +439,7 @@ unsigned int gfx_pipeline_target(
 	internal->numTargets = num;
 
 	unsigned int i;
-	int max = (GFX_WND)->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
+	int max = window->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
 
 	for(i = 0; i < num; ++i)
 	{
@@ -439,7 +448,7 @@ unsigned int gfx_pipeline_target(
 	}
 
 	/* Pass to OGL */
-	(GFX_RND).NamedFramebufferDrawBuffers(
+	window->renderer.NamedFramebufferDrawBuffers(
 		internal->fbo,
 		num,
 		internal->targets
@@ -456,12 +465,14 @@ int gfx_pipeline_attach(
 		GFXPipelineAttachment  attach,
 		unsigned char          index)
 {
-	if(!GFX_WND) return 0;
+	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
+
+	if(!window) return 0;
 
 	/* Check attachment limit */
 	if(attach != GFX_COLOR_ATTACHMENT) index = 0;
-	else if(index >= (GFX_WND)->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS])
+	else if(index >= window->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS])
 		return 0;
 
 	/* Init attachment */
@@ -503,7 +514,11 @@ int gfx_pipeline_attach(
 	else *((struct GFX_Attachment*)it) = att;
 
 	/* Send attachment to OGL */
-	_gfx_pipeline_init_attachment(internal->fbo, &att);
+	_gfx_pipeline_init_attachment(
+		internal->fbo,
+		&att,
+		&window->renderer
+	);
 
 	return 1;
 }
@@ -774,11 +789,17 @@ void gfx_pipeline_execute(
 		GFXPipeline*  pipeline,
 		size_t        num)
 {
-	if(!GFX_WND) return;
+	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 
+	if(!window) return;
+
 	/* Bind as framebuffer */
-	_gfx_pipeline_bind(GL_DRAW_FRAMEBUFFER, internal->fbo);
+	_gfx_pipeline_bind(
+		GL_DRAW_FRAMEBUFFER,
+		internal->fbo,
+		&window->renderer
+	);
 
 	/* Iterate over all pipes */
 	int nolimit = !num;
@@ -792,7 +813,8 @@ void gfx_pipeline_execute(
 			internal->x,
 			internal->y,
 			internal->width,
-			internal->height
+			internal->height,
+			&window->renderer
 		);
 
 		/* Process pipe */
@@ -801,14 +823,16 @@ void gfx_pipeline_execute(
 			case GFX_PIPE_BUCKET :
 				_gfx_bucket_process(
 					pipe->ptr.bucket,
-					&pipe->state
+					&pipe->state,
+					window
 				);
 				break;
 
 			case GFX_PIPE_PROCESS :
 				_gfx_pipe_process_execute(
 					pipe->ptr.process,
-					&pipe->state
+					&pipe->state,
+					window
 				);
 				break;
 		}

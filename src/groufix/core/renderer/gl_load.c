@@ -31,13 +31,14 @@
 /******************************************************/
 static int _gfx_is_extension_supported(
 
-		const char* ext)
+		const char*  ext,
+		GFX_Window*  window)
 {
 	GLint num;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &num);
 
 	while(num) if(!strcmp(
-		(const char*)(GFX_RND).GetStringi(GL_EXTENSIONS, --num),
+		(const char*)window->renderer.GetStringi(GL_EXTENSIONS, --num),
 		(const char*)ext))
 	{
 		return 1;
@@ -49,216 +50,217 @@ static int _gfx_is_extension_supported(
 /******************************************************/
 void _gfx_renderer_load(void)
 {
-	/* Get current (GFX_WND) and context */
-	if(!GFX_WND) return;
+	/* Get current window and context */
+	GFX_Window* window = _gfx_window_get_current();
+	if(!window) return;
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	GLint limit;
 
 	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES] = limit;
+		window->limits[GFX_LIM_MAX_BUFFER_PROPERTIES] = limit;
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS] = limit;
+		window->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS] = limit;
 	glGetIntegerv(GL_MAX_DRAW_BUFFERS, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_COLOR_TARGETS] = limit;
+		window->limits[GFX_LIM_MAX_COLOR_TARGETS] = limit;
 	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_CUBEMAP_SIZE] = limit;
+		window->limits[GFX_LIM_MAX_CUBEMAP_SIZE] = limit;
 	glGetIntegerv(GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS] = limit;
+		window->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS] = limit;
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES] = limit;
+		window->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES] = limit;
 	glGetIntegerv(GL_MAX_SAMPLES, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_SAMPLES] = limit;
+		window->limits[GFX_LIM_MAX_SAMPLES] = limit;
 	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE] = limit;
+		window->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE] = limit;
 	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_TEXTURE_LAYERS] = limit;
+		window->limits[GFX_LIM_MAX_TEXTURE_LAYERS] = limit;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_TEXTURE_SIZE] = limit;
+		window->limits[GFX_LIM_MAX_TEXTURE_SIZE] = limit;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_VERTEX_ATTRIBS] = limit;
+		window->limits[GFX_LIM_MAX_VERTEX_ATTRIBS] = limit;
 
 #if defined(GFX_GLES)
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	(GFX_WND)->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = 0;
-	(GFX_WND)->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
+	window->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = 0;
+	window->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
 
 	/* Default Extensions */
-	(GFX_WND)->flags[GFX_EXT_BUFFER_TEXTURE]              = 0;
-	(GFX_WND)->flags[GFX_EXT_DIRECT_STATE_ACCESS]         = 0;
-	(GFX_WND)->flags[GFX_EXT_GEOMETRY_SHADER]             = 0;
-	(GFX_WND)->flags[GFX_EXT_IMMUTABLE_TEXTURE]           = 1;
-	(GFX_WND)->flags[GFX_EXT_INSTANCED_ATTRIBUTES]        = 1;
-	(GFX_WND)->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES]   = 0;
-	(GFX_WND)->flags[GFX_EXT_LAYERED_CUBEMAP]             = 0;
-	(GFX_WND)->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 0;
-	(GFX_WND)->flags[GFX_EXT_POLYGON_STATE]               = 0;
-	(GFX_WND)->flags[GFX_EXT_PROGRAM_BINARY]              = 1;
-	(GFX_WND)->flags[GFX_EXT_SEAMLESS_CUBEMAP]            = 0;
-	(GFX_WND)->flags[GFX_EXT_TESSELLATION_SHADER]         = 0;
-	(GFX_WND)->flags[GFX_EXT_TEXTURE_1D]                  = 0;
+	window->flags[GFX_EXT_BUFFER_TEXTURE]              = 0;
+	window->flags[GFX_EXT_DIRECT_STATE_ACCESS]         = 0;
+	window->flags[GFX_EXT_GEOMETRY_SHADER]             = 0;
+	window->flags[GFX_EXT_IMMUTABLE_TEXTURE]           = 1;
+	window->flags[GFX_EXT_INSTANCED_ATTRIBUTES]        = 1;
+	window->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES]   = 0;
+	window->flags[GFX_EXT_LAYERED_CUBEMAP]             = 0;
+	window->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 0;
+	window->flags[GFX_EXT_POLYGON_STATE]               = 0;
+	window->flags[GFX_EXT_PROGRAM_BINARY]              = 1;
+	window->flags[GFX_EXT_SEAMLESS_CUBEMAP]            = 0;
+	window->flags[GFX_EXT_TESSELLATION_SHADER]         = 0;
+	window->flags[GFX_EXT_TEXTURE_1D]                  = 0;
 
 	/* GLES, assumes 3.0+ */
-	(GFX_RND).ActiveTexture                     = glActiveTexture;
-	(GFX_RND).AttachShader                      = glAttachShader;
-	(GFX_RND).BeginTransformFeedback            = glBeginTransformFeedback;
-	(GFX_RND).BindAttribLocation                = glBindAttribLocation;
-	(GFX_RND).BindBuffer                        = glBindBuffer;
-	(GFX_RND).BindBufferRange                   = glBindBufferRange;
-	(GFX_RND).BindFramebuffer                   = glBindFramebuffer;
-	(GFX_RND).BindTexture                       = glBindTexture;
-	(GFX_RND).BindTextureUnit                   = glBindTextureUnit;
-	(GFX_RND).BindVertexArray                   = glBindVertexArray;
-	(GFX_RND).BlendEquationSeparate             = glBlendEquationSeparate;
-	(GFX_RND).BlendFuncSeparate                 = glBlendFuncSeparate;
-	(GFX_RND).BufferData                        = glBufferData;
-	(GFX_RND).BufferSubData                     = glBufferSubData;
-	(GFX_RND).Clear                             = glClear;
-	(GFX_RND).CompileShader                     = glCompileShader;
-	(GFX_RND).CopyBufferSubData                 = glCopyBufferSubData;
-	(GFX_RND).CopyNamedBufferSubData            = _gfx_gl_copy_named_buffer_sub_data;
-	(GFX_RND).CreateBuffers                     = _gfx_gl_create_buffers;
-	(GFX_RND).CreateFramebuffers                = _gfx_gl_create_framebuffers;
-	(GFX_RND).CreateProgram                     = glCreateProgram;
-	(GFX_RND).CreateShader                      = glCreateShader;
-	(GFX_RND).CreateTextures                    = _gfx_gl_create_textures;
-	(GFX_RND).CreateVertexArrays                = _gfx_gl_create_vertex_arrays;
-	(GFX_RND).CullFace                          = glCullFace;
-	(GFX_RND).DeleteBuffers                     = glDeleteBuffers;
-	(GFX_RND).DeleteFramebuffers                = glDeleteFramebuffers;
-	(GFX_RND).DeleteProgram                     = glDeleteProgram;
-	(GFX_RND).DeleteShader                      = glDeleteShader;
-	(GFX_RND).DeleteTextures                    = glDeleteTextures;
-	(GFX_RND).DeleteVertexArrays                = glDeleteVertexArrays;
-	(GFX_RND).DepthFunc                         = glDepthFunc;
-	(GFX_RND).DepthMask                         = glDepthMask;
-	(GFX_RND).DetachShader                      = glDetachShader;
-	(GFX_RND).Disable                           = glDisable;
-	(GFX_RND).DisableVertexArrayAttrib          = _gfx_gl_disable_vertex_array_attrib;
-	(GFX_RND).DisableVertexAttribArray          = glDisableVertexAttribArray;
-	(GFX_RND).DrawArrays                        = glDrawArrays;
-	(GFX_RND).DrawArraysInstanced               = glDrawArraysInstanced;
-	(GFX_RND).DrawArraysInstancedBaseInstance   = _gfx_gl_draw_arrays_instanced_base_instance;
-	(GFX_RND).DrawBuffers                       = glDrawBuffers;
-	(GFX_RND).DrawElements                      = glDrawElements;
-	(GFX_RND).DrawElementsInstanced             = glDrawElementsInstanced;
-	(GFX_RND).DrawElementsInstancedBaseInstance = _gfx_gl_draw_elements_instanced_base_instance;
-	(GFX_RND).Enable                            = glEnable;
-	(GFX_RND).EnableVertexArrayAttrib           = _gfx_gl_enable_vertex_array_attrib;
-	(GFX_RND).EnableVertexAttribArray           = glEnableVertexAttribArray;
-	(GFX_RND).EndTransformFeedback              = glEndTransformFeedback;
-	(GFX_RND).FramebufferTexture                = _gfx_gles_framebuffer_texture;
-	(GFX_RND).FramebufferTexture1D              = _gfx_gles_framebuffer_texture_1d;
-	(GFX_RND).FramebufferTexture2D              = glFramebufferTexture2D;
-	(GFX_RND).FramebufferTextureLayer           = glFramebufferTextureLayer;
-	(GFX_RND).GenBuffers                        = glGenBuffers;
-	(GFX_RND).GenerateMipmap                    = glGenerateMipmap;
-	(GFX_RND).GenerateTextureMipmap             = glGenerateTextureMipmap;
-	(GFX_RND).GenFramebuffers                   = glGenFramebuffers;
-	(GFX_RND).GenTextures                       = glGenTextures;
-	(GFX_RND).GenVertexArrays                   = glGenVertexArrays;
-	(GFX_RND).GetActiveUniform                  = glGetActiveUniform;
-	(GFX_RND).GetActiveUniformBlockiv           = glGetActiveUniformBlockiv;
-	(GFX_RND).GetActiveUniformsiv               = glGetActiveUniformsiv;
-	(GFX_RND).GetBufferSubData                  = _gfx_gles_get_buffer_sub_data;
-	(GFX_RND).GetError                          = glGetError;
-	(GFX_RND).GetNamedBufferSubData             = _gfx_gl_get_named_buffer_sub_data;
-	(GFX_RND).GetProgramBinary                  = glGetProgramBinary;
-	(GFX_RND).GetProgramInfoLog                 = glGetProgramInfoLog;
-	(GFX_RND).GetProgramiv                      = glGetProgramiv;
-	(GFX_RND).GetShaderInfoLog                  = glGetShaderInfoLog;
-	(GFX_RND).GetShaderiv                       = glGetShaderiv;
-	(GFX_RND).GetShaderSource                   = glGetShaderSource;
-	(GFX_RND).GetStringi                        = glGetStringi;
-	(GFX_RND).GetUniformBlockIndex              = glGetUniformBlockIndex;
-	(GFX_RND).GetUniformIndices                 = glGetUniformIndices;
-	(GFX_RND).GetUniformLocation                = glGetUniformLocation;
-	(GFX_RND).LinkProgram                       = glLinkProgram;
-	(GFX_RND).MapBufferRange                    = glMapBufferRange;
-	(GFX_RND).MapNamedBufferRange               = glMapNamedBufferRange;
-	(GFX_RND).NamedBufferData                   = _gfx_gl_named_buffer_data;
-	(GFX_RND).NamedBufferSubData                = _gfx_gl_named_buffer_sub_data;
-	(GFX_RND).NamedFramebufferDrawBuffers       = _gfx_gl_named_framebuffer_draw_buffers;
-	(GFX_RND).NamedFramebufferTexture           = _gfx_gl_named_framebuffer_texture;
-	(GFX_RND).NamedFramebufferTexture1D         = _gfx_gles_named_framebuffer_texture_1d;
-	(GFX_RND).NamedFramebufferTexture2D         = _gfx_gles_named_framebuffer_texture_2d;
-	(GFX_RND).NamedFramebufferTextureLayer      = _gfx_gl_named_framebuffer_texture_layer;
-	(GFX_RND).PatchParameteri                   = _gfx_gl_patch_parameter_i;
-	(GFX_RND).PixelStorei                       = glPixelStorei;
-	(GFX_RND).PolygonMode                       = _gfx_gles_polygon_mode;
-	(GFX_RND).ProgramBinary                     = glProgramBinary;
-	(GFX_RND).ProgramParameteri                 = glProgramParameteri;
-	(GFX_RND).ShaderSource                      = glShaderSource;
-	(GFX_RND).StencilFuncSeparate               = glStencilFuncSeparate;
-	(GFX_RND).StencilOpSeparate                 = glStencilOpSeparate;
-	(GFX_RND).TexBuffer                         = _gfx_gles_tex_buffer;
-	(GFX_RND).TexImage1D                        = _gfx_gles_tex_image_1d;
-	(GFX_RND).TexImage2D                        = glTexImage2D;
-	(GFX_RND).TexImage2DMultisample             = _gfx_gles_tex_image_2d_multisample;
-	(GFX_RND).TexImage3D                        = glTexImage3D;
-	(GFX_RND).TexImage3DMultisample             = _gfx_gles_tex_image_3d_multisample;
-	(GFX_RND).TexParameteri                     = glTexParameteri;
-	(GFX_RND).TexStorage1D                      = _gfx_gles_tex_storage_1d;
-	(GFX_RND).TexStorage2D                      = glTexStorage2D;
-	(GFX_RND).TexStorage3D                      = glTexStorage3D;
-	(GFX_RND).TexStorage3DMultisample           = _gfx_gles_tex_storage_3d_multisample;
-	(GFX_RND).TexSubImage1D                     = _gfx_gles_tex_sub_image_1d;
-	(GFX_RND).TexSubImage2D                     = glTexSubImage2D;
-	(GFX_RND).TexSubImage3D                     = glTexSubImage3D;
-	(GFX_RND).TextureBuffer                     = _gfx_gl_texture_buffer;
-	(GFX_RND).TextureParameteri                 = _gfx_gl_texture_parameter_i;
-	(GFX_RND).TextureStorage1D                  = _gfx_gl_texture_storage_1d;
-	(GFX_RND).TextureStorage2D                  = _gfx_gl_texture_storage_2d;
-	(GFX_RND).TextureStorage2DMultisample       = _gfx_gl_texture_storage_2d_multisample;
-	(GFX_RND).TextureStorage3D                  = _gfx_gl_texture_storage_3d;
-	(GFX_RND).TextureStorage3DMultisample       = _gfx_gl_texture_storage_3d_multisample;
-	(GFX_RND).TextureSubImage1D                 = _gfx_gl_texture_sub_image_1d;
-	(GFX_RND).TextureSubImage2D                 = _gfx_gl_texture_sub_image_2d;
-	(GFX_RND).TextureSubImage3D                 = _gfx_gl_texture_sub_image_3d;
-	(GFX_RND).TransformFeedbackVaryings         = glTransformFeedbackVaryings;
-	(GFX_RND).Uniform1fv                        = glUniform1fv;
-	(GFX_RND).Uniform1iv                        = glUniform1iv;
-	(GFX_RND).Uniform1uiv                       = glUniform1uiv;
-	(GFX_RND).Uniform2fv                        = glUniform2fv;
-	(GFX_RND).Uniform2iv                        = glUniform2iv;
-	(GFX_RND).Uniform2uiv                       = glUniform2uiv;
-	(GFX_RND).Uniform3fv                        = glUniform3fv;
-	(GFX_RND).Uniform3iv                        = glUniform3iv;
-	(GFX_RND).Uniform3uiv                       = glUniform3uiv;
-	(GFX_RND).Uniform4fv                        = glUniform4fv;
-	(GFX_RND).Uniform4iv                        = glUniform4iv;
-	(GFX_RND).Uniform4uiv                       = glUniform4uiv;
-	(GFX_RND).UniformBlockBinding               = glUniformBlockBinding;
-	(GFX_RND).UniformMatrix2fv                  = glUniformMatrix2fv;
-	(GFX_RND).UniformMatrix3fv                  = glUniformMatrix3fv;
-	(GFX_RND).UniformMatrix4fv                  = glUniformMatrix4fv;
-	(GFX_RND).UnmapBuffer                       = glUnmapBuffer;
-	(GFX_RND).UnmapNamedBuffer                  = _gfx_gl_unmap_named_buffer;
-	(GFX_RND).UseProgram                        = glUseProgram;
-	(GFX_RND).VertexAttribDivisor               = glVertexAttribDivisor;
-	(GFX_RND).VertexAttribIPointer              = glVertexAttribIPointer;
-	(GFX_RND).VertexAttribPointer               = glVertexAttribPointer;
-	(GFX_RND).Viewport                          = glViewport;
+	window->renderer.ActiveTexture                     = glActiveTexture;
+	window->renderer.AttachShader                      = glAttachShader;
+	window->renderer.BeginTransformFeedback            = glBeginTransformFeedback;
+	window->renderer.BindAttribLocation                = glBindAttribLocation;
+	window->renderer.BindBuffer                        = glBindBuffer;
+	window->renderer.BindBufferRange                   = glBindBufferRange;
+	window->renderer.BindFramebuffer                   = glBindFramebuffer;
+	window->renderer.BindTexture                       = glBindTexture;
+	window->renderer.BindTextureUnit                   = glBindTextureUnit;
+	window->renderer.BindVertexArray                   = glBindVertexArray;
+	window->renderer.BlendEquationSeparate             = glBlendEquationSeparate;
+	window->renderer.BlendFuncSeparate                 = glBlendFuncSeparate;
+	window->renderer.BufferData                        = glBufferData;
+	window->renderer.BufferSubData                     = glBufferSubData;
+	window->renderer.Clear                             = glClear;
+	window->renderer.CompileShader                     = glCompileShader;
+	window->renderer.CopyBufferSubData                 = glCopyBufferSubData;
+	window->renderer.CopyNamedBufferSubData            = _gfx_gl_copy_named_buffer_sub_data;
+	window->renderer.CreateBuffers                     = _gfx_gl_create_buffers;
+	window->renderer.CreateFramebuffers                = _gfx_gl_create_framebuffers;
+	window->renderer.CreateProgram                     = glCreateProgram;
+	window->renderer.CreateShader                      = glCreateShader;
+	window->renderer.CreateTextures                    = _gfx_gl_create_textures;
+	window->renderer.CreateVertexArrays                = _gfx_gl_create_vertex_arrays;
+	window->renderer.CullFace                          = glCullFace;
+	window->renderer.DeleteBuffers                     = glDeleteBuffers;
+	window->renderer.DeleteFramebuffers                = glDeleteFramebuffers;
+	window->renderer.DeleteProgram                     = glDeleteProgram;
+	window->renderer.DeleteShader                      = glDeleteShader;
+	window->renderer.DeleteTextures                    = glDeleteTextures;
+	window->renderer.DeleteVertexArrays                = glDeleteVertexArrays;
+	window->renderer.DepthFunc                         = glDepthFunc;
+	window->renderer.DepthMask                         = glDepthMask;
+	window->renderer.DetachShader                      = glDetachShader;
+	window->renderer.Disable                           = glDisable;
+	window->renderer.DisableVertexArrayAttrib          = _gfx_gl_disable_vertex_array_attrib;
+	window->renderer.DisableVertexAttribArray          = glDisableVertexAttribArray;
+	window->renderer.DrawArrays                        = glDrawArrays;
+	window->renderer.DrawArraysInstanced               = glDrawArraysInstanced;
+	window->renderer.DrawArraysInstancedBaseInstance   = _gfx_gl_draw_arrays_instanced_base_instance;
+	window->renderer.DrawBuffers                       = glDrawBuffers;
+	window->renderer.DrawElements                      = glDrawElements;
+	window->renderer.DrawElementsInstanced             = glDrawElementsInstanced;
+	window->renderer.DrawElementsInstancedBaseInstance = _gfx_gl_draw_elements_instanced_base_instance;
+	window->renderer.Enable                            = glEnable;
+	window->renderer.EnableVertexArrayAttrib           = _gfx_gl_enable_vertex_array_attrib;
+	window->renderer.EnableVertexAttribArray           = glEnableVertexAttribArray;
+	window->renderer.EndTransformFeedback              = glEndTransformFeedback;
+	window->renderer.FramebufferTexture                = _gfx_gles_framebuffer_texture;
+	window->renderer.FramebufferTexture1D              = _gfx_gles_framebuffer_texture_1d;
+	window->renderer.FramebufferTexture2D              = glFramebufferTexture2D;
+	window->renderer.FramebufferTextureLayer           = glFramebufferTextureLayer;
+	window->renderer.GenBuffers                        = glGenBuffers;
+	window->renderer.GenerateMipmap                    = glGenerateMipmap;
+	window->renderer.GenerateTextureMipmap             = glGenerateTextureMipmap;
+	window->renderer.GenFramebuffers                   = glGenFramebuffers;
+	window->renderer.GenTextures                       = glGenTextures;
+	window->renderer.GenVertexArrays                   = glGenVertexArrays;
+	window->renderer.GetActiveUniform                  = glGetActiveUniform;
+	window->renderer.GetActiveUniformBlockiv           = glGetActiveUniformBlockiv;
+	window->renderer.GetActiveUniformsiv               = glGetActiveUniformsiv;
+	window->renderer.GetBufferSubData                  = _gfx_gles_get_buffer_sub_data;
+	window->renderer.GetError                          = glGetError;
+	window->renderer.GetNamedBufferSubData             = _gfx_gl_get_named_buffer_sub_data;
+	window->renderer.GetProgramBinary                  = glGetProgramBinary;
+	window->renderer.GetProgramInfoLog                 = glGetProgramInfoLog;
+	window->renderer.GetProgramiv                      = glGetProgramiv;
+	window->renderer.GetShaderInfoLog                  = glGetShaderInfoLog;
+	window->renderer.GetShaderiv                       = glGetShaderiv;
+	window->renderer.GetShaderSource                   = glGetShaderSource;
+	window->renderer.GetStringi                        = glGetStringi;
+	window->renderer.GetUniformBlockIndex              = glGetUniformBlockIndex;
+	window->renderer.GetUniformIndices                 = glGetUniformIndices;
+	window->renderer.GetUniformLocation                = glGetUniformLocation;
+	window->renderer.LinkProgram                       = glLinkProgram;
+	window->renderer.MapBufferRange                    = glMapBufferRange;
+	window->renderer.MapNamedBufferRange               = glMapNamedBufferRange;
+	window->renderer.NamedBufferData                   = _gfx_gl_named_buffer_data;
+	window->renderer.NamedBufferSubData                = _gfx_gl_named_buffer_sub_data;
+	window->renderer.NamedFramebufferDrawBuffers       = _gfx_gl_named_framebuffer_draw_buffers;
+	window->renderer.NamedFramebufferTexture           = _gfx_gl_named_framebuffer_texture;
+	window->renderer.NamedFramebufferTexture1D         = _gfx_gles_named_framebuffer_texture_1d;
+	window->renderer.NamedFramebufferTexture2D         = _gfx_gles_named_framebuffer_texture_2d;
+	window->renderer.NamedFramebufferTextureLayer      = _gfx_gl_named_framebuffer_texture_layer;
+	window->renderer.PatchParameteri                   = _gfx_gl_patch_parameter_i;
+	window->renderer.PixelStorei                       = glPixelStorei;
+	window->renderer.PolygonMode                       = _gfx_gles_polygon_mode;
+	window->renderer.ProgramBinary                     = glProgramBinary;
+	window->renderer.ProgramParameteri                 = glProgramParameteri;
+	window->renderer.ShaderSource                      = glShaderSource;
+	window->renderer.StencilFuncSeparate               = glStencilFuncSeparate;
+	window->renderer.StencilOpSeparate                 = glStencilOpSeparate;
+	window->renderer.TexBuffer                         = _gfx_gles_tex_buffer;
+	window->renderer.TexImage1D                        = _gfx_gles_tex_image_1d;
+	window->renderer.TexImage2D                        = glTexImage2D;
+	window->renderer.TexImage2DMultisample             = _gfx_gles_tex_image_2d_multisample;
+	window->renderer.TexImage3D                        = glTexImage3D;
+	window->renderer.TexImage3DMultisample             = _gfx_gles_tex_image_3d_multisample;
+	window->renderer.TexParameteri                     = glTexParameteri;
+	window->renderer.TexStorage1D                      = _gfx_gles_tex_storage_1d;
+	window->renderer.TexStorage2D                      = glTexStorage2D;
+	window->renderer.TexStorage3D                      = glTexStorage3D;
+	window->renderer.TexStorage3DMultisample           = _gfx_gles_tex_storage_3d_multisample;
+	window->renderer.TexSubImage1D                     = _gfx_gles_tex_sub_image_1d;
+	window->renderer.TexSubImage2D                     = glTexSubImage2D;
+	window->renderer.TexSubImage3D                     = glTexSubImage3D;
+	window->renderer.TextureBuffer                     = _gfx_gl_texture_buffer;
+	window->renderer.TextureParameteri                 = _gfx_gl_texture_parameter_i;
+	window->renderer.TextureStorage1D                  = _gfx_gl_texture_storage_1d;
+	window->renderer.TextureStorage2D                  = _gfx_gl_texture_storage_2d;
+	window->renderer.TextureStorage2DMultisample       = _gfx_gl_texture_storage_2d_multisample;
+	window->renderer.TextureStorage3D                  = _gfx_gl_texture_storage_3d;
+	window->renderer.TextureStorage3DMultisample       = _gfx_gl_texture_storage_3d_multisample;
+	window->renderer.TextureSubImage1D                 = _gfx_gl_texture_sub_image_1d;
+	window->renderer.TextureSubImage2D                 = _gfx_gl_texture_sub_image_2d;
+	window->renderer.TextureSubImage3D                 = _gfx_gl_texture_sub_image_3d;
+	window->renderer.TransformFeedbackVaryings         = glTransformFeedbackVaryings;
+	window->renderer.Uniform1fv                        = glUniform1fv;
+	window->renderer.Uniform1iv                        = glUniform1iv;
+	window->renderer.Uniform1uiv                       = glUniform1uiv;
+	window->renderer.Uniform2fv                        = glUniform2fv;
+	window->renderer.Uniform2iv                        = glUniform2iv;
+	window->renderer.Uniform2uiv                       = glUniform2uiv;
+	window->renderer.Uniform3fv                        = glUniform3fv;
+	window->renderer.Uniform3iv                        = glUniform3iv;
+	window->renderer.Uniform3uiv                       = glUniform3uiv;
+	window->renderer.Uniform4fv                        = glUniform4fv;
+	window->renderer.Uniform4iv                        = glUniform4iv;
+	window->renderer.Uniform4uiv                       = glUniform4uiv;
+	window->renderer.UniformBlockBinding               = glUniformBlockBinding;
+	window->renderer.UniformMatrix2fv                  = glUniformMatrix2fv;
+	window->renderer.UniformMatrix3fv                  = glUniformMatrix3fv;
+	window->renderer.UniformMatrix4fv                  = glUniformMatrix4fv;
+	window->renderer.UnmapBuffer                       = glUnmapBuffer;
+	window->renderer.UnmapNamedBuffer                  = _gfx_gl_unmap_named_buffer;
+	window->renderer.UseProgram                        = glUseProgram;
+	window->renderer.VertexAttribDivisor               = glVertexAttribDivisor;
+	window->renderer.VertexAttribIPointer              = glVertexAttribIPointer;
+	window->renderer.VertexAttribPointer               = glVertexAttribPointer;
+	window->renderer.Viewport                          = glViewport;
 
 	/* GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE */
 	/* GFX_EXT_MULTISAMPLE_TEXTURE */
 	if(
-		(GFX_WND)->context.major > 3 ||
-		((GFX_WND)->context.major == 3 && (GFX_WND)->context.minor > 0))
+		window->context.major > 3 ||
+		(window->context.major == 3 && window->context.minor > 0))
 	{
-		(GFX_WND)->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
-		(GFX_WND)->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
+		window->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
+		window->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
 
-		(GFX_RND).TexStorage2DMultisample = glTexStorage2DMultisample;
+		window->renderer.TexStorage2DMultisample = glTexStorage2DMultisample;
 	}
 
 	else
 	{
-		(GFX_WND)->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
-		(GFX_WND)->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 0;
+		window->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
+		window->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 0;
 
-		(GFX_RND).TexStorage2DMultisample = _gfx_gles_tex_storage_2d_multisample;
+		window->renderer.TexStorage2DMultisample = _gfx_gles_tex_storage_2d_multisample;
 	}
 
 #elif defined(GFX_GL)
@@ -268,497 +270,497 @@ void _gfx_renderer_load(void)
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = limit;
+		window->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = limit;
 
 	/* Default Extensions */
-	(GFX_WND)->flags[GFX_EXT_BUFFER_TEXTURE]              = 1;
-	(GFX_WND)->flags[GFX_EXT_GEOMETRY_SHADER]             = 1;
-	(GFX_WND)->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 1;
-	(GFX_WND)->flags[GFX_EXT_MULTISAMPLE_TEXTURE]         = 1;
-	(GFX_WND)->flags[GFX_EXT_POLYGON_STATE]               = 1;
-	(GFX_WND)->flags[GFX_EXT_SEAMLESS_CUBEMAP]            = 1;
-	(GFX_WND)->flags[GFX_EXT_TEXTURE_1D]                  = 1;
+	window->flags[GFX_EXT_BUFFER_TEXTURE]              = 1;
+	window->flags[GFX_EXT_GEOMETRY_SHADER]             = 1;
+	window->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 1;
+	window->flags[GFX_EXT_MULTISAMPLE_TEXTURE]         = 1;
+	window->flags[GFX_EXT_POLYGON_STATE]               = 1;
+	window->flags[GFX_EXT_SEAMLESS_CUBEMAP]            = 1;
+	window->flags[GFX_EXT_TEXTURE_1D]                  = 1;
 
 	/* Core, assumes 3.2+ context */
-	(GFX_RND).ActiveTexture =
+	window->renderer.ActiveTexture =
 		(PFNGLACTIVETEXTUREPROC)_gfx_platform_get_proc_address("glActiveTexture");
-	(GFX_RND).AttachShader =
+	window->renderer.AttachShader =
 		(PFNGLATTACHSHADERPROC)_gfx_platform_get_proc_address("glAttachShader");
-	(GFX_RND).BeginTransformFeedback =
+	window->renderer.BeginTransformFeedback =
 		(PFNGLBEGINTRANSFORMFEEDBACKPROC)_gfx_platform_get_proc_address("glBeginTransformFeedback");
-	(GFX_RND).BindAttribLocation =
+	window->renderer.BindAttribLocation =
 		(PFNGLBINDATTRIBLOCATIONPROC)_gfx_platform_get_proc_address("glBindAttribLocation");
-	(GFX_RND).BindBuffer =
+	window->renderer.BindBuffer =
 		(PFNGLBINDBUFFERPROC)_gfx_platform_get_proc_address("glBindBuffer");
-	(GFX_RND).BindBufferRange =
+	window->renderer.BindBufferRange =
 		(PFNGLBINDBUFFERRANGEPROC)_gfx_platform_get_proc_address("glBindBufferRange");
-	(GFX_RND).BindFramebuffer =
+	window->renderer.BindFramebuffer =
 		(PFNGLBINDFRAMEBUFFERPROC)_gfx_platform_get_proc_address("glBindFramebuffer");
-	(GFX_RND).BindTexture =
+	window->renderer.BindTexture =
 		(PFNGLBINDTEXTUREPROC)glBindTexture;
-	(GFX_RND).BindVertexArray =
+	window->renderer.BindVertexArray =
 		(PFNGLBINDVERTEXARRAYPROC)_gfx_platform_get_proc_address("glBindVertexArray");
-	(GFX_RND).BlendEquationSeparate =
+	window->renderer.BlendEquationSeparate =
 		(PFNGLBLENDEQUATIONSEPARATEPROC)_gfx_platform_get_proc_address("glBlendEquationSeparate");
-	(GFX_RND).BlendFuncSeparate =
+	window->renderer.BlendFuncSeparate =
 		(PFNGLBLENDFUNCSEPARATEPROC)_gfx_platform_get_proc_address("glBlendFuncSeparate");
-	(GFX_RND).BufferData =
+	window->renderer.BufferData =
 		(PFNGLBUFFERDATAPROC)_gfx_platform_get_proc_address("glBufferData");
-	(GFX_RND).BufferSubData =
+	window->renderer.BufferSubData =
 		(PFNGLBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glBufferSubData");
-	(GFX_RND).Clear =
+	window->renderer.Clear =
 		(PFNGLCLEARPROC)glClear;
-	(GFX_RND).CompileShader =
+	window->renderer.CompileShader =
 		(PFNGLCOMPILESHADERPROC)_gfx_platform_get_proc_address("glCompileShader");
-	(GFX_RND).CopyBufferSubData =
+	window->renderer.CopyBufferSubData =
 		(PFNGLCOPYBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glCopyBufferSubData");
-	(GFX_RND).CreateProgram =
+	window->renderer.CreateProgram =
 		(PFNGLCREATEPROGRAMPROC)_gfx_platform_get_proc_address("glCreateProgram");
-	(GFX_RND).CreateShader =
+	window->renderer.CreateShader =
 		(PFNGLCREATESHADERPROC)_gfx_platform_get_proc_address("glCreateShader");
-	(GFX_RND).CullFace =
+	window->renderer.CullFace =
 		(PFNGLCULLFACEPROC)glCullFace;
-	(GFX_RND).DeleteBuffers =
+	window->renderer.DeleteBuffers =
 		(PFNGLDELETEBUFFERSPROC)_gfx_platform_get_proc_address("glDeleteBuffers");
-	(GFX_RND).DeleteFramebuffers =
+	window->renderer.DeleteFramebuffers =
 		(PFNGLDELETEFRAMEBUFFERSPROC)_gfx_platform_get_proc_address("glDeleteFramebuffers");
-	(GFX_RND).DeleteProgram =
+	window->renderer.DeleteProgram =
 		(PFNGLDELETEPROGRAMPROC)_gfx_platform_get_proc_address("glDeleteProgram");
-	(GFX_RND).DeleteShader =
+	window->renderer.DeleteShader =
 		(PFNGLDELETESHADERPROC)_gfx_platform_get_proc_address("glDeleteShader");
-	(GFX_RND).DeleteTextures =
+	window->renderer.DeleteTextures =
 		(PFNGLDELETETEXTURESPROC)glDeleteTextures;
-	(GFX_RND).DeleteVertexArrays =
+	window->renderer.DeleteVertexArrays =
 		(PFNGLDELETEVERTEXARRAYSPROC)_gfx_platform_get_proc_address("glDeleteVertexArrays");
-	(GFX_RND).DepthFunc =
+	window->renderer.DepthFunc =
 		(PFNGLDEPTHFUNCPROC)glDepthFunc;
-	(GFX_RND).DepthMask =
+	window->renderer.DepthMask =
 		(PFNGLDEPTHMASKPROC)glDepthMask;
-	(GFX_RND).DetachShader =
+	window->renderer.DetachShader =
 		(PFNGLDETACHSHADERPROC)_gfx_platform_get_proc_address("glDetachShader");
-	(GFX_RND).Disable =
+	window->renderer.Disable =
 		(PFNGLDISABLEPROC)glDisable;
-	(GFX_RND).DisableVertexAttribArray =
+	window->renderer.DisableVertexAttribArray =
 		(PFNGLDISABLEVERTEXATTRIBARRAYPROC)_gfx_platform_get_proc_address("glDisableVertexAttribArray");
-	(GFX_RND).DrawArrays =
+	window->renderer.DrawArrays =
 		(PFNGLDRAWARRAYSPROC)glDrawArrays;
-	(GFX_RND).DrawArraysInstanced =
+	window->renderer.DrawArraysInstanced =
 		(PFNGLDRAWARRAYSINSTANCEDPROC)_gfx_platform_get_proc_address("glDrawArraysInstanced");
-	(GFX_RND).DrawBuffers =
+	window->renderer.DrawBuffers =
 		(PFNGLDRAWBUFFERSPROC)_gfx_platform_get_proc_address("glDrawBuffers");
-	(GFX_RND).DrawElements =
+	window->renderer.DrawElements =
 		(PFNGLDRAWELEMENTSPROC)glDrawElements;
-	(GFX_RND).DrawElementsInstanced =
+	window->renderer.DrawElementsInstanced =
 		(PFNGLDRAWELEMENTSINSTANCEDPROC)_gfx_platform_get_proc_address("glDrawElementsInstanced");
-	(GFX_RND).Enable =
+	window->renderer.Enable =
 		(PFNGLENABLEPROC)glEnable;
-	(GFX_RND).EnableVertexAttribArray =
+	window->renderer.EnableVertexAttribArray =
 		(PFNGLENABLEVERTEXATTRIBARRAYPROC)_gfx_platform_get_proc_address("glEnableVertexAttribArray");
-	(GFX_RND).EndTransformFeedback =
+	window->renderer.EndTransformFeedback =
 		(PFNGLENDTRANSFORMFEEDBACKPROC)_gfx_platform_get_proc_address("glEndTransformFeedback");
-	(GFX_RND).FramebufferTexture =
+	window->renderer.FramebufferTexture =
 		(PFNGLFRAMEBUFFERTEXTUREPROC)_gfx_platform_get_proc_address("glFramebufferTexture");
-	(GFX_RND).FramebufferTexture1D =
+	window->renderer.FramebufferTexture1D =
 		(PFNGLFRAMEBUFFERTEXTURE1DPROC)_gfx_platform_get_proc_address("glFramebufferTexture1D");
-	(GFX_RND).FramebufferTexture2D =
+	window->renderer.FramebufferTexture2D =
 		(PFNGLFRAMEBUFFERTEXTURE2DPROC)_gfx_platform_get_proc_address("glFramebufferTexture2D");
-	(GFX_RND).FramebufferTextureLayer =
+	window->renderer.FramebufferTextureLayer =
 		(PFNGLFRAMEBUFFERTEXTURELAYERPROC)_gfx_platform_get_proc_address("glFramebufferTextureLayer");
-	(GFX_RND).GenBuffers =
+	window->renderer.GenBuffers =
 		(PFNGLGENBUFFERSPROC)_gfx_platform_get_proc_address("glGenBuffers");
-	(GFX_RND).GenerateMipmap =
+	window->renderer.GenerateMipmap =
 		(PFNGLGENERATEMIPMAPPROC)_gfx_platform_get_proc_address("glGenerateMipmap");
-	(GFX_RND).GenFramebuffers =
+	window->renderer.GenFramebuffers =
 		(PFNGLGENFRAMEBUFFERSPROC)_gfx_platform_get_proc_address("glGenFramebuffers");
-	(GFX_RND).GenTextures =
+	window->renderer.GenTextures =
 		(PFNGLGENTEXTURESPROC)glGenTextures;
-	(GFX_RND).GenVertexArrays =
+	window->renderer.GenVertexArrays =
 		(PFNGLGENVERTEXARRAYSPROC)_gfx_platform_get_proc_address("glGenVertexArrays");
-	(GFX_RND).GetActiveUniform =
+	window->renderer.GetActiveUniform =
 		(PFNGLGETACTIVEUNIFORMPROC)_gfx_platform_get_proc_address("glGetActiveUniform");
-	(GFX_RND).GetActiveUniformBlockiv =
+	window->renderer.GetActiveUniformBlockiv =
 		(PFNGLGETACTIVEUNIFORMBLOCKIVPROC)_gfx_platform_get_proc_address("glGetActiveUniformBlockiv");
-	(GFX_RND).GetActiveUniformsiv =
+	window->renderer.GetActiveUniformsiv =
 		(PFNGLGETACTIVEUNIFORMSIVPROC)_gfx_platform_get_proc_address("glGetActiveUniformsiv");
-	(GFX_RND).GetBufferSubData =
+	window->renderer.GetBufferSubData =
 		(PFNGLGETBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glGetBufferSubData");
-	(GFX_RND).GetError =
+	window->renderer.GetError =
 		(PFNGLGETERRORPROC)glGetError;
-	(GFX_RND).GetProgramInfoLog =
+	window->renderer.GetProgramInfoLog =
 		(PFNGLGETPROGRAMINFOLOGPROC)_gfx_platform_get_proc_address("glGetProgramInfoLog");
-	(GFX_RND).GetProgramiv =
+	window->renderer.GetProgramiv =
 		(PFNGLGETPROGRAMIVPROC)_gfx_platform_get_proc_address("glGetProgramiv");
-	(GFX_RND).GetShaderInfoLog =
+	window->renderer.GetShaderInfoLog =
 		(PFNGLGETSHADERINFOLOGPROC)_gfx_platform_get_proc_address("glGetShaderInfoLog");
-	(GFX_RND).GetShaderiv =
+	window->renderer.GetShaderiv =
 		(PFNGLGETSHADERIVPROC)_gfx_platform_get_proc_address("glGetShaderiv");
-	(GFX_RND).GetShaderSource =
+	window->renderer.GetShaderSource =
 		(PFNGLGETSHADERSOURCEPROC)_gfx_platform_get_proc_address("glGetShaderSource");
-	(GFX_RND).GetStringi =
+	window->renderer.GetStringi =
 		(PFNGLGETSTRINGIPROC)_gfx_platform_get_proc_address("glGetStringi");
-	(GFX_RND).GetUniformBlockIndex =
+	window->renderer.GetUniformBlockIndex =
 		(PFNGLGETUNIFORMBLOCKINDEXPROC)_gfx_platform_get_proc_address("glGetUniformBlockIndex");
-	(GFX_RND).GetUniformIndices =
+	window->renderer.GetUniformIndices =
 		(PFNGLGETUNIFORMINDICESPROC)_gfx_platform_get_proc_address("glGetUniformIndices");
-	(GFX_RND).GetUniformLocation =
+	window->renderer.GetUniformLocation =
 		(PFNGLGETUNIFORMLOCATIONPROC)_gfx_platform_get_proc_address("glGetUniformLocation");
-	(GFX_RND).LinkProgram =
+	window->renderer.LinkProgram =
 		(PFNGLLINKPROGRAMPROC)_gfx_platform_get_proc_address("glLinkProgram");
-	(GFX_RND).MapBufferRange =
+	window->renderer.MapBufferRange =
 		(PFNGLMAPBUFFERRANGEPROC)_gfx_platform_get_proc_address("glMapBufferRange");
-	(GFX_RND).NamedFramebufferTexture1D =
+	window->renderer.NamedFramebufferTexture1D =
 		(GFX_NAMEDFRAMEBUFFERTEXTURE1DPROC)_gfx_gl_named_framebuffer_texture_1d;
-	(GFX_RND).NamedFramebufferTexture2D =
+	window->renderer.NamedFramebufferTexture2D =
 		(GFX_NAMEDFRAMEBUFFERTEXTURE2DPROC)_gfx_gl_named_framebuffer_texture_2d;
-	(GFX_RND).PixelStorei =
+	window->renderer.PixelStorei =
 		(PFNGLPIXELSTOREIPROC)glPixelStorei;
-	(GFX_RND).PolygonMode =
+	window->renderer.PolygonMode =
 		(PFNGLPOLYGONMODEPROC)glPolygonMode;
-	(GFX_RND).ShaderSource =
+	window->renderer.ShaderSource =
 		(PFNGLSHADERSOURCEPROC)_gfx_platform_get_proc_address("glShaderSource");
-	(GFX_RND).StencilFuncSeparate =
+	window->renderer.StencilFuncSeparate =
 		(PFNGLSTENCILFUNCSEPARATEPROC)_gfx_platform_get_proc_address("glStencilFuncSeparate");
-	(GFX_RND).StencilOpSeparate =
+	window->renderer.StencilOpSeparate =
 		(PFNGLSTENCILOPSEPARATEPROC)_gfx_platform_get_proc_address("glStencilOpSeparate");
-	(GFX_RND).TexBuffer =
+	window->renderer.TexBuffer =
 		(PFNGLTEXBUFFERPROC)_gfx_platform_get_proc_address("glTexBuffer");
-	(GFX_RND).TexImage1D =
+	window->renderer.TexImage1D =
 		(PFNGLTEXIMAGE1DPROC)glTexImage1D;
-	(GFX_RND).TexImage2D =
+	window->renderer.TexImage2D =
 		(PFNGLTEXIMAGE2DPROC)glTexImage2D;
-	(GFX_RND).TexImage2DMultisample =
+	window->renderer.TexImage2DMultisample =
 		(PFNGLTEXIMAGE2DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexImage2DMultisample");
-	(GFX_RND).TexImage3D =
+	window->renderer.TexImage3D =
 		(PFNGLTEXIMAGE3DPROC)_gfx_platform_get_proc_address("glTexImage3D");
-	(GFX_RND).TexImage3DMultisample =
+	window->renderer.TexImage3DMultisample =
 		(PFNGLTEXIMAGE3DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexImage3DMultisample");
-	(GFX_RND).TexParameteri =
+	window->renderer.TexParameteri =
 		(PFNGLTEXPARAMETERIPROC)glTexParameteri;
-	(GFX_RND).TexSubImage1D =
+	window->renderer.TexSubImage1D =
 		(PFNGLTEXSUBIMAGE1DPROC)glTexSubImage1D;
-	(GFX_RND).TexSubImage2D =
+	window->renderer.TexSubImage2D =
 		(PFNGLTEXSUBIMAGE2DPROC)glTexSubImage2D;
-	(GFX_RND).TexSubImage3D =
+	window->renderer.TexSubImage3D =
 		(PFNGLTEXSUBIMAGE3DPROC)_gfx_platform_get_proc_address("glTexSubImage3D");
-	(GFX_RND).TransformFeedbackVaryings =
+	window->renderer.TransformFeedbackVaryings =
 		(PFNGLTRANSFORMFEEDBACKVARYINGSPROC)_gfx_platform_get_proc_address("glTransformFeedbackVaryings");
-	(GFX_RND).Uniform1fv =
+	window->renderer.Uniform1fv =
 		(PFNGLUNIFORM1FVPROC)_gfx_platform_get_proc_address("glUniform1fv");
-	(GFX_RND).Uniform1iv =
+	window->renderer.Uniform1iv =
 		(PFNGLUNIFORM1IVPROC)_gfx_platform_get_proc_address("glUniform1iv");
-	(GFX_RND).Uniform1uiv =
+	window->renderer.Uniform1uiv =
 		(PFNGLUNIFORM1UIVPROC)_gfx_platform_get_proc_address("glUniform1uiv");
-	(GFX_RND).Uniform2fv =
+	window->renderer.Uniform2fv =
 		(PFNGLUNIFORM2FVPROC)_gfx_platform_get_proc_address("glUniform2fv");
-	(GFX_RND).Uniform2iv =
+	window->renderer.Uniform2iv =
 		(PFNGLUNIFORM2IVPROC)_gfx_platform_get_proc_address("glUniform2iv");
-	(GFX_RND).Uniform2uiv =
+	window->renderer.Uniform2uiv =
 		(PFNGLUNIFORM2UIVPROC)_gfx_platform_get_proc_address("glUniform2uiv");
-	(GFX_RND).Uniform3fv =
+	window->renderer.Uniform3fv =
 		(PFNGLUNIFORM3FVPROC)_gfx_platform_get_proc_address("glUniform3fv");
-	(GFX_RND).Uniform3iv =
+	window->renderer.Uniform3iv =
 		(PFNGLUNIFORM3IVPROC)_gfx_platform_get_proc_address("glUniform3iv");
-	(GFX_RND).Uniform3uiv =
+	window->renderer.Uniform3uiv =
 		(PFNGLUNIFORM3UIVPROC)_gfx_platform_get_proc_address("glUniform3uiv");
-	(GFX_RND).Uniform4fv =
+	window->renderer.Uniform4fv =
 		(PFNGLUNIFORM4FVPROC)_gfx_platform_get_proc_address("glUniform4fv");
-	(GFX_RND).Uniform4iv =
+	window->renderer.Uniform4iv =
 		(PFNGLUNIFORM4IVPROC)_gfx_platform_get_proc_address("glUniform4iv");
-	(GFX_RND).Uniform4uiv =
+	window->renderer.Uniform4uiv =
 		(PFNGLUNIFORM4UIVPROC)_gfx_platform_get_proc_address("glUniform4uiv");
-	(GFX_RND).UniformBlockBinding =
+	window->renderer.UniformBlockBinding =
 		(PFNGLUNIFORMBLOCKBINDINGPROC)_gfx_platform_get_proc_address("glUniformBlockBinding");
-	(GFX_RND).UniformMatrix2fv =
+	window->renderer.UniformMatrix2fv =
 		(PFNGLUNIFORMMATRIX2FVPROC)_gfx_platform_get_proc_address("glUniformMatrix2fv");
-	(GFX_RND).UniformMatrix3fv =
+	window->renderer.UniformMatrix3fv =
 		(PFNGLUNIFORMMATRIX3FVPROC)_gfx_platform_get_proc_address("glUniformMatrix3fv");
-	(GFX_RND).UniformMatrix4fv =
+	window->renderer.UniformMatrix4fv =
 		(PFNGLUNIFORMMATRIX4FVPROC)_gfx_platform_get_proc_address("glUniformMatrix4fv");
-	(GFX_RND).UnmapBuffer =
+	window->renderer.UnmapBuffer =
 		(PFNGLUNMAPBUFFERPROC)_gfx_platform_get_proc_address("glUnmapBuffer");
-	(GFX_RND).UseProgram =
+	window->renderer.UseProgram =
 		(PFNGLUSEPROGRAMPROC)_gfx_platform_get_proc_address("glUseProgram");
-	(GFX_RND).VertexAttribIPointer =
+	window->renderer.VertexAttribIPointer =
 		(PFNGLVERTEXATTRIBIPOINTERPROC)_gfx_platform_get_proc_address("glVertexAttribIPointer");
-	(GFX_RND).VertexAttribPointer =
+	window->renderer.VertexAttribPointer =
 		(PFNGLVERTEXATTRIBPOINTERPROC)_gfx_platform_get_proc_address("glVertexAttribPointer");
-	(GFX_RND).Viewport =
+	window->renderer.Viewport =
 		(PFNGLVIEWPORTPROC)glViewport;
 
 	/* GFX_EXT_DIRECT_STATE_ACCESS */
 	if(
-		(GFX_WND)->context.major > 4 ||
-		((GFX_WND)->context.major == 4 && (GFX_WND)->context.minor > 4) ||
-		_gfx_is_extension_supported("GL_ARB_direct_state_access"))
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 4) ||
+		_gfx_is_extension_supported("GL_ARB_direct_state_access", window))
 	{
-		(GFX_WND)->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
+		window->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
 
-		(GFX_RND).BindTextureUnit =
+		window->renderer.BindTextureUnit =
 			(PFNGLBINDTEXTUREUNITPROC)_gfx_platform_get_proc_address("glBindTextureUnit");
-		(GFX_RND).CopyNamedBufferSubData =
+		window->renderer.CopyNamedBufferSubData =
 			(PFNGLCOPYNAMEDBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glCopyNamedBufferSubData");
-		(GFX_RND).CreateBuffers =
+		window->renderer.CreateBuffers =
 			(PFNGLCREATEBUFFERSPROC)_gfx_platform_get_proc_address("glCreateBuffers");
-		(GFX_RND).CreateFramebuffers =
+		window->renderer.CreateFramebuffers =
 			(PFNGLCREATEFRAMEBUFFERSPROC)_gfx_platform_get_proc_address("glCreateFramebuffers");
-		(GFX_RND).CreateTextures =
+		window->renderer.CreateTextures =
 			(PFNGLCREATETEXTURESPROC)_gfx_platform_get_proc_address("glCreateTextures");
-		(GFX_RND).CreateVertexArrays =
+		window->renderer.CreateVertexArrays =
 			(PFNGLCREATEVERTEXARRAYSPROC)_gfx_platform_get_proc_address("glCreateVertexArrays");
-		(GFX_RND).DisableVertexArrayAttrib =
+		window->renderer.DisableVertexArrayAttrib =
 			(PFNGLDISABLEVERTEXARRAYATTRIBPROC)_gfx_platform_get_proc_address("glDisableVertexArrayAttrib");
-		(GFX_RND).EnableVertexArrayAttrib =
+		window->renderer.EnableVertexArrayAttrib =
 			(PFNGLENABLEVERTEXARRAYATTRIBPROC)_gfx_platform_get_proc_address("glEnableVertexArrayAttrib");
-		(GFX_RND).GenerateTextureMipmap =
+		window->renderer.GenerateTextureMipmap =
 			(PFNGLGENERATETEXTUREMIPMAPPROC)_gfx_platform_get_proc_address("glGenerateTextureMipmap");
-		(GFX_RND).GetNamedBufferSubData =
+		window->renderer.GetNamedBufferSubData =
 			(PFNGLGETNAMEDBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glGetNamedBufferSubData");
-		(GFX_RND).MapNamedBufferRange =
+		window->renderer.MapNamedBufferRange =
 			(PFNGLMAPNAMEDBUFFERRANGEPROC)_gfx_platform_get_proc_address("glMapNamedBufferRange");
-		(GFX_RND).NamedBufferData =
+		window->renderer.NamedBufferData =
 			(PFNGLNAMEDBUFFERDATAPROC)_gfx_platform_get_proc_address("glNamedBufferData");
-		(GFX_RND).NamedBufferSubData =
+		window->renderer.NamedBufferSubData =
 			(PFNGLNAMEDBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glNamedBufferSubData");
-		(GFX_RND).NamedFramebufferDrawBuffers =
+		window->renderer.NamedFramebufferDrawBuffers =
 			(PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)_gfx_platform_get_proc_address("glNamedFramebufferDrawBuffers");
-		(GFX_RND).NamedFramebufferTexture =
+		window->renderer.NamedFramebufferTexture =
 			(PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)_gfx_platform_get_proc_address("glNamedFramebufferTexture");
-		(GFX_RND).NamedFramebufferTextureLayer =
+		window->renderer.NamedFramebufferTextureLayer =
 			(PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC)_gfx_platform_get_proc_address("glNamedFramebufferTextureLayer");
-		(GFX_RND).TextureBuffer =
+		window->renderer.TextureBuffer =
 			(PFNGLTEXTUREBUFFERPROC)_gfx_platform_get_proc_address("glTextureBuffer");
-		(GFX_RND).TextureParameteri =
+		window->renderer.TextureParameteri =
 			(PFNGLTEXTUREPARAMETERIPROC)_gfx_platform_get_proc_address("glTextureParameteri");
-		(GFX_RND).TextureStorage1D =
+		window->renderer.TextureStorage1D =
 			(PFNGLTEXTURESTORAGE1DPROC)_gfx_platform_get_proc_address("glTextureStorage1D");
-		(GFX_RND).TextureStorage2D =
+		window->renderer.TextureStorage2D =
 			(PFNGLTEXTURESTORAGE2DPROC)_gfx_platform_get_proc_address("glTextureStorage2D");
-		(GFX_RND).TextureStorage2DMultisample =
+		window->renderer.TextureStorage2DMultisample =
 			(PFNGLTEXTURESTORAGE2DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTextureStorage2DMultisample");
-		(GFX_RND).TextureStorage3D =
+		window->renderer.TextureStorage3D =
 			(PFNGLTEXTURESTORAGE3DPROC)_gfx_platform_get_proc_address("glTextureStorage3D");
-		(GFX_RND).TextureStorage3DMultisample =
+		window->renderer.TextureStorage3DMultisample =
 			(PFNGLTEXTURESTORAGE3DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTextureStorage3DMultisample");
-		(GFX_RND).TextureSubImage1D =
+		window->renderer.TextureSubImage1D =
 			(PFNGLTEXTURESUBIMAGE1DPROC)_gfx_platform_get_proc_address("glTextureSubImage1D");
-		(GFX_RND).TextureSubImage2D =
+		window->renderer.TextureSubImage2D =
 			(PFNGLTEXTURESUBIMAGE2DPROC)_gfx_platform_get_proc_address("glTextureSubImage2D");
-		(GFX_RND).TextureSubImage3D =
+		window->renderer.TextureSubImage3D =
 			(PFNGLTEXTURESUBIMAGE3DPROC)_gfx_platform_get_proc_address("glTextureSubImage3D");
-		(GFX_RND).UnmapNamedBuffer =
+		window->renderer.UnmapNamedBuffer =
 			(PFNGLUNMAPNAMEDBUFFERPROC)_gfx_platform_get_proc_address("glUnmapNamedBuffer");
 	}
 
 	else
 	{
-		(GFX_WND)->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 0;
+		window->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 0;
 
-		(GFX_RND).BindTextureUnit              = _gfx_gl_bind_texture_unit;
-		(GFX_RND).CopyNamedBufferSubData       = _gfx_gl_copy_named_buffer_sub_data;
-		(GFX_RND).CreateBuffers                = _gfx_gl_create_buffers;
-		(GFX_RND).CreateFramebuffers           = _gfx_gl_create_framebuffers;
-		(GFX_RND).CreateTextures               = _gfx_gl_create_textures;
-		(GFX_RND).CreateVertexArrays           = _gfx_gl_create_vertex_arrays;
-		(GFX_RND).DisableVertexArrayAttrib     = _gfx_gl_disable_vertex_array_attrib;
-		(GFX_RND).EnableVertexArrayAttrib      = _gfx_gl_enable_vertex_array_attrib;
-		(GFX_RND).GenerateTextureMipmap        = _gfx_gl_generate_texture_mipmap;
-		(GFX_RND).GetNamedBufferSubData        = _gfx_gl_get_named_buffer_sub_data;
-		(GFX_RND).MapNamedBufferRange          = _gfx_gl_map_named_buffer_range;
-		(GFX_RND).NamedBufferData              = _gfx_gl_named_buffer_data;
-		(GFX_RND).NamedBufferSubData           = _gfx_gl_named_buffer_sub_data;
-		(GFX_RND).NamedFramebufferDrawBuffers  = _gfx_gl_named_framebuffer_draw_buffers;
-		(GFX_RND).NamedFramebufferTexture      = _gfx_gl_named_framebuffer_texture;
-		(GFX_RND).NamedFramebufferTextureLayer = _gfx_gl_named_framebuffer_texture_layer;
-		(GFX_RND).TextureBuffer                = _gfx_gl_texture_buffer;
-		(GFX_RND).TextureParameteri            = _gfx_gl_texture_parameter_i;
-		(GFX_RND).TextureStorage1D             = _gfx_gl_texture_storage_1d;
-		(GFX_RND).TextureStorage2D             = _gfx_gl_texture_storage_2d;
-		(GFX_RND).TextureStorage2DMultisample  = _gfx_gl_texture_storage_2d_multisample;
-		(GFX_RND).TextureStorage3D             = _gfx_gl_texture_storage_3d;
-		(GFX_RND).TextureStorage3DMultisample  = _gfx_gl_texture_storage_3d_multisample;
-		(GFX_RND).TextureSubImage1D            = _gfx_gl_texture_sub_image_1d;
-		(GFX_RND).TextureSubImage2D            = _gfx_gl_texture_sub_image_2d;
-		(GFX_RND).TextureSubImage3D            = _gfx_gl_texture_sub_image_3d;
-		(GFX_RND).UnmapNamedBuffer             = _gfx_gl_unmap_named_buffer;
+		window->renderer.BindTextureUnit              = _gfx_gl_bind_texture_unit;
+		window->renderer.CopyNamedBufferSubData       = _gfx_gl_copy_named_buffer_sub_data;
+		window->renderer.CreateBuffers                = _gfx_gl_create_buffers;
+		window->renderer.CreateFramebuffers           = _gfx_gl_create_framebuffers;
+		window->renderer.CreateTextures               = _gfx_gl_create_textures;
+		window->renderer.CreateVertexArrays           = _gfx_gl_create_vertex_arrays;
+		window->renderer.DisableVertexArrayAttrib     = _gfx_gl_disable_vertex_array_attrib;
+		window->renderer.EnableVertexArrayAttrib      = _gfx_gl_enable_vertex_array_attrib;
+		window->renderer.GenerateTextureMipmap        = _gfx_gl_generate_texture_mipmap;
+		window->renderer.GetNamedBufferSubData        = _gfx_gl_get_named_buffer_sub_data;
+		window->renderer.MapNamedBufferRange          = _gfx_gl_map_named_buffer_range;
+		window->renderer.NamedBufferData              = _gfx_gl_named_buffer_data;
+		window->renderer.NamedBufferSubData           = _gfx_gl_named_buffer_sub_data;
+		window->renderer.NamedFramebufferDrawBuffers  = _gfx_gl_named_framebuffer_draw_buffers;
+		window->renderer.NamedFramebufferTexture      = _gfx_gl_named_framebuffer_texture;
+		window->renderer.NamedFramebufferTextureLayer = _gfx_gl_named_framebuffer_texture_layer;
+		window->renderer.TextureBuffer                = _gfx_gl_texture_buffer;
+		window->renderer.TextureParameteri            = _gfx_gl_texture_parameter_i;
+		window->renderer.TextureStorage1D             = _gfx_gl_texture_storage_1d;
+		window->renderer.TextureStorage2D             = _gfx_gl_texture_storage_2d;
+		window->renderer.TextureStorage2DMultisample  = _gfx_gl_texture_storage_2d_multisample;
+		window->renderer.TextureStorage3D             = _gfx_gl_texture_storage_3d;
+		window->renderer.TextureStorage3DMultisample  = _gfx_gl_texture_storage_3d_multisample;
+		window->renderer.TextureSubImage1D            = _gfx_gl_texture_sub_image_1d;
+		window->renderer.TextureSubImage2D            = _gfx_gl_texture_sub_image_2d;
+		window->renderer.TextureSubImage3D            = _gfx_gl_texture_sub_image_3d;
+		window->renderer.UnmapNamedBuffer             = _gfx_gl_unmap_named_buffer;
 	}
 
 	/* GFX_EXT_IMMUTABLE_TEXTURE */
 	if(
-		(GFX_WND)->context.major > 4 ||
-		((GFX_WND)->context.major == 4 && (GFX_WND)->context.minor > 1) ||
-		_gfx_is_extension_supported("GL_ARB_texture_storage"))
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 1) ||
+		_gfx_is_extension_supported("GL_ARB_texture_storage", window))
 	{
-		(GFX_WND)->flags[GFX_EXT_IMMUTABLE_TEXTURE] = 1;
+		window->flags[GFX_EXT_IMMUTABLE_TEXTURE] = 1;
 
-		(GFX_RND).TexStorage1D =
+		window->renderer.TexStorage1D =
 			(PFNGLTEXSTORAGE1DPROC)_gfx_platform_get_proc_address("glTexStorage1D");
-		(GFX_RND).TexStorage2D =
+		window->renderer.TexStorage2D =
 			(PFNGLTEXSTORAGE2DPROC)_gfx_platform_get_proc_address("glTexStorage2D");
-		(GFX_RND).TexStorage3D =
+		window->renderer.TexStorage3D =
 			(PFNGLTEXSTORAGE3DPROC)_gfx_platform_get_proc_address("glTexStorage3D");
 	}
 
 	else
 	{
-		(GFX_WND)->flags[GFX_EXT_IMMUTABLE_TEXTURE] = 0;
+		window->flags[GFX_EXT_IMMUTABLE_TEXTURE] = 0;
 
-		(GFX_RND).TexStorage1D = _gfx_gl_tex_storage_1d;
-		(GFX_RND).TexStorage2D = _gfx_gl_tex_storage_2d;
-		(GFX_RND).TexStorage3D = _gfx_gl_tex_storage_3d;
+		window->renderer.TexStorage1D = _gfx_gl_tex_storage_1d;
+		window->renderer.TexStorage2D = _gfx_gl_tex_storage_2d;
+		window->renderer.TexStorage3D = _gfx_gl_tex_storage_3d;
 	}
 
 	/* GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE */
 	if(
-		(GFX_WND)->context.major > 4 ||
-		((GFX_WND)->context.major == 4 && (GFX_WND)->context.minor > 2) ||
-		_gfx_is_extension_supported("GL_ARB_texture_storage_multisample"))
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 2) ||
+		_gfx_is_extension_supported("GL_ARB_texture_storage_multisample", window))
 	{
-		(GFX_WND)->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
+		window->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
 
-		(GFX_RND).TexStorage2DMultisample =
+		window->renderer.TexStorage2DMultisample =
 			(PFNGLTEXSTORAGE2DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexStorage2DMultisample");
-		(GFX_RND).TexStorage3DMultisample =
+		window->renderer.TexStorage3DMultisample =
 			(PFNGLTEXSTORAGE3DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexStorage3DMultisample");
 	}
 
 	else
 	{
-		(GFX_WND)->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
+		window->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
 
-		(GFX_RND).TexStorage2DMultisample = _gfx_gl_tex_storage_2d_multisample;
-		(GFX_RND).TexStorage3DMultisample = _gfx_gl_tex_storage_3d_multisample;
+		window->renderer.TexStorage2DMultisample = _gfx_gl_tex_storage_2d_multisample;
+		window->renderer.TexStorage3DMultisample = _gfx_gl_tex_storage_3d_multisample;
 	}
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(
-		(GFX_WND)->context.major > 3 ||
-		((GFX_WND)->context.major == 3 && (GFX_WND)->context.minor > 2))
+		window->context.major > 3 ||
+		(window->context.major == 3 && window->context.minor > 2))
 	{
-		(GFX_WND)->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
+		window->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 
-		(GFX_RND).VertexAttribDivisor =
+		window->renderer.VertexAttribDivisor =
 			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
 
-	else if(_gfx_is_extension_supported("GL_ARB_instanced_arrays"))
+	else if(_gfx_is_extension_supported("GL_ARB_instanced_arrays", window))
 	{
-		(GFX_WND)->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
+		window->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 
-		(GFX_RND).VertexAttribDivisor =
+		window->renderer.VertexAttribDivisor =
 			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisorARB");
 	}
 
 	else
 	{
-		(GFX_WND)->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
+		window->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
 
-		(GFX_RND).VertexAttribDivisor = _gfx_gl_vertex_attrib_divisor;
+		window->renderer.VertexAttribDivisor = _gfx_gl_vertex_attrib_divisor;
 	}
 
 	/* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
 	if(
-		(GFX_WND)->context.major > 4 ||
-		((GFX_WND)->context.major == 4 && (GFX_WND)->context.minor > 1) ||
-		_gfx_is_extension_supported("GL_ARB_base_instance"))
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 1) ||
+		_gfx_is_extension_supported("GL_ARB_base_instance", window))
 	{
-		(GFX_WND)->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
+		window->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
 
-		(GFX_RND).DrawArraysInstancedBaseInstance =
+		window->renderer.DrawArraysInstancedBaseInstance =
 			(PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)_gfx_platform_get_proc_address("glDrawArraysInstancedBaseInstance");
-		(GFX_RND).DrawElementsInstancedBaseInstance =
+		window->renderer.DrawElementsInstancedBaseInstance =
 			(PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseInstance");
 	}
 
 	else
 	{
-		(GFX_WND)->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 0;
+		window->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 0;
 
-		(GFX_RND).DrawArraysInstancedBaseInstance = _gfx_gl_draw_arrays_instanced_base_instance;
-		(GFX_RND).DrawElementsInstancedBaseInstance = _gfx_gl_draw_elements_instanced_base_instance;
+		window->renderer.DrawArraysInstancedBaseInstance = _gfx_gl_draw_arrays_instanced_base_instance;
+		window->renderer.DrawElementsInstancedBaseInstance = _gfx_gl_draw_elements_instanced_base_instance;
 	}
 
 	/* GFX_EXT_LAYERED_CUBEMAP */
 	if(
-		(GFX_WND)->context.major > 3 ||
-		_gfx_is_extension_supported("GL_ARB_texture_cube_map_array"))
+		window->context.major > 3 ||
+		_gfx_is_extension_supported("GL_ARB_texture_cube_map_array", window))
 	{
-		(GFX_WND)->flags[GFX_EXT_LAYERED_CUBEMAP] = 1;
+		window->flags[GFX_EXT_LAYERED_CUBEMAP] = 1;
 	}
 
 	else
 	{
-		(GFX_WND)->flags[GFX_EXT_LAYERED_CUBEMAP] = 0;
+		window->flags[GFX_EXT_LAYERED_CUBEMAP] = 0;
 	}
 
 	/* GFX_EXT_PROGRAM_BINARY */
 	if(
-		(GFX_WND)->context.major > 4 ||
-		((GFX_WND)->context.major == 4 && (GFX_WND)->context.minor > 0) ||
-		_gfx_is_extension_supported("GL_ARB_get_program_binary"))
+		window->context.major > 4 ||
+		(window->context.major == 4 && window->context.minor > 0) ||
+		_gfx_is_extension_supported("GL_ARB_get_program_binary", window))
 	{
-		(GFX_WND)->flags[GFX_EXT_PROGRAM_BINARY] = 1;
+		window->flags[GFX_EXT_PROGRAM_BINARY] = 1;
 
-		(GFX_RND).GetProgramBinary =
+		window->renderer.GetProgramBinary =
 			(PFNGLGETPROGRAMBINARYPROC)_gfx_platform_get_proc_address("glGetProgramBinary");
-		(GFX_RND).ProgramBinary =
+		window->renderer.ProgramBinary =
 			(PFNGLPROGRAMBINARYPROC)_gfx_platform_get_proc_address("glProgramBinary");
-		(GFX_RND).ProgramParameteri =
+		window->renderer.ProgramParameteri =
 			(PFNGLPROGRAMPARAMETERIPROC)_gfx_platform_get_proc_address("glProgramParameteri");
 	}
 
 	else
 	{
-		(GFX_WND)->flags[GFX_EXT_PROGRAM_BINARY] = 0;
+		window->flags[GFX_EXT_PROGRAM_BINARY] = 0;
 
-		(GFX_RND).GetProgramBinary  = _gfx_gl_get_program_binary;
-		(GFX_RND).ProgramBinary     = _gfx_gl_program_binary;
-		(GFX_RND).ProgramParameteri = _gfx_gl_program_parameter_i;
+		window->renderer.GetProgramBinary  = _gfx_gl_get_program_binary;
+		window->renderer.ProgramBinary     = _gfx_gl_program_binary;
+		window->renderer.ProgramParameteri = _gfx_gl_program_parameter_i;
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
 	if(
-		(GFX_WND)->context.major > 3 ||
-		_gfx_is_extension_supported("GL_ARB_tessellation_shader"))
+		window->context.major > 3 ||
+		_gfx_is_extension_supported("GL_ARB_tessellation_shader", window))
 	{
 		glGetIntegerv(GL_MAX_PATCH_VERTICES, &limit);
-		(GFX_WND)->limits[GFX_LIM_MAX_PATCH_VERTICES] = limit;
-		(GFX_WND)->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
+		window->limits[GFX_LIM_MAX_PATCH_VERTICES] = limit;
+		window->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
 
-		(GFX_RND).PatchParameteri =
+		window->renderer.PatchParameteri =
 			(PFNGLPATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteri");
 	}
 
 	else
 	{
-		(GFX_WND)->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
-		(GFX_WND)->flags[GFX_EXT_TESSELLATION_SHADER] = 0;
+		window->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
+		window->flags[GFX_EXT_TESSELLATION_SHADER] = 0;
 
-		(GFX_RND).PatchParameteri = _gfx_gl_patch_parameter_i;
+		window->renderer.PatchParameteri = _gfx_gl_patch_parameter_i;
 	}
 
 #endif
 
 	/* Set other defaults */
-	(GFX_RND).fbos[0] = 0;
-	(GFX_RND).fbos[1] = 0;
-	(GFX_RND).vao     = 0;
-	(GFX_RND).program = 0;
-	(GFX_RND).post    = 0;
+	window->renderer.fbos[0] = 0;
+	window->renderer.fbos[1] = 0;
+	window->renderer.vao     = 0;
+	window->renderer.program = 0;
+	window->renderer.post    = 0;
 
 	_gfx_platform_window_get_size(
-		(GFX_WND)->handle,
-		&(GFX_RND).width,
-		&(GFX_RND).height
+		window->handle,
+		&window->renderer.width,
+		&window->renderer.height
 	);
-	(GFX_RND).x = 0;
-	(GFX_RND).y = 0;
+	window->renderer.x = 0;
+	window->renderer.y = 0;
 
-	(GFX_RND).packAlignment = 0;
-	(GFX_RND).unpackAlignment = 0;
-	(GFX_RND).patchVertices = 0;
+	window->renderer.packAlignment = 0;
+	window->renderer.unpackAlignment = 0;
+	window->renderer.patchVertices = 0;
 
-	(GFX_RND).uniformBuffers = NULL;
-	(GFX_RND).textureUnits = NULL;
+	window->renderer.uniformBuffers = NULL;
+	window->renderer.textureUnits = NULL;
 }
 
 #endif // GFX_RENDERER_GL

@@ -222,12 +222,13 @@ size_t _gfx_binder_bind_uniform_buffer(
 		GLintptr         offset,
 		GLsizeiptr       size,
 		int              prioritize,
-		int*             old)
+		int*             old,
+		GFX_Window*      window)
 {
 	/* Allocate binding points */
-	if(!(GFX_RND).uniformBuffers)
-		(GFX_RND).uniformBuffers = _gfx_binder_init(
-			(GFX_WND)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+	if(!window->renderer.uniformBuffers)
+		window->renderer.uniformBuffers = _gfx_binder_init(
+			window->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(struct GFX_UniformBuffer)
 		);
 
@@ -238,8 +239,8 @@ size_t _gfx_binder_bind_uniform_buffer(
 	buff.size = size;
 
 	size_t bind = _gfx_binder_request(
-		(GFX_RND).uniformBuffers,
-		(GFX_WND)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+		window->renderer.uniformBuffers,
+		window->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
 		sizeof(struct GFX_UniformBuffer),
 		&buff,
 		prioritize,
@@ -247,7 +248,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 	);
 
 	/* Bind the buffer */
-	if(!*old) (GFX_RND).BindBufferRange(
+	if(!*old) window->renderer.BindBufferRange(
 		GL_UNIFORM_BUFFER,
 		bind,
 		buffer,
@@ -261,16 +262,17 @@ size_t _gfx_binder_bind_uniform_buffer(
 /******************************************************/
 void _gfx_binder_unbind_uniform_buffer(
 
-		GLuint buffer)
+		GLuint       buffer,
+		GFX_Window*  window)
 {
-	if((GFX_RND).uniformBuffers)
+	if(window->renderer.uniformBuffers)
 	{
 		struct GFX_UniformBuffer buff;
 		buff.buffer = buffer;
 
 		_gfx_binder_unbind(
-			(GFX_RND).uniformBuffers,
-			(GFX_WND)->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
+			window->renderer.uniformBuffers,
+			window->limits[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(struct GFX_UniformBuffer),
 			sizeof(GLuint),
 			&buff
@@ -284,12 +286,13 @@ size_t _gfx_binder_bind_texture(
 		GLuint           texture,
 		GLenum           target,
 		int              prioritize,
-		int*             old)
+		int*             old,
+		GFX_Window*      window)
 {
 	/* Allocate binding points */
-	if(!(GFX_RND).textureUnits)
-		(GFX_RND).textureUnits = _gfx_binder_init(
-			(GFX_WND)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+	if(!window->renderer.textureUnits)
+		window->renderer.textureUnits = _gfx_binder_init(
+			window->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(struct GFX_TextureUnit)
 		);
 
@@ -298,8 +301,8 @@ size_t _gfx_binder_bind_texture(
 	unit.texture = texture;
 
 	size_t bind = _gfx_binder_request(
-		(GFX_RND).textureUnits,
-		(GFX_WND)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+		window->renderer.textureUnits,
+		window->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 		sizeof(struct GFX_TextureUnit),
 		&unit,
 		prioritize,
@@ -307,14 +310,14 @@ size_t _gfx_binder_bind_texture(
 	);
 
 	/* Bind the texture */
-	if((GFX_WND)->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(window->flags[GFX_EXT_DIRECT_STATE_ACCESS])
 	{
-		if(!*old) (GFX_RND).BindTextureUnit(bind, texture);
+		if(!*old) window->renderer.BindTextureUnit(bind, texture);
 	}
 	else
 	{
-		(GFX_RND).ActiveTexture(GL_TEXTURE0 + bind);
-		if(!*old) (GFX_RND).BindTexture(target, texture);
+		window->renderer.ActiveTexture(GL_TEXTURE0 + bind);
+		if(!*old) window->renderer.BindTexture(target, texture);
 	}
 
 	return bind;
@@ -323,16 +326,17 @@ size_t _gfx_binder_bind_texture(
 /******************************************************/
 void _gfx_binder_unbind_texture(
 
-		GLuint texture)
+		GLuint       texture,
+		GFX_Window*  window)
 {
-	if((GFX_RND).textureUnits)
+	if(window->renderer.textureUnits)
 	{
 		struct GFX_TextureUnit unit;
 		unit.texture = texture;
 
 		_gfx_binder_unbind(
-			(GFX_RND).textureUnits,
-			(GFX_WND)->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+			window->renderer.textureUnits,
+			window->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(struct GFX_TextureUnit),
 			sizeof(GLuint),
 			&unit

@@ -53,7 +53,8 @@ void _gfx_states_set_default(
  */
 void _gfx_states_set(
 
-		GFXPipeState* state);
+		GFXPipeState*  state,
+		GFX_Window*    window);
 
 /**
  * Forces all state fields of the current context.
@@ -63,7 +64,8 @@ void _gfx_states_set(
  */
 void _gfx_states_force_set(
 
-		GFXPipeState* state);
+		GFXPipeState*  state,
+		GFX_Window*    window);
 
 /**
  * Sets the viewport size of the current context.
@@ -71,10 +73,11 @@ void _gfx_states_force_set(
  */
 void _gfx_states_set_viewport(
 
-		int           x,
-		int           y,
-		unsigned int  width,
-		unsigned int  height);
+		int            x,
+		int            y,
+		unsigned int   width,
+		unsigned int   height,
+		GFX_Renderer*  rend);
 
 /**
  * Sets the pixel pack alignment of the current context.
@@ -82,7 +85,8 @@ void _gfx_states_set_viewport(
  */
 void _gfx_states_set_pixel_pack_alignment(
 
-		unsigned char align);
+		unsigned char  align,
+		GFX_Renderer*  rend);
 
 /**
  * Sets the pixel unpack alignment of the current context.
@@ -90,7 +94,8 @@ void _gfx_states_set_pixel_pack_alignment(
  */
 void _gfx_states_set_pixel_unpack_alignment(
 
-		unsigned char align);
+		unsigned char  align,
+		GFX_Renderer*  rend);
 
 /**
  * Sets the number of vertices per patch.
@@ -98,7 +103,8 @@ void _gfx_states_set_pixel_unpack_alignment(
  */
 void _gfx_states_set_patch_vertices(
 
-		unsigned int vertices);
+		unsigned int   vertices,
+		GFX_Renderer*  rend);
 
 
 /********************************************************
@@ -162,8 +168,9 @@ GFX_Pipe* _gfx_pipe_free(
  */
 void _gfx_pipeline_bind(
 
-		GLenum  target,
-		GLuint  framebuffer);
+		GLenum         target,
+		GLuint         framebuffer,
+		GFX_Renderer*  rend);
 
 
 /********************************************************
@@ -197,7 +204,8 @@ void _gfx_bucket_free(
 void _gfx_bucket_process(
 
 		GFXBucket*     bucket,
-		GFXPipeState*  state);
+		GFXPipeState*  state,
+		GFX_Window*    window);
 
 
 /********************************************************
@@ -219,17 +227,6 @@ GFXPipeProcess _gfx_pipe_process_create(void);
 void _gfx_pipe_process_free(
 
 		GFXPipeProcess process);
-
-/**
- * Executes the pipe process.
- *
- * @param pipeline Calling pipeline.
- *
- */
-void _gfx_pipe_process_execute(
-
-		GFXPipeProcess  process,
-		GFXPipeState*   state);
 
 /**
  * Prepares the current window for render to texture.
@@ -276,6 +273,18 @@ void _gfx_pipe_process_retarget(
 
 		GFX_Window*  replace,
 		GFX_Window*  target);
+
+/**
+ * Executes the pipe process.
+ *
+ * @param pipeline Calling pipeline.
+ *
+ */
+void _gfx_pipe_process_execute(
+
+		GFXPipeProcess  process,
+		GFXPipeState*   state,
+		GFX_Window*     window);
 
 
 #ifdef __cplusplus
