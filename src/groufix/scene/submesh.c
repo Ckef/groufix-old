@@ -483,25 +483,21 @@ void _gfx_submesh_set_batch_data(
 		{
 			/* Get difference and apply as appropriate */
 			GFXBatchFlags diff =
-				(flags ^ batch->data.flags) |
-				((batch->data.base != base || batch->data.variant != variant) ?
-				GFX_BATCH_INITIAL_ZERO_STATE : 0);
+				flags ^ batch->data.flags ||
+				batch->data.base != base ||
+				batch->data.variant != variant;
 
 			batch->data.flags   = flags;
 			batch->data.base    = base;
 			batch->data.variant = variant;
 
-			if(diff & GFX_BATCH_MULTIPLE_DATA)
-				_gfx_submesh_set_unit_copies(mesh, submeshID, copy);
-
-			if(diff & GFX_BATCH_INITIAL_ZERO_STATE)
-				_gfx_submesh_set_unit_states(mesh, submeshID);
+			if(diff) _gfx_submesh_set_unit_data(mesh, submeshID, copy);
 		}
 	}
 }
 
 /******************************************************/
-void _gfx_submesh_set_unit_copies(
+void _gfx_submesh_set_unit_data(
 
 		GFXSubMesh*   mesh,
 		unsigned int  submeshID,
@@ -522,47 +518,13 @@ void _gfx_submesh_set_unit_copies(
 	{
 		struct GFX_Units* it = gfx_vector_at(&internal->units, begin);
 
-		/* Set the copy of all units */
-		_gfx_batch_set_unit_copies(
+		/* Set the data of all units */
+		_gfx_batch_set_unit_data(
 			it->pipe->bucket,
 			(GFXBucketUnit*)(it + 1),
 			&batch->data,
 			it->units,
-			copy);
-
-		begin +=
-			sizeof(struct GFX_Units) +
-			sizeof(GFXBucketUnit) * it->units;
-	}
-}
-
-/******************************************************/
-void _gfx_submesh_set_unit_states(
-
-		GFXSubMesh*   mesh,
-		unsigned int  submeshID)
-{
-	/* Get batch and bounds */
-	struct GFX_SubMesh* internal =
-		(struct GFX_SubMesh*)mesh;
-	struct GFX_Batch* batch =
-		gfx_vector_at(&internal->batches, submeshID - 1);
-
-	unsigned int begin;
-	unsigned int end;
-	_gfx_submesh_get_batch_units_bounds(internal, batch, &begin, &end);
-
-	/* Iterate through all buckets */
-	while(begin < end)
-	{
-		struct GFX_Units* it = gfx_vector_at(&internal->units, begin);
-
-		/* Set the state of all units */
-		_gfx_batch_set_unit_states(
-			it->pipe->bucket,
-			(GFXBucketUnit*)(it + 1),
-			&batch->data,
-			it->units,
+			copy,
 			0);
 
 		begin +=

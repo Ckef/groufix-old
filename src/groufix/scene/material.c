@@ -104,7 +104,7 @@ static struct GFX_MapData* _gfx_material_increase_copies(
 				it->copy : *upper;
 
 			/* And adjust all units */
-			_gfx_submesh_set_unit_copies(
+			_gfx_submesh_set_unit_data(
 				it->submesh,
 				it->submeshID,
 				it->copy

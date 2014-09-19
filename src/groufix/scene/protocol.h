@@ -48,32 +48,20 @@ typedef struct GFX_BatchData
 
 
 /**
- * Sets the copy of all given units according to given flags.
+ * Sets the copy and state of all given units according to given flags.
  *
- * @param num  Number of copies in units.
- * @param copy Starting copy to use.
- *
- */
-void _gfx_batch_set_unit_copies(
-
-		GFXBucket*            bucket,
-		GFXBucketUnit*        units,
-		const GFX_BatchData*  data,
-		unsigned int          num,
-		unsigned int          copy);
-
-/**
- * Sets the state of all given units according to given flags.
- *
+ * @param num   Number of units.
+ * @param copy  Starting copy to use.
  * @param first Displacement index to use for calculating the states.
  *
  */
-void _gfx_batch_set_unit_states(
+void _gfx_batch_set_unit_data(
 
 		GFXBucket*            bucket,
 		GFXBucketUnit*        units,
 		const GFX_BatchData*  data,
 		unsigned int          num,
+		unsigned int          copy,
 		unsigned int          first);
 
 
@@ -249,10 +237,7 @@ const GFX_BatchData* _gfx_submesh_get_batch_data(
 /**
  * Sets the metadata of a batch at a submesh.
  *
- * In addition, it will also call _gfx_submesh_set_unit_copies and
- * _gfx_submesh_set_unit_states for the given batch, if necessary.
- *
- * copy is ignored if flags is equal to the current flags.
+ * In addition, it will also call _gfx_submesh_set_unit_data for the given batch, if necessary.
  *
  */
 void _gfx_submesh_set_batch_data(
@@ -265,31 +250,18 @@ void _gfx_submesh_set_batch_data(
 		unsigned int   copy);
 
 /**
- * Calls _gfx_batch_set_unit_copies for all associated buckets of a batch.
+ * Calss _gfx_batch_set_unit_data for all associated buckets of a batch.
  *
- * This call will set the copy of all units for all buckets.
+ * This call will set the copy and state of all units for all buckets with the stored states.
  *
  * Note: undefined behaviour if the batch does not exist!
  *
  */
-void _gfx_submesh_set_unit_copies(
+void _gfx_submesh_set_unit_data(
 
 		GFXSubMesh*   mesh,
 		unsigned int  submeshID,
 		unsigned int  copy);
-
-/**
- * Calls _gfx_batch_set_unit_states for all associated buckets of a batch.
- *
- * This call will set the state of all units for all buckets with the stored states.
- *
- * Note: undefined behaviour if the batch does not exist!
- *
- */
-void _gfx_submesh_set_unit_states(
-
-		GFXSubMesh*   mesh,
-		unsigned int  submeshID);
 
 
 /********************************************************

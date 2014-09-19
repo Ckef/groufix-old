@@ -80,40 +80,29 @@ static void _gfx_batch_get_map(
 }
 
 /******************************************************/
-void _gfx_batch_set_unit_copies(
+void _gfx_batch_set_unit_data(
 
 		GFXBucket*            bucket,
 		GFXBucketUnit*        units,
 		const GFX_BatchData*  data,
 		unsigned int          num,
-		unsigned int          copy)
+		unsigned int          copy,
+		unsigned int          first)
 {
 	unsigned int add =
 		(data->flags & GFX_BATCH_MULTIPLE_DATA) ? 1 : 0;
 
-	/* Set all the copies */
-	unsigned int u;
-	for(u = 0; u < num; ++u, copy += add)
-		gfx_bucket_set_copy(bucket, units[u], copy);
-}
-
-/******************************************************/
-void _gfx_batch_set_unit_states(
-
-		GFXBucket*            bucket,
-		GFXBucketUnit*        units,
-		const GFX_BatchData*  data,
-		unsigned int          num,
-		unsigned int          first)
-{
 	GFXBatchState state =
 		(data->flags & GFX_BATCH_INITIAL_ZERO_STATE ? 0 : data->variant) +
 		data->variant * first;
 
-	/* Set all the states */
+	/* Set all the copies and states */
 	unsigned int u;
-	for(u = 0; u < num; ++u, state += data->variant)
+	for(u = 0; u < num; ++u, copy += add, state += data->variant)
+	{
+		gfx_bucket_set_copy(bucket, units[u], copy);
 		gfx_bucket_set_state(bucket, units[u], state | data->base);
+	}
 }
 
 /******************************************************/
@@ -314,16 +303,17 @@ void gfx_batch_set_state(
 {
 	const GFX_BatchData* data = _gfx_submesh_get_batch_data(
 		batch->submesh,
-		batch->submeshID);
+		batch->submeshID
+	);
 
-	/* Don't bother with copy as it will be ignored anyway */
 	_gfx_submesh_set_batch_data(
 		batch->submesh,
 		batch->submeshID,
 		data->flags,
 		base,
 		variant,
-		0);
+		_gfx_material_get_batch_copy(batch->material, batch->materialID)
+	);
 }
 
 /******************************************************/
@@ -460,11 +450,7 @@ static void _gfx_batch_increase_copies(
 	/* Set copies and state of itself */
 	units += first;
 	num -= first;
-
-	_gfx_batch_set_unit_copies(
-		bucket, units, data, num, copy);
-	_gfx_batch_set_unit_states(
-		bucket, units, data, num, first);
+	_gfx_batch_set_unit_data(bucket, units, data, num, copy, first);
 
 	/* Increase batch copies */
 	_gfx_material_increase_batch_copies(
@@ -686,16 +672,18 @@ int gfx_batch_set_instances(
 		batch->submesh,
 		batch->submeshID);
 
-	/* Increase */
 	if(instances > current)
 	{
+		/* Increase */
 		if(!_gfx_batch_increase_instances(
 			batch, bucket, handle, instances, copies)) return 0;
 	}
-
-	/* Decrease */
-	else if(instances < current) _gfx_batch_decrease_instances(
-		batch, bucket, handle, instances, copies);
+	else
+	{
+		/* Decrease */
+		if(instances < current) _gfx_batch_decrease_instances(
+			batch, bucket, handle, instances, copies);
+	}
 
 	/* Aaand set instances */
 	if(instances) _gfx_submesh_set_instances(
