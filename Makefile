@@ -50,19 +50,16 @@ help:
 CC       = gcc
 BIN      = bin
 OUT      = obj
-DEPEND   = depend
-INCLUDE  = include
-SRC      = src
 RENDERER = GL
 SSE      = YES
 
 # Flags for all object files
-CFLAGS            = -Os -O2 -Wall -pedantic -I$(INCLUDE) -DGFX_$(RENDERER) -DGFX_$(SSE)_SSE
+CFLAGS            = -Os -O2 -Wall -pedantic -Iinclude -DGFX_$(RENDERER) -DGFX_$(SSE)_SSE
 CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32      = $(CFLAGS) -std=c99
 
 # Library object files only
-OBJFLAGS          = -c -s -I$(DEPEND) -I$(SRC)
+OBJFLAGS          = -c -s -Idepend -Isrc
 OBJFLAGS_UNIX_X11 = $(OBJFLAGS) $(CFLAGS_UNIX_X11) -fPIC -pthread
 OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32) -DWINVER=0x0600 -D_WIN32_WINNT=0x0600
 
@@ -76,51 +73,51 @@ LFLAGS_WIN32      = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
 # Header files for all window APIs (platforms)
 #################################################################
 HEADERS = \
- $(INCLUDE)/groufix/containers/deque.h \
- $(INCLUDE)/groufix/containers/list.h \
- $(INCLUDE)/groufix/containers/vector.h \
- $(INCLUDE)/groufix/core/errors.h \
- $(INCLUDE)/groufix/core/keys.h \
- $(INCLUDE)/groufix/core/memory.h \
- $(INCLUDE)/groufix/core/pipeline.h \
- $(INCLUDE)/groufix/core/shading.h \
- $(INCLUDE)/groufix/core/window.h \
- $(INCLUDE)/groufix/math/mat.h \
- $(INCLUDE)/groufix/math/quat.h \
- $(INCLUDE)/groufix/math/vec.h \
- $(INCLUDE)/groufix/scene/batch.h \
- $(INCLUDE)/groufix/scene/lod.h \
- $(INCLUDE)/groufix/scene/material.h \
- $(INCLUDE)/groufix/scene/mesh.h \
- $(INCLUDE)/groufix/math.h \
- $(INCLUDE)/groufix/scene.h \
- $(INCLUDE)/groufix/utils.h \
- $(INCLUDE)/groufix.h
+ include/groufix/containers/deque.h \
+ include/groufix/containers/list.h \
+ include/groufix/containers/vector.h \
+ include/groufix/core/errors.h \
+ include/groufix/core/keys.h \
+ include/groufix/core/memory.h \
+ include/groufix/core/pipeline.h \
+ include/groufix/core/shading.h \
+ include/groufix/core/window.h \
+ include/groufix/math/mat.h \
+ include/groufix/math/quat.h \
+ include/groufix/math/vec.h \
+ include/groufix/scene/batch.h \
+ include/groufix/scene/lod.h \
+ include/groufix/scene/material.h \
+ include/groufix/scene/mesh.h \
+ include/groufix/math.h \
+ include/groufix/scene.h \
+ include/groufix/utils.h \
+ include/groufix.h
 
 HEADERS_LIB = \
  $(HEADERS) \
- $(DEPEND)/GL/glcorearb.h \
- $(DEPEND)/GLES3/gl31.h \
- $(DEPEND)/GLES3/gl3platform.h \
- $(DEPEND)/KHR/khrplatform.h \
- $(SRC)/groufix/core/memory/internal.h \
- $(SRC)/groufix/core/pipeline/internal.h \
- $(SRC)/groufix/core/renderer/gl.h \
- $(SRC)/groufix/core/shading/internal.h \
- $(SRC)/groufix/core/platform.h \
- $(SRC)/groufix/core/renderer.h \
- $(SRC)/groufix/scene/internal.h \
- $(SRC)/groufix/scene/protocol.h
+ depend/GL/glcorearb.h \
+ depend/GLES3/gl31.h \
+ depend/GLES3/gl3platform.h \
+ depend/KHR/khrplatform.h \
+ src/groufix/core/memory/internal.h \
+ src/groufix/core/pipeline/internal.h \
+ src/groufix/core/renderer/gl.h \
+ src/groufix/core/shading/internal.h \
+ src/groufix/core/platform.h \
+ src/groufix/core/renderer.h \
+ src/groufix/scene/internal.h \
+ src/groufix/scene/protocol.h
 
 HEADERS_UNIX_X11 = \
  $(HEADERS_LIB) \
- $(DEPEND)/GL/glxext.h \
- $(SRC)/groufix/core/platform/x11.h
+ depend/GL/glxext.h \
+ src/groufix/core/platform/x11.h
 
 HEADERS_WIN32 = \
  $(HEADERS_LIB) \
- $(DEPEND)/GL/wglext.h \
- $(SRC)/groufix/core/platform/win32.h
+ depend/GL/wglext.h \
+ src/groufix/core/platform/win32.h
 
 
 #################################################################
@@ -209,7 +206,7 @@ unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
 	$(CC) $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LFLAGS_UNIX_X11)
 
 # All the object files
-$(OUT)/unix-x11%.o: $(SRC)%.c $(HEADERS_UNIX_X11)
+$(OUT)/unix-x11%.o: src%.c $(HEADERS_UNIX_X11)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
 
@@ -281,5 +278,5 @@ win32: before-win32 $(OBJS_WIN32)
 	$(CC) $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
 
 # All the object files
-$(OUT)/win32%.o: $(SRC)%.c $(HEADERS_WIN32)
+$(OUT)/win32%.o: src%.c $(HEADERS_WIN32)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
