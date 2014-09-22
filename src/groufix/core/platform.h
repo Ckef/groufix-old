@@ -665,10 +665,12 @@ int _gfx_platform_context_set_swap_interval(
 		int                 num);
 
 /**
- * Swaps the internal buffers of the current context.
+ * Swaps the internal buffers of the window.
  *
  */
-void _gfx_platform_context_swap_buffers(void);
+void _gfx_platform_context_swap_buffers(
+
+		GFX_PlatformWindow handle);
 
 
 /********************************************************

@@ -163,18 +163,23 @@ GFX_Window* _gfx_window_get_current(void)
 /******************************************************/
 void _gfx_window_swap_buffers(void)
 {
-	/* Swap buffers and poll errors while it's current */
-	_gfx_platform_context_swap_buffers();
+	/* Swap buffers */
 	GFX_Window* window = _gfx_platform_key_get(_gfx_current_window);
 
-	if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG && window)
+	if(window)
 	{
-		/* Loop over all errors */
-		GLenum err = window->renderer.GetError();
-		while(err != GL_NO_ERROR)
+		_gfx_platform_context_swap_buffers(window->handle);
+
+		/* Poll errors while it's current */
+		if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG)
 		{
-			gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
-			err = window->renderer.GetError();
+			/* Loop over all errors */
+			GLenum err = window->renderer.GetError();
+			while(err != GL_NO_ERROR)
+			{
+				gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
+				err = window->renderer.GetError();
+			}
 		}
 	}
 }
