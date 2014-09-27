@@ -433,7 +433,7 @@ int gfx_vertex_layout_set_feedback(
 	if(!window) return 0;
 
 	/* Check number of buffers */
-	if(num > window->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS])
+	if(num > window->lim[GFX_LIM_MAX_FEEDBACK_BUFFERS])
 		return 0;
 
 	free(internal->TFBuffers);
@@ -483,7 +483,7 @@ int gfx_vertex_layout_set_patch_vertices(
 	if(!window) return 0;
 
 	/* Bound check */
-	if(vertices > window->limits[GFX_LIM_MAX_PATCH_VERTICES])
+	if(vertices > window->lim[GFX_LIM_MAX_PATCH_VERTICES])
 		return 0;
 
 	internal->patchVertices = vertices;
@@ -499,7 +499,7 @@ static int _gfx_layout_set_attribute(
 		GFX_Window*         window)
 {
 	/* Check index */
-	if(index >= window->limits[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
+	if(index >= window->lim[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
 	size_t size = gfx_vector_get_size(&layout->attributes);
 
 	if(index >= size)
@@ -733,7 +733,7 @@ int gfx_vertex_layout_set_draw_call(
 	/* Check extensions */
 	if(
 		call->primitive == GFX_PATCHES &&
-		!window->flags[GFX_EXT_TESSELLATION_SHADER])
+		!window->ext[GFX_EXT_TESSELLATION_SHADER])
 	{
 		return 0;
 	}

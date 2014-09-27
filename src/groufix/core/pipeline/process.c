@@ -290,11 +290,14 @@ void gfx_pipe_process_set_target(
 		GFXWindow*      target,
 		int             swap)
 {
+	GFX_Window* window = (GFX_Window*)target;
 	struct GFX_Process* internal = (struct GFX_Process*)process;
-	internal->target = (GFX_Window*)target;
+
+	/* Remove its target */
+	if(!window) internal->target = NULL;
 
 	/* Set viewport & swap buffers */
-	if(target)
+	else if(!window->offscreen)
 	{
 		gfx_window_get_size(
 			target,
@@ -302,6 +305,7 @@ void gfx_pipe_process_set_target(
 			&internal->height
 		);
 
+		internal->target = window;
 		internal->swap = swap ? 1 : 0;
 	}
 }
@@ -320,9 +324,10 @@ void _gfx_pipe_process_execute(
 	{
 		if(internal->target)
 		{
-			/* Make target current, draw, swap, and switch back to previously active */
-			_gfx_window_make_current(internal->target);
 			GLuint fbo = window->renderer.fbos[0];
+
+			/* Set to new state of window to draw to */
+			_gfx_window_make_current(internal->target);
 
 			_gfx_pipeline_bind(
 				GL_DRAW_FRAMEBUFFER,
@@ -335,6 +340,7 @@ void _gfx_pipe_process_execute(
 				internal->height,
 				&internal->target->renderer);
 
+			/* Draw to the window and swap buffers */
 			_gfx_pipe_process_draw(
 				state,
 				internal->map,
@@ -343,6 +349,7 @@ void _gfx_pipe_process_execute(
 
 			if(internal->swap) _gfx_window_swap_buffers();
 
+			/* Restore previous state */
 			_gfx_pipeline_bind(
 				GL_DRAW_FRAMEBUFFER,
 				fbo,

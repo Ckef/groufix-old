@@ -678,10 +678,11 @@ int gfx_batch_set_instances(
 		if(!_gfx_batch_increase_instances(
 			batch, bucket, handle, instances, copies)) return 0;
 	}
-	else
+
+	else if(instances < current)
 	{
 		/* Decrease */
-		if(instances < current) _gfx_batch_decrease_instances(
+		_gfx_batch_decrease_instances(
 			batch, bucket, handle, instances, copies);
 	}
 

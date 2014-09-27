@@ -52,10 +52,11 @@ typedef struct GFX_Window
 	GFXWindow window;
 
 	/* Hardware Extensions & Limits */
-	unsigned char       flags[GFX_EXT_COUNT];
-	int                 limits[GFX_LIM_COUNT];
+	unsigned char       ext[GFX_EXT_COUNT];
+	int                 lim[GFX_LIM_COUNT];
 
 	/* Hidden data */
+	char                offscreen;
 	GFX_PlatformWindow  handle;
 	GFXContext          context;  /* Context version */
 	GFXPipeState        state;
@@ -71,6 +72,30 @@ typedef struct GFX_Window
 GFX_Window* _gfx_window_get_from_handle(
 
 		GFX_PlatformWindow handle);
+
+/**
+ * Creates a new off-screen window.
+ *
+ * Note: events have no effect on an off-screen window.
+ *
+ * The returned window behaves as a regular window, except that _gfx_window_free
+ * must be called instead of gfx_window_free.
+ *
+ * Also, it is not destroyed at gfx_terminate.
+ *
+ */
+GFX_Window* _gfx_window_create(void);
+
+/**
+ * Destroys and frees an off-screen window.
+ *
+ * Note: this function should not be used on regular windows, use gfx_window_free
+ * instead!
+ *
+ */
+void _gfx_window_free(
+
+		GFX_Window* window);
 
 /**
  * Destroys the server side window.

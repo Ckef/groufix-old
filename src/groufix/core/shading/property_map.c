@@ -460,13 +460,13 @@ static int _gfx_property_enable(
 		if(type == GFX_INT_PROPERTY_SAMPLER)
 		{
 			sampDiff = 1;
-			if(map->samplers + sampDiff > window->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES])
+			if(map->samplers + sampDiff > window->lim[GFX_LIM_MAX_SAMPLER_PROPERTIES])
 				return 0;
 		}
 		else if(type == GFX_INT_PROPERTY_BLOCK)
 		{
 			blockDiff = 1;
-			if(map->blocks + blockDiff > window->limits[GFX_LIM_MAX_BUFFER_PROPERTIES])
+			if(map->blocks + blockDiff > window->lim[GFX_LIM_MAX_BUFFER_PROPERTIES])
 				return 0;
 		}
 

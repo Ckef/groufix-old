@@ -61,7 +61,7 @@ static int _gfx_shader_eval_type(
 		case GFX_TESS_CONTROL_SHADER :
 		case GFX_TESS_EVAL_SHADER :
 
-			if(!window->flags[GFX_EXT_TESSELLATION_SHADER])
+			if(!window->ext[GFX_EXT_TESSELLATION_SHADER])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -74,7 +74,7 @@ static int _gfx_shader_eval_type(
 		/* GFX_EXT_GEOMETRY_SHADER */
 		case GFX_GEOMETRY_SHADER :
 
-			if(!window->flags[GFX_EXT_GEOMETRY_SHADER])
+			if(!window->ext[GFX_EXT_GEOMETRY_SHADER])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,

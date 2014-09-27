@@ -51,7 +51,7 @@ static int _gfx_buffer_eval_target(
 		/* GFX_EXT_BUFFER_TEXTURE */
 		case GFX_TEXTURE_BUFFER :
 
-			if(!window->flags[GFX_EXT_BUFFER_TEXTURE])
+			if(!window->ext[GFX_EXT_BUFFER_TEXTURE])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,

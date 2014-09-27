@@ -614,7 +614,7 @@ int gfx_program_set_attribute(
 	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 
-	if(index >= window->limits[GFX_LIM_MAX_VERTEX_ATTRIBS])
+	if(index >= window->lim[GFX_LIM_MAX_VERTEX_ATTRIBS])
 		return 0;
 
 	struct GFX_Program* internal = (struct GFX_Program*)program;
@@ -640,7 +640,7 @@ int gfx_program_set_feedback(
 	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 
-	if(num > window->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS] &&
+	if(num > window->lim[GFX_LIM_MAX_FEEDBACK_BUFFERS] &&
 		mode == GFX_FEEDBACK_SEPARATE) return 0;
 
 	struct GFX_Program* internal = (struct GFX_Program*)program;
@@ -670,7 +670,7 @@ int gfx_program_link(
 	if(!window) return 0;
 
 	/* Set binary parameter */
-	if(window->flags[GFX_EXT_PROGRAM_BINARY])
+	if(window->ext[GFX_EXT_PROGRAM_BINARY])
 	{
 		window->renderer.ProgramParameteri(
 			internal->handle,

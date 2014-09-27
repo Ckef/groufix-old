@@ -84,7 +84,7 @@ static int _gfx_texture_eval_target(
 		case GL_TEXTURE_1D :
 		case GL_TEXTURE_1D_ARRAY :
 
-			if(!window->flags[GFX_EXT_TEXTURE_1D])
+			if(!window->ext[GFX_EXT_TEXTURE_1D])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -97,7 +97,7 @@ static int _gfx_texture_eval_target(
 		/* GFX_EXT_BUFFER_TEXTURE */
 		case GL_TEXTURE_BUFFER :
 
-			if(!window->flags[GFX_EXT_BUFFER_TEXTURE])
+			if(!window->ext[GFX_EXT_BUFFER_TEXTURE])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -110,7 +110,7 @@ static int _gfx_texture_eval_target(
 		/* GFX_EXT_MULTISAMPLE_TEXTURE */
 		case GL_TEXTURE_2D_MULTISAMPLE :
 
-			if(!window->flags[GFX_EXT_MULTISAMPLE_TEXTURE])
+			if(!window->ext[GFX_EXT_MULTISAMPLE_TEXTURE])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -123,7 +123,7 @@ static int _gfx_texture_eval_target(
 		/* GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE */
 		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
 
-			if(!window->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE])
+			if(!window->ext[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -136,7 +136,7 @@ static int _gfx_texture_eval_target(
 		/* GFX_EXT_LAYERED_CUBEMAP */
 		case GL_TEXTURE_CUBE_MAP_ARRAY :
 
-			if(!window->flags[GFX_EXT_LAYERED_CUBEMAP])
+			if(!window->ext[GFX_EXT_LAYERED_CUBEMAP])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -258,7 +258,7 @@ static void _gfx_texture_set_storage(
 	tex->texture.depth  = depth;
 
 	/* Allocate storage */
-	if(window->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(window->ext[GFX_EXT_DIRECT_STATE_ACCESS])
 	{
 		switch(tex->target)
 		{
@@ -484,7 +484,7 @@ GFXTexture* gfx_texture_create(
 	tex->texture.mipmaps = mipmaps;
 
 	/* Set parameters */
-	if(window->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(window->ext[GFX_EXT_DIRECT_STATE_ACCESS])
 	{
 		window->renderer.TextureParameteri(
 			tex->handle, GL_TEXTURE_BASE_LEVEL, 0);
@@ -534,7 +534,7 @@ GFXTexture* gfx_texture_create_multisample(
 	if(!tex) return NULL;
 
 	/* Limit samples */
-	int maxSamples = window->limits[GFX_LIM_MAX_SAMPLES];
+	int maxSamples = window->lim[GFX_LIM_MAX_SAMPLES];
 
 	tex->texture.type =
 		GFX_TEXTURE_2D;
@@ -576,14 +576,14 @@ GFXTexture* gfx_texture_create_buffer_link(
 	if(tex->texture.width)
 		tex->texture.width = buffer->size / tex->texture.width;
 
-	int max = window->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE];
+	int max = window->lim[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE];
 	tex->texture.width = tex->texture.width > max ? max : tex->texture.width;
 
 	tex->texture.height = 1;
 	tex->texture.depth  = 1;
 
 	/* Link buffer */
-	if(window->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(window->ext[GFX_EXT_DIRECT_STATE_ACCESS])
 	{
 		window->renderer.TextureBuffer(
 			tex->handle, tex->format, tex->buffer);
@@ -679,7 +679,7 @@ void gfx_texture_write(
 		/* Say wut? */
 		if(pixForm < 0) return;
 
-		if(window->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+		if(window->ext[GFX_EXT_DIRECT_STATE_ACCESS])
 		{
 			switch(internal->target)
 			{
@@ -966,7 +966,7 @@ void gfx_texture_generate_mipmaps(
 	struct GFX_Texture* internal = (struct GFX_Texture*)texture;
 	int old;
 
-	if(window->flags[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(window->ext[GFX_EXT_DIRECT_STATE_ACCESS])
 	{
 		window->renderer.GenerateTextureMipmap(internal->handle);
 	}

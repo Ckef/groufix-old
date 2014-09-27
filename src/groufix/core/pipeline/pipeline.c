@@ -419,8 +419,8 @@ unsigned int gfx_pipeline_target(
 	if(!num || !window) return 0;
 
 	/* Limit number of targets */
-	num = (num > window->limits[GFX_LIM_MAX_COLOR_TARGETS]) ?
-		window->limits[GFX_LIM_MAX_COLOR_TARGETS] : num;
+	num = (num > window->lim[GFX_LIM_MAX_COLOR_TARGETS]) ?
+		window->lim[GFX_LIM_MAX_COLOR_TARGETS] : num;
 
 	/* Construct attachment buffer */
 	GLenum* targets = malloc(sizeof(GLenum) * num);
@@ -439,7 +439,7 @@ unsigned int gfx_pipeline_target(
 	internal->numTargets = num;
 
 	unsigned int i;
-	int max = window->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS];
+	int max = window->lim[GFX_LIM_MAX_COLOR_ATTACHMENTS];
 
 	for(i = 0; i < num; ++i)
 	{
@@ -472,7 +472,7 @@ int gfx_pipeline_attach(
 
 	/* Check attachment limit */
 	if(attach != GFX_COLOR_ATTACHMENT) index = 0;
-	else if(index >= window->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS])
+	else if(index >= window->lim[GFX_LIM_MAX_COLOR_ATTACHMENTS])
 		return 0;
 
 	/* Init attachment */

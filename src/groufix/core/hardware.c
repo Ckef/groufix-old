@@ -50,7 +50,7 @@ int gfx_hardware_is_extension_supported(
 	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return 0;
 
-	return window->flags[extension];
+	return window->ext[extension];
 }
 
 /******************************************************/
@@ -61,7 +61,7 @@ int gfx_hardware_get_limit(
 	GFX_Window* window = _gfx_window_get_current();
 	if(!window) return -1;
 
-	return window->limits[limit];
+	return window->lim[limit];
 }
 
 /******************************************************/

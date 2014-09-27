@@ -58,48 +58,48 @@ void _gfx_renderer_load(void)
 	GLint limit;
 
 	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &limit);
-		window->limits[GFX_LIM_MAX_BUFFER_PROPERTIES] = limit;
+		window->lim[GFX_LIM_MAX_BUFFER_PROPERTIES] = limit;
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &limit);
-		window->limits[GFX_LIM_MAX_COLOR_ATTACHMENTS] = limit;
+		window->lim[GFX_LIM_MAX_COLOR_ATTACHMENTS] = limit;
 	glGetIntegerv(GL_MAX_DRAW_BUFFERS, &limit);
-		window->limits[GFX_LIM_MAX_COLOR_TARGETS] = limit;
+		window->lim[GFX_LIM_MAX_COLOR_TARGETS] = limit;
 	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limit);
-		window->limits[GFX_LIM_MAX_CUBEMAP_SIZE] = limit;
+		window->lim[GFX_LIM_MAX_CUBEMAP_SIZE] = limit;
 	glGetIntegerv(GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, &limit);
-		window->limits[GFX_LIM_MAX_FEEDBACK_BUFFERS] = limit;
+		window->lim[GFX_LIM_MAX_FEEDBACK_BUFFERS] = limit;
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &limit);
-		window->limits[GFX_LIM_MAX_SAMPLER_PROPERTIES] = limit;
+		window->lim[GFX_LIM_MAX_SAMPLER_PROPERTIES] = limit;
 	glGetIntegerv(GL_MAX_SAMPLES, &limit);
-		window->limits[GFX_LIM_MAX_SAMPLES] = limit;
+		window->lim[GFX_LIM_MAX_SAMPLES] = limit;
 	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &limit);
-		window->limits[GFX_LIM_MAX_TEXTURE_3D_SIZE] = limit;
+		window->lim[GFX_LIM_MAX_TEXTURE_3D_SIZE] = limit;
 	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &limit);
-		window->limits[GFX_LIM_MAX_TEXTURE_LAYERS] = limit;
+		window->lim[GFX_LIM_MAX_TEXTURE_LAYERS] = limit;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &limit);
-		window->limits[GFX_LIM_MAX_TEXTURE_SIZE] = limit;
+		window->lim[GFX_LIM_MAX_TEXTURE_SIZE] = limit;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &limit);
-		window->limits[GFX_LIM_MAX_VERTEX_ATTRIBS] = limit;
+		window->lim[GFX_LIM_MAX_VERTEX_ATTRIBS] = limit;
 
 #if defined(GFX_GLES)
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	window->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = 0;
-	window->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
+	window->lim[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = 0;
+	window->lim[GFX_LIM_MAX_PATCH_VERTICES] = 0;
 
 	/* Default Extensions */
-	window->flags[GFX_EXT_BUFFER_TEXTURE]              = 0;
-	window->flags[GFX_EXT_DIRECT_STATE_ACCESS]         = 0;
-	window->flags[GFX_EXT_GEOMETRY_SHADER]             = 0;
-	window->flags[GFX_EXT_IMMUTABLE_TEXTURE]           = 1;
-	window->flags[GFX_EXT_INSTANCED_ATTRIBUTES]        = 1;
-	window->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES]   = 0;
-	window->flags[GFX_EXT_LAYERED_CUBEMAP]             = 0;
-	window->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 0;
-	window->flags[GFX_EXT_POLYGON_STATE]               = 0;
-	window->flags[GFX_EXT_PROGRAM_BINARY]              = 1;
-	window->flags[GFX_EXT_SEAMLESS_CUBEMAP]            = 0;
-	window->flags[GFX_EXT_TESSELLATION_SHADER]         = 0;
-	window->flags[GFX_EXT_TEXTURE_1D]                  = 0;
+	window->ext[GFX_EXT_BUFFER_TEXTURE]              = 0;
+	window->ext[GFX_EXT_DIRECT_STATE_ACCESS]         = 0;
+	window->ext[GFX_EXT_GEOMETRY_SHADER]             = 0;
+	window->ext[GFX_EXT_IMMUTABLE_TEXTURE]           = 1;
+	window->ext[GFX_EXT_INSTANCED_ATTRIBUTES]        = 1;
+	window->ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES]   = 0;
+	window->ext[GFX_EXT_LAYERED_CUBEMAP]             = 0;
+	window->ext[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 0;
+	window->ext[GFX_EXT_POLYGON_STATE]               = 0;
+	window->ext[GFX_EXT_PROGRAM_BINARY]              = 1;
+	window->ext[GFX_EXT_SEAMLESS_CUBEMAP]            = 0;
+	window->ext[GFX_EXT_TESSELLATION_SHADER]         = 0;
+	window->ext[GFX_EXT_TEXTURE_1D]                  = 0;
 
 	/* GLES, assumes 3.0+ */
 	window->renderer.ActiveTexture                     = glActiveTexture;
@@ -249,16 +249,16 @@ void _gfx_renderer_load(void)
 		window->context.major > 3 ||
 		(window->context.major == 3 && window->context.minor > 0))
 	{
-		window->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
-		window->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
+		window->ext[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
+		window->ext[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
 
 		window->renderer.TexStorage2DMultisample = glTexStorage2DMultisample;
 	}
 
 	else
 	{
-		window->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
-		window->flags[GFX_EXT_MULTISAMPLE_TEXTURE] = 0;
+		window->ext[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
+		window->ext[GFX_EXT_MULTISAMPLE_TEXTURE] = 0;
 
 		window->renderer.TexStorage2DMultisample = _gfx_gles_tex_storage_2d_multisample;
 	}
@@ -270,16 +270,16 @@ void _gfx_renderer_load(void)
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &limit);
-		window->limits[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = limit;
+		window->lim[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = limit;
 
 	/* Default Extensions */
-	window->flags[GFX_EXT_BUFFER_TEXTURE]              = 1;
-	window->flags[GFX_EXT_GEOMETRY_SHADER]             = 1;
-	window->flags[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 1;
-	window->flags[GFX_EXT_MULTISAMPLE_TEXTURE]         = 1;
-	window->flags[GFX_EXT_POLYGON_STATE]               = 1;
-	window->flags[GFX_EXT_SEAMLESS_CUBEMAP]            = 1;
-	window->flags[GFX_EXT_TEXTURE_1D]                  = 1;
+	window->ext[GFX_EXT_BUFFER_TEXTURE]              = 1;
+	window->ext[GFX_EXT_GEOMETRY_SHADER]             = 1;
+	window->ext[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 1;
+	window->ext[GFX_EXT_MULTISAMPLE_TEXTURE]         = 1;
+	window->ext[GFX_EXT_POLYGON_STATE]               = 1;
+	window->ext[GFX_EXT_SEAMLESS_CUBEMAP]            = 1;
+	window->ext[GFX_EXT_TEXTURE_1D]                  = 1;
 
 	/* Core, assumes 3.2+ context */
 	window->renderer.ActiveTexture =
@@ -493,7 +493,7 @@ void _gfx_renderer_load(void)
 		(window->context.major == 4 && window->context.minor > 4) ||
 		_gfx_is_extension_supported("GL_ARB_direct_state_access", window))
 	{
-		window->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
+		window->ext[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
 
 		window->renderer.BindTextureUnit =
 			(PFNGLBINDTEXTUREUNITPROC)_gfx_platform_get_proc_address("glBindTextureUnit");
@@ -553,7 +553,7 @@ void _gfx_renderer_load(void)
 
 	else
 	{
-		window->flags[GFX_EXT_DIRECT_STATE_ACCESS] = 0;
+		window->ext[GFX_EXT_DIRECT_STATE_ACCESS] = 0;
 
 		window->renderer.BindTextureUnit              = _gfx_gl_bind_texture_unit;
 		window->renderer.CopyNamedBufferSubData       = _gfx_gl_copy_named_buffer_sub_data;
@@ -590,7 +590,7 @@ void _gfx_renderer_load(void)
 		(window->context.major == 4 && window->context.minor > 1) ||
 		_gfx_is_extension_supported("GL_ARB_texture_storage", window))
 	{
-		window->flags[GFX_EXT_IMMUTABLE_TEXTURE] = 1;
+		window->ext[GFX_EXT_IMMUTABLE_TEXTURE] = 1;
 
 		window->renderer.TexStorage1D =
 			(PFNGLTEXSTORAGE1DPROC)_gfx_platform_get_proc_address("glTexStorage1D");
@@ -602,7 +602,7 @@ void _gfx_renderer_load(void)
 
 	else
 	{
-		window->flags[GFX_EXT_IMMUTABLE_TEXTURE] = 0;
+		window->ext[GFX_EXT_IMMUTABLE_TEXTURE] = 0;
 
 		window->renderer.TexStorage1D = _gfx_gl_tex_storage_1d;
 		window->renderer.TexStorage2D = _gfx_gl_tex_storage_2d;
@@ -615,7 +615,7 @@ void _gfx_renderer_load(void)
 		(window->context.major == 4 && window->context.minor > 2) ||
 		_gfx_is_extension_supported("GL_ARB_texture_storage_multisample", window))
 	{
-		window->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
+		window->ext[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
 
 		window->renderer.TexStorage2DMultisample =
 			(PFNGLTEXSTORAGE2DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexStorage2DMultisample");
@@ -625,7 +625,7 @@ void _gfx_renderer_load(void)
 
 	else
 	{
-		window->flags[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
+		window->ext[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 0;
 
 		window->renderer.TexStorage2DMultisample = _gfx_gl_tex_storage_2d_multisample;
 		window->renderer.TexStorage3DMultisample = _gfx_gl_tex_storage_3d_multisample;
@@ -636,7 +636,7 @@ void _gfx_renderer_load(void)
 		window->context.major > 3 ||
 		(window->context.major == 3 && window->context.minor > 2))
 	{
-		window->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
+		window->ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 
 		window->renderer.VertexAttribDivisor =
 			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisor");
@@ -644,7 +644,7 @@ void _gfx_renderer_load(void)
 
 	else if(_gfx_is_extension_supported("GL_ARB_instanced_arrays", window))
 	{
-		window->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
+		window->ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 
 		window->renderer.VertexAttribDivisor =
 			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisorARB");
@@ -652,7 +652,7 @@ void _gfx_renderer_load(void)
 
 	else
 	{
-		window->flags[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
+		window->ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 0;
 
 		window->renderer.VertexAttribDivisor = _gfx_gl_vertex_attrib_divisor;
 	}
@@ -663,7 +663,7 @@ void _gfx_renderer_load(void)
 		(window->context.major == 4 && window->context.minor > 1) ||
 		_gfx_is_extension_supported("GL_ARB_base_instance", window))
 	{
-		window->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
+		window->ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
 
 		window->renderer.DrawArraysInstancedBaseInstance =
 			(PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)_gfx_platform_get_proc_address("glDrawArraysInstancedBaseInstance");
@@ -673,7 +673,7 @@ void _gfx_renderer_load(void)
 
 	else
 	{
-		window->flags[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 0;
+		window->ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 0;
 
 		window->renderer.DrawArraysInstancedBaseInstance = _gfx_gl_draw_arrays_instanced_base_instance;
 		window->renderer.DrawElementsInstancedBaseInstance = _gfx_gl_draw_elements_instanced_base_instance;
@@ -684,12 +684,12 @@ void _gfx_renderer_load(void)
 		window->context.major > 3 ||
 		_gfx_is_extension_supported("GL_ARB_texture_cube_map_array", window))
 	{
-		window->flags[GFX_EXT_LAYERED_CUBEMAP] = 1;
+		window->ext[GFX_EXT_LAYERED_CUBEMAP] = 1;
 	}
 
 	else
 	{
-		window->flags[GFX_EXT_LAYERED_CUBEMAP] = 0;
+		window->ext[GFX_EXT_LAYERED_CUBEMAP] = 0;
 	}
 
 	/* GFX_EXT_PROGRAM_BINARY */
@@ -698,7 +698,7 @@ void _gfx_renderer_load(void)
 		(window->context.major == 4 && window->context.minor > 0) ||
 		_gfx_is_extension_supported("GL_ARB_get_program_binary", window))
 	{
-		window->flags[GFX_EXT_PROGRAM_BINARY] = 1;
+		window->ext[GFX_EXT_PROGRAM_BINARY] = 1;
 
 		window->renderer.GetProgramBinary =
 			(PFNGLGETPROGRAMBINARYPROC)_gfx_platform_get_proc_address("glGetProgramBinary");
@@ -710,7 +710,7 @@ void _gfx_renderer_load(void)
 
 	else
 	{
-		window->flags[GFX_EXT_PROGRAM_BINARY] = 0;
+		window->ext[GFX_EXT_PROGRAM_BINARY] = 0;
 
 		window->renderer.GetProgramBinary  = _gfx_gl_get_program_binary;
 		window->renderer.ProgramBinary     = _gfx_gl_program_binary;
@@ -723,8 +723,8 @@ void _gfx_renderer_load(void)
 		_gfx_is_extension_supported("GL_ARB_tessellation_shader", window))
 	{
 		glGetIntegerv(GL_MAX_PATCH_VERTICES, &limit);
-		window->limits[GFX_LIM_MAX_PATCH_VERTICES] = limit;
-		window->flags[GFX_EXT_TESSELLATION_SHADER] = 1;
+		window->lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
+		window->ext[GFX_EXT_TESSELLATION_SHADER] = 1;
 
 		window->renderer.PatchParameteri =
 			(PFNGLPATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteri");
@@ -732,8 +732,8 @@ void _gfx_renderer_load(void)
 
 	else
 	{
-		window->limits[GFX_LIM_MAX_PATCH_VERTICES] = 0;
-		window->flags[GFX_EXT_TESSELLATION_SHADER] = 0;
+		window->lim[GFX_LIM_MAX_PATCH_VERTICES] = 0;
+		window->ext[GFX_EXT_TESSELLATION_SHADER] = 0;
 
 		window->renderer.PatchParameteri = _gfx_gl_patch_parameter_i;
 	}

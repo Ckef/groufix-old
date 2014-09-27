@@ -250,12 +250,11 @@ GFXWindow* gfx_window_create(
 		return NULL;
 
 	/* Create platform window */
-	GFX_PlatformScreen scr;
-	if(screen) scr = (GFX_PlatformScreen)screen;
-	else scr = _gfx_platform_get_default_screen();
-
 	GFX_PlatformAttributes attr;
-	attr.screen = scr;
+
+	if(screen) attr.screen = (GFX_PlatformScreen)screen;
+	else attr.screen = _gfx_platform_get_default_screen();
+
 	attr.name   = name;
 	attr.width  = w;
 	attr.height = h;
@@ -315,12 +314,6 @@ GFXWindow* gfx_window_create(
 		_gfx_window_make_current(_gfx_main_window);
 	}
 
-	/* Context error */
-	else gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"Platform context could not be created."
-	);
-
 	/* Destroy key & window */
 	if(!_gfx_main_window)
 		_gfx_platform_key_clear(_gfx_current_window);
@@ -361,7 +354,6 @@ GFXWindow* gfx_window_recreate(
 		&x,
 		&y);
 
-	/* Make sure to copy callbacks to the new window */
 	GFXWindow* new = gfx_window_create(
 		screen,
 		depth,
@@ -369,13 +361,14 @@ GFXWindow* gfx_window_recreate(
 		x, y,
 		width,
 		height,
-		flags
-	);
-	*new = *window;
+		flags);
 
 	free(name);
 
 	if(!new) return NULL;
+
+	/* Copy event callbacks */
+	*new = *window;
 
 	/* Destroy old window and retarget the window */
 	_gfx_pipe_process_retarget(internal, (GFX_Window*)new);
