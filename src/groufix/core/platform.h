@@ -631,7 +631,7 @@ void _gfx_platform_context_get(
 /**
  * Makes the current window the active render target.
  *
- * @return Whether it could make the context current or not.
+ * @param handle Window to make current, NULL to unmake any window current.
  *
  */
 void _gfx_platform_context_make_current(

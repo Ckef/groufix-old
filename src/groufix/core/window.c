@@ -37,6 +37,9 @@ static GFX_Window* _gfx_main_window = NULL;
 /* Created windows */
 static GFXVector* _gfx_windows = NULL;
 
+/* Number of offscreen windows */
+static unsigned int _gfx_off_windows = 0;
+
 /* OpenGL context request */
 static GFXContext _gfx_context = {
 	GFX_CONTEXT_MAJOR_MIN,
@@ -49,8 +52,8 @@ static int _gfx_window_context_create(
 		GFX_PlatformWindow window)
 {
 	/* Get the main window to share with (as all windows will share everything) */
-	GFX_PlatformWindow* share = NULL;
-	if(_gfx_main_window) share = _gfx_main_window->handle;
+	GFX_PlatformWindow share = NULL;
+	if(_gfx_windows) share = (*(GFX_Window**)_gfx_windows->begin)->handle;
 
 	if(share == window) share = NULL;
 
@@ -89,6 +92,93 @@ static int _gfx_window_context_create(
 }
 
 /******************************************************/
+static GFX_Window* _gfx_window_create_common(
+
+		GFXScreen       screen,
+		GFXColorDepth   depth,
+		const char*     name,
+		int             x,
+		int             y,
+		unsigned int    w,
+		unsigned int    h,
+		GFXWindowFlags  flags)
+{
+	/* Setup top level window */
+	GFX_Window* window = calloc(1, sizeof(GFX_Window));
+	if(!window)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Window could not be allocated."
+		);
+		return NULL;
+	}
+
+	/* Create data key */
+	if(!_gfx_windows) if(!_gfx_platform_key_init(&_gfx_current_window))
+		return NULL;
+
+	/* Create platform window */
+	GFX_PlatformAttributes attr;
+
+	if(screen) attr.screen = (GFX_PlatformScreen)screen;
+	else attr.screen = _gfx_platform_get_default_screen();
+
+	attr.name   = name;
+	attr.width  = w;
+	attr.height = h;
+	attr.x      = x;
+	attr.y      = y;
+	attr.depth  = depth;
+	attr.flags  = flags;
+
+	window->handle = _gfx_platform_window_create(&attr);
+	if(!window->handle)
+	{
+		/* Unknown error */
+		gfx_errors_push(
+			GFX_ERROR_UNKNOWN,
+			"Platform window could not be created."
+		);
+		free(window);
+
+		if(!_gfx_windows)
+			_gfx_platform_key_clear(_gfx_current_window);
+
+		return NULL;
+	}
+
+	/* Create context */
+	if(_gfx_window_context_create(window->handle))
+	{
+		_gfx_window_make_current(window);
+
+		/* Load renderer and initialize window */
+		_gfx_platform_context_get(
+			&window->context.major,
+			&window->context.minor
+		);
+
+		_gfx_renderer_load();
+		_gfx_states_set_default(&window->state);
+		_gfx_states_force_set(&window->state, window);
+
+		/* Try to prepare the window for post processing */
+		if(_gfx_pipe_process_prepare()) return window;
+	}
+
+	/* Destroy key & window */
+	if(!_gfx_windows)
+		_gfx_platform_key_clear(_gfx_current_window);
+
+	_gfx_platform_window_free(window->handle);
+	free(window);
+
+	return NULL;
+}
+
+/******************************************************/
 static int _gfx_window_insert(
 
 		const GFX_Window* window)
@@ -101,10 +191,15 @@ static int _gfx_window_insert(
 	}
 
 	/* Try to insert, destroy on failure */
-	GFXVectorIterator it = gfx_vector_insert(
+	/* Insert all off-screen windows at the end */
+	/* Insert all on-screen windows at the beginning */
+	size_t index = gfx_vector_get_size(_gfx_windows);
+	index -= window->offscreen ? 0 : _gfx_off_windows;
+
+	GFXVectorIterator it = gfx_vector_insert_at(
 		_gfx_windows,
 		&window,
-		_gfx_windows->end
+		index
 	);
 
 	if(it == _gfx_windows->end)
@@ -117,7 +212,44 @@ static int _gfx_window_insert(
 		return 0;
 	}
 
+	/* Count offscreen windows */
+	_gfx_off_windows += window->offscreen ? 1 : 0;
+
 	return 1;
+}
+
+/******************************************************/
+static void _gfx_window_erase(
+
+		GFX_Window* window)
+{
+	if(_gfx_windows)
+	{
+		/* Erase from vector */
+		GFXVectorIterator it;
+		for(
+			it = _gfx_windows->begin;
+			it != _gfx_windows->end;
+			it = gfx_vector_next(_gfx_windows, it))
+		{
+			if(window == *(GFX_Window**)it)
+			{
+				gfx_vector_erase(_gfx_windows, it);
+
+				/* Also count offscreen windows */
+				_gfx_off_windows -= window->offscreen ? 1 : 0;
+
+				break;
+			}
+		}
+
+		/* Free vector */
+		if(_gfx_windows->begin == _gfx_windows->end)
+		{
+			gfx_vector_free(_gfx_windows);
+			_gfx_windows = NULL;
+		}
+	}
 }
 
 /******************************************************/
@@ -141,6 +273,111 @@ GFX_Window* _gfx_window_get_from_handle(
 }
 
 /******************************************************/
+GFX_Window* _gfx_window_create(void)
+{
+	/* Create the window */
+	GFXColorDepth depth;
+	depth.redBits   = 0;
+	depth.greenBits = 0;
+	depth.blueBits  = 0;
+
+	GFX_Window* window = _gfx_window_create_common(
+		NULL,
+		depth,
+		"",
+		0, 0,
+		1, 1,
+		GFX_WINDOW_HIDDEN
+	);
+
+	/* Make main window current again */
+	_gfx_window_make_current(_gfx_main_window);
+	if(!window) return NULL;
+
+	/* Insert the window */
+	window->offscreen = 1;
+
+	if(!_gfx_window_insert(window))
+	{
+		_gfx_window_free(window);
+		return NULL;
+	}
+
+	return window;
+}
+
+/******************************************************/
+void _gfx_window_free(
+
+		GFX_Window* window)
+{
+	// TODO: make it do different things.
+
+	if(window)
+	{
+		_gfx_window_destroy(window);
+		free(window);
+	}
+}
+
+/******************************************************/
+void _gfx_window_destroy(
+
+		GFX_Window* window)
+{
+	// TODO: make it do different things also.
+
+	if(window)
+	{
+		/* Zombie window */
+		if(!window->handle) return;
+		_gfx_window_make_current(window);
+
+		/* Erase */
+		_gfx_window_erase(window);
+
+		/* Welp, no more windows */
+		if(!_gfx_windows)
+		{
+			_gfx_pipe_process_unprepare(1);
+			_gfx_hardware_objects_free();
+			_gfx_platform_window_free(window->handle);
+
+			_gfx_platform_key_clear(_gfx_current_window);
+			_gfx_main_window = NULL;
+		}
+
+		/* If main window, save & restore hardware objects */
+		else if(_gfx_main_window == window)
+		{
+			_gfx_pipe_process_unprepare(0);
+			_gfx_hardware_objects_save();
+			_gfx_platform_window_free(window->handle);
+
+			_gfx_main_window = *(GFX_Window**)_gfx_windows->begin;
+			_gfx_window_make_current(_gfx_main_window);
+
+			_gfx_hardware_objects_restore();
+		}
+		else
+		{
+			_gfx_pipe_process_unprepare(0);
+			_gfx_platform_window_free(window->handle);
+			_gfx_window_make_current(_gfx_main_window);
+		}
+
+		/* Free binding points */
+		free(window->renderer.uniformBuffers);
+		free(window->renderer.textureUnits);
+
+		window->renderer.uniformBuffers = NULL;
+		window->renderer.textureUnits = NULL;
+
+		window->handle = NULL;
+	}
+}
+
+/******************************************************/
 void _gfx_window_make_current(
 
 		GFX_Window* window)
@@ -148,10 +385,15 @@ void _gfx_window_make_current(
 	GFX_Window* current =
 		_gfx_platform_key_get(_gfx_current_window);
 
-	if(window && current != window)
-		_gfx_platform_context_make_current(window->handle);
+	if(current != window)
+	{
+		if(!window)
+			_gfx_platform_context_make_current(NULL);
+		else
+			_gfx_platform_context_make_current(window->handle);
 
-	_gfx_platform_key_set(_gfx_current_window, window);
+		_gfx_platform_key_set(_gfx_current_window, window);
+	}
 }
 
 /******************************************************/
@@ -209,7 +451,7 @@ void gfx_request_context(
 unsigned int gfx_get_num_windows(void)
 {
 	if(!_gfx_windows) return 0;
-	return gfx_vector_get_size(_gfx_windows);
+	return gfx_vector_get_size(_gfx_windows) - _gfx_off_windows;
 }
 
 /******************************************************/
@@ -233,93 +475,36 @@ GFXWindow* gfx_window_create(
 		unsigned int    h,
 		GFXWindowFlags  flags)
 {
-	/* Setup top level window */
-	GFX_Window* window = calloc(1, sizeof(GFX_Window));
-	if(!window)
+	/* Create the window */
+	GFX_Window* window = _gfx_window_create_common(
+		screen,
+		depth,
+		name,
+		x, y,
+		w, h,
+		flags
+	);
+
+	if(window)
 	{
-		/* Out of memory error */
-		gfx_errors_push(
-			GFX_ERROR_OUT_OF_MEMORY,
-			"Window could not be allocated."
-		);
-		return NULL;
-	}
-
-	/* Create data key */
-	if(!_gfx_main_window) if(!_gfx_platform_key_init(&_gfx_current_window))
-		return NULL;
-
-	/* Create platform window */
-	GFX_PlatformAttributes attr;
-
-	if(screen) attr.screen = (GFX_PlatformScreen)screen;
-	else attr.screen = _gfx_platform_get_default_screen();
-
-	attr.name   = name;
-	attr.width  = w;
-	attr.height = h;
-	attr.x      = x;
-	attr.y      = y;
-	attr.depth  = depth;
-	attr.flags  = flags;
-
-	window->handle = _gfx_platform_window_create(&attr);
-	if(!window->handle)
-	{
-		/* Unknown error */
-		gfx_errors_push(
-			GFX_ERROR_UNKNOWN,
-			"Platform window could not be created."
-		);
-		free(window);
-
-		if(!_gfx_main_window)
-			_gfx_platform_key_clear(_gfx_current_window);
-
-		return NULL;
-	}
-
-	/* Create context */
-	if(_gfx_window_context_create(window->handle))
-	{
-		_gfx_window_make_current(window);
-
-		/* Load renderer and initialize window */
-		_gfx_platform_context_get(
-			&window->context.major,
-			&window->context.minor
-		);
-
-		_gfx_renderer_load();
-		_gfx_states_set_default(&window->state);
-		_gfx_states_force_set(&window->state, window);
-
-		/* Try to prepare the window for post processing */
-		if(_gfx_pipe_process_prepare())
+		/* Insert the window */
+		if(_gfx_window_insert(window))
 		{
-			/* Finally attempt to insert the window into the vector */
-			if(_gfx_window_insert(window))
-			{
-				if(!_gfx_main_window) _gfx_main_window = window;
+			/* Figure out the main window */
+			if(!_gfx_main_window)
+				_gfx_main_window = window;
+			else
 				_gfx_window_make_current(_gfx_main_window);
 
-				return (GFXWindow*)window;
-			}
-
-			/* Failed, send failure to pipe processes */
-			_gfx_pipe_process_unprepare(_gfx_windows ? 0 : 1);
+			return (GFXWindow*)window;
 		}
 
-		/* Failed, fall back to main window */
-		_gfx_window_make_current(_gfx_main_window);
+		/* Failure */
+		gfx_window_free((GFXWindow*)window);
 	}
 
-	/* Destroy key & window */
-	if(!_gfx_main_window)
-		_gfx_platform_key_clear(_gfx_current_window);
-
-	_gfx_platform_window_free(window->handle);
-	free(window);
+	/* Make main window current again */
+	_gfx_window_make_current(_gfx_main_window);
 
 	return NULL;
 }
@@ -334,7 +519,7 @@ GFXWindow* gfx_window_recreate(
 {
 	/* Check if zombie window */
 	GFX_Window* internal = (GFX_Window*)window;
-	if(!internal->handle) return NULL;
+	if(!internal->handle || internal->offscreen) return NULL;
 
 	/* Create new window */
 	char* name = _gfx_platform_window_get_name(internal->handle);
@@ -375,78 +560,6 @@ GFXWindow* gfx_window_recreate(
 	gfx_window_free(window);
 
 	return new;
-}
-
-/******************************************************/
-void _gfx_window_destroy(
-
-		GFX_Window* window)
-{
-	if(window)
-	{
-		/* Zombie window */
-		if(!window->handle) return;
-		_gfx_window_make_current(window);
-
-		/* Erase from vector */
-		GFXVectorIterator it;
-		for(
-			it = _gfx_windows->begin;
-			it != _gfx_windows->end;
-			it = gfx_vector_next(_gfx_windows, it))
-		{
-			if(window == *(GFX_Window**)it)
-			{
-				gfx_vector_erase(_gfx_windows, it);
-				break;
-			}
-		}
-
-		/* Welp, no more windows */
-		if(_gfx_windows->begin == _gfx_windows->end)
-		{
-			/* Oh, also do a free request */
-			_gfx_pipe_process_unprepare(1);
-			_gfx_hardware_objects_free();
-			_gfx_platform_window_free(window->handle);
-
-			gfx_vector_free(_gfx_windows);
-			_gfx_windows = NULL;
-
-			_gfx_platform_key_clear(_gfx_current_window);
-			_gfx_main_window = NULL;
-		}
-
-		/* If main window, save & restore hardware objects */
-		else if(_gfx_main_window == window)
-		{
-			_gfx_pipe_process_unprepare(0);
-			_gfx_hardware_objects_save();
-			_gfx_platform_window_free(window->handle);
-
-			/* Get new main window */
-			_gfx_main_window = *(GFX_Window**)_gfx_windows->begin;
-			_gfx_window_make_current(_gfx_main_window);
-
-			_gfx_hardware_objects_restore();
-		}
-		else
-		{
-			/* Just, destroy it, thank you very much */
-			_gfx_pipe_process_unprepare(0);
-			_gfx_platform_window_free(window->handle);
-			_gfx_window_make_current(_gfx_main_window);
-		}
-
-		/* Free binding points */
-		free(window->renderer.uniformBuffers);
-		free(window->renderer.textureUnits);
-
-		window->renderer.uniformBuffers = NULL;
-		window->renderer.textureUnits = NULL;
-
-		window->handle = NULL;
-	}
 }
 
 /******************************************************/

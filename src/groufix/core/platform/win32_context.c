@@ -104,13 +104,21 @@ void _gfx_platform_context_make_current(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_Win32_Window* window =
-		_gfx_win32_get_window_from_handle(handle);
-
-	if(window) wglMakeCurrent(
-		GetDC(handle),
-		window->context
+	if(!handle) wglMakeCurrent(
+		NULL,
+		NULL
 	);
+
+	else
+	{
+		GFX_Win32_Window* window =
+			_gfx_win32_get_window_from_handle(handle);
+
+		if(window) wglMakeCurrent(
+			GetDC(handle),
+			window->context
+		);
+	}
 }
 
 /******************************************************/

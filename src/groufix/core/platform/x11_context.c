@@ -116,14 +116,23 @@ void _gfx_platform_context_make_current(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
-		GFX_VOID_TO_UINT(handle));
-
-	if(window) glXMakeCurrent(
+	if(!handle) glXMakeCurrent(
 		_gfx_x11->display,
-		window->handle,
-		window->context
+		None,
+		NULL
 	);
+
+	else
+	{
+		GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
+			GFX_VOID_TO_UINT(handle));
+
+		if(window) glXMakeCurrent(
+			_gfx_x11->display,
+			window->handle,
+			window->context
+		);
+	}
 }
 
 /******************************************************/

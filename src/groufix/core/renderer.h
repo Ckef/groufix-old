@@ -90,7 +90,7 @@ GFX_Window* _gfx_window_create(void);
  * Destroys and frees an off-screen window.
  *
  * Note: this function should not be used on regular windows, use gfx_window_free
- * instead!
+ * instead. Also, unmake the window current before freeing it!
  *
  */
 void _gfx_window_free(
@@ -111,7 +111,7 @@ void _gfx_window_destroy(
 /**
  * Sets the window as the current context of the calling thread.
  *
- * Note: This SHOULD NOT be called unless you know damn well what you're doing.
+ * @param window The window to make current, NULL to unmake any window current.
  *
  */
 void _gfx_window_make_current(
