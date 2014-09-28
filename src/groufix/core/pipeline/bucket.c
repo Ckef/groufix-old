@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/containers/deque.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/shading/internal.h"

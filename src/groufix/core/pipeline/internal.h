@@ -25,7 +25,6 @@
 #define GFX_CORE_PIPELINE_INTERNAL_H
 
 #include "groufix/containers/list.h"
-#include "groufix/containers/vector.h"
 #include "groufix/core/renderer.h"
 
 #ifdef __cplusplus

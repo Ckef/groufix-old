@@ -180,23 +180,33 @@ static inline GLint _gfx_texture_eval_internal_format(
 /******************************************************/
 static void _gfx_texture_obj_free(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	struct GFX_Texture* texture = (struct GFX_Texture*)object;
 
+	texture->texture.id = id;
 	texture->handle = 0;
 	texture->buffer = 0;
-
-	texture->texture.id = 0;
 }
 
 /******************************************************/
-/* vtable for hardware part of the texture */
-static GFX_HardwareFuncs _gfx_texture_obj_funcs =
+static void _gfx_texture_obj_save_restore(
+
+		void*         object,
+		unsigned int  id)
+{
+	struct GFX_Texture* texture = (struct GFX_Texture*)object;
+	texture->texture.id = id;
+}
+
+/******************************************************/
+/* vtable for render object part of the texture */
+static GFX_RenderObjectFuncs _gfx_texture_obj_funcs =
 {
 	_gfx_texture_obj_free,
-	NULL,
-	NULL
+	_gfx_texture_obj_save_restore,
+	_gfx_texture_obj_save_restore
 };
 
 /******************************************************/
@@ -223,7 +233,8 @@ static struct GFX_Texture* _gfx_texture_alloc(
 	}
 
 	/* Register as object */
-	tex->texture.id = _gfx_hardware_object_register(
+	tex->texture.id = _gfx_render_object_register(
+		&window->objects,
 		tex,
 		&_gfx_texture_obj_funcs
 	);
@@ -616,13 +627,16 @@ void gfx_texture_free(
 		GFX_Window* window = _gfx_window_get_current();
 		struct GFX_Texture* internal = (struct GFX_Texture*)texture;
 
-		/* Unregister as object */
-		_gfx_hardware_object_unregister(texture->id);
-
 		if(window)
 		{
 			_gfx_binder_unbind_texture(internal->handle, window);
 			window->renderer.DeleteTextures(1, &internal->handle);
+
+			/* Unregister as object */
+			_gfx_render_object_unregister(
+				&window->objects,
+				texture->id
+			);
 		}
 
 		free(texture);

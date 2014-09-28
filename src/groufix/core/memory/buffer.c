@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/core/shading/internal.h"
 #include "groufix/core/errors.h"
 
@@ -147,7 +146,8 @@ static void _gfx_buffer_delete_buffers(
 /******************************************************/
 static void _gfx_buffer_obj_free(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
 	unsigned char num = buffer->buffer.multi + 1;
@@ -158,16 +158,27 @@ static void _gfx_buffer_obj_free(
 		0,
 		buffer->handles.elementSize * num
 	);
-	buffer->buffer.id = 0;
+
+	buffer->buffer.id = id;
 }
 
 /******************************************************/
-/* vtable for hardware part of the buffer */
-static GFX_HardwareFuncs _gfx_buffer_obj_funcs =
+static void _gfx_buffer_obj_save_restore(
+
+		void*         object,
+		unsigned int  id)
+{
+	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
+	buffer->buffer.id = id;
+}
+
+/******************************************************/
+/* vtable for render object part of the buffer */
+static GFX_RenderObjectFuncs _gfx_buffer_obj_funcs =
 {
 	_gfx_buffer_obj_free,
-	NULL,
-	NULL
+	_gfx_buffer_obj_save_restore,
+	_gfx_buffer_obj_save_restore
 };
 
 /******************************************************/
@@ -208,7 +219,8 @@ GFXBuffer* gfx_buffer_create(
 	}
 
 	/* Register as object */
-	buffer->buffer.id = _gfx_hardware_object_register(
+	buffer->buffer.id = _gfx_render_object_register(
+		&window->objects,
 		buffer,
 		&_gfx_buffer_obj_funcs
 	);
@@ -287,15 +299,21 @@ void gfx_buffer_free(
 		GFX_Window* window = _gfx_window_get_current();
 		struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
-		/* Unregister as object */
-		_gfx_hardware_object_unregister(buffer->id);
+		if(window)
+		{
+			_gfx_buffer_delete_buffers(
+				internal,
+				internal->handles.begin,
+				buffer->multi + 1,
+				window
+			);
 
-		if(window) _gfx_buffer_delete_buffers(
-			internal,
-			internal->handles.begin,
-			buffer->multi + 1,
-			window
-		);
+			/* Unregister as object */
+			_gfx_render_object_unregister(
+				&window->objects,
+				buffer->id
+			);
+		}
 
 		gfx_vector_clear(&internal->handles);
 		free(buffer);

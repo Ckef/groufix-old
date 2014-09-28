@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/core/errors.h"
 #include "groufix/core/renderer.h"
 
@@ -496,21 +495,32 @@ static void _gfx_program_prepare(
 /******************************************************/
 static void _gfx_program_obj_free(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	struct GFX_Program* program = (struct GFX_Program*)object;
 
+	program->program.id = id;
 	program->handle = 0;
-	program->program.id = 0;
 }
 
 /******************************************************/
-/* vtable for hardware part of the program */
-static GFX_HardwareFuncs _gfx_program_obj_funcs =
+static void _gfx_program_obj_save_restore(
+
+		void*         object,
+		unsigned int  id)
+{
+	struct GFX_Program* program = (struct GFX_Program*)object;
+	program->program.id = id;
+}
+
+/******************************************************/
+/* vtable for render object part of the program */
+static GFX_RenderObjectFuncs _gfx_program_obj_funcs =
 {
 	_gfx_program_obj_free,
-	NULL,
-	NULL
+	_gfx_program_obj_save_restore,
+	_gfx_program_obj_save_restore
 };
 
 /******************************************************/
@@ -553,7 +563,8 @@ GFXProgram* gfx_program_create(void)
 	}
 
 	/* Register as object */
-	prog->program.id = _gfx_hardware_object_register(
+	prog->program.id = _gfx_render_object_register(
+		&window->objects,
 		prog,
 		&_gfx_program_obj_funcs
 	);
@@ -583,15 +594,17 @@ void gfx_program_free(
 		GFX_Window* window = _gfx_window_get_current();
 		struct GFX_Program* internal = (struct GFX_Program*)program;
 
-		/* Unregister as object */
-		_gfx_hardware_object_unregister(program->id);
-
-		/* Get current window and context */
 		if(window)
 		{
 			window->renderer.DeleteProgram(internal->handle);
 			if(window->renderer.program == internal->handle)
 				window->renderer.program = 0;
+
+			/* Unregister as object */
+			_gfx_render_object_unregister(
+				&window->objects,
+				program->id
+			);
 		}
 
 		/* Unprepare all uniforms */

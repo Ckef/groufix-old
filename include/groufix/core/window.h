@@ -34,6 +34,77 @@ extern "C" {
 
 
 /********************************************************
+ * Hardware extensions & limits
+ *******************************************************/
+
+/** Hardware Extensions */
+typedef enum GFXExtension
+{
+	GFX_EXT_BUFFER_TEXTURE,
+	GFX_EXT_DIRECT_STATE_ACCESS,
+	GFX_EXT_GEOMETRY_SHADER,
+	GFX_EXT_IMMUTABLE_TEXTURE,
+	GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE,
+	GFX_EXT_INSTANCED_ATTRIBUTES,
+	GFX_EXT_INSTANCED_BASE_ATTRIBUTES,
+	GFX_EXT_LAYERED_CUBEMAP,
+	GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE,
+	GFX_EXT_MULTISAMPLE_TEXTURE,
+	GFX_EXT_POLYGON_STATE,
+	GFX_EXT_PROGRAM_BINARY,
+	GFX_EXT_SEAMLESS_CUBEMAP,
+	GFX_EXT_TESSELLATION_SHADER,
+	GFX_EXT_TEXTURE_1D,
+
+	GFX_EXT_COUNT
+
+} GFXExtension;
+
+
+/** Hardware Limits */
+typedef enum GFXLimit
+{
+	GFX_LIM_MAX_BUFFER_PROPERTIES,
+	GFX_LIM_MAX_BUFFER_TEXTURE_SIZE,
+	GFX_LIM_MAX_COLOR_ATTACHMENTS,
+	GFX_LIM_MAX_COLOR_TARGETS,
+	GFX_LIM_MAX_CUBEMAP_SIZE,
+	GFX_LIM_MAX_FEEDBACK_BUFFERS,
+	GFX_LIM_MAX_PATCH_VERTICES,
+	GFX_LIM_MAX_SAMPLER_PROPERTIES,
+	GFX_LIM_MAX_SAMPLES,
+	GFX_LIM_MAX_TEXTURE_3D_SIZE,
+	GFX_LIM_MAX_TEXTURE_LAYERS,
+	GFX_LIM_MAX_TEXTURE_SIZE,
+	GFX_LIM_MAX_VERTEX_ATTRIBS,
+
+	GFX_LIM_COUNT
+
+} GFXLimit;
+
+
+/**
+ * Returns whether a given extension is supported or not.
+ *
+ * Note: if no window is created, thus no context exists, this will return 0.
+ *
+ */
+int gfx_is_extension_supported(
+
+		GFXExtension extension);
+
+/**
+ * Returns a limit given by the hardware.
+ *
+ * Note: if no window is created, thus no context exists, this will return -1.
+ *
+ */
+int gfx_get_limit(
+
+		GFXLimit limit);
+
+
+/********************************************************
  * Top level screen
  *******************************************************/
 
@@ -349,77 +420,6 @@ int gfx_window_set_swap_interval(
 
 		const GFXWindow*  window,
 		int               num);
-
-
-/********************************************************
- * Top level context & extension handling
- *******************************************************/
-
-/** Hardware Extensions */
-typedef enum GFXExtension
-{
-	GFX_EXT_BUFFER_TEXTURE,
-	GFX_EXT_DIRECT_STATE_ACCESS,
-	GFX_EXT_GEOMETRY_SHADER,
-	GFX_EXT_IMMUTABLE_TEXTURE,
-	GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE,
-	GFX_EXT_INSTANCED_ATTRIBUTES,
-	GFX_EXT_INSTANCED_BASE_ATTRIBUTES,
-	GFX_EXT_LAYERED_CUBEMAP,
-	GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE,
-	GFX_EXT_MULTISAMPLE_TEXTURE,
-	GFX_EXT_POLYGON_STATE,
-	GFX_EXT_PROGRAM_BINARY,
-	GFX_EXT_SEAMLESS_CUBEMAP,
-	GFX_EXT_TESSELLATION_SHADER,
-	GFX_EXT_TEXTURE_1D,
-
-	GFX_EXT_COUNT
-
-} GFXExtension;
-
-
-/** Hardware Limits */
-typedef enum GFXLimit
-{
-	GFX_LIM_MAX_BUFFER_PROPERTIES,
-	GFX_LIM_MAX_BUFFER_TEXTURE_SIZE,
-	GFX_LIM_MAX_COLOR_ATTACHMENTS,
-	GFX_LIM_MAX_COLOR_TARGETS,
-	GFX_LIM_MAX_CUBEMAP_SIZE,
-	GFX_LIM_MAX_FEEDBACK_BUFFERS,
-	GFX_LIM_MAX_PATCH_VERTICES,
-	GFX_LIM_MAX_SAMPLER_PROPERTIES,
-	GFX_LIM_MAX_SAMPLES,
-	GFX_LIM_MAX_TEXTURE_3D_SIZE,
-	GFX_LIM_MAX_TEXTURE_LAYERS,
-	GFX_LIM_MAX_TEXTURE_SIZE,
-	GFX_LIM_MAX_VERTEX_ATTRIBS,
-
-	GFX_LIM_COUNT
-
-} GFXLimit;
-
-
-/**
- * Returns whether a given extension is supported or not.
- *
- * Note: if no window is created, thus no context exists, this will return 0.
- *
- */
-int gfx_hardware_is_extension_supported(
-
-		GFXExtension extension);
-
-/**
- * Returns a limit given by the hardware.
- *
- * Note: if no window is created, thus no context exists, this will return -1.
- *
- */
-int gfx_hardware_get_limit(
-
-		GFXLimit limit);
 
 
 #ifdef __cplusplus

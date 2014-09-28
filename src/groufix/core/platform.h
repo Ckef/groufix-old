@@ -587,15 +587,15 @@ void _gfx_platform_poll_events(void);
 
 
 /********************************************************
- * OpenGL Context of window
+ * Renderer Context of window
  *******************************************************/
 
 /**
- * Creates the OpenGL context of a window and makes it current.
+ * Creates the renderer context of a window and makes it current.
  *
- * @param major Major OpenGL (ES) version.
- * @param minor Minor OpenGL (ES) version.
- * @param share Window to share OpenGL resources with (can be NULL to not share).
+ * @param major Major context version.
+ * @param minor Minor context version.
+ * @param share Window to share resources with (can be NULL to not share).
  * @return Whether or not the context could be created.
  *
  */

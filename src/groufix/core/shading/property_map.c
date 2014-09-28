@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/core/shading/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/errors.h"

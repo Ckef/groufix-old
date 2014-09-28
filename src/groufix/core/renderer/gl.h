@@ -278,8 +278,8 @@ void APIENTRY _gfx_gl_vertex_attrib_divisor                 (GLuint, GLuint);
  * OpenGL renderer & context
  *******************************************************/
 
-/** OpenGL context */
-typedef struct GFX_Renderer
+/** OpenGL renderer & context */
+struct GFX_Renderer
 {
 	/* State & bound objects */
 	GLuint         fbos[2];  /* Currently bound FBOs (0 = draw, 1 = read) */
@@ -445,7 +445,7 @@ typedef struct GFX_Renderer
 	GFX_VERTEXATTRIBPOINTERPROC                VertexAttribPointer;
 	GFX_VIEWPORTPROC                           Viewport;
 
-} GFX_Renderer;
+};
 
 
 /********************************************************

@@ -232,12 +232,13 @@ static void _gfx_pipeline_push_pipe(
 /******************************************************/
 static void _gfx_pipeline_obj_free(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
+	pipeline->pipeline.id = id;
 	pipeline->fbo = 0;
-	pipeline->pipeline.id = 0;
 
 	gfx_vector_clear(&pipeline->attachments);
 	free(pipeline->targets);
@@ -249,12 +250,14 @@ static void _gfx_pipeline_obj_free(
 /******************************************************/
 static void _gfx_pipeline_obj_save(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
 	/* Don't clear the attachments vector or target array */
+	pipeline->pipeline.id = id;
 	window->renderer.DeleteFramebuffers(1, &pipeline->fbo);
 	pipeline->fbo = 0;
 }
@@ -262,12 +265,14 @@ static void _gfx_pipeline_obj_save(
 /******************************************************/
 static void _gfx_pipeline_obj_restore(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
 	/* Create FBO */
+	pipeline->pipeline.id = id;
 	window->renderer.CreateFramebuffers(1, &pipeline->fbo);
 
 	/* Restore attachments */
@@ -292,8 +297,8 @@ static void _gfx_pipeline_obj_restore(
 }
 
 /******************************************************/
-/* vtable for hardware part of the pipeline */
-static GFX_HardwareFuncs _gfx_pipeline_obj_funcs =
+/* vtable for render object part of the pipeline */
+static GFX_RenderObjectFuncs _gfx_pipeline_obj_funcs =
 {
 	_gfx_pipeline_obj_free,
 	_gfx_pipeline_obj_save,
@@ -327,7 +332,8 @@ GFXPipeline* gfx_pipeline_create(void)
 	}
 
 	/* Register as object */
-	pl->pipeline.id = _gfx_hardware_object_register(
+	pl->pipeline.id = _gfx_render_object_register(
+		&window->objects,
 		pl,
 		&_gfx_pipeline_obj_funcs
 	);
@@ -361,9 +367,6 @@ void gfx_pipeline_free(
 		GFX_Window* window = _gfx_window_get_current();
 		struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 
-		/* Unregister as object */
-		_gfx_hardware_object_unregister(pipeline->id);
-
 		/* Delete FBO */
 		if(window)
 		{
@@ -373,6 +376,12 @@ void gfx_pipeline_free(
 				window->renderer.fbos[1] = 0;
 
 			window->renderer.DeleteFramebuffers(1, &internal->fbo);
+
+			/* Unregister as object */
+			_gfx_render_object_unregister(
+				&window->objects,
+				pipeline->id
+			);
 		}
 
 		/* Free all pipes */

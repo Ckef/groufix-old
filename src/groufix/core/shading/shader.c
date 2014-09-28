@@ -202,22 +202,33 @@ static int _gfx_shader_preprocess_version(
 /******************************************************/
 static void _gfx_shader_obj_free(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	struct GFX_Shader* shader = (struct GFX_Shader*)object;
 
+	shader->shader.id = id;
 	shader->handle = 0;
 	shader->shader.compiled = 0;
-	shader->shader.id = 0;
 }
 
 /******************************************************/
-/* vtable for hardware part of the shader */
-static GFX_HardwareFuncs _gfx_shader_obj_funcs =
+static void _gfx_shader_obj_save_restore(
+
+		void*         object,
+		unsigned int  id)
+{
+	struct GFX_Shader* shader = (struct GFX_Shader*)object;
+	shader->shader.id = id;
+}
+
+/******************************************************/
+/* vtable for render object part of the shader */
+static GFX_RenderObjectFuncs _gfx_shader_obj_funcs =
 {
 	_gfx_shader_obj_free,
-	NULL,
-	NULL
+	_gfx_shader_obj_save_restore,
+	_gfx_shader_obj_save_restore
 };
 
 /******************************************************/
@@ -234,8 +245,8 @@ GFXShader* gfx_shader_create(
 		GFXShaderType type)
 {
 	GFX_Window* window = _gfx_window_get_current();
-
 	if(!window) return NULL;
+
 	if(!_gfx_shader_eval_type(type, window)) return NULL;
 
 	/* Create new shader */
@@ -251,7 +262,8 @@ GFXShader* gfx_shader_create(
 	}
 
 	/* Register as object */
-	shader->shader.id = _gfx_hardware_object_register(
+	shader->shader.id = _gfx_render_object_register(
+		&window->objects,
 		shader,
 		&_gfx_shader_obj_funcs
 	);
@@ -279,11 +291,16 @@ void gfx_shader_free(
 		GFX_Window* window = _gfx_window_get_current();
 		struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
-		/* Unregister as object */
-		_gfx_hardware_object_unregister(shader->id);
+		if(window)
+		{
+			window->renderer.DeleteShader(internal->handle);
 
-		/* Get current window and context */
-		if(window) window->renderer.DeleteShader(internal->handle);
+			/* Unregister as object */
+			_gfx_render_object_unregister(
+				&window->objects,
+				shader->id
+			);
+		}
 
 		free(shader);
 	}

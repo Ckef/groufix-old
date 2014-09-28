@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/shading/internal.h"
@@ -290,14 +289,11 @@ void gfx_pipe_process_set_target(
 		GFXWindow*      target,
 		int             swap)
 {
-	GFX_Window* window = (GFX_Window*)target;
 	struct GFX_Process* internal = (struct GFX_Process*)process;
-
-	/* Remove its target */
-	if(!window) internal->target = NULL;
+	internal->target = (GFX_Window*)target;
 
 	/* Set viewport & swap buffers */
-	else if(!window->offscreen)
+	if(target)
 	{
 		gfx_window_get_size(
 			target,
@@ -305,7 +301,6 @@ void gfx_pipe_process_set_target(
 			&internal->height
 		);
 
-		internal->target = window;
 		internal->swap = swap ? 1 : 0;
 	}
 }

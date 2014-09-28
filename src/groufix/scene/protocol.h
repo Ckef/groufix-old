@@ -24,7 +24,6 @@
 #ifndef GFX_SCENE_PROTOCOL_H
 #define GFX_SCENE_PROTOCOL_H
 
-#include "groufix/scene/batch.h"
 #include "groufix/scene/internal.h"
 
 #ifdef __cplusplus
@@ -35,17 +34,6 @@ extern "C" {
 /********************************************************
  * Unit manipulation of batch
  *******************************************************/
-
-/** Batch metadata */
-typedef struct GFX_BatchData
-{
-	GFXBatchParams  params;
-	GFXBatchFlags   flags;
-	GFXBatchState   base;
-	GFXBatchState   variant;
-
-} GFX_BatchData;
-
 
 /**
  * Sets the copy and state of all given units according to given flags.
@@ -63,96 +51,6 @@ void _gfx_batch_set_unit_data(
 		unsigned int          num,
 		unsigned int          copy,
 		unsigned int          first);
-
-
-/********************************************************
- * Batch references at material and submesh
- *******************************************************/
-
-/**
- * Inserts a new batch at the material.
- *
- * @param mesh SubMesh the batch is associated with.
- * @return Material ID, 0 on failure.
- *
- */
-unsigned int _gfx_material_insert_batch(
-
-		GFXMaterial*  material,
-		GFXSubMesh*   mesh);
-
-/**
- * Sets the SubMesh ID of a batch at a material.
- *
- * @param materialID Batch ID at the material to set.
- * @param submeshID  SubMesh ID to set it to.
- * @return Zero if the calculated property map does not exist.
- *
- * This will also calculate the map index of the batch.
- *
- */
-int _gfx_material_set_batch(
-
-		GFXMaterial*  material,
-		unsigned int  materialID,
-		unsigned int  submeshID);
-
-/**
- * Removes a batch at a material.
- *
- * @param materialID Batch ID at the material to remove.
- *
- * Note: _gfx_submesh_remove_batch must be called first.
- * This call does not remove the copies at the property map!
- *
- */
-void _gfx_material_remove_batch(
-
-		GFXMaterial*  material,
-		unsigned int  materialID);
-
-/**
- * Fetches the ID of a batch at a submesh.
- *
- * @param material   Material the batch is associated with.
- * @param data       Metadata to use.
- * @param materialID Returns the batch ID at the material, 0 if it does not exist.
- * @return SubMesh ID if found, 0 on failure.
- *
- */
-unsigned int _gfx_submesh_get_batch(
-
-		GFXSubMesh*           mesh,
-		GFXMaterial*          material,
-		const GFX_BatchData*  data,
-		unsigned int*         materialID);
-
-/**
- * Sets the Material ID of a batch at a submesh.
- *
- * @param submeshID  Batch ID at the submesh to set.
- * @param materialID Material ID to set it to.
- *
- */
-void _gfx_submesh_set_batch(
-
-		GFXSubMesh*   mesh,
-		unsigned int  submeshID,
-		unsigned int  materialID);
-
-/**
- * Removes a batch at a submesh.
- *
- * @param submeshID Batch ID at the submesh to remove.
- *
- * Note: this must be called before _gfx_material_remove_batch.
- * This call will call gfx_batch_set_instances with 0 at each bucket.
- *
- */
-void _gfx_submesh_remove_batch(
-
-		GFXSubMesh*   mesh,
-		unsigned int  submeshID);
 
 
 /********************************************************

@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/errors.h"
 
@@ -37,8 +36,11 @@ static GFX_Window* _gfx_main_window = NULL;
 /* Created windows */
 static GFXVector* _gfx_windows = NULL;
 
-/* Number of offscreen windows */
-static unsigned int _gfx_off_windows = 0;
+/* Total number of living (non-zombie) windows */
+static unsigned int _gfx_alive_windows = 0;
+
+/* Number of on-screen windows */
+static unsigned int _gfx_public_windows = 0;
 
 /* OpenGL context request */
 static GFXContext _gfx_context = {
@@ -116,8 +118,11 @@ static GFX_Window* _gfx_window_create_common(
 	}
 
 	/* Create data key */
-	if(!_gfx_windows) if(!_gfx_platform_key_init(&_gfx_current_window))
-		return NULL;
+	if(!_gfx_alive_windows)
+	{
+		if(!_gfx_platform_key_init(&_gfx_current_window))
+			return NULL;
+	}
 
 	/* Create platform window */
 	GFX_PlatformAttributes attr;
@@ -134,6 +139,7 @@ static GFX_Window* _gfx_window_create_common(
 	attr.flags  = flags;
 
 	window->handle = _gfx_platform_window_create(&attr);
+
 	if(!window->handle)
 	{
 		/* Unknown error */
@@ -143,7 +149,7 @@ static GFX_Window* _gfx_window_create_common(
 		);
 		free(window);
 
-		if(!_gfx_windows)
+		if(!_gfx_alive_windows)
 			_gfx_platform_key_clear(_gfx_current_window);
 
 		return NULL;
@@ -152,6 +158,8 @@ static GFX_Window* _gfx_window_create_common(
 	/* Create context */
 	if(_gfx_window_context_create(window->handle))
 	{
+		/* Up alive windows so the renderer can make use of it */
+		++_gfx_alive_windows;
 		_gfx_window_make_current(window);
 
 		/* Load renderer and initialize window */
@@ -165,11 +173,20 @@ static GFX_Window* _gfx_window_create_common(
 		_gfx_states_force_set(&window->state, window);
 
 		/* Try to prepare the window for post processing */
-		if(_gfx_pipe_process_prepare()) return window;
+		if(_gfx_pipe_process_prepare())
+		{
+			/* And finally initialize the render object container */
+			_gfx_render_objects_init(&window->objects);
+
+			return window;
+		}
+
+		/* Nevermind */
+		--_gfx_alive_windows;
 	}
 
 	/* Destroy key & window */
-	if(!_gfx_windows)
+	if(!_gfx_alive_windows)
 		_gfx_platform_key_clear(_gfx_current_window);
 
 	_gfx_platform_window_free(window->handle);
@@ -193,8 +210,9 @@ static int _gfx_window_insert(
 	/* Try to insert, destroy on failure */
 	/* Insert all off-screen windows at the end */
 	/* Insert all on-screen windows at the beginning */
-	size_t index = gfx_vector_get_size(_gfx_windows);
-	index -= window->offscreen ? 0 : _gfx_off_windows;
+	size_t index = window->offscreen ?
+		gfx_vector_get_size(_gfx_windows) :
+		_gfx_public_windows;
 
 	GFXVectorIterator it = gfx_vector_insert_at(
 		_gfx_windows,
@@ -212,8 +230,8 @@ static int _gfx_window_insert(
 		return 0;
 	}
 
-	/* Count offscreen windows */
-	_gfx_off_windows += window->offscreen ? 1 : 0;
+	/* Count on-screen windows */
+	_gfx_public_windows += window->offscreen ? 0 : 1;
 
 	return 1;
 }
@@ -236,8 +254,8 @@ static void _gfx_window_erase(
 			{
 				gfx_vector_erase(_gfx_windows, it);
 
-				/* Also count offscreen windows */
-				_gfx_off_windows -= window->offscreen ? 1 : 0;
+				/* Also count on-screen windows */
+				_gfx_public_windows -= window->offscreen ? 0 : 1;
 
 				break;
 			}
@@ -273,20 +291,19 @@ GFX_Window* _gfx_window_get_from_handle(
 }
 
 /******************************************************/
-GFX_Window* _gfx_window_create(void)
+GFX_Window* _gfx_window_create(
+
+		GFXColorDepth  depth,
+		unsigned int   w,
+		unsigned int   h)
 {
 	/* Create the window */
-	GFXColorDepth depth;
-	depth.redBits   = 0;
-	depth.greenBits = 0;
-	depth.blueBits  = 0;
-
 	GFX_Window* window = _gfx_window_create_common(
 		NULL,
 		depth,
 		"",
 		0, 0,
-		1, 1,
+		w, h,
 		GFX_WINDOW_HIDDEN
 	);
 
@@ -299,7 +316,7 @@ GFX_Window* _gfx_window_create(void)
 
 	if(!_gfx_window_insert(window))
 	{
-		_gfx_window_free(window);
+		gfx_window_free((GFXWindow*)window);
 		return NULL;
 	}
 
@@ -307,74 +324,55 @@ GFX_Window* _gfx_window_create(void)
 }
 
 /******************************************************/
-void _gfx_window_free(
-
-		GFX_Window* window)
-{
-	// TODO: make it do different things.
-
-	if(window)
-	{
-		_gfx_window_destroy(window);
-		free(window);
-	}
-}
-
-/******************************************************/
 void _gfx_window_destroy(
 
 		GFX_Window* window)
 {
-	// TODO: make it do different things also.
+	if(!window->handle) return;
 
-	if(window)
+	/* Erase from windows */
+	_gfx_window_erase(window);
+	_gfx_window_make_current(window);
+
+	/* Find a new main window */
+	int restore = 0;
+
+	if(_gfx_main_window == window)
 	{
-		/* Zombie window */
-		if(!window->handle) return;
-		_gfx_window_make_current(window);
-
-		/* Erase */
-		_gfx_window_erase(window);
-
-		/* Welp, no more windows */
-		if(!_gfx_windows)
+		if(_gfx_public_windows)
 		{
-			_gfx_pipe_process_unprepare(1);
-			_gfx_hardware_objects_free();
-			_gfx_platform_window_free(window->handle);
-
-			_gfx_platform_key_clear(_gfx_current_window);
-			_gfx_main_window = NULL;
-		}
-
-		/* If main window, save & restore hardware objects */
-		else if(_gfx_main_window == window)
-		{
-			_gfx_pipe_process_unprepare(0);
-			_gfx_hardware_objects_save();
-			_gfx_platform_window_free(window->handle);
-
 			_gfx_main_window = *(GFX_Window**)_gfx_windows->begin;
-			_gfx_window_make_current(_gfx_main_window);
 
-			_gfx_hardware_objects_restore();
-		}
-		else
-		{
-			_gfx_pipe_process_unprepare(0);
-			_gfx_platform_window_free(window->handle);
-			_gfx_window_make_current(_gfx_main_window);
+			/* Save objects at window's context */
+			_gfx_render_objects_save(&window->objects);
+			restore = 1;
 		}
 
-		/* Free binding points */
-		free(window->renderer.uniformBuffers);
-		free(window->renderer.textureUnits);
-
-		window->renderer.uniformBuffers = NULL;
-		window->renderer.textureUnits = NULL;
-
-		window->handle = NULL;
+		else _gfx_main_window = NULL;
 	}
+
+	/* Free objects, unprepare and unload */
+	_gfx_render_objects_free(&window->objects);
+	_gfx_pipe_process_unprepare(_gfx_windows ? 0 : 1);
+	_gfx_renderer_unload();
+
+	/* Braaaaaaains! */
+	_gfx_platform_window_free(window->handle);
+	window->handle = NULL;
+
+	if(--_gfx_alive_windows)
+	{
+		/* Make main active again and restore objects */
+		_gfx_window_make_current(_gfx_main_window);
+
+		if(restore) _gfx_render_objects_restore(
+			&window->objects,
+			&_gfx_main_window->objects
+		);
+	}
+
+	/* Destruct key as no windows exist anymore */
+	else _gfx_platform_key_clear(_gfx_current_window);
 }
 
 /******************************************************/
@@ -399,7 +397,7 @@ void _gfx_window_make_current(
 /******************************************************/
 GFX_Window* _gfx_window_get_current(void)
 {
-	return _gfx_platform_key_get(_gfx_current_window);
+	return _gfx_alive_windows ? _gfx_platform_key_get(_gfx_current_window) : NULL;
 }
 
 /******************************************************/
@@ -427,6 +425,28 @@ void _gfx_window_swap_buffers(void)
 }
 
 /******************************************************/
+int gfx_is_extension_supported(
+
+		GFXExtension extension)
+{
+	if(!_gfx_alive_windows) return 0;
+	GFX_Window* window = _gfx_platform_key_get(_gfx_current_window);
+
+	return window->ext[extension];
+}
+
+/******************************************************/
+int gfx_get_limit(
+
+		GFXLimit limit)
+{
+	if(!_gfx_alive_windows) return -1;
+	GFX_Window* window = _gfx_platform_key_get(_gfx_current_window);
+
+	return window->lim[limit];
+}
+
+/******************************************************/
 void gfx_request_context(
 
 		GFXContext context)
@@ -450,8 +470,7 @@ void gfx_request_context(
 /******************************************************/
 unsigned int gfx_get_num_windows(void)
 {
-	if(!_gfx_windows) return 0;
-	return gfx_vector_get_size(_gfx_windows) - _gfx_off_windows;
+	return _gfx_public_windows;
 }
 
 /******************************************************/
@@ -459,7 +478,7 @@ GFXWindow* gfx_get_window(
 
 		unsigned int num)
 {
-	if(num >= gfx_get_num_windows()) return NULL;
+	if(num >= _gfx_public_windows) return NULL;
 	return *(GFXWindow**)gfx_vector_at(_gfx_windows, num);
 }
 
@@ -570,6 +589,8 @@ void gfx_window_free(
 	if(window)
 	{
 		_gfx_window_destroy((GFX_Window*)window);
+		_gfx_render_objects_clear(&((GFX_Window*)window)->objects);
+
 		free(window);
 	}
 }

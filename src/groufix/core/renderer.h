@@ -24,6 +24,8 @@
 #ifndef GFX_CORE_INTERNAL_H
 #define GFX_CORE_INTERNAL_H
 
+#include "groufix/containers/deque.h"
+#include "groufix/containers/vector.h"
 #include "groufix/core/platform.h"
 #include "groufix/core/pipeline.h"
 
@@ -42,6 +44,138 @@ extern "C" {
 
 
 /********************************************************
+ * Renderer interface definitions
+ *******************************************************/
+
+/** Renderer data */
+typedef struct GFX_Renderer GFX_Renderer;
+
+
+/**
+ * Loads the renderer of the current window and sets flags and limits.
+ *
+ * Note: this method may assume the context version of the window is set and
+ * the current renderer is initialized to all 0s.
+ *
+ */
+void _gfx_renderer_load(void);
+
+/**
+ * Unloads and frees the renderer of the current window.
+ *
+ */
+void _gfx_renderer_unload(void);
+
+
+/********************************************************
+ * Generic render object reconstruction
+ *******************************************************/
+
+/** Render object container */
+typedef struct GFX_RenderObjects
+{
+	GFXVector  objects;
+	GFXDeque   empties;
+	GFXVector  saved;
+
+} GFX_RenderObjects;
+
+
+/** Generic render object operator */
+typedef void (*GFX_RenderObjectFunc) (void*, unsigned int);
+
+
+/** Operator vtable */
+typedef struct GFX_RenderObjectFuncs
+{
+	GFX_RenderObjectFunc free;    /* Free all renderer data */
+	GFX_RenderObjectFunc save;    /* Save off-renderer to restore in a new context later */
+	GFX_RenderObjectFunc restore; /* Restore objects in a new context */
+
+} GFX_RenderObjectFuncs;
+
+
+/**
+ * Initializes a render object container.
+ *
+ */
+void _gfx_render_objects_init(
+
+		GFX_RenderObjects* cont);
+
+/**
+ * Clears the content of a render object container.
+ *
+ */
+void _gfx_render_objects_clear(
+
+		GFX_RenderObjects* cont);
+
+/**
+ * Registers a render object at a container.
+ *
+ * @param cont   Container to register at.
+ * @param object Aribtrary data to identify with the render object.
+ * @param funcs  Functions to associate with the object.
+ * @return Identifier of the object, 0 on failure.
+ *
+ */
+unsigned int _gfx_render_object_register(
+
+		GFX_RenderObjects*            cont,
+		void*                         object,
+		const GFX_RenderObjectFuncs*  funcs);
+
+/**
+ * Unregisters a render object at a container.
+ *
+ * @param id Identifier of the render object to unregister.
+ *
+ */
+void _gfx_render_object_unregister(
+
+		GFX_RenderObjects*  cont,
+		unsigned int        id);
+
+/**
+ * Issue free method of all unsaved render objects.
+ *
+ * This will issue the free request and unregister all unsaved objects, sending 0 as new ID,
+ * thus this callback is NOT allowed to unregister the object.
+ * After this call, the current context will be destroyed.
+ *
+ */
+void _gfx_render_objects_free(
+
+		GFX_RenderObjects* cont);
+
+/**
+ * Issue save method of all unsaved render objects.
+ *
+ * This will issue a save request, sending 0 as new ID, as they should save on client side memory.
+ * After this call, the current context may be destroyed.
+ *
+ */
+void _gfx_render_objects_save(
+
+		GFX_RenderObjects* cont);
+
+/**
+ * Issue restore method of all saved render objects.
+ *
+ * @param src Source container on which a save request was previously issued.
+ *
+ * During this operation, a new window and context must be current.
+ * An new ID for this new context is given.
+ *
+ */
+void _gfx_render_objects_restore(
+
+		GFX_RenderObjects*  src,
+		GFX_RenderObjects*  cont);
+
+
+/********************************************************
  * Internal window data & methods
  *******************************************************/
 
@@ -57,10 +191,11 @@ typedef struct GFX_Window
 
 	/* Hidden data */
 	char                offscreen;
-	GFX_PlatformWindow  handle;
 	GFXContext          context;  /* Context version */
 	GFXPipeState        state;
+	GFX_PlatformWindow  handle;
 	GFX_Renderer        renderer; /* Renderer data */
+	GFX_RenderObjects   objects;  /* Per window render objects */
 
 } GFX_Window;
 
@@ -76,26 +211,20 @@ GFX_Window* _gfx_window_get_from_handle(
 /**
  * Creates a new off-screen window.
  *
+ * @param w Width of the window.
+ * @param h Height of the window.
+ *
  * Note: events have no effect on an off-screen window.
  *
- * The returned window behaves as a regular window, except that _gfx_window_free
- * must be called instead of gfx_window_free.
- *
- * Also, it is not destroyed at gfx_terminate.
+ * The returned window behaves as a regular window,
+ * except that it is not destroyed at gfx_terminate.
  *
  */
-GFX_Window* _gfx_window_create(void);
+GFX_Window* _gfx_window_create(
 
-/**
- * Destroys and frees an off-screen window.
- *
- * Note: this function should not be used on regular windows, use gfx_window_free
- * instead. Also, unmake the window current before freeing it!
- *
- */
-void _gfx_window_free(
-
-		GFX_Window* window);
+		GFXColorDepth  depth,
+		unsigned int   w,
+		unsigned int   h);
 
 /**
  * Destroys the server side window.
@@ -133,83 +262,6 @@ GFX_Window* _gfx_window_get_current(void);
  *
  */
 void _gfx_window_swap_buffers(void);
-
-/**
- * Loads the renderer of the current window and sets flags and limits.
- *
- * Note: this method assumes the context version of the window is set.
- *
- */
-void _gfx_renderer_load(void);
-
-
-/********************************************************
- * Generic hardware object reconstruction
- *******************************************************/
-
-/** Generic hardware object operator */
-typedef void (*GFX_HardwareObjectFunc) (void* object);
-
-
-/** Hardware vtable, can all be NULL */
-typedef struct GFX_HardwareFuncs
-{
-	GFX_HardwareObjectFunc  free;    /* GPU free request */
-	GFX_HardwareObjectFunc  save;    /* Prepare for context destruction */
-	GFX_HardwareObjectFunc  restore; /* Restore for new context */
-
-} GFX_HardwareFuncs;
-
-
-/**
- * Registers a new generic hardware object.
- *
- * @object Arbitrary data to identify with a number.
- * @funcs  Functions to associate with the object.
- * @return Identifier of the object, id > 1 (0 on failure).
- *
- * When an object is registered, it will be asked to free when all contexts are destroyed,
- * or reconstructed when the main context is destroyed.
- *
- */
-unsigned int _gfx_hardware_object_register(
-
-		void*                     object,
-		const GFX_HardwareFuncs*  funcs);
-
-/**
- * Unregisters a generic hardware object by identifier.
- *
- */
-void _gfx_hardware_object_unregister(
-
-		unsigned int id);
-
-/**
- * Issue free request of all hardware objects, this happens when its parent context is destroyed.
- *
- * This will issue the free request and unregister ALL objects.
- * Thus this callback is NOT allowed to unregister the object.
- *
- */
-void _gfx_hardware_objects_free(void);
-
-/**
- * Issue save method of all hardware objects.
- *
- * During this operation, the current window and context are considered "deleted".
- * It is guaranteed another context is still active, this is only meant for objects which can't be shared.
- *
- */
-void _gfx_hardware_objects_save(void);
-
-/**
- * Issue restore method of all hardware objects.
- *
- * During this operation, a new window and context is current.
- *
- */
-void _gfx_hardware_objects_restore(void);
 
 
 #ifdef __cplusplus

@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/errors.h"
 
@@ -58,21 +57,33 @@ struct GFX_Segment
 /******************************************************/
 static void _gfx_shared_buffer_obj_free(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
 
+	buff->id = id;
 	buff->handle = 0;
 	buff->size = 0;
-	buff->id = 0;
 }
 
 /******************************************************/
-static GFX_HardwareFuncs _gfx_shared_buffer_obj_funcs =
+static void _gfx_shared_buffer_obj_save_restore(
+
+		void*         object,
+		unsigned int  id)
+{
+	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
+	buff->id = id;
+}
+
+/******************************************************/
+/* vtable for render object part of the shared buffer */
+static GFX_RenderObjectFuncs _gfx_shared_buffer_obj_funcs =
 {
 	_gfx_shared_buffer_obj_free,
-	NULL,
-	NULL
+	_gfx_shared_buffer_obj_save_restore,
+	_gfx_shared_buffer_obj_save_restore
 };
 
 /******************************************************/
@@ -80,7 +91,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 
 		GFXBufferTarget  target,
 		size_t           minSize,
-		GFX_Renderer*    rend)
+		GFX_Window*      window)
 {
 	/* Create a new shared buffer */
 	struct GFX_SharedBuffer* buff = malloc(sizeof(struct GFX_SharedBuffer));
@@ -108,7 +119,8 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 	}
 
 	/* Register as object */
-	buff->id = _gfx_hardware_object_register(
+	buff->id = _gfx_render_object_register(
+		&window->objects,
 		buff,
 		&_gfx_shared_buffer_obj_funcs
 	);
@@ -124,9 +136,9 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 	buff->size = (_gfx_shared_buffer_size < minSize) ?
 		minSize : _gfx_shared_buffer_size;
 
-	rend->CreateBuffers(1, &buff->handle);
-	rend->BindBuffer(target, buff->handle);
-	rend->NamedBufferData(buff->handle, buff->size, NULL, GL_STATIC_DRAW);
+	window->renderer.CreateBuffers(1, &buff->handle);
+	window->renderer.BindBuffer(target, buff->handle);
+	window->renderer.NamedBufferData(buff->handle, buff->size, NULL, GL_STATIC_DRAW);
 
 	gfx_vector_init(&buff->segments, sizeof(struct GFX_Segment));
 
@@ -143,13 +155,19 @@ static void _gfx_shared_buffer_free(
 	{
 		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
 
+		if(window)
+		{
+			window->renderer.DeleteBuffers(1, &buff->handle);
+
+			/* Unregister as object */
+			_gfx_render_object_unregister(
+				&window->objects,
+				buff->id
+			);
+		}
+
 		/* Remove from le vector */
 		gfx_vector_erase(_gfx_shared_buffers, it);
-
-		/* Unregister as object */
-		_gfx_hardware_object_unregister(buff->id);
-
-		if(window) window->renderer.DeleteBuffers(1, &buff->handle);
 		gfx_vector_clear(&buff->segments);
 
 		free(buff);
@@ -326,7 +344,7 @@ int gfx_shared_buffer_init(
 	}
 
 	/* Create new shared buffer */
-	it = _gfx_shared_buffer_create(target, size, &window->renderer);
+	it = _gfx_shared_buffer_create(target, size, window);
 
 	if(it)
 	{

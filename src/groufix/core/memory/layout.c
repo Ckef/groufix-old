@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/containers/vector.h"
 #include "groufix/core/memory/internal.h"
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/errors.h"
@@ -279,12 +278,13 @@ static void _gfx_layout_init_attrib(
 /******************************************************/
 static void _gfx_layout_obj_free(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
+	layout->layout.id = id;
 	layout->vao = 0;
-	layout->layout.id = 0;
 
 	gfx_vector_clear(&layout->attributes);
 }
@@ -292,12 +292,14 @@ static void _gfx_layout_obj_free(
 /******************************************************/
 static void _gfx_layout_obj_save(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Just don't clear the attribute vector */
+	layout->layout.id = id;
 	window->renderer.DeleteVertexArrays(1, &layout->vao);
 	layout->vao = 0;
 }
@@ -305,12 +307,14 @@ static void _gfx_layout_obj_save(
 /******************************************************/
 static void _gfx_layout_obj_restore(
 
-		void* object)
+		void*         object,
+		unsigned int  id)
 {
 	GFX_Window* window = _gfx_window_get_current();
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Create VAO */
+	layout->layout.id = id;
 	window->renderer.CreateVertexArrays(1, &layout->vao);
 
 	/* Restore attributes */
@@ -331,8 +335,8 @@ static void _gfx_layout_obj_restore(
 }
 
 /******************************************************/
-/* vtable for hardware part of the layout */
-static GFX_HardwareFuncs _gfx_layout_obj_funcs =
+/* vtable for render object part of the layout */
+static GFX_RenderObjectFuncs _gfx_layout_obj_funcs =
 {
 	_gfx_layout_obj_free,
 	_gfx_layout_obj_save,
@@ -370,7 +374,8 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	}
 
 	/* Register as object */
-	layout->layout.id = _gfx_hardware_object_register(
+	layout->layout.id = _gfx_render_object_register(
+		&window->objects,
 		layout,
 		&_gfx_layout_obj_funcs
 	);
@@ -400,16 +405,19 @@ void gfx_vertex_layout_free(
 		GFX_Window* window = _gfx_window_get_current();
 		struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
-		/* Unregister as object */
-		_gfx_hardware_object_unregister(layout->id);
-
-		/* Delete VAO */
 		if(window)
 		{
+			/* Delete VAO */
 			if(window->renderer.vao == internal->vao)
 				window->renderer.vao = 0;
 
 			window->renderer.DeleteVertexArrays(1, &internal->vao);
+
+			/* Unregister as object */
+			_gfx_render_object_unregister(
+				&window->objects,
+				layout->id
+			);
 		}
 
 		gfx_vector_clear(&internal->attributes);

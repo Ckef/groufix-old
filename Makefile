@@ -169,7 +169,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/shading/shader.o \
  $(OUT)/unix-x11/groufix/core/errors.o \
  $(OUT)/unix-x11/groufix/core/events.o \
- $(OUT)/unix-x11/groufix/core/hardware.o \
+ $(OUT)/unix-x11/groufix/core/objects.o \
  $(OUT)/unix-x11/groufix/core/screen.o \
  $(OUT)/unix-x11/groufix/core/window.o \
  $(OUT)/unix-x11/groufix/scene/batch.o \
@@ -241,7 +241,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/shading/shader.o \
  $(OUT)/win32/groufix/core/errors.o \
  $(OUT)/win32/groufix/core/events.o \
- $(OUT)/win32/groufix/core/hardware.o \
+ $(OUT)/win32/groufix/core/objects.o \
  $(OUT)/win32/groufix/core/screen.o \
  $(OUT)/win32/groufix/core/window.o \
  $(OUT)/win32/groufix/scene/batch.o \
