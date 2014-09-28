@@ -335,17 +335,13 @@ void _gfx_window_destroy(
 	_gfx_window_make_current(window);
 
 	/* Find a new main window */
-	int restore = 0;
-
 	if(_gfx_main_window == window)
 	{
 		if(_gfx_public_windows)
 		{
-			_gfx_main_window = *(GFX_Window**)_gfx_windows->begin;
-
 			/* Save objects at window's context */
 			_gfx_render_objects_save(&window->objects);
-			restore = 1;
+			_gfx_main_window = *(GFX_Window**)_gfx_windows->begin;
 		}
 
 		else _gfx_main_window = NULL;
@@ -365,7 +361,7 @@ void _gfx_window_destroy(
 		/* Make main active again and restore objects */
 		_gfx_window_make_current(_gfx_main_window);
 
-		if(restore) _gfx_render_objects_restore(
+		if(_gfx_main_window) _gfx_render_objects_restore(
 			&window->objects,
 			&_gfx_main_window->objects
 		);
