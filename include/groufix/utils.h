@@ -26,6 +26,21 @@
 
 #include <stdint.h>
 
+
+/* SSE alignment */
+#ifdef GFX_NO_SSE
+	#define GFX_SSE_ALIGN struct
+#elif defined(_MSC_VER)
+	#define GFX_SSE_ALIGN __declspec(align(16)) struct
+#elif defined (__GNUC__)
+	#define GFX_SSE_ALIGN struct __attribute__ ((aligned(16)))
+#else
+	#define GFX_SSE_ALIGN struct
+#endif
+
+#define GFX_SSE_NO_ALIGN struct
+
+
 /* Stringification */
 #define GFX_STRIFY_BAD(x) #x
 #define GFX_STRIFY(x) GFX_STRIFY_BAD(x)
@@ -53,11 +68,5 @@
 #define GFX_PTR_EQUAL(x,y) (GFX_VOID_TO_UINT(x) == GFX_VOID_TO_UINT(y))
 #define GFX_PTR_NEQUAL(x,y) (GFX_VOID_TO_UINT(x) != GFX_VOID_TO_UINT(y))
 
-/* SSE Math */
-#ifdef GFX_NO_SSE
-	#define GFX_SSE_ALIGN
-#else
-	#define GFX_SSE_ALIGN __attribute__ ((aligned(16)))
-#endif
 
 #endif // GFX_UTILS_H

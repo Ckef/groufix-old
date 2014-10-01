@@ -76,7 +76,7 @@ extern "C" {
 #if GFX_QUAT_DATA == float
 	#define GFX_QUAT_ALIGN GFX_SSE_ALIGN
 #else
-	#define GFX_QUAT_ALIGN
+	#define GFX_QUAT_ALIGN GFX_SSE_NO_ALIGN
 #endif
 
 /* Matrix specific */
@@ -99,7 +99,7 @@ extern "C" {
 /********************************************************
  * Quaternion Template
  *******************************************************/
-typedef struct GFX_QUAT_ALIGN
+typedef GFX_QUAT_ALIGN
 {
 	/** Components */
 	GFX_QUAT_DATA data[4];

@@ -138,14 +138,14 @@ extern "C" {
 	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
 
 #else
-	#define GFX_VEC_ALIGN
+	#define GFX_VEC_ALIGN GFX_SSE_NO_ALIGN
 #endif
 
 
 /********************************************************
  * Vector Template
  *******************************************************/
-typedef struct GFX_VEC_ALIGN
+typedef GFX_VEC_ALIGN
 {
 	/** Components */
 	GFX_VEC_DATA data[GFX_VEC_SIZE];

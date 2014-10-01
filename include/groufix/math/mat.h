@@ -98,7 +98,7 @@ extern "C" {
 	#define GFX_MAT_ALIGN GFX_SSE_ALIGN
 
 #else
-	#define GFX_MAT_ALIGN
+	#define GFX_MAT_ALIGN GFX_SSE_NO_ALIGN
 #endif
 
 /* Vector specific */
@@ -114,7 +114,7 @@ extern "C" {
 /********************************************************
  * Matrix Template
  *******************************************************/
-typedef struct GFX_MAT_ALIGN
+typedef GFX_MAT_ALIGN
 {
 	/** Components */
 	GFX_MAT_DATA data[GFX_MAT_STORE];
