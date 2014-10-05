@@ -26,16 +26,34 @@
 
 #include <stdint.h>
 
+/* Get compiler */
+#if defined(_MSC_VER)
+	#define GFX_VISUAL_C
+#elif defined(__MINGW32__)
+	#define GFX_MINGW
+#elif defined(__GNUC__)
+	#define GFX_GCC
+
+#elif !defined(GFX_COMPILER_ANY)
+	#error "Compiler not supported, define GFX_COMPILER_ANY to use compiler agnostic functionality"
+#endif
+
+
+/********************************************************
+ * Compiler specific attributes & helpful macros
+ *******************************************************/
 
 /* SSE alignment */
-#ifdef GFX_NO_SSE
+#if defined(GFX_NO_SSE)
 	#define GFX_SSE_ALIGN struct
-#elif defined(_MSC_VER)
+#elif defined(GFX_VISUAL_C)
 	#define GFX_SSE_ALIGN __declspec(align(16)) struct
-#elif defined (__GNUC__)
+#elif defined(GFX_MINGW) || defined(GFX_GCC)
 	#define GFX_SSE_ALIGN struct __attribute__ ((aligned(16)))
+
 #else
 	#define GFX_SSE_ALIGN struct
+	#define GFX_NO_SSE
 #endif
 
 #define GFX_SSE_NO_ALIGN struct

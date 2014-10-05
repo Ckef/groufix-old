@@ -51,10 +51,11 @@ CC       = gcc
 BIN      = bin
 OUT      = obj
 RENDERER = GL
+COMPILER = SUPPORTED
 SSE      = YES
 
 # Flags for all binaries files
-CFLAGS            = -Os -O2 -Wall -pedantic -Iinclude -DGFX_$(SSE)_SSE
+CFLAGS            = -Os -O2 -Wall -pedantic -Iinclude -DGFX_COMPILER_$(COMPILER) -DGFX_$(SSE)_SSE
 CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32      = $(CFLAGS) -std=c99
 

@@ -5,8 +5,11 @@ Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in 
 Supported targets and their APIs:
 
 * __Unix__, Xlib / OGL, (_working_ / _[GCC](https://gcc.gnu.org/)_)
+
 * __Windows__, Win32 (Vista+) / OGL, (_working_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)
+
 * __OS X__, Cocoa / OGL, (_planned_)
+
 * __Android__, NDK / OGL ES, (_considered_)
 
 The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
@@ -19,11 +22,14 @@ A Makefile is shipped with the project, run make without a target to view all bu
 Groufix can be compiled with different OGL renderers. This must be given as a makefile flag in the form of `RENDERER=VALUE`, in which `VALUE` can be:
 
 * __GL__, To compile using desktop OpenGL, this is the default value.
+
 * __GLES__, To compile using OpenGL ES.
 
 Along with the renderer value Groufix accepts more flags which can be defined while both compiling Groufix itself and any program or library using Groufix. All makefile flags are:
 
-* __SSE=NO__ Groufix will compile certain functions using SSE instructions. Use this flag to disable this feature. To disable it in a program or library using Groufix, `GFX_NO_SSE` should be defined by the compiler.
+* __COMPILER=ANY__ Groufix will use compiler specific compiler macros. If compiled with an unsupported compiler it will throw an error. Use this flag to turn the error off and force it to use compiler agnostic functionality. To disable it in a program or library using Groufix, `GFX_COMPILER_ANY` should be defined by the compiler.
+
+* __SSE=NO__ Groufix will compile certain functions using SSE instructions. Use this flag to disable this feature. This feature is disabled if `GFX_COMPILER_ANY` is defined. To disable it in a program or library using Groufix, `GFX_NO_SSE` should be defined by the compiler.
 
 ## Usage
 
@@ -58,4 +64,5 @@ _It will not free any other resources_. All user allocated resources must be fre
 ## Acknowledgements
 
 * Grace Fu
+
 * Martin Dørum Nygaard
