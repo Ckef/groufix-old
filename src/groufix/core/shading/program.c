@@ -290,7 +290,7 @@ static unsigned short _gfx_program_prepare_properties(
 
 		struct GFX_Program*  program,
 		unsigned short       properties,
-		GFX_Renderer*        rend)
+		GFX_WIND_ARG)
 {
 	/* Reserve memory */
 	gfx_vector_clear(&program->properties);
@@ -303,7 +303,7 @@ static unsigned short _gfx_program_prepare_properties(
 
 	unsigned short i;
 	for(i = 0; i < properties; ++i) indices[i] = i;
-	rend->GetActiveUniformsiv(
+	GFX_REND_GET.GetActiveUniformsiv(
 		program->handle,
 		properties,
 		indices,
@@ -319,7 +319,7 @@ static unsigned short _gfx_program_prepare_properties(
 		GLint size;
 		GLenum type;
 
-		rend->GetActiveUniform(
+		GFX_REND_GET.GetActiveUniform(
 			program->handle,
 			i,
 			lens[i],
@@ -328,7 +328,7 @@ static unsigned short _gfx_program_prepare_properties(
 			&type,
 			name);
 
-		GLint loc = rend->GetUniformLocation(
+		GLint loc = GFX_REND_GET.GetUniformLocation(
 			program->handle,
 			name);
 
@@ -355,7 +355,7 @@ static unsigned short _gfx_program_prepare_blocks(
 
 		struct GFX_Program*  program,
 		unsigned short       blocks,
-		GFX_Renderer*        rend)
+		GFX_WIND_ARG)
 {
 	/* Reserve memory */
 	gfx_vector_clear(&program->blocks);
@@ -366,7 +366,7 @@ static unsigned short _gfx_program_prepare_blocks(
 	for(k = 0; k < blocks; ++k)
 	{
 		GLint size;
-		rend->GetActiveUniformBlockiv(
+		GFX_REND_GET.GetActiveUniformBlockiv(
 			program->handle,
 			k,
 			GL_UNIFORM_BLOCK_DATA_SIZE,
@@ -375,7 +375,7 @@ static unsigned short _gfx_program_prepare_blocks(
 
 		/* Get associated uniform indices */
 		GLint uniforms;
-		rend->GetActiveUniformBlockiv(
+		GFX_REND_GET.GetActiveUniformBlockiv(
 			program->handle,
 			k,
 			GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS,
@@ -383,7 +383,7 @@ static unsigned short _gfx_program_prepare_blocks(
 		);
 
 		GLint uniformIndices[uniforms];
-		rend->GetActiveUniformBlockiv(
+		GFX_REND_GET.GetActiveUniformBlockiv(
 			program->handle,
 			k,
 			GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES,
@@ -400,21 +400,21 @@ static unsigned short _gfx_program_prepare_blocks(
 		for(j = 0; j < uniforms; ++j)
 			indices[j] = uniformIndices[j];
 
-		rend->GetActiveUniformsiv(
+		GFX_REND_GET.GetActiveUniformsiv(
 			program->handle,
 			uniforms,
 			indices,
 			GL_UNIFORM_OFFSET,
 			offsets);
 
-		rend->GetActiveUniformsiv(
+		GFX_REND_GET.GetActiveUniformsiv(
 			program->handle,
 			uniforms,
 			indices,
 			GL_UNIFORM_ARRAY_STRIDE,
 			arrStrides);
 
-		rend->GetActiveUniformsiv(
+		GFX_REND_GET.GetActiveUniformsiv(
 			program->handle,
 			uniforms,
 			indices,
@@ -470,8 +470,8 @@ static void _gfx_program_unprepare(
 /******************************************************/
 static void _gfx_program_prepare(
 
-		struct GFX_Program*  program,
-		GFX_Renderer*        rend)
+		struct GFX_Program* program,
+		GFX_WIND_ARG)
 {
 	_gfx_program_unprepare(program);
 
@@ -479,17 +479,17 @@ static void _gfx_program_prepare(
 	GLint properties;
 	GLint blocks;
 
-	rend->GetProgramiv(program->handle, GL_ACTIVE_UNIFORMS, &properties);
-	rend->GetProgramiv(program->handle, GL_ACTIVE_UNIFORM_BLOCKS, &blocks);
+	GFX_REND_GET.GetProgramiv(program->handle, GL_ACTIVE_UNIFORMS, &properties);
+	GFX_REND_GET.GetProgramiv(program->handle, GL_ACTIVE_UNIFORM_BLOCKS, &blocks);
 
 	properties = properties < 0 ? 0 : properties;
 	blocks = blocks < 0 ? 0 : blocks;
 
 	/* Prepare properties and blocks */
 	program->program.properties =
-		_gfx_program_prepare_properties(program, properties, rend);
+		_gfx_program_prepare_properties(program, properties, GFX_WIND_AS_ARG);
 	program->program.blocks =
-		_gfx_program_prepare_blocks(program, blocks, rend);
+		_gfx_program_prepare_blocks(program, blocks, GFX_WIND_AS_ARG);
 }
 
 /******************************************************/
@@ -547,8 +547,7 @@ GLuint _gfx_program_get_handle(
 /******************************************************/
 GFXProgram* gfx_program_create(void)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return NULL;
+	GFX_WIND_INIT(NULL);
 
 	/* Create new program */
 	struct GFX_Program* prog = calloc(1, sizeof(struct GFX_Program));
@@ -564,7 +563,7 @@ GFXProgram* gfx_program_create(void)
 
 	/* Register as object */
 	prog->program.id = _gfx_render_object_register(
-		&window->objects,
+		&GFX_WIND_GET.objects,
 		prog,
 		&_gfx_program_obj_funcs
 	);
@@ -576,7 +575,7 @@ GFXProgram* gfx_program_create(void)
 	}
 
 	/* Create OpenGL program */
-	prog->handle = window->renderer.CreateProgram();
+	prog->handle = GFX_REND_GET.CreateProgram();
 
 	gfx_vector_init(&prog->properties, sizeof(struct GFX_Property));
 	gfx_vector_init(&prog->blocks, sizeof(GFXPropertyBlock));
@@ -591,18 +590,19 @@ void gfx_program_free(
 {
 	if(program)
 	{
-		GFX_Window* window = _gfx_window_get_current();
+		GFX_WIND_INIT_UNSAFE;
+
 		struct GFX_Program* internal = (struct GFX_Program*)program;
 
-		if(window)
+		if(!GFX_WIND_EQ(NULL))
 		{
-			window->renderer.DeleteProgram(internal->handle);
-			if(window->renderer.program == internal->handle)
-				window->renderer.program = 0;
+			GFX_REND_GET.DeleteProgram(internal->handle);
+			if(GFX_REND_GET.program == internal->handle)
+				GFX_REND_GET.program = 0;
 
 			/* Unregister as object */
 			_gfx_render_object_unregister(
-				&window->objects,
+				&GFX_WIND_GET.objects,
 				program->id
 			);
 		}
@@ -624,16 +624,15 @@ int gfx_program_set_attribute(
 		unsigned int  index,
 		const char*   name)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return 0;
+	GFX_WIND_INIT(0);
 
-	if(index >= window->lim[GFX_LIM_MAX_VERTEX_ATTRIBS])
+	if(index >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIBS])
 		return 0;
 
 	struct GFX_Program* internal = (struct GFX_Program*)program;
 
 	/* Set the attribute */
-	window->renderer.BindAttribLocation(
+	GFX_REND_GET.BindAttribLocation(
 		internal->handle,
 		index,
 		name
@@ -650,16 +649,15 @@ int gfx_program_set_feedback(
 		const char**     names,
 		GFXFeedbackMode  mode)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return 0;
+	GFX_WIND_INIT(0);
 
-	if(num > window->lim[GFX_LIM_MAX_FEEDBACK_BUFFERS] &&
+	if(num > GFX_WIND_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS] &&
 		mode == GFX_FEEDBACK_SEPARATE) return 0;
 
 	struct GFX_Program* internal = (struct GFX_Program*)program;
 
 	/* Specify transform feedback */
-	window->renderer.TransformFeedbackVaryings(
+	GFX_REND_GET.TransformFeedbackVaryings(
 		internal->handle,
 		num,
 		names,
@@ -677,15 +675,14 @@ int gfx_program_link(
 		GFXShader**  shaders,
 		int          binary)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT(0);
+
 	struct GFX_Program* internal = (struct GFX_Program*)program;
 
-	if(!window) return 0;
-
 	/* Set binary parameter */
-	if(window->ext[GFX_EXT_PROGRAM_BINARY])
+	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_BINARY])
 	{
-		window->renderer.ProgramParameteri(
+		GFX_REND_GET.ProgramParameteri(
 			internal->handle,
 			GL_PROGRAM_BINARY_RETRIEVABLE_HINT,
 			binary ? GL_TRUE : GL_FALSE
@@ -699,7 +696,7 @@ int gfx_program_link(
 		/* Uh oh, compiling went wrong, detach all! */
 		if(!gfx_shader_compile(shaders[i]))
 		{
-			while(i) window->renderer.DetachShader(
+			while(i) GFX_REND_GET.DetachShader(
 				internal->handle,
 				_gfx_shader_get_handle(shaders[--i])
 			);
@@ -707,7 +704,7 @@ int gfx_program_link(
 		}
 
 		/* Attach shader */
-		window->renderer.AttachShader(
+		GFX_REND_GET.AttachShader(
 			internal->handle,
 			_gfx_shader_get_handle(shaders[i])
 		);
@@ -715,14 +712,14 @@ int gfx_program_link(
 
 	/* Try to link */
 	GLint status;
-	window->renderer.LinkProgram(internal->handle);
-	window->renderer.GetProgramiv(
+	GFX_REND_GET.LinkProgram(internal->handle);
+	GFX_REND_GET.GetProgramiv(
 		internal->handle,
 		GL_LINK_STATUS, &status
 	);
 
 	/* Detach all shaders */
-	for(i = 0; i < num; ++i) window->renderer.DetachShader(
+	for(i = 0; i < num; ++i) GFX_REND_GET.DetachShader(
 		internal->handle,
 		_gfx_shader_get_handle(shaders[i])
 	);
@@ -731,14 +728,14 @@ int gfx_program_link(
 	{
 		/* Generate error */
 		GLint len;
-		window->renderer.GetProgramiv(
+		GFX_REND_GET.GetProgramiv(
 			internal->handle,
 			GL_INFO_LOG_LENGTH,
 			&len
 		);
 
 		char buff[len];
-		window->renderer.GetProgramInfoLog(
+		GFX_REND_GET.GetProgramInfoLog(
 			internal->handle,
 			len,
 			NULL,
@@ -749,7 +746,7 @@ int gfx_program_link(
 	}
 
 	/* Prepare program */
-	else _gfx_program_prepare(internal, &window->renderer);
+	else _gfx_program_prepare(internal, GFX_WIND_AS_ARG);
 
 	return status;
 }
@@ -761,18 +758,13 @@ void* gfx_program_get_binary(
 		GFXProgramFormat*  format,
 		size_t*            size)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	struct GFX_Program* internal = (struct GFX_Program*)program;
+	GFX_WIND_INIT((*size = 0, NULL));
 
-	if(!window)
-	{
-		*size = 0;
-		return NULL;
-	}
+	struct GFX_Program* internal = (struct GFX_Program*)program;
 
 	/* Get data byte size */
 	GLint bytes;
-	window->renderer.GetProgramiv(
+	GFX_REND_GET.GetProgramiv(
 		internal->handle,
 		GL_PROGRAM_BINARY_LENGTH,
 		&bytes
@@ -783,7 +775,7 @@ void* gfx_program_get_binary(
 
 	/* Get the data */
 	void* data = malloc(bytes);
-	window->renderer.GetProgramBinary(
+	GFX_REND_GET.GetProgramBinary(
 		internal->handle,
 		bytes,
 		NULL,
@@ -802,26 +794,25 @@ int gfx_program_set_binary(
 		size_t            size,
 		const void*       data)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	struct GFX_Program* internal = (struct GFX_Program*)program;
+	GFX_WIND_INIT(0);
 
-	if(!window) return 0;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
 
 	/* Set binary representation */
 	GLint status;
-	window->renderer.ProgramBinary(
+	GFX_REND_GET.ProgramBinary(
 		internal->handle,
 		format,
 		data,
 		size);
 
-	window->renderer.GetProgramiv(
+	GFX_REND_GET.GetProgramiv(
 		internal->handle,
 		GL_LINK_STATUS,
 		&status);
 
 	/* Prepare program */
-	if(status) _gfx_program_prepare(internal, &window->renderer);
+	if(status) _gfx_program_prepare(internal, GFX_WIND_AS_ARG);
 
 	return status;
 }
@@ -845,14 +836,13 @@ unsigned short gfx_program_get_named_property(
 		GFXProgram*  program,
 		const char*  name)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	struct GFX_Program* internal = (struct GFX_Program*)program;
+	GFX_WIND_INIT(0);
 
-	if(!window) return 0;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
 
 	/* Get index */
 	GLuint index;
-	window->renderer.GetUniformIndices(
+	GFX_REND_GET.GetUniformIndices(
 		internal->handle,
 		1,
 		&name,
@@ -881,13 +871,12 @@ unsigned short gfx_program_get_named_property_block(
 		GFXProgram*  program,
 		const char*  name)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT(0);
+
 	struct GFX_Program* internal = (struct GFX_Program*)program;
 
-	if(!window) return 0;
-
 	/* Get index */
-	GLuint index = window->renderer.GetUniformBlockIndex(
+	GLuint index = GFX_REND_GET.GetUniformBlockIndex(
 		internal->handle,
 		name
 	);

@@ -91,7 +91,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 
 		GFXBufferTarget  target,
 		size_t           minSize,
-		GFX_Window*      window)
+		GFX_WIND_ARG)
 {
 	/* Create a new shared buffer */
 	struct GFX_SharedBuffer* buff = malloc(sizeof(struct GFX_SharedBuffer));
@@ -120,7 +120,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 
 	/* Register as object */
 	buff->id = _gfx_render_object_register(
-		&window->objects,
+		&GFX_WIND_GET.objects,
 		buff,
 		&_gfx_shared_buffer_obj_funcs
 	);
@@ -136,9 +136,9 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 	buff->size = (_gfx_shared_buffer_size < minSize) ?
 		minSize : _gfx_shared_buffer_size;
 
-	window->renderer.CreateBuffers(1, &buff->handle);
-	window->renderer.BindBuffer(target, buff->handle);
-	window->renderer.NamedBufferData(buff->handle, buff->size, NULL, GL_STATIC_DRAW);
+	GFX_REND_GET.CreateBuffers(1, &buff->handle);
+	GFX_REND_GET.BindBuffer(target, buff->handle);
+	GFX_REND_GET.NamedBufferData(buff->handle, buff->size, NULL, GL_STATIC_DRAW);
 
 	gfx_vector_init(&buff->segments, sizeof(struct GFX_Segment));
 
@@ -148,20 +148,20 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 /******************************************************/
 static void _gfx_shared_buffer_free(
 
-		GFXVectorIterator  it,
-		GFX_Window*        window)
+		GFXVectorIterator it,
+		GFX_WIND_ARG)
 {
 	if(it)
 	{
 		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
 
-		if(window)
+		if(!GFX_WIND_EQ(NULL))
 		{
-			window->renderer.DeleteBuffers(1, &buff->handle);
+			GFX_REND_GET.DeleteBuffers(1, &buff->handle);
 
 			/* Unregister as object */
 			_gfx_render_object_unregister(
-				&window->objects,
+				&GFX_WIND_GET.objects,
 				buff->id
 			);
 		}
@@ -304,8 +304,7 @@ int gfx_shared_buffer_init(
 		size_t            size,
 		const void*       data)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return 0;
+	GFX_WIND_INIT(0);
 
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_shared_buffers)
@@ -333,7 +332,7 @@ int gfx_shared_buffer_init(
 			buffer->reference = buff;
 			buffer->offset = offset;
 
-			window->renderer.NamedBufferSubData(
+			GFX_REND_GET.NamedBufferSubData(
 				buff->handle,
 				offset,
 				size,
@@ -344,7 +343,7 @@ int gfx_shared_buffer_init(
 	}
 
 	/* Create new shared buffer */
-	it = _gfx_shared_buffer_create(target, size, window);
+	it = _gfx_shared_buffer_create(target, size, GFX_WIND_AS_ARG);
 
 	if(it)
 	{
@@ -356,7 +355,7 @@ int gfx_shared_buffer_init(
 			buffer->reference = buff;
 			buffer->offset = offset;
 
-			window->renderer.NamedBufferSubData(
+			GFX_REND_GET.NamedBufferSubData(
 				buff->handle,
 				offset,
 				size,
@@ -367,7 +366,7 @@ int gfx_shared_buffer_init(
 	}
 
 	/* Nope, destroy again */
-	_gfx_shared_buffer_free(it, window);
+	_gfx_shared_buffer_free(it, GFX_WIND_AS_ARG);
 
 	return 0;
 }
@@ -377,6 +376,8 @@ void gfx_shared_buffer_clear(
 
 		GFXSharedBuffer* buffer)
 {
+	GFX_WIND_INIT_UNSAFE;
+
 	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)buffer->reference;
 	_gfx_shared_buffer_erase_segment(buff, buffer->offset);
 
@@ -392,7 +393,7 @@ void gfx_shared_buffer_clear(
 		{
 			if(*(struct GFX_SharedBuffer**)it == buff)
 			{
-				_gfx_shared_buffer_free(it, _gfx_window_get_current());
+				_gfx_shared_buffer_free(it, GFX_WIND_AS_ARG);
 				break;
 			}
 		}

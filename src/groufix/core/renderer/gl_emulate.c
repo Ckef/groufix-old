@@ -64,12 +64,12 @@ void APIENTRY _gfx_gl_copy_named_buffer_sub_data(
 		GLintptr  writeOffset,
 		GLsizei   size)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	window->renderer.BindBuffer(GL_COPY_READ_BUFFER, readBuffer);
-	window->renderer.BindBuffer(GL_COPY_WRITE_BUFFER, writeBuffer);
+	GFX_REND_GET.BindBuffer(GL_COPY_READ_BUFFER, readBuffer);
+	GFX_REND_GET.BindBuffer(GL_COPY_WRITE_BUFFER, writeBuffer);
 
-	window->renderer.CopyBufferSubData(
+	GFX_REND_GET.CopyBufferSubData(
 		GL_COPY_READ_BUFFER,
 		GL_COPY_WRITE_BUFFER,
 		readOffset,
@@ -83,8 +83,8 @@ void APIENTRY _gfx_gl_create_buffers(
 		GLsizei  n,
 		GLuint*  buffers)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	window->renderer.GenBuffers(n, buffers);
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.GenBuffers(n, buffers);
 }
 
 void APIENTRY _gfx_gl_create_framebuffers(
@@ -92,8 +92,8 @@ void APIENTRY _gfx_gl_create_framebuffers(
 		GLsizei  n,
 		GLuint*  ids)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	window->renderer.GenFramebuffers(n, ids);
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.GenFramebuffers(n, ids);
 }
 
 void APIENTRY _gfx_gl_create_textures(
@@ -102,8 +102,8 @@ void APIENTRY _gfx_gl_create_textures(
 		GLsizei  n,
 		GLuint*  textures)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	window->renderer.GenTextures(n, textures);
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.GenTextures(n, textures);
 }
 
 void APIENTRY _gfx_gl_create_vertex_arrays(
@@ -111,8 +111,8 @@ void APIENTRY _gfx_gl_create_vertex_arrays(
 		GLsizei  n,
 		GLuint*  arrays)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	window->renderer.GenVertexArrays(n, arrays);
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.GenVertexArrays(n, arrays);
 }
 
 void APIENTRY _gfx_gl_disable_vertex_array_attrib(
@@ -120,15 +120,15 @@ void APIENTRY _gfx_gl_disable_vertex_array_attrib(
 		GLuint  vao,
 		GLuint  index)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	if(window->renderer.vao != vao)
+	if(GFX_REND_GET.vao != vao)
 	{
-		window->renderer.vao = vao;
-		window->renderer.BindVertexArray(vao);
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
 	}
 
-	window->renderer.DisableVertexAttribArray(index);
+	GFX_REND_GET.DisableVertexAttribArray(index);
 }
 
 void APIENTRY _gfx_gl_draw_arrays_instanced_base_instance(
@@ -159,15 +159,15 @@ void APIENTRY _gfx_gl_enable_vertex_array_attrib(
 		GLuint  vao,
 		GLuint  index)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	if(window->renderer.vao != vao)
+	if(GFX_REND_GET.vao != vao)
 	{
-		window->renderer.vao = vao;
-		window->renderer.BindVertexArray(vao);
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
 	}
 
-	window->renderer.EnableVertexAttribArray(index);
+	GFX_REND_GET.EnableVertexAttribArray(index);
 }
 
 void APIENTRY _gfx_gl_generate_texture_mipmap(
@@ -184,10 +184,10 @@ void APIENTRY _gfx_gl_get_named_buffer_sub_data(
 		GLsizei   size,
 		void*     data)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	window->renderer.BindBuffer(GL_ARRAY_BUFFER, buffer);
-	window->renderer.GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
+	GFX_REND_GET.GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
 void* APIENTRY _gfx_gl_map_named_buffer_range(
@@ -197,10 +197,10 @@ void* APIENTRY _gfx_gl_map_named_buffer_range(
 		GLsizei     length,
 		GLbitfield  access)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	window->renderer.BindBuffer(GL_ARRAY_BUFFER, buffer);
-	return window->renderer.MapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
+	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
+	return GFX_REND_GET.MapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
 }
 
 void APIENTRY _gfx_gl_named_buffer_data(
@@ -210,10 +210,10 @@ void APIENTRY _gfx_gl_named_buffer_data(
 		const void*  data,
 		GLenum       usage)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	window->renderer.BindBuffer(GL_ARRAY_BUFFER, buffer);
-	window->renderer.BufferData(GL_ARRAY_BUFFER, size, data, usage);
+	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
+	GFX_REND_GET.BufferData(GL_ARRAY_BUFFER, size, data, usage);
 }
 
 void APIENTRY _gfx_gl_named_buffer_sub_data(
@@ -223,10 +223,10 @@ void APIENTRY _gfx_gl_named_buffer_sub_data(
 		GLsizei      size,
 		const void*  data)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	window->renderer.BindBuffer(GL_ARRAY_BUFFER, buffer);
-	window->renderer.BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
+	GFX_REND_GET.BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
 void APIENTRY _gfx_gl_named_framebuffer_draw_buffers(
@@ -235,15 +235,15 @@ void APIENTRY _gfx_gl_named_framebuffer_draw_buffers(
 		GLsizei        n,
 		const GLenum*  bufs)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	if(window->renderer.fbos[0] != framebuffer)
+	if(GFX_REND_GET.fbos[0] != framebuffer)
 	{
-		window->renderer.fbos[0] = framebuffer;
-		window->renderer.BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+		GFX_REND_GET.fbos[0] = framebuffer;
+		GFX_REND_GET.BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
 	}
 
-	window->renderer.DrawBuffers(n, bufs);
+	GFX_REND_GET.DrawBuffers(n, bufs);
 }
 
 void APIENTRY _gfx_gl_named_framebuffer_texture(
@@ -253,15 +253,15 @@ void APIENTRY _gfx_gl_named_framebuffer_texture(
 		GLuint  texture,
 		GLint   level)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	if(window->renderer.fbos[0] != framebuffer)
+	if(GFX_REND_GET.fbos[0] != framebuffer)
 	{
-		window->renderer.fbos[0] = framebuffer;
-		window->renderer.BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+		GFX_REND_GET.fbos[0] = framebuffer;
+		GFX_REND_GET.BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
 	}
 
-	window->renderer.FramebufferTexture(
+	GFX_REND_GET.FramebufferTexture(
 		GL_DRAW_FRAMEBUFFER,
 		attach,
 		texture,
@@ -277,15 +277,15 @@ void APIENTRY _gfx_gl_named_framebuffer_texture_layer(
 		GLint   level,
 		GLint   layer)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	if(window->renderer.fbos[0] != framebuffer)
+	if(GFX_REND_GET.fbos[0] != framebuffer)
 	{
-		window->renderer.fbos[0] = framebuffer;
-		window->renderer.BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+		GFX_REND_GET.fbos[0] = framebuffer;
+		GFX_REND_GET.BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
 	}
 
-	window->renderer.FramebufferTextureLayer(
+	GFX_REND_GET.FramebufferTextureLayer(
 		GL_DRAW_FRAMEBUFFER,
 		attach,
 		texture,
@@ -430,10 +430,10 @@ GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
 
 		GLuint buffer)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	window->renderer.BindBuffer(GL_ARRAY_BUFFER, buffer);
-	return window->renderer.UnmapBuffer(GL_ARRAY_BUFFER);
+	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
+	return GFX_REND_GET.UnmapBuffer(GL_ARRAY_BUFFER);
 }
 
 
@@ -529,15 +529,15 @@ void APIENTRY _gfx_gles_named_framebuffer_texture_1d(
 		GLuint  texture,
 		GLint   level)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	if(window->renderer.fbos[0] != framebuffer)
+	if(GFX_REND_GET.fbos[0] != framebuffer)
 	{
-		window->renderer.fbos[0] = framebuffer;
+		GFX_REND_GET.fbos[0] = framebuffer;
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
 	}
 
-	window->renderer.FramebufferTexture1D(
+	GFX_REND_GET.FramebufferTexture1D(
 		GL_DRAW_FRAMEBUFFER,
 		attach,
 		textarget,
@@ -554,11 +554,11 @@ void APIENTRY _gfx_gles_named_framebuffer_texture_2d(
 		GLuint  texture,
 		GLint   level)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
-	if(window->renderer.fbos[0] != framebuffer)
+	if(GFX_REND_GET.fbos[0] != framebuffer)
 	{
-		window->renderer.fbos[0] = framebuffer;
+		GFX_REND_GET.fbos[0] = framebuffer;
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
 	}
 
@@ -698,8 +698,8 @@ void APIENTRY _gfx_gl_named_framebuffer_texture_1d(
 		GLuint  texture,
 		GLint   level)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	window->renderer.NamedFramebufferTexture(framebuffer, attach, texture, level);
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.NamedFramebufferTexture(framebuffer, attach, texture, level);
 }
 
 void APIENTRY _gfx_gl_named_framebuffer_texture_2d(
@@ -710,8 +710,8 @@ void APIENTRY _gfx_gl_named_framebuffer_texture_2d(
 		GLuint  texture,
 		GLint   level)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	window->renderer.NamedFramebufferTexture(framebuffer, attach, texture, level);
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.NamedFramebufferTexture(framebuffer, attach, texture, level);
 }
 
 void APIENTRY _gfx_gl_get_program_binary(
@@ -753,12 +753,12 @@ void APIENTRY _gfx_gl_tex_storage_1d(
 		GLenum   internalFormat,
 		GLsizei  w)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
 	GLsizei l;
 	for(l = 0; l < levels; ++l)
 	{
-		window->renderer.TexImage1D(target, l, internalFormat, w, 0, GL_RED, GL_BYTE, NULL);
+		GFX_REND_GET.TexImage1D(target, l, internalFormat, w, 0, GL_RED, GL_BYTE, NULL);
 		w >>= (w > 1) ? 1 : 0;
 	}
 }
@@ -771,7 +771,7 @@ void APIENTRY _gfx_gl_tex_storage_2d(
 		GLsizei  w,
 		GLsizei  h)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
 	GLsizei hf =
 		(target == GL_TEXTURE_1D || target == GL_TEXTURE_1D_ARRAY) ? 0 : 1;
@@ -785,7 +785,7 @@ void APIENTRY _gfx_gl_tex_storage_2d(
 	{
 		GLenum face;
 		for(face = first; face <= last; ++face)
-			window->renderer.TexImage2D(face, l, internalFormat, w, h, 0, GL_RED, GL_BYTE, NULL);
+			GFX_REND_GET.TexImage2D(face, l, internalFormat, w, h, 0, GL_RED, GL_BYTE, NULL);
 
 		w >>= (w > 1) ? 1 : 0;
 		h >>= (h > 1) ? hf : 0;
@@ -801,8 +801,8 @@ void APIENTRY _gfx_gl_tex_storage_2d_multisample(
 		GLsizei    h,
 		GLboolean  f)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	window->renderer.TexImage2DMultisample(target, samples, internalFormat, w, h, f);
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.TexImage2DMultisample(target, samples, internalFormat, w, h, f);
 }
 
 void APIENTRY _gfx_gl_tex_storage_3d(
@@ -814,7 +814,7 @@ void APIENTRY _gfx_gl_tex_storage_3d(
 		GLsizei  h,
 		GLsizei  d)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
 
 	GLsizei df =
 		(target == GL_TEXTURE_3D || target == GL_PROXY_TEXTURE_3D) ? 1 : 0;
@@ -822,7 +822,7 @@ void APIENTRY _gfx_gl_tex_storage_3d(
 	GLsizei l;
 	for(l = 0; l < levels; ++l)
 	{
-		window->renderer.TexImage3D(target, l, internalFormat, w, h, d, 0, GL_RED, GL_BYTE, NULL);
+		GFX_REND_GET.TexImage3D(target, l, internalFormat, w, h, d, 0, GL_RED, GL_BYTE, NULL);
 		w >>= (w > 1) ? 1 : 0;
 		h >>= (h > 1) ? 1 : 0;
 		d >>= (d > 1) ? df : 0;
@@ -839,8 +839,8 @@ void APIENTRY _gfx_gl_tex_storage_3d_multisample(
 		GLsizei    d,
 		GLboolean  f)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	window->renderer.TexImage3DMultisample(target, samples, internalFormat, w, h, d, f);
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.TexImage3DMultisample(target, samples, internalFormat, w, h, d, f);
 }
 
 void APIENTRY _gfx_gl_vertex_attrib_divisor(

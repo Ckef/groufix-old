@@ -52,8 +52,8 @@ void _gfx_states_set_default(
  */
 void _gfx_states_set(
 
-		GFXPipeState*  state,
-		GFX_Window*    window);
+		GFXPipeState* state,
+		GFX_WIND_ARG);
 
 /**
  * Forces all state fields of the current context.
@@ -63,8 +63,8 @@ void _gfx_states_set(
  */
 void _gfx_states_force_set(
 
-		GFXPipeState*  state,
-		GFX_Window*    window);
+		GFXPipeState* state,
+		GFX_WIND_ARG);
 
 /**
  * Sets the viewport size of the current context.
@@ -72,11 +72,11 @@ void _gfx_states_force_set(
  */
 void _gfx_states_set_viewport(
 
-		int            x,
-		int            y,
-		unsigned int   width,
-		unsigned int   height,
-		GFX_Renderer*  rend);
+		int           x,
+		int           y,
+		unsigned int  width,
+		unsigned int  height,
+		GFX_WIND_ARG);
 
 /**
  * Sets the pixel pack alignment of the current context.
@@ -84,8 +84,8 @@ void _gfx_states_set_viewport(
  */
 void _gfx_states_set_pixel_pack_alignment(
 
-		unsigned char  align,
-		GFX_Renderer*  rend);
+		unsigned char align,
+		GFX_WIND_ARG);
 
 /**
  * Sets the pixel unpack alignment of the current context.
@@ -93,8 +93,8 @@ void _gfx_states_set_pixel_pack_alignment(
  */
 void _gfx_states_set_pixel_unpack_alignment(
 
-		unsigned char  align,
-		GFX_Renderer*  rend);
+		unsigned char align,
+		GFX_WIND_ARG);
 
 /**
  * Sets the number of vertices per patch.
@@ -102,8 +102,8 @@ void _gfx_states_set_pixel_unpack_alignment(
  */
 void _gfx_states_set_patch_vertices(
 
-		unsigned int   vertices,
-		GFX_Renderer*  rend);
+		unsigned int vertices,
+		GFX_WIND_ARG);
 
 
 /********************************************************
@@ -167,9 +167,9 @@ GFX_Pipe* _gfx_pipe_free(
  */
 void _gfx_pipeline_bind(
 
-		GLenum         target,
-		GLuint         framebuffer,
-		GFX_Renderer*  rend);
+		GLenum  target,
+		GLuint  framebuffer,
+		GFX_WIND_ARG);
 
 
 /********************************************************
@@ -204,7 +204,7 @@ void _gfx_bucket_process(
 
 		GFXBucket*     bucket,
 		GFXPipeState*  state,
-		GFX_Window*    window);
+		GFX_WIND_ARG);
 
 
 /********************************************************
@@ -283,7 +283,7 @@ void _gfx_pipe_process_execute(
 
 		GFXPipeProcess  process,
 		GFXPipeState*   state,
-		GFX_Window*     window);
+		GFX_WIND_ARG);
 
 
 #ifdef __cplusplus

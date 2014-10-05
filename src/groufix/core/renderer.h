@@ -38,6 +38,23 @@
 	#error "Renderer not supported"
 #endif
 
+
+/* Macros for safe current window/renderer fetching */
+#define GFX_WIND_INIT_UNSAFE    GFX_Window* w__ = _gfx_window_get_current();
+#define GFX_WIND_INIT_BAD(r)    GFX_WIND_INIT_UNSAFE if(!w__) return r;
+#define GFX_WIND_INIT(r)        GFX_WIND_INIT_BAD(r)
+
+#define GFX_WIND_EQ_BAD(x)      (w__ == (x))
+#define GFX_WIND_EQ(x)          GFX_WIND_EQ_BAD(x)
+
+#define GFX_WIND_ARG            GFX_Window* w__
+#define GFX_WIND_AS_ARG         w__
+#define GFX_WIND_INT_AS_ARG(w)  (w)
+
+#define GFX_WIND_GET            (*w__)
+#define GFX_REND_GET            (w__->renderer)
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

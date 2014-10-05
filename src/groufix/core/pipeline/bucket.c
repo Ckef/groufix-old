@@ -479,13 +479,13 @@ void _gfx_bucket_process(
 
 		GFXBucket*     bucket,
 		GFXPipeState*  state,
-		GFX_Window*    window)
+		GFX_WIND_ARG)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 
 	/* Preprocess, set states and process */
 	_gfx_bucket_preprocess(internal);
-	_gfx_states_set(state, window);
+	_gfx_states_set(state, GFX_WIND_AS_ARG);
 
 	struct GFX_Unit* unit;
 	for(
@@ -503,7 +503,7 @@ void _gfx_bucket_process(
 			unit->map,
 			unit->copy,
 			unit->base,
-			window);
+			GFX_WIND_AS_ARG);
 
 		_gfx_vertex_layout_draw(
 			src->layout,
@@ -511,7 +511,7 @@ void _gfx_bucket_process(
 			unit->inst,
 			unit->base,
 			unit->type,
-			&window->renderer);
+			GFX_WIND_AS_ARG);
 	}
 }
 

@@ -53,7 +53,7 @@ OUT      = obj
 RENDERER = GL
 SSE      = YES
 
-# Flags for all object files
+# Flags for all binaries files
 CFLAGS            = -Os -O2 -Wall -pedantic -Iinclude -DGFX_$(SSE)_SSE
 CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32      = $(CFLAGS) -std=c99

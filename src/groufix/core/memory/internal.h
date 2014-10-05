@@ -71,8 +71,8 @@ typedef enum GFX_DrawType
  */
 void _gfx_vertex_layout_bind(
 
-		GLuint         vao,
-		GFX_Renderer*  rend);
+		GLuint vao,
+		GFX_WIND_ARG);
 
 /**
  * Performs a complete draw operation.
@@ -88,7 +88,7 @@ void _gfx_vertex_layout_draw(
 		size_t                  inst,
 		unsigned int            base,
 		GFX_DrawType            type,
-		GFX_Renderer*           rend);
+		GFX_WIND_ARG);
 
 
 /********************************************************

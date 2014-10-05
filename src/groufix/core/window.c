@@ -182,6 +182,7 @@ static GFX_Window* _gfx_window_create_common(
 		}
 
 		/* Nevermind */
+		_gfx_renderer_unload();
 		--_gfx_alive_windows;
 	}
 

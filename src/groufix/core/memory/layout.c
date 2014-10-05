@@ -35,7 +35,7 @@ typedef void (*GFX_DrawFunc)(
 		size_t,
 		size_t,
 		unsigned int,
-		GFX_Renderer*);
+		GFX_WIND_ARG);
 
 
 /* Internal vertex attribute */
@@ -82,27 +82,27 @@ struct GFX_Layout
 /******************************************************/
 void _gfx_vertex_layout_bind(
 
-		GLuint         vao,
-		GFX_Renderer*  rend)
+		GLuint vao,
+		GFX_WIND_ARG)
 {
 	/* Prevent binding it twice */
-	if(rend->vao != vao)
+	if(GFX_REND_GET.vao != vao)
 	{
-		rend->vao = vao;
-		rend->BindVertexArray(vao);
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
 	}
 }
 
 /******************************************************/
 static void _gfx_layout_draw(
 
-		GFXDrawCall*     call,
-		size_t           offset,
-		size_t           inst,
-		unsigned int     base,
-		GFX_Renderer*    rend)
+		GFXDrawCall*  call,
+		size_t        offset,
+		size_t        inst,
+		unsigned int  base,
+		GFX_WIND_ARG)
 {
-	rend->DrawArrays(
+	GFX_REND_GET.DrawArrays(
 		call->primitive,
 		call->first,
 		call->count
@@ -112,13 +112,13 @@ static void _gfx_layout_draw(
 /******************************************************/
 static void _gfx_layout_draw_indexed(
 
-		GFXDrawCall*     call,
-		size_t           offset,
-		size_t           inst,
-		unsigned int     base,
-		GFX_Renderer*    rend)
+		GFXDrawCall*  call,
+		size_t        offset,
+		size_t        inst,
+		unsigned int  base,
+		GFX_WIND_ARG)
 {
-	rend->DrawElements(
+	GFX_REND_GET.DrawElements(
 		call->primitive,
 		call->count,
 		call->indexType,
@@ -129,13 +129,13 @@ static void _gfx_layout_draw_indexed(
 /******************************************************/
 static void _gfx_layout_draw_instanced(
 
-		GFXDrawCall*     call,
-		size_t           offset,
-		size_t           inst,
-		unsigned int     base,
-		GFX_Renderer*    rend)
+		GFXDrawCall*  call,
+		size_t        offset,
+		size_t        inst,
+		unsigned int  base,
+		GFX_WIND_ARG)
 {
-	rend->DrawArraysInstanced(
+	GFX_REND_GET.DrawArraysInstanced(
 		call->primitive,
 		call->first,
 		call->count,
@@ -146,13 +146,13 @@ static void _gfx_layout_draw_instanced(
 /******************************************************/
 static void _gfx_layout_draw_indexed_instanced(
 
-		GFXDrawCall*     call,
-		size_t           offset,
-		size_t           inst,
-		unsigned int     base,
-		GFX_Renderer*    rend)
+		GFXDrawCall*  call,
+		size_t        offset,
+		size_t        inst,
+		unsigned int  base,
+		GFX_WIND_ARG)
 {
-	rend->DrawElementsInstanced(
+	GFX_REND_GET.DrawElementsInstanced(
 		call->primitive,
 		call->count,
 		call->indexType,
@@ -164,13 +164,13 @@ static void _gfx_layout_draw_indexed_instanced(
 /******************************************************/
 static void _gfx_layout_draw_instanced_base(
 
-		GFXDrawCall*     call,
-		size_t           offset,
-		size_t           inst,
-		unsigned int     base,
-		GFX_Renderer*    rend)
+		GFXDrawCall*  call,
+		size_t        offset,
+		size_t        inst,
+		unsigned int  base,
+		GFX_WIND_ARG)
 {
-	rend->DrawArraysInstancedBaseInstance(
+	GFX_REND_GET.DrawArraysInstancedBaseInstance(
 		call->primitive,
 		call->first,
 		call->count,
@@ -182,13 +182,13 @@ static void _gfx_layout_draw_instanced_base(
 /******************************************************/
 static void _gfx_layout_draw_indexed_instanced_base(
 
-		GFXDrawCall*     call,
-		size_t           offset,
-		size_t           inst,
-		unsigned int     base,
-		GFX_Renderer*    rend)
+		GFXDrawCall*  call,
+		size_t        offset,
+		size_t        inst,
+		unsigned int  base,
+		GFX_WIND_ARG)
 {
-	rend->DrawElementsInstancedBaseInstance(
+	GFX_REND_GET.DrawElementsInstancedBaseInstance(
 		call->primitive,
 		call->count,
 		call->indexType,
@@ -207,7 +207,7 @@ static void _gfx_layout_invoke_draw(
 		size_t              inst,
 		unsigned int        base,
 		GFX_DrawType        type,
-		GFX_Renderer*       rend)
+		GFX_WIND_ARG)
 {
 	/* Jump table */
 	static const GFX_DrawFunc jump[] =
@@ -230,7 +230,7 @@ static void _gfx_layout_invoke_draw(
 		layout->indexOffset,
 		inst,
 		base,
-		rend
+		GFX_WIND_AS_ARG
 	);
 }
 
@@ -240,39 +240,44 @@ static void _gfx_layout_init_attrib(
 		GLuint                       vao,
 		unsigned int                 index,
 		const struct GFX_Attribute*  attr,
-		GFX_Renderer*                rend)
+		GFX_WIND_ARG)
 {
 	/* Check if enabled */
 	if(attr->size && attr->buffer)
 	{
 		/* Set the attribute */
-		rend->EnableVertexArrayAttrib(vao, index);
-		rend->BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
-		_gfx_vertex_layout_bind(vao, rend);
+		GFX_REND_GET.EnableVertexArrayAttrib(vao, index);
+		GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
+		_gfx_vertex_layout_bind(vao, GFX_WIND_AS_ARG);
 
 		/* Check integer value */
-		if(attr->interpret & GFX_INTERPRET_INTEGER) rend->VertexAttribIPointer(
-			index,
-			attr->size,
-			attr->type,
-			attr->stride,
-			(GLvoid*)attr->offset
-		);
-		else rend->VertexAttribPointer(
-			index,
-			attr->size,
-			attr->type,
-			attr->interpret & GFX_INTERPRET_NORMALIZED ? GL_TRUE : GL_FALSE,
-			attr->stride,
-			(GLvoid*)attr->offset
-		);
+		if(attr->interpret & GFX_INTERPRET_INTEGER)
+		{
+			GFX_REND_GET.VertexAttribIPointer(
+				index,
+				attr->size,
+				attr->type,
+				attr->stride,
+				(GLvoid*)attr->offset);
+		}
+		else
+		{
+			GFX_REND_GET.VertexAttribPointer(
+				index,
+				attr->size,
+				attr->type,
+				attr->interpret & GFX_INTERPRET_NORMALIZED ? GL_TRUE : GL_FALSE,
+				attr->stride,
+				(GLvoid*)attr->offset);
+		}
 
 		/* Check if non-zero to avoid extension error */
-		if(attr->divisor) rend->VertexAttribDivisor(index, attr->divisor);
+		if(attr->divisor)
+			GFX_REND_GET.VertexAttribDivisor(index, attr->divisor);
 	}
 
 	/* Disable it */
-	else rend->DisableVertexArrayAttrib(vao, index);
+	else GFX_REND_GET.DisableVertexArrayAttrib(vao, index);
 }
 
 /******************************************************/
@@ -295,12 +300,13 @@ static void _gfx_layout_obj_save(
 		void*         object,
 		unsigned int  id)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
+
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Just don't clear the attribute vector */
 	layout->layout.id = id;
-	window->renderer.DeleteVertexArrays(1, &layout->vao);
+	GFX_REND_GET.DeleteVertexArrays(1, &layout->vao);
 	layout->vao = 0;
 }
 
@@ -310,12 +316,13 @@ static void _gfx_layout_obj_restore(
 		void*         object,
 		unsigned int  id)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT_UNSAFE;
+
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Create VAO */
 	layout->layout.id = id;
-	window->renderer.CreateVertexArrays(1, &layout->vao);
+	GFX_REND_GET.CreateVertexArrays(1, &layout->vao);
 
 	/* Restore attributes */
 	unsigned int i = 0;
@@ -327,7 +334,7 @@ static void _gfx_layout_obj_restore(
 			layout->vao,
 			i++,
 			(struct GFX_Attribute*)it,
-			&window->renderer
+			GFX_WIND_AS_ARG
 		);
 
 		it = gfx_vector_next(&layout->attributes, it);
@@ -356,8 +363,9 @@ GFXVertexLayout* gfx_vertex_layout_create(
 
 		unsigned char drawCalls)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window || !drawCalls) return NULL;
+	GFX_WIND_INIT(NULL);
+
+	if(!drawCalls) return NULL;
 
 	/* Create new layout, append draw calls to end of struct */
 	size_t size = sizeof(struct GFX_Layout) + drawCalls * sizeof(GFXDrawCall);
@@ -375,7 +383,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 
 	/* Register as object */
 	layout->layout.id = _gfx_render_object_register(
-		&window->objects,
+		&GFX_WIND_GET.objects,
 		layout,
 		&_gfx_layout_obj_funcs
 	);
@@ -388,7 +396,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 
 	/* Create OpenGL resources */
 	layout->layout.drawCalls = drawCalls;
-	window->renderer.CreateVertexArrays(1, &layout->vao);
+	GFX_REND_GET.CreateVertexArrays(1, &layout->vao);
 
 	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Attribute));
 
@@ -402,20 +410,21 @@ void gfx_vertex_layout_free(
 {
 	if(layout)
 	{
-		GFX_Window* window = _gfx_window_get_current();
+		GFX_WIND_INIT_UNSAFE;
+
 		struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
-		if(window)
+		if(!GFX_WIND_EQ(NULL))
 		{
 			/* Delete VAO */
-			if(window->renderer.vao == internal->vao)
-				window->renderer.vao = 0;
+			if(GFX_REND_GET.vao == internal->vao)
+				GFX_REND_GET.vao = 0;
 
-			window->renderer.DeleteVertexArrays(1, &internal->vao);
+			GFX_REND_GET.DeleteVertexArrays(1, &internal->vao);
 
 			/* Unregister as object */
 			_gfx_render_object_unregister(
-				&window->objects,
+				&GFX_WIND_GET.objects,
 				layout->id
 			);
 		}
@@ -435,13 +444,12 @@ int gfx_vertex_layout_set_feedback(
 		size_t                    num,
 		const GFXFeedbackBuffer*  buffers)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT(0);
+
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
-	if(!window) return 0;
-
 	/* Check number of buffers */
-	if(num > window->lim[GFX_LIM_MAX_FEEDBACK_BUFFERS])
+	if(num > GFX_WIND_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS])
 		return 0;
 
 	free(internal->TFBuffers);
@@ -485,13 +493,12 @@ int gfx_vertex_layout_set_patch_vertices(
 		GFXVertexLayout*  layout,
 		unsigned int      vertices)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT(0);
+
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
-	if(!window) return 0;
-
 	/* Bound check */
-	if(vertices > window->lim[GFX_LIM_MAX_PATCH_VERTICES])
+	if(vertices > GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES])
 		return 0;
 
 	internal->patchVertices = vertices;
@@ -504,10 +511,10 @@ static int _gfx_layout_set_attribute(
 
 		struct GFX_Layout*  layout,
 		unsigned int        index,
-		GFX_Window*         window)
+		GFX_WIND_ARG)
 {
 	/* Check index */
-	if(index >= window->lim[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
+	if(index >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
 	size_t size = gfx_vector_get_size(&layout->attributes);
 
 	if(index >= size)
@@ -543,11 +550,11 @@ int gfx_vertex_layout_set_attribute(
 		unsigned int               index,
 		const GFXVertexAttribute*  attr)
 {
-	GFX_Window* window = _gfx_window_get_current();
+	GFX_WIND_INIT(0);
+
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	if(
-		!window ||
 		!attr->size ||
 		attr->type.unpacked == GFX_BIT ||
 		attr->type.unpacked == GFX_NIBBLE)
@@ -555,7 +562,8 @@ int gfx_vertex_layout_set_attribute(
 		return 0;
 	}
 
-	if(!_gfx_layout_set_attribute(internal, index, window)) return 0;
+	if(!_gfx_layout_set_attribute(internal, index, GFX_WIND_AS_ARG))
+		return 0;
 
 	/* Check whether it is instanced */
 	struct GFX_Attribute* set =
@@ -586,7 +594,7 @@ int gfx_vertex_layout_set_attribute(
 		GFX_INTERPRET_FLOAT : set->interpret;
 
 	/* Send attribute to OpenGL */
-	_gfx_layout_init_attrib(internal->vao, index, set, &window->renderer);
+	_gfx_layout_init_attrib(internal->vao, index, set, GFX_WIND_AS_ARG);
 
 	return 1;
 }
@@ -598,10 +606,11 @@ static int _gfx_layout_set_attribute_buffer(
 		unsigned int      index,
 		GLuint            buffer,
 		size_t            offset,
-		GFX_Window*       window)
+		GFX_WIND_ARG)
 {
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	if(!_gfx_layout_set_attribute(internal, index, window)) return 0;
+	if(!_gfx_layout_set_attribute(internal, index, GFX_WIND_AS_ARG))
+		return 0;
 
 	/* Set attribute */
 	struct GFX_Attribute* set =
@@ -611,7 +620,7 @@ static int _gfx_layout_set_attribute_buffer(
 	set->offset = offset;
 
 	/* Send attribute to OpenGL */
-	_gfx_layout_init_attrib(internal->vao, index, set, &window->renderer);
+	_gfx_layout_init_attrib(internal->vao, index, set, GFX_WIND_AS_ARG);
 
 	return 1;
 }
@@ -624,8 +633,7 @@ int gfx_vertex_layout_set_attribute_buffer(
 		const GFXBuffer*  buffer,
 		size_t            offset)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return 0;
+	GFX_WIND_INIT(0);
 
 	GLuint buff = 0;
 	if(buffer) buff = _gfx_buffer_get_handle(buffer);
@@ -635,7 +643,7 @@ int gfx_vertex_layout_set_attribute_buffer(
 		index,
 		buff,
 		offset,
-		window
+		GFX_WIND_AS_ARG
 	);
 }
 
@@ -647,8 +655,7 @@ int gfx_vertex_layout_set_attribute_shared_buffer(
 		const GFXSharedBuffer*  buffer,
 		size_t                  offset)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return 0;
+	GFX_WIND_INIT(0);
 
 	GLuint buff = 0;
 	if(buffer)
@@ -662,7 +669,7 @@ int gfx_vertex_layout_set_attribute_shared_buffer(
 		index,
 		buff,
 		offset,
-		window
+		GFX_WIND_AS_ARG
 	);
 }
 
@@ -680,10 +687,9 @@ void gfx_vertex_layout_remove_attribute(
 		GFXVertexLayout*  layout,
 		unsigned int      index)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_WIND_INIT();
 
-	if(!window) return;
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Check what index is being removed */
 	size_t size = gfx_vector_get_size(&internal->attributes);
@@ -721,7 +727,7 @@ void gfx_vertex_layout_remove_attribute(
 	}
 
 	/* Send request to OpenGL */
-	window->renderer.DisableVertexArrayAttrib(internal->vao, index);
+	GFX_REND_GET.DisableVertexArrayAttrib(internal->vao, index);
 }
 
 /******************************************************/
@@ -731,17 +737,16 @@ int gfx_vertex_layout_set_draw_call(
 		unsigned char       index,
 		const GFXDrawCall*  call)
 {
-	/* Check index */
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window || index >= layout->drawCalls)
-		return 0;
+	GFX_WIND_INIT(0);
 
+	/* Check index */
+	if(index >= layout->drawCalls) return 0;
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	/* Check extensions */
 	if(
 		call->primitive == GFX_PATCHES &&
-		!window->ext[GFX_EXT_TESSELLATION_SHADER])
+		!GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER])
 	{
 		return 0;
 	}
@@ -814,19 +819,22 @@ void _gfx_vertex_layout_draw(
 		size_t                  inst,
 		unsigned int            base,
 		GFX_DrawType            type,
-		GFX_Renderer*           rend)
+		GFX_WIND_ARG)
 {
 	/* Bind VAO & Index buffer & Tessellation vertices */
 	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
-	_gfx_vertex_layout_bind(internal->vao, rend);
+	_gfx_vertex_layout_bind(
+		internal->vao,
+		GFX_WIND_AS_ARG);
 
-	rend->BindBuffer(
+	GFX_REND_GET.BindBuffer(
 		GL_ELEMENT_ARRAY_BUFFER,
-		internal->indexBuffer
-	);
+		internal->indexBuffer);
 
-	_gfx_states_set_patch_vertices(internal->patchVertices, rend);
+	_gfx_states_set_patch_vertices(
+		internal->patchVertices,
+		GFX_WIND_AS_ARG);
 
 	/* Draw using a feedback buffer */
 	if(source.numFeedback)
@@ -835,7 +843,7 @@ void _gfx_vertex_layout_draw(
 		{
 			size_t i = source.startFeedback + source.numFeedback;
 
-			rend->BindBufferRange(
+			GFX_REND_GET.BindBufferRange(
 				GL_TRANSFORM_FEEDBACK_BUFFER,
 				source.numFeedback,
 				internal->TFBuffers[i].buffer,
@@ -845,7 +853,7 @@ void _gfx_vertex_layout_draw(
 		}
 
 		/* Begin feedback, draw, end feedback */
-		rend->BeginTransformFeedback(
+		GFX_REND_GET.BeginTransformFeedback(
 			internal->TFPrimitive);
 
 		_gfx_layout_invoke_draw(
@@ -855,9 +863,9 @@ void _gfx_vertex_layout_draw(
 			inst,
 			base,
 			type,
-			rend);
+			GFX_WIND_AS_ARG);
 
-		rend->EndTransformFeedback();
+		GFX_REND_GET.EndTransformFeedback();
 	}
 
 	/* Draw without feedback buffer */
@@ -868,6 +876,6 @@ void _gfx_vertex_layout_draw(
 		inst,
 		base,
 		type,
-		rend
+		GFX_WIND_AS_ARG
 	);
 }

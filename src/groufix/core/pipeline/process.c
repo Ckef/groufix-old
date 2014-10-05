@@ -55,24 +55,23 @@ static inline void _gfx_pipe_process_draw(
 		GFXPipeState*    state,
 		GFXPropertyMap*  map,
 		unsigned int     copy,
-		GFX_Window*      window)
+		GFX_WIND_ARG)
 {
 	_gfx_states_set(
-		state, window);
+		state, GFX_WIND_AS_ARG);
 	_gfx_property_map_use(
-		map, copy, 0, window);
+		map, copy, 0, GFX_WIND_AS_ARG);
 	_gfx_vertex_layout_bind(
-		window->renderer.post, &window->renderer);
+		GFX_REND_GET.post, GFX_WIND_AS_ARG);
 
-	window->renderer.DrawArrays(
+	GFX_REND_GET.DrawArrays(
 		GL_TRIANGLE_FAN, 0, 4);
 }
 
 /******************************************************/
 int _gfx_pipe_process_prepare(void)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return 0;
+	GFX_WIND_INIT(0);
 
 	/* First make sure the buffer exists */
 	if(!_gfx_process_buffer)
@@ -84,30 +83,30 @@ int _gfx_pipe_process_prepare(void)
 			-1,  1, 0, 1
 		};
 
-		window->renderer.CreateBuffers(
+		GFX_REND_GET.CreateBuffers(
 			1, &_gfx_process_buffer);
-		window->renderer.NamedBufferData(
+		GFX_REND_GET.NamedBufferData(
 			_gfx_process_buffer, sizeof(data), data, GL_STATIC_DRAW);
 
 		if(!_gfx_process_buffer) return 0;
 	}
 
 	/* Next create the layout */
-	if(!window->renderer.post)
+	if(!GFX_REND_GET.post)
 	{
-		window->renderer.CreateVertexArrays(
-			1, &window->renderer.post);
-		window->renderer.EnableVertexArrayAttrib(
-			window->renderer.post, 0);
+		GFX_REND_GET.CreateVertexArrays(
+			1, &GFX_REND_GET.post);
+		GFX_REND_GET.EnableVertexArrayAttrib(
+			GFX_REND_GET.post, 0);
 
 		_gfx_vertex_layout_bind(
-			window->renderer.post, &window->renderer);
-		window->renderer.BindBuffer(
+			GFX_REND_GET.post, GFX_WIND_AS_ARG);
+		GFX_REND_GET.BindBuffer(
 			GL_ARRAY_BUFFER, _gfx_process_buffer);
-		window->renderer.VertexAttribIPointer(
+		GFX_REND_GET.VertexAttribIPointer(
 			0, 4, GL_BYTE, 0, (GLvoid*)0);
 
-		return window->renderer.post;
+		return GFX_REND_GET.post;
 	}
 
 	return 1;
@@ -118,8 +117,7 @@ void _gfx_pipe_process_unprepare(
 
 		int last)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window) return;
+	GFX_WIND_INIT();
 
 	/* Reset pipes if not retargeting */
 	GFXVectorIterator it;
@@ -130,7 +128,7 @@ void _gfx_pipe_process_unprepare(
 	{
 		/* Check for equal target, if equal, reset post processing */
 		struct GFX_Process* proc = *(struct GFX_Process**)it;
-		if(window == proc->target)
+		if(GFX_WIND_EQ(proc->target))
 		{
 			proc->map = NULL;
 			proc->target = NULL;
@@ -139,13 +137,13 @@ void _gfx_pipe_process_unprepare(
 	if(last)
 	{
 		/* If last, destroy buffer as well */
-		window->renderer.DeleteBuffers(1, &_gfx_process_buffer);
+		GFX_REND_GET.DeleteBuffers(1, &_gfx_process_buffer);
 		_gfx_process_buffer = 0;
 	}
 
 	/* Also, destroy layout while we're at it */
-	window->renderer.DeleteVertexArrays(1, &window->renderer.post);
-	window->renderer.post = 0;
+	GFX_REND_GET.DeleteVertexArrays(1, &GFX_REND_GET.post);
+	GFX_REND_GET.post = 0;
 }
 
 /******************************************************/
@@ -310,7 +308,7 @@ void _gfx_pipe_process_execute(
 
 		GFXPipeProcess  process,
 		GFXPipeState*   state,
-		GFX_Window*     window)
+		GFX_WIND_ARG)
 {
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 
@@ -319,7 +317,7 @@ void _gfx_pipe_process_execute(
 	{
 		if(internal->target)
 		{
-			GLuint fbo = window->renderer.fbos[0];
+			GLuint fbo = internal->target->renderer.fbos[0];
 
 			/* Set to new state of window to draw to */
 			_gfx_window_make_current(internal->target);
@@ -327,20 +325,20 @@ void _gfx_pipe_process_execute(
 			_gfx_pipeline_bind(
 				GL_DRAW_FRAMEBUFFER,
 				0,
-				&window->renderer);
+				GFX_WIND_INT_AS_ARG(internal->target));
 
 			_gfx_states_set_viewport(
 				0, 0,
 				internal->width,
 				internal->height,
-				&internal->target->renderer);
+				GFX_WIND_INT_AS_ARG(internal->target));
 
 			/* Draw to the window and swap buffers */
 			_gfx_pipe_process_draw(
 				state,
 				internal->map,
 				internal->copy,
-				internal->target);
+				GFX_WIND_INT_AS_ARG(internal->target));
 
 			if(internal->swap) _gfx_window_swap_buffers();
 
@@ -348,9 +346,9 @@ void _gfx_pipe_process_execute(
 			_gfx_pipeline_bind(
 				GL_DRAW_FRAMEBUFFER,
 				fbo,
-				&window->renderer);
+				GFX_WIND_INT_AS_ARG(internal->target));
 
-			_gfx_window_make_current(window);
+			_gfx_window_make_current(&GFX_WIND_GET);
 		}
 
 		/* If no windowed rendering, just draw */
@@ -358,7 +356,7 @@ void _gfx_pipe_process_execute(
 			state,
 			internal->map,
 			internal->copy,
-			window
+			GFX_WIND_AS_ARG
 		);
 	}
 }
