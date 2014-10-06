@@ -21,8 +21,8 @@
  *
  */
 
-#include "groufix.h"
 #include "groufix/core/renderer.h"
+#include "groufix.h"
 
 /******************************************************/
 /* Starting point of time */

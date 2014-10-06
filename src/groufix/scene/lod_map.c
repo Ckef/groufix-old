@@ -21,9 +21,9 @@
  *
  */
 
+#include "groufix/containers/vector.h"
 #include "groufix/core/errors.h"
 #include "groufix/scene/internal.h"
-#include "groufix/containers/vector.h"
 
 #include <limits.h>
 #include <stdlib.h>

@@ -64,7 +64,7 @@ typedef struct GFXShader
  * @return NULL on failure.
  *
  */
-GFXShader* gfx_shader_create(
+GFX_API GFXShader* gfx_shader_create(
 
 		GFXShaderType type);
 
@@ -72,7 +72,7 @@ GFXShader* gfx_shader_create(
  * Makes sure the shader is freed properly.
  *
  */
-void gfx_shader_free(
+GFX_API void gfx_shader_free(
 
 		GFXShader* shader);
 
@@ -86,7 +86,7 @@ void gfx_shader_free(
  * The source strings will be copied.
  *
  */
-int gfx_shader_set_source(
+GFX_API int gfx_shader_set_source(
 
 		GFXShader*    shader,
 		size_t        num,
@@ -101,7 +101,7 @@ int gfx_shader_set_source(
  * If the returned pointer is not NULL, it should be freed manually.
  *
  */
-char* gfx_shader_get_source(
+GFX_API char* gfx_shader_get_source(
 
 		GFXShader*  shader,
 		size_t*     length);
@@ -114,7 +114,7 @@ char* gfx_shader_get_source(
  * Additionally, an error will be generated on failure.
  *
  */
-int gfx_shader_compile(
+GFX_API int gfx_shader_compile(
 
 		GFXShader* shader);
 
@@ -201,13 +201,13 @@ typedef struct GFXProgram
  * @return NULL on failure.
  *
  */
-GFXProgram* gfx_program_create(void);
+GFX_API GFXProgram* gfx_program_create(void);
 
 /**
  * Makes sure the program is freed properly.
  *
  */
-void gfx_program_free(
+GFX_API void gfx_program_free(
 
 		GFXProgram* program);
 
@@ -222,7 +222,7 @@ void gfx_program_free(
  * Note: an index can be forwarded to multiple names.
  *
  */
-int gfx_program_set_attribute(
+GFX_API int gfx_program_set_attribute(
 
 		GFXProgram*   program,
 		unsigned int  index,
@@ -240,7 +240,7 @@ int gfx_program_set_attribute(
  * Note: any name cannot occur twice in names.
  *
  */
-int gfx_program_set_feedback(
+GFX_API int gfx_program_set_feedback(
 
 		GFXProgram*      program,
 		size_t           num,
@@ -260,7 +260,7 @@ int gfx_program_set_feedback(
  * This will remove any evidence of a previous link operation.
  *
  */
-int gfx_program_link(
+GFX_API int gfx_program_link(
 
 		GFXProgram*  program,
 		size_t       num,
@@ -278,7 +278,7 @@ int gfx_program_link(
  * Note: requires GFX_EXT_PROGRAM_BINARY.
  *
  */
-void* gfx_program_get_binary(
+GFX_API void* gfx_program_get_binary(
 
 		GFXProgram*        program,
 		GFXProgramFormat*  format,
@@ -296,7 +296,7 @@ void* gfx_program_get_binary(
  * Note: requires GFX_EXT_PROGRAM_BINARY.
  *
  */
-int gfx_program_set_binary(
+GFX_API int gfx_program_set_binary(
 
 		GFXProgram*       program,
 		GFXProgramFormat  format,
@@ -312,7 +312,7 @@ int gfx_program_set_binary(
  * Note: properties only exist after the program is linked successfully.
  *
  */
-const GFXProperty* gfx_program_get_property(
+GFX_API const GFXProperty* gfx_program_get_property(
 
 		GFXProgram*     program,
 		unsigned short  index);
@@ -324,7 +324,7 @@ const GFXProperty* gfx_program_get_property(
  * @return program->properties on failure, index otherwise.
  *
  */
-unsigned short gfx_program_get_named_property(
+GFX_API unsigned short gfx_program_get_named_property(
 
 		GFXProgram*  program,
 		const char*  name);
@@ -338,7 +338,7 @@ unsigned short gfx_program_get_named_property(
  * Note: blocks only exist after the program is linked successfully.
  *
  */
-const GFXPropertyBlock* gfx_program_get_property_block(
+GFX_API const GFXPropertyBlock* gfx_program_get_property_block(
 
 		GFXProgram*     program,
 		unsigned short  index);
@@ -350,7 +350,7 @@ const GFXPropertyBlock* gfx_program_get_property_block(
  * @return program->blocks on failure, index otherwise.
  *
  */
-unsigned short gfx_program_get_named_property_block(
+GFX_API unsigned short gfx_program_get_named_property_block(
 
 		GFXProgram*  program,
 		const char*  name);
@@ -378,7 +378,7 @@ typedef struct GFXPropertyMap
  * @return NULL on failure.
  *
  */
-GFXPropertyMap* gfx_property_map_create(
+GFX_API GFXPropertyMap* gfx_property_map_create(
 
 		GFXProgram*    program,
 		unsigned char  properties);
@@ -387,7 +387,7 @@ GFXPropertyMap* gfx_property_map_create(
  * Makes sure the property map is freed properly.
  *
  */
-void gfx_property_map_free(
+GFX_API void gfx_property_map_free(
 
 		GFXPropertyMap* map);
 
@@ -398,7 +398,7 @@ void gfx_property_map_free(
  * @return Zero on failure.
  *
  */
-int gfx_property_map_expand(
+GFX_API int gfx_property_map_expand(
 
 		GFXPropertyMap*  map,
 		unsigned int     num);
@@ -410,7 +410,7 @@ int gfx_property_map_expand(
  * @return Number of copies actually removed.
  *
  */
-unsigned int gfx_property_map_shrink(
+GFX_API unsigned int gfx_property_map_shrink(
 
 		GFXPropertyMap*  map,
 		unsigned int     num);
@@ -425,7 +425,7 @@ unsigned int gfx_property_map_shrink(
  * The values of the source copies remain unaltered.
  *
  */
-int gfx_property_map_move(
+GFX_API int gfx_property_map_move(
 
 		GFXPropertyMap*  map,
 		unsigned int     dest,
@@ -443,7 +443,7 @@ int gfx_property_map_move(
  * If the property is not a vector/matrix, ptr is ignored.
  *
  */
-int gfx_property_map_forward(
+GFX_API int gfx_property_map_forward(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
@@ -458,7 +458,7 @@ int gfx_property_map_forward(
  * @return Zero on failure.
  *
  */
-int gfx_property_map_forward_named(
+GFX_API int gfx_property_map_forward_named(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
@@ -475,7 +475,7 @@ int gfx_property_map_forward_named(
  * @return Zero on failure.
  *
  */
-int gfx_property_map_forward_block(
+GFX_API int gfx_property_map_forward_block(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
@@ -489,7 +489,7 @@ int gfx_property_map_forward_block(
  * @return Zero on failure.
  *
  */
-int gfx_property_map_forward_named_block(
+GFX_API int gfx_property_map_forward_named_block(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
@@ -507,7 +507,7 @@ int gfx_property_map_forward_named_block(
  * @return Zero on failure or if a pointer value.
  *
  */
-int gfx_property_map_set_value(
+GFX_API int gfx_property_map_set_value(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
@@ -527,7 +527,7 @@ int gfx_property_map_set_value(
  * Note: it will copy the amount of bytes to fill the entire property.
  *
  */
-int gfx_property_map_set_value_pointer(
+GFX_API int gfx_property_map_set_value_pointer(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
@@ -545,7 +545,7 @@ int gfx_property_map_set_value_pointer(
  * Note: a base instance will subtract from the number of uploaded instances.
  *
  */
-int gfx_property_map_set_instance_offset(
+GFX_API int gfx_property_map_set_instance_offset(
 
 		GFXPropertyMap*  map,
 		unsigned char    index,
@@ -560,7 +560,7 @@ int gfx_property_map_set_instance_offset(
  * Note: There can only be GFX_LIM_MAX_SAMPLER_PROPERTIES number of sampler properties forwarded.
  *
  */
-int gfx_property_map_set_sampler(
+GFX_API int gfx_property_map_set_sampler(
 
 		GFXPropertyMap*    map,
 		unsigned char      index,
@@ -577,7 +577,7 @@ int gfx_property_map_set_sampler(
  * Note: There can only be GFX_LIM_MAX_BUFFER_PROPERTIES number of block properties forwarded.
  *
  */
-int gfx_property_map_set_buffer(
+GFX_API int gfx_property_map_set_buffer(
 
 		GFXPropertyMap*   map,
 		unsigned char     index,
@@ -593,7 +593,7 @@ int gfx_property_map_set_buffer(
  * @return Non-zero on success.
  *
  */
-int gfx_property_map_set_shared_buffer(
+GFX_API int gfx_property_map_set_shared_buffer(
 
 		GFXPropertyMap*         map,
 		unsigned char           index,

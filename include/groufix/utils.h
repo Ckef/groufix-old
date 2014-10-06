@@ -43,6 +43,19 @@
  * Compiler specific attributes & helpful macros
  *******************************************************/
 
+/* DLL import/export */
+#if defined(GFX_VISUAL_C) || defined(GFX_MINGW)
+	#ifdef GFX_BUILD_LIB
+		#define GFX_API __declspec(dllexport)
+	#else
+		#define GFX_API __declspec(dllimport)
+	#endif
+
+#else
+	#define GFX_API
+#endif
+
+
 /* SSE alignment */
 #if defined(GFX_NO_SSE)
 	#define GFX_SSE_ALIGN struct

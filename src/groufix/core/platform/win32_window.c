@@ -21,8 +21,8 @@
  *
  */
 
-#include "groufix.h"
 #include "groufix/core/platform/win32.h"
+#include "groufix.h"
 
 #include <stdlib.h>
 

@@ -60,7 +60,7 @@ CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32      = $(CFLAGS) -std=c99
 
 # Library object files only
-OBJFLAGS          = -c -s -Idepend -Isrc -DGFX_LIB -DGFX_$(RENDERER)
+OBJFLAGS          = -c -s -Idepend -Isrc -DGFX_BUILD_LIB -DGFX_$(RENDERER)
 OBJFLAGS_UNIX_X11 = $(OBJFLAGS) $(CFLAGS_UNIX_X11) -fPIC -pthread
 OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32) -DWINVER=0x0600 -D_WIN32_WINNT=0x0600
 

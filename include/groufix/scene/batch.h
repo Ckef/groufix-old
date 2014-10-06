@@ -80,7 +80,7 @@ typedef struct GFXBatch
  * Note: Two batches with equal materials, submeshes and parameters are equal.
  *
  */
-int gfx_batch_get(
+GFX_API int gfx_batch_get(
 
 		GFXBatch*       batch,
 		GFXMaterial*    material,
@@ -94,7 +94,7 @@ int gfx_batch_get(
  * system know the batch is not required to exist any longer.
  *
  */
-void gfx_batch_erase(
+GFX_API void gfx_batch_erase(
 
 		GFXBatch* batch);
 
@@ -104,7 +104,7 @@ void gfx_batch_erase(
  * @return parameters, all 0 if the batch does not exist.
  *
  */
-GFXBatchParams gfx_batch_get_params(
+GFX_API GFXBatchParams gfx_batch_get_params(
 
 		GFXBatch* batch);
 
@@ -114,7 +114,7 @@ GFXBatchParams gfx_batch_get_params(
  * @return The property map index, out of bounds if it does not exist.
  *
  */
-unsigned int gfx_batch_get_property_map(
+GFX_API unsigned int gfx_batch_get_property_map(
 
 		GFXBatch* batch);
 
@@ -125,7 +125,7 @@ unsigned int gfx_batch_get_property_map(
  * @return Index of the first copy used.
  *
  */
-unsigned int gfx_batch_get_copies(
+GFX_API unsigned int gfx_batch_get_copies(
 
 		GFXBatch*      batch,
 		unsigned int*  num);
@@ -134,7 +134,7 @@ unsigned int gfx_batch_get_copies(
  * Returns the flags of a given batch.
  *
  */
-GFXBatchFlags gfx_batch_get_flags(
+GFX_API GFXBatchFlags gfx_batch_get_flags(
 
 		GFXBatch* batch);
 
@@ -145,7 +145,7 @@ GFXBatchFlags gfx_batch_get_flags(
  * @param variant Returns the variant, what is added to each consecutive unit in a bucket.
  *
  */
-void gfx_batch_get_state(
+GFX_API void gfx_batch_get_state(
 
 		GFXBatch*       batch,
 		GFXBatchState*  base,
@@ -157,7 +157,7 @@ void gfx_batch_get_state(
  * Note: the default is 0.
  *
  */
-void gfx_batch_set_flags(
+GFX_API void gfx_batch_set_flags(
 
 		GFXBatch*      batch,
 		GFXBatchFlags  flags);
@@ -171,7 +171,7 @@ void gfx_batch_set_flags(
  * Note: the default is 0 for both the base and variant.
  *
  */
-void gfx_batch_set_state(
+GFX_API void gfx_batch_set_state(
 
 		GFXBatch*      batch,
 		GFXBatchState  base,
@@ -181,7 +181,7 @@ void gfx_batch_set_state(
  * Returns the number of instances at a bucket.
  *
  */
-unsigned int gfx_batch_get_instances(
+GFX_API unsigned int gfx_batch_get_instances(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket);
@@ -190,7 +190,7 @@ unsigned int gfx_batch_get_instances(
  * Returns the number of visible instances at a bucket.
  *
  */
-unsigned int gfx_batch_get_visible(
+GFX_API unsigned int gfx_batch_get_visible(
 
 		GFXBatch*  batch,
 		GFXPipe*   bucket);
@@ -206,7 +206,7 @@ unsigned int gfx_batch_get_visible(
  * This is very expensive relative to simply changing the amount of visible instances!
  *
  */
-int gfx_batch_set_instances(
+GFX_API int gfx_batch_set_instances(
 
 		GFXBatch*     batch,
 		GFXPipe*      bucket,
@@ -219,7 +219,7 @@ int gfx_batch_set_instances(
  * @return Number of instances actually made visible.
  *
  */
-unsigned int gfx_batch_set_visible(
+GFX_API unsigned int gfx_batch_set_visible(
 
 		GFXBatch*     batch,
 		GFXPipe*      bucket,

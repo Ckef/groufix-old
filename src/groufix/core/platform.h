@@ -25,7 +25,6 @@
 #define GFX_CORE_PLATFORM_H
 
 #include "groufix/core/window.h"
-#include "groufix/utils.h"
 
 /* Get build target */
 #if defined(_WIN32) || defined(__WIN32__)

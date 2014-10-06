@@ -54,13 +54,13 @@ typedef void* GFXPropertyMapList;
  * @return NULL on failure.
  *
  */
-GFXMaterial* gfx_material_create(void);
+GFX_API GFXMaterial* gfx_material_create(void);
 
 /**
  * Makes sure the material is freed properly.
  *
  */
-void gfx_material_free(
+GFX_API void gfx_material_free(
 
 		GFXMaterial* material);
 
@@ -76,7 +76,7 @@ void gfx_material_free(
  * Note: instances can be 0 to signify unlimited instances.
  *
  */
-GFXPropertyMap* gfx_material_add(
+GFX_API GFXPropertyMap* gfx_material_add(
 
 		GFXMaterial*   material,
 		unsigned int   level,
@@ -93,7 +93,7 @@ GFXPropertyMap* gfx_material_add(
  * Note: as soon as a property map is added the list is invalidated.
  *
  */
-GFXPropertyMapList gfx_material_get(
+GFX_API GFXPropertyMapList gfx_material_get(
 
 		GFXMaterial*   material,
 		unsigned int   level,
@@ -105,7 +105,7 @@ GFXPropertyMapList gfx_material_get(
  * Note: as soon as a property map is added the list is invalidated.
  *
  */
-GFXPropertyMapList gfx_material_get_all(
+GFX_API GFXPropertyMapList gfx_material_get_all(
 
 		GFXMaterial*   material,
 		unsigned int*  num);
@@ -119,7 +119,7 @@ GFXPropertyMapList gfx_material_get_all(
  * Note: you can only retrieve a property map with index < number of elements in list.
  *
  */
-size_t gfx_property_map_list_instances_at(
+GFX_API size_t gfx_property_map_list_instances_at(
 
 		GFXPropertyMapList  list,
 		unsigned int        index);
@@ -128,7 +128,7 @@ size_t gfx_property_map_list_instances_at(
  * Index into a list of property maps, retrieving the number of used copies.
  *
  */
-unsigned int gfx_property_map_list_copies_at(
+GFX_API unsigned int gfx_property_map_list_copies_at(
 
 		GFXPropertyMapList  list,
 		unsigned int        index);
@@ -137,7 +137,7 @@ unsigned int gfx_property_map_list_copies_at(
  * Index into a list of property maps, retrieving the property map.
  *
  */
-GFXPropertyMap* gfx_property_map_list_at(
+GFX_API GFXPropertyMap* gfx_property_map_list_at(
 
 		GFXPropertyMapList  list,
 		unsigned int        index);

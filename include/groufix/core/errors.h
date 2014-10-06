@@ -24,6 +24,8 @@
 #ifndef GFX_CORE_ERRORS_H
 #define GFX_CORE_ERRORS_H
 
+#include "groufix/utils.h"
+
 #include <stddef.h>
 
 /* Default maximum */
@@ -88,7 +90,7 @@ typedef struct GFXError
  * @param mode The error mode to use, debug reports hardware (OpenGL) errors as well.
  *
  */
-void gfx_set_error_mode(
+GFX_API void gfx_set_error_mode(
 
 		GFXErrorMode mode);
 
@@ -96,13 +98,13 @@ void gfx_set_error_mode(
  * Returns the current error mode.
  *
  */
-GFXErrorMode gfx_get_error_mode(void);
+GFX_API GFXErrorMode gfx_get_error_mode(void);
 
 /**
  * Returns the number of errors in the queue.
  *
  */
-unsigned int gfx_get_num_errors(void);
+GFX_API unsigned int gfx_get_num_errors(void);
 
 /**
  * Returns the last error without removing it.
@@ -111,7 +113,7 @@ unsigned int gfx_get_num_errors(void);
  * @return Whether or not an error was present.
  *
  */
-int gfx_errors_peek(
+GFX_API int gfx_errors_peek(
 
 		GFXError* error);
 
@@ -122,7 +124,7 @@ int gfx_errors_peek(
  * @return non-zero if any error with the given code was found.
  *
  */
-int gfx_errors_find(
+GFX_API int gfx_errors_find(
 
 		GFXErrorCode code);
 
@@ -130,7 +132,7 @@ int gfx_errors_find(
  * Removes the last error.
  *
  */
-void gfx_errors_pop(void);
+GFX_API void gfx_errors_pop(void);
 
 /**
  * Adds an error to the internal queue.
@@ -141,7 +143,7 @@ void gfx_errors_pop(void);
  * The description will be copied.
  *
  */
-void gfx_errors_push(
+GFX_API void gfx_errors_push(
 
 		GFXErrorCode  code,
 		const char*   description);
@@ -152,13 +154,13 @@ void gfx_errors_push(
  * Should NOT be called frequently for efficiency.
  *
  */
-void gfx_errors_empty(void);
+GFX_API void gfx_errors_empty(void);
 
 /**
  * Sets the maximum number of errors stored.
  *
  */
-void gfx_errors_set_maximum(
+GFX_API void gfx_errors_set_maximum(
 
 		size_t max);
 

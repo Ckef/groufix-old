@@ -61,7 +61,7 @@ typedef struct GFXDeque
  * @return NULL on failure.
  *
  */
-GFXDeque* gfx_deque_create(
+GFX_API GFXDeque* gfx_deque_create(
 
 		size_t elementSize);
 
@@ -73,7 +73,7 @@ GFXDeque* gfx_deque_create(
  * @return NULL on failure.
  *
  */
-GFXDeque* gfx_deque_create_from_buffer(
+GFX_API GFXDeque* gfx_deque_create_from_buffer(
 
 		size_t       elementSize,
 		size_t       numElements,
@@ -85,7 +85,7 @@ GFXDeque* gfx_deque_create_from_buffer(
  * @return NULL on failure.
  *
  */
-GFXDeque* gfx_deque_create_copy(
+GFX_API GFXDeque* gfx_deque_create_copy(
 
 		GFXDeque* src);
 
@@ -93,7 +93,7 @@ GFXDeque* gfx_deque_create_copy(
  * Makes sure the deque is freed properly.
  *
  */
-void gfx_deque_free(
+GFX_API void gfx_deque_free(
 
 		GFXDeque* deque);
 
@@ -101,7 +101,7 @@ void gfx_deque_free(
  * Initializes a deque.
  *
  */
-void gfx_deque_init(
+GFX_API void gfx_deque_init(
 
 		GFXDeque*  deque,
 		size_t     elementSize);
@@ -113,7 +113,7 @@ void gfx_deque_init(
  * @param buff        Memory to copy content from, if NULL, nothing will be copied.
  *
  */
-void gfx_deque_init_from_buffer(
+GFX_API void gfx_deque_init_from_buffer(
 
 		GFXDeque*    deque,
 		size_t       elementSize,
@@ -124,7 +124,7 @@ void gfx_deque_init_from_buffer(
  * Initializes a copy of a deque.
  *
  */
-void gfx_deque_init_copy(
+GFX_API void gfx_deque_init_copy(
 
 		GFXDeque* deque,
 		GFXDeque* src);
@@ -133,7 +133,7 @@ void gfx_deque_init_copy(
  * Clears the content of a deque.
  *
  */
-void gfx_deque_clear(
+GFX_API void gfx_deque_clear(
 
 		GFXDeque* deque);
 
@@ -143,7 +143,7 @@ void gfx_deque_clear(
  * @return If zero, out of memory.
  *
  */
-int gfx_deque_reserve(
+GFX_API int gfx_deque_reserve(
 
 		GFXDeque*  deque,
 		size_t     numElements);
@@ -155,7 +155,7 @@ int gfx_deque_reserve(
  * @return An iterator to the new element (deque->end on failure).
  *
  */
-GFXDequeIterator gfx_deque_push_front(
+GFX_API GFXDequeIterator gfx_deque_push_front(
 
 		GFXDeque*    deque,
 		const void*  element);
@@ -167,7 +167,7 @@ GFXDequeIterator gfx_deque_push_front(
  * @return An iterator to the new element (deque->end on failure).
  *
  */
-GFXDequeIterator gfx_deque_push_back(
+GFX_API GFXDequeIterator gfx_deque_push_back(
 
 		GFXDeque*    deque,
 		const void*  element);
@@ -178,7 +178,7 @@ GFXDequeIterator gfx_deque_push_back(
  * @return An iterator to the element taking its place.
  *
  */
-GFXDequeIterator gfx_deque_pop_front(
+GFX_API GFXDequeIterator gfx_deque_pop_front(
 
 		GFXDeque* deque);
 
@@ -188,7 +188,7 @@ GFXDequeIterator gfx_deque_pop_front(
  * @return An iterator to the element taking its place.
  *
  */
-GFXDequeIterator gfx_deque_pop_back(
+GFX_API GFXDequeIterator gfx_deque_pop_back(
 
 		GFXDeque* deque);
 
@@ -196,7 +196,7 @@ GFXDequeIterator gfx_deque_pop_back(
  * Returns the size of the deque in bytes.
  *
  */
-size_t gfx_deque_get_byte_size(
+GFX_API size_t gfx_deque_get_byte_size(
 
 		GFXDeque* deque);
 
@@ -204,7 +204,7 @@ size_t gfx_deque_get_byte_size(
  * Returns the index of an iterator.
  *
  */
-size_t gfx_deque_get_index(
+GFX_API size_t gfx_deque_get_index(
 
 		GFXDeque*         deque,
 		GFXDequeIterator  it);
@@ -213,7 +213,7 @@ size_t gfx_deque_get_index(
  * Advances an iterator an arbitrary amount of elements (can be negative).
  *
  */
-GFXDequeIterator gfx_deque_advance(
+GFX_API GFXDequeIterator gfx_deque_advance(
 
 		GFXDeque*         deque,
 		GFXDequeIterator  it,

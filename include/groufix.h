@@ -27,7 +27,6 @@
 /* Core includes */
 #include "groufix/core/errors.h"
 #include "groufix/core/pipeline.h"
-#include "groufix/utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +39,7 @@ extern "C" {
  * @return non-zero if initialization was successful.
  *
  */
-int gfx_init(void);
+GFX_API int gfx_init(void);
 
 /**
  * Polls events of all windows.
@@ -48,7 +47,7 @@ int gfx_init(void);
  * Note: this must be called on the same thread gfx_init was called on.
  *
  */
-void gfx_poll_events(void);
+GFX_API void gfx_poll_events(void);
 
 /**
  * Returns time in seconds since groufix was initialized.
@@ -58,7 +57,7 @@ void gfx_poll_events(void);
  * Note: when groufix is not initialized it is relative to some arbitrary point in time.
  *
  */
-double gfx_get_time(void);
+GFX_API double gfx_get_time(void);
 
 /**
  * Sets the time in seconds, changing the perceived time of initialization.
@@ -66,7 +65,7 @@ double gfx_get_time(void);
  * Note: this might be unreliable across threads depending on the platform.
  *
  */
-void gfx_set_time(double time);
+GFX_API void gfx_set_time(double time);
 
 /**
  * Terminates the Groufix engine.
@@ -75,7 +74,7 @@ void gfx_set_time(double time);
  * Note: this must be called on the same thread gfx_init was called on.
  *
  */
-void gfx_terminate(void);
+GFX_API void gfx_terminate(void);
 
 
 #ifdef __cplusplus

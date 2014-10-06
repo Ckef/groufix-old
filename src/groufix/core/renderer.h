@@ -29,16 +29,6 @@
 #include "groufix/core/platform.h"
 #include "groufix/core/pipeline.h"
 
-/* Get renderer */
-#if defined(GFX_GL) || defined(GFX_GLES)
-	#define GFX_RENDERER_GL
-	#include "groufix/core/renderer/gl.h"
-
-#else
-	#error "Renderer not supported"
-#endif
-
-
 /* Macros for safe current window/renderer fetching */
 #define GFX_WIND_INIT_UNSAFE        GFX_Window* w__ = _gfx_window_get_current();
 #define GFX_WIND_INIT_BAD(r)        GFX_WIND_INIT_UNSAFE if(!w__) return r;
@@ -54,6 +44,16 @@
 
 #define GFX_WIND_GET                (*w__)
 #define GFX_REND_GET                (w__->renderer)
+
+
+/* Get renderer */
+#if defined(GFX_GL) || defined(GFX_GLES)
+	#define GFX_RENDERER_GL
+	#include "groufix/core/renderer/gl.h"
+
+#else
+	#error "Renderer not supported"
+#endif
 
 
 #ifdef __cplusplus

@@ -92,7 +92,7 @@ typedef uint32_t GFXBatchState;
  * @param bits Number of manual bits to sort by (clamped to [0, GFX_BATCH_STATE_MAX_BITS]).
  *
  */
-void gfx_bucket_set_bits(
+GFX_API void gfx_bucket_set_bits(
 
 		GFXBucket*     bucket,
 		unsigned char  bits);
@@ -104,7 +104,7 @@ void gfx_bucket_set_bits(
  * @return The ID of the source, 0 on failure.
  *
  */
-GFXBucketSource gfx_bucket_add_source(
+GFX_API GFXBucketSource gfx_bucket_add_source(
 
 		GFXBucket*        bucket,
 		GFXVertexLayout*  layout);
@@ -116,7 +116,7 @@ GFXBucketSource gfx_bucket_add_source(
  * @return Zero when not enough draw calls, non-zero on success.
  *
  */
-int gfx_bucket_set_source(
+GFX_API int gfx_bucket_set_source(
 
 		GFXBucket*       bucket,
 		GFXBucketSource  src,
@@ -128,7 +128,7 @@ int gfx_bucket_set_source(
  * Any units using the source will be erased from the bucket.
  *
  */
-void gfx_bucket_remove_source(
+GFX_API void gfx_bucket_remove_source(
 
 		GFXBucket*       bucket,
 		GFXBucketSource  src);
@@ -142,7 +142,7 @@ void gfx_bucket_remove_source(
  * @return The ID of the inserted unit, 0 on failure.
  *
  */
-GFXBucketUnit gfx_bucket_insert(
+GFX_API GFXBucketUnit gfx_bucket_insert(
 
 		GFXBucket*       bucket,
 		GFXBucketSource  src,
@@ -159,7 +159,7 @@ GFXBucketUnit gfx_bucket_insert(
  * Note: the original ID is reused.
  *
  */
-int gfx_bucket_rebuild(
+GFX_API int gfx_bucket_rebuild(
 
 		GFXBucket*       bucket,
 		GFXBucketUnit    unit,
@@ -170,7 +170,7 @@ int gfx_bucket_rebuild(
  * Returns the index of the copy of the property map in use.
  *
  */
-unsigned int gfx_bucket_get_copy(
+GFX_API unsigned int gfx_bucket_get_copy(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit);
@@ -179,7 +179,7 @@ unsigned int gfx_bucket_get_copy(
  * Returns the number of instances to draw.
  *
  */
-size_t gfx_bucket_get_instances(
+GFX_API size_t gfx_bucket_get_instances(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit);
@@ -188,7 +188,7 @@ size_t gfx_bucket_get_instances(
  * Returns the starting instance offset.
  *
  */
-unsigned int gfx_bucket_get_instance_base(
+GFX_API unsigned int gfx_bucket_get_instance_base(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit);
@@ -197,7 +197,7 @@ unsigned int gfx_bucket_get_instance_base(
  * Returns the bits to sort on of the state associated with a unit.
  *
  */
-GFXBatchState gfx_bucket_get_state(
+GFX_API GFXBatchState gfx_bucket_get_state(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit);
@@ -206,7 +206,7 @@ GFXBatchState gfx_bucket_get_state(
  * Returns whether a unit is visible or not.
  *
  */
-int gfx_bucket_is_visible(
+GFX_API int gfx_bucket_is_visible(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit);
@@ -215,7 +215,7 @@ int gfx_bucket_is_visible(
  * Sets the index of the copy of the property map to use.
  *
  */
-void gfx_bucket_set_copy(
+GFX_API void gfx_bucket_set_copy(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
@@ -225,7 +225,7 @@ void gfx_bucket_set_copy(
  * Sets the number of instances to draw.
  *
  */
-void gfx_bucket_set_instances(
+GFX_API void gfx_bucket_set_instances(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
@@ -241,7 +241,7 @@ void gfx_bucket_set_instances(
  * it has to be called after the vertex layout has set any divisors.
  *
  */
-void gfx_bucket_set_instance_base(
+GFX_API void gfx_bucket_set_instance_base(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
@@ -253,7 +253,7 @@ void gfx_bucket_set_instance_base(
  * Note: 2 MSB bits are ignored as they're used internally.
  *
  */
-void gfx_bucket_set_state(
+GFX_API void gfx_bucket_set_state(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
@@ -265,7 +265,7 @@ void gfx_bucket_set_state(
  * @param visible Non-zero if visible, invisible otherwise.
  *
  */
-void gfx_bucket_set_visible(
+GFX_API void gfx_bucket_set_visible(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
@@ -275,7 +275,7 @@ void gfx_bucket_set_visible(
  * Erases and frees a unit from its bucket.
  *
  */
-void gfx_bucket_erase(
+GFX_API void gfx_bucket_erase(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit);
@@ -296,7 +296,7 @@ typedef void* GFXPipeProcess;
  * @param copy Index of the copy of the property map to use.
  *
  */
-void gfx_pipe_process_set_source(
+GFX_API void gfx_pipe_process_set_source(
 
 		GFXPipeProcess   process,
 		GFXPropertyMap*  map,
@@ -309,7 +309,7 @@ void gfx_pipe_process_set_source(
  * @param swap   Whether to swap the window's internal buffers afterwards or not.
  *
  */
-void gfx_pipe_process_set_target(
+GFX_API void gfx_pipe_process_set_target(
 
 		GFXPipeProcess  process,
 		GFXWindow*      target,
@@ -489,7 +489,7 @@ typedef union GFXPipe
  * Returns the type of a pipe.
  *
  */
-GFXPipeType gfx_pipe_get_type(
+GFX_API GFXPipeType gfx_pipe_get_type(
 
 		GFXPipe* pipe);
 
@@ -501,7 +501,7 @@ GFXPipeType gfx_pipe_get_type(
  * Note: as soon as the pipe is removed the pointer is invalidated.
  *
  */
-GFXPipeState* gfx_pipe_get_state(
+GFX_API GFXPipeState* gfx_pipe_get_state(
 
 		GFXPipe* pipe);
 
@@ -535,13 +535,13 @@ typedef struct GFXPipeline
  * @return NULL on failure.
  *
  */
-GFXPipeline* gfx_pipeline_create(void);
+GFX_API GFXPipeline* gfx_pipeline_create(void);
 
 /**
  * Makes sure the pipeline is freed properly.
  *
  */
-void gfx_pipeline_free(
+GFX_API void gfx_pipeline_free(
 
 		GFXPipeline* pipeline);
 
@@ -554,7 +554,7 @@ void gfx_pipeline_free(
  * @param height Height of the draw area.
  *
  */
-void gfx_pipeline_viewport(
+GFX_API void gfx_pipeline_viewport(
 
 		GFXPipeline*  pipeline,
 		int           x,
@@ -572,7 +572,7 @@ void gfx_pipeline_viewport(
  * Note: the number of indices must be < GFX_LIM_MAX_COLOR_TARGETS.
  *
  */
-unsigned int gfx_pipeline_target(
+GFX_API unsigned int gfx_pipeline_target(
 
 		GFXPipeline*  pipeline,
 		unsigned int  num,
@@ -588,7 +588,7 @@ unsigned int gfx_pipeline_target(
  * Note: the index must be < GFX_LIM_MAX_COLOR_ATTACHMENTS.
  *
  */
-int gfx_pipeline_attach(
+GFX_API int gfx_pipeline_attach(
 
 		GFXPipeline*           pipeline,
 		GFXTextureImage        image,
@@ -604,7 +604,7 @@ int gfx_pipeline_attach(
  * Note: all state and parameters will be copied from the previous pipe.
  *
  */
-GFXPipe* gfx_pipeline_push_bucket(
+GFX_API GFXPipe* gfx_pipeline_push_bucket(
 
 		GFXPipeline*    pipeline,
 		unsigned char   bits,
@@ -618,7 +618,7 @@ GFXPipe* gfx_pipeline_push_bucket(
  * Note: all state and parameters will be copied from the previous pipe.
  *
  */
-GFXPipe* gfx_pipeline_push_process(
+GFX_API GFXPipe* gfx_pipeline_push_process(
 
 		GFXPipeline* pipeline);
 
@@ -628,7 +628,7 @@ GFXPipe* gfx_pipeline_push_process(
  * This acts as if gfx_pipeline_unlink was called on each pipe.
  *
  */
-void gfx_pipeline_unlink_all(
+GFX_API void gfx_pipeline_unlink_all(
 
 		GFXPipeline* pipeline);
 
@@ -638,7 +638,7 @@ void gfx_pipeline_unlink_all(
  * Afterwards it can still be moved or swapped.
  *
  */
-void gfx_pipeline_unlink(
+GFX_API void gfx_pipeline_unlink(
 
 		GFXPipe* pipe);
 
@@ -648,7 +648,7 @@ void gfx_pipeline_unlink(
  * @param after The pipe to be moved after (NULL to move to start).
  *
  */
-void gfx_pipeline_move(
+GFX_API void gfx_pipeline_move(
 
 		GFXPipe*  pipe,
 		GFXPipe*  after);
@@ -659,7 +659,7 @@ void gfx_pipeline_move(
  * Note: if they belong to different pipelines this call is ignored.
  *
  */
-void gfx_pipeline_swap(
+GFX_API void gfx_pipeline_swap(
 
 		GFXPipe*  pipe1,
 		GFXPipe*  pipe2);
@@ -673,7 +673,7 @@ void gfx_pipeline_swap(
  * Note: if the pipes don't belong to the same pipeline, nothing happens.
  *
  */
-void gfx_pipeline_relink(
+GFX_API void gfx_pipeline_relink(
 
 		size_t     num,
 		GFXPipe**  pipes);
@@ -684,7 +684,7 @@ void gfx_pipeline_relink(
  * The pipe cannot be used anymore after this call.
  *
  */
-void gfx_pipeline_remove(
+GFX_API void gfx_pipeline_remove(
 
 		GFXPipe* pipe);
 
@@ -694,7 +694,7 @@ void gfx_pipeline_remove(
  * @param num Number of pipes to execute, 0 to execute all remaining pipes.
  *
  */
-void gfx_pipeline_execute(
+GFX_API void gfx_pipeline_execute(
 
 		GFXPipeline*  pipeline,
 		size_t        num);

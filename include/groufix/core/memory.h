@@ -24,8 +24,9 @@
 #ifndef GFX_CORE_MEMORY_H
 #define GFX_CORE_MEMORY_H
 
+#include "groufix/utils.h"
+
 #include <stddef.h>
-#include <stdint.h>
 
 /* Default shared buffer pool size (1 MB) */
 #define GFX_SHARED_BUFFER_SIZE_DEFAULT  0x100000
@@ -146,7 +147,7 @@ typedef struct GFXBuffer
  * Note: if data is not NULL, this data is NOT copied to any extra buffers.
  *
  */
-GFXBuffer* gfx_buffer_create(
+GFX_API GFXBuffer* gfx_buffer_create(
 
 		GFXBufferUsage   usage,
 		GFXBufferTarget  target,
@@ -164,7 +165,7 @@ GFXBuffer* gfx_buffer_create(
  * Note: only copies the current backbuffer when multi buffering.
  *
  */
-GFXBuffer* gfx_buffer_create_copy(
+GFX_API GFXBuffer* gfx_buffer_create_copy(
 
 		GFXBuffer*       src,
 		GFXBufferUsage   usage,
@@ -174,7 +175,7 @@ GFXBuffer* gfx_buffer_create_copy(
  * Makes sure the buffer is freed properly.
  *
  */
-void gfx_buffer_free(
+GFX_API void gfx_buffer_free(
 
 		GFXBuffer* buffer);
 
@@ -185,7 +186,7 @@ void gfx_buffer_free(
  * @return Non-zero on success.
  *
  */
-int gfx_buffer_expand(
+GFX_API int gfx_buffer_expand(
 
 		GFXBuffer*     buffer,
 		unsigned char  num);
@@ -197,7 +198,7 @@ int gfx_buffer_expand(
  * @return Number of buffers actually removed.
  *
  */
-int gfx_buffer_shrink(
+GFX_API int gfx_buffer_shrink(
 
 		GFXBuffer*     buffer,
 		unsigned char  num);
@@ -206,7 +207,7 @@ int gfx_buffer_shrink(
  * Advances to the next backbuffer.
  *
  */
-void gfx_buffer_swap(
+GFX_API void gfx_buffer_swap(
 
 		GFXBuffer* buffer);
 
@@ -218,7 +219,7 @@ void gfx_buffer_swap(
  * @param offset Byte offset in the buffer to begin writing at.
  *
  */
-void gfx_buffer_write(
+GFX_API void gfx_buffer_write(
 
 		GFXBuffer*   buffer,
 		size_t       size,
@@ -233,7 +234,7 @@ void gfx_buffer_write(
  * @param offset Byte offset in the buffer to begin reading at.
  *
  */
-void gfx_buffer_read(
+GFX_API void gfx_buffer_read(
 
 		GFXBuffer*  buffer,
 		size_t      size,
@@ -248,7 +249,7 @@ void gfx_buffer_read(
  * @return A pointer in client address space (NULL on failure).
  *
  */
-void* gfx_buffer_map(
+GFX_API void* gfx_buffer_map(
 
 		GFXBuffer*      buffer,
 		size_t          size,
@@ -261,7 +262,7 @@ void* gfx_buffer_map(
  * This method MUST be called immediately after gfx_buffer_map in order to continue using the buffer.
  *
  */
-void gfx_buffer_unmap(
+GFX_API void gfx_buffer_unmap(
 
 		GFXBuffer* buffer);
 
@@ -285,7 +286,7 @@ typedef struct GFXSharedBuffer
  * @param size Pool size in bytes, the default is GFX_SHARED_BUFFER_SIZE_DEFAULT.
  *
  */
-void gfx_shared_buffer_request_size(
+GFX_API void gfx_shared_buffer_request_size(
 
 		unsigned long size);
 
@@ -296,7 +297,7 @@ void gfx_shared_buffer_request_size(
  * @return Non-zero on success (it will not touch buffer on failure).
  *
  */
-int gfx_shared_buffer_init(
+GFX_API int gfx_shared_buffer_init(
 
 		GFXSharedBuffer*  buffer,
 		GFXBufferTarget   target,
@@ -307,7 +308,7 @@ int gfx_shared_buffer_init(
  * Clears a shared buffer, freeing the internal data.
  *
  */
-void gfx_shared_buffer_clear(
+GFX_API void gfx_shared_buffer_clear(
 
 		GFXSharedBuffer* buffer);
 
@@ -384,7 +385,7 @@ typedef struct GFXVertexLayout
  * @return NULL on failure.
  *
  */
-GFXVertexLayout* gfx_vertex_layout_create(
+GFX_API GFXVertexLayout* gfx_vertex_layout_create(
 
 		unsigned char drawCalls);
 
@@ -392,7 +393,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
  * Makes sure the vertex layout is freed properly.
  *
  */
-void gfx_vertex_layout_free(
+GFX_API void gfx_vertex_layout_free(
 
 		GFXVertexLayout* layout);
 
@@ -407,7 +408,7 @@ void gfx_vertex_layout_free(
  * Note: any two given buffer ranges cannot overlap.
  *
  */
-int gfx_vertex_layout_set_feedback(
+GFX_API int gfx_vertex_layout_set_feedback(
 
 		GFXVertexLayout*          layout,
 		GFXPrimitive              primitive,
@@ -423,7 +424,7 @@ int gfx_vertex_layout_set_feedback(
  * Note: requires GFX_EXT_TESSELLATION_SHADER.
  *
  */
-int gfx_vertex_layout_set_patch_vertices(
+GFX_API int gfx_vertex_layout_set_patch_vertices(
 
 		GFXVertexLayout*  layout,
 		unsigned int      vertices);
@@ -439,7 +440,7 @@ int gfx_vertex_layout_set_patch_vertices(
  * Note: for the attribute to have any effect it should be given a buffer.
  *
  */
-int gfx_vertex_layout_set_attribute(
+GFX_API int gfx_vertex_layout_set_attribute(
 
 		GFXVertexLayout*           layout,
 		unsigned int               index,
@@ -454,7 +455,7 @@ int gfx_vertex_layout_set_attribute(
  * @return Zero on failure.
  *
  */
-int gfx_vertex_layout_set_attribute_buffer(
+GFX_API int gfx_vertex_layout_set_attribute_buffer(
 
 		GFXVertexLayout*  layout,
 		unsigned int      index,
@@ -470,7 +471,7 @@ int gfx_vertex_layout_set_attribute_buffer(
  * @return Zero on failure.
  *
  */
-int gfx_vertex_layout_set_attribute_shared_buffer(
+GFX_API int gfx_vertex_layout_set_attribute_shared_buffer(
 
 		GFXVertexLayout*        layout,
 		unsigned int            index,
@@ -483,7 +484,7 @@ int gfx_vertex_layout_set_attribute_shared_buffer(
  * This is equivalent to any attribute having a divisor not equal to zero.
  *
  */
-unsigned int gfx_vertex_layout_count_instanced(
+GFX_API unsigned int gfx_vertex_layout_count_instanced(
 
 		GFXVertexLayout* layout);
 
@@ -493,7 +494,7 @@ unsigned int gfx_vertex_layout_count_instanced(
  * @param index Index of the attribute to remove.
  *
  */
-void gfx_vertex_layout_remove_attribute(
+GFX_API void gfx_vertex_layout_remove_attribute(
 
 		GFXVertexLayout*  layout,
 		unsigned int      index);
@@ -506,7 +507,7 @@ void gfx_vertex_layout_remove_attribute(
  * @return Zero on failure or if the draw call does not exist.
  *
  */
-int gfx_vertex_layout_set_draw_call(
+GFX_API int gfx_vertex_layout_set_draw_call(
 
 		GFXVertexLayout*    layout,
 		unsigned char       index,
@@ -521,7 +522,7 @@ int gfx_vertex_layout_set_draw_call(
  * If a shared buffer was used, call->first will be the given offset + the shared buffer offset.
  *
  */
-int gfx_vertex_layout_get_draw_call(
+GFX_API int gfx_vertex_layout_get_draw_call(
 
 		GFXVertexLayout*  layout,
 		unsigned char     index,
@@ -534,7 +535,7 @@ int gfx_vertex_layout_get_draw_call(
  * @param offset Byte offset within the buffer to start reading at.
  *
  */
-void gfx_vertex_layout_set_index_buffer(
+GFX_API void gfx_vertex_layout_set_index_buffer(
 
 		GFXVertexLayout*  layout,
 		const GFXBuffer*  buffer,
@@ -547,7 +548,7 @@ void gfx_vertex_layout_set_index_buffer(
  * @param offset Byte offset within the buffer to start reading at.
  *
  */
-void gfx_vertex_layout_set_index_shared_buffer(
+GFX_API void gfx_vertex_layout_set_index_shared_buffer(
 
 		GFXVertexLayout*        layout,
 		const GFXSharedBuffer*  buffer,
@@ -650,7 +651,7 @@ typedef struct GFXTextureImage
  * Note: layers can only be used for 1D or 2D textures, or cubemaps if GFX_EXT_LAYERED_CUBEMAP.
  *
  */
-GFXTexture* gfx_texture_create(
+GFX_API GFXTexture* gfx_texture_create(
 
 		GFXTextureType    type,
 		GFXTextureFormat  format,
@@ -670,7 +671,7 @@ GFXTexture* gfx_texture_create(
  * additionally, for depth GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE is required.
  *
  */
-GFXTexture* gfx_texture_create_multisample(
+GFX_API GFXTexture* gfx_texture_create_multisample(
 
 		GFXTextureFormat  format,
 		unsigned char     samples,
@@ -689,7 +690,7 @@ GFXTexture* gfx_texture_create_multisample(
  * Note: requires GFX_EXT_BUFFER_TEXTURE.
  *
  */
-GFXTexture* gfx_texture_create_buffer_link(
+GFX_API GFXTexture* gfx_texture_create_buffer_link(
 
 		GFXTextureFormat  format,
 		const GFXBuffer*  buffer);
@@ -698,7 +699,7 @@ GFXTexture* gfx_texture_create_buffer_link(
  * Makes sure the texture is freed properly.
  *
  */
-void gfx_texture_free(
+GFX_API void gfx_texture_free(
 
 		GFXTexture* texture);
 
@@ -708,7 +709,7 @@ void gfx_texture_free(
  * Note: this might differ from a previously given format if it contained a packed type.
  *
  */
-GFXTextureFormat gfx_texture_get_format(
+GFX_API GFXTextureFormat gfx_texture_get_format(
 
 		GFXTexture* texture);
 
@@ -720,7 +721,7 @@ GFXTextureFormat gfx_texture_get_format(
  * Note: if the texture is linked to a buffer, the client format must be equal to the texture format.
  *
  */
-void gfx_texture_write(
+GFX_API void gfx_texture_write(
 
 		GFXTextureImage          image,
 		const GFXPixelTransfer*  transfer,
@@ -733,7 +734,7 @@ void gfx_texture_write(
  * Note: if the texture is linked to a buffer, the client format must be equal to the texture format.
  *
  */
-void gfx_texture_write_from_buffer(
+GFX_API void gfx_texture_write_from_buffer(
 
 		GFXTextureImage          image,
 		const GFXPixelTransfer*  transfer,
@@ -747,7 +748,7 @@ void gfx_texture_write_from_buffer(
  * All other mipmap levels will be overridden.
  *
  */
-void gfx_texture_generate_mipmaps(
+GFX_API void gfx_texture_generate_mipmaps(
 
 		GFXTexture* texture);
 

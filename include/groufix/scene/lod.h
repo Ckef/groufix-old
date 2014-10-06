@@ -24,6 +24,8 @@
 #ifndef GFX_SCENE_LOD_H
 #define GFX_SCENE_LOD_H
 
+#include "groufix/utils.h"
+
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -63,7 +65,7 @@ typedef struct GFXLodMap
  * @return NULL on failure.
  *
  */
-GFXLodMap* gfx_lod_map_create(
+GFX_API GFXLodMap* gfx_lod_map_create(
 
 		GFXLodFlags   flags,
 		size_t        dataSize,
@@ -73,7 +75,7 @@ GFXLodMap* gfx_lod_map_create(
  * Makes sure the LOD map is freed properly.
  *
  */
-void gfx_lod_map_free(
+GFX_API void gfx_lod_map_free(
 
 		GFXLodMap* map);
 
@@ -88,7 +90,7 @@ void gfx_lod_map_free(
  * Note: if GFX_LOD_SINGLE_DATA is set only a single element can be inserted per level.
  *
  */
-int gfx_lod_map_add(
+GFX_API int gfx_lod_map_add(
 
 		GFXLodMap*    map,
 		unsigned int  level,
@@ -102,7 +104,7 @@ int gfx_lod_map_add(
  * @return Number of times it is mapped.
  *
  */
-unsigned int gfx_lod_map_has(
+GFX_API unsigned int gfx_lod_map_has(
 
 		GFXLodMap*    map,
 		unsigned int  level,
@@ -118,7 +120,7 @@ unsigned int gfx_lod_map_has(
  * all levels above it will fall down one level.
  *
  */
-unsigned int gfx_lod_map_remove(
+GFX_API unsigned int gfx_lod_map_remove(
 
 		GFXLodMap*    map,
 		unsigned int  level,
@@ -134,7 +136,7 @@ unsigned int gfx_lod_map_remove(
  * all levels above it will fall down one level.
  *
  */
-int gfx_lod_map_remove_at(
+GFX_API int gfx_lod_map_remove_at(
 
 		GFXLodMap*    map,
 		unsigned int  level,
@@ -148,7 +150,7 @@ int gfx_lod_map_remove_at(
  * levels will be clamped to the number of levels the map has.
  *
  */
-unsigned int gfx_lod_map_count(
+GFX_API unsigned int gfx_lod_map_count(
 
 		GFXLodMap*    map,
 		unsigned int  levels);
@@ -162,7 +164,7 @@ unsigned int gfx_lod_map_count(
  * Note: as soon as a data element is added/removed the array pointer is invalidated.
  *
  */
-void* gfx_lod_map_get(
+GFX_API void* gfx_lod_map_get(
 
 		GFXLodMap*     map,
 		unsigned int   level,
@@ -172,7 +174,7 @@ void* gfx_lod_map_get(
  * Returns an array of data elements of dataSize bytes of all levels.
  *
  */
-void* gfx_lod_map_get_all(
+GFX_API void* gfx_lod_map_get_all(
 
 		GFXLodMap*     map,
 		unsigned int*  num);

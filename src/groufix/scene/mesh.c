@@ -21,7 +21,6 @@
  *
  */
 
-#include "groufix/scene.h"
 #include "groufix/scene/internal.h"
 
 /******************************************************/
