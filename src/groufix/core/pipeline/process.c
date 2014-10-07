@@ -308,59 +308,58 @@ void _gfx_pipe_process_execute(
 {
 	struct GFX_Process* internal = (struct GFX_Process*)process;
 
+	if(!internal->map) return;
+
 	/* Perform post-processing */
-	if(internal->map)
+	if(internal->target)
 	{
-		if(internal->target)
-		{
-			GLuint fbo = GFX_REND_GET.fbos[0];
-			GFXViewport vp = GFX_REND_GET.viewport;
+		GLuint fbo = GFX_REND_GET.fbos[0];
+		GFXViewport vp = GFX_REND_GET.viewport;
 
-			/* Set to new state of window to draw to */
-			_gfx_window_make_current(internal->target);
+		_gfx_window_make_current(internal->target);
 
-			_gfx_pipeline_bind(
-				GL_DRAW_FRAMEBUFFER,
-				0,
-				GFX_WIND_INT_AS_ARG(internal->target));
+		/* Set to new state of window to draw to */
+		_gfx_pipeline_bind(
+			GL_DRAW_FRAMEBUFFER,
+			0,
+			GFX_WIND_INT_AS_ARG(internal->target));
 
-			_gfx_states_set_viewport(
-				internal->viewport,
-				GFX_WIND_INT_AS_ARG(internal->target));
+		_gfx_states_set_viewport(
+			internal->viewport,
+			GFX_WIND_INT_AS_ARG(internal->target));
 
-			/* Draw to the window and swap buffers */
-			_gfx_pipe_process_draw(
-				state,
-				internal->map,
-				internal->copy,
-				GFX_WIND_INT_AS_ARG(internal->target));
-
-			if(internal->swap)
-				_gfx_window_swap_buffers();
-
-			/* Restore previous state if main context */
-			if(GFX_WIND_EQ(internal->target))
-			{
-				_gfx_pipeline_bind(
-					GL_DRAW_FRAMEBUFFER,
-					fbo,
-					GFX_WIND_AS_ARG);
-
-				_gfx_states_set_viewport(
-					vp,
-					GFX_WIND_AS_ARG);
-			}
-
-			/* Restore context if not main context */
-			else _gfx_window_make_current(&GFX_WIND_GET);
-		}
-
-		/* If no windowed rendering, just draw */
-		else _gfx_pipe_process_draw(
+		/* Draw to the window and swap buffers */
+		_gfx_pipe_process_draw(
 			state,
 			internal->map,
 			internal->copy,
-			GFX_WIND_AS_ARG
-		);
+			GFX_WIND_INT_AS_ARG(internal->target));
+
+		if(internal->swap)
+			_gfx_window_swap_buffers();
+
+		/* Restore previous state if main context */
+		if(GFX_WIND_EQ(internal->target))
+		{
+			_gfx_pipeline_bind(
+				GL_DRAW_FRAMEBUFFER,
+				fbo,
+				GFX_WIND_AS_ARG);
+
+			_gfx_states_set_viewport(
+				vp,
+				GFX_WIND_AS_ARG);
+		}
+
+		/* Restore context if not main context */
+		else _gfx_window_make_current(&GFX_WIND_GET);
 	}
+
+	/* If no windowed rendering, just draw */
+	else _gfx_pipe_process_draw(
+		state,
+		internal->map,
+		internal->copy,
+		GFX_WIND_AS_ARG
+	);
 }

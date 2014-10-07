@@ -797,12 +797,15 @@ void gfx_pipeline_execute(
 
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 
-	/* Bind as framebuffer */
+	/* Bind as framebuffer and set viewport */
 	_gfx_pipeline_bind(
 		GL_DRAW_FRAMEBUFFER,
 		internal->fbo,
-		GFX_WIND_AS_ARG
-	);
+		GFX_WIND_AS_ARG);
+
+	_gfx_states_set_viewport(
+		internal->viewport,
+		GFX_WIND_AS_ARG);
 
 	/* Iterate over all pipes */
 	int nolimit = !num;
