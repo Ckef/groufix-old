@@ -56,8 +56,8 @@ void _gfx_renderer_load(void)
 	/* Get viewport size */
 	_gfx_platform_window_get_size(
 		GFX_WIND_GET.handle,
-		&GFX_REND_GET.width,
-		&GFX_REND_GET.height
+		&GFX_REND_GET.viewport.width,
+		&GFX_REND_GET.viewport.height
 	);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */

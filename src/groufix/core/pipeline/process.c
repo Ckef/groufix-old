@@ -38,15 +38,11 @@ static GLuint _gfx_process_buffer = 0;
 /* Internal Pipe Process */
 struct GFX_Process
 {
-	/* Post Processing */
 	GFXPropertyMap*  map;
-	unsigned int     copy;   /* Copy of the property map to use */
+	unsigned int     copy;    /* Copy of the property map to use */
 	GFX_Window*      target;
-	unsigned char    swap;   /* Whether to swap window buffers or not */
-
-	/* Viewport */
-	unsigned int width;
-	unsigned int height;
+	unsigned char    swap;    /* Whether to swap window buffers or not */
+	GFXViewport      viewport;
 };
 
 /******************************************************/
@@ -163,8 +159,8 @@ void _gfx_pipe_process_resize(
 		struct GFX_Process* proc = *(struct GFX_Process**)it;
 		if(target == proc->target)
 		{
-			proc->width = width;
-			proc->height = height;
+			proc->viewport.width = width;
+			proc->viewport.height = height;
 		}
 	}
 }
@@ -295,8 +291,8 @@ void gfx_pipe_process_set_target(
 	{
 		gfx_window_get_size(
 			target,
-			&internal->width,
-			&internal->height
+			&internal->viewport.width,
+			&internal->viewport.height
 		);
 
 		internal->swap = swap ? 1 : 0;
@@ -317,7 +313,8 @@ void _gfx_pipe_process_execute(
 	{
 		if(internal->target)
 		{
-			GLuint fbo = internal->target->renderer.fbos[0];
+			GLuint fbo = GFX_REND_GET.fbos[0];
+			GFXViewport vp = GFX_REND_GET.viewport;
 
 			/* Set to new state of window to draw to */
 			_gfx_window_make_current(internal->target);
@@ -328,9 +325,7 @@ void _gfx_pipe_process_execute(
 				GFX_WIND_INT_AS_ARG(internal->target));
 
 			_gfx_states_set_viewport(
-				0, 0,
-				internal->width,
-				internal->height,
+				internal->viewport,
 				GFX_WIND_INT_AS_ARG(internal->target));
 
 			/* Draw to the window and swap buffers */
@@ -340,15 +335,24 @@ void _gfx_pipe_process_execute(
 				internal->copy,
 				GFX_WIND_INT_AS_ARG(internal->target));
 
-			if(internal->swap) _gfx_window_swap_buffers();
+			if(internal->swap)
+				_gfx_window_swap_buffers();
 
-			/* Restore previous state */
-			_gfx_pipeline_bind(
-				GL_DRAW_FRAMEBUFFER,
-				fbo,
-				GFX_WIND_INT_AS_ARG(internal->target));
+			/* Restore previous state if main context */
+			if(GFX_WIND_EQ(internal->target))
+			{
+				_gfx_pipeline_bind(
+					GL_DRAW_FRAMEBUFFER,
+					fbo,
+					GFX_WIND_AS_ARG);
 
-			_gfx_window_make_current(&GFX_WIND_GET);
+				_gfx_states_set_viewport(
+					vp,
+					GFX_WIND_AS_ARG);
+			}
+
+			/* Restore context if not main context */
+			else _gfx_window_make_current(&GFX_WIND_GET);
 		}
 
 		/* If no windowed rendering, just draw */

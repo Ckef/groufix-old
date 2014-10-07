@@ -49,17 +49,12 @@ struct GFX_Pipeline
 	GFXVector     attachments; /* Stores GFX_Attachment */
 	unsigned int  numTargets;
 	GLenum*       targets;     /* OpenGL draw buffers */
+	GFXViewport   viewport;
 
 	GFX_Pipe*     first;
 	GFX_Pipe*     last;
 	GFX_Pipe*     current;
 	GFX_Pipe*     unlinked;
-
-	/* Viewport */
-	int           x;
-	int           y;
-	unsigned int  width;
-	unsigned int  height;
 };
 
 /******************************************************/
@@ -360,11 +355,6 @@ GFXPipeline* gfx_pipeline_create(void)
 	/* Create OpenGL resources */
 	GFX_REND_GET.CreateFramebuffers(1, &pl->fbo);
 
-	pl->x      = 0;
-	pl->y      = 0;
-	pl->width  = 0;
-	pl->height = 0;
-
 	gfx_vector_init(&pl->attachments, sizeof(struct GFX_Attachment));
 
 	return (GFXPipeline*)pl;
@@ -415,17 +405,10 @@ void gfx_pipeline_free(
 void gfx_pipeline_viewport(
 
 		GFXPipeline*  pipeline,
-		int           x,
-		int           y,
-		unsigned int  width,
-		unsigned int  height)
+		GFXViewport   viewport)
 {
 	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
-
-	internal->x      = x;
-	internal->y      = y;
-	internal->width  = width;
-	internal->height = height;
+	internal->viewport = viewport;
 }
 
 /******************************************************/
@@ -828,16 +811,6 @@ void gfx_pipeline_execute(
 
 	while(pipe && (nolimit | num--))
 	{
-		/* Set viewport */
-		_gfx_states_set_viewport(
-			internal->x,
-			internal->y,
-			internal->width,
-			internal->height,
-			GFX_WIND_AS_ARG
-		);
-
-		/* Process pipe */
 		switch(pipe->type)
 		{
 			case GFX_PIPE_BUCKET :

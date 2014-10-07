@@ -288,11 +288,7 @@ struct GFX_Renderer
 	GLuint         post;     /* Layout for post processing */
 
 	/* Viewport & state values */
-	int            x;
-	int            y;
-	unsigned int   width;
-	unsigned int   height;
-
+	GFXViewport    viewport;
 	unsigned char  packAlignment;
 	unsigned char  unpackAlignment;
 	unsigned int   patchVertices;

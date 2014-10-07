@@ -72,10 +72,7 @@ void _gfx_states_force_set(
  */
 void _gfx_states_set_viewport(
 
-		int           x,
-		int           y,
-		unsigned int  width,
-		unsigned int  height,
+		GFXViewport viewport,
 		GFX_WIND_ARG);
 
 /**

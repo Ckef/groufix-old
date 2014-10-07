@@ -510,6 +510,17 @@ GFX_API GFXPipeState* gfx_pipe_get_state(
  * Pipelines (execute arbitrary processes in order)
  *******************************************************/
 
+/** Viewport description */
+typedef struct GFXViewport
+{
+	int           x;
+	int           y;
+	unsigned int  width;
+	unsigned int  height;
+
+} GFXViewport;
+
+
 /** Pipeline attachments */
 typedef enum GFXPipelineAttachment
 {
@@ -548,19 +559,11 @@ GFX_API void gfx_pipeline_free(
 /**
  * Specifies the screen space to rasterize to.
  *
- * @param x      The X offset relative to the left side of the target.
- * @param y      The Y offset relative to the bottom side of the target.
- * @param width  Width of the draw area.
- * @param height Height of the draw area.
- *
  */
 GFX_API void gfx_pipeline_viewport(
 
 		GFXPipeline*  pipeline,
-		int           x,
-		int           y,
-		unsigned int  width,
-		unsigned int  height);
+		GFXViewport   viewport);
 
 /**
  * Specifies what color attachments to draw to.

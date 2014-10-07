@@ -24,6 +24,7 @@
 #include "groufix/core/pipeline/internal.h"
 
 #include <limits.h>
+#include <string.h>
 
 /* Compatibility defines */
 #ifndef GL_FILL
@@ -336,24 +337,19 @@ void _gfx_states_force_set(
 /******************************************************/
 void _gfx_states_set_viewport(
 
-		int           x,
-		int           y,
-		unsigned int  width,
-		unsigned int  height,
+		GFXViewport viewport,
 		GFX_WIND_ARG)
 {
-	if(
-		GFX_REND_GET.x != x ||
-		GFX_REND_GET.y != y ||
-		GFX_REND_GET.width != width ||
-		GFX_REND_GET.height != height)
+	if(memcmp(&viewport, &GFX_REND_GET.viewport, sizeof(GFXViewport)))
 	{
-		GFX_REND_GET.Viewport(x, y, width, height);
+		GFX_REND_GET.Viewport(
+			viewport.x,
+			viewport.y,
+			viewport.width,
+			viewport.height
+		);
 
-		GFX_REND_GET.x      = x;
-		GFX_REND_GET.y      = y;
-		GFX_REND_GET.width  = width;
-		GFX_REND_GET.height = height;
+		GFX_REND_GET.viewport = viewport;
 	}
 }
 
