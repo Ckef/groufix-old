@@ -42,7 +42,9 @@
 /* Required platform headers */
 #if defined(GFX_WIN32)
 
-	/* Nothing extra */
+	#define UNICODE
+	#define _UNICODE
+
 	#define WIN32_LEAN_AND_MEAN
 	#define VC_EXTRALEAN
 

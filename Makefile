@@ -231,6 +231,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/platform/win32_context.o \
  $(OUT)/win32/groufix/core/platform/win32_init.o \
  $(OUT)/win32/groufix/core/platform/win32_screen.o \
+ $(OUT)/win32/groufix/core/platform/win32_strings.o \
  $(OUT)/win32/groufix/core/platform/win32_thread.o \
  $(OUT)/win32/groufix/core/platform/win32_time.o \
  $(OUT)/win32/groufix/core/platform/win32_window.o \

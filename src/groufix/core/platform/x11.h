@@ -24,6 +24,7 @@
 #ifndef GFX_CORE_PLATFORM_X11_H
 #define GFX_CORE_PLATFORM_X11_H
 
+
 /* Validate platform */
 #include "groufix/core/platform.h"
 
@@ -41,6 +42,7 @@
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
+
 
 /* More of them buttons! */
 #ifndef Button6

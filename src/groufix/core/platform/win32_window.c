@@ -409,7 +409,7 @@ static int _gfx_win32_register_window_class(void)
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = _gfx_win32_window_class;
+	wc.lpszClassName = GFX_WIN32_WINDOW_CLASS;
 	wc.hIconSm       = NULL;
 
 	_gfx_win32->classRegistered = RegisterClassEx(&wc);
@@ -499,11 +499,14 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	rect.bottom += rect.top;
 	AdjustWindowRectEx(&rect, style, FALSE, styleEx);
 
+	/* Convert name to UTF-16 */
+	WCHAR* name = _gfx_win32_utf8_to_utf16(attributes->name);
+
 	/* Create the actual window */
 	window.handle = CreateWindowEx(
 		styleEx,
-		_gfx_win32_window_class,
-		attributes->name,
+		GFX_WIN32_WINDOW_CLASS,
+		name,
 		style,
 		rect.left,
 		rect.top,
@@ -514,6 +517,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		GetModuleHandle(NULL),
 		NULL
 	);
+
+	free(name);
 
 	if(window.handle)
 	{
@@ -611,12 +616,21 @@ char* _gfx_platform_window_get_name(
 {
 	/* Check if it has a name */
 	int len = GetWindowTextLength(handle);
-	if(!len++) return NULL;
+	if(!(len++)) return NULL;
 
-	char* buff = malloc(sizeof(char) * len);
-	if(!GetWindowText(handle, buff, len)) return NULL;
+	WCHAR* buff = malloc(sizeof(WCHAR) * len);
 
-	return buff;
+	if(!GetWindowText(handle, buff, len))
+	{
+		free(buff);
+		return NULL;
+	}
+
+	/* Convert to UTF-8 */
+	char* str = _gfx_win32_utf16_to_utf8(buff);
+	free(buff);
+
+	return str;
 }
 
 /******************************************************/
@@ -659,7 +673,13 @@ void _gfx_platform_window_set_name(
 		GFX_PlatformWindow  handle,
 		const char*         name)
 {
-	SetWindowText(handle, name);
+	/* Convert to UTF-16 */
+	WCHAR* str = _gfx_win32_utf8_to_utf16(name);
+	if(str)
+	{
+		SetWindowText(handle, str);
+		free(str);
+	}
 }
 
 /******************************************************/

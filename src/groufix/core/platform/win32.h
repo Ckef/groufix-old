@@ -24,6 +24,7 @@
 #ifndef GFX_CORE_PLATFORM_WIN32_H
 #define GFX_CORE_PLATFORM_WIN32_H
 
+
 /* Validate platform */
 #include "groufix/core/platform.h"
 
@@ -40,6 +41,11 @@
 #include <windowsx.h>
 #include <GL/gl.h>
 #include <GL/wglext.h>
+
+
+/* Window class */
+#define GFX_WIN32_WINDOW_CLASS L"GROUFIX"
+
 
 /* Yeah these are missing */
 #ifndef DISPLAY_DEVICE_ACTIVE
@@ -140,10 +146,24 @@ extern GFX_Win32_Instance* _gfx_win32;
 
 
 /**
- * Window class name
+ * Converts a UTF-8 string to a UTF-16 string.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
  */
-extern LPCTSTR _gfx_win32_window_class;
+WCHAR* _gfx_win32_utf8_to_utf16(
 
+		const char* str);
+
+/**
+ * Converts a UTF-16 string to a UTF-8 string.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ */
+char* _gfx_win32_utf16_to_utf8(
+
+		const WCHAR* str);
 
 /**
  * Sets the pixel format for a window.

@@ -31,9 +31,6 @@
 /* Instance */
 GFX_Win32_Instance* _gfx_win32 = NULL;
 
-/* Window class name */
-LPCTSTR _gfx_win32_window_class = "GROUFIX";
-
 /******************************************************/
 static int _gfx_win32_is_extension_supported(
 
@@ -74,12 +71,16 @@ static int _gfx_win32_load_extensions(void)
 	ZeroMemory(&wc, sizeof(WNDCLASS));
 	wc.lpfnWndProc   = DefWindowProc;
 	wc.hInstance     = GetModuleHandle(NULL);
-	wc.lpszClassName = _gfx_win32_window_class;
+	wc.lpszClassName = GFX_WIN32_WINDOW_CLASS;
 
 	if(!RegisterClass(&wc)) return 0;
 	HWND window = CreateWindow(
-		_gfx_win32_window_class,
-		"", 0, 0, 0, 0, 0, NULL, NULL,
+		GFX_WIN32_WINDOW_CLASS,
+		L"",
+		0,
+		0, 0,
+		0, 0,
+		NULL, NULL,
 		GetModuleHandle(NULL),
 		NULL
 	);
@@ -131,7 +132,7 @@ static int _gfx_win32_load_extensions(void)
 	/* Destroy dummy context and window */
 	wglDeleteContext(context);
 	DestroyWindow(window);
-	UnregisterClass(_gfx_win32_window_class, GetModuleHandle(NULL));
+	UnregisterClass(GFX_WIN32_WINDOW_CLASS, GetModuleHandle(NULL));
 
 	return success;
 }
@@ -282,7 +283,7 @@ int _gfx_platform_init(void)
 			memcpy(screen.name, adapter.DeviceName, sizeof(screen.name));
 
 			HDC dc =
-				CreateDC("DISPLAY", display.DeviceString, NULL, NULL);
+				CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
 			screen.width =
 				GetDeviceCaps(dc, HORZRES);
 			screen.height =
@@ -337,7 +338,7 @@ void _gfx_platform_terminate(void)
 		gfx_vector_clear(&_gfx_win32->windows);
 
 		/* Unregister window class */
-		UnregisterClass(_gfx_win32_window_class, GetModuleHandle(NULL));
+		UnregisterClass(GFX_WIN32_WINDOW_CLASS, GetModuleHandle(NULL));
 
 		/* Deallocate instance */
 		free(_gfx_win32);
