@@ -36,12 +36,19 @@ struct GFX_SubMesh
 	GFXSubMesh submesh;
 
 	/* Hidden data */
-	GFXVector     batches;    /* Stores GFX_Batch, index + 1 = submesh ID of batch */
-	GFXVector     units;      /* Stores (GFX_Units + GFXBucketUnit * units) */
-
 	unsigned int  references; /* Reference counter */
 	GFXVector     buckets;    /* Stores (GFX_Bucket + GFXBucketSource * sources) */
 	GFXVector     buffers;    /* Stores GFXSharedBuffer */
+
+	GFXVector     batches;    /* Stores GFX_Batch, index + 1 = submesh ID of batch */
+	GFXVector     units;      /* Stores (GFX_Units + GFXBucketUnit * units) */
+};
+
+/* Internal bucket reference */
+struct GFX_Bucket
+{
+	GFXPipe*      pipe;
+	unsigned int  ref; /* Reference count */
 };
 
 /* Internal batch (material reference) */
@@ -61,13 +68,6 @@ struct GFX_Units
 	unsigned int  instances; /* Number of instances */
 	unsigned int  visible;   /* Number of visible instances */
 	unsigned int  units;     /* Number of stored units */
-};
-
-/* Internal bucket reference */
-struct GFX_Bucket
-{
-	GFXPipe*      pipe;
-	unsigned int  ref; /* Reference count */
 };
 
 /******************************************************/
