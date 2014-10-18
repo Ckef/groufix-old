@@ -52,33 +52,37 @@ void _gfx_renderer_load(void)
 	);
 
 	/* Defaults */
-	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] = GFX_GL_DEF_MAX_VERTEX_BUFFERS;
-	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE] = GFX_GL_DEF_MAX_VERTEX_STRIDE;
+	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] =
+		GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET;
+	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] =
+		GFX_GL_DEF_MAX_VERTEX_BUFFERS;
+	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE] =
+		GFX_GL_DEF_MAX_VERTEX_STRIDE;
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	GLint limit;
 
-	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &limit);
+	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES] = limit;
-	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &limit);
+	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_COLOR_ATTACHMENTS] = limit;
-	glGetIntegerv(GL_MAX_DRAW_BUFFERS, &limit);
+	glGetIntegerv(GL_MAX_DRAW_BUFFERS, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_COLOR_TARGETS] = limit;
-	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limit);
+	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_CUBEMAP_SIZE] = limit;
-	glGetIntegerv(GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, &limit);
+	glGetIntegerv(GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS] = limit;
-	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &limit);
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES] = limit;
-	glGetIntegerv(GL_MAX_SAMPLES, &limit);
+	glGetIntegerv(GL_MAX_SAMPLES, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLES] = limit;
-	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &limit);
+	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_TEXTURE_3D_SIZE] = limit;
-	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &limit);
+	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_TEXTURE_LAYERS] = limit;
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &limit);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_TEXTURE_SIZE] = limit;
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &limit);
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIBS] = limit;
 
 #if defined(GFX_GLES)
@@ -247,13 +251,41 @@ void _gfx_renderer_load(void)
 		GFX_REND_GET.TexStorage2DMultisample = _gfx_gles_tex_storage_2d_multisample;
 	}
 
+	/* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	if(
+		GFX_WIND_GET.context.major > 3 ||
+		(GFX_WIND_GET.context.major == 3 && GFX_WIND_GET.context.minor > 0))
+	{
+		GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS] = 1;
+
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] = limit;
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_BINDINGS, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] = limit;
+
+		GFX_REND_GET.BindVertexBuffer     = glBindVertexBuffer;
+		GFX_REND_GET.VertexAttribBinding  = glVertexAttribBinding;
+		GFX_REND_GET.VertexAttribFormat   = glVertexAttribFormat;
+		GFX_REND_GET.VertexAttribIFormat  = glVertexAttribIFormat;
+		GFX_REND_GET.VertexBindingDivisor = glVertexBindingDivisor;
+	}
+
+	else
+	{
+		GFX_REND_GET.BindVertexBuffer     = _gfx_gl_bind_vertex_buffer;
+		GFX_REND_GET.VertexAttribBinding  = _gfx_gl_vertex_attrib_binding;
+		GFX_REND_GET.VertexAttribFormat   = _gfx_gl_vertex_attrib_format;
+		GFX_REND_GET.VertexAttribIFormat  = _gfx_gl_vertex_attrib_i_format;
+		GFX_REND_GET.VertexBindingDivisor = _gfx_gl_vertex_binding_divisor;
+	}
+
 #elif defined(GFX_GL)
 
 	/* Settings */
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
-	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &limit);
+	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &limit),
 		GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = limit;
 
 	/* Default Extensions */
@@ -684,14 +716,51 @@ void _gfx_renderer_load(void)
 		GFX_REND_GET.ProgramParameteri = _gfx_gl_program_parameter_i;
 	}
 
+	/* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	if(
+		GFX_WIND_GET.context.major > 4 ||
+		(GFX_WIND_GET.context.major == 4 && GFX_WIND_GET.context.minor > 2) ||
+		_gfx_is_extension_supported("GL_ARB_vertex_attrib_binding", GFX_WIND_AS_ARG))
+	{
+		GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS] = 1;
+
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] = limit;
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_BINDINGS, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] = limit;
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_STRIDE, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE] = limit;
+
+		GFX_REND_GET.BindVertexBuffer =
+			(PFNGLBINDVERTEXBUFFERPROC)_gfx_platform_get_proc_address("glBindVertexBuffer");
+		GFX_REND_GET.VertexAttribBinding =
+			(PFNGLVERTEXATTRIBBINDINGPROC)_gfx_platform_get_proc_address("glVertexAttribBinding");
+		GFX_REND_GET.VertexAttribFormat =
+			(PFNGLVERTEXATTRIBFORMATPROC)_gfx_platform_get_proc_address("glVertexAttribFormat");
+		GFX_REND_GET.VertexAttribIFormat =
+			(PFNGLVERTEXATTRIBIFORMATPROC)_gfx_platform_get_proc_address("glVertexAttribIFormat");
+		GFX_REND_GET.VertexBindingDivisor =
+			(PFNGLVERTEXBINDINGDIVISORPROC)_gfx_platform_get_proc_address("glVertexBindingDivisor");
+	}
+
+	else
+	{
+		GFX_REND_GET.BindVertexBuffer     = _gfx_gl_bind_vertex_buffer;
+		GFX_REND_GET.VertexAttribBinding  = _gfx_gl_vertex_attrib_binding;
+		GFX_REND_GET.VertexAttribFormat   = _gfx_gl_vertex_attrib_format;
+		GFX_REND_GET.VertexAttribIFormat  = _gfx_gl_vertex_attrib_i_format;
+		GFX_REND_GET.VertexBindingDivisor = _gfx_gl_vertex_binding_divisor;
+	}
+
 	/* GFX_EXT_TESSELLATION_SHADER */
 	if(
 		GFX_WIND_GET.context.major > 3 ||
 		_gfx_is_extension_supported("GL_ARB_tessellation_shader", GFX_WIND_AS_ARG))
 	{
-		glGetIntegerv(GL_MAX_PATCH_VERTICES, &limit);
-		GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
 		GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
+
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
 
 		GFX_REND_GET.PatchParameteri =
 			(PFNGLPATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteri");

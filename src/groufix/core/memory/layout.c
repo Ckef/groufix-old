@@ -240,41 +240,76 @@ static void _gfx_layout_init_attrib(
 		struct GFX_Layout*     layout,
 		unsigned int           index,
 		struct GFX_Attribute*  attr,
-		struct GFX_Buffer*     buff,
 		GFX_WIND_ARG)
 {
-	/* Check if enabled */
-	if(attr->size && buff->buffer)
+	if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
 	{
-		/* Set the attribute */
-		_gfx_vertex_layout_bind(layout->vao, GFX_WIND_AS_ARG);
-		GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buff->buffer);
-		GFX_REND_GET.EnableVertexAttribArray(index);
+		/* Check if enabled */
+		if(attr->size)
+		{
+			/* Set the attribute */
+			_gfx_vertex_layout_bind(layout->vao, GFX_WIND_AS_ARG);
+			GFX_REND_GET.EnableVertexAttribArray(index);
+			GFX_REND_GET.VertexAttribBinding(index, attr->buffer);
 
-		/* Check integer value */
-		if(attr->interpret & GFX_INTERPRET_INTEGER)
-		{
-			GFX_REND_GET.VertexAttribIPointer(
-				index,
-				attr->size,
-				attr->type,
-				buff->stride,
-				(GLvoid*)(buff->offset + attr->offset));
+			/* Check integer value */
+			if(attr->interpret & GFX_INTERPRET_INTEGER)
+			{
+				GFX_REND_GET.VertexAttribIFormat(
+					index, attr->size, attr->type, attr->offset);
+			}
+			else
+			{
+				GLboolean norm = attr->interpret & GFX_INTERPRET_NORMALIZED ?
+					GL_TRUE : GL_FALSE;
+
+				GFX_REND_GET.VertexAttribFormat(
+					index, attr->size, attr->type, norm, attr->offset);
+			}
+
+			/* Done */
+			return;
 		}
-		else
+	}
+
+	/* Fetch buffer if no separate buffers */
+	else if(attr->buffer < gfx_vector_get_size(&layout->buffers))
+	{
+		struct GFX_Buffer* buff =
+			gfx_vector_at(&layout->buffers, attr->buffer);
+
+		/* Check if enabled */
+		if(attr->size && buff->buffer)
 		{
-			GFX_REND_GET.VertexAttribPointer(
-				index,
-				attr->size,
-				attr->type,
-				attr->interpret & GFX_INTERPRET_NORMALIZED ? GL_TRUE : GL_FALSE,
-				buff->stride,
-				(GLvoid*)(buff->offset + attr->offset));
+			/* Set the attribute */
+			_gfx_vertex_layout_bind(layout->vao, GFX_WIND_AS_ARG);
+			GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buff->buffer);
+			GFX_REND_GET.EnableVertexAttribArray(index);
+
+			GLvoid* ptr = (GLvoid*)(buff->offset + attr->offset);
+
+			/* Check integer value */
+			if(attr->interpret & GFX_INTERPRET_INTEGER)
+			{
+				GFX_REND_GET.VertexAttribIPointer(
+					index, attr->size, attr->type, buff->stride, ptr);
+			}
+			else
+			{
+				GLboolean norm = attr->interpret & GFX_INTERPRET_NORMALIZED ?
+					GL_TRUE : GL_FALSE;
+
+				GFX_REND_GET.VertexAttribPointer(
+					index, attr->size, attr->type, norm, buff->stride, ptr);
+			}
+
+			/* Done */
+			return;
 		}
 	}
 
 	/* Disable it */
-	else GFX_REND_GET.DisableVertexArrayAttrib(layout->vao, index);
+	GFX_REND_GET.DisableVertexArrayAttrib(layout->vao, index);
 }
 
 /******************************************************/
@@ -296,7 +331,6 @@ static void _gfx_layout_init_buff(
 			layout,
 			ind,
 			attr,
-			buff,
 			GFX_WIND_AS_ARG
 		);
 	}
@@ -376,30 +410,37 @@ static void _gfx_layout_obj_restore(
 
 	/* Restore attributes */
 	size_t index = gfx_vector_get_size(&layout->attributes);
-	while(index--)
-	{
-		struct GFX_Attribute* attr =
-			gfx_vector_at(&layout->attributes, index);
+	while(index--) _gfx_layout_init_attrib(
+		layout,
+		index,
+		gfx_vector_at(&layout->attributes, index),
+		GFX_WIND_AS_ARG
+	);
 
-		if(attr->buffer < gfx_vector_get_size(&layout->buffers))
-			_gfx_layout_init_attrib(
-				layout,
-				index,
-				attr,
-				gfx_vector_at(&layout->buffers, attr->buffer),
-				GFX_WIND_AS_ARG
-			);
-	}
-
-	/* Restore buffers divisors */
-	/* Not needed to restore buffers as attributes are already restored */
+	/* Restore buffers */
 	index = gfx_vector_get_size(&layout->buffers);
 	while(index--)
 	{
 		struct GFX_Buffer* buff = gfx_vector_at(
 			&layout->buffers, index);
-		_gfx_layout_init_buff_divisor(
-			layout, index, buff, GFX_WIND_AS_ARG);
+
+		if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
+		{
+			_gfx_vertex_layout_bind(
+				layout->vao, GFX_WIND_AS_ARG);
+			GFX_REND_GET.BindVertexBuffer(
+				index, buff->buffer, buff->offset, buff->stride);
+			GFX_REND_GET.VertexBindingDivisor(
+				index, buff->divisor);
+		}
+
+		else
+		{
+			/* Restore buffers divisors */
+			/* Not needed to restore buffers as attributes are already restored */
+			_gfx_layout_init_buff_divisor(
+				layout, index, buff, GFX_WIND_AS_ARG);
+		}
 	}
 }
 
@@ -546,6 +587,7 @@ int gfx_vertex_layout_set_attribute(
 		!attr->size ||
 		attr->type.unpacked == GFX_BIT ||
 		attr->type.unpacked == GFX_NIBBLE ||
+		attr->offset > GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] ||
 		buffer >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
 	{
 		return 0;
@@ -577,14 +619,7 @@ int gfx_vertex_layout_set_attribute(
 		GFX_INTERPRET_FLOAT : set->interpret;
 
 	/* Initialize attribute */
-	if(buffer < gfx_vector_get_size(&internal->buffers))
-		_gfx_layout_init_attrib(
-			internal,
-			index,
-			set,
-			gfx_vector_at(&internal->buffers, buffer),
-			GFX_WIND_AS_ARG
-		);
+	_gfx_layout_init_attrib(internal, index, set, GFX_WIND_AS_ARG);
 
 	return 1;
 }
@@ -647,7 +682,20 @@ static int _gfx_layout_set_vertex_buffer(
 	set->stride = stride;
 
 	/* Initialize the buffer */
-	_gfx_layout_init_buff(internal, index, set, GFX_WIND_AS_ARG);
+	if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
+	{
+		_gfx_vertex_layout_bind(
+			internal->vao, GFX_WIND_AS_ARG);
+		GFX_REND_GET.BindVertexBuffer(
+			index, buffer, offset, stride);
+	}
+
+	else _gfx_layout_init_buff(
+		internal,
+		index,
+		set,
+		GFX_WIND_AS_ARG
+	);
 
 	return 1;
 }
@@ -733,7 +781,20 @@ int gfx_vertex_layout_set_vertex_divisor(
 	set->divisor = divisor;
 
 	/* Initialize the buffer divisor */
-	_gfx_layout_init_buff_divisor(internal, index, set, GFX_WIND_AS_ARG);
+	if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
+	{
+		_gfx_vertex_layout_bind(
+			internal->vao, GFX_WIND_AS_ARG);
+		GFX_REND_GET.VertexBindingDivisor(
+			index, divisor);
+	}
+
+	else _gfx_layout_init_buff_divisor(
+		internal,
+		index,
+		set,
+		GFX_WIND_AS_ARG
+	);
 
 	return 1;
 }

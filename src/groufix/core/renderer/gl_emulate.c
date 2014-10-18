@@ -39,12 +39,30 @@ static void _gfx_gl_error_direct_state_access(void)
 	);
 }
 
+static void _gfx_gl_error_separate_vertex_buffers(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_SEPARATE_VERTEX_BUFFERS is incompatible with this context."
+	);
+}
+
 void APIENTRY _gfx_gl_bind_texture_unit(
 
 		GLuint  unit,
 		GLuint  texture)
 {
 	_gfx_gl_error_direct_state_access();
+}
+
+void APIENTRY _gfx_gl_bind_vertex_buffer(
+
+		GLuint    index,
+		GLuint    buffer,
+		GLintptr  offset,
+		GLsizei   stride)
+{
+	_gfx_gl_error_separate_vertex_buffers();
 }
 
 void APIENTRY _gfx_gl_copy_named_buffer_sub_data(
@@ -425,6 +443,43 @@ GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
 
 	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
 	return GFX_REND_GET.UnmapBuffer(GL_ARRAY_BUFFER);
+}
+
+void APIENTRY _gfx_gl_vertex_attrib_binding(
+
+		GLuint  attrib,
+		GLuint  binding)
+{
+	_gfx_gl_error_separate_vertex_buffers();
+}
+
+void APIENTRY _gfx_gl_vertex_attrib_format(
+
+		GLuint     index,
+		GLint      size,
+		GLenum     type,
+		GLboolean  normalized,
+		GLuint     offset)
+{
+	_gfx_gl_error_separate_vertex_buffers();
+}
+
+void APIENTRY _gfx_gl_vertex_attrib_i_format(
+
+		GLuint  index,
+		GLint   size,
+		GLenum  type,
+		GLuint  offset)
+{
+	_gfx_gl_error_separate_vertex_buffers();
+}
+
+void APIENTRY _gfx_gl_vertex_binding_divisor(
+
+		GLuint  index,
+		GLuint  divisor)
+{
+	_gfx_gl_error_separate_vertex_buffers();
 }
 
 

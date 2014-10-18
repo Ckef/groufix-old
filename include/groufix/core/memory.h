@@ -329,7 +329,7 @@ typedef struct GFXVertexAttribute
 	unsigned char     size;      /* Number of elements */
 	GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
 	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT and STENCIL is equal to INTEGER */
-	unsigned int      offset;    /* Extra offset within the buffer to add to its base offset */
+	unsigned int      offset;    /* Offset of the attribute, must be <= GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET */
 
 } GFXVertexAttribute;
 

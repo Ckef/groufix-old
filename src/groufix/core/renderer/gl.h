@@ -25,8 +25,9 @@
 #endif
 
 /* Default limits */
-#define GFX_GL_DEF_MAX_VERTEX_BUFFERS  16
-#define GFX_GL_DEF_MAX_VERTEX_STRIDE   2048
+#define GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET  0x07ff
+#define GFX_GL_DEF_MAX_VERTEX_BUFFERS        0x0010
+#define GFX_GL_DEF_MAX_VERTEX_STRIDE         0x0800
 
 /* Correct context versions */
 #if defined(GFX_GL)
@@ -79,6 +80,7 @@ typedef void (APIENTRYP GFX_BINDFRAMEBUFFERPROC)                   (GLenum, GLui
 typedef void (APIENTRYP GFX_BINDTEXTUREPROC)                       (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDTEXTUREUNITPROC)                   (GLuint, GLuint);
 typedef void (APIENTRYP GFX_BINDVERTEXARRAYPROC)                   (GLuint);
+typedef void (APIENTRYP GFX_BINDVERTEXBUFFERPROC)                  (GLuint, GLuint, GLintptr, GLsizei);
 typedef void (APIENTRYP GFX_BLENDEQUATIONSEPARATEPROC)             (GLenum, GLenum);
 typedef void (APIENTRYP GFX_BLENDFUNCSEPARATEPROC)                 (GLenum, GLenum, GLenum, GLenum);
 typedef void (APIENTRYP GFX_BUFFERDATAPROC)                        (GLenum, GLsizeiptr, const GLvoid*, GLenum);
@@ -206,14 +208,19 @@ typedef void (APIENTRYP GFX_UNIFORMMATRIX4FVPROC)                  (GLint, GLsiz
 typedef GLboolean (APIENTRYP GFX_UNMAPBUFFERPROC)                  (GLenum);
 typedef GLboolean (APIENTRYP GFX_UNMAPNAMEDBUFFERPROC)             (GLuint);
 typedef void (APIENTRYP GFX_USEPROGRAMPROC)                        (GLuint);
+typedef void (APIENTRYP GFX_VERTEXATTRIBBINDINGPROC)               (GLuint, GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBDIVISORPROC)               (GLuint, GLuint);
+typedef void (APIENTRYP GFX_VERTEXATTRIBFORMATPROC)                (GLuint, GLint, GLenum, GLboolean, GLuint);
+typedef void (APIENTRYP GFX_VERTEXATTRIBIFORMATPROC)               (GLuint, GLint, GLenum, GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBIPOINTERPROC)              (GLuint, GLint, GLenum, GLsizei, const GLvoid*);
 typedef void (APIENTRYP GFX_VERTEXATTRIBPOINTERPROC)               (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
+typedef void (APIENTRYP GFX_VERTEXBINDINGDIVISORPROC)              (GLuint, GLuint);
 typedef void (APIENTRYP GFX_VIEWPORTPROC)                          (GLint, GLint, GLsizei, GLsizei);
 
 
 /* Emulators */
 void APIENTRY _gfx_gl_bind_texture_unit                     (GLuint, GLuint);
+void APIENTRY _gfx_gl_bind_vertex_buffer                    (GLuint, GLuint, GLintptr, GLsizei);
 void APIENTRY _gfx_gl_copy_named_buffer_sub_data            (GLuint, GLuint, GLintptr, GLintptr, GLsizei);
 void APIENTRY _gfx_gl_create_buffers                        (GLsizei, GLuint*);
 void APIENTRY _gfx_gl_create_framebuffers                   (GLsizei, GLuint*);
@@ -243,6 +250,10 @@ void APIENTRY _gfx_gl_texture_sub_image_1d                  (GLuint, GLint, GLin
 void APIENTRY _gfx_gl_texture_sub_image_2d                  (GLuint, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const void*);
 void APIENTRY _gfx_gl_texture_sub_image_3d                  (GLuint, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const void*);
 GLboolean APIENTRY _gfx_gl_unmap_named_buffer               (GLuint);
+void APIENTRY _gfx_gl_vertex_attrib_binding                 (GLuint, GLuint);
+void APIENTRY _gfx_gl_vertex_attrib_format                  (GLuint, GLint, GLenum, GLboolean, GLuint);
+void APIENTRY _gfx_gl_vertex_attrib_i_format                (GLuint, GLint, GLenum, GLuint);
+void APIENTRY _gfx_gl_vertex_binding_divisor                (GLuint, GLuint);
 void APIENTRY _gfx_gles_framebuffer_texture                 (GLenum, GLenum, GLuint, GLint);
 void APIENTRY _gfx_gles_framebuffer_texture_1d              (GLenum, GLenum, GLenum, GLuint, GLint);
 void APIENTRY _gfx_gles_get_buffer_sub_data                 (GLenum, GLintptr, GLsizeiptr, GLvoid*);
@@ -303,8 +314,9 @@ struct GFX_Renderer
 	GFX_BINDBUFFERRANGEPROC                    BindBufferRange;
 	GFX_BINDFRAMEBUFFERPROC                    BindFramebuffer;
 	GFX_BINDTEXTUREPROC                        BindTexture;
-	GFX_BINDTEXTUREUNITPROC                    BindTextureUnit;
+	GFX_BINDTEXTUREUNITPROC                    BindTextureUnit;                   /* GFX_EXT_DIRECT_STATE_ACCESS */
 	GFX_BINDVERTEXARRAYPROC                    BindVertexArray;
+	GFX_BINDVERTEXBUFFERPROC                   BindVertexBuffer;                  /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	GFX_BLENDEQUATIONSEPARATEPROC              BlendEquationSeparate;
 	GFX_BLENDFUNCSEPARATEPROC                  BlendFuncSeparate;
 	GFX_BUFFERDATAPROC                         BufferData;
@@ -432,9 +444,13 @@ struct GFX_Renderer
 	GFX_UNMAPBUFFERPROC                        UnmapBuffer;
 	GFX_UNMAPNAMEDBUFFERPROC                   UnmapNamedBuffer;
 	GFX_USEPROGRAMPROC                         UseProgram;
+	GFX_VERTEXATTRIBBINDINGPROC                VertexAttribBinding;               /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	GFX_VERTEXATTRIBDIVISORPROC                VertexAttribDivisor;               /* GFX_EXT_INSTANCED_ATTRIBUTES */
+	GFX_VERTEXATTRIBFORMATPROC                 VertexAttribFormat;                /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_VERTEXATTRIBIFORMATPROC                VertexAttribIFormat;               /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	GFX_VERTEXATTRIBIPOINTERPROC               VertexAttribIPointer;
 	GFX_VERTEXATTRIBPOINTERPROC                VertexAttribPointer;
+	GFX_VERTEXBINDINGDIVISORPROC               VertexBindingDivisor;              /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	GFX_VIEWPORTPROC                           Viewport;
 
 };
