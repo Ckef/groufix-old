@@ -97,10 +97,13 @@ static void _gfx_buffer_alloc_buffers(
 	unsigned char i;
 	for(i = 0; i < num; ++i)
 	{
-		/* Bind just so to hint the buffer type */
-		GFX_REND_GET.BindBuffer(
-			buffer->buffer.target,
-			*(GLuint*)it);
+		if(!GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+		{
+			/* Bind just so to hint the buffer type */
+			GFX_REND_GET.BindBuffer(
+				buffer->buffer.target,
+				*(GLuint*)it);
+		}
 
 		/* Only write data to the first buffer */
 		GFX_REND_GET.NamedBufferData(
