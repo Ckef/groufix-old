@@ -407,6 +407,22 @@ GFX_API int gfx_vertex_layout_set_attribute(
 		unsigned int               buffer);
 
 /**
+ * Changes the buffer an attribute samples from.
+ *
+ * @param index  Index of the attribute to change.
+ * @param buffer Index of the vertex buffer to use.
+ * @return Zero on failure.
+ *
+ * Note: the attribute must have been set for this call to have any effect.
+ *
+ */
+GFX_API int gfx_vertex_layout_set_attribute_buffer(
+
+		GFXVertexLayout*  layout,
+		unsigned int      index,
+		unsigned int      buffer);
+
+/**
  * Adds/sets a vertex buffer of a vertex layout.
  *
  * @param index  Index of the vertex buffer to set (must be < GFX_LIM_MAX_VERTEX_BUFFERS).

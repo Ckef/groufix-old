@@ -655,6 +655,49 @@ int gfx_vertex_layout_set_attribute(
 }
 
 /******************************************************/
+int gfx_vertex_layout_set_attribute_buffer(
+
+		GFXVertexLayout*  layout,
+		unsigned int      index,
+		unsigned int      buffer)
+{
+	GFX_WIND_INIT(0);
+
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	if(
+		index >= gfx_vector_get_size(&internal->attributes) ||
+		buffer >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
+	{
+		return 0;
+	}
+
+	/* Set attribute buffer */
+	struct GFX_Attribute* set = gfx_vector_at(
+		&internal->attributes,
+		index
+	);
+
+	set->buffer = buffer;
+
+	/* Skip the entire routine if separate buffers are available */
+	if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
+		GFX_REND_GET.VertexArrayAttribBinding(
+			internal->vao,
+			index,
+			buffer
+		);
+
+	else _gfx_layout_init_attrib(
+		internal,
+		index,
+		set,
+		GFX_WIND_AS_ARG
+	);
+
+	return 1;
+}
+
+/******************************************************/
 static int _gfx_layout_set_buffer(
 
 		struct GFX_Layout*  layout,
