@@ -208,6 +208,12 @@ typedef void (APIENTRYP GFX_UNIFORMMATRIX4FVPROC)                  (GLint, GLsiz
 typedef GLboolean (APIENTRYP GFX_UNMAPBUFFERPROC)                  (GLenum);
 typedef GLboolean (APIENTRYP GFX_UNMAPNAMEDBUFFERPROC)             (GLuint);
 typedef void (APIENTRYP GFX_USEPROGRAMPROC)                        (GLuint);
+typedef void (APIENTRYP GFX_VERTEXARRAYATTRIBBINDINGPROC)          (GLuint, GLuint, GLuint);
+typedef void (APIENTRYP GFX_VERTEXARRAYATTRIBFORMATPROC)           (GLuint, GLuint, GLint, GLenum, GLboolean, GLuint);
+typedef void (APIENTRYP GFX_VERTEXARRAYATTRIBIFORMATPROC)          (GLuint, GLuint, GLint, GLenum, GLuint);
+typedef void (APIENTRYP GFX_VERTEXARRAYBINDINGDIVISORPROC)         (GLuint, GLuint, GLuint);
+typedef void (APIENTRYP GFX_VERTEXARRAYELEMENTBUFFERPROC)          (GLuint, GLuint);
+typedef void (APIENTRYP GFX_VERTEXARRAYVERTEXBUFFERPROC)           (GLuint, GLuint, GLuint, GLintptr, GLsizei);
 typedef void (APIENTRYP GFX_VERTEXATTRIBBINDINGPROC)               (GLuint, GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBDIVISORPROC)               (GLuint, GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBFORMATPROC)                (GLuint, GLint, GLenum, GLboolean, GLuint);
@@ -250,6 +256,12 @@ void APIENTRY _gfx_gl_texture_sub_image_1d                  (GLuint, GLint, GLin
 void APIENTRY _gfx_gl_texture_sub_image_2d                  (GLuint, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const void*);
 void APIENTRY _gfx_gl_texture_sub_image_3d                  (GLuint, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const void*);
 GLboolean APIENTRY _gfx_gl_unmap_named_buffer               (GLuint);
+void APIENTRY _gfx_gl_vertex_array_attrib_binding           (GLuint, GLuint, GLuint);
+void APIENTRY _gfx_gl_vertex_array_attrib_format            (GLuint, GLuint, GLint, GLenum, GLboolean, GLuint);
+void APIENTRY _gfx_gl_vertex_array_attrib_i_format          (GLuint, GLuint, GLint, GLenum, GLuint);
+void APIENTRY _gfx_gl_vertex_array_binding_divisor          (GLuint, GLuint, GLuint);
+void APIENTRY _gfx_gl_vertex_array_element_buffer           (GLuint, GLuint);
+void APIENTRY _gfx_gl_vertex_array_vertex_buffer            (GLuint, GLuint, GLuint, GLintptr, GLsizei);
 void APIENTRY _gfx_gl_vertex_attrib_binding                 (GLuint, GLuint);
 void APIENTRY _gfx_gl_vertex_attrib_format                  (GLuint, GLint, GLenum, GLboolean, GLuint);
 void APIENTRY _gfx_gl_vertex_attrib_i_format                (GLuint, GLint, GLenum, GLuint);
@@ -444,6 +456,12 @@ struct GFX_Renderer
 	GFX_UNMAPBUFFERPROC                        UnmapBuffer;
 	GFX_UNMAPNAMEDBUFFERPROC                   UnmapNamedBuffer;
 	GFX_USEPROGRAMPROC                         UseProgram;
+	GFX_VERTEXARRAYATTRIBBINDINGPROC           VertexArrayAttribBinding;          /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_VERTEXARRAYATTRIBFORMATPROC            VertexArrayAttribFormat;           /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_VERTEXARRAYATTRIBIFORMATPROC           VertexArrayAttribIFormat;          /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_VERTEXARRAYBINDINGDIVISORPROC          VertexArrayBindingDivisor;         /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_VERTEXARRAYELEMENTBUFFERPROC           VertexArrayElementBuffer;
+	GFX_VERTEXARRAYVERTEXBUFFERPROC            VertexArrayVertexBuffer;           /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	GFX_VERTEXATTRIBBINDINGPROC                VertexAttribBinding;               /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	GFX_VERTEXATTRIBDIVISORPROC                VertexAttribDivisor;               /* GFX_EXT_INSTANCED_ATTRIBUTES */
 	GFX_VERTEXATTRIBFORMATPROC                 VertexAttribFormat;                /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
@@ -452,7 +470,6 @@ struct GFX_Renderer
 	GFX_VERTEXATTRIBPOINTERPROC                VertexAttribPointer;
 	GFX_VERTEXBINDINGDIVISORPROC               VertexBindingDivisor;              /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	GFX_VIEWPORTPROC                           Viewport;
-
 };
 
 

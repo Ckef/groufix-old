@@ -229,6 +229,11 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.UnmapBuffer                       = glUnmapBuffer;
 	GFX_REND_GET.UnmapNamedBuffer                  = _gfx_gl_unmap_named_buffer;
 	GFX_REND_GET.UseProgram                        = glUseProgram;
+	GFX_REND_GET.VertexArrayAttribBinding          = _gfx_gl_vertex_array_attrib_binding;
+	GFX_REND_GET.VertexArrayAttribFormat           = _gfx_gl_vertex_array_attrib_format;
+	GFX_REND_GET.VertexArrayAttribIFormat          = _gfx_gl_vertex_array_attrib_i_format;
+	GFX_REND_GET.VertexArrayElementBuffer          = _gfx_gl_vertex_array_element_buffer;
+	GFX_REND_GET.VertexArrayVertexBuffer           = _gfx_gl_vertex_array_vertex_buffer;
 	GFX_REND_GET.VertexAttribDivisor               = glVertexAttribDivisor;
 	GFX_REND_GET.VertexAttribIPointer              = glVertexAttribIPointer;
 	GFX_REND_GET.VertexAttribPointer               = glVertexAttribPointer;
@@ -565,6 +570,16 @@ void _gfx_renderer_load(void)
 			(PFNGLTEXTURESUBIMAGE3DPROC)_gfx_platform_get_proc_address("glTextureSubImage3D");
 		GFX_REND_GET.UnmapNamedBuffer =
 			(PFNGLUNMAPNAMEDBUFFERPROC)_gfx_platform_get_proc_address("glUnmapNamedBuffer");
+		GFX_REND_GET.VertexArrayAttribBinding =
+			(PFNGLVERTEXARRAYATTRIBBINDINGPROC)_gfx_platform_get_proc_address("glVertexArrayAttribBinding");
+		GFX_REND_GET.VertexArrayAttribFormat =
+			(PFNGLVERTEXARRAYATTRIBFORMATPROC)_gfx_platform_get_proc_address("glVertexArrayAttribFormat");
+		GFX_REND_GET.VertexArrayAttribIFormat =
+			(PFNGLVERTEXARRAYATTRIBIFORMATPROC)_gfx_platform_get_proc_address("glVertexArrayAttribIFormat");
+		GFX_REND_GET.VertexArrayElementBuffer =
+			(PFNGLVERTEXARRAYELEMENTBUFFERPROC)_gfx_platform_get_proc_address("glVertexArrayElementBuffer");
+		GFX_REND_GET.VertexArrayVertexBuffer =
+			(PFNGLVERTEXARRAYVERTEXBUFFERPROC)_gfx_platform_get_proc_address("glVertexArrayVertexBuffer");
 	}
 
 	else
@@ -596,6 +611,11 @@ void _gfx_renderer_load(void)
 		GFX_REND_GET.TextureSubImage2D            = _gfx_gl_texture_sub_image_2d;
 		GFX_REND_GET.TextureSubImage3D            = _gfx_gl_texture_sub_image_3d;
 		GFX_REND_GET.UnmapNamedBuffer             = _gfx_gl_unmap_named_buffer;
+		GFX_REND_GET.VertexArrayAttribBinding     = _gfx_gl_vertex_array_attrib_binding;
+		GFX_REND_GET.VertexArrayAttribFormat      = _gfx_gl_vertex_array_attrib_format;
+		GFX_REND_GET.VertexArrayAttribIFormat     = _gfx_gl_vertex_array_attrib_i_format;
+		GFX_REND_GET.VertexArrayElementBuffer     = _gfx_gl_vertex_array_element_buffer;
+		GFX_REND_GET.VertexArrayVertexBuffer      = _gfx_gl_vertex_array_vertex_buffer;
 	}
 
 	/* GFX_EXT_IMMUTABLE_TEXTURE */

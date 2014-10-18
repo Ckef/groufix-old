@@ -445,6 +445,114 @@ GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
 	return GFX_REND_GET.UnmapBuffer(GL_ARRAY_BUFFER);
 }
 
+void APIENTRY _gfx_gl_vertex_array_attrib_binding(
+
+		GLuint  vao,
+		GLuint  attrib,
+		GLuint  binding)
+{
+	GFX_WIND_INIT_UNSAFE;
+
+	if(GFX_REND_GET.vao != vao)
+	{
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
+	}
+
+	GFX_REND_GET.VertexAttribBinding(attrib, binding);
+}
+
+void APIENTRY _gfx_gl_vertex_array_attrib_format(
+
+		GLuint     vao,
+		GLuint     index,
+		GLint      size,
+		GLenum     type,
+		GLboolean  normalized,
+		GLuint     offset)
+{
+	GFX_WIND_INIT_UNSAFE;
+
+	if(GFX_REND_GET.vao != vao)
+	{
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
+	}
+
+	GFX_REND_GET.VertexAttribFormat(index, size, type, normalized, offset);
+}
+
+void APIENTRY _gfx_gl_vertex_array_attrib_i_format(
+
+		GLuint  vao,
+		GLuint  index,
+		GLint   size,
+		GLenum  type,
+		GLuint  offset)
+{
+	GFX_WIND_INIT_UNSAFE;
+
+	if(GFX_REND_GET.vao != vao)
+	{
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
+	}
+
+	GFX_REND_GET.VertexAttribIFormat(index, size, type, offset);
+}
+
+void APIENTRY _gfx_gl_vertex_array_binding_divisor(
+
+		GLuint  vao,
+		GLuint  index,
+		GLuint  divisor)
+{
+	GFX_WIND_INIT_UNSAFE;
+
+	if(GFX_REND_GET.vao != vao)
+	{
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
+	}
+
+	GFX_REND_GET.VertexBindingDivisor(index, divisor);
+}
+
+void APIENTRY _gfx_gl_vertex_array_element_buffer(
+
+		GLuint  vao,
+		GLuint  buffer)
+{
+	GFX_WIND_INIT_UNSAFE;
+
+	if(GFX_REND_GET.vao != vao)
+	{
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
+	}
+
+	GFX_REND_GET.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
+}
+
+void APIENTRY _gfx_gl_vertex_array_vertex_buffer(
+
+		GLuint    vao,
+		GLuint    index,
+		GLuint    buffer,
+		GLintptr  offset,
+		GLsizei   stride)
+{
+	GFX_WIND_INIT_UNSAFE;
+
+	if(GFX_REND_GET.vao != vao)
+	{
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
+	}
+
+	GFX_REND_GET.BindVertexBuffer(index, buffer, offset, stride);
+}
+
 void APIENTRY _gfx_gl_vertex_attrib_binding(
 
 		GLuint  attrib,
