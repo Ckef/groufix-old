@@ -82,18 +82,20 @@ GFX_API GFXSubMeshBuffer gfx_submesh_add_buffer(
 /**
  * Uses a vertex buffer for a given attribue.
  *
- * @param index  Index of the attribute to set the buffer of.
+ * @param index  Index of the vertex buffer.
  * @param buffer Buffer ID to use for this attribute.
  * @param offset Byte offset within the buffer to start reading at.
+ * @param stride Byte offset between consecutive attributes (must be <= GFX_LIM_MAX_VERTEX_STRIDE).
  * @return Zero on failure (in which case the attribute is disabled).
  *
  */
-GFX_API int gfx_submesh_set_attribute_buffer(
+GFX_API int gfx_submesh_set_vertex_buffer(
 
 		GFXSubMesh*       mesh,
 		unsigned int      index,
 		GFXSubMeshBuffer  buffer,
-		size_t            offset);
+		size_t            offset,
+		size_t            stride);
 
 /**
  * Uses an index buffer for the submesh.

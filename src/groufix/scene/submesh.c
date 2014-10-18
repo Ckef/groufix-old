@@ -1030,22 +1030,24 @@ GFXSubMeshBuffer gfx_submesh_add_buffer(
 }
 
 /******************************************************/
-int gfx_submesh_set_attribute_buffer(
+int gfx_submesh_set_vertex_buffer(
 
 		GFXSubMesh*       mesh,
 		unsigned int      index,
 		GFXSubMeshBuffer  buffer,
-		size_t            offset)
+		size_t            offset,
+		size_t            stride)
 {
 	/* Validate index */
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
 	if(buffer > gfx_vector_get_size(&internal->buffers))
 	{
 		/* Disable the attribute */
-		gfx_vertex_layout_set_attribute_shared_buffer(
+		gfx_vertex_layout_set_shared_vertex_buffer(
 			mesh->layout,
 			index,
 			NULL,
+			0,
 			0
 		);
 		return 0;
@@ -1057,11 +1059,12 @@ int gfx_submesh_set_attribute_buffer(
 		buffer - 1
 	);
 
-	return gfx_vertex_layout_set_attribute_shared_buffer(
+	return gfx_vertex_layout_set_shared_vertex_buffer(
 		mesh->layout,
 		index,
 		buff,
-		offset
+		offset,
+		stride
 	);
 }
 
@@ -1077,7 +1080,7 @@ int gfx_submesh_set_index_buffer(
 	if(buffer > gfx_vector_get_size(&internal->buffers))
 	{
 		/* Disable the attribute */
-		gfx_vertex_layout_set_index_shared_buffer(
+		gfx_vertex_layout_set_shared_index_buffer(
 			mesh->layout,
 			NULL,
 			0
@@ -1091,7 +1094,7 @@ int gfx_submesh_set_index_buffer(
 		buffer - 1
 	);
 
-	gfx_vertex_layout_set_index_shared_buffer(
+	gfx_vertex_layout_set_shared_index_buffer(
 		mesh->layout,
 		buff,
 		offset

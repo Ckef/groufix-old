@@ -24,6 +24,10 @@
 	#include <GLES3/gl31.h>
 #endif
 
+/* Default limits */
+#define GFX_GL_DEF_MAX_VERTEX_BUFFERS  16
+#define GFX_GL_DEF_MAX_VERTEX_STRIDE   2048
+
 /* Correct context versions */
 #if defined(GFX_GL)
 
@@ -46,6 +50,7 @@
 	#define GFX_CONTEXT_ALL_MINORS_MAX 1
 
 #endif
+
 
 #ifndef APIENTRY
 #define APIENTRY

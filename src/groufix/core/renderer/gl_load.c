@@ -51,6 +51,10 @@ void _gfx_renderer_load(void)
 		&GFX_REND_GET.viewport.height
 	);
 
+	/* Defaults */
+	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] = GFX_GL_DEF_MAX_VERTEX_BUFFERS;
+	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE] = GFX_GL_DEF_MAX_VERTEX_STRIDE;
+
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	GLint limit;
 

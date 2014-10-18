@@ -329,8 +329,7 @@ typedef struct GFXVertexAttribute
 	unsigned char     size;      /* Number of elements */
 	GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
 	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT and STENCIL is equal to INTEGER */
-	size_t            stride;    /* Byte offset between consecutive attributes, 0 is an alias for tightly packed */
-	unsigned int      divisor;   /* Rate at which to advance, 0 for no instancing, requires GFX_EXT_INSTANCED_ATTRIBUTES */
+	unsigned int      offset;    /* Extra offset within the buffer to add to its base offset */
 
 } GFXVertexAttribute;
 
@@ -389,106 +388,82 @@ GFX_API void gfx_vertex_layout_free(
 		GFXVertexLayout* layout);
 
 /**
- * Sets a feedback attribute of a vertex layout.
- *
- * @param primitive Primitive to output to the buffers, can only be GFX_POINTS, GFX_LINES or GFX_TRIANGLES.
- * @param num       Size of buffers, must be <= GFX_LIM_MAX_FEEDBACK_BUFFERS.
- * @param buffers   Array of buffers to receive program feedback from.
- * @return Zero on failure.
- *
- * Note: any two given buffer ranges cannot overlap.
- *
- */
-GFX_API int gfx_vertex_layout_set_feedback(
-
-		GFXVertexLayout*          layout,
-		GFXPrimitive              primitive,
-		size_t                    num,
-		const GFXFeedbackBuffer*  buffers);
-
-/**
- * Sets the number of vertices per patch (GFX_PATCHES).
- *
- * @param vertices Number of vertices per patch, must be <= GFX_LIM_MAX_PATCH_VERTICES.
- * @return Zero on failure.
- *
- * Note: requires GFX_EXT_TESSELLATION_SHADER.
- *
- */
-GFX_API int gfx_vertex_layout_set_patch_vertices(
-
-		GFXVertexLayout*  layout,
-		unsigned int      vertices);
-
-/**
  * Adds/sets an attribute of a vertex layout.
  *
- * @param index Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
- * @param attr  Attribute parameters (cannot be NULL).
+ * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
+ * @param attr   Attribute parameters (cannot be NULL).
+ * @param buffer Index of the vertex buffer to use.
  * @return Zero on failure.
  *
  * The attribute's type can be unpacked, or, (UNSIGNED_)INT_10_10_10_2 if GFX_EXT_PACKED_ATTRIBUTES is supported.
- * Note: for the attribute to have any effect it should be given a buffer.
+ * Note: for the attribute to have any effect the given buffer should be set.
  *
  */
 GFX_API int gfx_vertex_layout_set_attribute(
 
 		GFXVertexLayout*           layout,
 		unsigned int               index,
-		const GFXVertexAttribute*  attr);
+		const GFXVertexAttribute*  attr,
+		unsigned int               buffer);
 
 /**
- * Sets the vertex buffer source of an attribute.
+ * Adds/sets a vertex buffer of a vertex layout.
  *
- * @param index  Index of the attribute to set the source of.
- * @param buffer Buffer to read this attribute from, only the current backbuffer of a multi buffer will be used (can be NULL to disable).
+ * @param index  Index of the vertex buffer to set (must be < GFX_LIM_MAX_VERTEX_BUFFERS).
+ * @param buffer Buffer to use, only the current backbuffer of a multi buffer will be used (can be NULL to disable).
  * @param offset Byte offset within the buffer to start reading at.
+ * @param stride Byte offset between consecutive attributes (must be <= GFX_LIM_MAX_VERTEX_STRIDE).
  * @return Zero on failure.
  *
  */
-GFX_API int gfx_vertex_layout_set_attribute_buffer(
+GFX_API int gfx_vertex_layout_set_vertex_buffer(
 
 		GFXVertexLayout*  layout,
 		unsigned int      index,
 		const GFXBuffer*  buffer,
-		size_t            offset);
+		size_t            offset,
+		size_t            stride);
 
 /**
- * Sets the (shared) vertex buffer source of an attribute.
+ * Adds/sets a shared vertex buffer of a vertex layout.
  *
- * @param index  Index of the attribute to set the source of.
- * @param buffer Shared buffer to read this attribute from (can be NULL to disable).
- * @param offset Byte offset within the buffer to start reading at.
+ * @param index  Index of the vertex buffer to set (equal to that of non-shared vertex buffers).
+ * @param buffer Shared buffer to use (can be NULL to disable).
  * @return Zero on failure.
  *
  */
-GFX_API int gfx_vertex_layout_set_attribute_shared_buffer(
+GFX_API int gfx_vertex_layout_set_shared_vertex_buffer(
 
 		GFXVertexLayout*        layout,
 		unsigned int            index,
 		const GFXSharedBuffer*  buffer,
-		size_t                  offset);
+		size_t                  offset,
+		size_t                  stride);
 
 /**
- * Returns the number of instanced attributes.
+ * Sets the divisor of a vertex buffer at a vertex layout.
  *
- * This is equivalent to any attribute having a divisor not equal to zero.
+ * @param index   Index of the vertex buffer.
+ * @param divisor Rate at which to advance measured in instances, 0 to advance each vertex.
+ *
+ * Note: requires GFX_EXT_INSTANCED_ATTRIBUTES.
+ *
+ */
+GFX_API int gfx_vertex_layout_set_vertex_divisor(
+
+		GFXVertexLayout*  layout,
+		unsigned int      index,
+		unsigned int      divisor);
+
+/**
+ * Returns the number of instanced vertex buffers.
+ *
+ * This is equivalent to any buffer having a divisor not equal to zero.
  *
  */
 GFX_API unsigned int gfx_vertex_layout_count_instanced(
 
 		GFXVertexLayout* layout);
-
-/**
- * Removes an attribute from a vertex layout.
- *
- * @param index Index of the attribute to remove.
- *
- */
-GFX_API void gfx_vertex_layout_remove_attribute(
-
-		GFXVertexLayout*  layout,
-		unsigned int      index);
 
 /**
  * Changes a draw call of the vertex layout.
@@ -539,11 +514,43 @@ GFX_API void gfx_vertex_layout_set_index_buffer(
  * @param offset Byte offset within the buffer to start reading at.
  *
  */
-GFX_API void gfx_vertex_layout_set_index_shared_buffer(
+GFX_API void gfx_vertex_layout_set_shared_index_buffer(
 
 		GFXVertexLayout*        layout,
 		const GFXSharedBuffer*  buffer,
 		size_t                  offset);
+
+/**
+ * Sets the number of vertices per patch (GFX_PATCHES).
+ *
+ * @param vertices Number of vertices per patch, must be <= GFX_LIM_MAX_PATCH_VERTICES.
+ * @return Zero on failure.
+ *
+ * Note: requires GFX_EXT_TESSELLATION_SHADER.
+ *
+ */
+GFX_API int gfx_vertex_layout_set_patch_vertices(
+
+		GFXVertexLayout*  layout,
+		unsigned int      vertices);
+
+/**
+ * Sets a feedback attribute of a vertex layout.
+ *
+ * @param primitive Primitive to output to the buffers, can only be GFX_POINTS, GFX_LINES or GFX_TRIANGLES.
+ * @param num       Size of buffers, must be <= GFX_LIM_MAX_FEEDBACK_BUFFERS.
+ * @param buffers   Array of buffers to receive program feedback from.
+ * @return Zero on failure.
+ *
+ * Note: any two given buffer ranges cannot overlap.
+ *
+ */
+GFX_API int gfx_vertex_layout_set_feedback(
+
+		GFXVertexLayout*          layout,
+		GFXPrimitive              primitive,
+		size_t                    num,
+		const GFXFeedbackBuffer*  buffers);
 
 
 /********************************************************

@@ -17,6 +17,7 @@
 #include "groufix/core/errors.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /******************************************************/
 /* Internal draw function */
@@ -35,11 +36,18 @@ struct GFX_Attribute
 	unsigned char     size;
 	GLenum            type;
 	GFXInterpretType  interpret;
-	GLsizei           stride;
-	GLuint            divisor;
 
-	GLuint            buffer; /* Vertex buffer */
-	size_t            offset; /* Offset within the buffer */
+	unsigned int      buffer; /* Vertex buffer index */
+	GLuint            offset; /* Offset within the buffer */
+};
+
+/* Internal vertex buffer binding */
+struct GFX_Buffer
+{
+	GLuint    buffer; /* 0 when empty */
+	GLintptr  offset; /* Base offset for all vertex attributes */
+	GLintptr  stride; /* Stride for all vertex attributes */
+	GLuint    divisor;
 };
 
 /* Internal transform feedback buffer */
@@ -59,15 +67,16 @@ struct GFX_Layout
 	/* Hidden data */
 	GLuint                vao;           /* OpenGL handle */
 	GFXVector             attributes;    /* Stores GFX_Attribute */
-	unsigned int          instanced;     /* Non zero if any attribute has a divisor */
+	GFXVector             buffers;       /* Stores GFX_Buffer */
+	unsigned int          instanced;     /* Number of buffers with a non-zero divisor */
 
 	GFXPrimitive          TFPrimitive;   /* Feedback output primitive */
 	size_t                TFNumBuffers;
 	struct GFX_TFBuffer*  TFBuffers;     /* Transform Feedback buffers */
 
-	GLint                 patchVertices; /* Number of vertices per patch */
 	GLuint                indexBuffer;
 	size_t                indexOffset;   /* Byte offset into index buffer */
+	GLint                 patchVertices; /* Number of vertices per patch */
 };
 
 /******************************************************/
@@ -228,18 +237,19 @@ static void _gfx_layout_invoke_draw(
 /******************************************************/
 static void _gfx_layout_init_attrib(
 
-		GLuint                       vao,
-		unsigned int                 index,
-		const struct GFX_Attribute*  attr,
+		struct GFX_Layout*     layout,
+		unsigned int           index,
+		struct GFX_Attribute*  attr,
+		struct GFX_Buffer*     buff,
 		GFX_WIND_ARG)
 {
 	/* Check if enabled */
-	if(attr->size && attr->buffer)
+	if(attr->size && buff->buffer)
 	{
 		/* Set the attribute */
-		GFX_REND_GET.EnableVertexArrayAttrib(vao, index);
-		GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, attr->buffer);
-		_gfx_vertex_layout_bind(vao, GFX_WIND_AS_ARG);
+		_gfx_vertex_layout_bind(layout->vao, GFX_WIND_AS_ARG);
+		GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buff->buffer);
+		GFX_REND_GET.EnableVertexAttribArray(index);
 
 		/* Check integer value */
 		if(attr->interpret & GFX_INTERPRET_INTEGER)
@@ -248,8 +258,8 @@ static void _gfx_layout_init_attrib(
 				index,
 				attr->size,
 				attr->type,
-				attr->stride,
-				(GLvoid*)attr->offset);
+				buff->stride,
+				(GLvoid*)(buff->offset + attr->offset));
 		}
 		else
 		{
@@ -258,17 +268,66 @@ static void _gfx_layout_init_attrib(
 				attr->size,
 				attr->type,
 				attr->interpret & GFX_INTERPRET_NORMALIZED ? GL_TRUE : GL_FALSE,
-				attr->stride,
-				(GLvoid*)attr->offset);
+				buff->stride,
+				(GLvoid*)(buff->offset + attr->offset));
 		}
-
-		/* Check if non-zero to avoid extension error */
-		if(attr->divisor)
-			GFX_REND_GET.VertexAttribDivisor(index, attr->divisor);
 	}
 
 	/* Disable it */
-	else GFX_REND_GET.DisableVertexArrayAttrib(vao, index);
+	else GFX_REND_GET.DisableVertexArrayAttrib(layout->vao, index);
+}
+
+/******************************************************/
+static void _gfx_layout_init_buff(
+
+		struct GFX_Layout*     layout,
+		unsigned int           index,
+		struct GFX_Buffer*     buff,
+		GFX_WIND_ARG)
+{
+	/* Iterate over all attributes and init them */
+	size_t ind = gfx_vector_get_size(&layout->attributes);
+	while(ind--)
+	{
+		struct GFX_Attribute* attr =
+			gfx_vector_at(&layout->attributes, ind);
+
+		if(attr->buffer == index) _gfx_layout_init_attrib(
+			layout,
+			ind,
+			attr,
+			buff,
+			GFX_WIND_AS_ARG
+		);
+	}
+}
+
+/******************************************************/
+static void _gfx_layout_init_buff_divisor(
+
+		struct GFX_Layout*     layout,
+		unsigned int           index,
+		struct GFX_Buffer*     buff,
+		GFX_WIND_ARG)
+{
+	/* Iterate over all attributes and set divisors */
+	size_t ind = gfx_vector_get_size(&layout->attributes);
+	while(ind--)
+	{
+		struct GFX_Attribute* attr =
+			gfx_vector_at(&layout->attributes, ind);
+
+		if(attr->buffer == index)
+		{
+			_gfx_vertex_layout_bind(
+				layout->vao,
+				GFX_WIND_AS_ARG);
+
+			GFX_REND_GET.VertexAttribDivisor(
+				ind,
+				buff->divisor);
+		}
+	}
 }
 
 /******************************************************/
@@ -295,7 +354,7 @@ static void _gfx_layout_obj_save(
 
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
-	/* Just don't clear the attribute vector */
+	/* Just don't clear the attribute or buffer vector */
 	layout->layout.id = id;
 	GFX_REND_GET.DeleteVertexArrays(1, &layout->vao);
 	layout->vao = 0;
@@ -316,19 +375,31 @@ static void _gfx_layout_obj_restore(
 	GFX_REND_GET.CreateVertexArrays(1, &layout->vao);
 
 	/* Restore attributes */
-	unsigned int i = 0;
-
-	GFXVectorIterator it = layout->attributes.begin;
-	while(it != layout->attributes.end)
+	size_t index = gfx_vector_get_size(&layout->attributes);
+	while(index--)
 	{
-		_gfx_layout_init_attrib(
-			layout->vao,
-			i++,
-			(struct GFX_Attribute*)it,
-			GFX_WIND_AS_ARG
-		);
+		struct GFX_Attribute* attr =
+			gfx_vector_at(&layout->attributes, index);
 
-		it = gfx_vector_next(&layout->attributes, it);
+		if(attr->buffer < gfx_vector_get_size(&layout->buffers))
+			_gfx_layout_init_attrib(
+				layout,
+				index,
+				attr,
+				gfx_vector_at(&layout->buffers, attr->buffer),
+				GFX_WIND_AS_ARG
+			);
+	}
+
+	/* Restore buffers divisors */
+	/* Not needed to restore buffers as attributes are already restored */
+	index = gfx_vector_get_size(&layout->buffers);
+	while(index--)
+	{
+		struct GFX_Buffer* buff = gfx_vector_at(
+			&layout->buffers, index);
+		_gfx_layout_init_buff_divisor(
+			layout, index, buff, GFX_WIND_AS_ARG);
 	}
 }
 
@@ -390,6 +461,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	GFX_REND_GET.CreateVertexArrays(1, &layout->vao);
 
 	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Attribute));
+	gfx_vector_init(&layout->buffers, sizeof(struct GFX_Buffer));
 
 	return (GFXVertexLayout*)layout;
 }
@@ -421,80 +493,11 @@ void gfx_vertex_layout_free(
 		}
 
 		gfx_vector_clear(&internal->attributes);
-		free(internal->TFBuffers);
+		gfx_vector_clear(&internal->buffers);
 
+		free(internal->TFBuffers);
 		free(layout);
 	}
-}
-
-/******************************************************/
-int gfx_vertex_layout_set_feedback(
-
-		GFXVertexLayout*          layout,
-		GFXPrimitive              primitive,
-		size_t                    num,
-		const GFXFeedbackBuffer*  buffers)
-{
-	GFX_WIND_INIT(0);
-
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-
-	/* Check number of buffers */
-	if(num > GFX_WIND_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS])
-		return 0;
-
-	free(internal->TFBuffers);
-	internal->TFPrimitive  = primitive;
-	internal->TFNumBuffers = num;
-	internal->TFBuffers    = NULL;
-
-	/* Free all buffers */
-	if(num)
-	{
-		/* Construct feedback buffers */
-		internal->TFBuffers = malloc(sizeof(struct GFX_TFBuffer) * num);
-		if(!internal->TFBuffers)
-		{
-			/* Out of memory error */
-			gfx_errors_push(
-				GFX_ERROR_OUT_OF_MEMORY,
-				"Vertex Layout ran out of memory during feedback allocation."
-			);
-			return 0;
-		}
-
-		size_t i;
-		for(i = 0; i < num; ++i)
-		{
-			internal->TFBuffers[i].buffer =
-				_gfx_buffer_get_handle(buffers[i].buffer);
-			internal->TFBuffers[i].offset =
-				buffers[i].offset;
-			internal->TFBuffers[i].size =
-				buffers[i].size;
-		}
-	}
-
-	return 1;
-}
-
-/******************************************************/
-int gfx_vertex_layout_set_patch_vertices(
-
-		GFXVertexLayout*  layout,
-		unsigned int      vertices)
-{
-	GFX_WIND_INIT(0);
-
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-
-	/* Bound check */
-	if(vertices > GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES])
-		return 0;
-
-	internal->patchVertices = vertices;
-
-	return 1;
 }
 
 /******************************************************/
@@ -511,24 +514,19 @@ static int _gfx_layout_set_attribute(
 	if(index >= size)
 	{
 		/* Allocate enough memory */
+		size = index + 1 - size;
+
 		GFXVectorIterator it = gfx_vector_insert_range(
 			&layout->attributes,
-			index + 1 - size,
+			size,
 			NULL,
 			layout->attributes.end
 		);
 
 		if(it == layout->attributes.end) return 0;
 
-		while(it != layout->attributes.end)
-		{
-			/* Initialize size and buffer to 0 so the attributes will be ignored */
-			struct GFX_Attribute* attr = (struct GFX_Attribute*)it;
-			attr->size = 0;
-			attr->buffer = 0;
-
-			it = gfx_vector_next(&layout->attributes, it);
-		}
+		/* Initialize to 0 to indicate empty attributes */
+		memset(it, 0, sizeof(struct GFX_Attribute) * size);
 	}
 
 	return 1;
@@ -539,42 +537,36 @@ int gfx_vertex_layout_set_attribute(
 
 		GFXVertexLayout*           layout,
 		unsigned int               index,
-		const GFXVertexAttribute*  attr)
+		const GFXVertexAttribute*  attr,
+		unsigned int               buffer)
 {
 	GFX_WIND_INIT(0);
-
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
 	if(
 		!attr->size ||
 		attr->type.unpacked == GFX_BIT ||
-		attr->type.unpacked == GFX_NIBBLE)
+		attr->type.unpacked == GFX_NIBBLE ||
+		buffer >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
 	{
 		return 0;
 	}
 
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 	if(!_gfx_layout_set_attribute(internal, index, GFX_WIND_AS_ARG))
 		return 0;
 
-	/* Check whether it is instanced */
-	struct GFX_Attribute* set =
-		(struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
-
-	if(!set->size && attr->divisor)
-		++internal->instanced;
-	else if(set->size && !set->divisor && attr->divisor)
-		++internal->instanced;
-	else if(set->size && set->divisor && !attr->divisor)
-		--internal->instanced;
-
 	/* Set attribute */
+	struct GFX_Attribute* set =
+		gfx_vector_at(&internal->attributes, index);
+
 	int packed = _gfx_is_data_type_packed(attr->type);
 
 	set->size      = attr->size;
 	set->type      = packed ? attr->type.packed : attr->type.unpacked;
-	set->stride    = attr->stride;
-	set->divisor   = attr->divisor;
 	set->interpret = attr->interpret;
+
+	set->buffer    = buffer;
+	set->offset    = attr->offset;
 
 	/* Resolve how to interpret */
 	set->interpret = (set->interpret & GFX_INTERPRET_DEPTH) ?
@@ -584,67 +576,114 @@ int gfx_vertex_layout_set_attribute(
 	set->interpret = packed && (set->interpret & GFX_INTERPRET_INTEGER) ?
 		GFX_INTERPRET_FLOAT : set->interpret;
 
-	/* Send attribute to OpenGL */
-	_gfx_layout_init_attrib(internal->vao, index, set, GFX_WIND_AS_ARG);
+	/* Initialize attribute */
+	if(buffer < gfx_vector_get_size(&internal->buffers))
+		_gfx_layout_init_attrib(
+			internal,
+			index,
+			set,
+			gfx_vector_at(&internal->buffers, buffer),
+			GFX_WIND_AS_ARG
+		);
 
 	return 1;
 }
 
 /******************************************************/
-static int _gfx_layout_set_attribute_buffer(
+static int _gfx_layout_set_buffer(
+
+		struct GFX_Layout*  layout,
+		unsigned int        index,
+		GFX_WIND_ARG)
+{
+	/* Check index */
+	if(index >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS]) return 0;
+	size_t size = gfx_vector_get_size(&layout->buffers);
+
+	if(index >= size)
+	{
+		/* Allocate enough memory */
+		size = index + 1 - size;
+
+		GFXVectorIterator it = gfx_vector_insert_range(
+			&layout->buffers,
+			size,
+			NULL,
+			layout->buffers.end
+		);
+
+		if(it == layout->buffers.end) return 0;
+
+		/* Initialize to 0 to indicate it is empty */
+		memset(it, 0, sizeof(struct GFX_Buffer) * size);
+	}
+
+	return 1;
+}
+
+/******************************************************/
+static int _gfx_layout_set_vertex_buffer(
 
 		GFXVertexLayout*  layout,
 		unsigned int      index,
 		GLuint            buffer,
 		size_t            offset,
+		size_t            stride,
 		GFX_WIND_ARG)
 {
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-	if(!_gfx_layout_set_attribute(internal, index, GFX_WIND_AS_ARG))
+	if(stride > GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE])
 		return 0;
 
-	/* Set attribute */
-	struct GFX_Attribute* set =
-		(struct GFX_Attribute*)gfx_vector_at(&internal->attributes, index);
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	if(!_gfx_layout_set_buffer(internal, index, GFX_WIND_AS_ARG))
+		return 0;
+
+	/* Set buffer */
+	struct GFX_Buffer* set =
+		gfx_vector_at(&internal->buffers, index);
 
 	set->buffer = buffer;
 	set->offset = offset;
+	set->stride = stride;
 
-	/* Send attribute to OpenGL */
-	_gfx_layout_init_attrib(internal->vao, index, set, GFX_WIND_AS_ARG);
+	/* Initialize the buffer */
+	_gfx_layout_init_buff(internal, index, set, GFX_WIND_AS_ARG);
 
 	return 1;
 }
 
 /******************************************************/
-int gfx_vertex_layout_set_attribute_buffer(
+int gfx_vertex_layout_set_vertex_buffer(
 
 		GFXVertexLayout*  layout,
 		unsigned int      index,
 		const GFXBuffer*  buffer,
-		size_t            offset)
+		size_t            offset,
+		size_t            stride)
 {
 	GFX_WIND_INIT(0);
 
 	GLuint buff = 0;
 	if(buffer) buff = _gfx_buffer_get_handle(buffer);
 
-	return _gfx_layout_set_attribute_buffer(
+	return _gfx_layout_set_vertex_buffer(
 		layout,
 		index,
 		buff,
 		offset,
+		stride,
 		GFX_WIND_AS_ARG
 	);
 }
 
 /******************************************************/
-int gfx_vertex_layout_set_attribute_shared_buffer(
+int gfx_vertex_layout_set_shared_vertex_buffer(
 
 		GFXVertexLayout*        layout,
 		unsigned int            index,
 		const GFXSharedBuffer*  buffer,
-		size_t                  offset)
+		size_t                  offset,
+		size_t                  stride)
 {
 	GFX_WIND_INIT(0);
 
@@ -655,13 +694,48 @@ int gfx_vertex_layout_set_attribute_shared_buffer(
 		offset += buffer->offset;
 	}
 
-	return _gfx_layout_set_attribute_buffer(
+	return _gfx_layout_set_vertex_buffer(
 		layout,
 		index,
 		buff,
 		offset,
+		stride,
 		GFX_WIND_AS_ARG
 	);
+}
+
+/******************************************************/
+int gfx_vertex_layout_set_vertex_divisor(
+
+		GFXVertexLayout*  layout,
+		unsigned int      index,
+		unsigned int      divisor)
+{
+	GFX_WIND_INIT(0);
+
+	if(!GFX_WIND_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES])
+		return 0;
+
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	if(!_gfx_layout_set_buffer(internal, index, GFX_WIND_AS_ARG))
+		return 0;
+
+	/* Update instanced count */
+	struct GFX_Buffer* set =
+		gfx_vector_at(&internal->buffers, index);
+
+	if(!divisor && set->divisor)
+		--internal->instanced;
+	else if(divisor && !set->divisor)
+		++internal->instanced;
+
+	/* Set divisor */
+	set->divisor = divisor;
+
+	/* Initialize the buffer divisor */
+	_gfx_layout_init_buff_divisor(internal, index, set, GFX_WIND_AS_ARG);
+
+	return 1;
 }
 
 /******************************************************/
@@ -670,55 +744,6 @@ unsigned int gfx_vertex_layout_count_instanced(
 		GFXVertexLayout* layout)
 {
 	return ((struct GFX_Layout*)layout)->instanced;
-}
-
-/******************************************************/
-void gfx_vertex_layout_remove_attribute(
-
-		GFXVertexLayout*  layout,
-		unsigned int      index)
-{
-	GFX_WIND_INIT();
-
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-
-	/* Check what index is being removed */
-	size_t size = gfx_vector_get_size(&internal->attributes);
-	if(index < size)
-	{
-		/* Check if it had a divisor */
-		struct GFX_Attribute* rem = (struct GFX_Attribute*)gfx_vector_at(
-			&internal->attributes,
-			index
-		);
-
-		if(rem->size && rem->divisor) --internal->instanced;
-
-		/* Mark attribute as 'empty' */
-		rem->size = 0;
-		rem->buffer = 0;
-
-		/* Deallocate all trailing empty attributes */
-		unsigned int num;
-		GFXVectorIterator beg = internal->attributes.end;
-
-		for(num = 0; num < size; ++num)
-		{
-			GFXVectorIterator prev = gfx_vector_previous(
-				&internal->attributes,
-				beg
-			);
-
-			rem = (struct GFX_Attribute*)prev;
-			if(rem->size || rem->buffer) break;
-
-			beg = prev;
-		}
-		gfx_vector_erase_range(&internal->attributes, num, beg);
-	}
-
-	/* Send request to OpenGL */
-	GFX_REND_GET.DisableVertexArrayAttrib(internal->vao, index);
 }
 
 /******************************************************/
@@ -784,7 +809,7 @@ void gfx_vertex_layout_set_index_buffer(
 }
 
 /******************************************************/
-void gfx_vertex_layout_set_index_shared_buffer(
+void gfx_vertex_layout_set_shared_index_buffer(
 
 		GFXVertexLayout*        layout,
 		const GFXSharedBuffer*  buffer,
@@ -800,6 +825,76 @@ void gfx_vertex_layout_set_index_shared_buffer(
 		internal->indexBuffer = _gfx_shared_buffer_get_handle(buffer);
 		internal->indexOffset = offset + buffer->offset;
 	}
+}
+
+/******************************************************/
+int gfx_vertex_layout_set_patch_vertices(
+
+		GFXVertexLayout*  layout,
+		unsigned int      vertices)
+{
+	GFX_WIND_INIT(0);
+
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+
+	/* Bound check */
+	if(vertices > GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES])
+		return 0;
+
+	internal->patchVertices = vertices;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_vertex_layout_set_feedback(
+
+		GFXVertexLayout*          layout,
+		GFXPrimitive              primitive,
+		size_t                    num,
+		const GFXFeedbackBuffer*  buffers)
+{
+	GFX_WIND_INIT(0);
+
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+
+	/* Check number of buffers */
+	if(num > GFX_WIND_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS])
+		return 0;
+
+	free(internal->TFBuffers);
+	internal->TFPrimitive  = primitive;
+	internal->TFNumBuffers = num;
+	internal->TFBuffers    = NULL;
+
+	/* Free all buffers */
+	if(num)
+	{
+		/* Construct feedback buffers */
+		internal->TFBuffers = malloc(sizeof(struct GFX_TFBuffer) * num);
+		if(!internal->TFBuffers)
+		{
+			/* Out of memory error */
+			gfx_errors_push(
+				GFX_ERROR_OUT_OF_MEMORY,
+				"Vertex Layout ran out of memory during feedback allocation."
+			);
+			return 0;
+		}
+
+		size_t i;
+		for(i = 0; i < num; ++i)
+		{
+			internal->TFBuffers[i].buffer =
+				_gfx_buffer_get_handle(buffers[i].buffer);
+			internal->TFBuffers[i].offset =
+				buffers[i].offset;
+			internal->TFBuffers[i].size =
+				buffers[i].size;
+		}
+	}
+
+	return 1;
 }
 
 /******************************************************/

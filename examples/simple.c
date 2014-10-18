@@ -21,16 +21,16 @@ GFXMesh* create_mesh()
 	attr.size          = 3;
 	attr.type.unpacked = GFX_FLOAT;
 	attr.interpret     = GFX_INTERPRET_FLOAT;
-	attr.stride        = sizeof(float) * 6;
-	attr.divisor       = 0;
+	attr.offset        = 0;
 
 	GFXDrawCall call;
 	call.primitive = GFX_TRIANGLES;
 	call.first     = 0;
 	call.count     = 3;
 
-	gfx_vertex_layout_set_attribute(sub->layout, 0, &attr);
-	gfx_vertex_layout_set_attribute(sub->layout, 1, &attr);
+	gfx_vertex_layout_set_attribute(sub->layout, 0, &attr, 0);
+	attr.offset = sizeof(float) * 3;
+	gfx_vertex_layout_set_attribute(sub->layout, 1, &attr, 0);
 	gfx_vertex_layout_set_draw_call(sub->layout, 0, &call);
 
 	float triangle[] = {
@@ -39,9 +39,8 @@ GFXMesh* create_mesh()
 		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};
 
-	size_t buff = gfx_submesh_add_buffer(sub, GFX_VERTEX_BUFFER, sizeof(triangle), triangle);
-	gfx_submesh_set_attribute_buffer(sub, 0, buff, 0);
-	gfx_submesh_set_attribute_buffer(sub, 1, buff, sizeof(float) * 3);
+	GFXSubMeshBuffer buff = gfx_submesh_add_buffer(sub, GFX_VERTEX_BUFFER, sizeof(triangle), triangle);
+	gfx_submesh_set_vertex_buffer(sub, 0, buff, 0, sizeof(float) * 6);
 
 	GFXVertexSource source = { 0, 1, 0, 0 };
 	gfx_submesh_set_source(sub, 0, source);
