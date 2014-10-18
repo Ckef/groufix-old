@@ -232,6 +232,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.VertexArrayAttribBinding          = _gfx_gl_vertex_array_attrib_binding;
 	GFX_REND_GET.VertexArrayAttribFormat           = _gfx_gl_vertex_array_attrib_format;
 	GFX_REND_GET.VertexArrayAttribIFormat          = _gfx_gl_vertex_array_attrib_i_format;
+	GFX_REND_GET.VertexArrayBindingDivisor         = _gfx_gl_vertex_array_binding_divisor;
 	GFX_REND_GET.VertexArrayElementBuffer          = _gfx_gl_vertex_array_element_buffer;
 	GFX_REND_GET.VertexArrayVertexBuffer           = _gfx_gl_vertex_array_vertex_buffer;
 	GFX_REND_GET.VertexAttribDivisor               = glVertexAttribDivisor;
@@ -576,6 +577,8 @@ void _gfx_renderer_load(void)
 			(PFNGLVERTEXARRAYATTRIBFORMATPROC)_gfx_platform_get_proc_address("glVertexArrayAttribFormat");
 		GFX_REND_GET.VertexArrayAttribIFormat =
 			(PFNGLVERTEXARRAYATTRIBIFORMATPROC)_gfx_platform_get_proc_address("glVertexArrayAttribIFormat");
+		GFX_REND_GET.VertexArrayBindingDivisor =
+			(PFNGLVERTEXARRAYBINDINGDIVISORPROC)_gfx_platform_get_proc_address("glVertexArrayBindingDivisor");
 		GFX_REND_GET.VertexArrayElementBuffer =
 			(PFNGLVERTEXARRAYELEMENTBUFFERPROC)_gfx_platform_get_proc_address("glVertexArrayElementBuffer");
 		GFX_REND_GET.VertexArrayVertexBuffer =
@@ -614,6 +617,7 @@ void _gfx_renderer_load(void)
 		GFX_REND_GET.VertexArrayAttribBinding     = _gfx_gl_vertex_array_attrib_binding;
 		GFX_REND_GET.VertexArrayAttribFormat      = _gfx_gl_vertex_array_attrib_format;
 		GFX_REND_GET.VertexArrayAttribIFormat     = _gfx_gl_vertex_array_attrib_i_format;
+		GFX_REND_GET.VertexArrayBindingDivisor    = _gfx_gl_vertex_array_binding_divisor;
 		GFX_REND_GET.VertexArrayElementBuffer     = _gfx_gl_vertex_array_element_buffer;
 		GFX_REND_GET.VertexArrayVertexBuffer      = _gfx_gl_vertex_array_vertex_buffer;
 	}
