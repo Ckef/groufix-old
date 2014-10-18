@@ -408,6 +408,12 @@ static void _gfx_layout_obj_restore(
 	layout->layout.id = id;
 	GFX_REND_GET.CreateVertexArrays(1, &layout->vao);
 
+	/* Restore index buffer */
+	_gfx_vertex_layout_bind(
+		layout->vao, GFX_WIND_AS_ARG);
+	GFX_REND_GET.BindBuffer(
+		GL_ELEMENT_ARRAY_BUFFER, layout->indexBuffer);
+
 	/* Restore attributes */
 	size_t index = gfx_vector_get_size(&layout->attributes);
 	while(index--) _gfx_layout_init_attrib(
@@ -426,8 +432,6 @@ static void _gfx_layout_obj_restore(
 
 		if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
 		{
-			_gfx_vertex_layout_bind(
-				layout->vao, GFX_WIND_AS_ARG);
 			GFX_REND_GET.BindVertexBuffer(
 				index, buff->buffer, buff->offset, buff->stride);
 			GFX_REND_GET.VertexBindingDivisor(
@@ -851,22 +855,45 @@ int gfx_vertex_layout_get_draw_call(
 }
 
 /******************************************************/
+static void _gfx_layout_set_index_buffer(
+
+		GFXVertexLayout*  layout,
+		GLuint            buffer,
+		size_t            offset)
+{
+	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+
+	if(buffer)
+	{
+		GFX_WIND_INIT();
+
+		internal->indexBuffer = buffer;
+		internal->indexOffset = offset;
+
+		/* Attach as index buffer to the layout */
+		_gfx_vertex_layout_bind(
+			internal->vao, GFX_WIND_AS_ARG);
+		GFX_REND_GET.BindBuffer(
+			GL_ELEMENT_ARRAY_BUFFER, buffer);
+	}
+	else
+	{
+		internal->indexBuffer = 0;
+		internal->indexOffset = 0;
+	}
+}
+
+/******************************************************/
 void gfx_vertex_layout_set_index_buffer(
 
 		GFXVertexLayout*  layout,
 		const GFXBuffer*  buffer,
 		size_t            offset)
 {
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GLuint buff = 0;
+	if(buffer) buff = _gfx_buffer_get_handle(buffer);
 
-	internal->indexBuffer = 0;
-	internal->indexOffset = 0;
-
-	if(buffer)
-	{
-		internal->indexBuffer = _gfx_buffer_get_handle(buffer);
-		internal->indexOffset = offset;
-	}
+	_gfx_layout_set_index_buffer(layout, buff, offset);
 }
 
 /******************************************************/
@@ -876,16 +903,14 @@ void gfx_vertex_layout_set_shared_index_buffer(
 		const GFXSharedBuffer*  buffer,
 		size_t                  offset)
 {
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
-
-	internal->indexBuffer = 0;
-	internal->indexOffset = 0;
-
+	GLuint buff = 0;
 	if(buffer)
 	{
-		internal->indexBuffer = _gfx_shared_buffer_get_handle(buffer);
-		internal->indexOffset = offset + buffer->offset;
+		buff = _gfx_shared_buffer_get_handle(buffer);
+		offset += buffer->offset;
 	}
+
+	_gfx_layout_set_index_buffer(layout, buff, offset);
 }
 
 /******************************************************/
@@ -974,10 +999,6 @@ void _gfx_vertex_layout_draw(
 	_gfx_vertex_layout_bind(
 		internal->vao,
 		GFX_WIND_AS_ARG);
-
-	GFX_REND_GET.BindBuffer(
-		GL_ELEMENT_ARRAY_BUFFER,
-		internal->indexBuffer);
 
 	_gfx_states_set_patch_vertices(
 		internal->patchVertices,
