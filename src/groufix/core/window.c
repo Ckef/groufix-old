@@ -6,18 +6,9 @@
  *
  * Copyright (C) Stef Velzel :: All Rights Reserved.
  *
- * Groufix is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Groufix is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Groufix.  If not, see <http://www.gnu.org/licenses/>.
+ * Groufix is licensed under the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the license,
+ * or (at your option) any later version.
  *
  */
 
@@ -43,9 +34,10 @@ static unsigned int _gfx_alive_windows = 0;
 static unsigned int _gfx_public_windows = 0;
 
 /* OpenGL context request */
-static GFXContext _gfx_context = {
-	GFX_CONTEXT_MAJOR_MIN,
-	GFX_CONTEXT_MINOR_MIN
+static GFXContext _gfx_context =
+{
+	.major = GFX_CONTEXT_MAJOR_MIN,
+	.minor = GFX_CONTEXT_MINOR_MIN
 };
 
 /******************************************************/
@@ -60,9 +52,10 @@ static int _gfx_window_context_create(
 	if(share == window) share = NULL;
 
 	/* Get maximum context */
-	GFXContext max = {
-		GFX_CONTEXT_MAJOR_MAX,
-		GFX_CONTEXT_MINOR_MAX
+	GFXContext max =
+	{
+		.major = GFX_CONTEXT_MAJOR_MAX,
+		.minor = GFX_CONTEXT_MINOR_MAX
 	};
 
 	/* Iterate from max to min until a valid context was created */
@@ -125,18 +118,19 @@ static GFX_Window* _gfx_window_create_common(
 	}
 
 	/* Create platform window */
-	GFX_PlatformAttributes attr;
-
-	if(screen) attr.screen = (GFX_PlatformScreen)screen;
-	else attr.screen = _gfx_platform_get_default_screen();
-
-	attr.name   = name;
-	attr.width  = w;
-	attr.height = h;
-	attr.x      = x;
-	attr.y      = y;
-	attr.depth  = depth;
-	attr.flags  = flags;
+	GFX_PlatformAttributes attr =
+	{
+		.name   = name,
+		.width  = w,
+		.height = h,
+		.x      = x,
+		.y      = y,
+		.depth  = depth,
+		.flags  = flags,
+		.screen = screen ?
+			(GFX_PlatformScreen)screen :
+			_gfx_platform_get_default_screen()
+	};
 
 	window->handle = _gfx_platform_window_create(&attr);
 
