@@ -526,7 +526,7 @@ typedef enum GFXPipelineAttachment
 /** Pipeline */
 typedef struct GFXPipeline
 {
-	unsigned int id; /* Hardware Object ID */
+	unsigned int id; /* Render Object ID */
 
 } GFXPipeline;
 

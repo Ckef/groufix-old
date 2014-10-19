@@ -17,6 +17,7 @@
 
 #include "groufix/core/window.h"
 
+
 /* Get build target */
 #if defined(_WIN32) || defined(__WIN32__)
 	#define GFX_WIN32
@@ -46,6 +47,7 @@
 	#include <pthread.h>
 
 #endif
+
 
 #ifdef __cplusplus
 extern "C" {

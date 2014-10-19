@@ -27,7 +27,7 @@ Groufix can be compiled with different OGL renderers. This must be given as a ma
 
 Along with the renderer value Groufix accepts more flags which can be defined while both compiling Groufix itself and any program or library using Groufix. All makefile flags are:
 
-* __COMPILER=ANY__ Groufix will use compiler specific compiler macros. If compiled with an unsupported compiler it will throw an error. Use this flag to turn the error off and force it to use compiler agnostic functionality. To disable it in a program or library using Groufix, `GFX_COMPILER_ANY` should be defined by the compiler.
+* __COMPILER=ANY__ Groufix will use compiler specific macros. If compiled with an unsupported compiler it will throw an error. Use this flag to turn the error off and force it to use compiler agnostic functionality. To disable it in a program or library using Groufix, `GFX_COMPILER_ANY` should be defined by the compiler.
 
 * __SSE=NO__ Groufix will compile certain functions using SSE instructions. Use this flag to disable this feature. This feature is disabled if `GFX_COMPILER_ANY` is defined. To disable it in a program or library using Groufix, `GFX_NO_SSE` should be defined by the compiler.
 
@@ -46,7 +46,7 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 * `<groufix/scene.h>` includes everything related to constructing a scene to render. This also includes high level constructs such as meshes, materials and manners to manage level of detail. To create any of these constructs, at least one window should be created.
 
-* `<groufix/containers/*.h>` holds a set of headers defining useful container objects. All available containers are `vector`, `deque` and `list`. Replace the asterisk with one of these names.
+* `<groufix/containers/*.h>` holds a set of headers defining useful container objects. All available containers are `deque`, `list` and `vector`. Replace the asterisk with one of these names.
 
 
 #### Threading

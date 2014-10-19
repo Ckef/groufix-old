@@ -41,7 +41,7 @@ typedef enum GFXShaderType
 /** Shader */
 typedef struct GFXShader
 {
-	unsigned int   id;       /* Hardware Object ID */
+	unsigned int   id;       /* Render Object ID */
 	GFXShaderType  type;     /* Shader stage of GPU pipeline */
 	char           compiled; /* Non-zero if compiled with latest changes. */
 
@@ -179,7 +179,7 @@ typedef enum GFXFeedbackMode
 /** Program */
 typedef struct GFXProgram
 {
-	unsigned int    id;         /* Hardware Object ID */
+	unsigned int    id;         /* Render Object ID */
 	unsigned short  properties; /* Accessible properties */
 	unsigned short  blocks;     /* Accessible property blocks */
 

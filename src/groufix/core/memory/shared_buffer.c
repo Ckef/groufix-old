@@ -30,7 +30,7 @@ static GFXVector* _gfx_shared_buffers = NULL;
 /* Internal Shared Buffer */
 struct GFX_SharedBuffer
 {
-	unsigned int     id;       /* Hardware Object ID */
+	unsigned int     id;       /* Render Object ID */
 	GLuint           handle;   /* OpenGL handle */
 
 	GFXBufferTarget  target;

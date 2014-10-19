@@ -17,6 +17,7 @@
 
 #include "groufix/core/pipeline.h"
 
+
 /* Correct OGL header */
 #if defined(GFX_GL)
 	#include <GL/glcorearb.h>
@@ -24,10 +25,12 @@
 	#include <GLES3/gl31.h>
 #endif
 
+
 /* Default limits */
 #define GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET  0x07ff
 #define GFX_GL_DEF_MAX_VERTEX_BUFFERS        0x0010
 #define GFX_GL_DEF_MAX_VERTEX_STRIDE         0x0800
+
 
 /* Correct context versions */
 #if defined(GFX_GL)

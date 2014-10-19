@@ -26,10 +26,10 @@ extern "C" {
 
 
 /********************************************************
- * Hardware extensions & limits
+ * Renderer extensions & limits
  *******************************************************/
 
-/** Hardware Extensions */
+/** Renderer Extensions */
 typedef enum GFXExtension
 {
 	GFX_EXT_BUFFER_TEXTURE,
@@ -54,7 +54,7 @@ typedef enum GFXExtension
 } GFXExtension;
 
 
-/** Hardware Limits */
+/** Renderer Limits */
 typedef enum GFXLimit
 {
 	GFX_LIM_MAX_BUFFER_PROPERTIES,
