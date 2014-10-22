@@ -23,22 +23,42 @@ extern "C" {
 
 
 /********************************************************
- * Internal program & property map usage
+ * Program management
  *******************************************************/
 
 /**
- * Sets the program handle as currently in use for the current context.
+ * Creates a new program.
  *
- * @param copy Index of the copy of the map to use.
- * @param base Base instance to use.
+ * @param instances Number of instances that can be drawn in a single draw call, 0 for infinite.
+ * @return NULL on failure.
  *
  */
-void _gfx_property_map_use(
+GFXProgram* _gfx_program_create(
 
-		GFXPropertyMap*  map,
-		unsigned int     copy,
-		unsigned int     base,
-		GFX_WIND_ARG);
+		size_t instances);
+
+/**
+ * References a program to postpone its destruction.
+ *
+ * @param references Number of times to reference it.
+ * @return Zero on overflow.
+ *
+ */
+int _gfx_program_reference(
+
+		GFXProgram*   program,
+		unsigned int  references);
+
+/**
+ * Makes sure the program is freed properly.
+ *
+ * Decrease the reference counter before freeing,
+ * only freeing if the counter hits 0.
+ *
+ */
+void _gfx_program_free(
+
+		GFXProgram* program);
 
 /**
  * Get the location of a property (a.k.a uniform).
@@ -50,6 +70,34 @@ GLint _gfx_program_get_location(
 
 		GFXProgram*     program,
 		unsigned short  index);
+
+
+/********************************************************
+ * Internal program map & property map usage
+ *******************************************************/
+
+/**
+ * Sets the program pipeline as currently in use.
+ *
+ */
+void _gfx_program_map_use(
+
+		GFXProgramMap* map,
+		GFX_WIND_ARG);
+
+/**
+ * Calls _gfx_program_map_use and uploads appropriate data.
+ *
+ * @param copy Index of the copy of the map to use.
+ * @param base Base instance to use.
+ *
+ */
+void _gfx_property_map_use(
+
+		GFXPropertyMap*  map,
+		unsigned int     copy,
+		unsigned int     base,
+		GFX_WIND_ARG);
 
 
 /********************************************************

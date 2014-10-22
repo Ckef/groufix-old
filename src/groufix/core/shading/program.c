@@ -15,6 +15,7 @@
 #include "groufix/core/errors.h"
 #include "groufix/core/renderer.h"
 
+#include <limits.h>
 #include <stdlib.h>
 
 
@@ -82,9 +83,10 @@ struct GFX_Program
 	GFXProgram program;
 
 	/* Hidden data */
-	GLuint           handle;     /* OpenGL handle */
-	GFXVector        properties; /* Stores GFX_Property */
-	GFXVector        blocks;     /* Stores GFXPropertyBlock */
+	unsigned int  references; /* Reference counter */
+	GLuint        handle;     /* OpenGL handle */
+	GFXVector     properties; /* Stores GFX_Property */
+	GFXVector     blocks;     /* Stores GFXPropertyBlock */
 };
 
 /******************************************************/
@@ -515,19 +517,6 @@ static GFX_RenderObjectFuncs _gfx_program_obj_funcs =
 };
 
 /******************************************************/
-GLint _gfx_program_get_location(
-
-		GFXProgram*     program,
-		unsigned short  index)
-{
-	/* Validate index */
-	if(index >= program->properties) return -1;
-	struct GFX_Program* internal = (struct GFX_Program*)program;
-
-	return ((struct GFX_Property*)gfx_vector_at(&internal->properties, index))->location;
-}
-
-/******************************************************/
 GLuint _gfx_program_get_handle(
 
 		const GFXProgram* program)
@@ -536,7 +525,9 @@ GLuint _gfx_program_get_handle(
 }
 
 /******************************************************/
-GFXProgram* gfx_program_create(void)
+GFXProgram* _gfx_program_create(
+
+		size_t instances)
 {
 	GFX_WIND_INIT(NULL);
 
@@ -565,7 +556,9 @@ GFXProgram* gfx_program_create(void)
 		return NULL;
 	}
 
-	/* Create OpenGL program */
+	/* Initialize */
+	prog->references = 1;
+	prog->program.instances = instances;
 	prog->handle = GFX_REND_GET.CreateProgram();
 
 	gfx_vector_init(&prog->properties, sizeof(struct GFX_Property));
@@ -575,37 +568,76 @@ GFXProgram* gfx_program_create(void)
 }
 
 /******************************************************/
-void gfx_program_free(
+int _gfx_program_reference(
+
+		GFXProgram*   program,
+		unsigned int  references)
+{
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	if(UINT_MAX - references < internal->references)
+	{
+		/* Overflow error */
+		gfx_errors_push(
+			GFX_ERROR_OVERFLOW,
+			"Overflow occurred during Program referencing."
+		);
+		return 0;
+	}
+
+	internal->references += references;
+	return 1;
+}
+
+/******************************************************/
+void _gfx_program_free(
 
 		GFXProgram* program)
 {
 	if(program)
 	{
-		GFX_WIND_INIT_UNSAFE;
-
 		struct GFX_Program* internal = (struct GFX_Program*)program;
 
-		if(!GFX_WIND_EQ(NULL))
+		/* Check references */
+		if(!(--internal->references))
 		{
-			GFX_REND_GET.DeleteProgram(internal->handle);
-			if(GFX_REND_GET.program == internal->handle)
-				GFX_REND_GET.program = 0;
+			GFX_WIND_INIT_UNSAFE;
 
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				program->id
-			);
+			if(!GFX_WIND_EQ(NULL))
+			{
+				GFX_REND_GET.DeleteProgram(internal->handle);
+				if(GFX_REND_GET.program == internal->handle)
+					GFX_REND_GET.program = 0;
+
+				/* Unregister as object */
+				_gfx_render_object_unregister(
+					&GFX_WIND_GET.objects,
+					program->id
+				);
+			}
+
+			/* Unprepare all uniforms */
+			_gfx_program_unprepare(internal);
+
+			gfx_vector_clear(&internal->properties);
+			gfx_vector_clear(&internal->blocks);
+
+			free(program);
 		}
-
-		/* Unprepare all uniforms */
-		_gfx_program_unprepare(internal);
-
-		gfx_vector_clear(&internal->properties);
-		gfx_vector_clear(&internal->blocks);
-
-		free(program);
 	}
+}
+
+/******************************************************/
+GLint _gfx_program_get_location(
+
+		GFXProgram*     program,
+		unsigned short  index)
+{
+	/* Validate index */
+	if(index >= program->properties) return -1;
+	struct GFX_Program* internal = (struct GFX_Program*)program;
+
+	return ((struct GFX_Property*)gfx_vector_at(&internal->properties, index))->location;
 }
 
 /******************************************************/
@@ -672,13 +704,19 @@ int gfx_program_link(
 
 	/* Set binary parameter */
 	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_BINARY])
-	{
 		GFX_REND_GET.ProgramParameteri(
 			internal->handle,
 			GL_PROGRAM_BINARY_RETRIEVABLE_HINT,
 			binary ? GL_TRUE : GL_FALSE
 		);
-	}
+
+	/* Set separable parameter */
+	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+		GFX_REND_GET.ProgramParameteri(
+			internal->handle,
+			GL_PROGRAM_SEPARABLE,
+			GL_TRUE
+		);
 
 	/* Compile and attach all shaders */
 	size_t i = 0;

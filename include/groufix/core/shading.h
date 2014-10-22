@@ -26,24 +26,26 @@ extern "C" {
  * Shader (compiled GLSL unit)
  *******************************************************/
 
-/** Shader types */
-typedef enum GFXShaderType
+/** Shader stages */
+typedef enum GFXShaderStage
 {
 	GFX_VERTEX_SHADER        = 0x8b31,
 	GFX_TESS_CONTROL_SHADER  = 0x8e88, /* requires GFX_EXT_TESSELLATION_SHADER */
 	GFX_TESS_EVAL_SHADER     = 0x8e87, /* requires GFX_EXT_TESSELLATION_SHADER */
 	GFX_GEOMETRY_SHADER      = 0x8dd9, /* requires GFX_EXT_GEOMETRY_SHADER */
-	GFX_FRAGMENT_SHADER      = 0x8b30
+	GFX_FRAGMENT_SHADER      = 0x8b30,
 
-} GFXShaderType;
+	GFX_ALL_SHADERS          = 0xffff
+
+} GFXShaderStage;
 
 
 /** Shader */
 typedef struct GFXShader
 {
-	unsigned int   id;       /* Render Object ID */
-	GFXShaderType  type;     /* Shader stage of GPU pipeline */
-	char           compiled; /* Non-zero if compiled with latest changes. */
+	unsigned int    id;       /* Render Object ID */
+	GFXShaderStage  stage;    /* Shader stage of GPU pipeline */
+	char            compiled; /* Non-zero if compiled with latest changes. */
 
 } GFXShader;
 
@@ -51,13 +53,13 @@ typedef struct GFXShader
 /**
  * Creates a new shader.
  *
- * @param type Type denoting the GPU pipeline stage to participate in.
+ * @param stage The GPU pipeline stage to participate in.
  * @return NULL on failure.
  *
  */
 GFX_API GFXShader* gfx_shader_create(
 
-		GFXShaderType type);
+		GFXShaderStage stage);
 
 /**
  * Makes sure the shader is freed properly.
@@ -82,20 +84,6 @@ GFX_API int gfx_shader_set_source(
 		GFXShader*    shader,
 		size_t        num,
 		const char**  src);
-
-/**
- * Returns the source of a shader (null terminated string).
- *
- * @param length Length of the returned source, excluding null terminator (can be NULL).
- * @return NULL if no source was set yet.
- *
- * If the returned pointer is not NULL, it should be freed manually.
- *
- */
-GFX_API char* gfx_shader_get_source(
-
-		GFXShader*  shader,
-		size_t*     length);
 
 /**
  * Compiles the shader if necessary.
@@ -160,7 +148,7 @@ typedef struct GFXPropertyBlock
 
 
 /********************************************************
- * Program (linked shaders to form GPU pipeline)
+ * Program (linked shaders to form a GPU program)
  *******************************************************/
 
 /** Program Binary Format */
@@ -182,25 +170,10 @@ typedef struct GFXProgram
 	unsigned int    id;         /* Render Object ID */
 	unsigned short  properties; /* Accessible properties */
 	unsigned short  blocks;     /* Accessible property blocks */
+	size_t          instances;  /* Number of instances that can be drawn at once */
 
 } GFXProgram;
 
-
-/**
- * Creates a new program.
- *
- * @return NULL on failure.
- *
- */
-GFX_API GFXProgram* gfx_program_create(void);
-
-/**
- * Makes sure the program is freed properly.
- *
- */
-GFX_API void gfx_program_free(
-
-		GFXProgram* program);
 
 /**
  * Forwards data send to the given index to a given name within the program.
@@ -345,6 +318,82 @@ GFX_API unsigned short gfx_program_get_named_property_block(
 
 		GFXProgram*  program,
 		const char*  name);
+
+
+/********************************************************
+ * Program Map (programs mapped to stages)
+ *******************************************************/
+
+/** Program map */
+typedef struct GFXProgramMap
+{
+	unsigned int  id;         /* Render Object ID */
+	size_t        instances;  /* Number of instances that can be drawn at once, 0 for infinite */
+
+} GFXProgramMap;
+
+
+/**
+ * Creates a new program map.
+ *
+ * @return NULL on failure.
+ *
+ */
+GFX_API GFXProgramMap* gfx_program_map_create(void);
+
+/**
+ * Makes sure the program map is freed properly.
+ *
+ */
+GFX_API void gfx_program_map_free(
+
+		GFXProgramMap* map);
+
+/**
+ * Creates a new program and maps it to a given shader stage.
+ *
+ * @param stage     Stage of the program to use for this program map, GFX_ALL_SHADERS is allowed.
+ * @param instances Number of instances that can be drawn in a single draw call, 0 for infinite.
+ * @return The new program on success, NULL on failure.
+ *
+ * Note: if GFX_EXT_PROGRAM_MAP is not supported, stage will be ignored and the
+ * function will act as if stage was set to 0.
+ *
+ */
+GFX_API GFXProgram* gfx_program_map_add(
+
+		GFXProgramMap*  map,
+		GFXShaderStage  stage,
+		size_t          instances);
+
+/**
+ * Shares a program and maps it to a given shader stage.
+ *
+ * @param stage Stage of the program to use for this program map, GFX_ALL_SHADERS is allowed.
+ * @param share Program to share, or NULL to deactivate the given stage.
+ * @return Zero on failure.
+ *
+ * Note: if GFX_EXT_PROGRAM_MAP is not supported, stage will be ignored and the
+ * function will act as if stage was set to 0.
+ *
+ */
+GFX_API int gfx_program_map_add_share(
+
+		GFXProgramMap*  map,
+		GFXShaderStage  stage,
+		GFXProgram*     share);
+
+/**
+ * Returns the program mapped to a given stage.
+ *
+ * @param stage Stage to retrieve the program of.
+ * @return Mapped program, can be NULL.
+ *
+ */
+GFX_API GFXProgram* gfx_program_map_get(
+
+		GFXProgramMap*  map,
+		GFXShaderStage  stage);
 
 
 /********************************************************

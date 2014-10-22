@@ -80,6 +80,7 @@ typedef void (APIENTRYP GFX_BINDATTRIBLOCATIONPROC)                (GLuint, GLui
 typedef void (APIENTRYP GFX_BINDBUFFERPROC)                        (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDBUFFERRANGEPROC)                   (GLenum, GLuint, GLuint, GLintptr, GLsizeiptr);
 typedef void (APIENTRYP GFX_BINDFRAMEBUFFERPROC)                   (GLenum, GLuint);
+typedef void (APIENTRYP GFX_BINDPROGRAMPIPELINEPROC)               (GLuint);
 typedef void (APIENTRYP GFX_BINDTEXTUREPROC)                       (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDTEXTUREUNITPROC)                   (GLuint, GLuint);
 typedef void (APIENTRYP GFX_BINDVERTEXARRAYPROC)                   (GLuint);
@@ -102,6 +103,7 @@ typedef void (APIENTRYP GFX_CULLFACEPROC)                          (GLenum);
 typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)                     (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEFRAMEBUFFERSPROC)                (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEPROGRAMPROC)                     (GLuint);
+typedef void (APIENTRYP GFX_DELETEPROGRAMPIPELINESPROC)            (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETESHADERPROC)                      (GLuint);
 typedef void (APIENTRYP GFX_DELETETEXTURESPROC)                    (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEVERTEXARRAYSPROC)                (GLsizei, const GLuint*);
@@ -130,6 +132,7 @@ typedef void (APIENTRYP GFX_GENBUFFERSPROC)                        (GLsizei, GLu
 typedef void (APIENTRYP GFX_GENERATEMIPMAPPROC)                    (GLenum);
 typedef void (APIENTRYP GFX_GENERATETEXTUREMIPMAPPROC)             (GLuint);
 typedef void (APIENTRYP GFX_GENFRAMEBUFFERSPROC)                   (GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_GENPROGRAMPIPELINESPROC)               (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENTEXTURESPROC)                       (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENVERTEXARRAYSPROC)                   (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GETACTIVEUNIFORMPROC)                  (GLuint, GLuint, GLsizei, GLsizei*, GLint*, GLenum*, GLchar*);
@@ -163,6 +166,21 @@ typedef void (APIENTRYP GFX_PIXELSTOREIPROC)                       (GLenum, GLin
 typedef void (APIENTRYP GFX_POLYGONMODEPROC)                       (GLenum, GLenum);
 typedef void (APIENTRYP GFX_PROGRAMBINARYPROC)                     (GLuint, GLenum, const void*, GLsizei);
 typedef void (APIENTRYP GFX_PROGRAMPARAMETERIPROC)                 (GLuint, GLenum, GLint);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM1FVPROC)                 (GLuint, GLint, GLsizei, const GLfloat*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM1IVPROC)                 (GLuint, GLint, GLsizei, const GLint*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM1UIVPROC)                (GLuint, GLint, GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM2FVPROC)                 (GLuint, GLint, GLsizei, const GLfloat*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM2IVPROC)                 (GLuint, GLint, GLsizei, const GLint*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM2UIVPROC)                (GLuint, GLint, GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM3FVPROC)                 (GLuint, GLint, GLsizei, const GLfloat*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM3IVPROC)                 (GLuint, GLint, GLsizei, const GLint*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM3UIVPROC)                (GLuint, GLint, GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM4FVPROC)                 (GLuint, GLint, GLsizei, const GLfloat*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM4IVPROC)                 (GLuint, GLint, GLsizei, const GLint*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORM4UIVPROC)                (GLuint, GLint, GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORMMATRIX2FVPROC)           (GLuint, GLint, GLsizei, GLboolean, const GLfloat*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORMMATRIX3FVPROC)           (GLuint, GLint, GLsizei, GLboolean, const GLfloat*);
+typedef void (APIENTRYP GFX_PROGRAMUNIFORMMATRIX4FVPROC)           (GLuint, GLint, GLsizei, GLboolean, const GLfloat*);
 typedef void (APIENTRYP GFX_SHADERSOURCEPROC)                      (GLuint, GLsizei, const GLchar*const*, const GLint*);
 typedef void (APIENTRYP GFX_STENCILFUNCSEPARATEPROC)               (GLenum, GLenum, GLint, GLuint);
 typedef void (APIENTRYP GFX_STENCILOPSEPARATEPROC)                 (GLenum, GLenum, GLenum, GLenum);
@@ -211,6 +229,7 @@ typedef void (APIENTRYP GFX_UNIFORMMATRIX4FVPROC)                  (GLint, GLsiz
 typedef GLboolean (APIENTRYP GFX_UNMAPBUFFERPROC)                  (GLenum);
 typedef GLboolean (APIENTRYP GFX_UNMAPNAMEDBUFFERPROC)             (GLuint);
 typedef void (APIENTRYP GFX_USEPROGRAMPROC)                        (GLuint);
+typedef void (APIENTRYP GFX_USEPROGRAMSTAGESPROC)                  (GLuint, GLbitfield, GLuint);
 typedef void (APIENTRYP GFX_VERTEXARRAYATTRIBBINDINGPROC)          (GLuint, GLuint, GLuint);
 typedef void (APIENTRYP GFX_VERTEXARRAYATTRIBFORMATPROC)           (GLuint, GLuint, GLint, GLenum, GLboolean, GLuint);
 typedef void (APIENTRYP GFX_VERTEXARRAYATTRIBIFORMATPROC)          (GLuint, GLuint, GLint, GLenum, GLuint);
@@ -228,6 +247,7 @@ typedef void (APIENTRYP GFX_VIEWPORTPROC)                          (GLint, GLint
 
 
 /* Emulators */
+void APIENTRY _gfx_gl_bind_program_pipeline                 (GLuint);
 void APIENTRY _gfx_gl_bind_texture_unit                     (GLuint, GLuint);
 void APIENTRY _gfx_gl_bind_vertex_buffer                    (GLuint, GLuint, GLintptr, GLsizei);
 void APIENTRY _gfx_gl_copy_named_buffer_sub_data            (GLuint, GLuint, GLintptr, GLintptr, GLsizei);
@@ -235,11 +255,13 @@ void APIENTRY _gfx_gl_create_buffers                        (GLsizei, GLuint*);
 void APIENTRY _gfx_gl_create_framebuffers                   (GLsizei, GLuint*);
 void APIENTRY _gfx_gl_create_textures                       (GLenum, GLsizei, GLuint*);
 void APIENTRY _gfx_gl_create_vertex_arrays                  (GLsizei, GLuint*);
+void APIENTRY _gfx_gl_delete_program_pipelines              (GLsizei, const GLuint*);
 void APIENTRY _gfx_gl_disable_vertex_array_attrib           (GLuint, GLuint);
 void APIENTRY _gfx_gl_draw_arrays_instanced_base_instance   (GLenum, GLint, GLsizei, GLsizei, GLuint);
 void APIENTRY _gfx_gl_draw_elements_instanced_base_instance (GLenum, GLsizei, GLenum, const GLvoid*, GLsizei, GLuint);
 void APIENTRY _gfx_gl_enable_vertex_array_attrib            (GLuint, GLuint);
 void APIENTRY _gfx_gl_generate_texture_mipmap               (GLuint);
+void APIENTRY _gfx_gl_gen_program_pipelines                 (GLsizei, GLuint*);
 void APIENTRY _gfx_gl_get_named_buffer_sub_data             (GLuint, GLintptr, GLsizei, void*);
 void* APIENTRY _gfx_gl_map_named_buffer_range               (GLuint, GLintptr, GLsizei, GLbitfield);
 void APIENTRY _gfx_gl_named_buffer_data                     (GLuint, GLsizei, const void*, GLenum);
@@ -248,6 +270,21 @@ void APIENTRY _gfx_gl_named_framebuffer_draw_buffers        (GLuint, GLsizei, co
 void APIENTRY _gfx_gl_named_framebuffer_texture             (GLuint, GLenum, GLuint, GLint);
 void APIENTRY _gfx_gl_named_framebuffer_texture_layer       (GLuint, GLenum, GLuint, GLint, GLint);
 void APIENTRY _gfx_gl_patch_parameter_i                     (GLenum, GLint);
+void APIENTRY _gfx_gl_program_uniform_1fv                   (GLuint, GLint, GLsizei, const GLfloat*);
+void APIENTRY _gfx_gl_program_uniform_1iv                   (GLuint, GLint, GLsizei, const GLint*);
+void APIENTRY _gfx_gl_program_uniform_1uiv                  (GLuint, GLint, GLsizei, const GLuint*);
+void APIENTRY _gfx_gl_program_uniform_2fv                   (GLuint, GLint, GLsizei, const GLfloat*);
+void APIENTRY _gfx_gl_program_uniform_2iv                   (GLuint, GLint, GLsizei, const GLint*);
+void APIENTRY _gfx_gl_program_uniform_2uiv                  (GLuint, GLint, GLsizei, const GLuint*);
+void APIENTRY _gfx_gl_program_uniform_3fv                   (GLuint, GLint, GLsizei, const GLfloat*);
+void APIENTRY _gfx_gl_program_uniform_3iv                   (GLuint, GLint, GLsizei, const GLint*);
+void APIENTRY _gfx_gl_program_uniform_3uiv                  (GLuint, GLint, GLsizei, const GLuint*);
+void APIENTRY _gfx_gl_program_uniform_4fv                   (GLuint, GLint, GLsizei, const GLfloat*);
+void APIENTRY _gfx_gl_program_uniform_4iv                   (GLuint, GLint, GLsizei, const GLint*);
+void APIENTRY _gfx_gl_program_uniform_4uiv                  (GLuint, GLint, GLsizei, const GLuint*);
+void APIENTRY _gfx_gl_program_uniform_matrix_2fv            (GLuint, GLint, GLsizei, GLboolean, const GLfloat*);
+void APIENTRY _gfx_gl_program_uniform_matrix_3fv            (GLuint, GLint, GLsizei, GLboolean, const GLfloat*);
+void APIENTRY _gfx_gl_program_uniform_matrix_4fv            (GLuint, GLint, GLsizei, GLboolean, const GLfloat*);
 void APIENTRY _gfx_gl_texture_buffer                        (GLuint, GLenum, GLuint);
 void APIENTRY _gfx_gl_texture_parameter_i                   (GLuint, GLenum, GLint);
 void APIENTRY _gfx_gl_texture_storage_1d                    (GLuint, GLsizei, GLenum, GLsizei);
@@ -259,6 +296,7 @@ void APIENTRY _gfx_gl_texture_sub_image_1d                  (GLuint, GLint, GLin
 void APIENTRY _gfx_gl_texture_sub_image_2d                  (GLuint, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const void*);
 void APIENTRY _gfx_gl_texture_sub_image_3d                  (GLuint, GLint, GLint, GLint, GLint, GLsizei, GLsizei, GLsizei, GLenum, GLenum, const void*);
 GLboolean APIENTRY _gfx_gl_unmap_named_buffer               (GLuint);
+void APIENTRY _gfx_gl_use_program_stages                    (GLuint, GLbitfield, GLuint);
 void APIENTRY _gfx_gl_vertex_array_attrib_binding           (GLuint, GLuint, GLuint);
 void APIENTRY _gfx_gl_vertex_array_attrib_format            (GLuint, GLuint, GLint, GLenum, GLboolean, GLuint);
 void APIENTRY _gfx_gl_vertex_array_attrib_i_format          (GLuint, GLuint, GLint, GLenum, GLuint);
@@ -306,7 +344,7 @@ struct GFX_Renderer
 	/* State & bound objects */
 	GLuint         fbos[2];  /* Currently bound FBOs (0 = draw, 1 = read) */
 	GLuint         vao;      /* Currently bound VAO */
-	GLuint         program;  /* Currently used program */
+	GLuint         program;  /* Currently used program or program pipeline */
 	GLuint         post;     /* Layout for post processing */
 
 	/* Viewport & state values */
@@ -328,6 +366,7 @@ struct GFX_Renderer
 	GFX_BINDBUFFERPROC                         BindBuffer;
 	GFX_BINDBUFFERRANGEPROC                    BindBufferRange;
 	GFX_BINDFRAMEBUFFERPROC                    BindFramebuffer;
+	GFX_BINDPROGRAMPIPELINEPROC                BindProgramPipeline;               /* GFX_EXT_PROGRAM_MAP, fallback to UseProgram */
 	GFX_BINDTEXTUREPROC                        BindTexture;
 	GFX_BINDTEXTUREUNITPROC                    BindTextureUnit;                   /* GFX_EXT_DIRECT_STATE_ACCESS */
 	GFX_BINDVERTEXARRAYPROC                    BindVertexArray;
@@ -350,6 +389,7 @@ struct GFX_Renderer
 	GFX_DELETEBUFFERSPROC                      DeleteBuffers;
 	GFX_DELETEFRAMEBUFFERSPROC                 DeleteFramebuffers;
 	GFX_DELETEPROGRAMPROC                      DeleteProgram;
+	GFX_DELETEPROGRAMPIPELINESPROC             DeleteProgramPipelines;            /* GFX_EXT_PROGRAM_MAP */
 	GFX_DELETESHADERPROC                       DeleteShader;
 	GFX_DELETETEXTURESPROC                     DeleteTextures;
 	GFX_DELETEVERTEXARRAYSPROC                 DeleteVertexArrays;
@@ -378,6 +418,7 @@ struct GFX_Renderer
 	GFX_GENERATEMIPMAPPROC                     GenerateMipmap;
 	GFX_GENERATETEXTUREMIPMAPPROC              GenerateTextureMipmap;             /* GFX_EXT_DIRECT_STATE_ACCESS */
 	GFX_GENFRAMEBUFFERSPROC                    GenFramebuffers;
+	GFX_GENPROGRAMPIPELINESPROC                GenProgramPipelines;               /* GFX_EXT_PROGRAM_MAP */
 	GFX_GENTEXTURESPROC                        GenTextures;
 	GFX_GENVERTEXARRAYSPROC                    GenVertexArrays;
 	GFX_GETACTIVEUNIFORMPROC                   GetActiveUniform;
@@ -411,6 +452,21 @@ struct GFX_Renderer
 	GFX_POLYGONMODEPROC                        PolygonMode;                       /* GFX_EXT_POLYGON_STATE */
 	GFX_PROGRAMBINARYPROC                      ProgramBinary;                     /* GFX_EXT_PROGRAM_BINARY */
 	GFX_PROGRAMPARAMETERIPROC                  ProgramParameteri;                 /* GFX_EXT_SEPARABLE_PROGRAM */
+	GFX_PROGRAMUNIFORM1FVPROC                  ProgramUniform1fv;                 /* GFX_EXT_PROGRAM_MAP, fallback to Uniform1fv */
+	GFX_PROGRAMUNIFORM1IVPROC                  ProgramUniform1iv;                 /* GFX_EXT_PROGRAM_MAP, fallback to Uniform1iv */
+	GFX_PROGRAMUNIFORM1UIVPROC                 ProgramUniform1uiv;                /* GFX_EXT_PROGRAM_MAP, fallback to Uniform1uiv */
+	GFX_PROGRAMUNIFORM2FVPROC                  ProgramUniform2fv;                 /* GFX_EXT_PROGRAM_MAP, fallback to Uniform2fv */
+	GFX_PROGRAMUNIFORM2IVPROC                  ProgramUniform2iv;                 /* GFX_EXT_PROGRAM_MAP, fallback to Uniform2iv */
+	GFX_PROGRAMUNIFORM2UIVPROC                 ProgramUniform2uiv;                /* GFX_EXT_PROGRAM_MAP, fallback to Uniform2uiv */
+	GFX_PROGRAMUNIFORM3FVPROC                  ProgramUniform3fv;                 /* GFX_EXT_PROGRAM_MAP, fallback to Uniform3fv */
+	GFX_PROGRAMUNIFORM3IVPROC                  ProgramUniform3iv;                 /* GFX_EXT_PROGRAM_MAP, fallback to Uniform3iv */
+	GFX_PROGRAMUNIFORM3UIVPROC                 ProgramUniform3uiv;                /* GFX_EXT_PROGRAM_MAP, fallback to Uniform3uiv */
+	GFX_PROGRAMUNIFORM4FVPROC                  ProgramUniform4fv;                 /* GFX_EXT_PROGRAM_MAP, fallback to Uniform4fv */
+	GFX_PROGRAMUNIFORM4IVPROC                  ProgramUniform4iv;                 /* GFX_EXT_PROGRAM_MAP, fallback to Uniform4iv */
+	GFX_PROGRAMUNIFORM4UIVPROC                 ProgramUniform4uiv;                /* GFX_EXT_PROGRAM_MAP, fallback to Uniform4uiv */
+	GFX_PROGRAMUNIFORMMATRIX2FVPROC            ProgramUniformMatrix2fv;           /* GFX_EXT_PROGRAM_MAP, fallback to UniformMatrix2fv */
+	GFX_PROGRAMUNIFORMMATRIX3FVPROC            ProgramUniformMatrix3fv;           /* GFX_EXT_PROGRAM_MAP, fallback to UniformMatrix3fv */
+	GFX_PROGRAMUNIFORMMATRIX4FVPROC            ProgramUniformMatrix4fv;           /* GFX_EXT_PROGRAM_MAP, fallback to UniformMatrix4fv */
 	GFX_SHADERSOURCEPROC                       ShaderSource;
 	GFX_STENCILFUNCSEPARATEPROC                StencilFuncSeparate;
 	GFX_STENCILOPSEPARATEPROC                  StencilOpSeparate;
@@ -459,6 +515,7 @@ struct GFX_Renderer
 	GFX_UNMAPBUFFERPROC                        UnmapBuffer;
 	GFX_UNMAPNAMEDBUFFERPROC                   UnmapNamedBuffer;
 	GFX_USEPROGRAMPROC                         UseProgram;
+	GFX_USEPROGRAMSTAGESPROC                   UseProgramStages;                  /* GFX_EXT_PROGRAM_MAP */
 	GFX_VERTEXARRAYATTRIBBINDINGPROC           VertexArrayAttribBinding;          /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	GFX_VERTEXARRAYATTRIBFORMATPROC            VertexArrayAttribFormat;           /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	GFX_VERTEXARRAYATTRIBIFORMATPROC           VertexArrayAttribIFormat;          /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
@@ -489,28 +546,12 @@ GLuint _gfx_buffer_get_handle(
 		const GFXBuffer* buffer);
 
 /**
- * Returns the handle of the framebuffer associated with a pipeline.
+ * Returns the VAO of a layout.
  *
  */
-GLuint _gfx_pipeline_get_handle(
+GLuint _gfx_vertex_layout_get_handle(
 
-		const GFXPipeline* pipeline);
-
-/**
- * Returns the handle of a program.
- *
- */
-GLuint _gfx_program_get_handle(
-
-		const GFXProgram* program);
-
-/**
- * Returns the handle of a shader.
- *
- */
-GLuint _gfx_shader_get_handle(
-
-		const GFXShader* shader);
+		const GFXVertexLayout* layout);
 
 /**
  * Returns the handle of a shared buffer.
@@ -529,12 +570,36 @@ GLuint _gfx_texture_get_handle(
 		const GFXTexture* texture);
 
 /**
- * Returns the VAO of a layout.
+ * Returns the handle of the framebuffer associated with a pipeline.
  *
  */
-GLuint _gfx_vertex_layout_get_handle(
+GLuint _gfx_pipeline_get_handle(
 
-		const GFXVertexLayout* layout);
+		const GFXPipeline* pipeline);
+
+/**
+ * Returns the handle of a program.
+ *
+ */
+GLuint _gfx_program_get_handle(
+
+		const GFXProgram* program);
+
+/**
+ * Returns the handle of the program pipeline associated with a program map.
+ *
+ */
+GLuint _gfx_program_map_get_handle(
+
+		const GFXProgramMap* map);
+
+/**
+ * Returns the handle of a shader.
+ *
+ */
+GLuint _gfx_shader_get_handle(
+
+		const GFXShader* shader);
 
 
 #ifdef __cplusplus

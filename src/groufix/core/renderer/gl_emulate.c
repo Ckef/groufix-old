@@ -39,12 +39,28 @@ static void _gfx_gl_error_direct_state_access(void)
 	);
 }
 
+static void _gfx_gl_error_program_map(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_PROGRAM_MAP is incompatible with this context."
+	);
+}
+
 static void _gfx_gl_error_separate_vertex_buffers(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
 		"GFX_EXT_SEPARATE_VERTEX_BUFFERS is incompatible with this context."
 	);
+}
+
+void APIENTRY _gfx_gl_bind_program_pipeline(
+
+		GLuint pipeline)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.UseProgram(pipeline);
 }
 
 void APIENTRY _gfx_gl_bind_texture_unit(
@@ -124,6 +140,14 @@ void APIENTRY _gfx_gl_create_vertex_arrays(
 	GFX_REND_GET.GenVertexArrays(n, arrays);
 }
 
+void APIENTRY _gfx_gl_delete_program_pipelines(
+
+		GLsizei        n,
+		const GLuint*  pipelines)
+{
+	_gfx_gl_error_program_map();
+}
+
 void APIENTRY _gfx_gl_disable_vertex_array_attrib(
 
 		GLuint  vao,
@@ -184,6 +208,14 @@ void APIENTRY _gfx_gl_generate_texture_mipmap(
 		GLuint texture)
 {
 	_gfx_gl_error_direct_state_access();
+}
+
+void APIENTRY _gfx_gl_gen_program_pipelines(
+
+		GLsizei  n,
+		GLuint*  pipelines)
+{
+	_gfx_gl_error_program_map();
 }
 
 void APIENTRY _gfx_gl_get_named_buffer_sub_data(
@@ -312,6 +344,174 @@ void APIENTRY _gfx_gl_patch_parameter_i(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
 		"GFX_EXT_TESSELLATION_SHADER is incompatible with this context."
 	);
+}
+
+void APIENTRY _gfx_gl_program_uniform_1fv(
+
+		GLuint          program,
+		GLint           location,
+		GLsizei         count,
+		const GLfloat*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform1fv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_1iv(
+
+		GLuint        program,
+		GLint         location,
+		GLsizei       count,
+		const GLint*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform1iv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_1uiv(
+
+		GLuint         program,
+		GLint          location,
+		GLsizei        count,
+		const GLuint*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform1uiv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_2fv(
+
+		GLuint          program,
+		GLint           location,
+		GLsizei         count,
+		const GLfloat*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform2fv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_2iv(
+
+		GLuint        program,
+		GLint         location,
+		GLsizei       count,
+		const GLint*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform2iv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_2uiv(
+
+		GLuint         program,
+		GLint          location,
+		GLsizei        count,
+		const GLuint*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform2uiv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_3fv(
+
+		GLuint          program,
+		GLint           location,
+		GLsizei         count,
+		const GLfloat*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform3fv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_3iv(
+
+		GLuint        program,
+		GLint         location,
+		GLsizei       count,
+		const GLint*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform3iv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_3uiv(
+
+		GLuint         program,
+		GLint          location,
+		GLsizei        count,
+		const GLuint*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform3uiv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_4fv(
+
+		GLuint          program,
+		GLint           location,
+		GLsizei         count,
+		const GLfloat*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform4fv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_4iv(
+
+		GLuint        program,
+		GLint         location,
+		GLsizei       count,
+		const GLint*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform4iv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_4uiv(
+
+		GLuint         program,
+		GLint          location,
+		GLsizei        count,
+		const GLuint*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.Uniform4uiv(location, count, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_matrix_2fv(
+
+		GLuint          program,
+		GLint           location,
+		GLsizei         count,
+		GLboolean       transpose,
+		const GLfloat*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.UniformMatrix2fv(location, count, transpose, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_matrix_3fv(
+
+		GLuint          program,
+		GLint           location,
+		GLsizei         count,
+		GLboolean       transpose,
+		const GLfloat*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.UniformMatrix3fv(location, count, transpose, value);
+}
+
+void APIENTRY _gfx_gl_program_uniform_matrix_4fv(
+
+		GLuint          program,
+		GLint           location,
+		GLsizei         count,
+		GLboolean       transpose,
+		const GLfloat*  value)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.UniformMatrix4fv(location, count, transpose, value);
 }
 
 void APIENTRY _gfx_gl_texture_buffer(
@@ -443,6 +643,15 @@ GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
 
 	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
 	return GFX_REND_GET.UnmapBuffer(GL_ARRAY_BUFFER);
+}
+
+void APIENTRY _gfx_gl_use_program_stages(
+
+		GLuint      pipeline,
+		GLbitfield  stages,
+		GLuint      program)
+{
+	_gfx_gl_error_program_map();
 }
 
 void APIENTRY _gfx_gl_vertex_array_attrib_binding(
@@ -897,7 +1106,10 @@ void APIENTRY _gfx_gl_program_parameter_i(
 		GLenum  pname,
 		GLint   value)
 {
-	_gfx_gl_error_program_binary();
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_PROGRAM_BINARY and GFX_EXT_PROGRAM_MAP are incompatible with this context."
+	);
 }
 
 void APIENTRY _gfx_gl_tex_storage_1d(

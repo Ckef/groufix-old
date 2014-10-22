@@ -41,12 +41,12 @@ struct GFX_Shader
 };
 
 /******************************************************/
-static int _gfx_shader_eval_type(
+static int _gfx_shader_eval_stage(
 
-		GFXShaderType type,
+		GFXShaderStage stage,
 		GFX_WIND_ARG)
 {
-	switch(type)
+	switch(stage)
 	{
 		/* GFX_EXT_TESSELLATION_SHADER */
 		case GFX_TESS_CONTROL_SHADER :
@@ -74,6 +74,10 @@ static int _gfx_shader_eval_type(
 				return 0;
 			}
 			return 1;
+
+		/* Herp derp */
+		case GFX_ALL_SHADERS :
+			return 0;
 
 		/* Everything else */
 		default : return 1;
@@ -146,51 +150,6 @@ static const char* _gfx_shader_eval_glsl(
 }
 
 /******************************************************/
-static int _gfx_shader_preprocess_version(
-
-		size_t*        num,
-		const char***  src,
-		GFX_WIND_ARG)
-{
-	size_t newNum = *num;
-	const char** newSrc = *src;
-
-	/* Search for #version preprocessor */
-	const char* vers = "#version";
-	size_t n;
-
-	for(n = 0; n < newNum; ++n)
-		if(strstr(newSrc[n], vers)) break;
-
-	/* Prepend it if not found */
-	if(n >= newNum)
-	{
-		/* Fetch version string */
-		const char* glsl = _gfx_shader_eval_glsl(
-			GFX_WIND_GET.context.major,
-			GFX_WIND_GET.context.minor
-		);
-
-		if(!glsl) return 0;
-
-		/* Allocate new sources */
-		newSrc = malloc(sizeof(char*) * ++newNum);
-		if(!newSrc) return 0;
-
-		memcpy(newSrc + 1, *src, sizeof(char*) * (*num));
-		newSrc[0] = glsl;
-
-		/* Free original */
-		free(*src);
-	}
-
-	*num = newNum;
-	*src = newSrc;
-
-	return 1;
-}
-
-/******************************************************/
 static void _gfx_shader_obj_free(
 
 		void*         object,
@@ -233,11 +192,11 @@ GLuint _gfx_shader_get_handle(
 /******************************************************/
 GFXShader* gfx_shader_create(
 
-		GFXShaderType type)
+		GFXShaderStage stage)
 {
 	GFX_WIND_INIT(NULL);
 
-	if(!_gfx_shader_eval_type(type, GFX_WIND_AS_ARG))
+	if(!_gfx_shader_eval_stage(stage, GFX_WIND_AS_ARG))
 		return NULL;
 
 	/* Create new shader */
@@ -266,8 +225,8 @@ GFXShader* gfx_shader_create(
 	}
 
 	/* Create OpenGL resources */
-	shader->shader.type = type;
-	shader->handle = GFX_REND_GET.CreateShader(type);
+	shader->shader.stage = stage;
+	shader->handle = GFX_REND_GET.CreateShader(stage);
 
 	return (GFXShader*)shader;
 }
@@ -308,67 +267,52 @@ int gfx_shader_set_source(
 	GFX_WIND_INIT(0);
 
 	if(!num) return 0;
-	struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
-	/* Copy sources for preprocessing */
-	const char** newSrc = malloc(sizeof(char*) * num);
-	if(!newSrc) return 0;
-
-	memcpy(newSrc, src, sizeof(char*) * num);
-
-	/* Preprocess */
-	int success = _gfx_shader_preprocess_version(
-		&num,
-		&newSrc,
-		GFX_WIND_AS_ARG
+	/* Fetch version string */
+	const char* glsl = _gfx_shader_eval_glsl(
+		GFX_WIND_GET.context.major,
+		GFX_WIND_GET.context.minor
 	);
 
-	if(success)
-	{
-		/* Set the source */
-		GFX_REND_GET.ShaderSource(internal->handle, num, newSrc, NULL);
-		shader->compiled = 0;
-	}
+	if(!glsl) return 0;
+
+	/* Check whether outputs need to be redefined */
+	unsigned char out =
+		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] &&
+		shader->stage == GFX_VERTEX_SHADER;
+
+	size_t new = out ? 2 : 1;
+
+	/* Copy sources for some preprocessing */
+	const char** newSrc = malloc(sizeof(char*) * (num + new));
+	if(!newSrc) return 0;
+
+	memcpy(newSrc + new, src, sizeof(char*) * num);
+	newSrc[0] = glsl;
+
+	/* Insert vertex output */
+	if(out) newSrc[1] =
+		"out gl_PerVertex{"
+		"vec4 gl_Position;"
+		"float gl_PointSize;"
+		"float gl_ClipDistance[];"
+		"};"
+		"\n\0";
+
+	/* Set the actual source */
+	GFX_REND_GET.ShaderSource(
+		((struct GFX_Shader*)shader)->handle,
+		num + new,
+		newSrc,
+		NULL
+	);
+
+	shader->compiled = 0;
 
 	/* Deallocate sources */
 	free(newSrc);
 
-	return success;
-}
-
-/******************************************************/
-char* gfx_shader_get_source(
-
-		GFXShader*  shader,
-		size_t*     length)
-{
-	if(length) *length = 0;
-	GFX_WIND_INIT(NULL);
-
-	struct GFX_Shader* internal = (struct GFX_Shader*)shader;
-
-	/* Get source length */
-	GLint len;
-	GFX_REND_GET.GetShaderiv(
-		internal->handle,
-		GL_SHADER_SOURCE_LENGTH,
-		&len
-	);
-
-	if(!len) return NULL;
-
-	/* Get actual source */
-	char* buff = malloc(len);
-	GFX_REND_GET.GetShaderSource(
-		internal->handle,
-		len,
-		NULL,
-		buff
-	);
-
-	if(length) *length = len - 1;
-
-	return buff;
+	return 1;
 }
 
 /******************************************************/

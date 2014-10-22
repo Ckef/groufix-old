@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-static GFXProgram* program;
+static GFXProgramMap* programMap;
 
 
 void print_error(GFXError error)
@@ -72,13 +72,14 @@ GFXMaterial* create_material()
 
 	GFXShader* shaders[] = { vert, frag };
 
-	program = gfx_program_create();
+	programMap = gfx_program_map_create();
+	GFXProgram* program = gfx_program_map_add(programMap, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(program, 0, "position");
 	gfx_program_set_attribute(program, 1, "color");
 	gfx_program_link(program, 2, shaders, 0);
 
 	GFXMaterial* mat = gfx_material_create();
-	gfx_material_add(mat, 0, program, 0, 1);
+	gfx_material_add(mat, 0, program, 0);
 
 	gfx_shader_free(vert);
 	gfx_shader_free(frag);
@@ -167,13 +168,15 @@ int main()
 
 	GFXShader* shaders[] = { vert, frag };
 
-	GFXProgram* programA = gfx_program_create();
+	GFXProgramMap* programMapA = gfx_program_map_create();
+	GFXProgram* programA = gfx_program_map_add(programMapA, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(programA, 0, "data");
 	gfx_program_link(programA, 2, shaders, 0);
 
 	gfx_shader_set_source(frag, 1, &fragSrcB);
 
-	GFXProgram* programB = gfx_program_create();
+	GFXProgramMap* programMapB = gfx_program_map_create();
+	GFXProgram* programB = gfx_program_map_add(programMapB, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(programB, 0, "data");
 	gfx_program_link(programB, 2, shaders, 0);
 
@@ -252,9 +255,9 @@ int main()
 	gfx_material_free(material);
 	gfx_property_map_free(mapA);
 	gfx_property_map_free(mapB);
-	gfx_program_free(program);
-	gfx_program_free(programA);
-	gfx_program_free(programB);
+	gfx_program_map_free(programMap);
+	gfx_program_map_free(programMapA);
+	gfx_program_map_free(programMapB);
 	gfx_texture_free(tex);
 	gfx_pipeline_free(pipeline);
 

@@ -157,6 +157,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/renderer/gl_load.o \
  $(OUT)/unix-x11/groufix/core/shading/binder.o \
  $(OUT)/unix-x11/groufix/core/shading/program.o \
+ $(OUT)/unix-x11/groufix/core/shading/program_map.o \
  $(OUT)/unix-x11/groufix/core/shading/property_map.o \
  $(OUT)/unix-x11/groufix/core/shading/shader.o \
  $(OUT)/unix-x11/groufix/core/errors.o \
@@ -230,6 +231,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/renderer/gl_load.o \
  $(OUT)/win32/groufix/core/shading/binder.o \
  $(OUT)/win32/groufix/core/shading/program.o \
+ $(OUT)/win32/groufix/core/shading/program_map.o \
  $(OUT)/win32/groufix/core/shading/property_map.o \
  $(OUT)/win32/groufix/core/shading/shader.o \
  $(OUT)/win32/groufix/core/errors.o \
