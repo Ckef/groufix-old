@@ -236,7 +236,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 
 			/* Check mouse enter event */
 			GFX_Win32_Window* internal =
-				(GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+				_gfx_win32_get_window_from_handle(handle);
 
 			if(!internal) return 0;
 
@@ -257,7 +257,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		case WM_MOUSELEAVE :
 		{
 			GFX_Win32_Window* internal =
-				(GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
+				_gfx_win32_get_window_from_handle(handle);
 
 			if(!internal) return 0;
 			internal->flags &= ~GFX_WIN32_MOUSEINSIDE;
@@ -584,7 +584,7 @@ void _gfx_platform_window_free(
 			);
 
 		/* Destroy the context and window */
-		_gfx_platform_context_free(handle);
+		_gfx_platform_context_clear(handle);
 		DestroyWindow(handle);
 
 		/* Remove from vector */

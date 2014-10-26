@@ -428,12 +428,12 @@ void _gfx_platform_window_free(
 		);
 
 		/* Destroy context, the window and its colormap */
-		_gfx_platform_context_free(handle);
+		_gfx_platform_context_clear(handle);
 		XDestroyWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle));
 		XFreeColormap(_gfx_x11->display, attr.colormap);
 
 		/* Remove from vector */
-		GFXVectorIterator it =
+		GFX_X11_Window* it =
 			_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 
 		gfx_vector_erase(&_gfx_x11->windows, it);

@@ -270,8 +270,8 @@ int gfx_shader_set_source(
 
 	/* Fetch version string */
 	const char* glsl = _gfx_shader_eval_glsl(
-		GFX_WIND_GET.context.major,
-		GFX_WIND_GET.context.minor
+		GFX_WIND_GET.version.major,
+		GFX_WIND_GET.version.minor
 	);
 
 	if(!glsl) return 0;

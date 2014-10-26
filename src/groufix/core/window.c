@@ -41,15 +41,13 @@ static GFXContext _gfx_context =
 };
 
 /******************************************************/
-static int _gfx_window_context_create(
+static GFX_PlatformContext _gfx_window_context_create(
 
 		GFX_PlatformWindow window)
 {
 	/* Get the main window to share with (as all windows will share everything) */
-	GFX_PlatformWindow share = NULL;
-	if(_gfx_windows) share = (*(GFX_Window**)_gfx_windows->begin)->handle;
-
-	if(share == window) share = NULL;
+	GFX_PlatformContext share = NULL;
+	if(_gfx_windows) share = (*(GFX_Window**)_gfx_windows->begin)->context;
 
 	/* Get maximum context */
 	GFXContext max =
@@ -65,8 +63,10 @@ static int _gfx_window_context_create(
 		max.minor >= _gfx_context.minor))
 	{
 		/* Try to create it */
-		if(_gfx_platform_context_create(window, max.major, max.minor, share))
-			return 1;
+		GFX_PlatformContext cont =
+			_gfx_platform_context_init(window, max.major, max.minor, share);
+
+		if(cont) return cont;
 
 		/* Previous version */
 		if(!max.minor)
@@ -83,7 +83,7 @@ static int _gfx_window_context_create(
 		"The requested OpenGL Context version could not be created."
 	);
 
-	return 0;
+	return NULL;
 }
 
 /******************************************************/
@@ -150,7 +150,10 @@ static GFX_Window* _gfx_window_create_common(
 	}
 
 	/* Create context */
-	if(_gfx_window_context_create(window->handle))
+	window->context =
+		_gfx_window_context_create(window->handle);
+
+	if(window->context)
 	{
 		/* Up alive windows so the renderer can make use of it */
 		++_gfx_alive_windows;
@@ -158,8 +161,8 @@ static GFX_Window* _gfx_window_create_common(
 
 		/* Load renderer and initialize window */
 		_gfx_platform_context_get(
-			&window->context.major,
-			&window->context.minor
+			&window->version.major,
+			&window->version.minor
 		);
 
 		_gfx_renderer_load();
@@ -239,13 +242,13 @@ static void _gfx_window_erase(
 	if(_gfx_windows)
 	{
 		/* Erase from vector */
-		GFXVectorIterator it;
+		GFX_Window** it;
 		for(
 			it = _gfx_windows->begin;
 			it != _gfx_windows->end;
 			it = gfx_vector_next(_gfx_windows, it))
 		{
-			if(window == *(GFX_Window**)it)
+			if(window == *it)
 			{
 				gfx_vector_erase(_gfx_windows, it);
 
@@ -272,14 +275,14 @@ GFX_Window* _gfx_window_get_from_handle(
 {
 	if(!_gfx_windows) return NULL;
 
-	GFXVectorIterator it;
+	GFX_Window** it;
 	for(
 		it = _gfx_windows->begin;
 		it != _gfx_windows->end;
 		it = gfx_vector_next(_gfx_windows, it))
 	{
-		if((*(GFX_Window**)it)->handle == handle)
-			return *(GFX_Window**)it;
+		if((*it)->handle == handle)
+			return *it;
 	}
 
 	return NULL;
@@ -381,7 +384,7 @@ void _gfx_window_make_current(
 		if(!window)
 			_gfx_platform_context_make_current(NULL);
 		else
-			_gfx_platform_context_make_current(window->handle);
+			_gfx_platform_context_make_current(window->context);
 
 		_gfx_platform_key_set(_gfx_current_window, window);
 	}
@@ -390,7 +393,8 @@ void _gfx_window_make_current(
 /******************************************************/
 GFX_Window* _gfx_window_get_current(void)
 {
-	return _gfx_alive_windows ? _gfx_platform_key_get(_gfx_current_window) : NULL;
+	return _gfx_alive_windows ?
+		_gfx_platform_key_get(_gfx_current_window) : NULL;
 }
 
 /******************************************************/
@@ -618,7 +622,7 @@ GFXContext gfx_window_get_context(
 
 		const GFXWindow* window)
 {
-	return ((const GFX_Window*)window)->context;
+	return ((const GFX_Window*)window)->version;
 }
 
 /******************************************************/

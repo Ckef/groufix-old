@@ -17,19 +17,16 @@
 #include "groufix/core/platform/win32.h"
 
 /******************************************************/
-int _gfx_platform_context_create(
+GFX_PlatformContext _gfx_platform_context_init(
 
 		GFX_PlatformWindow  handle,
 		int                 major,
 		int                 minor,
 		GFX_PlatformWindow  share)
 {
-	/* Get the windows */
+	/* Get the window */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
-	if(!window) return 0;
-
-	GFX_Win32_Window* shareWind = NULL;
-	if(share) shareWind = _gfx_win32_get_window_from_handle(share);
+	if(!window) return NULL;
 
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
@@ -41,27 +38,22 @@ int _gfx_platform_context_create(
 	};
 
 	/* Create the context */
-	HGLRC shareCont = NULL;
-	if(shareWind) shareCont = shareWind->context;
-
 	HDC hdc = GetDC(handle);
 	window->context = _gfx_win32->extensions.CreateContextAttribsARB(
 		hdc,
-		shareCont,
+		share,
 		bufferAttr
 	);
 
 	/* Make it current */
 	if(window->context)
-	{
 		wglMakeCurrent(hdc, window->context);
-		return 1;
-	}
-	return 0;
+
+	return window->context;
 }
 
 /******************************************************/
-void _gfx_platform_context_free(
+void _gfx_platform_context_clear(
 
 		GFX_PlatformWindow handle)
 {
@@ -74,54 +66,6 @@ void _gfx_platform_context_free(
 		wglDeleteContext(window->context);
 		window->context = NULL;
 	}
-}
-
-/******************************************************/
-void _gfx_platform_context_get(
-
-		int*  major,
-		int*  minor)
-{
-	GLint ma, mi;
-	glGetIntegerv(GL_MAJOR_VERSION, &ma);
-	glGetIntegerv(GL_MINOR_VERSION, &mi);
-
-	*major = ma;
-	*minor = mi;
-}
-
-/******************************************************/
-void _gfx_platform_context_make_current(
-
-		GFX_PlatformWindow handle)
-{
-	if(!handle) wglMakeCurrent(
-		NULL,
-		NULL
-	);
-
-	else
-	{
-		GFX_Win32_Window* window =
-			_gfx_win32_get_window_from_handle(handle);
-
-		if(window) wglMakeCurrent(
-			GetDC(handle),
-			window->context
-		);
-	}
-}
-
-/******************************************************/
-GFX_ProcAddress _gfx_platform_get_proc_address(
-
-		const char* proc)
-{
-	GFX_ProcAddress address =
-		(GFX_ProcAddress)wglGetProcAddress(proc);
-
-	if(address) return address;
-	return (GFX_ProcAddress)GetProcAddress(GetModuleHandle(NULL), proc);
 }
 
 /******************************************************/
@@ -150,4 +94,52 @@ void _gfx_platform_context_swap_buffers(
 		GFX_PlatformWindow handle)
 {
 	if(_gfx_win32) SwapBuffers(GetDC(handle));
+}
+
+/******************************************************/
+void _gfx_platform_context_get(
+
+		int*  major,
+		int*  minor)
+{
+	GLint ma, mi;
+	glGetIntegerv(GL_MAJOR_VERSION, &ma);
+	glGetIntegerv(GL_MINOR_VERSION, &mi);
+
+	*major = ma;
+	*minor = mi;
+}
+
+/******************************************************/
+void _gfx_platform_context_make_current(
+
+		GFX_PlatformContext handle)
+{
+	if(!handle) wglMakeCurrent(
+		NULL,
+		NULL
+	);
+
+	else
+	{
+		GFX_Win32_Window* window =
+			_gfx_win32_get_window_from_context(handle);
+
+		if(window) wglMakeCurrent(
+			GetDC(window->handle),
+			window->context
+		);
+	}
+}
+
+/******************************************************/
+GFX_ProcAddress _gfx_platform_get_proc_address(
+
+		const char* proc)
+{
+	GFX_ProcAddress address =
+		(GFX_ProcAddress)wglGetProcAddress(proc);
+
+	if(address) return address;
+	return (GFX_ProcAddress)GetProcAddress(GetModuleHandle(NULL), proc);
 }

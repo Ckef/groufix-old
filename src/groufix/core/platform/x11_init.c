@@ -227,19 +227,38 @@ static void _gfx_x11_create_key_table(void)
 }
 
 /******************************************************/
-GFXVectorIterator _gfx_x11_get_window_from_handle(
+GFX_X11_Window* _gfx_x11_get_window_from_handle(
 
 		Window handle)
 {
 	if(!_gfx_x11) return NULL;
 
-	GFXVectorIterator it;
+	GFX_X11_Window* it;
 	for(
 		it = _gfx_x11->windows.begin;
 		it != _gfx_x11->windows.end;
 		it = gfx_vector_next(&_gfx_x11->windows, it))
 	{
-		if(((GFX_X11_Window*)it)->handle == handle) break;
+		if(it->handle == handle) break;
+	}
+
+	return it != _gfx_x11->windows.end ? it : NULL;
+}
+
+/******************************************************/
+GFX_X11_Window* _gfx_x11_get_window_from_context(
+
+		GLXContext context)
+{
+	if(!_gfx_x11) return NULL;
+
+	GFX_X11_Window* it;
+	for(
+		it = _gfx_x11->windows.begin;
+		it != _gfx_x11->windows.end;
+		it = gfx_vector_next(&_gfx_x11->windows, it))
+	{
+		if(it->context == context) break;
 	}
 
 	return it != _gfx_x11->windows.end ? it : NULL;

@@ -17,22 +17,18 @@
 #include "groufix/core/platform/x11.h"
 
 /******************************************************/
-int _gfx_platform_context_create(
+GFX_PlatformContext _gfx_platform_context_init(
 
-		GFX_PlatformWindow  handle,
-		int                 major,
-		int                 minor,
-		GFX_PlatformWindow  share)
+		GFX_PlatformWindow   handle,
+		int                  major,
+		int                  minor,
+		GFX_PlatformContext  share)
 {
-	/* Get the windows */
+	/* Get the window */
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
 		GFX_VOID_TO_UINT(handle));
 
-	if(!window) return 0;
-
-	GFX_X11_Window* shareWind = NULL;
-	if(share) shareWind = _gfx_x11_get_window_from_handle(
-		GFX_VOID_TO_UINT(share));
+	if(!window) return NULL;
 
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
@@ -44,34 +40,27 @@ int _gfx_platform_context_create(
 	};
 
 	/* Create the context */
-	GLXContext shareCont = NULL;
-	if(shareWind) shareCont = shareWind->context;
-
 	window->context = _gfx_x11->extensions.CreateContextAttribsARB(
 		_gfx_x11->display,
 		window->config,
-		shareCont,
+		share,
 		True,
 		bufferAttr
 	);
 
 	/* Make it current */
-	if(window->context)
-	{
-		glXMakeCurrent(
-			_gfx_x11->display,
-			window->handle,
-			window->context
-		);
+	if(window->context) glXMakeContextCurrent(
+		_gfx_x11->display,
+		window->handle,
+		window->handle,
+		window->context
+	);
 
-		return 1;
-	}
-
-	return 0;
+	return window->context;
 }
 
 /******************************************************/
-void _gfx_platform_context_free(
+void _gfx_platform_context_clear(
 
 		GFX_PlatformWindow handle)
 {
@@ -81,57 +70,11 @@ void _gfx_platform_context_free(
 
 	if(window)
 	{
-		glXMakeCurrent(_gfx_x11->display, None, NULL);
+		glXMakeContextCurrent(_gfx_x11->display, None, None, NULL);
 		glXDestroyContext(_gfx_x11->display, window->context);
 
 		window->context = NULL;
 	}
-}
-
-/******************************************************/
-void _gfx_platform_context_get(
-
-		int*  major,
-		int*  minor)
-{
-	GLint ma, mi;
-	glGetIntegerv(GL_MAJOR_VERSION, &ma);
-	glGetIntegerv(GL_MINOR_VERSION, &mi);
-
-	*major = ma;
-	*minor = mi;
-}
-
-/******************************************************/
-void _gfx_platform_context_make_current(
-
-		GFX_PlatformWindow handle)
-{
-	if(!handle) glXMakeCurrent(
-		_gfx_x11->display,
-		None,
-		NULL
-	);
-
-	else
-	{
-		GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
-			GFX_VOID_TO_UINT(handle));
-
-		if(window) glXMakeCurrent(
-			_gfx_x11->display,
-			window->handle,
-			window->context
-		);
-	}
-}
-
-/******************************************************/
-GFX_ProcAddress _gfx_platform_get_proc_address(
-
-		const char* proc)
-{
-	return (GFX_ProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
 }
 
 /******************************************************/
@@ -162,4 +105,52 @@ void _gfx_platform_context_swap_buffers(
 		_gfx_x11->display,
 		(Window)GFX_VOID_TO_UINT(handle)
 	);
+}
+
+/******************************************************/
+void _gfx_platform_context_get(
+
+		int*  major,
+		int*  minor)
+{
+	GLint ma, mi;
+	glGetIntegerv(GL_MAJOR_VERSION, &ma);
+	glGetIntegerv(GL_MINOR_VERSION, &mi);
+
+	*major = ma;
+	*minor = mi;
+}
+
+/******************************************************/
+void _gfx_platform_context_make_current(
+
+		GFX_PlatformContext handle)
+{
+	if(!handle) glXMakeContextCurrent(
+		_gfx_x11->display,
+		None,
+		None,
+		NULL
+	);
+
+	else
+	{
+		GFX_X11_Window* window =
+			_gfx_x11_get_window_from_context(handle);
+
+		if(window) glXMakeContextCurrent(
+			_gfx_x11->display,
+			window->handle,
+			window->handle,
+			window->context
+		);
+	}
+}
+
+/******************************************************/
+GFX_ProcAddress _gfx_platform_get_proc_address(
+
+		const char* proc)
+{
+	return (GFX_ProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
 }

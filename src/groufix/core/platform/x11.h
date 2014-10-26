@@ -125,9 +125,17 @@ extern GFX_X11_Connection* _gfx_x11;
  * Returns an X11 window from its handle.
  *
  */
-GFXVectorIterator _gfx_x11_get_window_from_handle(
+GFX_X11_Window* _gfx_x11_get_window_from_handle(
 
 		Window handle);
+
+/**
+ * Returns an X11 window from its context.
+ *
+ */
+GFX_X11_Window* _gfx_x11_get_window_from_context(
+
+		GLXContext context);
 
 
 #ifdef __cplusplus

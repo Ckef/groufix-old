@@ -196,16 +196,18 @@ typedef struct GFX_Window
 	GFXWindow window;
 
 	/* Renderer Extensions & Limits */
-	unsigned char       ext[GFX_EXT_COUNT];
-	int                 lim[GFX_LIM_COUNT];
+	unsigned char        ext[GFX_EXT_COUNT];
+	int                  lim[GFX_LIM_COUNT];
 
 	/* Hidden data */
-	char                offscreen;
-	GFXContext          context;  /* Context version */
-	GFXPipeState        state;
-	GFX_PlatformWindow  handle;
-	GFX_Renderer        renderer; /* Renderer data */
-	GFX_RenderObjects   objects;  /* Per window render objects */
+	char                 offscreen;
+	GFXContext           version;  /* Context version */
+	GFXPipeState         state;
+	GFX_PlatformWindow   handle;
+	GFX_PlatformContext  context;
+
+	GFX_Renderer         renderer; /* Renderer data */
+	GFX_RenderObjects    objects;  /* Per window render objects */
 
 } GFX_Window;
 

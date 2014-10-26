@@ -130,6 +130,10 @@ typedef void* GFX_PlatformScreen;
 typedef void* GFX_PlatformWindow;
 
 
+/** A Context */
+typedef void* GFX_PlatformContext;
+
+
 /** Window initialization attributes */
 typedef struct GFX_PlatformAttributes
 {
@@ -481,7 +485,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
  * Destroys a window, freeing all its memory.
  *
  * This method is allowed to make all contexts inactive,
- * as this method should also destroy the context if it has one.
+ * as this method should also clear the associated context if it has one.
  *
  */
 void _gfx_platform_window_free(
@@ -589,16 +593,16 @@ void _gfx_platform_poll_events(void);
  *
  * @param major Major context version.
  * @param minor Minor context version.
- * @param share Window to share resources with (can be NULL to not share).
- * @return Whether or not the context could be created.
+ * @param share Context to share resources with (can be NULL to not share).
+ * @return A handle to the context (NULL on failure).
  *
  */
-int _gfx_platform_context_create(
+GFX_PlatformContext _gfx_platform_context_init(
 
-		GFX_PlatformWindow  handle,
-		int                 major,
-		int                 minor,
-		GFX_PlatformWindow  share);
+		GFX_PlatformWindow   handle,
+		int                  major,
+		int                  minor,
+		GFX_PlatformContext  share);
 
 /**
  * Destroys the context of a window.
@@ -606,41 +610,9 @@ int _gfx_platform_context_create(
  * This method is allowed to make all contexts inactive.
  *
  */
-void _gfx_platform_context_free(
+void _gfx_platform_context_clear(
 
 		GFX_PlatformWindow handle);
-
-/**
- * Returns the context version of the current window.
- *
- * @param major Return parameter for the major version, 0 on failure.
- * @param minor Return parameter for the minor version, 0 on failure.
- *
- */
-void _gfx_platform_context_get(
-
-		int*  major,
-		int*  minor);
-
-/**
- * Makes the current window the active render target.
- *
- * @param handle Window to make current, NULL to unmake any window current.
- *
- */
-void _gfx_platform_context_make_current(
-
-		GFX_PlatformWindow handle);
-
-/**
- * Returns the address to a process of the current context.
- *
- * @return NULL if the process does not exist.
- *
- */
-GFX_ProcAddress _gfx_platform_get_proc_address(
-
-		const char* proc);
 
 /**
  * Sets the minimum number of video frame periods per buffer swap.
@@ -659,12 +631,44 @@ int _gfx_platform_context_set_swap_interval(
 		int                 num);
 
 /**
- * Swaps the internal buffers of the window.
+ * Swaps the internal buffers of the window's context.
  *
  */
 void _gfx_platform_context_swap_buffers(
 
 		GFX_PlatformWindow handle);
+
+/**
+ * Returns the context version of the current context.
+ *
+ * @param major Return parameter for the major version, 0 on failure.
+ * @param minor Return parameter for the minor version, 0 on failure.
+ *
+ */
+void _gfx_platform_context_get(
+
+		int*  major,
+		int*  minor);
+
+/**
+ * Makes a context the active context.
+ *
+ * @param handle Context to make current, NULL to unmake any context current.
+ *
+ */
+void _gfx_platform_context_make_current(
+
+		GFX_PlatformContext handle);
+
+/**
+ * Returns the address to a process of the current context.
+ *
+ * @return NULL if the process does not exist.
+ *
+ */
+GFX_ProcAddress _gfx_platform_get_proc_address(
+
+		const char* proc);
 
 
 /********************************************************

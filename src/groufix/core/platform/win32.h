@@ -170,12 +170,20 @@ void _gfx_win32_set_pixel_format(
 		int                   backBuffer);
 
 /**
- * Returns an Win32 window from its handle.
+ * Returns a Win32 window from its handle.
  *
  */
-GFXVectorIterator _gfx_win32_get_window_from_handle(
+GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 
 		HWND handle);
+
+/**
+ * Returns a Win32 window from its context.
+ *
+ */
+GFX_Win32_Window* _gfx_win32_get_window_from_context(
+
+		HGLRC context);
 
 
 #ifdef __cplusplus

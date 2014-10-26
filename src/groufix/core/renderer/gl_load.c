@@ -274,8 +274,8 @@ void _gfx_renderer_load(void)
 	/* GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE */
 	/* GFX_EXT_MULTISAMPLE_TEXTURE */
 	if(
-		GFX_WIND_GET.context.major > 3 ||
-		(GFX_WIND_GET.context.major == 3 && GFX_WIND_GET.context.minor > 0))
+		GFX_WIND_GET.version.major > 3 ||
+		(GFX_WIND_GET.version.major == 3 && GFX_WIND_GET.version.minor > 0))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
 		GFX_WIND_GET.ext[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
@@ -285,8 +285,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_PROGRAM_MAP */
 	if(
-		GFX_WIND_GET.context.major > 3 ||
-		(GFX_WIND_GET.context.major == 3 && GFX_WIND_GET.context.minor > 0))
+		GFX_WIND_GET.version.major > 3 ||
+		(GFX_WIND_GET.version.major == 3 && GFX_WIND_GET.version.minor > 0))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] = 1;
 
@@ -357,8 +357,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	if(
-		GFX_WIND_GET.context.major > 3 ||
-		(GFX_WIND_GET.context.major == 3 && GFX_WIND_GET.context.minor > 0))
+		GFX_WIND_GET.version.major > 3 ||
+		(GFX_WIND_GET.version.major == 3 && GFX_WIND_GET.version.minor > 0))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS] = 1;
 
@@ -404,7 +404,7 @@ void _gfx_renderer_load(void)
 	GFX_WIND_GET.ext[GFX_EXT_SEAMLESS_CUBEMAP]            = 1;
 	GFX_WIND_GET.ext[GFX_EXT_TEXTURE_1D]                  = 1;
 
-	/* Core, assumes 3.2+ context */
+	/* Core, assumes 3.2+.version */
 	GFX_REND_GET.ActiveTexture =
 		(PFNGLACTIVETEXTUREPROC)_gfx_platform_get_proc_address("glActiveTexture");
 	GFX_REND_GET.AttachShader =
@@ -749,8 +749,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_DIRECT_STATE_ACCESS */
 	if(
-		GFX_WIND_GET.context.major > 4 ||
-		(GFX_WIND_GET.context.major == 4 && GFX_WIND_GET.context.minor > 4) ||
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 4) ||
 		_gfx_is_extension_supported("GL_ARB_direct_state_access", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
@@ -825,8 +825,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_IMMUTABLE_TEXTURE */
 	if(
-		GFX_WIND_GET.context.major > 4 ||
-		(GFX_WIND_GET.context.major == 4 && GFX_WIND_GET.context.minor > 1) ||
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 1) ||
 		_gfx_is_extension_supported("GL_ARB_texture_storage", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_IMMUTABLE_TEXTURE] = 1;
@@ -841,8 +841,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE */
 	if(
-		GFX_WIND_GET.context.major > 4 ||
-		(GFX_WIND_GET.context.major == 4 && GFX_WIND_GET.context.minor > 2) ||
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 2) ||
 		_gfx_is_extension_supported("GL_ARB_texture_storage_multisample", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
@@ -855,8 +855,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(
-		GFX_WIND_GET.context.major > 3 ||
-		(GFX_WIND_GET.context.major == 3 && GFX_WIND_GET.context.minor > 2))
+		GFX_WIND_GET.version.major > 3 ||
+		(GFX_WIND_GET.version.major == 3 && GFX_WIND_GET.version.minor > 2))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 
@@ -874,8 +874,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
 	if(
-		GFX_WIND_GET.context.major > 4 ||
-		(GFX_WIND_GET.context.major == 4 && GFX_WIND_GET.context.minor > 1) ||
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 1) ||
 		_gfx_is_extension_supported("GL_ARB_base_instance", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
@@ -888,7 +888,7 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_LAYERED_CUBEMAP */
 	if(
-		GFX_WIND_GET.context.major > 3 ||
+		GFX_WIND_GET.version.major > 3 ||
 		_gfx_is_extension_supported("GL_ARB_texture_cube_map_array", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_LAYERED_CUBEMAP] = 1;
@@ -896,8 +896,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_PROGRAM_BINARY */
 	if(
-		GFX_WIND_GET.context.major > 4 ||
-		(GFX_WIND_GET.context.major == 4 && GFX_WIND_GET.context.minor > 0) ||
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 0) ||
 		_gfx_is_extension_supported("GL_ARB_get_program_binary", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_BINARY] = 1;
@@ -912,8 +912,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_PROGRAM_MAP */
 	if(
-		GFX_WIND_GET.context.major > 4 ||
-		(GFX_WIND_GET.context.major == 4 && GFX_WIND_GET.context.minor > 0) ||
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 0) ||
 		_gfx_is_extension_supported("GL_ARB_separate_shader_objects", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] = 1;
@@ -962,8 +962,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
 	if(
-		GFX_WIND_GET.context.major > 4 ||
-		(GFX_WIND_GET.context.major == 4 && GFX_WIND_GET.context.minor > 2) ||
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 2) ||
 		_gfx_is_extension_supported("GL_ARB_vertex_attrib_binding", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS] = 1;
@@ -989,7 +989,7 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_TESSELLATION_SHADER */
 	if(
-		GFX_WIND_GET.context.major > 3 ||
+		GFX_WIND_GET.version.major > 3 ||
 		_gfx_is_extension_supported("GL_ARB_tessellation_shader", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
