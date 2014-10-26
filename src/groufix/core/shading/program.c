@@ -495,6 +495,7 @@ static void _gfx_program_obj_free(
 
 	program->program.id = id;
 	program->handle = 0;
+	program->program.linked = 0;
 }
 
 /******************************************************/
@@ -661,6 +662,8 @@ int gfx_program_set_attribute(
 		name
 	);
 
+	program->linked = 0;
+
 	return 1;
 }
 
@@ -687,6 +690,8 @@ int gfx_program_set_feedback(
 		mode
 	);
 
+	program->linked = 0;
+
 	return 1;
 }
 
@@ -698,86 +703,93 @@ int gfx_program_link(
 		GFXShader**  shaders,
 		int          binary)
 {
-	GFX_WIND_INIT(0);
-
-	struct GFX_Program* internal = (struct GFX_Program*)program;
-
-	/* Set binary parameter */
-	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_BINARY])
-		GFX_REND_GET.ProgramParameteri(
-			internal->handle,
-			GL_PROGRAM_BINARY_RETRIEVABLE_HINT,
-			binary ? GL_TRUE : GL_FALSE
-		);
-
-	/* Set separable parameter */
-	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
-		GFX_REND_GET.ProgramParameteri(
-			internal->handle,
-			GL_PROGRAM_SEPARABLE,
-			GL_TRUE
-		);
-
-	/* Compile and attach all shaders */
-	size_t i = 0;
-	for(i = 0; i < num; ++i)
+	/* Already linked */
+	if(!program->linked)
 	{
-		/* Uh oh, compiling went wrong, detach all! */
-		if(!gfx_shader_compile(shaders[i]))
-		{
-			while(i) GFX_REND_GET.DetachShader(
+		GFX_WIND_INIT(0);
+
+		struct GFX_Program* internal = (struct GFX_Program*)program;
+
+		/* Set binary parameter */
+		if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_BINARY])
+			GFX_REND_GET.ProgramParameteri(
 				internal->handle,
-				_gfx_shader_get_handle(shaders[--i])
+				GL_PROGRAM_BINARY_RETRIEVABLE_HINT,
+				binary ? GL_TRUE : GL_FALSE
 			);
-			return 0;
+
+		/* Set separable parameter */
+		if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+			GFX_REND_GET.ProgramParameteri(
+				internal->handle,
+				GL_PROGRAM_SEPARABLE,
+				GL_TRUE
+			);
+
+		/* Compile and attach all shaders */
+		size_t i = 0;
+		for(i = 0; i < num; ++i)
+		{
+			/* Uh oh, compiling went wrong, detach all! */
+			if(!gfx_shader_compile(shaders[i]))
+			{
+				while(i) GFX_REND_GET.DetachShader(
+					internal->handle,
+					_gfx_shader_get_handle(shaders[--i])
+				);
+				return 0;
+			}
+
+			/* Attach shader */
+			GFX_REND_GET.AttachShader(
+				internal->handle,
+				_gfx_shader_get_handle(shaders[i])
+			);
 		}
 
-		/* Attach shader */
-		GFX_REND_GET.AttachShader(
+		/* Try to link */
+		GLint status;
+		GFX_REND_GET.LinkProgram(internal->handle);
+		GFX_REND_GET.GetProgramiv(
+			internal->handle,
+			GL_LINK_STATUS, &status
+		);
+
+		/* Detach all shaders */
+		for(i = 0; i < num; ++i) GFX_REND_GET.DetachShader(
 			internal->handle,
 			_gfx_shader_get_handle(shaders[i])
 		);
+
+		if(!status)
+		{
+			/* Generate error */
+			GLint len;
+			GFX_REND_GET.GetProgramiv(
+				internal->handle,
+				GL_INFO_LOG_LENGTH,
+				&len
+			);
+
+			char buff[len];
+			GFX_REND_GET.GetProgramInfoLog(
+				internal->handle,
+				len,
+				NULL,
+				buff
+			);
+
+			gfx_errors_push(GFX_ERROR_LINK_FAIL, buff);
+
+			return 0;
+		}
+
+		/* Prepare program */
+		_gfx_program_prepare(internal, GFX_WIND_AS_ARG);
 	}
 
-	/* Try to link */
-	GLint status;
-	GFX_REND_GET.LinkProgram(internal->handle);
-	GFX_REND_GET.GetProgramiv(
-		internal->handle,
-		GL_LINK_STATUS, &status
-	);
-
-	/* Detach all shaders */
-	for(i = 0; i < num; ++i) GFX_REND_GET.DetachShader(
-		internal->handle,
-		_gfx_shader_get_handle(shaders[i])
-	);
-
-	if(!status)
-	{
-		/* Generate error */
-		GLint len;
-		GFX_REND_GET.GetProgramiv(
-			internal->handle,
-			GL_INFO_LOG_LENGTH,
-			&len
-		);
-
-		char buff[len];
-		GFX_REND_GET.GetProgramInfoLog(
-			internal->handle,
-			len,
-			NULL,
-			buff
-		);
-
-		gfx_errors_push(GFX_ERROR_LINK_FAIL, buff);
-	}
-
-	/* Prepare program */
-	else _gfx_program_prepare(internal, GFX_WIND_AS_ARG);
-
-	return status;
+	/* Woop woop! */
+	return program->linked = 1;
 }
 
 /******************************************************/
@@ -841,7 +853,11 @@ int gfx_program_set_binary(
 		&status);
 
 	/* Prepare program */
-	if(status) _gfx_program_prepare(internal, GFX_WIND_AS_ARG);
+	if(status)
+	{
+		_gfx_program_prepare(internal, GFX_WIND_AS_ARG);
+		program->linked = 1;
+	}
 
 	return status;
 }

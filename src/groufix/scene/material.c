@@ -444,10 +444,10 @@ void gfx_material_free(
 /******************************************************/
 GFXPropertyMap* gfx_material_add(
 
-		GFXMaterial*   material,
-		unsigned int   level,
-		GFXProgram*    program,
-		unsigned char  properties)
+		GFXMaterial*    material,
+		unsigned int    level,
+		GFXProgramMap*  programMap,
+		unsigned char   properties)
 {
 	/* Compute index of the map */
 	unsigned int ind = gfx_lod_map_count(
@@ -458,7 +458,7 @@ GFXPropertyMap* gfx_material_add(
 	/* Create new property map */
 	struct GFX_MapData data;
 	data.copies = 0;
-	data.map = gfx_property_map_create(program, properties);
+	data.map = gfx_property_map_create(programMap, properties);
 
 	if(!data.map) return NULL;
 
@@ -511,7 +511,7 @@ size_t gfx_property_map_list_instances_at(
 		GFXPropertyMapList  list,
 		unsigned int        index)
 {
-	return ((struct GFX_MapData*)list)[index].map->program->instances;
+	return ((struct GFX_MapData*)list)[index].map->programMap->instances;
 }
 
 /******************************************************/

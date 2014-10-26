@@ -59,13 +59,15 @@ GFX_Pipe* _gfx_pipe_create_bucket(
 /******************************************************/
 GFX_Pipe* _gfx_pipe_create_process(
 
-		GFXPipeline* pipeline)
+		GFXPipeline*  pipeline,
+		GFXWindow*    target,
+		int           swap)
 {
 	GFX_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_PROCESS, pipeline);
 	if(!pipe) return NULL;
 
 	/* Allocate process */
-	GFXPipeProcess process = _gfx_pipe_process_create();
+	GFXPipeProcess process = _gfx_pipe_process_create(target, swap);
 	if(!process)
 	{
 		_gfx_pipe_free((GFX_Pipe*)pipe);

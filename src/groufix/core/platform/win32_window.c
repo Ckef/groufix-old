@@ -238,6 +238,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			GFX_Win32_Window* internal =
 				(GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
 
+			if(!internal) return 0;
+
 			if(!(internal->flags & GFX_WIN32_MOUSEINSIDE))
 			{
 				internal->flags |= GFX_WIN32_MOUSEINSIDE;
@@ -257,6 +259,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			GFX_Win32_Window* internal =
 				(GFX_Win32_Window*)_gfx_win32_get_window_from_handle(handle);
 
+			if(!internal) return 0;
 			internal->flags &= ~GFX_WIN32_MOUSEINSIDE;
 
 			/* Untrack */

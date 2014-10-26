@@ -130,12 +130,16 @@ GFX_Pipe* _gfx_pipe_create_bucket(
 /**
  * Creates a new process pipe.
  *
+ * @param window Target window to draw to, NULL to render using current pipeline.
+ * @param swap   Whether to swap the window's internal buffers afterwards or not.
  * @return NULL on failure.
  *
  */
 GFX_Pipe* _gfx_pipe_create_process(
 
-		GFXPipeline* pipeline);
+		GFXPipeline*  pipeline,
+		GFXWindow*    target,
+		int           swap);
 
 /**
  * Makes sure the pipe is freed properly.
@@ -167,7 +171,7 @@ void _gfx_pipeline_bind(
 /**
  * Creates a new bucket.
  *
- * @param bits Number of manual bits to consider when sorting (LSB = 1st bit).
+ * @param bits Number of manual bits to sort by (LSB = 1st bit, 0 for all bits).
  * @return NULL on failure.
  *
  */
@@ -202,10 +206,15 @@ void _gfx_bucket_process(
 /**
  * Creates a new process.
  *
+ * @param window Target window to draw to, NULL to render using current pipeline.
+ * @param swap   Whether to swap the window's internal buffers afterwards or not.
  * @return NULL on failure.
  *
  */
-GFXPipeProcess _gfx_pipe_process_create(void);
+GFXPipeProcess _gfx_pipe_process_create(
+
+		GFXWindow*  target,
+		int         swap);
 
 /**
  * Makes sure the pipe process is freed properly.
@@ -236,6 +245,16 @@ void _gfx_pipe_process_unprepare(
 		int last);
 
 /**
+ * Makes sure all the pipes that target the current window target a new one.
+ *
+ * @param target New target for all pipes.
+ *
+ */
+void _gfx_pipe_process_retarget(
+
+		GFX_Window* target);
+
+/**
  * Forwards a new size of a window to all processes.
  *
  * @target Window which was resized.
@@ -248,18 +267,6 @@ void _gfx_pipe_process_resize(
 		GFX_Window*   target,
 		unsigned int  width,
 		unsigned int  height);
-
-/**
- * Replaces a specific target with a new one.
- *
- * @param replace Target to be replaced.
- * @param target  New target to replace the old target with.
- *
- */
-void _gfx_pipe_process_retarget(
-
-		GFX_Window*  replace,
-		GFX_Window*  target);
 
 /**
  * Executes the pipe process.

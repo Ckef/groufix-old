@@ -692,7 +692,7 @@ GFXBucketUnit gfx_bucket_insert(
 
 	unit.state    = state & GFX_INT_UNIT_MANUAL;
 	unit.state   |= visible ? GFX_INT_UNIT_VISIBLE : 0;
-	unit.program  = map->program->id;
+	unit.program  = map->programMap->id;
 	unit.layout   = source->layout->id;
 
 	unit.map  = map;
@@ -755,7 +755,7 @@ int gfx_bucket_rebuild(
 	/* If you know a better name for it, feel free */
 	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
 
-	un->program = map->program->id;
+	un->program = map->programMap->id;
 	un->layout  = source->layout->id;
 	un->map     = map;
 	un->src     = src;

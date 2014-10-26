@@ -34,8 +34,9 @@ struct GFX_Map
 	GFXProgramMap map;
 
 	/* Hidden data */
-	GLuint       handle;                     /* OpenGL program or program pipeline handle */
-	GFXProgram*  stages[GFX_INT_NUM_STAGES]; /* All stages with their associated program */
+	GLuint        handle;                     /* OpenGL program or program pipeline handle */
+	GFXProgram*   stages[GFX_INT_NUM_STAGES]; /* All stages with their associated program */
+	unsigned int  blocks;                     /* Number of times blocked */
 };
 
 /******************************************************/
@@ -84,7 +85,6 @@ static int _gfx_program_map_set_stages(
 	GFX_WIND_INIT(0);
 
 	unsigned char ext = GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP];
-	unsigned char index;
 
 	/* Get program handle */
 	GLuint handle = 0;
@@ -108,6 +108,7 @@ static int _gfx_program_map_set_stages(
 		}
 
 		/* Set all stages */
+		unsigned int index;
 		for(index = 0; index < GFX_INT_NUM_STAGES; ++index)
 		{
 			/* Free previous program */
@@ -120,7 +121,7 @@ static int _gfx_program_map_set_stages(
 	else
 	{
 		/* Map to the requested stage */
-		index = _gfx_program_map_get_stage(stage);
+		unsigned int index = _gfx_program_map_get_stage(stage);
 		if(index >= GFX_INT_NUM_STAGES) return 0;
 
 		/* Free previous program */
@@ -131,26 +132,22 @@ static int _gfx_program_map_set_stages(
 
 		/* Loop over all stages to get minimum of instances */
 		map->map.instances = 0;
-		unsigned char ind;
-
-		for(ind = 0; ind < GFX_INT_NUM_STAGES; ++ind)
-			if(map->stages[ind])
+		for(index = 0; index < GFX_INT_NUM_STAGES; ++index)
+			if(map->stages[index])
 			{
-				size_t inst = map->stages[ind]->instances;
+				size_t inst = map->stages[index]->instances;
 				map->map.instances =
 					!map->map.instances || map->map.instances > inst ?
 					inst : map->map.instances;
 			}
 	}
 
-	/* Finally use the actual stages */
-	if(ext) GFX_REND_GET.UseProgramStages(
-		map->handle,
-		_gfx_program_map_get_bitfield(index),
-		handle);
-
-	/* Or force the program to be bound if no pipeline is available */
-	else map->handle = handle;
+	/* Force the program to be bound if no pipeline is available */
+	if(!ext)
+	{
+		map->map.id = program->id;
+		map->handle = handle;
+	}
 
 	return 1;
 }
@@ -197,13 +194,16 @@ static void _gfx_program_map_obj_restore(
 	GFX_REND_GET.GenProgramPipelines(1, &map->handle);
 
 	/* Use all programs */
-	unsigned char stage;
-	for(stage = 0; stage < GFX_INT_NUM_STAGES; ++stage)
-		if(map->stages[stage]) GFX_REND_GET.UseProgramStages(
-			map->handle,
-			_gfx_program_map_get_bitfield(stage),
-			_gfx_program_get_handle(map->stages[stage])
-		);
+	if(map->blocks)
+	{
+		unsigned char stage;
+		for(stage = 0; stage < GFX_INT_NUM_STAGES; ++stage)
+			if(map->stages[stage]) GFX_REND_GET.UseProgramStages(
+				map->handle,
+				_gfx_program_map_get_bitfield(stage),
+				_gfx_program_get_handle(map->stages[stage])
+			);
+	}
 }
 
 /******************************************************/
@@ -221,6 +221,101 @@ GLuint _gfx_program_map_get_handle(
 		const GFXProgramMap* map)
 {
 	return ((struct GFX_Map*)map)->handle;
+}
+
+/******************************************************/
+int _gfx_program_map_block(
+
+		GFXProgramMap* map)
+{
+	GFX_WIND_INIT(0);
+
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+
+	/* Check if all programs are linked */
+	unsigned char stage;
+	for(stage = 0; stage < GFX_INT_NUM_STAGES; ++stage)
+		if(internal->stages[stage])
+		{
+			if(!internal->stages[stage]->linked)
+				return 0;
+		}
+
+	/* Increase block counter */
+	if(!(internal->blocks + 1))
+	{
+		/* Overflow error */
+		gfx_errors_push(
+			GFX_ERROR_OVERFLOW,
+			"Overflow occurred during Program Map usage."
+		);
+		return 0;
+	}
+
+	/* Use all programs */
+	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] && !internal->blocks)
+	{
+		for(stage = 0; stage < GFX_INT_NUM_STAGES; ++stage)
+			if(internal->stages[stage]) GFX_REND_GET.UseProgramStages(
+				internal->handle,
+				_gfx_program_map_get_bitfield(stage),
+				_gfx_program_get_handle(internal->stages[stage])
+			);
+	}
+
+	++internal->blocks;
+
+	return 1;
+}
+
+/******************************************************/
+void _gfx_program_map_unblock(
+
+		GFXProgramMap* map)
+{
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	internal->blocks = internal->blocks ? internal->blocks - 1 : 0;
+}
+
+/******************************************************/
+void _gfx_program_map_save(
+
+		GFXProgramMap*      map,
+		GFX_RenderObjects*  cont)
+{
+	GFX_WIND_INIT();
+
+	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+	{
+		/* Unregister as object */
+		_gfx_render_object_unregister(
+			cont,
+			map->id
+		);
+
+		_gfx_program_map_obj_save(map, 0);
+	}
+}
+
+/******************************************************/
+void _gfx_program_map_restore(
+
+		GFXProgramMap*      map,
+		GFX_RenderObjects*  cont)
+{
+	GFX_WIND_INIT();
+
+	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+	{
+		/* Register as object */
+		unsigned int id = _gfx_render_object_register(
+			cont,
+			map,
+			&_gfx_program_map_obj_funcs
+		);
+
+		if(id) _gfx_program_map_obj_restore(map, id);
+	}
 }
 
 /******************************************************/
@@ -324,12 +419,16 @@ GFXProgram* gfx_program_map_add(
 		GFXShaderStage  stage,
 		size_t          instances)
 {
+	/* Check if blocked */
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	if(internal->blocks) return NULL;
+
 	/* Create the program */
 	GFXProgram* program = _gfx_program_create(instances);
 	if(!program) return NULL;
 
 	/* Attempt to map it to the given stage(s) */
-	if(!_gfx_program_map_set_stages((struct GFX_Map*)map, stage, program))
+	if(!_gfx_program_map_set_stages(internal, stage, program))
 	{
 		_gfx_program_free(program);
 		return NULL;
@@ -345,13 +444,17 @@ int gfx_program_map_add_share(
 		GFXShaderStage  stage,
 		GFXProgram*     share)
 {
+	/* Check if blocked */
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+	if(internal->blocks) return 0;
+
 	if(share)
 	{
 		/* Reference the program */
 		if(!_gfx_program_reference(share, 1)) return 0;
 
 		/* Attempt to map it to the given stage(s) */
-		if(!_gfx_program_map_set_stages((struct GFX_Map*)map, stage, share))
+		if(!_gfx_program_map_set_stages(internal, stage, share))
 		{
 			_gfx_program_free(share);
 			return 0;
@@ -361,11 +464,7 @@ int gfx_program_map_add_share(
 	}
 
 	/* Disable the stage */
-	return _gfx_program_map_set_stages(
-		(struct GFX_Map*)map,
-		stage,
-		NULL
-	);
+	return _gfx_program_map_set_stages(internal, stage, NULL);
 }
 
 /******************************************************/

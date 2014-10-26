@@ -537,10 +537,12 @@ GFXPipe* gfx_pipeline_push_bucket(
 /******************************************************/
 GFXPipe* gfx_pipeline_push_process(
 
-		GFXPipeline* pipeline)
+		GFXPipeline*  pipeline,
+		GFXWindow*    target,
+		int           swap)
 {
 	/* Create the pipe and push it */
-	GFX_Pipe* pipe = _gfx_pipe_create_process(pipeline);
+	GFX_Pipe* pipe = _gfx_pipe_create_process(pipeline, target, swap);
 	if(!pipe) return 0;
 
 	_gfx_pipeline_push_pipe(pipe);

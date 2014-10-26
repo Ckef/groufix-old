@@ -281,30 +281,62 @@ typedef void* GFXPipeProcess;
 
 
 /**
- * Sets the sources to use while drawing.
+ * Creates and retrieves the property map associated with a pipe process.
  *
- * @param map  Property map (and thus program) to use for the process, NULL will disable the process.
- * @param copy Index of the copy of the property map to use.
+ * @param properties Fixed number of property indices associated with this map.
+ * @return NULL on failure.
  *
- */
-GFX_API void gfx_pipe_process_set_source(
-
-		GFXPipeProcess   process,
-		GFXPropertyMap*  map,
-		unsigned int     copy);
-
-/**
- * Sets the target window to render to.
- *
- * @param window Target window to draw to, NULL will enable render to texture.
- * @param swap   Whether to swap the window's internal buffers afterwards or not.
+ * Note: this will signal the internal program map to setup its executable pipeline.
+ * After this the internal program map cannot be altered anymore.
+ * Also, any calls after the first call will ignore properties.
  *
  */
-GFX_API void gfx_pipe_process_set_target(
+GFX_API GFXPropertyMap* gfx_pipe_process_get_map(
 
 		GFXPipeProcess  process,
-		GFXWindow*      target,
-		int             swap);
+		unsigned char   properties);
+
+/**
+ * Sets the copy of the associated property map to use while drawing.
+ *
+ * @param copy Index of the copy of the property map to use.
+ *
+ * The default is 0.
+ *
+ */
+GFX_API void gfx_pipe_process_set_copy(
+
+		GFXPipeProcess  process,
+		unsigned int    copy);
+
+/**
+ * Calls gfx_program_map_add for the internal program map of a process.
+ *
+ */
+GFX_API GFXProgram* gfx_pipe_process_add(
+
+		GFXPipeProcess  process,
+		GFXShaderStage  stage,
+		size_t          instances);
+
+/**
+ * Calls gfx_program_map_add_share for the internal program map of a process.
+ *
+ */
+GFX_API int gfx_pipe_process_add_share(
+
+		GFXPipeProcess  process,
+		GFXShaderStage  stage,
+		GFXProgram*     share);
+
+/**
+ * Calls gfx_program_map_get for the internal program map of a process.
+ *
+ */
+GFX_API GFXProgram* gfx_pipe_process_get(
+
+		GFXPipeProcess  process,
+		GFXShaderStage  stage);
 
 
 /********************************************************
@@ -607,6 +639,8 @@ GFX_API GFXPipe* gfx_pipeline_push_bucket(
 /**
  * Adds a process to the pipeline.
  *
+ * @param window Target window to draw to, NULL will enable render to texture.
+ * @param swap   Whether to swap the window's internal buffers afterwards or not.
  * @return The new pipe (NULL on failure).
  *
  * Note: all state and parameters will be copied from the previous pipe.
@@ -614,7 +648,9 @@ GFX_API GFXPipe* gfx_pipeline_push_bucket(
  */
 GFX_API GFXPipe* gfx_pipeline_push_process(
 
-		GFXPipeline* pipeline);
+		GFXPipeline*  pipeline,
+		GFXWindow*    target,
+		int           swap);
 
 /**
  * Removes all pipes from the execution list without destroying them.

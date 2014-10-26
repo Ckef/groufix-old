@@ -171,6 +171,7 @@ typedef struct GFXProgram
 	unsigned short  properties; /* Accessible properties */
 	unsigned short  blocks;     /* Accessible property blocks */
 	size_t          instances;  /* Number of instances that can be drawn at once */
+	char            linked;     /* Non-zero if linked with latest changes. */
 
 } GFXProgram;
 
@@ -403,9 +404,9 @@ GFX_API GFXProgram* gfx_program_map_get(
 /** Property map */
 typedef struct GFXPropertyMap
 {
-	GFXProgram*    program;    /* Program it references (cannot be changed or freed while the map is alive) */
-	unsigned char  properties; /* Number of properties */
-	unsigned int   copies;     /* Number of property copies present, the initial value is 1 */
+	GFXProgramMap*  programMap; /* Program map it references (cannot be changed or freed while the map is alive) */
+	unsigned char   properties; /* Number of properties */
+	unsigned int    copies;     /* Number of property copies present, the initial value is 1 */
 
 } GFXPropertyMap;
 
@@ -413,15 +414,19 @@ typedef struct GFXPropertyMap
 /**
  * Creates a new property map.
  *
- * @param program    Program to set inputs for.
+ * @param programMap Program map to set inputs for.
  * @param properties Fixed number of property indices associated with this map.
  * @return NULL on failure.
+ *
+ * Note: this will signal the program map to setup its executable pipeline.
+ * After this the program map cannot be altered until it is not in use by
+ * any property maps anymore.
  *
  */
 GFX_API GFXPropertyMap* gfx_property_map_create(
 
-		GFXProgram*    program,
-		unsigned char  properties);
+		GFXProgramMap*  programMap,
+		unsigned char   properties);
 
 /**
  * Makes sure the property map is freed properly.
@@ -472,11 +477,12 @@ GFX_API int gfx_property_map_move(
 		unsigned int     src);
 
 /**
- * Forwards data send to a given index to a property within the program.
+ * Forwards data send to a given index to a property within a program.
  *
  * @param index    Index to forward to the program (must be < map->properties).
  * @param copies   Non-zero if this property should contain copies of itself.
  * @param ptr      If non-zero, a vector/matrix value will store a pointer instead of the actual value.
+ * @param stage    Shader stage within the program map to use as program.
  * @param property Index of the program property to forward to.
  * @return Zero on failure.
  *
@@ -489,6 +495,7 @@ GFX_API int gfx_property_map_forward(
 		unsigned char    index,
 		int              copies,
 		int              ptr,
+		GFXShaderStage   stage,
 		unsigned short   property);
 
 /**
@@ -504,6 +511,7 @@ GFX_API int gfx_property_map_forward_named(
 		unsigned char    index,
 		int              copies,
 		int              ptr,
+		GFXShaderStage   stage,
 		const char*      name);
 
 /**
@@ -511,6 +519,7 @@ GFX_API int gfx_property_map_forward_named(
  *
  * @param index  Index to forward to the program (must be < map->properties).
  * @param copies Non-zero if this property should contain copies of itself.
+ * @param stage    Shader stage within the program map to use as program.
  * @param block  Index of the program property block to forward to.
  * @return Zero on failure.
  *
@@ -520,6 +529,7 @@ GFX_API int gfx_property_map_forward_block(
 		GFXPropertyMap*  map,
 		unsigned char    index,
 		int              copies,
+		GFXShaderStage   stage,
 		unsigned short   block);
 
 /**
@@ -534,6 +544,7 @@ GFX_API int gfx_property_map_forward_named_block(
 		GFXPropertyMap*  map,
 		unsigned char    index,
 		int              copies,
+		GFXShaderStage   stage,
 		const char*      name);
 
 /**

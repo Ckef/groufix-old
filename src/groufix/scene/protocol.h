@@ -160,7 +160,7 @@ void _gfx_submesh_set_unit_data(
 /**
  * Fetch an existing unit handle for a given batch and bucket.
  *
- * @param pipe   Bucket to insert.
+ * @param bucket Bucket to insert.
  * @param handle Handle of the units associated with the bucket.
  * @return Zero on failure, the handle is untouched.
  *
@@ -171,7 +171,7 @@ int _gfx_submesh_find_units(
 
 		GFXSubMesh*    mesh,
 		unsigned int   submeshID,
-		GFXPipe*       pipe,
+		GFXBucket*     bucket,
 		unsigned int*  handle);
 
 /**
@@ -187,7 +187,7 @@ int _gfx_submesh_insert_units(
 
 		GFXSubMesh*    mesh,
 		unsigned int   submeshID,
-		GFXPipe*       pipe,
+		GFXBucket*     bucket,
 		unsigned int*  handle);
 
 /**
@@ -200,7 +200,7 @@ void _gfx_submesh_remove_units(
 
 		GFXSubMesh*   mesh,
 		unsigned int  submeshID,
-		GFXPipe*      pipe);
+		GFXBucket*    bucket);
 
 /**
  * Reserves a given amount of units associated with a unit handle.

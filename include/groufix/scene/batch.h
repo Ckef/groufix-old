@@ -174,8 +174,8 @@ GFX_API void gfx_batch_set_state(
  */
 GFX_API unsigned int gfx_batch_get_instances(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket);
+		GFXBatch*   batch,
+		GFXBucket*  bucket);
 
 /**
  * Returns the number of visible instances at a bucket.
@@ -183,8 +183,8 @@ GFX_API unsigned int gfx_batch_get_instances(
  */
 GFX_API unsigned int gfx_batch_get_visible(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket);
+		GFXBatch*   batch,
+		GFXBucket*  bucket);
 
 /**
  * Sets the number of instances at a bucket for a given batch.
@@ -200,7 +200,7 @@ GFX_API unsigned int gfx_batch_get_visible(
 GFX_API int gfx_batch_set_instances(
 
 		GFXBatch*     batch,
-		GFXPipe*      bucket,
+		GFXBucket*    bucket,
 		unsigned int  instances);
 
 /**
@@ -213,7 +213,7 @@ GFX_API int gfx_batch_set_instances(
 GFX_API unsigned int gfx_batch_set_visible(
 
 		GFXBatch*     batch,
-		GFXPipe*      bucket,
+		GFXBucket*    bucket,
 		unsigned int  instances);
 
 

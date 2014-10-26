@@ -79,7 +79,7 @@ GFXMaterial* create_material()
 	gfx_program_link(program, 2, shaders, 0);
 
 	GFXMaterial* mat = gfx_material_create();
-	gfx_material_add(mat, 0, program, 0);
+	gfx_material_add(mat, 0, programMap, 0);
 
 	gfx_shader_free(vert);
 	gfx_shader_free(frag);
@@ -111,16 +111,19 @@ int main()
 	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
 
 
-	/* Mesh and material */
-	unsigned int num;
+	/* Pipeline */
+	GFXPipeline* pipeline = gfx_pipeline_create();
 
-	GFXMesh* mesh = create_mesh();
-	GFXSubMesh* sub = gfx_submesh_list_at(
-		gfx_mesh_get_all(mesh, &num),
-		0
-	);
+	char targets[] = { 0 };
+	GFXViewport viewport = { 0, 0, 800, 600 };
+	gfx_pipeline_viewport(pipeline, viewport);
+	gfx_pipeline_target(pipeline, 1, targets);
 
-	GFXMaterial* material = create_material();
+	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
+	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;
+
+	GFXPipe* pipeA = gfx_pipeline_push_process(pipeline, window1, 0);
+	GFXPipe* pipeB = gfx_pipeline_push_process(pipeline, window2, 0);
 
 
 	/* Texture */
@@ -135,6 +138,8 @@ int main()
 	image.texture = tex;
 	image.mipmap  = 0;
 	image.layer   = 0;
+
+	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);
 
 
 	/* Post processing */
@@ -168,15 +173,13 @@ int main()
 
 	GFXShader* shaders[] = { vert, frag };
 
-	GFXProgramMap* programMapA = gfx_program_map_create();
-	GFXProgram* programA = gfx_program_map_add(programMapA, GFX_ALL_SHADERS, 1);
+	GFXProgram* programA = gfx_pipe_process_add(pipeA->process, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(programA, 0, "data");
 	gfx_program_link(programA, 2, shaders, 0);
 
 	gfx_shader_set_source(frag, 1, &fragSrcB);
 
-	GFXProgramMap* programMapB = gfx_program_map_create();
-	GFXProgram* programB = gfx_program_map_add(programMapB, GFX_ALL_SHADERS, 1);
+	GFXProgram* programB = gfx_pipe_process_add(pipeB->process, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(programB, 0, "data");
 	gfx_program_link(programB, 2, shaders, 0);
 
@@ -185,33 +188,23 @@ int main()
 
 
 	/* Property map */
-	GFXPropertyMap* mapA = gfx_property_map_create(programA, 1);
-	GFXPropertyMap* mapB = gfx_property_map_create(programB, 1);
-	gfx_property_map_forward_named(mapA, 0, 0, 0, "tex");
+	GFXPropertyMap* mapA = gfx_pipe_process_get_map(pipeA->process, 1);
+	GFXPropertyMap* mapB = gfx_pipe_process_get_map(pipeB->process, 1);
+	gfx_property_map_forward_named(mapA, 0, 0, 0, GFX_FRAGMENT_SHADER, "tex");
 	gfx_property_map_set_sampler(mapA, 0, 0, tex);
-	gfx_property_map_forward_named(mapB, 0, 0, 0, "tex");
+	gfx_property_map_forward_named(mapB, 0, 0, 0, GFX_FRAGMENT_SHADER, "tex");
 	gfx_property_map_set_sampler(mapB, 0, 0, tex);
 
 
-	/* Pipeline */
-	GFXPipeline* pipeline = gfx_pipeline_create();
+	/* Mesh and material */
+	unsigned int num;
 
-	char targets[] = { 0 };
-	GFXViewport viewport = { 0, 0, 800, 600 };
-	gfx_pipeline_viewport(pipeline, viewport);
-	gfx_pipeline_target(pipeline, 1, targets);
-	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);
-
-	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
-	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;
-
-	GFXPipe* pipe = gfx_pipeline_push_process(pipeline);
-	gfx_pipe_process_set_source(pipe->process, mapA, 0);
-	gfx_pipe_process_set_target(pipe->process, window1, 0);
-
-	pipe = gfx_pipeline_push_process(pipeline);
-	gfx_pipe_process_set_source(pipe->process, mapB, 0);
-	gfx_pipe_process_set_target(pipe->process, window2, 0);
+	GFXMaterial* material = create_material();
+	GFXMesh* mesh = create_mesh();
+	GFXSubMesh* sub = gfx_submesh_list_at(
+		gfx_mesh_get_all(mesh, &num),
+		0
+	);
 
 
 	/* Batch */
@@ -222,8 +215,8 @@ int main()
 
 	GFXBatch batch;
 	gfx_batch_get(&batch, material, sub, params);
-	gfx_batch_set_instances(&batch, bucket, 1);
-	gfx_batch_set_visible(&batch, bucket, 1);
+	gfx_batch_set_instances(&batch, bucket->bucket, 1);
+	gfx_batch_set_visible(&batch, bucket->bucket, 1);
 
 
 	/* Setup a loop */
@@ -253,11 +246,7 @@ int main()
 	/* Free all the things */
 	gfx_mesh_free(mesh);
 	gfx_material_free(material);
-	gfx_property_map_free(mapA);
-	gfx_property_map_free(mapB);
 	gfx_program_map_free(programMap);
-	gfx_program_map_free(programMapA);
-	gfx_program_map_free(programMapB);
 	gfx_texture_free(tex);
 	gfx_pipeline_free(pipeline);
 

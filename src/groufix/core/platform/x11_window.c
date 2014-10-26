@@ -125,6 +125,8 @@ static void _gfx_x11_event_proc(
 			GFX_X11_Window* internal =
 				_gfx_x11_get_window_from_handle(event->xany.window);
 
+			if(!internal) break;
+
 			if(
 				internal->x != event->xconfigure.x ||
 				internal->y != event->xconfigure.y)

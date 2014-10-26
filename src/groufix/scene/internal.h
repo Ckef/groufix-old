@@ -105,15 +105,15 @@ void _gfx_submesh_free(
 /**
  * Retrieves a bucket source ID from a submesh.
  *
- * @param pipe  A bucket in the submesh used by any batch.
- * @param index Index of the source to retrieve.
+ * @param bucket A bucket in the submesh used by any batch.
+ * @param index  Index of the source to retrieve.
  * @return The source ID, 0 on failure.
  *
  */
 GFXBucketSource _gfx_submesh_get_bucket_source(
 
 		GFXSubMesh*    mesh,
-		GFXPipe*       pipe,
+		GFXBucket*     bucket,
 		unsigned char  index);
 
 

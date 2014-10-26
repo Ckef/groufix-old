@@ -38,8 +38,8 @@ struct GFX_SubMesh
 /* Internal bucket reference */
 struct GFX_Bucket
 {
-	GFXPipe*      pipe;
-	unsigned int  ref; /* Reference count */
+	GFXBucket*    bucket;
+	unsigned int  ref;   /* Reference count */
 };
 
 /* Internal batch (material reference) */
@@ -55,7 +55,7 @@ struct GFX_Batch
 /* Internal unit pool */
 struct GFX_Units
 {
-	GFXPipe*      pipe;
+	GFXBucket*    bucket;
 	unsigned int  instances; /* Number of instances */
 	unsigned int  visible;   /* Number of visible instances */
 	unsigned int  units;     /* Number of stored units */
@@ -74,7 +74,7 @@ static inline GFXBucketSource* _gfx_submesh_get_src(
 static struct GFX_Bucket* _gfx_submesh_find_bucket(
 
 		struct GFX_SubMesh*  mesh,
-		GFXPipe*             pipe)
+		GFXBucket*           bucket)
 {
 	GFXVectorIterator it;
 	for(
@@ -82,7 +82,7 @@ static struct GFX_Bucket* _gfx_submesh_find_bucket(
 		it != mesh->buckets.end;
 		it = gfx_vector_next(&mesh->buckets, it))
 	{
-		if(((struct GFX_Bucket*)it)->pipe == pipe) break;
+		if(((struct GFX_Bucket*)it)->bucket == bucket) break;
 	}
 
 	return (struct GFX_Bucket*)it;
@@ -126,12 +126,12 @@ static unsigned int _gfx_submesh_find_batch_units(
 		struct GFX_SubMesh*  mesh,
 		unsigned int         begin,
 		unsigned int         end,
-		GFXPipe*             pipe)
+		GFXBucket*           bucket)
 {
 	while(begin < end)
 	{
 		struct GFX_Units* it = gfx_vector_at(&mesh->units, begin);
-		if(it->pipe == pipe) break;
+		if(it->bucket == bucket) break;
 
 		begin +=
 			sizeof(struct GFX_Units) +
@@ -172,37 +172,34 @@ static void _gfx_submesh_update_batch_units(
 static int _gfx_submesh_reference_bucket(
 
 		struct GFX_SubMesh*  mesh,
-		GFXPipe*             pipe)
+		GFXBucket*           bucket)
 {
-	/* Validate pipe type */
-	if(gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET) return 0;
-
 	/* See if it already exists */
-	struct GFX_Bucket* bucket =
-		_gfx_submesh_find_bucket(mesh, pipe);
+	struct GFX_Bucket* buck =
+		_gfx_submesh_find_bucket(mesh, bucket);
 
-	if(bucket == mesh->buckets.end)
+	if(buck == mesh->buckets.end)
 	{
 		/* Insert bucket */
-		bucket = gfx_vector_insert(
+		buck = gfx_vector_insert(
 			&mesh->buckets,
 			NULL,
 			mesh->buckets.end
 		);
 
-		if(bucket == mesh->buckets.end)
+		if(buck == mesh->buckets.end)
 			return 0;
 
 		/* Initialize bucket, reference and source IDs */
-		memset(bucket + 1, 0, sizeof(GFXBucketSource) * mesh->submesh.sources);
+		memset(buck + 1, 0, sizeof(GFXBucketSource) * mesh->submesh.sources);
 
-		bucket->pipe = pipe;
-		bucket->ref = 1;
+		buck->bucket = bucket;
+		buck->ref = 1;
 	}
 	else
 	{
 		/* Increase reference counter */
-		if(!(bucket->ref + 1))
+		if(!(buck->ref + 1))
 		{
 			/* Overflow error */
 			gfx_errors_push(
@@ -211,7 +208,7 @@ static int _gfx_submesh_reference_bucket(
 			);
 			return 0;
 		};
-		++bucket->ref;
+		++buck->ref;
 	}
 
 	return 1;
@@ -221,28 +218,28 @@ static int _gfx_submesh_reference_bucket(
 static void _gfx_submesh_dereference_bucket(
 
 		struct GFX_SubMesh*  mesh,
-		GFXPipe*             pipe)
+		GFXBucket*           bucket)
 {
 	/* Find the bucket */
-	struct GFX_Bucket* bucket =
-		_gfx_submesh_find_bucket(mesh, pipe);
+	struct GFX_Bucket* buck =
+		_gfx_submesh_find_bucket(mesh, bucket);
 
 	/* Decrease reference counter */
-	if(bucket != mesh->buckets.end)
-		if(!(--bucket->ref))
+	if(buck != mesh->buckets.end)
+		if(!(--buck->ref))
 		{
 			/* Remove all the sources */
 			unsigned char s;
 			for(s = 0; s < mesh->submesh.sources; ++s)
 			{
 				gfx_bucket_remove_source(
-					bucket->pipe->bucket,
-					*_gfx_submesh_get_src(bucket, s)
+					buck->bucket,
+					*_gfx_submesh_get_src(buck, s)
 				);
 			}
 
 			/* Erase from vector */
-			gfx_vector_erase(&mesh->buckets, bucket);
+			gfx_vector_erase(&mesh->buckets, buck);
 		}
 }
 
@@ -390,7 +387,7 @@ void _gfx_submesh_remove_batch(
 
 			/* Destroy units of the bucket */
 			/* Which will in turn destroy the unit handle */
-			gfx_batch_set_instances(&bat, it->pipe, 0);
+			gfx_batch_set_instances(&bat, it->bucket, 0);
 			end -= size;
 		}
 
@@ -511,7 +508,7 @@ void _gfx_submesh_set_unit_data(
 
 		/* Set the data of all units */
 		_gfx_batch_set_unit_data(
-			it->pipe->bucket,
+			it->bucket,
 			(GFXBucketUnit*)(it + 1),
 			&batch->data,
 			it->units,
@@ -529,7 +526,7 @@ int _gfx_submesh_find_units(
 
 		GFXSubMesh*    mesh,
 		unsigned int   submeshID,
-		GFXPipe*       pipe,
+		GFXBucket*     bucket,
 		unsigned int*  handle)
 {
 	/* Bound check */
@@ -548,7 +545,7 @@ int _gfx_submesh_find_units(
 	_gfx_submesh_get_batch_units_bounds(
 		internal, batch, &begin, &end);
 	begin = _gfx_submesh_find_batch_units(
-		internal, begin, end, pipe);
+		internal, begin, end, bucket);
 
 	if(begin < end)
 	{
@@ -564,14 +561,14 @@ int _gfx_submesh_insert_units(
 
 		GFXSubMesh*    mesh,
 		unsigned int   submeshID,
-		GFXPipe*       pipe,
+		GFXBucket*     bucket,
 		unsigned int*  handle)
 {
-	/* Bound check and validate pipe type */
+	/* Bound check */
 	struct GFX_SubMesh* internal = (struct GFX_SubMesh*)mesh;
 	size_t max = gfx_vector_get_size(&internal->batches);
 
-	if(!submeshID || submeshID > max || gfx_pipe_get_type(pipe) != GFX_PIPE_BUCKET)
+	if(!submeshID || submeshID > max)
 		return 0;
 
 	/* Get batch */
@@ -584,7 +581,7 @@ int _gfx_submesh_insert_units(
 	/* Create new bucket */
 	/* Insert it at the end so we can rebuild */
 	struct GFX_Units insert;
-	insert.pipe      = pipe;
+	insert.bucket    = bucket;
 	insert.instances = 0;
 	insert.visible   = 0;
 	insert.units     = 0;
@@ -599,7 +596,7 @@ int _gfx_submesh_insert_units(
 	if(it != internal->units.end)
 	{
 		/* Reference the bucket */
-		if(_gfx_submesh_reference_bucket(internal, pipe))
+		if(_gfx_submesh_reference_bucket(internal, bucket))
 		{
 			/* Increase bounds at last */
 			*handle = batch->upper;
@@ -622,11 +619,11 @@ void _gfx_submesh_remove_units(
 
 		GFXSubMesh*   mesh,
 		unsigned int  submeshID,
-		GFXPipe*      pipe)
+		GFXBucket*    bucket)
 {
 	/* Find it */
 	unsigned int handle;
-	if(_gfx_submesh_find_units(mesh, submeshID, pipe, &handle))
+	if(_gfx_submesh_find_units(mesh, submeshID, bucket, &handle))
 	{
 		struct GFX_SubMesh* internal =
 			(struct GFX_SubMesh*)mesh;
@@ -647,7 +644,7 @@ void _gfx_submesh_remove_units(
 		_gfx_submesh_update_batch_units(
 			internal, batch);
 		_gfx_submesh_dereference_bucket(
-			internal, pipe);
+			internal, bucket);
 	}
 }
 
@@ -914,30 +911,30 @@ void _gfx_submesh_free(
 GFXBucketSource _gfx_submesh_get_bucket_source(
 
 		GFXSubMesh*    mesh,
-		GFXPipe*       pipe,
+		GFXBucket*     bucket,
 		unsigned char  index)
 {
 	/* Find bucket and validate index */
 	struct GFX_SubMesh* internal =
 		(struct GFX_SubMesh*)mesh;
-	struct GFX_Bucket* bucket =
-		_gfx_submesh_find_bucket(internal, pipe);
+	struct GFX_Bucket* buck =
+		_gfx_submesh_find_bucket(internal, bucket);
 
-	if(bucket == internal->buckets.end || index >= mesh->sources)
+	if(buck == internal->buckets.end || index >= mesh->sources)
 		return 0;
 
 	/* Fetch the source */
-	GFXBucketSource* src = _gfx_submesh_get_src(bucket, index);
+	GFXBucketSource* src = _gfx_submesh_get_src(buck, index);
 
 	if(!(*src))
 	{
 		/* Add and set source of bucket if it doesn't exist yet */
 		*src = gfx_bucket_add_source(
-			pipe->bucket,
+			bucket,
 			mesh->layout);
 
 		gfx_bucket_set_source(
-			pipe->bucket,
+			bucket,
 			*src,
 			((GFXVertexSource*)(internal + 1))[index]);
 	}
@@ -966,7 +963,7 @@ int gfx_submesh_set_source(
 		it = gfx_vector_next(&internal->buckets, it))
 	{
 		gfx_bucket_set_source(
-			((struct GFX_Bucket*)it)->pipe->bucket,
+			((struct GFX_Bucket*)it)->bucket,
 			*_gfx_submesh_get_src(it, index),
 			source
 		);

@@ -33,8 +33,8 @@ static inline unsigned int _gfx_batch_get_num_units(
 /******************************************************/
 static GFXBucketSource _gfx_batch_get_source(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket)
+		GFXBatch*   batch,
+		GFXBucket*  bucket)
 {
 	/* Get parameters */
 	const GFX_BatchData* data =
@@ -310,8 +310,8 @@ void gfx_batch_set_state(
 /******************************************************/
 unsigned int gfx_batch_get_instances(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket)
+		GFXBatch*   batch,
+		GFXBucket*  bucket)
 {
 	/* Get units handle */
 	unsigned int handle;
@@ -330,8 +330,8 @@ unsigned int gfx_batch_get_instances(
 /******************************************************/
 unsigned int gfx_batch_get_visible(
 
-		GFXBatch*  batch,
-		GFXPipe*   bucket)
+		GFXBatch*   batch,
+		GFXBucket*  bucket)
 {
 	/* Get units handle */
 	unsigned int handle;
@@ -479,7 +479,7 @@ static void _gfx_batch_decrease_copies(
 static int _gfx_batch_increase_instances(
 
 		GFXBatch*     batch,
-		GFXPipe*      bucket,
+		GFXBucket*    bucket,
 		unsigned int  handle,
 		unsigned int  instances,
 		unsigned int  currentCopies)
@@ -517,9 +517,9 @@ static int _gfx_batch_increase_instances(
 		for(u = start; u < end; ++u)
 		{
 			units[u] = gfx_bucket_insert(
-				bucket->bucket, source, map, 0, 0);
+				bucket, source, map, 0, 0);
 			gfx_bucket_set_instance_base(
-				bucket->bucket, units[u], unitSize * u);
+				bucket, units[u], unitSize * u);
 
 			/* Bail, Fire! */
 			if(!units[u]) break;
@@ -529,14 +529,14 @@ static int _gfx_batch_increase_instances(
 		if(u >= end)
 		{
 			_gfx_batch_increase_copies(
-				batch, bucket->bucket, units, end, start, currentCopies);
+				batch, bucket, units, end, start, currentCopies);
 
 			return 1;
 		}
 
 		/* Well then, destroy units again and unreserve */
 		while(u > start)
-			gfx_bucket_erase(bucket->bucket, units[--u]);
+			gfx_bucket_erase(bucket, units[--u]);
 
 		_gfx_submesh_reserve(
 			batch->submesh,
@@ -559,7 +559,7 @@ static int _gfx_batch_increase_instances(
 static void _gfx_batch_decrease_instances(
 
 		GFXBatch*     batch,
-		GFXPipe*      bucket,
+		GFXBucket*    bucket,
 		unsigned int  handle,
 		unsigned int  instances,
 		unsigned int  currentCopies)
@@ -584,7 +584,7 @@ static void _gfx_batch_decrease_instances(
 			unitSize);
 
 		while(end > start) gfx_bucket_erase(
-			bucket->bucket,
+			bucket,
 			units[--end]
 		);
 
@@ -595,7 +595,7 @@ static void _gfx_batch_decrease_instances(
 			handle);
 
 		_gfx_batch_set_visible(
-			bucket->bucket,
+			bucket,
 			units,
 			unitSize,
 			instances,
@@ -611,7 +611,7 @@ static void _gfx_batch_decrease_instances(
 	{
 		/* Erase all units */
 		while(end) gfx_bucket_erase(
-			bucket->bucket,
+			bucket,
 			units[--end]
 		);
 
@@ -631,7 +631,7 @@ static void _gfx_batch_decrease_instances(
 int gfx_batch_set_instances(
 
 		GFXBatch*     batch,
-		GFXPipe*      bucket,
+		GFXBucket*    bucket,
 		unsigned int  instances)
 {
 	/* Get units handle */
@@ -691,7 +691,7 @@ int gfx_batch_set_instances(
 unsigned int gfx_batch_set_visible(
 
 		GFXBatch*     batch,
-		GFXPipe*      bucket,
+		GFXBucket*    bucket,
 		unsigned int  instances)
 {
 	/* Get and validate units */
@@ -726,7 +726,7 @@ unsigned int gfx_batch_set_visible(
 
 	/* Set visibility */
 	_gfx_batch_set_visible(
-		bucket->bucket,
+		bucket,
 		units,
 		unitSize,
 		old,

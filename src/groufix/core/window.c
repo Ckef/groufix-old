@@ -325,9 +325,12 @@ void _gfx_window_destroy(
 {
 	if(!window->handle) return;
 
-	/* Erase from windows */
 	_gfx_window_erase(window);
 	_gfx_window_make_current(window);
+
+	/* First unprepare */
+	/* let the processes free their resources */
+	_gfx_pipe_process_unprepare(_gfx_windows ? 0 : 1);
 
 	/* Find a new main window */
 	if(_gfx_main_window == window)
@@ -342,9 +345,8 @@ void _gfx_window_destroy(
 		else _gfx_main_window = NULL;
 	}
 
-	/* Free objects, unprepare and unload */
+	/* Free objects and unload */
 	_gfx_render_objects_free(&window->objects);
-	_gfx_pipe_process_unprepare(_gfx_windows ? 0 : 1);
 	_gfx_renderer_unload();
 
 	/* Braaaaaaains! */
@@ -565,8 +567,12 @@ GFXWindow* gfx_window_recreate(
 	/* Copy event callbacks */
 	*new = *window;
 
-	/* Destroy old window and retarget the window */
-	_gfx_pipe_process_retarget(internal, (GFX_Window*)new);
+	/* Retarget the window at processes */
+	_gfx_window_make_current(internal);
+	_gfx_pipe_process_retarget((GFX_Window*)new);
+
+	/* Now free the old window */
+	/* Don't make something new current as the freeing should take care of that */
 	gfx_window_free(window);
 
 	return new;

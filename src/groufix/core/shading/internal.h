@@ -77,6 +77,48 @@ GLint _gfx_program_get_location(
  *******************************************************/
 
 /**
+ * Blocks the program map from adding anymore programs.
+ *
+ * @return Zero on failure.
+ *
+ * This so it can link the programs.
+ *
+ */
+int _gfx_program_map_block(
+
+		GFXProgramMap* map);
+
+/**
+ * Unblocks the program map from adding anymore programs.
+ *
+ * Must be called equally many times as _gfx_program_map_block has been called.
+ *
+ */
+void _gfx_program_map_unblock(
+
+		GFXProgramMap* map);
+
+/**
+ * Acts as if _gfx_render_objects_save was called for only the program map.
+ *
+ */
+void _gfx_program_map_save(
+
+		GFXProgramMap*      map,
+		GFX_RenderObjects*  cont);
+
+/**
+ * Acts as if _gfx_render_objects_restore was called for only the program map.
+ *
+ * The source render object container is implied from _gfx_program_map_save.
+ *
+ */
+void _gfx_program_map_restore(
+
+		GFXProgramMap*      map,
+		GFX_RenderObjects*  cont);
+
+/**
  * Sets the program pipeline as currently in use.
  *
  */
