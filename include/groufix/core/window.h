@@ -192,7 +192,7 @@ typedef enum GFXWindowFlags
 	GFX_WINDOW_BORDERLESS     = 0x0002,
 	GFX_WINDOW_RESIZABLE      = 0x0004,
 	GFX_WINDOW_HIDDEN         = 0x0008,
-	GFX_WINDOW_DOUBLE_BUFFER  = 0x0010
+	GFX_WINDOW_DOUBLE_BUFFER  = 0x0010  /* The implementation is allowed to turn this on by itself */
 
 } GFXWindowFlags;
 
