@@ -65,6 +65,7 @@ struct GFX_Layout
 	GFXVertexLayout layout;
 
 	/* Hidden data */
+	unsigned int          id;            /* Render Object ID */
 	GLuint                vao;           /* OpenGL handle */
 	GFXVector             attributes;    /* Stores GFX_Attribute */
 	GFXVector             buffers;       /* Stores GFX_Buffer */
@@ -397,7 +398,7 @@ static void _gfx_layout_obj_free(
 
 	else
 	{
-		layout->layout.id = id;
+		layout->id = id;
 		layout->vao = 0;
 	}
 }
@@ -413,7 +414,7 @@ static void _gfx_layout_obj_save(
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Just don't clear the attribute or buffer vector */
-	layout->layout.id = id;
+	layout->id = id;
 	GFX_REND_GET.DeleteVertexArrays(1, &layout->vao);
 	layout->vao = 0;
 }
@@ -429,7 +430,7 @@ static void _gfx_layout_obj_restore(
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
 	/* Create VAO */
-	layout->layout.id = id;
+	layout->id = id;
 	GFX_REND_GET.CreateVertexArrays(1, &layout->vao);
 
 	/* Restore index buffer */
@@ -520,13 +521,13 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	}
 
 	/* Register as object */
-	layout->layout.id = _gfx_render_object_register(
+	layout->id = _gfx_render_object_register(
 		&GFX_WIND_GET.objects,
 		layout,
 		&_gfx_layout_obj_funcs
 	);
 
-	if(!layout->layout.id)
+	if(!layout->id)
 	{
 		free(layout);
 		return NULL;

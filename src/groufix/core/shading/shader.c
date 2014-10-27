@@ -36,8 +36,12 @@ static const char* _gfx_glsl_versions[] =
 /* Internal Shader */
 struct GFX_Shader
 {
-	GFXShader  shader; /* Super class */
-	GLuint     handle; /* OpenGL handle */
+	/* Super class */
+	GFXShader shader;
+
+	/* Hidden data */
+	unsigned int  id;     /* Render Object ID */
+	GLuint        handle; /* OpenGL handle */
 };
 
 /******************************************************/
@@ -163,7 +167,7 @@ static void _gfx_shader_obj_free(
 
 	else
 	{
-		shader->shader.id = id;
+		shader->id = id;
 		shader->shader.compiled = 0;
 		shader->handle = 0;
 	}
@@ -176,7 +180,7 @@ static void _gfx_shader_obj_save_restore(
 		unsigned int  id)
 {
 	struct GFX_Shader* shader = (struct GFX_Shader*)object;
-	shader->shader.id = id;
+	shader->id = id;
 }
 
 /******************************************************/
@@ -219,13 +223,13 @@ GFXShader* gfx_shader_create(
 	}
 
 	/* Register as object */
-	shader->shader.id = _gfx_render_object_register(
+	shader->id = _gfx_render_object_register(
 		&GFX_WIND_GET.objects,
 		shader,
 		&_gfx_shader_obj_funcs
 	);
 
-	if(!shader->shader.id)
+	if(!shader->id)
 	{
 		free(shader);
 		return NULL;

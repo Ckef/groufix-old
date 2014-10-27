@@ -558,7 +558,7 @@ typedef enum GFXPipelineAttachment
 /** Pipeline */
 typedef struct GFXPipeline
 {
-	unsigned int id; /* Render Object ID */
+	GFXViewport viewport; /* Viewport used to render to textures */
 
 } GFXPipeline;
 
@@ -578,15 +578,6 @@ GFX_API GFXPipeline* gfx_pipeline_create(void);
 GFX_API void gfx_pipeline_free(
 
 		GFXPipeline* pipeline);
-
-/**
- * Specifies the screen space to rasterize to.
- *
- */
-GFX_API void gfx_pipeline_viewport(
-
-		GFXPipeline*  pipeline,
-		GFXViewport   viewport);
 
 /**
  * Specifies what color attachments to draw to.

@@ -34,6 +34,7 @@ struct GFX_Map
 	GFXProgramMap map;
 
 	/* Hidden data */
+	unsigned int  id;                         /* Render Object ID */
 	GLuint        handle;                     /* OpenGL program or program pipeline handle */
 	GFXProgram*   stages[GFX_INT_NUM_STAGES]; /* All stages with their associated program */
 	unsigned int  blocks;                     /* Number of times blocked */
@@ -143,11 +144,7 @@ static int _gfx_program_map_set_stages(
 	}
 
 	/* Force the program to be bound if no pipeline is available */
-	if(!ext)
-	{
-		map->map.id = program->id;
-		map->handle = handle;
-	}
+	if(!ext) map->handle = handle;
 
 	return 1;
 }
@@ -166,7 +163,7 @@ static void _gfx_program_map_obj_free(
 
 	else
 	{
-		map->map.id = id;
+		map->id = id;
 		map->handle = 0;
 	}
 }
@@ -181,7 +178,7 @@ static void _gfx_program_map_obj_save(
 
 	struct GFX_Map* map = (struct GFX_Map*)object;
 
-	map->map.id = id;
+	map->id = id;
 	GFX_REND_GET.DeleteProgramPipelines(1, &map->handle);
 	map->handle = 0;
 }
@@ -197,7 +194,7 @@ static void _gfx_program_map_obj_restore(
 	struct GFX_Map* map = (struct GFX_Map*)object;
 
 	/* Create program pipeline */
-	map->map.id = id;
+	map->id = id;
 	GFX_REND_GET.GenProgramPipelines(1, &map->handle);
 
 	/* Use all programs */
@@ -292,12 +289,14 @@ void _gfx_program_map_save(
 {
 	GFX_WIND_INIT();
 
+	struct GFX_Map* internal = (struct GFX_Map*)map;
+
 	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
 	{
 		/* Unregister as object */
 		_gfx_render_object_unregister(
 			cont,
-			map->id
+			internal->id
 		);
 
 		_gfx_program_map_obj_save(map, 0);
@@ -361,13 +360,13 @@ GFXProgramMap* gfx_program_map_create(void)
 	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
 	{
 		/* Register as object */
-		map->map.id = _gfx_render_object_register(
+		map->id = _gfx_render_object_register(
 			&GFX_WIND_GET.objects,
 			map,
 			&_gfx_program_map_obj_funcs
 		);
 
-		if(!map->map.id)
+		if(!map->id)
 		{
 			free(map);
 			return NULL;

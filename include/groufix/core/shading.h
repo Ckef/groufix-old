@@ -43,7 +43,6 @@ typedef enum GFXShaderStage
 /** Shader */
 typedef struct GFXShader
 {
-	unsigned int    id;       /* Render Object ID */
 	GFXShaderStage  stage;    /* Shader stage of GPU pipeline */
 	char            compiled; /* Non-zero if compiled with latest changes. */
 
@@ -167,7 +166,6 @@ typedef enum GFXFeedbackMode
 /** Program */
 typedef struct GFXProgram
 {
-	unsigned int    id;         /* Render Object ID */
 	unsigned short  properties; /* Accessible properties */
 	unsigned short  blocks;     /* Accessible property blocks */
 	size_t          instances;  /* Number of instances that can be drawn at once */
@@ -328,8 +326,7 @@ GFX_API unsigned short gfx_program_get_named_property_block(
 /** Program map */
 typedef struct GFXProgramMap
 {
-	unsigned int  id;         /* Render Object ID */
-	size_t        instances;  /* Number of instances that can be drawn at once, 0 for infinite */
+	size_t instances; /* Number of instances that can be drawn at once, 0 for infinite */
 
 } GFXProgramMap;
 

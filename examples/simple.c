@@ -116,7 +116,7 @@ int main()
 
 	char targets[] = { 0 };
 	GFXViewport viewport = { 0, 0, 800, 600 };
-	gfx_pipeline_viewport(pipeline, viewport);
+	pipeline->viewport = viewport;
 	gfx_pipeline_target(pipeline, 1, targets);
 
 	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);

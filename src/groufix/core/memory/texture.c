@@ -27,10 +27,11 @@ struct GFX_Texture
 	GFXTexture texture;
 
 	/* Hidden data */
-	GLuint  buffer;
-	GLuint  handle; /* OpenGL handle */
-	GLenum  target;
-	GLint   format; /* Internal format */
+	unsigned int  id;     /* Render Object ID */
+	GLuint        buffer;
+	GLuint        handle; /* OpenGL handle */
+	GLenum        target;
+	GLint         format; /* Internal format */
 };
 
 /******************************************************/
@@ -182,7 +183,7 @@ static void _gfx_texture_obj_free(
 
 	else
 	{
-		texture->texture.id = id;
+		texture->id = id;
 		texture->handle = 0;
 		texture->buffer = 0;
 	}
@@ -195,7 +196,7 @@ static void _gfx_texture_obj_save_restore(
 		unsigned int  id)
 {
 	struct GFX_Texture* texture = (struct GFX_Texture*)object;
-	texture->texture.id = id;
+	texture->id = id;
 }
 
 /******************************************************/
@@ -232,13 +233,13 @@ static struct GFX_Texture* _gfx_texture_alloc(
 	}
 
 	/* Register as object */
-	tex->texture.id = _gfx_render_object_register(
+	tex->id = _gfx_render_object_register(
 		&GFX_WIND_GET.objects,
 		tex,
 		&_gfx_texture_obj_funcs
 	);
 
-	if(!tex->texture.id)
+	if(!tex->id)
 	{
 		free(tex);
 		return NULL;

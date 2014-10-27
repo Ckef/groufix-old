@@ -36,11 +36,11 @@ struct GFX_Pipeline
 	GFXPipeline pipeline;
 
 	/* Framebuffer */
+	unsigned int  id;          /* Render Object ID */
 	GLuint        fbo;         /* OpenGL handle */
 	GFXVector     attachments; /* Stores GFX_Attachment */
 	unsigned int  numTargets;
 	GLenum*       targets;     /* OpenGL draw buffers */
-	GFXViewport   viewport;
 
 	GFX_Pipe*     first;
 	GFX_Pipe*     last;
@@ -240,7 +240,7 @@ static void _gfx_pipeline_obj_free(
 
 	else
 	{
-		pipeline->pipeline.id = id;
+		pipeline->id = id;
 		pipeline->fbo = 0;
 
 		gfx_vector_clear(&pipeline->attachments);
@@ -262,7 +262,7 @@ static void _gfx_pipeline_obj_save(
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
 	/* Don't clear the attachments vector or target array */
-	pipeline->pipeline.id = id;
+	pipeline->id = id;
 	GFX_REND_GET.DeleteFramebuffers(1, &pipeline->fbo);
 	pipeline->fbo = 0;
 }
@@ -278,7 +278,7 @@ static void _gfx_pipeline_obj_restore(
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
 	/* Create FBO */
-	pipeline->pipeline.id = id;
+	pipeline->id = id;
 	GFX_REND_GET.CreateFramebuffers(1, &pipeline->fbo);
 
 	/* Restore attachments */
@@ -338,13 +338,13 @@ GFXPipeline* gfx_pipeline_create(void)
 	}
 
 	/* Register as object */
-	pl->pipeline.id = _gfx_render_object_register(
+	pl->id = _gfx_render_object_register(
 		&GFX_WIND_GET.objects,
 		pl,
 		&_gfx_pipeline_obj_funcs
 	);
 
-	if(!pl->pipeline.id)
+	if(!pl->id)
 	{
 		free(pl);
 		return NULL;
@@ -393,16 +393,6 @@ void gfx_pipeline_free(
 			internal->fbo = 0;
 		}
 	}
-}
-
-/******************************************************/
-void gfx_pipeline_viewport(
-
-		GFXPipeline*  pipeline,
-		GFXViewport   viewport)
-{
-	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
-	internal->viewport = viewport;
 }
 
 /******************************************************/
@@ -800,7 +790,7 @@ void gfx_pipeline_execute(
 		GFX_WIND_AS_ARG);
 
 	_gfx_states_set_viewport(
-		internal->viewport,
+		pipeline->viewport,
 		GFX_WIND_AS_ARG);
 
 	/* Iterate over all pipes */

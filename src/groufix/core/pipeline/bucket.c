@@ -68,11 +68,11 @@ struct GFX_Source
 /* Internal batch unit */
 struct GFX_Unit
 {
-	/* Sorting and ID */
+	/* Sorting */
 	GFXBatchState    state;   /* Combination of unit state, action and manual state */
 	GFXBucketUnit    ref;     /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
-	unsigned int     program; /* ID of the program */
-	unsigned int     layout;  /* ID of the layout */
+	GLuint           program; /* Program or program map to sort on */
+	GLuint           vao;     /* layout to sort on */
 
 	/* Drawing */
 	GFXPropertyMap*  map;
@@ -109,8 +109,8 @@ static int _gfx_bucket_qsort_layout(
 	struct GFX_Unit* unit2 = (struct GFX_Unit*)u2;
 
 	return
-		(unit1->layout < unit2->layout) ? -1 :
-		(unit1->layout > unit2->layout) ? 1 :
+		(unit1->vao < unit2->vao) ? -1 :
+		(unit1->vao > unit2->vao) ? 1 :
 		0;
 }
 
@@ -126,8 +126,8 @@ static int _gfx_bucket_qsort_all(
 	return
 		(unit1->program < unit2->program) ? -1 :
 		(unit1->program > unit2->program) ? 1 :
-		(unit1->layout < unit2->layout) ? -1 :
-		(unit1->layout > unit2->layout) ? 1 :
+		(unit1->vao < unit2->vao) ? -1 :
+		(unit1->vao > unit2->vao) ? 1 :
 		0;
 }
 
@@ -692,8 +692,8 @@ GFXBucketUnit gfx_bucket_insert(
 
 	unit.state    = state & GFX_INT_UNIT_MANUAL;
 	unit.state   |= visible ? GFX_INT_UNIT_VISIBLE : 0;
-	unit.program  = map->programMap->id;
-	unit.layout   = source->layout->id;
+	unit.program  = _gfx_program_map_get_handle(map->programMap);
+	unit.vao      = _gfx_vertex_layout_get_handle(source->layout);
 
 	unit.map  = map;
 	unit.copy = 0;
@@ -755,8 +755,8 @@ int gfx_bucket_rebuild(
 	/* If you know a better name for it, feel free */
 	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
 
-	un->program = map->programMap->id;
-	un->layout  = source->layout->id;
+	un->program = _gfx_program_map_get_handle(map->programMap);
+	un->vao     = _gfx_vertex_layout_get_handle(source->layout);
 	un->map     = map;
 	un->src     = src;
 

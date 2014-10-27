@@ -83,6 +83,7 @@ struct GFX_Program
 	GFXProgram program;
 
 	/* Hidden data */
+	unsigned int  id;         /* Render Object ID */
 	unsigned int  references; /* Reference counter */
 	GLuint        handle;     /* OpenGL handle */
 	GFXVector     properties; /* Stores GFX_Property */
@@ -499,7 +500,7 @@ static void _gfx_program_obj_free(
 
 	else
 	{
-		program->program.id = id;
+		program->id = id;
 		program->program.linked = 0;
 		program->handle = 0;
 	}
@@ -512,7 +513,7 @@ static void _gfx_program_obj_save_restore(
 		unsigned int  id)
 {
 	struct GFX_Program* program = (struct GFX_Program*)object;
-	program->program.id = id;
+	program->id = id;
 }
 
 /******************************************************/
@@ -552,13 +553,13 @@ GFXProgram* _gfx_program_create(
 	}
 
 	/* Register as object */
-	prog->program.id = _gfx_render_object_register(
+	prog->id = _gfx_render_object_register(
 		&GFX_WIND_GET.objects,
 		prog,
 		&_gfx_program_obj_funcs
 	);
 
-	if(!prog->program.id)
+	if(!prog->id)
 	{
 		free(prog);
 		return NULL;

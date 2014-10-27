@@ -26,6 +26,7 @@ struct GFX_Buffer
 	GFXBuffer buffer;
 
 	/* Hidden data */
+	unsigned int   id;      /* Render Object ID */
 	unsigned char  current; /* Current active buffer */
 	GFXVector      handles; /* Stores GLuint */
 };
@@ -151,7 +152,7 @@ static void _gfx_buffer_obj_free(
 
 	else
 	{
-		buffer->buffer.id = id;
+		buffer->id = id;
 		gfx_vector_clear(&buffer->handles);
 	}
 }
@@ -163,7 +164,7 @@ static void _gfx_buffer_obj_save_restore(
 		unsigned int  id)
 {
 	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
-	buffer->buffer.id = id;
+	buffer->id = id;
 }
 
 /******************************************************/
@@ -212,13 +213,13 @@ GFXBuffer* gfx_buffer_create(
 	}
 
 	/* Register as object */
-	buffer->buffer.id = _gfx_render_object_register(
+	buffer->id = _gfx_render_object_register(
 		&GFX_WIND_GET.objects,
 		buffer,
 		&_gfx_buffer_obj_funcs
 	);
 
-	if(!buffer->buffer.id)
+	if(!buffer->id)
 	{
 		free(buffer);
 		return NULL;
