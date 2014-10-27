@@ -53,9 +53,16 @@ static void _gfx_shared_buffer_obj_free(
 {
 	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
 
-	buff->id = id;
-	buff->handle = 0;
-	buff->size = 0;
+	/* If it was already freed, free memory */
+	if(!buff->handle)
+		free(buff);
+
+	else
+	{
+		buff->id = id;
+		buff->size = 0;
+		buff->handle = 0;
+	}
 }
 
 /******************************************************/
@@ -146,22 +153,19 @@ static void _gfx_shared_buffer_free(
 	{
 		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
 
-		if(!GFX_WIND_EQ(NULL))
-		{
-			GFX_REND_GET.DeleteBuffers(1, &buff->handle);
-
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				buff->id
-			);
-		}
-
 		/* Remove from le vector */
 		gfx_vector_erase(_gfx_shared_buffers, it);
 		gfx_vector_clear(&buff->segments);
 
-		free(buff);
+		/* If it was already freed as render object, free memory */
+		if(!buff->handle)
+			free(buff);
+
+		else if(!GFX_WIND_EQ(NULL))
+		{
+			GFX_REND_GET.DeleteBuffers(1, &buff->handle);
+			buff->handle = 0;
+		}
 	}
 
 	/* Free vector if empty */

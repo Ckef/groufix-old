@@ -493,9 +493,16 @@ static void _gfx_program_obj_free(
 {
 	struct GFX_Program* program = (struct GFX_Program*)object;
 
-	program->program.id = id;
-	program->handle = 0;
-	program->program.linked = 0;
+	/* If it was already freed, free memory */
+	if(!program->handle)
+		free(program);
+
+	else
+	{
+		program->program.id = id;
+		program->program.linked = 0;
+		program->handle = 0;
+	}
 }
 
 /******************************************************/
@@ -604,26 +611,24 @@ void _gfx_program_free(
 		{
 			GFX_WIND_INIT_UNSAFE;
 
-			if(!GFX_WIND_EQ(NULL))
-			{
-				GFX_REND_GET.DeleteProgram(internal->handle);
-				if(GFX_REND_GET.program == internal->handle)
-					GFX_REND_GET.program = 0;
-
-				/* Unregister as object */
-				_gfx_render_object_unregister(
-					&GFX_WIND_GET.objects,
-					program->id
-				);
-			}
-
-			/* Unprepare all uniforms */
+			/* Clear resources */
 			_gfx_program_unprepare(internal);
 
 			gfx_vector_clear(&internal->properties);
 			gfx_vector_clear(&internal->blocks);
 
-			free(program);
+			/* If it was already freed as render object, free memory */
+			if(!internal->handle)
+				free(program);
+
+			else if(!GFX_WIND_EQ(NULL))
+			{
+				if(GFX_REND_GET.program == internal->handle)
+					GFX_REND_GET.program = 0;
+
+				GFX_REND_GET.DeleteProgram(internal->handle);
+				internal->handle = 0;
+			}
 		}
 	}
 }

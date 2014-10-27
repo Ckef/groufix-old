@@ -157,9 +157,16 @@ static void _gfx_shader_obj_free(
 {
 	struct GFX_Shader* shader = (struct GFX_Shader*)object;
 
-	shader->shader.id = id;
-	shader->handle = 0;
-	shader->shader.compiled = 0;
+	/* If it was already freed, free memory */
+	if(!shader->handle)
+		free(shader);
+
+	else
+	{
+		shader->shader.id = id;
+		shader->shader.compiled = 0;
+		shader->handle = 0;
+	}
 }
 
 /******************************************************/
@@ -242,18 +249,15 @@ void gfx_shader_free(
 
 		struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
-		if(!GFX_WIND_EQ(NULL))
+		/* If it was already freed as render object, free memory */
+		if(!internal->handle)
+			free(shader);
+
+		else if(!GFX_WIND_EQ(NULL))
 		{
 			GFX_REND_GET.DeleteShader(internal->handle);
-
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				shader->id
-			);
+			internal->handle = 0;
 		}
-
-		free(shader);
 	}
 }
 

@@ -234,14 +234,21 @@ static void _gfx_pipeline_obj_free(
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
-	pipeline->pipeline.id = id;
-	pipeline->fbo = 0;
+	/* If it was already freed, free memory */
+	if(!pipeline->fbo)
+		free(pipeline);
 
-	gfx_vector_clear(&pipeline->attachments);
-	free(pipeline->targets);
+	else
+	{
+		pipeline->pipeline.id = id;
+		pipeline->fbo = 0;
 
-	pipeline->targets = NULL;
-	pipeline->numTargets = 0;
+		gfx_vector_clear(&pipeline->attachments);
+		free(pipeline->targets);
+
+		pipeline->targets = NULL;
+		pipeline->numTargets = 0;
+	}
 }
 
 /******************************************************/
@@ -362,7 +369,20 @@ void gfx_pipeline_free(
 
 		struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 
-		if(!GFX_WIND_EQ(NULL))
+		/* Free all pipes, attachments and targets */
+		while(internal->first)
+			gfx_pipeline_remove(&internal->first->ptr);
+		while(internal->unlinked)
+			gfx_pipeline_remove(&internal->unlinked->ptr);
+
+		gfx_vector_clear(&internal->attachments);
+		free(internal->targets);
+
+		/* If it was already freed as render object, free memory */
+		if(!internal->fbo)
+			free(pipeline);
+
+		else if(!GFX_WIND_EQ(NULL))
 		{
 			if(GFX_REND_GET.fbos[0] == internal->fbo)
 				GFX_REND_GET.fbos[0] = 0;
@@ -370,25 +390,8 @@ void gfx_pipeline_free(
 				GFX_REND_GET.fbos[1] = 0;
 
 			GFX_REND_GET.DeleteFramebuffers(1, &internal->fbo);
-
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				pipeline->id
-			);
+			internal->fbo = 0;
 		}
-
-		/* Free all pipes */
-		while(internal->first)
-			gfx_pipeline_remove(&internal->first->ptr);
-		while(internal->unlinked)
-			gfx_pipeline_remove(&internal->unlinked->ptr);
-
-		/* Free pipeline */
-		gfx_vector_clear(&internal->attachments);
-		free(internal->targets);
-
-		free(pipeline);
 	}
 }
 

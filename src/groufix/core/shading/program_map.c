@@ -160,8 +160,15 @@ static void _gfx_program_map_obj_free(
 {
 	struct GFX_Map* map = (struct GFX_Map*)object;
 
-	map->map.id = id;
-	map->handle = 0;
+	/* If it was already freed, free memory */
+	if(!map->handle)
+		free(map);
+
+	else
+	{
+		map->map.id = id;
+		map->handle = 0;
+	}
 }
 
 /******************************************************/
@@ -384,31 +391,31 @@ void gfx_program_map_free(
 
 		struct GFX_Map* internal = (struct GFX_Map*)map;
 
-		if(!GFX_WIND_EQ(NULL))
-		{
-			if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
-			{
-				/* Delete program pipeline */
-				GFX_REND_GET.DeleteProgramPipelines(
-					1,
-					&internal->handle);
-
-				/* Unregister as object */
-				_gfx_render_object_unregister(
-					&GFX_WIND_GET.objects,
-					map->id);
-			}
-		}
-
 		/* Free all programs */
 		unsigned char stage;
 		for(stage = 0; stage < GFX_INT_NUM_STAGES; ++stage)
 		{
 			if(internal->stages[stage])
 				_gfx_program_free(internal->stages[stage]);
+
+			internal->stages[stage] = NULL;
 		}
 
-		free(map);
+		/* If it was already freed as render object, free memory */
+		if(!internal->handle)
+			free(map);
+
+		else if(!GFX_WIND_EQ(NULL))
+		{
+			/* Delete program pipeline */
+			if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+				GFX_REND_GET.DeleteProgramPipelines(
+					1,
+					&internal->handle
+				);
+
+			internal->handle = 0;
+		}
 	}
 }
 

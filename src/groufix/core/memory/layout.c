@@ -391,10 +391,15 @@ static void _gfx_layout_obj_free(
 {
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
-	layout->layout.id = id;
-	layout->vao = 0;
+	/* If it was already freed, free memory */
+	if(!layout->vao)
+		free(layout);
 
-	gfx_vector_clear(&layout->attributes);
+	else
+	{
+		layout->layout.id = id;
+		layout->vao = 0;
+	}
 }
 
 /******************************************************/
@@ -548,26 +553,26 @@ void gfx_vertex_layout_free(
 
 		struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
-		if(!GFX_WIND_EQ(NULL))
+		/* Clear resources */
+		gfx_vector_clear(&internal->attributes);
+		gfx_vector_clear(&internal->buffers);
+
+		free(internal->TFBuffers);
+		internal->TFBuffers = NULL;
+
+		/* If it was already freed as render object, free memory */
+		if(!internal->vao)
+			free(layout);
+
+		else if(!GFX_WIND_EQ(NULL))
 		{
 			/* Delete VAO */
 			if(GFX_REND_GET.vao == internal->vao)
 				GFX_REND_GET.vao = 0;
 
 			GFX_REND_GET.DeleteVertexArrays(1, &internal->vao);
-
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				layout->id
-			);
+			internal->vao = 0;
 		}
-
-		gfx_vector_clear(&internal->attributes);
-		gfx_vector_clear(&internal->buffers);
-
-		free(internal->TFBuffers);
-		free(layout);
 	}
 }
 
