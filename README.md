@@ -66,3 +66,4 @@ _It will not free any other resources_. All user allocated resources must be fre
 * Francis Edward Wharf
 * Grace Fu
 * Martin Dørum Nygaard
+* Michael Andrews
