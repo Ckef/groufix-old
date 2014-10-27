@@ -310,7 +310,7 @@ void _gfx_platform_terminate(void)
 	if(_gfx_x11)
 	{
 		/* Close connection (destroys all resources) */
-		XCloseDisplay(_gfx_x11->display);
+		if(_gfx_x11->display) XCloseDisplay(_gfx_x11->display);
 		gfx_vector_clear(&_gfx_x11->windows);
 
 		/* Deallocate */
