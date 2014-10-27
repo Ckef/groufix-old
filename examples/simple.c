@@ -122,8 +122,8 @@ int main()
 	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;
 
-	GFXPipe* pipeA = gfx_pipeline_push_process(pipeline, window1, 1);
-	GFXPipe* pipeB = gfx_pipeline_push_process(pipeline, window2, 1);
+	GFXPipe* pipeA = gfx_pipeline_push_process(pipeline, window1, 0);
+	GFXPipe* pipeB = gfx_pipeline_push_process(pipeline, window2, 0);
 
 
 	/* Texture */

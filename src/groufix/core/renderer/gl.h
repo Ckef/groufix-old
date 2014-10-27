@@ -124,6 +124,7 @@ typedef void (APIENTRYP GFX_ENABLEPROC)                            (GLenum);
 typedef void (APIENTRYP GFX_ENABLEVERTEXARRAYATTRIBPROC)           (GLuint, GLuint);
 typedef void (APIENTRYP GFX_ENABLEVERTEXATTRIBARRAYPROC)           (GLuint);
 typedef void (APIENTRYP GFX_ENDTRANSFORMFEEDBACKPROC)              (void);
+typedef void (APIENTRYP GFX_FLUSHPROC)                             (void);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTUREPROC)                (GLenum, GLenum, GLuint, GLint);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURE1DPROC)              (GLenum, GLenum, GLenum, GLuint, GLint);
 typedef void (APIENTRYP GFX_FRAMEBUFFERTEXTURE2DPROC)              (GLenum, GLenum, GLenum, GLuint, GLint);
@@ -410,6 +411,7 @@ struct GFX_Renderer
 	GFX_ENABLEVERTEXARRAYATTRIBPROC            EnableVertexArrayAttrib;
 	GFX_ENABLEVERTEXATTRIBARRAYPROC            EnableVertexAttribArray;
 	GFX_ENDTRANSFORMFEEDBACKPROC               EndTransformFeedback;
+	GFX_FLUSHPROC                              Flush;
 	GFX_FRAMEBUFFERTEXTUREPROC                 FramebufferTexture;                /* GFX_EXT_BUFFER_TEXTURE */
 	GFX_FRAMEBUFFERTEXTURE1DPROC               FramebufferTexture1D;              /* GFX_EXT_TEXTURE_1D */
 	GFX_FRAMEBUFFERTEXTURE2DPROC               FramebufferTexture2D;

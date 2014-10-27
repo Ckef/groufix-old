@@ -144,6 +144,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.EnableVertexArrayAttrib           = _gfx_gl_enable_vertex_array_attrib;
 	GFX_REND_GET.EnableVertexAttribArray           = glEnableVertexAttribArray;
 	GFX_REND_GET.EndTransformFeedback              = glEndTransformFeedback;
+	GFX_REND_GET.Flush                             = glFlush;
 	GFX_REND_GET.FramebufferTexture                = _gfx_gles_framebuffer_texture;
 	GFX_REND_GET.FramebufferTexture1D              = _gfx_gles_framebuffer_texture_1d;
 	GFX_REND_GET.FramebufferTexture2D              = glFramebufferTexture2D;
@@ -507,6 +508,8 @@ void _gfx_renderer_load(void)
 		(PFNGLENABLEVERTEXATTRIBARRAYPROC)_gfx_platform_get_proc_address("glEnableVertexAttribArray");
 	GFX_REND_GET.EndTransformFeedback =
 		(PFNGLENDTRANSFORMFEEDBACKPROC)_gfx_platform_get_proc_address("glEndTransformFeedback");
+	GFX_REND_GET.Flush =
+		(PFNGLFLUSHPROC)glFlush;
 	GFX_REND_GET.FramebufferTexture =
 		(PFNGLFRAMEBUFFERTEXTUREPROC)_gfx_platform_get_proc_address("glFramebufferTexture");
 	GFX_REND_GET.FramebufferTexture1D =

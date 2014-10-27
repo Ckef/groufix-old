@@ -644,9 +644,6 @@ GFX_API GFXPipe* gfx_pipeline_push_bucket(
  * @return The new pipe (NULL on failure).
  *
  * Note: all state and parameters will be copied from the previous pipe.
- * Swap should always be turned on if the window is wished to be updated, even
- * when the target is not double buffered. This as the implementation may
- * double buffer even when not explicitly told so.
  *
  */
 GFX_API GFXPipe* gfx_pipeline_push_process(

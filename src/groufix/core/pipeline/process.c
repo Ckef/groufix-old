@@ -433,15 +433,19 @@ void _gfx_pipe_process_execute(
 			internal->viewport,
 			GFX_WIND_INT_AS_ARG(internal->target));
 
-		/* Draw to the window and swap buffers */
+		/* Draw to the window */
 		_gfx_pipe_process_draw(
 			state,
 			internal->map,
 			internal->copy,
 			GFX_WIND_INT_AS_ARG(internal->target));
 
+		/* Swap buffers */
+		/* If not swapping, at least flush all commands */
 		if(internal->swap)
 			_gfx_window_swap_buffers();
+		else
+			GFX_REND_GET.Flush();
 
 		/* Restore previous state if main context */
 		if(GFX_WIND_EQ(internal->target))
