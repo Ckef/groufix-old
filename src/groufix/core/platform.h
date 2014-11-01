@@ -152,6 +152,33 @@ typedef struct GFX_PlatformAttributes
 
 
 /********************************************************
+ * Initialization
+ *******************************************************/
+
+/**
+ * Initializes the platform.
+ *
+ * @return If successfully initialized, a non-zero value is returned.
+ *
+ */
+int _gfx_platform_init(void);
+
+/**
+ * Returns a non-zero value if the platform is initialized correctly.
+ *
+ */
+int _gfx_platform_is_initialized(void);
+
+/**
+ * Terminates the platform.
+ *
+ * If the platform was not yet initialized, this method should do nothing.
+ *
+ */
+void _gfx_platform_terminate(void);
+
+
+/********************************************************
  * System timer
  *******************************************************/
 
@@ -397,33 +424,6 @@ void _gfx_platform_cond_signal(
 void _gfx_platform_cond_broadcast(
 
 		GFX_PlatformCond* cond);
-
-
-/********************************************************
- * Initialization
- *******************************************************/
-
-/**
- * Initializes the platform.
- *
- * @return If successfully initialized, a non-zero value is returned.
- *
- */
-int _gfx_platform_init(void);
-
-/**
- * Returns a non-zero value if the platform is initialized correctly.
- *
- */
-int _gfx_platform_is_initialized(void);
-
-/**
- * Terminates the platform.
- *
- * If the platform was not yet initialized, this method should do nothing.
- *
- */
-void _gfx_platform_terminate(void);
 
 
 /********************************************************

@@ -17,34 +17,13 @@
 #include "groufix/core/platform/win32.h"
 
 /******************************************************/
-GFX_PlatformContext _gfx_platform_context_create(
+static HGLRC _gfx_win32_create_context(
 
-		int                  major,
-		int                  minor,
-		GFX_PlatformContext  share)
+		int    major,
+		int    minor,
+		HWND   window,
+		HGLRC  share)
 {
-	return NULL;
-}
-
-/******************************************************/
-void _gfx_platform_context_free(
-
-		GFX_PlatformContext context)
-{
-}
-
-/******************************************************/
-GFX_PlatformContext _gfx_platform_context_init(
-
-		GFX_PlatformWindow  handle,
-		int                 major,
-		int                 minor,
-		GFX_PlatformWindow  share)
-{
-	/* Get the window */
-	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
-	if(!window) return NULL;
-
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
 		WGL_CONTEXT_MAJOR_VERSION_ARB, major,
@@ -55,11 +34,66 @@ GFX_PlatformContext _gfx_platform_context_init(
 	};
 
 	/* Create the context */
-	HDC hdc = GetDC(handle);
-	window->context = _gfx_win32->extensions.CreateContextAttribsARB(
-		hdc,
+	return _gfx_win32->extensions.CreateContextAttribsARB(
+		GetDC(window),
 		share,
 		bufferAttr
+	);
+}
+
+/******************************************************/
+GFX_PlatformContext _gfx_platform_context_create(
+
+		int                  major,
+		int                  minor,
+		GFX_PlatformContext  share)
+{
+	/* Create dummy window */
+	GFX_Win32_Window* window = _gfx_win32_window_dummy_create();
+	if(!window) return NULL;
+
+	/* Create context */
+	window->context = _gfx_win32_create_context(
+		major,
+		minor,
+		window->handle,
+		share
+	);
+
+	if(!window->context)
+		_gfx_platform_window_free(window->handle);
+
+	return window->context;
+}
+
+/******************************************************/
+void _gfx_platform_context_free(
+
+		GFX_PlatformContext context)
+{
+	/* Get the window and free it */
+	GFX_Win32_Window* window =_gfx_win32_get_window_from_context(context);
+	if(window) _gfx_platform_window_free(window->handle);
+}
+
+/******************************************************/
+GFX_PlatformContext _gfx_platform_context_init(
+
+		GFX_PlatformWindow   handle,
+		int                  major,
+		int                  minor,
+		GFX_PlatformContext  share)
+{
+	/* Get the window */
+	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
+	if(!window) return NULL;
+
+	/* Create context */
+	window->context = _gfx_win32_create_context(
+		major,
+		minor,
+		handle,
+		share
 	);
 
 	return window->context;

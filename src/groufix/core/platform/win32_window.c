@@ -64,31 +64,6 @@ static void _gfx_win32_get_screen_position(
 }
 
 /******************************************************/
-void _gfx_win32_set_pixel_format(
-
-		HWND                  handle,
-		const GFXColorDepth*  depth,
-		int                   backBuffer)
-{
-	PIXELFORMATDESCRIPTOR format;
-	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
-
-	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
-	format.nVersion   = 1;
-	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
-	format.iPixelType = PFD_TYPE_RGBA;
-	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
-	format.iLayerType = PFD_MAIN_PLANE;
-
-	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
-	HDC context = GetDC(handle);
-
-	/* Get format compatible with the window */
-	int index = ChoosePixelFormat(context, &format);
-	SetPixelFormat(context, index, &format);
-}
-
-/******************************************************/
 static void _gfx_win32_track_mouse(
 
 		HWND handle)
@@ -408,6 +383,82 @@ static int _gfx_win32_register_window_class(void)
 
 	_gfx_win32->classRegistered = RegisterClassEx(&wc);
 	return _gfx_win32->classRegistered;
+}
+
+/******************************************************/
+GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
+{
+	if(!_gfx_win32) return NULL;
+
+	/* Create a dummy window */
+	GFX_Win32_Window window;
+	window.screen  = NULL;
+	window.context = NULL;
+	window.flags   = 0;
+
+	window.handle = CreateWindow(
+		GFX_WIN32_WINDOW_CLASS_DUMMY,
+		L"",
+		0,
+		0, 0,
+		0, 0,
+		NULL, NULL,
+		GetModuleHandle(NULL),
+		NULL
+	);
+
+	if(window.handle)
+	{
+		/* Add window to vector */
+		GFXVectorIterator it = gfx_vector_insert(
+			&_gfx_win32->windows,
+			&window,
+			_gfx_win32->windows.end
+		);
+
+		if(it != _gfx_win32->windows.end)
+		{
+			/* Set pixel format */
+			GFXColorDepth depth;
+			depth.redBits   = 0;
+			depth.greenBits = 0;
+			depth.blueBits  = 0;
+
+			_gfx_win32_set_pixel_format(window.handle, &depth, 0);
+
+			return it;
+		}
+
+		/* Nevermind */
+		DestroyWindow(window.handle);
+	}
+	
+	return NULL;
+}
+
+/******************************************************/
+void _gfx_win32_set_pixel_format(
+
+		HWND                  handle,
+		const GFXColorDepth*  depth,
+		int                   backBuffer)
+{
+	PIXELFORMATDESCRIPTOR format;
+	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
+
+	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
+	format.nVersion   = 1;
+	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+	format.iPixelType = PFD_TYPE_RGBA;
+	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
+	format.iLayerType = PFD_MAIN_PLANE;
+
+	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
+	HDC context = GetDC(handle);
+
+	/* Get format compatible with the window */
+	int index = ChoosePixelFormat(context, &format);
+	SetPixelFormat(context, index, &format);
 }
 
 /******************************************************/

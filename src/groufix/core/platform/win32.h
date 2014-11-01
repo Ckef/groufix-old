@@ -34,8 +34,9 @@
 #include <GL/wglext.h>
 
 
-/* Window class */
-#define GFX_WIN32_WINDOW_CLASS L"GROUFIX"
+/* Window classes */
+#define GFX_WIN32_WINDOW_CLASS        L"GROUFIX"
+#define GFX_WIN32_WINDOW_CLASS_DUMMY  L"GROUFIXDUMMY"
 
 
 /* Maximum key code lookup */
@@ -158,18 +159,6 @@ char* _gfx_win32_utf16_to_utf8(
 		const WCHAR* str);
 
 /**
- * Sets the pixel format for a window.
- *
- * @param backBuffer Non-zero to enable double buffering.
- *
- */
-void _gfx_win32_set_pixel_format(
-
-		HWND                  handle,
-		const GFXColorDepth*  depth,
-		int                   backBuffer);
-
-/**
  * Returns a Win32 window from its handle.
  *
  */
@@ -184,6 +173,28 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 GFX_Win32_Window* _gfx_win32_get_window_from_context(
 
 		HGLRC context);
+
+/**
+ * Creates a dummy window for offscreen contexts.
+ *
+ * @return The dummy window, NULL on failure.
+ *
+ * Note: the window can be freed by using _gfx_platform_window_free.
+ *
+ */
+GFX_Win32_Window* _gfx_win32_window_dummy_create(void);
+
+/**
+ * Sets the pixel format for a window.
+ *
+ * @param backBuffer Non-zero to enable double buffering.
+ *
+ */
+void _gfx_win32_set_pixel_format(
+
+		HWND                  handle,
+		const GFXColorDepth*  depth,
+		int                   backBuffer);
 
 
 #ifdef __cplusplus
