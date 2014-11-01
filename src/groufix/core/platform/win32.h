@@ -34,9 +34,8 @@
 #include <GL/wglext.h>
 
 
-/* Window classes */
-#define GFX_WIN32_WINDOW_CLASS        L"GROUFIX"
-#define GFX_WIN32_WINDOW_CLASS_DUMMY  L"GROUFIXDUMMY"
+/* Window class */
+#define GFX_WIN32_WINDOW_CLASS L"GROUFIX"
 
 
 /* Maximum key code lookup */
@@ -173,16 +172,6 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 GFX_Win32_Window* _gfx_win32_get_window_from_context(
 
 		HGLRC context);
-
-/**
- * Creates a dummy window for offscreen contexts.
- *
- * @return The dummy window, NULL on failure.
- *
- * Note: the window can be freed by using _gfx_platform_window_free.
- *
- */
-GFX_Win32_Window* _gfx_win32_window_dummy_create(void);
 
 /**
  * Sets the pixel format for a window.

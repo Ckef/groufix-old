@@ -57,9 +57,18 @@ static int _gfx_win32_load_extensions(void)
 {
 	int success = 1;
 
+	/* Register the dummy window class */
+	WNDCLASS wc;
+	ZeroMemory(&wc, sizeof(WNDCLASS));
+	wc.lpfnWndProc   = DefWindowProc;
+	wc.hInstance     = GetModuleHandle(NULL);
+	wc.lpszClassName = GFX_WIN32_WINDOW_CLASS;
+
+	if(!RegisterClass(&wc)) return 0;
+
 	/* Create a dummy window */
 	HWND window = CreateWindow(
-		GFX_WIN32_WINDOW_CLASS_DUMMY,
+		GFX_WIN32_WINDOW_CLASS,
 		L"",
 		0,
 		0, 0,
@@ -113,9 +122,10 @@ static int _gfx_win32_load_extensions(void)
 	}
 	else success = 0;
 
-	/* Destroy dummy context and window */
+	/* Destroy dummy context and window*/
 	wglDeleteContext(context);
 	DestroyWindow(window);
+	UnregisterClass(GFX_WIN32_WINDOW_CLASS, GetModuleHandle(NULL));
 
 	return success;
 }
@@ -249,28 +259,10 @@ int _gfx_platform_init(void)
 		_gfx_win32 = calloc(1, sizeof(GFX_Win32_Instance));
 		if(!_gfx_win32) return 0;
 
-		/* Register the dummy window class */
-		WNDCLASS wc;
-		ZeroMemory(&wc, sizeof(WNDCLASS));
-		wc.lpfnWndProc   = DefWindowProc;
-		wc.hInstance     = GetModuleHandle(NULL);
-		wc.lpszClassName = GFX_WIN32_WINDOW_CLASS_DUMMY;
-
-		if(!RegisterClass(&wc))
-		{
-			free(_gfx_win32);
-			return 0;
-		}
-
 		/* Load extensions and setup memory */
 		if(!_gfx_win32_load_extensions())
 		{
-			UnregisterClass(
-				GFX_WIN32_WINDOW_CLASS_DUMMY,
-				GetModuleHandle(NULL)
-			);
 			free(_gfx_win32);
-
 			return 0;
 		}
 
@@ -353,10 +345,8 @@ void _gfx_platform_terminate(void)
 		gfx_vector_clear(&_gfx_win32->screens);
 		gfx_vector_clear(&_gfx_win32->windows);
 
-		/* Unregister window classes */
-		HMODULE handle = GetModuleHandle(NULL);
-		UnregisterClass(GFX_WIN32_WINDOW_CLASS, handle);
-		UnregisterClass(GFX_WIN32_WINDOW_CLASS_DUMMY, handle);
+		/* Unregister window class */
+		UnregisterClass(GFX_WIN32_WINDOW_CLASS, GetModuleHandle(NULL));
 
 		/* Deallocate instance */
 		free(_gfx_win32);

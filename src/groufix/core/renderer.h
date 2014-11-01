@@ -125,7 +125,7 @@ void _gfx_render_objects_clear(
  * Registers a render object at a container.
  *
  * @param cont   Container to register at.
- * @param object Aribtrary data to identify with the render object.
+ * @param object Arbitrary data to identify with the render object.
  * @param funcs  Functions to associate with the object.
  * @return Identifier of the object, 0 on failure.
  *
