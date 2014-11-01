@@ -200,7 +200,6 @@ typedef struct GFX_Window
 	int                  lim[GFX_LIM_COUNT];
 
 	/* Hidden data */
-	char                 offscreen;
 	GFXContext           version;  /* Context version */
 	GFXPipeState         state;
 	GFX_PlatformWindow   handle;
@@ -223,20 +222,16 @@ GFX_Window* _gfx_window_get_from_handle(
 /**
  * Creates a new off-screen window.
  *
- * @param w Width of the window.
- * @param h Height of the window.
- *
  * Note: events have no effect on an off-screen window.
  *
- * The returned window behaves as a regular window,
- * except that it is not destroyed at gfx_terminate.
+ * The returned window does not behave as a regular window,
+ * the only valid operations are making it current and
+ * using it as active renderer context.
+ *
+ * It is not destroyed at gfx_terminate.
  *
  */
-GFX_Window* _gfx_window_create(
-
-		GFXColorDepth  depth,
-		unsigned int   w,
-		unsigned int   h);
+GFX_Window* _gfx_window_create(void);
 
 /**
  * Destroys the server side window.

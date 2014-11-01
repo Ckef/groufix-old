@@ -17,6 +17,23 @@
 #include "groufix/core/platform/win32.h"
 
 /******************************************************/
+GFX_PlatformContext _gfx_platform_context_create(
+
+		int                  major,
+		int                  minor,
+		GFX_PlatformContext  share)
+{
+	return NULL;
+}
+
+/******************************************************/
+void _gfx_platform_context_free(
+
+		GFX_PlatformContext context)
+{
+}
+
+/******************************************************/
 GFX_PlatformContext _gfx_platform_context_init(
 
 		GFX_PlatformWindow  handle,
@@ -44,10 +61,6 @@ GFX_PlatformContext _gfx_platform_context_init(
 		share,
 		bufferAttr
 	);
-
-	/* Make it current */
-	if(window->context)
-		wglMakeCurrent(hdc, window->context);
 
 	return window->context;
 }
@@ -113,17 +126,15 @@ void _gfx_platform_context_get(
 /******************************************************/
 void _gfx_platform_context_make_current(
 
-		GFX_PlatformContext handle)
+		GFX_PlatformContext context)
 {
-	if(!handle) wglMakeCurrent(
-		NULL,
-		NULL
-	);
+	if(!context)
+		wglMakeCurrent(NULL, NULL);
 
 	else
 	{
 		GFX_Win32_Window* window =
-			_gfx_win32_get_window_from_context(handle);
+			_gfx_win32_get_window_from_context(context);
 
 		if(window) wglMakeCurrent(
 			GetDC(window->handle),

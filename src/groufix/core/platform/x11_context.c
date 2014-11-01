@@ -17,6 +17,75 @@
 #include "groufix/core/platform/x11.h"
 
 /******************************************************/
+static GLXContext _gfx_x11_create_context(
+
+		int          major,
+		int          minor,
+		GLXFBConfig  config,
+		GLXContext   share)
+{
+	/* Create buffer attribute array */
+	int bufferAttr[] = {
+		GLX_CONTEXT_MAJOR_VERSION_ARB, major,
+		GLX_CONTEXT_MINOR_VERSION_ARB, minor,
+		GLX_CONTEXT_FLAGS_ARB,         GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+		GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+		None
+	};
+
+	/* Create the context */
+	return _gfx_x11->extensions.CreateContextAttribsARB(
+		_gfx_x11->display,
+		config,
+		share,
+		True,
+		bufferAttr
+	);
+}
+
+/******************************************************/
+GFX_PlatformContext _gfx_platform_context_create(
+
+		int                  major,
+		int                  minor,
+		GFX_PlatformContext  share)
+{
+	/* Get config from default screen */
+	int buffElements;
+	int attr = None;
+
+	GLXFBConfig* config = glXChooseFBConfig(
+		_gfx_x11->display,
+		XDefaultScreen(_gfx_x11->display),
+		&attr,
+		&buffElements
+	);
+
+	if(!config) return NULL;
+
+	/* Create context */
+	GFX_PlatformContext context = _gfx_x11_create_context(
+		major,
+		minor,
+		*config,
+		share
+	);
+
+	XFree(config);
+
+	return context;
+}
+
+/******************************************************/
+void _gfx_platform_context_free(
+
+		GFX_PlatformContext context)
+{
+	glXMakeContextCurrent(_gfx_x11->display, None, None, NULL);
+	glXDestroyContext(_gfx_x11->display, context);
+}
+
+/******************************************************/
 GFX_PlatformContext _gfx_platform_context_init(
 
 		GFX_PlatformWindow   handle,
@@ -30,30 +99,12 @@ GFX_PlatformContext _gfx_platform_context_init(
 
 	if(!window) return NULL;
 
-	/* Create buffer attribute array */
-	int bufferAttr[] = {
-		GLX_CONTEXT_MAJOR_VERSION_ARB, major,
-		GLX_CONTEXT_MINOR_VERSION_ARB, minor,
-		GLX_CONTEXT_FLAGS_ARB,         GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-		GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
-		None
-	};
-
-	/* Create the context */
-	window->context = _gfx_x11->extensions.CreateContextAttribsARB(
-		_gfx_x11->display,
+	/* Create context */
+	window->context = _gfx_x11_create_context(
+		major,
+		minor,
 		window->config,
-		share,
-		True,
-		bufferAttr
-	);
-
-	/* Make it current */
-	if(window->context) glXMakeContextCurrent(
-		_gfx_x11->display,
-		window->handle,
-		window->handle,
-		window->context
+		share
 	);
 
 	return window->context;
@@ -70,9 +121,7 @@ void _gfx_platform_context_clear(
 
 	if(window)
 	{
-		glXMakeContextCurrent(_gfx_x11->display, None, None, NULL);
-		glXDestroyContext(_gfx_x11->display, window->context);
-
+		_gfx_platform_context_free(window->context);
 		window->context = NULL;
 	}
 }
@@ -124,26 +173,27 @@ void _gfx_platform_context_get(
 /******************************************************/
 void _gfx_platform_context_make_current(
 
-		GFX_PlatformContext handle)
+		GFX_PlatformContext context)
 {
-	if(!handle) glXMakeContextCurrent(
-		_gfx_x11->display,
-		None,
-		None,
-		NULL
-	);
+	if(!context)
+		glXMakeContextCurrent(_gfx_x11->display, None, None, NULL);
 
 	else
 	{
 		GFX_X11_Window* window =
-			_gfx_x11_get_window_from_context(handle);
+			_gfx_x11_get_window_from_context(context);
 
 		if(window) glXMakeContextCurrent(
 			_gfx_x11->display,
 			window->handle,
 			window->handle,
-			window->context
-		);
+			window->context);
+
+		else glXMakeContextCurrent(
+			_gfx_x11->display,
+			None,
+			None,
+			context);
 	}
 }
 

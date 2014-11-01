@@ -589,11 +589,33 @@ void _gfx_platform_poll_events(void);
  *******************************************************/
 
 /**
- * Creates the renderer context of a window and makes it current.
+ * Creates a new windowless renderer context.
  *
  * @param major Major context version.
  * @param minor Minor context version.
  * @param share Context to share resources with (can be NULL to not share).
+ * @return A handle to the context (NULL on failure).
+ *
+ */
+GFX_PlatformContext _gfx_platform_context_create(
+
+		int                  major,
+		int                  minor,
+		GFX_PlatformContext  share);
+
+/**
+ * Destroys a windowless context.
+ *
+ * This method is allowed to make all contexts inactive.
+ *
+ */
+void _gfx_platform_context_free(
+
+		GFX_PlatformContext context);
+
+/**
+ * Creates the renderer context of a window.
+ *
  * @return A handle to the context (NULL on failure).
  *
  */
@@ -658,7 +680,7 @@ void _gfx_platform_context_get(
  */
 void _gfx_platform_context_make_current(
 
-		GFX_PlatformContext handle);
+		GFX_PlatformContext context);
 
 /**
  * Returns the address to a process of the current context.
