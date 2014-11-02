@@ -91,7 +91,10 @@ int main()
 {
 	/* Really this is for testing purposes, in no way will this be the final usage */
 
-	GFXContext context = { 0, 0 };
+	GFXContext context;
+	context.major = 0;
+	context.minor = 0;
+
 	if(!gfx_init(context))
 	{
 		GFXError error;

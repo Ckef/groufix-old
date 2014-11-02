@@ -3,7 +3,11 @@
 
 int main()
 {
-	if(!gfx_init()) return 0;
+	GFXContext context;
+	context.major = 0;
+	context.minor = 0;
+
+	if(!gfx_init(context)) return 0;
 
 	GFXColorDepth depth;
 	depth.redBits   = 8;
