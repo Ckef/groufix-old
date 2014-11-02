@@ -659,6 +659,11 @@ static void _gfx_bucket_set_draw_type(
 	struct GFX_Source* src = gfx_vector_at(&bucket->sources, unit->src);
 	unsigned int inst = gfx_vertex_layout_count_instanced(src->layout);
 
+	/* Also check the extension for base instancing */
+	GFX_WIND_INIT_UNSAFE;
+	if(!GFX_WIND_EQ(NULL))
+		inst = inst && GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
+
 	unit->type =
 		(unit->base != 0 && inst) ?
 			GFX_INT_DRAW_INSTANCED_BASE :
