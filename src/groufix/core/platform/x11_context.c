@@ -50,6 +50,8 @@ GFX_PlatformContext _gfx_platform_context_create(
 		int                  minor,
 		GFX_PlatformContext  share)
 {
+	if(!_gfx_x11) return NULL;
+
 	/* Get config from default screen */
 	int buffElements;
 	int attr = None;
@@ -176,23 +178,21 @@ void _gfx_platform_context_make_current(
 		GFX_PlatformContext context)
 {
 	if(!context)
-		glXMakeContextCurrent(_gfx_x11->display, None, None, NULL);
+		glXMakeCurrent(_gfx_x11->display, None, NULL);
 
 	else
 	{
 		GFX_X11_Window* window =
 			_gfx_x11_get_window_from_context(context);
 
-		if(window) glXMakeContextCurrent(
+		if(window) glXMakeCurrent(
 			_gfx_x11->display,
-			window->handle,
 			window->handle,
 			window->context);
 
-		else glXMakeContextCurrent(
+		else glXMakeCurrent(
 			_gfx_x11->display,
-			None,
-			None,
+			XDefaultRootWindow(_gfx_x11->display),
 			context);
 	}
 }

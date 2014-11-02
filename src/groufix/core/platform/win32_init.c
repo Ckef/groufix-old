@@ -330,13 +330,8 @@ int _gfx_platform_init(void)
 		/* Construct a keycode lookup */
 		_gfx_win32_create_key_table();
 	}
-	return 1;
-}
 
-/******************************************************/
-int _gfx_platform_is_initialized(void)
-{
-	return (size_t)_gfx_win32;
+	return 1;
 }
 
 /******************************************************/

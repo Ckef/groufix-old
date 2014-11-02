@@ -127,16 +127,17 @@ void _gfx_pipe_process_unprepare(
 			proc->target = NULL;
 		}
 	}
+
+	/* Also, destroy layout while we're at it */
+	GFX_REND_GET.DeleteVertexArrays(1, &GFX_REND_GET.post);
+	GFX_REND_GET.post = 0;
+
 	if(last)
 	{
 		/* If last, destroy buffer as well */
 		GFX_REND_GET.DeleteBuffers(1, &_gfx_process_buffer);
 		_gfx_process_buffer = 0;
 	}
-
-	/* Also, destroy layout while we're at it */
-	GFX_REND_GET.DeleteVertexArrays(1, &GFX_REND_GET.post);
-	GFX_REND_GET.post = 0;
 }
 
 /******************************************************/

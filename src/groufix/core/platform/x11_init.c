@@ -295,13 +295,8 @@ int _gfx_platform_init(void)
 		_gfx_x11->wmStateFullscreen =
 			XInternAtom(_gfx_x11->display, "_NET_WM_STATE_FULLSCREEN", False);
 	}
-	return 1;
-}
 
-/******************************************************/
-int _gfx_platform_is_initialized(void)
-{
-	return (size_t)_gfx_x11;
+	return 1;
 }
 
 /******************************************************/
