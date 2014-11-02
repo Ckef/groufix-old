@@ -342,17 +342,17 @@ void _gfx_window_destroy(
 	if(_gfx_main_window == window)
 	{
 		if(_gfx_public_windows)
-		{
-			/* Save objects at window's context */
-			_gfx_render_objects_save(&window->objects);
 			_gfx_main_window = *(GFX_Window**)_gfx_windows->begin;
-		}
 
 		else _gfx_main_window = NULL;
 	}
 
-	/* Free objects and unload */
-	_gfx_render_objects_free(&window->objects);
+	/* Save or free objects & unload */
+	if(_gfx_main_window)
+		_gfx_render_objects_save(&window->objects);
+	else
+		_gfx_render_objects_free(&window->objects);
+
 	_gfx_renderer_unload();
 
 	/* Braaaaaaains! */
@@ -364,9 +364,9 @@ void _gfx_window_destroy(
 	window->handle = NULL;
 	window->context = NULL;
 
+	/* Make main active again and restore objects */
 	if(--_gfx_alive_windows)
 	{
-		/* Make main active again and restore objects */
 		_gfx_window_make_current(_gfx_main_window);
 
 		if(_gfx_main_window) _gfx_render_objects_restore(

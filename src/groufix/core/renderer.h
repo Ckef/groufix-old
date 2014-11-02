@@ -239,7 +239,7 @@ GFX_Window* _gfx_window_create(void);
  * Creates a zombie window, the window struct still exists, but is not registered.
  * Thus, it must still be freed.
  *
- * Note: any saved objects are automatically restored in the main context,
+ * Note: all objects are automatically saved and restored to the main context,
  * if it still exists.
  *
  */
