@@ -83,8 +83,6 @@ typedef enum GFXLimit
 /**
  * Returns whether a given extension is supported or not.
  *
- * Note: if no window is created, thus no context exists, this will return 0.
- *
  */
 GFX_API int gfx_is_extension_supported(
 
@@ -92,8 +90,6 @@ GFX_API int gfx_is_extension_supported(
 
 /**
  * Returns a limit given by the hardware.
- *
- * Note: if no window is created, thus no context exists, this will return -1.
  *
  */
 GFX_API int gfx_get_limit(
@@ -219,14 +215,6 @@ typedef struct GFXWindow
 
 } GFXWindow;
 
-
-/**
- * Requests a minimal OpenGL Context for new windows.
- *
- */
-GFX_API void gfx_request_context(
-
-		GFXContext context);
 
 /**
  * Returns the number of open windows.

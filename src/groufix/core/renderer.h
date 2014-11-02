@@ -212,6 +212,25 @@ typedef struct GFX_Window
 
 
 /**
+ * Initializes the window manager.
+ *
+ * @param context Minimum context version to use.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_window_manager_init(
+
+		GFXContext context);
+
+/**
+ * Terminates the window manager.
+ *
+ * If it was not yet initialized before, this method has no effect.
+ *
+ */
+void _gfx_window_manager_terminate(void);
+
+/**
  * Returns the top level window associated with a platform window.
  *
  */
@@ -228,8 +247,6 @@ GFX_Window* _gfx_window_get_from_handle(
  * the only valid operations are making it current and
  * using it as active renderer context.
  *
- * It is not destroyed at gfx_terminate.
- *
  */
 GFX_Window* _gfx_window_create(void);
 
@@ -239,8 +256,7 @@ GFX_Window* _gfx_window_create(void);
  * Creates a zombie window, the window struct still exists, but is not registered.
  * Thus, it must still be freed.
  *
- * Note: all objects are automatically saved and restored to the main context,
- * if it still exists.
+ * Note: all objects are automatically saved and restored to the main context.
  *
  */
 void _gfx_window_destroy(

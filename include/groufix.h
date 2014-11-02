@@ -27,10 +27,13 @@ extern "C" {
 /**
  * Initializes the Groufix engine.
  *
+ * @param context Minimal context version to use (can be left as zeros).
  * @return non-zero if initialization was successful.
  *
  */
-GFX_API int gfx_init(void);
+GFX_API int gfx_init(
+
+		GFXContext context);
 
 /**
  * Polls events of all windows.
@@ -56,7 +59,9 @@ GFX_API double gfx_get_time(void);
  * Note: this might be unreliable across threads depending on the platform.
  *
  */
-GFX_API void gfx_set_time(double time);
+GFX_API void gfx_set_time(
+
+		double time);
 
 /**
  * Terminates the Groufix engine.

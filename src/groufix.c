@@ -20,10 +20,19 @@
 static uint64_t _gfx_time_start = 0;
 
 /******************************************************/
-int gfx_init(void)
+int gfx_init(
+
+		GFXContext context)
 {
 	/* Initialize platform */
 	if(!_gfx_platform_init()) return 0;
+
+	/* Initialize window manager */
+	if(!_gfx_window_manager_init(context))
+	{
+		_gfx_platform_terminate();
+		return 0;
+	}
 
 	/* Get starting point of time */
 	_gfx_platform_init_timer();
@@ -46,7 +55,9 @@ double gfx_get_time(void)
 }
 
 /******************************************************/
-void gfx_set_time(double time)
+void gfx_set_time(
+
+		double time)
 {
 	_gfx_time_start = _gfx_platform_get_time() -
 		(uint64_t)(time / _gfx_platform_get_time_resolution());
@@ -55,13 +66,8 @@ void gfx_set_time(double time)
 /******************************************************/
 void gfx_terminate(void)
 {
-	/* Destroy all windows */
-	unsigned int i = gfx_get_num_windows();
-
-	while(i) _gfx_window_destroy(
-		(GFX_Window*)gfx_get_window(--i));
-
-	/* Terminate platform */
+	/* Terminate */
+	_gfx_window_manager_terminate();
 	_gfx_platform_terminate();
 
 	/* Empty error queue */

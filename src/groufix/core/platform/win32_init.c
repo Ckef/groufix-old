@@ -122,7 +122,7 @@ static int _gfx_win32_load_extensions(void)
 	}
 	else success = 0;
 
-	/* Destroy dummy context and window*/
+	/* Destroy dummy context and window */
 	wglDeleteContext(context);
 	DestroyWindow(window);
 	UnregisterClass(GFX_WIN32_WINDOW_CLASS, GetModuleHandle(NULL));

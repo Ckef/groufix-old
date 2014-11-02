@@ -17,7 +17,7 @@ The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 
 ## Building
 
-A Makefile is shipped with the project, run make without a target to view all build targets. All necessary OpenGL headers are shipped with the project as well. The appropriate compiler is expected to be installed, see above for all expected compiler collections. Once the library is built, link against it using `-lGroufix`.
+A Makefile is shipped with the project, run make without a target to view all build targets. All necessary headers are shipped with the project as well. The appropriate compiler is expected to be installed, see above for all expected compiler collections. Once the library is built, link against it using `-lGroufix`.
 
 Groufix can be compiled with different OGL renderers. This must be given as a makefile flag in the form of `RENDERER=VALUE`, in which `VALUE` can be:
 
@@ -33,7 +33,7 @@ Along with the renderer value Groufix accepts more flags which can be defined wh
 
 ## Usage
 
-Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All _core_ functionality will be made available through that file. Make sure the include directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library. Before using the engine, it should be initialized with a call to `gfx_init`. After being done with the engine, it should be terminated with a call to `gfx_terminate`. Additionally, to create any rendering related resources, at least one window should be created. This window will act as a context to communicate to the graphics card, if no window exists, there are no means of communicating.
+Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All _core_ functionality will be made available through that file. Make sure the include directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library. Before using the engine, it should be initialized with a call to `gfx_init`. After being done with the engine, it should be terminated with a call to `gfx_terminate`.
 
 All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using such a name for any variable or function in conjunction with the engine might result in redefinitions.
 
@@ -56,7 +56,7 @@ _The library is thread affine_. All functonality should be executed from the sam
 
 #### Termination
 
-As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all OpenGL and window manager related resources. This means the connection to both OpenGL and the windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
+As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all renderer and window manager related resources. This means the connection to both the renderer and the windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
 
 _It will not free any other resources_. All user allocated resources must be freed by the user. To make sure everything is freed properly, every `*_create` method must be followed up by the appropriate `*_free` method and every `*_init` method must be followed up by the appropriate `*_clear` method. On a side note, any free method can take NULL as parameter and it will do nothing.
 

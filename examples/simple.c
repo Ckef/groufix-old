@@ -91,7 +91,8 @@ int main()
 {
 	/* Really this is for testing purposes, in no way will this be the final usage */
 
-	if(!gfx_init())
+	GFXContext context = { 0, 0 };
+	if(!gfx_init(context))
 	{
 		GFXError error;
 		if(gfx_errors_peek(&error)) print_error(error);
@@ -99,16 +100,6 @@ int main()
 		return 0;
 	}
 	gfx_set_error_mode(GFX_ERROR_MODE_DEBUG);
-
-
-	/* Setup 2 windows */
-	GFXColorDepth depth;
-	depth.redBits   = 8;
-	depth.greenBits = 8;
-	depth.blueBits  = 8;
-
-	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
-	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
 
 
 	/* Pipeline */
@@ -121,9 +112,6 @@ int main()
 
 	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
 	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;
-
-	GFXPipe* pipeA = gfx_pipeline_push_process(pipeline, window1, 0);
-	GFXPipe* pipeB = gfx_pipeline_push_process(pipeline, window2, 0);
 
 
 	/* Texture */
@@ -140,6 +128,22 @@ int main()
 	image.layer   = 0;
 
 	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);
+
+
+	/* Setup 2 windows */
+	GFXColorDepth depth;
+	depth.redBits   = 8;
+	depth.greenBits = 8;
+	depth.blueBits  = 8;
+
+	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
+
+	gfx_window_free(window1);
+	gfx_window_free(window2);
+
+	window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
+	window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
 
 
 	/* Post processing */
@@ -173,12 +177,14 @@ int main()
 
 	GFXShader* shaders[] = { vert, frag };
 
+	GFXPipe* pipeA = gfx_pipeline_push_process(pipeline, window1, 0);
 	GFXProgram* programA = gfx_pipe_process_add(pipeA->process, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(programA, 0, "data");
 	gfx_program_link(programA, 2, shaders, 0);
 
 	gfx_shader_set_source(frag, 1, &fragSrcB);
 
+	GFXPipe* pipeB = gfx_pipeline_push_process(pipeline, window2, 0);
 	GFXProgram* programB = gfx_pipe_process_add(pipeB->process, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(programB, 0, "data");
 	gfx_program_link(programB, 2, shaders, 0);

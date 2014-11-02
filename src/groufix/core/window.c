@@ -21,6 +21,9 @@
 /* Current window data key */
 static GFX_PlatformKey _gfx_current_window;
 
+/* Dummy window (backup context) */
+static GFX_Window* _gfx_dummy_window = NULL;
+
 /* Main window (main context) */
 static GFX_Window* _gfx_main_window = NULL;
 
@@ -63,7 +66,7 @@ static GFX_PlatformContext _gfx_window_context_create(
 {
 	/* Get the main window to share with (as all windows will share everything) */
 	GFX_PlatformContext share = NULL;
-	if(_gfx_windows) share = (*(GFX_Window**)_gfx_windows->begin)->context;
+	if(_gfx_main_window) share = _gfx_main_window->context;
 
 	/* Get maximum context */
 	GFXContext max =
@@ -285,6 +288,50 @@ static void _gfx_window_erase(
 }
 
 /******************************************************/
+int _gfx_window_manager_init(
+
+		GFXContext context)
+{
+	if(!_gfx_main_window)
+	{
+		/* Get minimal context */
+		if(context.major < GFX_CONTEXT_MAJOR_MIN)
+		{
+			context.major = GFX_CONTEXT_MAJOR_MIN;
+			context.minor = GFX_CONTEXT_MINOR_MIN;
+		}
+		else if(
+			context.minor < GFX_CONTEXT_MINOR_MIN &&
+			context.major == GFX_CONTEXT_MAJOR_MIN)
+		{
+			context.minor = GFX_CONTEXT_MINOR_MIN;
+		}
+
+		_gfx_context = context;
+
+		/* Create dummy window */
+		_gfx_dummy_window = _gfx_window_create_internal(NULL);
+		if(!_gfx_dummy_window) return 0;
+
+		_gfx_main_window = _gfx_dummy_window;
+	}
+
+	return 1;
+}
+
+/******************************************************/
+void _gfx_window_manager_terminate(void)
+{
+	/* Destroy all windows */
+	while(_gfx_windows)
+		_gfx_window_destroy(*(GFX_Window**)_gfx_windows->begin);
+
+	/* Free dummy window */
+	gfx_window_free((GFXWindow*)_gfx_dummy_window);
+	_gfx_dummy_window = NULL;
+}
+
+/******************************************************/
 GFX_Window* _gfx_window_get_from_handle(
 
 		GFX_PlatformWindow handle)
@@ -331,21 +378,30 @@ void _gfx_window_destroy(
 {
 	if(_gfx_window_is_zombie(window)) return;
 
-	_gfx_window_erase(window);
-	_gfx_window_make_current(window);
-
-	/* First unprepare */
-	/* let the processes free their resources */
-	_gfx_pipe_process_unprepare(_gfx_windows ? 0 : 1);
-
 	/* Find a new main window */
+	_gfx_window_erase(window);
+
 	if(_gfx_main_window == window)
 	{
 		if(_gfx_public_windows)
 			_gfx_main_window = *(GFX_Window**)_gfx_windows->begin;
 
+		else if(window != _gfx_dummy_window)
+		{
+			/* Recreate the dummy window if necessary */
+			if(!_gfx_dummy_window)
+				_gfx_dummy_window = _gfx_window_create_internal(NULL);
+
+			_gfx_main_window = _gfx_dummy_window;
+		}
+
 		else _gfx_main_window = NULL;
 	}
+
+	/* First unprepare */
+	/* let the processes free their resources */
+	_gfx_window_make_current(window);
+	_gfx_pipe_process_unprepare(_gfx_main_window ? 0 : 1);
 
 	/* Save or free objects & unload */
 	if(_gfx_main_window)
@@ -453,27 +509,6 @@ int gfx_get_limit(
 }
 
 /******************************************************/
-void gfx_request_context(
-
-		GFXContext context)
-{
-	/* Get minimal context */
-	if(context.major < GFX_CONTEXT_MAJOR_MIN)
-	{
-		context.major = GFX_CONTEXT_MAJOR_MIN;
-		context.minor = GFX_CONTEXT_MINOR_MIN;
-	}
-	else if(
-		context.minor < GFX_CONTEXT_MINOR_MIN &&
-		context.major == GFX_CONTEXT_MAJOR_MIN)
-	{
-		context.minor = GFX_CONTEXT_MINOR_MIN;
-	}
-
-	_gfx_context = context;
-}
-
-/******************************************************/
 unsigned int gfx_get_num_windows(void)
 {
 	return _gfx_public_windows;
@@ -520,11 +555,15 @@ GFXWindow* gfx_window_create(
 		/* Insert the window */
 		if(_gfx_window_insert(window))
 		{
-			/* Figure out the main window */
-			if(!_gfx_main_window)
-				_gfx_main_window = window;
-			else
+			/* Destroy dummy window */
+			if(!_gfx_dummy_window)
 				_gfx_window_make_current(_gfx_main_window);
+
+			else
+			{
+				gfx_window_free((GFXWindow*)_gfx_dummy_window);
+				_gfx_dummy_window = NULL;
+			}
 
 			return (GFXWindow*)window;
 		}
