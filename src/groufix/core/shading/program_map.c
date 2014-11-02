@@ -136,10 +136,12 @@ static int _gfx_program_map_set_stages(
 		for(index = 0; index < GFX_INT_NUM_STAGES; ++index)
 			if(map->stages[index])
 			{
-				size_t inst = map->stages[index]->instances;
+				size_t inst =
+					map->stages[index]->instances;
 				map->map.instances =
-					!map->map.instances || map->map.instances > inst ?
-					inst : map->map.instances;
+					!map->map.instances ? inst :
+					!inst ? map->map.instances :
+					(map->map.instances > inst) ? inst : map->map.instances;
 			}
 	}
 

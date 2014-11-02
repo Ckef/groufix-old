@@ -42,6 +42,7 @@ struct GFX_Batch
 struct GFX_MapData
 {
 	GFXPropertyMap*  map;       /* Super class */
+	size_t           instances; /* Maximum number of drawable instances */
 	unsigned int     copies;    /* Number of copies used by units */
 };
 
@@ -446,6 +447,7 @@ GFXPropertyMap* gfx_material_add(
 
 		GFXMaterial*    material,
 		unsigned int    level,
+		size_t          instances,
 		GFXProgramMap*  programMap,
 		unsigned char   properties)
 {
@@ -461,6 +463,14 @@ GFXPropertyMap* gfx_material_add(
 	data.map = gfx_property_map_create(programMap, properties);
 
 	if(!data.map) return NULL;
+
+	/* Clamp instances */
+	data.instances =
+		data.map->programMap->instances;
+	data.instances =
+		!data.instances ? instances :
+		!instances ? data.instances :
+		(instances > data.instances) ? data.instances : instances;
 
 	/* Add it to the LOD map */
 	if(!gfx_lod_map_add((GFXLodMap*)material, level, &data))
@@ -511,7 +521,7 @@ size_t gfx_property_map_list_instances_at(
 		GFXPropertyMapList  list,
 		unsigned int        index)
 {
-	return ((struct GFX_MapData*)list)[index].map->programMap->instances;
+	return ((struct GFX_MapData*)list)[index].instances;
 }
 
 /******************************************************/
