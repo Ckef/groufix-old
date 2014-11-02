@@ -48,13 +48,22 @@ GFX_PlatformContext _gfx_platform_context_create(
 		int                  minor,
 		GFX_PlatformContext  share)
 {
+	/* Create dummy window */
+	GFX_Win32_Window* window = _gfx_win32_window_dummy_create();
+	if(!window) return NULL;
+
 	/* Create context */
-	return _gfx_win32_create_context(
+	window->context = _gfx_win32_create_context(
 		major,
 		minor,
-		NULL,
+		window->handle,
 		share
 	);
+
+	if(!window->context)
+		_gfx_platform_window_free(window->handle);
+
+	return window->context;
 }
 
 /******************************************************/
@@ -62,8 +71,9 @@ void _gfx_platform_context_free(
 
 		GFX_PlatformContext context)
 {
-	/* Destroy the context */
-	wglDeleteContext(context);
+	/* Get the window and free it */
+	GFX_Win32_Window* window = _gfx_win32_get_window_from_context(context);
+	if(window) _gfx_platform_window_free(window->handle);
 }
 
 /******************************************************/
@@ -162,11 +172,8 @@ void _gfx_platform_context_make_current(
 
 		if(window) wglMakeCurrent(
 			GetDC(window->handle),
-			window->context);
-
-		else wglMakeCurrent(
-			GetDC(NULL),
-			window->context);
+			window->context
+		);
 	}
 }
 

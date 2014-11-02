@@ -386,6 +386,57 @@ static int _gfx_win32_register_window_class(void)
 }
 
 /******************************************************/
+GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
+{
+	if(!_gfx_win32) return NULL;
+
+	/* Create a dummy window */
+	GFX_Win32_Window window;
+	window.screen  = NULL;
+	window.context = NULL;
+	window.flags   = 0;
+
+	window.handle = CreateWindow(
+		GFX_WIN32_WINDOW_CLASS_DUMMY,
+		L"",
+		0,
+		0, 0,
+		0, 0,
+		NULL, NULL,
+		GetModuleHandle(NULL),
+		NULL
+	);
+
+	if(window.handle)
+	{
+		/* Add window to vector */
+		GFXVectorIterator it = gfx_vector_insert(
+			&_gfx_win32->windows,
+			&window,
+			_gfx_win32->windows.end
+		);
+
+		if(it != _gfx_win32->windows.end)
+		{
+			/* Set pixel format */
+			GFXColorDepth depth;
+			depth.redBits   = 0;
+			depth.greenBits = 0;
+			depth.blueBits  = 0;
+
+			_gfx_win32_set_pixel_format(window.handle, &depth, 0);
+
+			return it;
+		}
+
+		/* Nevermind */
+		DestroyWindow(window.handle);
+	}
+
+	return NULL;
+}
+
+/******************************************************/
 void _gfx_win32_set_pixel_format(
 
 		HWND                  handle,

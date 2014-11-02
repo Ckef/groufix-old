@@ -102,6 +102,16 @@ int main()
 	gfx_set_error_mode(GFX_ERROR_MODE_DEBUG);
 
 
+	/* Setup 2 windows */
+	GFXColorDepth depth;
+	depth.redBits   = 8;
+	depth.greenBits = 8;
+	depth.blueBits  = 8;
+
+	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
+
+
 	/* Pipeline */
 	GFXPipeline* pipeline = gfx_pipeline_create();
 
@@ -128,22 +138,6 @@ int main()
 	image.layer   = 0;
 
 	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);
-
-
-	/* Setup 2 windows */
-	GFXColorDepth depth;
-	depth.redBits   = 8;
-	depth.greenBits = 8;
-	depth.blueBits  = 8;
-
-	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
-	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
-
-	gfx_window_free(window1);
-	gfx_window_free(window2);
-
-	window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
-	window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
 
 
 	/* Post processing */
