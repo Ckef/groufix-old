@@ -146,15 +146,8 @@ static void _gfx_buffer_obj_free(
 {
 	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
 
-	/* If it was already freed, free memory */
-	if(buffer->handles.begin == buffer->handles.end)
-		free(buffer);
-
-	else
-	{
-		buffer->id = id;
-		gfx_vector_clear(&buffer->handles);
-	}
+	buffer->id = id;
+	gfx_vector_clear(&buffer->handles);
 }
 
 /******************************************************/
@@ -164,9 +157,7 @@ static void _gfx_buffer_obj_save_restore(
 		unsigned int  id)
 {
 	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
-	if(!buffer->id) return;
-
-	buffer->id = id ? id : buffer->id;
+	buffer->id = id;
 }
 
 /******************************************************/
@@ -246,7 +237,12 @@ GFXBuffer* gfx_buffer_create(
 
 	if(buffer->handles.begin == buffer->handles.end)
 	{
+		_gfx_render_object_unregister(
+			&GFX_WIND_GET.objects,
+			buffer->id
+		);
 		free(buffer);
+
 		return NULL;
 	}
 
@@ -295,25 +291,24 @@ void gfx_buffer_free(
 		GFX_WIND_INIT_UNSAFE;
 
 		struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
-		internal->id = 0;
 
-		/* If it was already freed as render object, free memory */
-		if(internal->handles.begin == internal->handles.end)
-			free(buffer);
-
-		else
+		if(!GFX_WIND_EQ(NULL))
 		{
-			if(!GFX_WIND_EQ(NULL))
-				_gfx_buffer_delete_buffers(
-					internal,
-					internal->handles.begin,
-					buffer->multi + 1,
-					GFX_WIND_AS_ARG
-				);
+			/* Delete all buffers */
+			_gfx_buffer_delete_buffers(
+				internal,
+				internal->handles.begin,
+				buffer->multi + 1,
+				GFX_WIND_AS_ARG);
 
-			/* Clear all handles */
-			gfx_vector_clear(&internal->handles);
+			/* Unregister as object */
+			_gfx_render_object_unregister(
+				&GFX_WIND_GET.objects,
+				internal->id);
 		}
+
+		gfx_vector_clear(&internal->handles);
+		free(buffer);
 	}
 }
 

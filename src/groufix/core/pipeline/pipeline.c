@@ -234,15 +234,8 @@ static void _gfx_pipeline_obj_free(
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
-	/* If it was already freed, free memory */
-	if(!pipeline->fbo)
-		free(pipeline);
-
-	else
-	{
-		pipeline->id = 0;
-		pipeline->fbo = 0;
-	}
+	pipeline->id = id;
+	pipeline->fbo = 0;
 }
 
 /******************************************************/
@@ -254,9 +247,9 @@ static void _gfx_pipeline_obj_save(
 	GFX_WIND_INIT_UNSAFE;
 
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
-	if(!pipeline->id) return;
 
 	/* Don't clear the attachments vector or target array */
+	pipeline->id = id;
 	GFX_REND_GET.DeleteFramebuffers(1, &pipeline->fbo);
 	pipeline->fbo = 0;
 }
@@ -270,7 +263,6 @@ static void _gfx_pipeline_obj_restore(
 	GFX_WIND_INIT_UNSAFE;
 
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
-	if(!pipeline->id) return;
 
 	/* Create FBO */
 	pipeline->id = id;
@@ -363,7 +355,23 @@ void gfx_pipeline_free(
 		GFX_WIND_INIT_UNSAFE;
 
 		struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
-		internal->id = 0;
+
+		if(!GFX_WIND_EQ(NULL))
+		{
+			/* Delete framebuffer */
+			if(GFX_REND_GET.fbos[0] == internal->fbo)
+				GFX_REND_GET.fbos[0] = 0;
+			if(GFX_REND_GET.fbos[1] == internal->fbo)
+				GFX_REND_GET.fbos[1] = 0;
+
+			GFX_REND_GET.DeleteFramebuffers(1, &internal->fbo);
+
+			/* Unregister as object */
+			_gfx_render_object_unregister(
+				&GFX_WIND_GET.objects,
+				internal->id
+			);
+		}
 
 		/* Free all pipes, attachments and targets */
 		while(internal->first)
@@ -374,23 +382,7 @@ void gfx_pipeline_free(
 		gfx_vector_clear(&internal->attachments);
 		free(internal->targets);
 
-		/* If it was already freed as render object, free memory */
-		if(!internal->fbo)
-			free(pipeline);
-
-		else
-		{
-			if(!GFX_WIND_EQ(NULL))
-			{
-				if(GFX_REND_GET.fbos[0] == internal->fbo)
-					GFX_REND_GET.fbos[0] = 0;
-				if(GFX_REND_GET.fbos[1] == internal->fbo)
-					GFX_REND_GET.fbos[1] = 0;
-
-				GFX_REND_GET.DeleteFramebuffers(1, &internal->fbo);
-			}
-			internal->fbo = 0;
-		}
+		free(pipeline);
 	}
 }
 
