@@ -71,8 +71,12 @@ GFX_API void gfx_shader_free(
 /**
  * Sets the source of a shader.
  *
- * @param src Array containing the sources to append to each other (all NULL terminated).
+ * @param src  Array containing the sources to append to each other (all NULL terminated).
+ * @param lens Array containing lengths of the sources.
  * @return Non-zero on success.
+ *
+ * lens can be NULL to indicate all strings are null terminated. Or it can contain
+ * a negative value to indicate a particular string is null terminated.
  *
  * Note: This will entirely replace a source set by a previous call to the method.
  * The source strings will be copied.
@@ -82,7 +86,25 @@ GFX_API int gfx_shader_set_source(
 
 		GFXShader*    shader,
 		size_t        num,
-		const char**  src);
+		const char**  src,
+		const int*    lens);
+
+/**
+ * Returns the source of a shader (null terminated string).
+ *
+ * @param length Length of the returned source, excluding null terminator (can be NULL).
+ * @return NULL if no source was set yet.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ * Note: the returned source is the source of the shader AFTER parsing the given
+ * source via gfx_shader_set_source (in other words: pure GLSL).
+ *
+ */
+GFX_API char* gfx_shader_get_source(
+
+		GFXShader*  shader,
+		size_t*     length);
 
 /**
  * Compiles the shader if necessary.

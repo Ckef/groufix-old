@@ -22,15 +22,15 @@
 /* GLSL version strings */
 static const char* _gfx_glsl_versions[] =
 {
-	"#version 150\n\0",
-	"#version 300\n\0",
-	"#version 310\n\0",
-	"#version 330\n\0",
-	"#version 400\n\0",
-	"#version 410\n\0",
-	"#version 420\n\0",
-	"#version 430\n\0",
-	"#version 440\n\0"
+	"#version 150\n",
+	"#version 300\n",
+	"#version 310\n",
+	"#version 330\n",
+	"#version 400\n",
+	"#version 410\n",
+	"#version 420\n",
+	"#version 430\n",
+	"#version 440\n"
 };
 
 /* Internal Shader */
@@ -154,6 +154,137 @@ static const char* _gfx_shader_eval_glsl(
 }
 
 /******************************************************/
+static int _gfx_shader_parse(
+
+		GFXShaderStage  stage,
+		size_t*         count,
+		char***         strings,
+		GLint**         lengths,
+		GFX_WIND_ARG)
+{
+	/* Eeeeh? */
+	if(!*count) return 0;
+
+	/* Check whether outputs need to be redefined */
+	unsigned char hasOut =
+		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] &&
+		stage == GFX_VERTEX_SHADER;
+
+	/* First attempt to find version and/or per vertex built-ins */
+	size_t ver;
+	size_t out = 0;
+	const char* verStr = NULL;
+
+	for(ver = 0; ver < *count; ++ver)
+	{
+		verStr = strstr((*strings)[ver], "#version");
+		if(verStr) break;
+	}
+
+	if(hasOut) for(out = 0; out < *count; ++out)
+	{
+		if(strstr((*strings)[out], "gl_PerVertex"))
+			break;
+	}
+
+	/* Calculate number of strings to insert */
+	size_t strs = (out >= *count) ? 2 : (!verStr ? 1 : 0);
+
+	/* Done. */
+	if(!strs) return 1;
+
+	/* Get version string */
+	if(!verStr)
+	{
+		verStr = _gfx_shader_eval_glsl(
+			GFX_WIND_GET.version.major,
+			GFX_WIND_GET.version.minor
+		);
+
+		if(!verStr) return 0;
+	}
+
+	/* Allocate more space */
+	size_t newCount = *count + strs;
+	char** newStrings = malloc(sizeof(char*) * newCount);
+	GLint* newLengths = malloc(sizeof(GLint) * newCount);
+
+	if(!newStrings || !newLengths)
+	{
+		free(newStrings);
+		free(newLengths);
+
+		return 0;
+	}
+
+	/* Copy all data */
+	memcpy(newStrings + strs, *strings, sizeof(char*) * (*count));
+	memcpy(newLengths + strs, *lengths, sizeof(GLint) * (*count));
+
+	if(ver >= *count)
+	{
+		/* Insert new version string */
+		newLengths[0] = -1;
+		newStrings[0] = (char*)verStr;
+	}
+	if(out >= *count)
+	{
+		/* Extract the version string */
+		if(ver < *count)
+		{
+			/* Move everything up to version back to start */
+			memmove(
+				newStrings,
+				newStrings + strs,
+				sizeof(char*) * (ver + 1));
+
+			memmove(
+				newLengths,
+				newLengths + strs,
+				sizeof(GLint) * (ver + 1));
+
+			/* Move everything after version to new position */
+			size_t spn =
+				strcspn(verStr, "\n");
+			size_t len =
+				GFX_PTR_DIFF(newStrings[ver], verStr) / sizeof(char) +
+				spn + 1;
+
+			newStrings[ver + 2] = newStrings[ver] + len;
+			newLengths[ver + 2] = newLengths[ver];
+			newLengths[ver + 2] -= (verStr[spn] == '\0') ?
+				newLengths[ver + 2] :
+				(newLengths[ver + 2] >= 0 ? len : 0);
+
+			newLengths[ver] = len;
+			out = ver + 1;
+		}
+		else out = 1;
+
+		/* Insert per vertex output */
+		newLengths[out] = -1;
+		newStrings[out] =
+			"out gl_PerVertex{"
+			"vec4 gl_Position;"
+			"float gl_PointSize;"
+			"float gl_ClipDistance[];"
+			"};"
+			"\n";
+	}
+
+	/* Copy new data */
+	free(*strings);
+	free(*lengths);
+
+	*count = newCount;
+	*strings = newStrings;
+	*lengths = newLengths;
+
+	return 1;
+}
+
+
+/******************************************************/
 static void _gfx_shader_obj_free(
 
 		void*         object,
@@ -267,57 +398,95 @@ int gfx_shader_set_source(
 
 		GFXShader*    shader,
 		size_t        num,
-		const char**  src)
+		const char**  src,
+		const int*    lens)
 {
 	GFX_WIND_INIT(0);
 
-	if(!num) return 0;
+	/* Allocate new arrays */
+	char** strings = malloc(sizeof(char*) * num);
+	GLint* lengths = malloc(sizeof(GLint) * num);
 
-	/* Fetch version string */
-	const char* glsl = _gfx_shader_eval_glsl(
-		GFX_WIND_GET.version.major,
-		GFX_WIND_GET.version.minor
+	if(strings && lengths)
+	{
+		/* Fill with data */
+		memcpy(strings, src, sizeof(char*) * num);
+
+		size_t n;
+		if(lens) for(n = 0; n < num; ++n)
+			lengths[n] = lens[n];
+
+		else for(n = 0; n < num; ++n)
+			lengths[n] = -1;
+
+		/* Parse source */
+		if(_gfx_shader_parse(
+			shader->stage,
+			&num,
+			&strings,
+			&lengths,
+			GFX_WIND_AS_ARG))
+		{
+			/* Set source */
+			GFX_REND_GET.ShaderSource(
+				((struct GFX_Shader*)shader)->handle,
+				num,
+				(const GLchar**)strings,
+				(const GLint*)lengths
+			);
+
+			shader->compiled = 0;
+
+			free(strings);
+			free(lengths);
+
+			return 1;
+		}
+	}
+
+	/* Failed */
+	free(strings);
+	free(lengths);
+
+	return 0;
+}
+
+/******************************************************/
+char* gfx_shader_get_source(
+
+		GFXShader*  shader,
+		size_t*     length)
+{
+	GFX_WIND_INIT((*length = 0, NULL));
+
+	struct GFX_Shader* internal = (struct GFX_Shader*)shader;
+
+	/* Get source length */
+	GLint len;
+	GFX_REND_GET.GetShaderiv(
+		internal->handle,
+		GL_SHADER_SOURCE_LENGTH,
+		&len
 	);
 
-	if(!glsl) return 0;
+	if(!len)
+	{
+		if(length) *length = 0;
+		return NULL;
+	}
 
-	/* Check whether outputs need to be redefined */
-	unsigned char out =
-		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] &&
-		shader->stage == GFX_VERTEX_SHADER;
-
-	size_t new = out ? 2 : 1;
-
-	/* Copy sources for some preprocessing */
-	const char** newSrc = malloc(sizeof(char*) * (num + new));
-	if(!newSrc) return 0;
-
-	memcpy(newSrc + new, src, sizeof(char*) * num);
-	newSrc[0] = glsl;
-
-	/* Insert vertex output */
-	if(out) newSrc[1] =
-		"out gl_PerVertex{"
-		"vec4 gl_Position;"
-		"float gl_PointSize;"
-		"float gl_ClipDistance[];"
-		"};"
-		"\n\0";
-
-	/* Set the actual source */
-	GFX_REND_GET.ShaderSource(
-		((struct GFX_Shader*)shader)->handle,
-		num + new,
-		newSrc,
-		NULL
+	/* Get actual source */
+	char* buff = malloc(len);
+	GFX_REND_GET.GetShaderSource(
+		internal->handle,
+		len,
+		NULL,
+		buff
 	);
 
-	shader->compiled = 0;
+	if(length) *length = len - 1;
 
-	/* Deallocate sources */
-	free(newSrc);
-
-	return 1;
+	return buff;
 }
 
 /******************************************************/

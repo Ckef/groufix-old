@@ -67,8 +67,8 @@ GFXMaterial* create_material()
 
 	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
 	GFXShader* frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
-	gfx_shader_set_source(vert, 1, &vertSrc);
-	gfx_shader_set_source(frag, 1, &fragSrc);
+	gfx_shader_set_source(vert, 1, &vertSrc, NULL);
+	gfx_shader_set_source(frag, 1, &fragSrc, NULL);
 
 	GFXShader* shaders[] = { vert, frag };
 
@@ -169,8 +169,8 @@ int main()
 
 	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
 	GFXShader* frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
-	gfx_shader_set_source(vert, 1, &vertSrc);
-	gfx_shader_set_source(frag, 1, &fragSrcA);
+	gfx_shader_set_source(vert, 1, &vertSrc, NULL);
+	gfx_shader_set_source(frag, 1, &fragSrcA, NULL);
 
 	GFXShader* shaders[] = { vert, frag };
 
@@ -179,7 +179,7 @@ int main()
 	gfx_program_set_attribute(programA, 0, "data");
 	gfx_program_link(programA, 2, shaders, 0);
 
-	gfx_shader_set_source(frag, 1, &fragSrcB);
+	gfx_shader_set_source(frag, 1, &fragSrcB, NULL);
 
 	GFXPipe* pipeB = gfx_pipeline_push_process(pipeline, window2, 0);
 	GFXProgram* programB = gfx_pipe_process_add(pipeB->process, GFX_ALL_SHADERS, 1);
@@ -225,10 +225,8 @@ int main()
 
 
 	/* Setup a loop */
-	while(gfx_get_num_windows())
+	while(gfx_poll_events(), gfx_get_num_windows())
 	{
-		gfx_poll_events();
-
 		/* Execute pipeline & swap buffers */
 		gfx_pipeline_execute(pipeline, 0);
 
