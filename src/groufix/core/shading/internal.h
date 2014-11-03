@@ -104,8 +104,7 @@ void _gfx_program_map_unblock(
  */
 void _gfx_program_map_save(
 
-		GFXProgramMap*      map,
-		GFX_RenderObjects*  cont);
+		GFXProgramMap* map);
 
 /**
  * Acts as if _gfx_render_objects_restore was called for only the program map.

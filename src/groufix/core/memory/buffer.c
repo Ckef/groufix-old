@@ -26,9 +26,9 @@ struct GFX_Buffer
 	GFXBuffer buffer;
 
 	/* Hidden data */
-	unsigned int   id;      /* Render Object ID */
-	unsigned char  current; /* Current active buffer */
-	GFXVector      handles; /* Stores GLuint */
+	GFX_RenderObjectID  id;
+	unsigned char       current; /* Current active buffer */
+	GFXVector           handles; /* Stores GLuint */
 };
 
 /******************************************************/
@@ -141,8 +141,8 @@ static void _gfx_buffer_delete_buffers(
 /******************************************************/
 static void _gfx_buffer_obj_free(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
 
@@ -153,8 +153,8 @@ static void _gfx_buffer_obj_free(
 /******************************************************/
 static void _gfx_buffer_obj_save_restore(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
 	buffer->id = id;
@@ -212,7 +212,7 @@ GFXBuffer* gfx_buffer_create(
 		&_gfx_buffer_obj_funcs
 	);
 
-	if(!buffer->id)
+	if(!buffer->id.id)
 	{
 		free(buffer);
 		return NULL;
@@ -237,10 +237,7 @@ GFXBuffer* gfx_buffer_create(
 
 	if(buffer->handles.begin == buffer->handles.end)
 	{
-		_gfx_render_object_unregister(
-			&GFX_WIND_GET.objects,
-			buffer->id
-		);
+		_gfx_render_object_unregister(buffer->id);
 		free(buffer);
 
 		return NULL;
@@ -292,20 +289,17 @@ void gfx_buffer_free(
 
 		struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
 
+		/* Unregister as object */
+		_gfx_render_object_unregister(internal->id);
+
+		/* Delete all buffers */
 		if(!GFX_WIND_EQ(NULL))
-		{
-			/* Delete all buffers */
 			_gfx_buffer_delete_buffers(
 				internal,
 				internal->handles.begin,
 				buffer->multi + 1,
-				GFX_WIND_AS_ARG);
-
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				internal->id);
-		}
+				GFX_WIND_AS_ARG
+			);
 
 		gfx_vector_clear(&internal->handles);
 		free(buffer);

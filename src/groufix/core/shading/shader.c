@@ -40,8 +40,8 @@ struct GFX_Shader
 	GFXShader shader;
 
 	/* Hidden data */
-	unsigned int  id;     /* Render Object ID */
-	GLuint        handle; /* OpenGL handle */
+	GFX_RenderObjectID  id;
+	GLuint              handle; /* OpenGL handle */
 };
 
 /******************************************************/
@@ -287,8 +287,8 @@ static int _gfx_shader_parse(
 /******************************************************/
 static void _gfx_shader_obj_free(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Shader* shader = (struct GFX_Shader*)object;
 
@@ -300,8 +300,8 @@ static void _gfx_shader_obj_free(
 /******************************************************/
 static void _gfx_shader_obj_save_restore(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Shader* shader = (struct GFX_Shader*)object;
 	shader->id = id;
@@ -353,7 +353,7 @@ GFXShader* gfx_shader_create(
 		&_gfx_shader_obj_funcs
 	);
 
-	if(!shader->id)
+	if(!shader->id.id)
 	{
 		free(shader);
 		return NULL;
@@ -377,17 +377,12 @@ void gfx_shader_free(
 
 		struct GFX_Shader* internal = (struct GFX_Shader*)shader;
 
-		if(!GFX_WIND_EQ(NULL))
-		{
-			/* Delete shader */
-			GFX_REND_GET.DeleteShader(internal->handle);
+		/* Unregister as object */
+		_gfx_render_object_unregister(internal->id);
 
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				internal->id
-			);
-		}
+		/* Delete shader */
+		if(!GFX_WIND_EQ(NULL))
+			GFX_REND_GET.DeleteShader(internal->handle);
 
 		free(shader);
 	}

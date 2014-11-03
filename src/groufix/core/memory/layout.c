@@ -65,7 +65,7 @@ struct GFX_Layout
 	GFXVertexLayout layout;
 
 	/* Hidden data */
-	unsigned int          id;            /* Render Object ID */
+	GFX_RenderObjectID    id;
 	GLuint                vao;           /* OpenGL handle */
 	GFXVector             attributes;    /* Stores GFX_Attribute */
 	GFXVector             buffers;       /* Stores GFX_Buffer */
@@ -387,8 +387,8 @@ static void _gfx_layout_init_buff_divisor(
 /******************************************************/
 static void _gfx_layout_obj_free(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Layout* layout = (struct GFX_Layout*)object;
 
@@ -399,8 +399,8 @@ static void _gfx_layout_obj_free(
 /******************************************************/
 static void _gfx_layout_obj_save(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	GFX_WIND_INIT_UNSAFE;
 
@@ -415,8 +415,8 @@ static void _gfx_layout_obj_save(
 /******************************************************/
 static void _gfx_layout_obj_restore(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	GFX_WIND_INIT_UNSAFE;
 
@@ -520,7 +520,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 		&_gfx_layout_obj_funcs
 	);
 
-	if(!layout->id)
+	if(!layout->id.id)
 	{
 		free(layout);
 		return NULL;
@@ -547,6 +547,9 @@ void gfx_vertex_layout_free(
 
 		struct GFX_Layout* internal = (struct GFX_Layout*)layout;
 
+		/* Unregister as object */
+		_gfx_render_object_unregister(internal->id);
+
 		if(!GFX_WIND_EQ(NULL))
 		{
 			/* Delete VAO */
@@ -554,12 +557,6 @@ void gfx_vertex_layout_free(
 				GFX_REND_GET.vao = 0;
 
 			GFX_REND_GET.DeleteVertexArrays(1, &internal->vao);
-
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				internal->id
-			);
 		}
 
 		/* Clear resources */

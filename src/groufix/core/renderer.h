@@ -78,7 +78,7 @@ void _gfx_renderer_unload(void);
 
 
 /********************************************************
- * Generic render object reconstruction
+ * Generic render object definitions
  *******************************************************/
 
 /** Render object container */
@@ -91,8 +91,21 @@ typedef struct GFX_RenderObjects
 } GFX_RenderObjects;
 
 
+/** Render object ID */
+typedef struct GFX_RenderObjectID
+{
+	GFX_RenderObjects*  objects;
+	unsigned int        id;
+
+} GFX_RenderObjectID;
+
+
+/********************************************************
+ * Generic render object reconstruction
+ *******************************************************/
+
 /** Generic render object operator */
-typedef void (*GFX_RenderObjectFunc) (void*, unsigned int);
+typedef void (*GFX_RenderObjectFunc) (void*, GFX_RenderObjectID);
 
 
 /** Operator vtable */
@@ -127,25 +140,24 @@ void _gfx_render_objects_clear(
  * @param cont   Container to register at.
  * @param object Arbitrary data to identify with the render object.
  * @param funcs  Functions to associate with the object.
- * @return Identifier of the object, 0 on failure.
+ * @return Identifier of the object, all 0s on failure.
  *
  */
-unsigned int _gfx_render_object_register(
+GFX_RenderObjectID _gfx_render_object_register(
 
 		GFX_RenderObjects*            cont,
 		void*                         object,
 		const GFX_RenderObjectFuncs*  funcs);
 
 /**
- * Unregisters a render object at a container.
+ * Unregisters a render object at its container.
  *
  * @param id Identifier of the render object to unregister.
  *
  */
 void _gfx_render_object_unregister(
 
-		GFX_RenderObjects*  cont,
-		unsigned int        id);
+		GFX_RenderObjectID id);
 
 /**
  * Issue free method of all unsaved render objects.

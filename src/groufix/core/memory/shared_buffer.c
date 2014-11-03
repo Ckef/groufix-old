@@ -30,12 +30,12 @@ static GFXVector* _gfx_shared_buffers = NULL;
 /* Internal Shared Buffer */
 struct GFX_SharedBuffer
 {
-	unsigned int     id;       /* Render Object ID */
-	GLuint           handle;   /* OpenGL handle */
+	GFX_RenderObjectID  id;
+	GLuint              handle;   /* OpenGL handle */
 
-	GFXBufferTarget  target;
-	size_t           size;     /* In bytes */
-	GFXVector        segments; /* Taken segments of the buffer */
+	GFXBufferTarget     target;
+	size_t              size;     /* In bytes */
+	GFXVector           segments; /* Taken segments of the buffer */
 };
 
 /* Internal Segment */
@@ -48,8 +48,8 @@ struct GFX_Segment
 /******************************************************/
 static void _gfx_shared_buffer_obj_free(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
 
@@ -63,8 +63,8 @@ static void _gfx_shared_buffer_obj_free(
 /******************************************************/
 static void _gfx_shared_buffer_obj_save_restore(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
 	buff->id = id;
@@ -118,7 +118,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 		&_gfx_shared_buffer_obj_funcs
 	);
 
-	if(!buff->id)
+	if(!buff->id.id)
 	{
 		free(buff);
 		return NULL;
@@ -150,17 +150,12 @@ static void _gfx_shared_buffer_free(
 	{
 		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
 
-		if(!GFX_WIND_EQ(NULL))
-		{
-			/* Delete buffer */
-			GFX_REND_GET.DeleteBuffers(1, &buff->handle);
+		/* Unregister as object */
+		_gfx_render_object_unregister(buff->id);
 
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				buff->id
-			);
-		}
+		/* Delete buffer */
+		if(!GFX_WIND_EQ(NULL))
+			GFX_REND_GET.DeleteBuffers(1, &buff->handle);
 
 		/* Remove from le vector */
 		gfx_vector_erase(_gfx_shared_buffers, it);

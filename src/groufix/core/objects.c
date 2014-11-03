@@ -46,43 +46,49 @@ void _gfx_render_objects_clear(
 }
 
 /******************************************************/
-unsigned int _gfx_render_object_register(
+GFX_RenderObjectID _gfx_render_object_register(
 
 		GFX_RenderObjects*            cont,
 		void*                         object,
 		const GFX_RenderObjectFuncs*  funcs)
 {
-	if(!funcs) return 0;
+	GFX_RenderObjectID id =
+	{
+		.objects = NULL,
+		.id = 0
+	};
+
+	if(!funcs) return id;
 
 	/* Create internal object */
-	struct GFX_Object obj;
-	obj.handle = object;
-	obj.funcs = funcs;
-
-	unsigned int id = 0;
+	struct GFX_Object obj =
+	{
+		.handle = object,
+		.funcs = funcs
+	};
 
 	if(cont->empties.begin != cont->empties.end)
 	{
 		/* Replace an empty ID */
-		id = *(unsigned int*)cont->empties.begin;
+		id.id = *(unsigned int*)cont->empties.begin;
 		gfx_deque_pop_front(&cont->empties);
 
-		*(struct GFX_Object*)gfx_vector_at(&cont->objects, id - 1) = obj;
+		*(struct GFX_Object*)gfx_vector_at(&cont->objects, id.id - 1) = obj;
 	}
 	else
 	{
 		/* Get index + 1 as ID, overflow? omg, many objects! */
 		size_t size = gfx_vector_get_size(&cont->objects);
-		id = size + 1;
+		unsigned int index = size + 1;
 
-		if(id < size)
+		if(index < size)
 		{
 			/* Overflow error */
 			gfx_errors_push(
 				GFX_ERROR_OVERFLOW,
 				"Overflow occurred during render object registration."
 			);
-			return 0;
+			return id;
 		}
 
 		/* Insert a new object at the end */
@@ -93,40 +99,43 @@ unsigned int _gfx_render_object_register(
 		);
 
 		if(it == cont->objects.end)
-			return 0;
+			return id;
+
+		id.id = index;
 	}
 
+	id.objects = cont;
 	return id;
 }
 
 /******************************************************/
 void _gfx_render_object_unregister(
 
-		GFX_RenderObjects*  cont,
-		unsigned int        id)
+		GFX_RenderObjectID id)
 {
-	size_t size = gfx_vector_get_size(&cont->objects);
+	if(!id.objects) return;
 
 	/* Good job */
-	if(!id || id > size) return;
+	size_t size = gfx_vector_get_size(&id.objects->objects);
+	if(!id.id || id.id > size) return;
 
-	if(id < size)
+	if(id.id < size)
 	{
 		/* Check if it is already empty */
 		struct GFX_Object* obj = gfx_vector_at(
-			&cont->objects,
-			id - 1
+			&id.objects->objects,
+			id.id - 1
 		);
 
 		if(!obj->funcs) return;
 		memset(obj, 0, sizeof(struct GFX_Object));
 
 		/* Save ID */
-		gfx_deque_push_back(&cont->empties, &id);
+		gfx_deque_push_back(&id.objects->empties, &id.id);
 	}
 
 	/* Remove last element */
-	else gfx_vector_erase_at(&cont->objects, size - 1);
+	else gfx_vector_erase_at(&id.objects->objects, size - 1);
 }
 
 /******************************************************/
@@ -134,17 +143,21 @@ void _gfx_render_objects_free(
 
 		GFX_RenderObjects* cont)
 {
+	GFX_RenderObjectID id =
+	{
+		.objects = NULL,
+		.id = 0
+	};
+
 	/* Issue free request */
-	GFXVectorIterator it;
+	struct GFX_Object* it;
 	for(
 		it = cont->objects.begin;
 		it != cont->objects.end;
 		it = gfx_vector_next(&cont->objects, it))
 	{
-		struct GFX_Object* obj = (struct GFX_Object*)it;
-
-		if(obj->funcs)
-			obj->funcs->free(obj->handle, 0);
+		if(it->funcs)
+			it->funcs->free(it->handle, id);
 	}
 
 	/* Unregister all */
@@ -157,17 +170,21 @@ void _gfx_render_objects_save(
 
 		GFX_RenderObjects* cont)
 {
+	GFX_RenderObjectID id =
+	{
+		.objects = cont,
+		.id = 0
+	};
+
 	/* Issue save request */
-	GFXVectorIterator it;
+	struct GFX_Object* it;
 	for(
 		it = cont->objects.begin;
 		it != cont->objects.end;
 		it = gfx_vector_next(&cont->objects, it))
 	{
-		struct GFX_Object* obj = (struct GFX_Object*)it;
-
-		if(obj->funcs)
-			obj->funcs->save(obj->handle, 0);
+		if(it->funcs)
+			it->funcs->save(it->handle, id);
 	}
 
 	/* Move all objects to saved vector */
@@ -198,25 +215,23 @@ void _gfx_render_objects_restore(
 	gfx_vector_reserve(&cont->objects, size);
 
 	/* Iterate over all saved objects */
-	GFXVectorIterator it;
+	struct GFX_Object* it;
 	for(
 		it = src->saved.begin;
 		it != src->saved.end;
 		it = gfx_vector_next(&src->saved, it))
 	{
-		struct GFX_Object* obj = (struct GFX_Object*)it;
-
-		if(obj->funcs)
+		if(it->funcs)
 		{
 			/* Register at new container */
-			unsigned int id = _gfx_render_object_register(
+			GFX_RenderObjectID id = _gfx_render_object_register(
 				cont,
-				obj->handle,
-				obj->funcs
+				it->handle,
+				it->funcs
 			);
 
 			/* And restore */
-			obj->funcs->restore(obj->handle, id);
+			it->funcs->restore(it->handle, id);
 		}
 	}
 

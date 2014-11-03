@@ -36,16 +36,16 @@ struct GFX_Pipeline
 	GFXPipeline pipeline;
 
 	/* Framebuffer */
-	unsigned int  id;          /* Render Object ID */
-	GLuint        fbo;         /* OpenGL handle */
-	GFXVector     attachments; /* Stores GFX_Attachment */
-	unsigned int  numTargets;
-	GLenum*       targets;     /* OpenGL draw buffers */
+	GFX_RenderObjectID  id;
+	GLuint              fbo;         /* OpenGL handle */
+	GFXVector           attachments; /* Stores GFX_Attachment */
+	unsigned int        numTargets;
+	GLenum*             targets;     /* OpenGL draw buffers */
 
-	GFX_Pipe*     first;
-	GFX_Pipe*     last;
-	GFX_Pipe*     current;
-	GFX_Pipe*     unlinked;
+	GFX_Pipe*           first;
+	GFX_Pipe*           last;
+	GFX_Pipe*           current;
+	GFX_Pipe*           unlinked;
 };
 
 /******************************************************/
@@ -229,8 +229,8 @@ static void _gfx_pipeline_push_pipe(
 /******************************************************/
 static void _gfx_pipeline_obj_free(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
 
@@ -241,8 +241,8 @@ static void _gfx_pipeline_obj_free(
 /******************************************************/
 static void _gfx_pipeline_obj_save(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	GFX_WIND_INIT_UNSAFE;
 
@@ -257,8 +257,8 @@ static void _gfx_pipeline_obj_save(
 /******************************************************/
 static void _gfx_pipeline_obj_restore(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	GFX_WIND_INIT_UNSAFE;
 
@@ -331,7 +331,7 @@ GFXPipeline* gfx_pipeline_create(void)
 		&_gfx_pipeline_obj_funcs
 	);
 
-	if(!pl->id)
+	if(!pl->id.id)
 	{
 		free(pl);
 		return NULL;
@@ -356,6 +356,9 @@ void gfx_pipeline_free(
 
 		struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
 
+		/* Unregister as object */
+		_gfx_render_object_unregister(internal->id);
+
 		if(!GFX_WIND_EQ(NULL))
 		{
 			/* Delete framebuffer */
@@ -365,12 +368,6 @@ void gfx_pipeline_free(
 				GFX_REND_GET.fbos[1] = 0;
 
 			GFX_REND_GET.DeleteFramebuffers(1, &internal->fbo);
-
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				internal->id
-			);
 		}
 
 		/* Free all pipes, attachments and targets */

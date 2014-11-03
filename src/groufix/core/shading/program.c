@@ -83,11 +83,11 @@ struct GFX_Program
 	GFXProgram program;
 
 	/* Hidden data */
-	unsigned int  id;         /* Render Object ID */
-	unsigned int  references; /* Reference counter */
-	GLuint        handle;     /* OpenGL handle */
-	GFXVector     properties; /* Stores GFX_Property */
-	GFXVector     blocks;     /* Stores GFXPropertyBlock */
+	GFX_RenderObjectID  id;
+	unsigned int        references; /* Reference counter */
+	GLuint              handle;     /* OpenGL handle */
+	GFXVector           properties; /* Stores GFX_Property */
+	GFXVector           blocks;     /* Stores GFXPropertyBlock */
 };
 
 /******************************************************/
@@ -489,8 +489,8 @@ static void _gfx_program_prepare(
 /******************************************************/
 static void _gfx_program_obj_free(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Program* program = (struct GFX_Program*)object;
 
@@ -502,8 +502,8 @@ static void _gfx_program_obj_free(
 /******************************************************/
 static void _gfx_program_obj_save_restore(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Program* program = (struct GFX_Program*)object;
 	program->id = id;
@@ -552,7 +552,7 @@ GFXProgram* _gfx_program_create(
 		&_gfx_program_obj_funcs
 	);
 
-	if(!prog->id)
+	if(!prog->id.id)
 	{
 		free(prog);
 		return NULL;
@@ -605,6 +605,9 @@ void _gfx_program_free(
 		{
 			GFX_WIND_INIT_UNSAFE;
 
+			/* Unregister as object */
+			_gfx_render_object_unregister(internal->id);
+
 			if(!GFX_WIND_EQ(NULL))
 			{
 				/* Delete program */
@@ -612,12 +615,6 @@ void _gfx_program_free(
 					GFX_REND_GET.program = 0;
 
 				GFX_REND_GET.DeleteProgram(internal->handle);
-
-				/* Unregister as object */
-				_gfx_render_object_unregister(
-					&GFX_WIND_GET.objects,
-					internal->id
-				);
 			}
 
 			/* Clear resources */

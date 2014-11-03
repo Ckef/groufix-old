@@ -158,7 +158,7 @@ void _gfx_pipe_process_retarget(
 		{
 			struct GFX_Process* proc = *(struct GFX_Process**)it;
 			if(GFX_WIND_EQ(proc->target))
-				_gfx_program_map_save(proc->progs, &GFX_WIND_GET.objects);
+				_gfx_program_map_save(proc->progs);
 		}
 
 		/* Then restore them to the new target */

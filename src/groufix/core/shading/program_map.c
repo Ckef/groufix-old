@@ -34,10 +34,10 @@ struct GFX_Map
 	GFXProgramMap map;
 
 	/* Hidden data */
-	unsigned int  id;                         /* Render Object ID */
-	GLuint        handle;                     /* OpenGL program or program pipeline handle */
-	GFXProgram*   stages[GFX_INT_NUM_STAGES]; /* All stages with their associated program */
-	unsigned int  blocks;                     /* Number of times blocked */
+	GFX_RenderObjectID  id;
+	GLuint              handle;                     /* OpenGL program or program pipeline handle */
+	GFXProgram*         stages[GFX_INT_NUM_STAGES]; /* All stages with their associated program */
+	unsigned int        blocks;                     /* Number of times blocked */
 };
 
 /******************************************************/
@@ -154,8 +154,8 @@ static int _gfx_program_map_set_stages(
 /******************************************************/
 static void _gfx_program_map_obj_free(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Map* map = (struct GFX_Map*)object;
 
@@ -167,8 +167,8 @@ static void _gfx_program_map_obj_free(
 /******************************************************/
 static void _gfx_program_map_obj_save(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	GFX_WIND_INIT_UNSAFE;
 
@@ -182,8 +182,8 @@ static void _gfx_program_map_obj_save(
 /******************************************************/
 static void _gfx_program_map_obj_restore(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	GFX_WIND_INIT_UNSAFE;
 
@@ -280,8 +280,7 @@ void _gfx_program_map_unblock(
 /******************************************************/
 void _gfx_program_map_save(
 
-		GFXProgramMap*      map,
-		GFX_RenderObjects*  cont)
+		GFXProgramMap* map)
 {
 	GFX_WIND_INIT();
 
@@ -289,13 +288,15 @@ void _gfx_program_map_save(
 
 	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
 	{
-		/* Unregister as object */
-		_gfx_render_object_unregister(
-			cont,
-			internal->id
-		);
+		GFX_RenderObjectID id =
+		{
+			.objects = internal->id.objects,
+			.id = 0
+		};
 
-		_gfx_program_map_obj_save(map, 0);
+		/* Unregister as object */
+		_gfx_render_object_unregister(internal->id);
+		_gfx_program_map_obj_save(map, id);
 	}
 }
 
@@ -310,13 +311,13 @@ void _gfx_program_map_restore(
 	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
 	{
 		/* Register as object */
-		unsigned int id = _gfx_render_object_register(
+		GFX_RenderObjectID id = _gfx_render_object_register(
 			cont,
 			map,
 			&_gfx_program_map_obj_funcs
 		);
 
-		if(id) _gfx_program_map_obj_restore(map, id);
+		if(id.id) _gfx_program_map_obj_restore(map, id);
 	}
 }
 
@@ -362,7 +363,7 @@ GFXProgramMap* gfx_program_map_create(void)
 			&_gfx_program_map_obj_funcs
 		);
 
-		if(!map->id)
+		if(!map->id.id)
 		{
 			free(map);
 			return NULL;
@@ -386,6 +387,9 @@ void gfx_program_map_free(
 
 		struct GFX_Map* internal = (struct GFX_Map*)map;
 
+		/* Unregister as object */
+		_gfx_render_object_unregister(internal->id);
+
 		if(!GFX_WIND_EQ(NULL))
 		{
 			/* Delete program pipeline */
@@ -394,12 +398,6 @@ void gfx_program_map_free(
 					1,
 					&internal->handle
 				);
-
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				internal->id
-			);
 		}
 
 		/* Free all programs */

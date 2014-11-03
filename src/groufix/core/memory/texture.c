@@ -27,11 +27,11 @@ struct GFX_Texture
 	GFXTexture texture;
 
 	/* Hidden data */
-	unsigned int  id;     /* Render Object ID */
-	GLuint        buffer;
-	GLuint        handle; /* OpenGL handle */
-	GLenum        target;
-	GLint         format; /* Internal format */
+	GFX_RenderObjectID  id;
+	GLuint              buffer;
+	GLuint              handle; /* OpenGL handle */
+	GLenum              target;
+	GLint               format; /* Internal format */
 };
 
 /******************************************************/
@@ -172,8 +172,8 @@ static inline GLint _gfx_texture_eval_internal_format(
 /******************************************************/
 static void _gfx_texture_obj_free(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Texture* texture = (struct GFX_Texture*)object;
 
@@ -185,8 +185,8 @@ static void _gfx_texture_obj_free(
 /******************************************************/
 static void _gfx_texture_obj_save_restore(
 
-		void*         object,
-		unsigned int  id)
+		void*               object,
+		GFX_RenderObjectID  id)
 {
 	struct GFX_Texture* texture = (struct GFX_Texture*)object;
 	texture->id = id;
@@ -232,7 +232,7 @@ static struct GFX_Texture* _gfx_texture_alloc(
 		&_gfx_texture_obj_funcs
 	);
 
-	if(!tex->id)
+	if(!tex->id.id)
 	{
 		free(tex);
 		return NULL;
@@ -645,17 +645,14 @@ void gfx_texture_free(
 
 		struct GFX_Texture* internal = (struct GFX_Texture*)texture;
 
+		/* Unregister as object */
+		_gfx_render_object_unregister(internal->id);
+
 		if(!GFX_WIND_EQ(NULL))
 		{
 			/* Delete texture */
 			_gfx_binder_unbind_texture(internal->handle, GFX_WIND_AS_ARG);
 			GFX_REND_GET.DeleteTextures(1, &internal->handle);
-
-			/* Unregister as object */
-			_gfx_render_object_unregister(
-				&GFX_WIND_GET.objects,
-				internal->id
-			);
 		}
 
 		free(texture);
