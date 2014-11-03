@@ -77,7 +77,6 @@ HEADERS = \
  include/groufix/math/mat.h \
  include/groufix/math/quat.h \
  include/groufix/math/vec.h \
- include/groufix/scene/batch.h \
  include/groufix/scene/lod.h \
  include/groufix/scene/material.h \
  include/groufix/scene/mesh.h \
@@ -99,7 +98,6 @@ HEADERS_LIB = \
  src/groufix/core/platform.h \
  src/groufix/core/renderer.h \
  src/groufix/scene/internal.h \
- src/groufix/scene/protocol.h
 
 HEADERS_UNIX_X11 = \
  $(HEADERS_LIB) \
@@ -165,7 +163,6 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/objects.o \
  $(OUT)/unix-x11/groufix/core/screen.o \
  $(OUT)/unix-x11/groufix/core/window.o \
- $(OUT)/unix-x11/groufix/scene/batch.o \
  $(OUT)/unix-x11/groufix/scene/lod_map.o \
  $(OUT)/unix-x11/groufix/scene/material.o \
  $(OUT)/unix-x11/groufix/scene/mesh.o \
@@ -239,7 +236,6 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/objects.o \
  $(OUT)/win32/groufix/core/screen.o \
  $(OUT)/win32/groufix/core/window.o \
- $(OUT)/win32/groufix/scene/batch.o \
  $(OUT)/win32/groufix/scene/lod_map.o \
  $(OUT)/win32/groufix/scene/material.o \
  $(OUT)/win32/groufix/scene/mesh.o \

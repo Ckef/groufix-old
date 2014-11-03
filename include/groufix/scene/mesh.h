@@ -66,6 +66,45 @@ GFX_API GFXVertexSource gfx_submesh_get_source(
 		unsigned char  index);
 
 /**
+ * References a bucket at a submesh.
+ *
+ * @param bucket Bucket to reference.
+ * @return Zero on overflow.
+ *
+ * Note: it must be removed equally many times to free all
+ * references to a bucket.
+ *
+ */
+GFX_API int gfx_submesh_add_bucket(
+
+		GFXSubMesh*  mesh,
+		GFXBucket*   bucket);
+
+/**
+ * Fetches the source ID at a bucket of a source at a submesh.
+ *
+ * @param index Index of the submesh source to fetch.
+ * @return Soure ID at the bucket.
+ *
+ */
+GFX_API GFXBucketSource gfx_submesh_get_bucket_source(
+
+		GFXSubMesh*    mesh,
+		GFXBucket*     bucket,
+		unsigned char  index);
+
+/**
+ * Frees a single reference of a bucket at a submesh.
+ *
+ * @return Non-zero if a reference was freed.
+ *
+ */
+GFX_API int gfx_submesh_remove_bucket(
+
+		GFXSubMesh*  mesh,
+		GFXBucket*   bucket);
+
+/**
  * Creates an automatic buffer.
  *
  * @param target Storage type the buffer is targeted for.
@@ -184,8 +223,6 @@ GFX_API int gfx_mesh_add_share(
  *
  * Note: index is clamped to the number of property maps available when used.
  *
- * Changing this while the submesh is already in use by a batch can be expensive!
- *
  */
 GFX_API unsigned int gfx_mesh_set_material(
 
@@ -212,8 +249,6 @@ GFX_API int gfx_mesh_set_material_at(
  * Sets the source to sample from all instances of a submesh added to a mesh.
  *
  * @return Number of found submeshes (0 if source >= sub->sources).
- *
- * Changing this while the submesh is already in use by a batch can be expensive!
  *
  */
 GFX_API unsigned int gfx_mesh_set_source(

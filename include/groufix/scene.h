@@ -15,6 +15,7 @@
 #ifndef GFX_SCENE_H
 #define GFX_SCENE_H
 
-#include "groufix/scene/batch.h"
+#include "groufix/scene/material.h"
+#include "groufix/scene/mesh.h"
 
 #endif // GFX_SCENE_H

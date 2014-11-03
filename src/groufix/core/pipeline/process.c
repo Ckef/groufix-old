@@ -295,13 +295,16 @@ void _gfx_pipe_process_free(
 		struct GFX_Process* internal = (struct GFX_Process*)process;
 
 		/* Create context-bound objects */
-		if(!GFX_WIND_EQ(NULL) && internal->target)
-		{
+		if(internal->target)
 			_gfx_window_make_current(internal->target);
-			gfx_property_map_free(internal->map);
-			gfx_program_map_free(internal->progs);
+
+		gfx_property_map_free(internal->map);
+		gfx_program_map_free(internal->progs);
+
+		if(GFX_WIND_EQ(NULL))
+			_gfx_window_make_current(NULL);
+		else
 			_gfx_window_make_current(&GFX_WIND_GET);
-		}
 
 		/* Erase self from vector */
 		GFXVectorIterator it;

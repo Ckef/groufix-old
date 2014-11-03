@@ -240,14 +240,8 @@ static void _gfx_pipeline_obj_free(
 
 	else
 	{
-		pipeline->id = id;
+		pipeline->id = 0;
 		pipeline->fbo = 0;
-
-		gfx_vector_clear(&pipeline->attachments);
-		free(pipeline->targets);
-
-		pipeline->targets = NULL;
-		pipeline->numTargets = 0;
 	}
 }
 
@@ -260,9 +254,9 @@ static void _gfx_pipeline_obj_save(
 	GFX_WIND_INIT_UNSAFE;
 
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
+	if(!pipeline->id) return;
 
 	/* Don't clear the attachments vector or target array */
-	pipeline->id = id;
 	GFX_REND_GET.DeleteFramebuffers(1, &pipeline->fbo);
 	pipeline->fbo = 0;
 }
@@ -276,6 +270,7 @@ static void _gfx_pipeline_obj_restore(
 	GFX_WIND_INIT_UNSAFE;
 
 	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
+	if(!pipeline->id) return;
 
 	/* Create FBO */
 	pipeline->id = id;
@@ -368,6 +363,7 @@ void gfx_pipeline_free(
 		GFX_WIND_INIT_UNSAFE;
 
 		struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
+		internal->id = 0;
 
 		/* Free all pipes, attachments and targets */
 		while(internal->first)
@@ -382,14 +378,17 @@ void gfx_pipeline_free(
 		if(!internal->fbo)
 			free(pipeline);
 
-		else if(!GFX_WIND_EQ(NULL))
+		else
 		{
-			if(GFX_REND_GET.fbos[0] == internal->fbo)
-				GFX_REND_GET.fbos[0] = 0;
-			if(GFX_REND_GET.fbos[1] == internal->fbo)
-				GFX_REND_GET.fbos[1] = 0;
+			if(!GFX_WIND_EQ(NULL))
+			{
+				if(GFX_REND_GET.fbos[0] == internal->fbo)
+					GFX_REND_GET.fbos[0] = 0;
+				if(GFX_REND_GET.fbos[1] == internal->fbo)
+					GFX_REND_GET.fbos[1] = 0;
 
-			GFX_REND_GET.DeleteFramebuffers(1, &internal->fbo);
+				GFX_REND_GET.DeleteFramebuffers(1, &internal->fbo);
+			}
 			internal->fbo = 0;
 		}
 	}

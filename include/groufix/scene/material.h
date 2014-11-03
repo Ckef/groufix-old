@@ -59,19 +59,15 @@ GFX_API void gfx_material_free(
  * Creates a new property map and maps it to a given level of detail.
  *
  * @param level      Level of detail to map to (must be <= material->levels).
- * @param instances  Maximum number of instances that can be drawn in a single draw call, 0 for infinite.
  * @param programMap Program map to set inputs for.
  * @param properties Fixed number of property indices associated with this map.
  * @return The new property map on success, NULL on failure.
- *
- * Note: instances will be clamped by the number of instances of the program map.
  *
  */
 GFX_API GFXPropertyMap* gfx_material_add(
 
 		GFXMaterial*    material,
 		unsigned int    level,
-		size_t          instances,
 		GFXProgramMap*  programMap,
 		unsigned char   properties);
 
@@ -100,20 +96,6 @@ GFX_API GFXPropertyMapList gfx_material_get_all(
 
 		GFXMaterial*   material,
 		unsigned int*  num);
-
-/**
- * Index into a list of property maps, retrieving the instances.
- *
- * @param list List of property maps returned by gfx_material_get or gfx_material_get_all.
- * @return Number of instances which can be drawn at once using the property map, 0 for infinite.
- *
- * Note: you can only retrieve a property map with index < number of elements in list.
- *
- */
-GFX_API size_t gfx_property_map_list_instances_at(
-
-		GFXPropertyMapList  list,
-		unsigned int        index);
 
 /**
  * Index into a list of property maps, retrieving the number of used copies.

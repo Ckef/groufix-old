@@ -183,7 +183,7 @@ static void _gfx_texture_obj_free(
 
 	else
 	{
-		texture->id = id;
+		texture->id = 0;
 		texture->handle = 0;
 		texture->buffer = 0;
 	}
@@ -196,7 +196,9 @@ static void _gfx_texture_obj_save_restore(
 		unsigned int  id)
 {
 	struct GFX_Texture* texture = (struct GFX_Texture*)object;
-	texture->id = id;
+	if(!texture->id) return;
+
+	texture->id = id ? id : texture->id;
 }
 
 /******************************************************/
@@ -651,16 +653,19 @@ void gfx_texture_free(
 		GFX_WIND_INIT_UNSAFE;
 
 		struct GFX_Texture* internal = (struct GFX_Texture*)texture;
+		internal->id = 0;
 
 		/* If it was already freed as render object, free memory */
 		if(!internal->handle)
 			free(texture);
 
-		else if(!GFX_WIND_EQ(NULL))
+		else
 		{
-			_gfx_binder_unbind_texture(internal->handle, GFX_WIND_AS_ARG);
-			GFX_REND_GET.DeleteTextures(1, &internal->handle);
-
+			if(!GFX_WIND_EQ(NULL))
+			{
+				_gfx_binder_unbind_texture(internal->handle, GFX_WIND_AS_ARG);
+				GFX_REND_GET.DeleteTextures(1, &internal->handle);
+			}
 			internal->handle = 0;
 		}
 	}

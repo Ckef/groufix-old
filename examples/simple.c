@@ -79,7 +79,7 @@ GFXMaterial* create_material()
 	gfx_program_link(program, 2, shaders, 0);
 
 	GFXMaterial* mat = gfx_material_create();
-	gfx_material_add(mat, 0, 0, programMap, 0);
+	gfx_material_add(mat, 0, programMap, 0);
 
 	gfx_shader_free(vert);
 	gfx_shader_free(frag);
@@ -204,22 +204,24 @@ int main()
 
 	GFXMaterial* material = create_material();
 	GFXMesh* mesh = create_mesh();
+
+
+	/* Units */
+	GFXPropertyMap* map = gfx_property_map_list_at(
+		gfx_material_get_all(material, &num),
+		0);
+
 	GFXSubMesh* sub = gfx_submesh_list_at(
 		gfx_mesh_get_all(mesh, &num),
-		0
-	);
+		0);
 
-
-	/* Batch */
-	GFXBatchParams params;
-	params.source = 0;
-	params.level  = 0;
-	params.index  = 0;
-
-	GFXBatch batch;
-	gfx_batch_get(&batch, material, sub, params);
-	gfx_batch_set_instances(&batch, bucket->bucket, 1);
-	gfx_batch_set_visible(&batch, bucket->bucket, 1);
+	gfx_submesh_add_bucket(sub, bucket->bucket);
+	gfx_bucket_insert(
+		bucket->bucket,
+		gfx_submesh_get_bucket_source(sub, bucket->bucket, 0),
+		map,
+		0,
+		1);
 
 
 	/* Setup a loop */

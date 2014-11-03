@@ -26,9 +26,9 @@
 #define GFX_INT_BUCKET_SORT           0x02
 
 /* Internal unit state and action (for processing) */
-#define GFX_INT_UNIT_VISIBLE     (1 << (GFX_BATCH_STATE_MAX_BITS +1))
-#define GFX_INT_UNIT_ERASE       (1 << (GFX_BATCH_STATE_MAX_BITS +0))
-#define GFX_INT_UNIT_MANUAL_MSB  (1 << (GFX_BATCH_STATE_MAX_BITS -1))
+#define GFX_INT_UNIT_VISIBLE     (1 << (GFX_UNIT_STATE_MAX_BITS +1))
+#define GFX_INT_UNIT_ERASE       (1 << (GFX_UNIT_STATE_MAX_BITS +0))
+#define GFX_INT_UNIT_MANUAL_MSB  (1 << (GFX_UNIT_STATE_MAX_BITS -1))
 #define GFX_INT_UNIT_MANUAL      (~((~(GFX_INT_UNIT_MANUAL_MSB << 1)) + 1))
 
 /******************************************************/
@@ -65,11 +65,11 @@ struct GFX_Source
 	GFXVertexSource   source;
 };
 
-/* Internal batch unit */
+/* Internal render unit */
 struct GFX_Unit
 {
 	/* Sorting */
-	GFXBatchState    state;   /* Combination of unit state, action and manual state */
+	GFXUnitState     state;   /* Combination of unit state, action and manual state */
 	GFXBucketUnit    ref;     /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
 	GLuint           program; /* Program or program map to sort on */
 	GLuint           vao;     /* layout to sort on */
@@ -309,7 +309,7 @@ static void _gfx_bucket_process_units(
 static void _gfx_bucket_sort_units(
 
 		struct GFX_Bucket*  bucket,
-		GFXBatchState       bit,
+		GFXUnitState        bit,
 		unsigned int        start,
 		unsigned int        num)
 {
@@ -405,7 +405,7 @@ GFXBucket* _gfx_bucket_create(
 	bucket->bucket.flags
 		= flags;
 	bucket->bucket.bits
-		= bits > GFX_BATCH_STATE_MAX_BITS ? GFX_BATCH_STATE_MAX_BITS : bits;
+		= bits > GFX_UNIT_STATE_MAX_BITS ? GFX_UNIT_STATE_MAX_BITS : bits;
 
 	/* Get comparison function from flags */
 	bucket->compare =
@@ -453,7 +453,7 @@ static void _gfx_bucket_preprocess(
 	if(bucket->flags & GFX_INT_BUCKET_SORT)
 		_gfx_bucket_sort_units(
 			bucket,
-			(GFXBatchState)1 << (bucket->bucket.bits - 1),
+			(GFXUnitState)1 << (bucket->bucket.bits - 1),
 			0,
 			gfx_vector_get_index(&bucket->units, bucket->visible)
 		);
@@ -513,8 +513,8 @@ void gfx_bucket_set_bits(
 		unsigned char  bits)
 {
 	/* Clamp */
-	bits = bits > GFX_BATCH_STATE_MAX_BITS ?
-		GFX_BATCH_STATE_MAX_BITS : bits;
+	bits = bits > GFX_UNIT_STATE_MAX_BITS ?
+		GFX_UNIT_STATE_MAX_BITS : bits;
 
 	/* Make sure to resort */
 	if(bucket->bits != bits)
@@ -678,7 +678,7 @@ GFXBucketUnit gfx_bucket_insert(
 		GFXBucket*       bucket,
 		GFXBucketSource  src,
 		GFXPropertyMap*  map,
-		GFXBatchState    state,
+		GFXUnitState     state,
 		int              visible)
 {
 	--src;
@@ -765,9 +765,7 @@ int gfx_bucket_rebuild(
 	un->map     = map;
 	un->src     = src;
 
-	/* Force to process */
-	internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS;
-
+	/* Sort if necessary */
 	if(un->state & GFX_INT_UNIT_VISIBLE)
 		internal->flags |= GFX_INT_BUCKET_SORT;
 
@@ -802,7 +800,7 @@ unsigned int gfx_bucket_get_instance_base(
 }
 
 /******************************************************/
-GFXBatchState gfx_bucket_get_state(
+GFXUnitState gfx_bucket_get_state(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit)
@@ -861,7 +859,7 @@ void gfx_bucket_set_state(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
-		GFXBatchState  state)
+		GFXUnitState   state)
 {
 	struct GFX_Bucket* internal = (struct GFX_Bucket*)bucket;
 	struct GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);

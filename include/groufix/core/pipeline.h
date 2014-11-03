@@ -18,8 +18,8 @@
 #include "groufix/core/shading.h"
 #include "groufix/core/window.h"
 
-/* Maximum bits used for batch states */
-#define GFX_BATCH_STATE_MAX_BITS  ((sizeof(GFXBatchState) << 3) - 2)
+/* Maximum bits used for unit states */
+#define GFX_UNIT_STATE_MAX_BITS  ((sizeof(GFXUnitState) << 3) - 2)
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,10 +53,10 @@ typedef struct GFXVertexSource
 
 
 /********************************************************
- * Buckets to hold batch units
+ * Buckets to hold render units
  *******************************************************/
 
-/** Bucket to manage batches */
+/** Bucket to manage render units */
 typedef struct GFXBucket
 {
 	GFXBucketFlags  flags;
@@ -74,7 +74,7 @@ typedef unsigned int GFXBucketUnit;
 
 
 /** Key representing a state */
-typedef uint32_t GFXBatchState;
+typedef uint32_t GFXUnitState;
 
 
 /**
@@ -91,7 +91,7 @@ GFX_API void gfx_bucket_set_bits(
 /**
  * Adds a new source to the bucket.
  *
- * @param layout Vertex layout to use for this batch, cannot be NULL.
+ * @param layout Vertex layout to use, cannot be NULL.
  * @return The ID of the source, 0 on failure.
  *
  */
@@ -138,7 +138,7 @@ GFX_API GFXBucketUnit gfx_bucket_insert(
 		GFXBucket*       bucket,
 		GFXBucketSource  src,
 		GFXPropertyMap*  map,
-		GFXBatchState    state,
+		GFXUnitState     state,
 		int              visible);
 
 /**
@@ -188,7 +188,7 @@ GFX_API unsigned int gfx_bucket_get_instance_base(
  * Returns the bits to sort on of the state associated with a unit.
  *
  */
-GFX_API GFXBatchState gfx_bucket_get_state(
+GFX_API GFXUnitState gfx_bucket_get_state(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit);
@@ -248,7 +248,7 @@ GFX_API void gfx_bucket_set_state(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
-		GFXBatchState  state);
+		GFXUnitState   state);
 
 /**
  * Sets the visibility of a unit.

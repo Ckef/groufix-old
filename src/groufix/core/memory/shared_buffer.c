@@ -59,7 +59,7 @@ static void _gfx_shared_buffer_obj_free(
 
 	else
 	{
-		buff->id = id;
+		buff->id = 0;
 		buff->size = 0;
 		buff->handle = 0;
 	}
@@ -72,7 +72,9 @@ static void _gfx_shared_buffer_obj_save_restore(
 		unsigned int  id)
 {
 	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
-	buff->id = id;
+	if(!buff->id) return;
+
+	buff->id = id ? id : buff->id;
 }
 
 /******************************************************/
@@ -152,6 +154,7 @@ static void _gfx_shared_buffer_free(
 	if(it)
 	{
 		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
+		buff->id = 0;
 
 		/* Remove from le vector */
 		gfx_vector_erase(_gfx_shared_buffers, it);
@@ -161,9 +164,11 @@ static void _gfx_shared_buffer_free(
 		if(!buff->handle)
 			free(buff);
 
-		else if(!GFX_WIND_EQ(NULL))
+		else
 		{
-			GFX_REND_GET.DeleteBuffers(1, &buff->handle);
+			if(!GFX_WIND_EQ(NULL))
+				GFX_REND_GET.DeleteBuffers(1, &buff->handle);
+
 			buff->handle = 0;
 		}
 	}

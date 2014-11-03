@@ -500,7 +500,7 @@ static void _gfx_program_obj_free(
 
 	else
 	{
-		program->id = id;
+		program->id = 0;
 		program->program.linked = 0;
 		program->handle = 0;
 	}
@@ -513,7 +513,9 @@ static void _gfx_program_obj_save_restore(
 		unsigned int  id)
 {
 	struct GFX_Program* program = (struct GFX_Program*)object;
-	program->id = id;
+	if(!program->id) return;
+
+	program->id = id ? id : program->id;
 }
 
 /******************************************************/
@@ -612,6 +614,8 @@ void _gfx_program_free(
 		{
 			GFX_WIND_INIT_UNSAFE;
 
+			internal->id = 0;
+
 			/* Clear resources */
 			_gfx_program_unprepare(internal);
 
@@ -622,12 +626,15 @@ void _gfx_program_free(
 			if(!internal->handle)
 				free(program);
 
-			else if(!GFX_WIND_EQ(NULL))
+			else
 			{
-				if(GFX_REND_GET.program == internal->handle)
-					GFX_REND_GET.program = 0;
+				if(!GFX_WIND_EQ(NULL))
+				{
+					if(GFX_REND_GET.program == internal->handle)
+						GFX_REND_GET.program = 0;
 
-				GFX_REND_GET.DeleteProgram(internal->handle);
+					GFX_REND_GET.DeleteProgram(internal->handle);
+				}
 				internal->handle = 0;
 			}
 		}
