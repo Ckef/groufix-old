@@ -236,6 +236,20 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
+		/* Focus */
+		case FocusIn :
+		{
+			_gfx_event_window_focus(window);
+			break;
+		}
+
+		/* Blur */
+		case FocusOut :
+		{
+			_gfx_event_window_blur(window);
+			break;
+		}
+
 		/* Key press */
 		case KeyPress :
 		{
@@ -410,7 +424,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		LeaveWindowMask |
 		ButtonPressMask |
 		ButtonReleaseMask |
-		StructureNotifyMask;
+		StructureNotifyMask |
+		FocusChangeMask;
 
 	attr.colormap = XCreateColormap(
 		_gfx_x11->display,
@@ -551,11 +566,17 @@ void _gfx_platform_window_free(
 
 		/* Get attributes */
 		XWindowAttributes attr;
-		XGetWindowAttributes(_gfx_x11->display, GFX_VOID_TO_UINT(handle), &attr);
+		XGetWindowAttributes(
+			_gfx_x11->display,
+			GFX_VOID_TO_UINT(handle),
+			&attr
+		);
 
 		/* Make sure to undo fullscreen */
-		if(it->flags & GFX_X11_FULLSCREEN)
-			_gfx_x11_leave_fullscreen(GFX_VOID_TO_UINT(handle), attr.root);
+		if(it->flags & GFX_X11_FULLSCREEN) _gfx_x11_leave_fullscreen(
+			GFX_VOID_TO_UINT(handle),
+			attr.root
+		);
 
 		/* Destroy context, the window and its colormap */
 		_gfx_platform_context_clear(handle);
@@ -694,10 +715,27 @@ void _gfx_platform_window_show(
 
 		GFX_PlatformWindow handle)
 {
-	if(_gfx_x11) XMapWindow(
-		_gfx_x11->display,
-		GFX_VOID_TO_UINT(handle)
-	);
+	GFX_X11_Window* internal =
+		_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+
+	if(internal)
+	{
+		XMapWindow(
+			_gfx_x11->display,
+			GFX_VOID_TO_UINT(handle)
+		);
+
+		/* Also enter fullscreen */
+		if(internal->flags & GFX_X11_FULLSCREEN)
+		{
+			XWindowAttributes attr;
+
+			XGetWindowAttributes(
+				_gfx_x11->display, GFX_VOID_TO_UINT(handle), &attr);
+			_gfx_x11_enter_fullscreen(
+				GFX_VOID_TO_UINT(handle), attr.root);
+		}
+	}
 }
 
 /******************************************************/
@@ -705,10 +743,27 @@ void _gfx_platform_window_hide(
 
 		GFX_PlatformWindow handle)
 {
-	if(_gfx_x11) XUnmapWindow(
-		_gfx_x11->display,
-		GFX_VOID_TO_UINT(handle)
-	);
+	GFX_X11_Window* internal =
+		_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+
+	if(internal)
+	{
+		XUnmapWindow(
+			_gfx_x11->display,
+			GFX_VOID_TO_UINT(handle)
+		);
+
+		/* Also leave fullscreen */
+		if(internal->flags & GFX_X11_FULLSCREEN)
+		{
+			XWindowAttributes attr;
+
+			XGetWindowAttributes(
+				_gfx_x11->display, GFX_VOID_TO_UINT(handle), &attr);
+			_gfx_x11_leave_fullscreen(
+				GFX_VOID_TO_UINT(handle), attr.root);
+		}
+	}
 }
 
 /******************************************************/
