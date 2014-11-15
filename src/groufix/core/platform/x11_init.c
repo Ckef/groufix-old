@@ -294,6 +294,8 @@ int _gfx_platform_init(void)
 		/* Load atoms */
 		_gfx_x11->activeWindow =
 			XInternAtom(_gfx_x11->display, "_NET_ACTIVE_WINDOW", False);
+		_gfx_x11->wmBypassCompositor =
+			XInternAtom(_gfx_x11->display, "_NET_WM_BYPASS_COMPOSITOR", False);
 		_gfx_x11->wmDeleteWindow =
 			XInternAtom(_gfx_x11->display, "WM_DELETE_WINDOW", False);
 		_gfx_x11->wmHints =

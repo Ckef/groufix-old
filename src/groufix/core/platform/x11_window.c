@@ -53,6 +53,20 @@ static void _gfx_x11_enter_fullscreen(
 			DefaultExposures);
 	}
 
+	/* Bypass compositor */
+	unsigned long bypass = 1;
+
+	XChangeProperty(
+		_gfx_x11->display,
+		handle,
+		_gfx_x11->wmBypassCompositor,
+		XA_CARDINAL,
+		32,
+		PropModeReplace,
+		(unsigned char*)&bypass,
+		1
+	);
+
 	/* Create event to raise the focus of the window */
 	XEvent event;
 	memset(&event, 0, sizeof(XEvent));
@@ -103,6 +117,20 @@ static void _gfx_x11_leave_fullscreen(
 		_gfx_x11->saverInterval,
 		_gfx_x11->saverBlank,
 		_gfx_x11->saverExposure
+	);
+
+	/* Stop bypassing the compositor */
+	unsigned long bypass = 0;
+
+	XChangeProperty(
+		_gfx_x11->display,
+		handle,
+		_gfx_x11->wmBypassCompositor,
+		XA_CARDINAL,
+		32,
+		PropModeReplace,
+		(unsigned char*)&bypass,
+		1
 	);
 
 	/* Create event to remove full screen atom */

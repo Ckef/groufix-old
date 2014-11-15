@@ -28,6 +28,7 @@
 /* Includes */
 #include "groufix/containers/vector.h"
 
+#include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/gl.h>
@@ -112,15 +113,16 @@ typedef struct GFX_X11_Connection
 {
 	/* X Display and Windows */
 	Display*      display;
-	GFXVector     windows;           /* Stores GFX_X11_Window */
-	char          errors;            /* Zero to ignore errors */
+	GFXVector     windows;            /* Stores GFX_X11_Window */
+	char          errors;             /* Zero to ignore errors */
 
 	/* Atoms */
-	Atom          activeWindow;      /* _NET_ACTIVE_WINDOW */
-	Atom          wmDeleteWindow;    /* WM_DELETE_WINDOW */
-	Atom          wmHints;           /* _MOTIF_WM_HINTS */
-	Atom          wmState;           /* _NET_WM_STATE */
-	Atom          wmStateFullscreen; /* _NET_WM_STATE_FULLSCREEN */
+	Atom          activeWindow;       /* _NET_ACTIVE_WINDOW */
+	Atom          wmBypassCompositor; /* _NET_WM_BYPASS_COMPOSITOR */
+	Atom          wmDeleteWindow;     /* WM_DELETE_WINDOW */
+	Atom          wmHints;            /* _MOTIF_WM_HINTS */
+	Atom          wmState;            /* _NET_WM_STATE */
+	Atom          wmStateFullscreen;  /* _NET_WM_STATE_FULLSCREEN */
 
 	/* Screensaver */
 	unsigned int  saverCount;
