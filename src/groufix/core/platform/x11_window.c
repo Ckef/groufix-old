@@ -18,6 +18,114 @@
 #include <string.h>
 
 /******************************************************/
+/* Motif hints */
+typedef struct
+{
+	unsigned long  flags;
+	unsigned long  functions;
+	unsigned long  decorations;
+	long           input_mode;
+	unsigned long  status;
+
+} MotifWmHints;
+
+/******************************************************/
+static void _gfx_x11_enter_fullscreen(
+
+		Window  handle,
+		Window  root)
+{
+	/* Disable screen saver */
+	if(!(_gfx_x11->saverCount++))
+	{
+		XGetScreenSaver(
+			_gfx_x11->display,
+			&_gfx_x11->saverTimeout,
+			&_gfx_x11->saverInterval,
+			&_gfx_x11->saverBlank,
+			&_gfx_x11->saverExposure);
+
+		XSetScreenSaver(
+			_gfx_x11->display,
+			0,
+			0,
+			DontPreferBlanking,
+			DefaultExposures);
+	}
+
+	/* Create event to raise the focus of the window */
+	XEvent event;
+	memset(&event, 0, sizeof(XEvent));
+
+	event.type                 = ClientMessage;
+	event.xclient.window       = handle;
+	event.xclient.serial       = 0;
+	event.xclient.send_event   = True;
+	event.xclient.format       = 32;
+	event.xclient.message_type = _gfx_x11->activeWindow;
+	event.xclient.data.l[0]    = 1;
+	event.xclient.data.l[1]    = 0;
+
+	XSendEvent(
+		_gfx_x11->display,
+		root,
+		False,
+		SubstructureRedirectMask | SubstructureNotifyMask,
+		&event
+	);
+
+	/* Create event to add full screen atom */
+	event.xclient.message_type = _gfx_x11->wmState;
+	event.xclient.data.l[0]    = 1;
+	event.xclient.data.l[1]    = _gfx_x11->wmStateFullscreen;
+	event.xclient.data.l[2]    = 0;
+	event.xclient.data.l[3]    = 1;
+
+	XSendEvent(
+		_gfx_x11->display,
+		root,
+		False,
+		SubstructureRedirectMask | SubstructureNotifyMask,
+		&event
+	);
+}
+
+/******************************************************/
+static void _gfx_x11_leave_fullscreen(
+
+		Window  handle,
+		Window  root)
+{
+	/* Restore screen saver */
+	if(!(--_gfx_x11->saverCount)) XSetScreenSaver(
+		_gfx_x11->display,
+		_gfx_x11->saverTimeout,
+		_gfx_x11->saverInterval,
+		_gfx_x11->saverBlank,
+		_gfx_x11->saverExposure
+	);
+
+	/* Create event to remove full screen atom */
+	XEvent event;
+	event.type                 = ClientMessage;
+	event.xclient.window       = handle;
+	event.xclient.format       = 32;
+	event.xclient.message_type = _gfx_x11->wmState;
+	event.xclient.data.l[0]    = 0;
+	event.xclient.data.l[1]    = _gfx_x11->wmStateFullscreen;
+	event.xclient.data.l[2]    = 0;
+	event.xclient.data.l[3]    = 1;
+
+	XSendEvent(
+		_gfx_x11->display,
+		root,
+		False,
+		SubstructureRedirectMask | SubstructureNotifyMask,
+		&event
+	);
+}
+
+/******************************************************/
 static GLXFBConfig* _gfx_x11_get_config(
 
 		Screen*               screen,
@@ -44,36 +152,6 @@ static GLXFBConfig* _gfx_x11_get_config(
 		XScreenNumberOfScreen(screen),
 		bufferAttr,
 		&buffElements
-	);
-}
-
-/******************************************************/
-static void _gfx_x11_set_fullscreen(
-
-		Window  handle,
-		Window  root)
-{
-	/* Create event to set full screen atom */
-	XEvent event;
-	event.xclient.type         = ClientMessage;
-	event.xclient.serial       = 0;
-	event.xclient.send_event   = True;
-	event.xclient.display      = _gfx_x11->display;
-	event.xclient.window       = handle;
-	event.xclient.message_type = _gfx_x11->wmState;
-	event.xclient.format       = 0x20;
-
-	event.xclient.data.l[0] = 1;
-	event.xclient.data.l[1] = _gfx_x11->wmStateFullscreen;
-	event.xclient.data.l[2] = 0;
-
-	/* Send it */
-	XSendEvent(
-		_gfx_x11->display,
-		root,
-		False,
-		SubstructureRedirectMask | SubstructureNotifyMask,
-		&event
 	);
 }
 
@@ -133,8 +211,14 @@ static void _gfx_x11_event_proc(
 			{
 				internal->x = event->xconfigure.x;
 				internal->y = event->xconfigure.y;
-				_gfx_event_window_move(window, internal->x, internal->y);
+
+				_gfx_event_window_move(
+					window,
+					internal->x,
+					internal->y
+				);
 			}
+
 			if(
 				internal->width != event->xconfigure.width ||
 				internal->height != event->xconfigure.height)
@@ -227,23 +311,31 @@ static void _gfx_x11_event_proc(
 			int x = event->xbutton.x;
 			int y = event->xbutton.y;
 
-			if(event->xbutton.button == Button1)
-				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_LEFT, x, y, state);
-			else if(event->xbutton.button == Button2)
-				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
-			else if(event->xbutton.button == Button3)
-				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
+			switch(event->xbutton.button)
+			{
+				case Button1 :
+					_gfx_event_mouse_press(window, GFX_MOUSE_KEY_LEFT, x, y, state);
+					break;
+				case Button2 :
+					_gfx_event_mouse_press(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
+					break;
+				case Button3 :
+					_gfx_event_mouse_press(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
+					break;
 
-			else if(event->xbutton.button == Button4)
-				_gfx_event_mouse_wheel(window, 0, 1, x, y, state);
-			else if(event->xbutton.button == Button5)
-				_gfx_event_mouse_wheel(window, 0, -1, x, y, state);
-			else if(event->xbutton.button == Button6)
-				_gfx_event_mouse_wheel(window, -1, 0, x, y, state);
-			else if(event->xbutton.button == Button7)
-				_gfx_event_mouse_wheel(window, 1, 0, x, y, state);
-
-			break;
+				case Button4 :
+					_gfx_event_mouse_wheel(window, 0, 1, x, y, state);
+					break;
+				case Button5 :
+					_gfx_event_mouse_wheel(window, 0, -1, x, y, state);
+					break;
+				case Button6 :
+					_gfx_event_mouse_wheel(window, -1, 0, x, y, state);
+					break;
+				case Button7 :
+					_gfx_event_mouse_wheel(window, 1, 0, x, y, state);
+					break;
+			}
 		}
 
 		/* Mouse key release */
@@ -253,14 +345,18 @@ static void _gfx_x11_event_proc(
 			int x = event->xbutton.x;
 			int y = event->xbutton.y;
 
-			if(event->xbutton.button == Button1)
-				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_LEFT, x, y, state);
-			else if(event->xbutton.button == Button2)
-				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
-			else if(event->xbutton.button == Button3)
-				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
-
-			break;
+			switch(event->xbutton.button)
+			{
+				case Button1 :
+					_gfx_event_mouse_release(window, GFX_MOUSE_KEY_LEFT, x, y, state);
+					break;
+				case Button2 :
+					_gfx_event_mouse_release(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
+					break;
+				case Button3 :
+					_gfx_event_mouse_release(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
+					break;
+			}
 		}
 	}
 }
@@ -281,8 +377,9 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	/* Setup the x11 window */
 	GFX_X11_Window window;
-	window.config = *config;
+	window.config  = *config;
 	window.context = NULL;
+	window.flags   = 0;
 
 	/* Get visual from config */
 	XVisualInfo* visual = glXGetVisualFromFBConfig(
@@ -295,12 +392,12 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	unsigned long mask = CWColormap | CWEventMask;
 	XSetWindowAttributes attr;
 
-	if(attributes->flags & GFX_WINDOW_BORDERLESS)
+	if(
+		attributes->flags & GFX_WINDOW_BORDERLESS ||
+		attributes->flags & GFX_WINDOW_FULLSCREEN)
 	{
 		/* Borderless window */
-		mask |= CWOverrideRedirect | CWBorderPixel;
-
-		attr.override_redirect = True;
+		mask |= CWBorderPixel;
 		attr.border_pixel = 0;
 	}
 
@@ -340,76 +437,106 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	XFree(visual);
 
-	/* Get properties to check for events */
-	XWindowAttributes get;
-	get.x      = 0;
-	get.y      = 0;
-	get.width  = 0;
-	get.height = 0;
-	XGetWindowAttributes(_gfx_x11->display, window.handle, &get);
-
-	window.x      = get.x;
-	window.y      = get.y;
-	window.width  = get.width;
-	window.height = get.height;
-
-	/* Add window to vector */
-	GFXVectorIterator it = gfx_vector_insert(
-		&_gfx_x11->windows,
-		&window,
-		_gfx_x11->windows.end
-	);
-
-	if(it == _gfx_x11->windows.end)
+	if(window.handle)
 	{
+		/* Get properties to check for events */
+		XWindowAttributes get;
+		get.x      = 0;
+		get.y      = 0;
+		get.width  = 0;
+		get.height = 0;
+		XGetWindowAttributes(_gfx_x11->display, window.handle, &get);
+
+		window.x      = get.x;
+		window.y      = get.y;
+		window.width  = get.width;
+		window.height = get.height;
+
+		/* Disable decorations */
+		if(mask & CWBorderPixel)
+		{
+			MotifWmHints hints;
+			hints.flags = MWM_HINTS_DECORATIONS;
+			hints.decorations = 0;
+
+			XChangeProperty(
+				_gfx_x11->display,
+				window.handle,
+				_gfx_x11->wmHints,
+				_gfx_x11->wmHints,
+				32,
+				PropModeReplace,
+				(unsigned char*)&hints,
+				sizeof(MotifWmHints) / sizeof(long)
+			);
+		}
+
+		/* Set protocols */
+		XSetWMProtocols(
+			_gfx_x11->display,
+			window.handle,
+			&_gfx_x11->wmDeleteWindow,
+			1
+		);
+
+		XStoreName(
+			_gfx_x11->display,
+			window.handle,
+			attributes->name
+		);
+
+		/* Set full screen */
+		if(attributes->flags & GFX_WINDOW_FULLSCREEN)
+		{
+			window.flags |= GFX_X11_FULLSCREEN;
+			XMapWindow(_gfx_x11->display, window.handle);
+
+			_gfx_x11_enter_fullscreen(window.handle, get.root);
+		}
+
+		else
+		{
+			/* Set size hints */
+			if(!(GFX_WINDOW_RESIZABLE & attributes->flags))
+			{
+				XSizeHints* hints = XAllocSizeHints();
+				hints->flags = PMinSize | PMaxSize;
+
+				hints->min_width = attributes->width;
+				hints->max_width = attributes->width;
+				hints->min_height = attributes->height;
+				hints->max_height = attributes->height;
+
+				XSetWMNormalHints(_gfx_x11->display, window.handle, hints);
+
+				XFree(hints);
+			}
+
+			/* Make it visible */
+			if(!(attributes->flags & GFX_WINDOW_HIDDEN))
+				XMapWindow(_gfx_x11->display, window.handle);
+		}
+
+		/* Add window to vector */
+		GFXVectorIterator it = gfx_vector_insert(
+			&_gfx_x11->windows,
+			&window,
+			_gfx_x11->windows.end
+		);
+
+		if(it != _gfx_x11->windows.end)
+			return GFX_UINT_TO_VOID(window.handle);
+
+		/* Undo fullscreen */
+		if(window.flags & GFX_X11_FULLSCREEN)
+			_gfx_x11_leave_fullscreen(window.handle, get.root);
+
 		XDestroyWindow(_gfx_x11->display, window.handle);
-		XFreeColormap(_gfx_x11->display, attr.colormap);
-
-		return NULL;
 	}
 
-	/* Set full screen */
-	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
-	{
-		_gfx_x11_set_fullscreen(window.handle, get.root);
-		XMapWindow(_gfx_x11->display, window.handle);
-	}
+	XFreeColormap(_gfx_x11->display, attr.colormap);
 
-	/* Set size hints */
-	else if(!(GFX_WINDOW_RESIZABLE & attributes->flags))
-	{
-		XSizeHints* hints = XAllocSizeHints();
-		hints->flags = PMinSize | PMaxSize;
-
-		hints->min_width = attributes->width;
-		hints->max_width = attributes->width;
-		hints->min_height = attributes->height;
-		hints->max_height = attributes->height;
-
-		XSetWMNormalHints(_gfx_x11->display, window.handle, hints);
-
-		XFree(hints);
-	}
-
-	/* Make it visible */
-	if(!(attributes->flags & GFX_WINDOW_HIDDEN))
-		XMapWindow(_gfx_x11->display, window.handle);
-
-	/* Set protocols */
-	XSetWMProtocols(
-		_gfx_x11->display,
-		window.handle,
-		&_gfx_x11->wmDeleteWindow,
-		1
-	);
-
-	XStoreName(
-		_gfx_x11->display,
-		window.handle,
-		attributes->name
-	);
-
-	return GFX_UINT_TO_VOID(window.handle);
+	return NULL;
 }
 
 /******************************************************/
@@ -419,13 +546,16 @@ void _gfx_platform_window_free(
 {
 	if(_gfx_x11)
 	{
+		GFX_X11_Window* it =
+			_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+
 		/* Get attributes */
 		XWindowAttributes attr;
-		XGetWindowAttributes(
-			_gfx_x11->display,
-			GFX_VOID_TO_UINT(handle),
-			&attr
-		);
+		XGetWindowAttributes(_gfx_x11->display, GFX_VOID_TO_UINT(handle), &attr);
+
+		/* Make sure to undo fullscreen */
+		if(it->flags & GFX_X11_FULLSCREEN)
+			_gfx_x11_leave_fullscreen(GFX_VOID_TO_UINT(handle), attr.root);
 
 		/* Destroy context, the window and its colormap */
 		_gfx_platform_context_clear(handle);
@@ -433,9 +563,6 @@ void _gfx_platform_window_free(
 		XFreeColormap(_gfx_x11->display, attr.colormap);
 
 		/* Remove from vector */
-		GFX_X11_Window* it =
-			_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
-
 		gfx_vector_erase(&_gfx_x11->windows, it);
 	}
 }

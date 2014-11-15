@@ -24,6 +24,9 @@ static GLXContext _gfx_x11_create_context(
 		GLXFBConfig  config,
 		GLXContext   share)
 {
+	/* Temporarily disable errors */
+	_gfx_x11->errors = 0;
+
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
 		GLX_CONTEXT_MAJOR_VERSION_ARB, major,
@@ -34,13 +37,16 @@ static GLXContext _gfx_x11_create_context(
 	};
 
 	/* Create the context */
-	return _gfx_x11->extensions.CreateContextAttribsARB(
+	GLXContext context = _gfx_x11->extensions.CreateContextAttribsARB(
 		_gfx_x11->display,
 		config,
 		share,
 		True,
 		bufferAttr
 	);
+
+	_gfx_x11->errors = 1;
+	return context;
 }
 
 /******************************************************/

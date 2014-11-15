@@ -94,17 +94,20 @@ static int _gfx_x11_error_handler(
 		Display*      display,
 		XErrorEvent*  evt)
 {
-	size_t length = sizeof(char) * (GFX_X11_ERROR_LENGTH);
-	char* text = malloc(length);
+	if(_gfx_x11->errors)
+	{
+		size_t length = sizeof(char) * (GFX_X11_ERROR_LENGTH);
+		char* text = malloc(length);
 
-	XGetErrorText(_gfx_x11->display, evt->error_code, text, length);
+		XGetErrorText(display, evt->error_code, text, length);
 
-	/* Make sure it's null terminated */
-	text[GFX_X11_ERROR_LENGTH - 1] = 0;
+		/* Make sure it's null terminated */
+		text[GFX_X11_ERROR_LENGTH - 1] = 0;
 
-	gfx_errors_push(GFX_ERROR_PLATFORM_ERROR, text);
+		gfx_errors_push(GFX_ERROR_PLATFORM_ERROR, text);
 
-	free(text);
+		free(text);
+	}
 
 	return 0;
 }
@@ -276,6 +279,9 @@ int _gfx_platform_init(void)
 		/* Connect to X Server */
 		_gfx_x11->display = XOpenDisplay(NULL);
 
+		_gfx_x11->errors = 1;
+		XSetErrorHandler(_gfx_x11_error_handler);
+
 		/* Setup memory and load extensions */
 		gfx_vector_init(&_gfx_x11->windows, sizeof(GFX_X11_Window));
 		if(!_gfx_x11->display || !_gfx_x11_load_extensions())
@@ -285,11 +291,13 @@ int _gfx_platform_init(void)
 		}
 		_gfx_x11_create_key_table();
 
-		/* Setup Xlib */
-		XSetErrorHandler(_gfx_x11_error_handler);
-
+		/* Load atoms */
+		_gfx_x11->activeWindow =
+			XInternAtom(_gfx_x11->display, "_NET_ACTIVE_WINDOW", False);
 		_gfx_x11->wmDeleteWindow =
 			XInternAtom(_gfx_x11->display, "WM_DELETE_WINDOW", False);
+		_gfx_x11->wmHints =
+			XInternAtom(_gfx_x11->display, "_MOTIF_WM_HINTS", False);
 		_gfx_x11->wmState =
 			XInternAtom(_gfx_x11->display, "_NET_WM_STATE", False);
 		_gfx_x11->wmStateFullscreen =
@@ -304,6 +312,15 @@ void _gfx_platform_terminate(void)
 {
 	if(_gfx_x11)
 	{
+		/* Restore screen saver */
+		if(_gfx_x11->saverCount) XSetScreenSaver(
+			_gfx_x11->display,
+			_gfx_x11->saverTimeout,
+			_gfx_x11->saverInterval,
+			_gfx_x11->saverBlank,
+			_gfx_x11->saverExposure
+		);
+
 		/* Close connection (destroys all resources) */
 		if(_gfx_x11->display) XCloseDisplay(_gfx_x11->display);
 		gfx_vector_clear(&_gfx_x11->windows);

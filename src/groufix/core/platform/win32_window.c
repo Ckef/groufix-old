@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-static int _gfx_win32_set_fullscreen(
+static int _gfx_win32_enter_fullscreen(
 
 		GFX_Win32_Screen*     screen,
 		unsigned int          width,
@@ -39,6 +39,14 @@ static int _gfx_win32_set_fullscreen(
 	/* Actual call */
 	return (ChangeDisplaySettingsEx(screen->name, &mode, NULL, CDS_FULLSCREEN, NULL)
 		== DISP_CHANGE_SUCCESSFUL);
+}
+
+/******************************************************/
+static void _gfx_win32_leave_fullscreen(
+
+		GFX_Win32_Screen* screen)
+{
+	ChangeDisplaySettingsEx(screen->name, NULL, NULL, CDS_FULLSCREEN, NULL);
 }
 
 /******************************************************/
@@ -495,7 +503,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
 	{
 		/* Change to fullscreen */
-		if(!_gfx_win32_set_fullscreen(
+		if(!_gfx_win32_enter_fullscreen(
 			attributes->screen,
 			attributes->width,
 			attributes->height,
@@ -600,18 +608,13 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 			return window.handle;
 		}
+
 		DestroyWindow(window.handle);
 	}
 
 	/* Undo fullscreen */
 	if(window.flags & GFX_WIN32_FULLSCREEN)
-		ChangeDisplaySettingsEx(
-			window.screen->name,
-			NULL,
-			NULL,
-			CDS_FULLSCREEN,
-			NULL
-		);
+		_gfx_win32_leave_fullscreen(window.screen);
 
 	return NULL;
 }
@@ -626,13 +629,7 @@ void _gfx_platform_window_free(
 		/* Make sure to undo fullscreen */
 		GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
 		if(it->flags & GFX_WIN32_FULLSCREEN)
-			ChangeDisplaySettingsEx(
-				it->screen->name,
-				NULL,
-				NULL,
-				CDS_FULLSCREEN,
-				NULL
-			);
+			_gfx_win32_leave_fullscreen(it->screen);
 
 		/* Destroy the context and window */
 		_gfx_platform_context_clear(handle);

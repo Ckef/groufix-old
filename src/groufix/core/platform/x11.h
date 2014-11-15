@@ -42,13 +42,17 @@
 /* Max error length */
 #define GFX_X11_ERROR_LENGTH  0x100
 
-/* More of them buttons! */
+/* Missing things */
 #ifndef Button6
-	#define Button6  6
+	#define Button6 6
 #endif
 
 #ifndef Button7
-	#define Button7  7
+	#define Button7 7
+#endif
+
+#ifndef MWM_HINTS_DECORATIONS
+	#define MWM_HINTS_DECORATIONS 2L
 #endif
 
 
@@ -75,17 +79,26 @@ typedef struct GFX_X11_Extensions
  * X11 Window
  *******************************************************/
 
+/** X11 Window Flags */
+typedef enum GFX_X11_Flags
+{
+	GFX_X11_FULLSCREEN  = 0x01
+
+} GFX_X11_Flags;
+
+
 /** X11 Window */
 typedef struct GFX_X11_Window
 {
-	Window        handle;  /* Given to the outside world */
-	GLXFBConfig   config;
-	GLXContext    context;
+	Window         handle;  /* Given to the outside world */
+	GLXFBConfig    config;
+	GLXContext     context;
+	GFX_X11_Flags  flags;
 
-	int           x;
-	int           y;
-	unsigned int  width;
-	unsigned int  height;
+	int            x;
+	int            y;
+	unsigned int   width;
+	unsigned int   height;
 
 } GFX_X11_Window;
 
@@ -98,16 +111,26 @@ typedef struct GFX_X11_Window
 typedef struct GFX_X11_Connection
 {
 	/* X Display and Windows */
-	Display*   display;
-	GFXVector  windows;           /* Stores GFX_X11_Window */
+	Display*      display;
+	GFXVector     windows;           /* Stores GFX_X11_Window */
+	char          errors;            /* Zero to ignore errors */
 
 	/* Atoms */
-	Atom       wmDeleteWindow;    /* WM_DELETE_WINDOW */
-	Atom       wmState;           /* _NET_WM_STATE */
-	Atom       wmStateFullscreen; /* _NET_WM_STATE_FULLSCREEN */
+	Atom          activeWindow;      /* _NET_ACTIVE_WINDOW */
+	Atom          wmDeleteWindow;    /* WM_DELETE_WINDOW */
+	Atom          wmHints;           /* _MOTIF_WM_HINTS */
+	Atom          wmState;           /* _NET_WM_STATE */
+	Atom          wmStateFullscreen; /* _NET_WM_STATE_FULLSCREEN */
+
+	/* Screensaver */
+	unsigned int  saverCount;
+	int           saverTimeout;
+	int           saverInterval;
+	int           saverBlank;
+	int           saverExposure;
 
 	/* Key table */
-	GFXKey     keys[GFX_X11_NUM_KEYCODES];
+	GFXKey        keys[GFX_X11_NUM_KEYCODES];
 
 	/* Extensions */
 	GFX_X11_Extensions extensions;
