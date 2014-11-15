@@ -148,6 +148,8 @@ struct GFXWindow;
 typedef void (*GFXWindowCloseFunc)  (struct GFXWindow*);
 typedef void (*GFXWindowMoveFunc)   (struct GFXWindow*, int, int);
 typedef void (*GFXWindowResizeFunc) (struct GFXWindow*, unsigned int, unsigned int);
+typedef void (*GFXWindowFocusFunc)  (struct GFXWindow*);
+typedef void (*GFXWindowBlurFunc)   (struct GFXWindow*);
 typedef void (*GFXKeyPressFunc)     (struct GFXWindow*, GFXKey, GFXKeyState);
 typedef void (*GFXKeyReleaseFunc)   (struct GFXWindow*, GFXKey, GFXKeyState);
 typedef void (*GFXMouseMoveFunc)    (struct GFXWindow*, int, int, GFXKeyState);
@@ -202,6 +204,8 @@ typedef struct GFXWindow
 		GFXWindowCloseFunc   windowClose;
 		GFXWindowMoveFunc    windowMove;
 		GFXWindowResizeFunc  windowResize;
+		GFXWindowFocusFunc   windowFocus;
+		GFXWindowBlurFunc    windowBlur;
 		GFXKeyPressFunc      keyPress;
 		GFXKeyReleaseFunc    keyRelease;
 		GFXMouseMoveFunc     mouseMove;

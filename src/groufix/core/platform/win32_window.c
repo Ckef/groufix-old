@@ -37,7 +37,8 @@ static int _gfx_win32_enter_fullscreen(
 	mode.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 	/* Actual call */
-	return (ChangeDisplaySettingsEx(screen->name, &mode, NULL, CDS_FULLSCREEN, NULL)
+	return
+		(ChangeDisplaySettingsEx(screen->name, &mode, NULL, CDS_FULLSCREEN, NULL)
 		== DISP_CHANGE_SUCCESSFUL);
 }
 
@@ -175,6 +176,54 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 				LOWORD(lParam),
 				HIWORD(lParam)
 			);
+			return 0;
+		}
+
+		/* Focus */
+		case WM_SETFOCUS :
+		{
+			/* Enter fullscreen */
+			GFX_Win32_Window* internal =
+				_gfx_win32_get_window_from_handle(handle);
+
+			if(!internal) return 0;
+
+			if(internal->flags & GFX_WIN32_FULLSCREEN)
+			{
+				unsigned int w;
+				unsigned int h;
+				_gfx_platform_window_get_size(window, &w, &h);
+
+				_gfx_win32_enter_fullscreen(
+					internal->screen,
+					w,
+					h,
+					&internal->depth
+				);
+			}
+
+			_gfx_event_window_focus(window);
+
+			return 0;
+		}
+
+		/* Blur */
+		case WM_KILLFOCUS :
+		{
+			/* Leave fullscreen */
+			GFX_Win32_Window* internal =
+				_gfx_win32_get_window_from_handle(handle);
+
+			if(!internal) return 0;
+
+			if(internal->flags & GFX_WIN32_FULLSCREEN)
+			{
+				_gfx_win32_leave_fullscreen(internal->screen);
+				ShowWindow(handle, SW_MINIMIZE);
+			}
+
+			_gfx_event_window_blur(window);
+
 			return 0;
 		}
 
@@ -404,6 +453,10 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 	window.context = NULL;
 	window.flags   = 0;
 
+	window.depth.redBits   = 0;
+	window.depth.greenBits = 0;
+	window.depth.blueBits  = 0;
+
 	window.handle = CreateWindow(
 		GFX_WIN32_WINDOW_CLASS_DUMMY,
 		L"",
@@ -427,12 +480,7 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 		if(it != _gfx_win32->windows.end)
 		{
 			/* Set pixel format */
-			GFXColorDepth depth;
-			depth.redBits   = 0;
-			depth.greenBits = 0;
-			depth.blueBits  = 0;
-
-			_gfx_win32_set_pixel_format(window.handle, &depth, 0);
+			_gfx_win32_set_pixel_format(window.handle, &window.depth, 0);
 
 			return it;
 		}
@@ -480,6 +528,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	/* Setup the win32 window */
 	GFX_Win32_Window window;
 	window.screen  = attributes->screen;
+	window.depth   = attributes->depth;
 	window.context = NULL;
 	window.flags   = 0;
 
@@ -587,7 +636,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			/* Set pixel format */
 			_gfx_win32_set_pixel_format(
 				window.handle,
-				&attributes->depth,
+				&window.depth,
 				attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 			);
 
@@ -731,7 +780,8 @@ void _gfx_platform_window_set_size(
 		unsigned int        width,
 		unsigned int        height)
 {
-	SetWindowPos(
+	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+	if(it && !(it->flags & GFX_WIN32_FULLSCREEN)) SetWindowPos(
 		handle,
 		NULL,
 		0, 0,
@@ -748,21 +798,27 @@ void _gfx_platform_window_set_position(
 		int                 x,
 		int                 y)
 {
-	/* Get window's monitor position */
-	int xM = 0;
-	int yM = 0;
+	/* Check if fullscreen */
+	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+	if(it && !(it->flags & GFX_WIN32_FULLSCREEN))
+	{
+		/* Get window's monitor position */
+		int xM = 0;
+		int yM = 0;
 
-	GFX_Win32_Screen* screen = _gfx_platform_window_get_screen(handle);
-	if(screen) _gfx_win32_get_screen_position(screen, &xM, &yM);
+		if(it->screen) _gfx_win32_get_screen_position(
+			it->screen,
+			&xM,
+			&yM);
 
-	SetWindowPos(
-		handle,
-		NULL,
-		x + xM,
-		y + yM,
-		0, 0,
-		SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOZORDER
-	);
+		SetWindowPos(
+			handle,
+			NULL,
+			x + xM,
+			y + yM,
+			0, 0,
+			SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOZORDER);
+	}
 }
 
 /******************************************************/
@@ -779,6 +835,12 @@ void _gfx_platform_window_hide(
 		GFX_PlatformWindow handle)
 {
 	ShowWindow(handle, SW_HIDE);
+
+	/* Also leave fullscreen */
+	GFX_Win32_Window* it =
+		_gfx_win32_get_window_from_handle(handle);
+	if(it && it->flags & GFX_WIN32_FULLSCREEN)
+		_gfx_win32_leave_fullscreen(it->screen);
 }
 
 /******************************************************/

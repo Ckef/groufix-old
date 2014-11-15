@@ -105,6 +105,7 @@ typedef struct GFX_Win32_Window
 {
 	HWND               handle; /* Given to the outside world */
 	GFX_Win32_Screen*  screen;
+	GFXColorDepth      depth;
 	HGLRC              context;
 	GFX_Win32_Flags    flags;
 

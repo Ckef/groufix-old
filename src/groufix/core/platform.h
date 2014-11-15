@@ -728,6 +728,22 @@ void _gfx_event_window_resize(
 		unsigned int        height);
 
 /**
+ * Called when a window receives input focus.
+ *
+ */
+void _gfx_event_window_focus(
+
+		GFX_PlatformWindow handle);
+
+/**
+ * Called when a window loses input focus.
+ *
+ */
+void _gfx_event_window_blur(
+
+		GFX_PlatformWindow handle);
+
+/**
  * Handles a key press event.
  *
  * @param key   What key is pressed.
