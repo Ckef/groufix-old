@@ -292,18 +292,18 @@ int _gfx_platform_init(void)
 		_gfx_x11_create_key_table();
 
 		/* Load atoms */
-		_gfx_x11->activeWindow =
-			XInternAtom(_gfx_x11->display, "_NET_ACTIVE_WINDOW", False);
-		_gfx_x11->wmBypassCompositor =
-			XInternAtom(_gfx_x11->display, "_NET_WM_BYPASS_COMPOSITOR", False);
-		_gfx_x11->wmDeleteWindow =
-			XInternAtom(_gfx_x11->display, "WM_DELETE_WINDOW", False);
-		_gfx_x11->wmHints =
+		_gfx_x11->MOTIF_WM_HINTS =
 			XInternAtom(_gfx_x11->display, "_MOTIF_WM_HINTS", False);
-		_gfx_x11->wmState =
+		_gfx_x11->NET_ACTIVE_WINDOW =
+			XInternAtom(_gfx_x11->display, "_NET_ACTIVE_WINDOW", False);
+		_gfx_x11->NET_WM_BYPASS_COMPOSITOR =
+			XInternAtom(_gfx_x11->display, "_NET_WM_BYPASS_COMPOSITOR", False);
+		_gfx_x11->NET_WM_STATE =
 			XInternAtom(_gfx_x11->display, "_NET_WM_STATE", False);
-		_gfx_x11->wmStateFullscreen =
+		_gfx_x11->NET_WM_STATE_FULLSCREEN =
 			XInternAtom(_gfx_x11->display, "_NET_WM_STATE_FULLSCREEN", False);
+		_gfx_x11->WM_DELETE_WINDOW =
+			XInternAtom(_gfx_x11->display, "WM_DELETE_WINDOW", False);
 	}
 
 	return 1;

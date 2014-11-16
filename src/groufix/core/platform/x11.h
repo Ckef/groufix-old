@@ -113,16 +113,8 @@ typedef struct GFX_X11_Connection
 {
 	/* X Display and Windows */
 	Display*      display;
-	GFXVector     windows;            /* Stores GFX_X11_Window */
-	char          errors;             /* Zero to ignore errors */
-
-	/* Atoms */
-	Atom          activeWindow;       /* _NET_ACTIVE_WINDOW */
-	Atom          wmBypassCompositor; /* _NET_WM_BYPASS_COMPOSITOR */
-	Atom          wmDeleteWindow;     /* WM_DELETE_WINDOW */
-	Atom          wmHints;            /* _MOTIF_WM_HINTS */
-	Atom          wmState;            /* _NET_WM_STATE */
-	Atom          wmStateFullscreen;  /* _NET_WM_STATE_FULLSCREEN */
+	GFXVector     windows;                  /* Stores GFX_X11_Window */
+	char          errors;                   /* Zero to ignore errors */
 
 	/* Screensaver */
 	unsigned int  saverCount;
@@ -130,6 +122,14 @@ typedef struct GFX_X11_Connection
 	int           saverInterval;
 	int           saverBlank;
 	int           saverExposure;
+
+	/* Atoms */
+	Atom          MOTIF_WM_HINTS;           /* _MOTIF_WM_HINTS */
+	Atom          NET_ACTIVE_WINDOW;        /* _NET_ACTIVE_WINDOW */
+	Atom          NET_WM_BYPASS_COMPOSITOR; /* _NET_WM_BYPASS_COMPOSITOR */
+	Atom          NET_WM_STATE;             /* _NET_WM_STATE */
+	Atom          NET_WM_STATE_FULLSCREEN;  /* _NET_WM_STATE_FULLSCREEN */
+	Atom          WM_DELETE_WINDOW;         /* WM_DELETE_WINDOW */
 
 	/* Key table */
 	GFXKey        keys[GFX_X11_NUM_KEYCODES];

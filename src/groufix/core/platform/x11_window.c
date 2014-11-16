@@ -59,7 +59,7 @@ static void _gfx_x11_enter_fullscreen(
 	XChangeProperty(
 		_gfx_x11->display,
 		handle,
-		_gfx_x11->wmBypassCompositor,
+		_gfx_x11->NET_WM_BYPASS_COMPOSITOR,
 		XA_CARDINAL,
 		32,
 		PropModeReplace,
@@ -76,7 +76,7 @@ static void _gfx_x11_enter_fullscreen(
 	event.xclient.serial       = 0;
 	event.xclient.send_event   = True;
 	event.xclient.format       = 32;
-	event.xclient.message_type = _gfx_x11->activeWindow;
+	event.xclient.message_type = _gfx_x11->NET_ACTIVE_WINDOW;
 	event.xclient.data.l[0]    = 1;
 	event.xclient.data.l[1]    = 0;
 
@@ -89,9 +89,9 @@ static void _gfx_x11_enter_fullscreen(
 	);
 
 	/* Create event to add full screen atom */
-	event.xclient.message_type = _gfx_x11->wmState;
+	event.xclient.message_type = _gfx_x11->NET_WM_STATE;
 	event.xclient.data.l[0]    = 1;
-	event.xclient.data.l[1]    = _gfx_x11->wmStateFullscreen;
+	event.xclient.data.l[1]    = _gfx_x11->NET_WM_STATE_FULLSCREEN;
 	event.xclient.data.l[2]    = 0;
 	event.xclient.data.l[3]    = 1;
 
@@ -125,7 +125,7 @@ static void _gfx_x11_leave_fullscreen(
 	XChangeProperty(
 		_gfx_x11->display,
 		handle,
-		_gfx_x11->wmBypassCompositor,
+		_gfx_x11->NET_WM_BYPASS_COMPOSITOR,
 		XA_CARDINAL,
 		32,
 		PropModeReplace,
@@ -138,9 +138,9 @@ static void _gfx_x11_leave_fullscreen(
 	event.type                 = ClientMessage;
 	event.xclient.window       = handle;
 	event.xclient.format       = 32;
-	event.xclient.message_type = _gfx_x11->wmState;
+	event.xclient.message_type = _gfx_x11->NET_WM_STATE;
 	event.xclient.data.l[0]    = 0;
-	event.xclient.data.l[1]    = _gfx_x11->wmStateFullscreen;
+	event.xclient.data.l[1]    = _gfx_x11->NET_WM_STATE_FULLSCREEN;
 	event.xclient.data.l[2]    = 0;
 	event.xclient.data.l[3]    = 1;
 
@@ -219,7 +219,7 @@ static void _gfx_x11_event_proc(
 		/* Protocol messages */
 		case ClientMessage :
 		{
-			if(event->xclient.data.l[0] == _gfx_x11->wmDeleteWindow)
+			if(event->xclient.data.l[0] == _gfx_x11->WM_DELETE_WINDOW)
 				_gfx_event_window_close(window);
 
 			break;
@@ -505,8 +505,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			XChangeProperty(
 				_gfx_x11->display,
 				window.handle,
-				_gfx_x11->wmHints,
-				_gfx_x11->wmHints,
+				_gfx_x11->MOTIF_WM_HINTS,
+				_gfx_x11->MOTIF_WM_HINTS,
 				32,
 				PropModeReplace,
 				(unsigned char*)&hints,
@@ -518,7 +518,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		XSetWMProtocols(
 			_gfx_x11->display,
 			window.handle,
-			&_gfx_x11->wmDeleteWindow,
+			&_gfx_x11->WM_DELETE_WINDOW,
 			1
 		);
 

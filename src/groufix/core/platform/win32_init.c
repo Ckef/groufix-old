@@ -286,7 +286,8 @@ int _gfx_platform_init(void)
 		while(EnumDisplayDevices(NULL, i++, &adapter, 0))
 		{
 			/* Validate adapter */
-			if(!(adapter.StateFlags & DISPLAY_DEVICE_ACTIVE) ||
+			if(
+				!(adapter.StateFlags & DISPLAY_DEVICE_ACTIVE) ||
 				adapter.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)
 			{
 				continue;
