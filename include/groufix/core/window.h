@@ -263,13 +263,13 @@ GFX_API GFXWindow* gfx_window_create(
 		GFXWindowFlags  flags);
 
 /**
- * Recreates a window.
+ * Recreates a window using a new screen, depth and flags.
  *
  * @param screen New screen to use, NULL for default screen.
  * @param flags  Flags to apply to this window, full screen has precedence over all other flags.
  * @return The new window on success, NULL on failure (old window is still functional).
  *
- * This method is to avoid destroying a window, thereby freeing hardware memory.
+ * Note: if NULL is returned, the original window is still functional, but hidden.
  *
  */
 GFX_API GFXWindow* gfx_window_recreate(

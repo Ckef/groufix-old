@@ -591,13 +591,14 @@ GFXWindow* gfx_window_recreate(
 	if(_gfx_window_is_zombie(internal) || _gfx_window_is_offscreen(internal))
 		return NULL;
 
-	/* Create new window */
-	char* name = _gfx_platform_window_get_name(internal->handle);
-
+	/* Get window properties */
 	unsigned int width;
 	unsigned int height;
 	int x;
 	int y;
+
+	char* name = _gfx_platform_window_get_name(
+		internal->handle);
 
 	_gfx_platform_window_get_size(
 		internal->handle,
@@ -609,6 +610,11 @@ GFXWindow* gfx_window_recreate(
 		&x,
 		&y);
 
+	/* Hide original window first */
+	/* This to undo any window manager effects it may have */
+	_gfx_platform_window_hide(internal->handle);
+
+	/* Create our new window */
 	GFXWindow* new = gfx_window_create(
 		screen,
 		depth,
@@ -616,7 +622,8 @@ GFXWindow* gfx_window_recreate(
 		x, y,
 		width,
 		height,
-		flags);
+		flags
+	);
 
 	free(name);
 
