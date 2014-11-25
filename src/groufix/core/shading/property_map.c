@@ -448,12 +448,10 @@ static void _gfx_property_set_sampler(
 	);
 
 	/* Bind texture and upload binding point */
-	int old;
 	GLint unit = _gfx_binder_bind_texture(
 		val->texture,
 		val->target,
 		1,
-		&old,
 		GFX_WIND_AS_ARG);
 
 	GFX_REND_GET.ProgramUniform1iv(
@@ -482,13 +480,11 @@ static void _gfx_property_set_block(
 	);
 
 	/* Bind buffer and upload binding point */
-	int old;
 	size_t index = _gfx_binder_bind_uniform_buffer(
 		val->buffer,
 		val->offset,
 		val->size,
 		1,
-		&old,
 		GFX_WIND_AS_ARG);
 
 	GFX_REND_GET.UniformBlockBinding(

@@ -149,7 +149,6 @@ void _gfx_property_map_use(
  * Binds a buffer to the appropriate uniform buffer index.
  *
  * @param prioritize Non-zero signifies this buffer must stay bound as long as possible.
- * @param old        If the uniform buffer was already bound to the returned value, old will be non-zero.
  * @return the uniform buffer index it was bound to.
  *
  */
@@ -159,7 +158,6 @@ size_t _gfx_binder_bind_uniform_buffer(
 		GLintptr    offset,
 		GLsizeiptr  size,
 		int         prioritize,
-		int*        old,
 		GFX_WIND_ARG);
 
 /**
@@ -176,7 +174,6 @@ void _gfx_binder_unbind_uniform_buffer(
  *
  * @param target     Internal target of the texture.
  * @param prioritize Non-zero signifies this texture must stay bound as long as possible.
- * @param old        If the texture was already bound to the returned value, old will be non-zero.
  * @return the texture unit it was bound to.
  *
  */
@@ -185,7 +182,6 @@ size_t _gfx_binder_bind_texture(
 		GLuint  texture,
 		GLenum  target,
 		int     prioritize,
-		int*    old,
 		GFX_WIND_ARG);
 
 /**

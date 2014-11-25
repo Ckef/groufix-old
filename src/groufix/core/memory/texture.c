@@ -337,12 +337,10 @@ static void _gfx_texture_set_storage(
 	else
 	{
 		/* Bind it to a unit if no direct state access */
-		int old;
 		_gfx_binder_bind_texture(
 			tex->handle,
 			tex->target,
 			0,
-			&old,
 			GFX_WIND_AS_ARG
 		);
 
@@ -501,12 +499,10 @@ GFXTexture* gfx_texture_create(
 	}
 	else
 	{
-		int old;
 		_gfx_binder_bind_texture(
 			tex->handle,
 			target,
 			0,
-			&old,
 			GFX_WIND_AS_ARG
 		);
 
@@ -618,12 +614,10 @@ GFXTexture* gfx_texture_create_buffer_link(
 	}
 	else
 	{
-		int old;
 		_gfx_binder_bind_texture(
 			tex->handle,
 			tex->target,
 			0,
-			&old,
 			GFX_WIND_AS_ARG
 		);
 
@@ -820,12 +814,10 @@ void gfx_texture_write(
 		else
 		{
 			/* Bind it to a unit if no direct state access */
-			int old;
 			_gfx_binder_bind_texture(
 				internal->handle,
 				internal->target,
 				0,
-				&old,
 				GFX_WIND_AS_ARG
 			);
 
@@ -991,7 +983,6 @@ void gfx_texture_generate_mipmaps(
 	GFX_WIND_INIT();
 
 	struct GFX_Texture* internal = (struct GFX_Texture*)texture;
-	int old;
 
 	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
 	{
@@ -1003,7 +994,6 @@ void gfx_texture_generate_mipmaps(
 			internal->handle,
 			internal->target,
 			0,
-			&old,
 			GFX_WIND_AS_ARG
 		);
 

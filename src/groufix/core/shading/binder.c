@@ -161,9 +161,6 @@ static size_t _gfx_binder_request(
 {
 	*old = 0;
 
-	/* Erm, nothing to find */
-	if(!bindings) return 0;
-
 	/* First increase all counters */
 	if(prioritize) _gfx_binder_increase(
 		1, 0,
@@ -213,15 +210,18 @@ size_t _gfx_binder_bind_uniform_buffer(
 		GLintptr    offset,
 		GLsizeiptr  size,
 		int         prioritize,
-		int*        old,
 		GFX_WIND_ARG)
 {
 	/* Allocate binding points */
 	if(!GFX_REND_GET.uniformBuffers)
+	{
 		GFX_REND_GET.uniformBuffers = _gfx_binder_init(
 			GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(struct GFX_UniformBuffer)
 		);
+
+		if(!GFX_REND_GET.uniformBuffers) return 0;
+	}
 
 	/* Get unit to bind it to */
 	struct GFX_UniformBuffer buff;
@@ -229,17 +229,18 @@ size_t _gfx_binder_bind_uniform_buffer(
 	buff.offset = offset;
 	buff.size = size;
 
+	int old;
 	size_t bind = _gfx_binder_request(
 		GFX_REND_GET.uniformBuffers,
 		GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
 		sizeof(struct GFX_UniformBuffer),
 		&buff,
 		prioritize,
-		old
+		&old
 	);
 
 	/* Bind the buffer */
-	if(!*old) GFX_REND_GET.BindBufferRange(
+	if(!old) GFX_REND_GET.BindBufferRange(
 		GL_UNIFORM_BUFFER,
 		bind,
 		buffer,
@@ -277,38 +278,42 @@ size_t _gfx_binder_bind_texture(
 		GLuint  texture,
 		GLenum  target,
 		int     prioritize,
-		int*    old,
 		GFX_WIND_ARG)
 {
 	/* Allocate binding points */
 	if(!GFX_REND_GET.textureUnits)
+	{
 		GFX_REND_GET.textureUnits = _gfx_binder_init(
 			GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(struct GFX_TextureUnit)
 		);
 
+		if(!GFX_REND_GET.textureUnits) return 0;
+	}
+
 	/* Get unit to bind it to */
 	struct GFX_TextureUnit unit;
 	unit.texture = texture;
 
+	int old;
 	size_t bind = _gfx_binder_request(
 		GFX_REND_GET.textureUnits,
 		GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 		sizeof(struct GFX_TextureUnit),
 		&unit,
 		prioritize,
-		old
+		&old
 	);
 
 	/* Bind the texture */
 	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
 	{
-		if(!*old) GFX_REND_GET.BindTextureUnit(bind, texture);
+		if(!old) GFX_REND_GET.BindTextureUnit(bind, texture);
 	}
 	else
 	{
 		GFX_REND_GET.ActiveTexture(GL_TEXTURE0 + bind);
-		if(!*old) GFX_REND_GET.BindTexture(target, texture);
+		if(!old) GFX_REND_GET.BindTexture(target, texture);
 	}
 
 	return bind;
