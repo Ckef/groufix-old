@@ -456,7 +456,7 @@ static void _gfx_property_set_sampler(
 		&old,
 		GFX_WIND_AS_ARG);
 
-	if(!old) GFX_REND_GET.ProgramUniform1iv(
+	GFX_REND_GET.ProgramUniform1iv(
 		program,
 		location,
 		1,
@@ -491,7 +491,7 @@ static void _gfx_property_set_block(
 		&old,
 		GFX_WIND_AS_ARG);
 
-	if(!old) GFX_REND_GET.UniformBlockBinding(
+	GFX_REND_GET.UniformBlockBinding(
 		program,
 		location,
 		index);
