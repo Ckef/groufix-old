@@ -140,46 +140,46 @@ GFX_API int gfx_deque_reserve(
 		size_t     numElements);
 
 /**
- * Adds an element to the front of the deque.
+ * Adds an element to the begin of the deque.
  *
  * @param element Data to copy into the new element, can be NULL to copy nothing.
  * @return An iterator to the new element (deque->end on failure).
  *
  */
-GFX_API GFXDequeIterator gfx_deque_push_front(
+GFX_API GFXDequeIterator gfx_deque_push_begin(
 
 		GFXDeque*    deque,
 		const void*  element);
 
 /**
- * Adds an element to the back of the deque.
+ * Adds an element to the end of the deque.
  *
  * @param element Data to copy into the new element, can be NULL to copy nothing.
  * @return An iterator to the new element (deque->end on failure).
  *
  */
-GFX_API GFXDequeIterator gfx_deque_push_back(
+GFX_API GFXDequeIterator gfx_deque_push_end(
 
 		GFXDeque*    deque,
 		const void*  element);
 
 /**
- * Removes an element from the front of the deque.
+ * Removes an element from the begin of the deque.
  *
  * @return An iterator to the element taking its place.
  *
  */
-GFX_API GFXDequeIterator gfx_deque_pop_front(
+GFX_API GFXDequeIterator gfx_deque_pop_begin(
 
 		GFXDeque* deque);
 
 /**
- * Removes an element from the back of the deque.
+ * Removes an element from the end of the deque.
  *
  * @return An iterator to the element taking its place.
  *
  */
-GFX_API GFXDequeIterator gfx_deque_pop_back(
+GFX_API GFXDequeIterator gfx_deque_pop_end(
 
 		GFXDeque* deque);
 

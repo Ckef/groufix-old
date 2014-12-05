@@ -275,7 +275,7 @@ int gfx_deque_reserve(
 }
 
 /******************************************************/
-GFXDequeIterator gfx_deque_push_front(
+GFXDequeIterator gfx_deque_push_begin(
 
 		GFXDeque*    deque,
 		const void*  element)
@@ -322,7 +322,7 @@ GFXDequeIterator gfx_deque_push_front(
 }
 
 /******************************************************/
-GFXDequeIterator gfx_deque_push_back(
+GFXDequeIterator gfx_deque_push_end(
 
 		GFXDeque*    deque,
 		const void*  element)
@@ -377,7 +377,7 @@ GFXDequeIterator gfx_deque_push_back(
 }
 
 /******************************************************/
-GFXDequeIterator gfx_deque_pop_front(
+GFXDequeIterator gfx_deque_pop_begin(
 
 		GFXDeque* deque)
 {
@@ -408,7 +408,7 @@ GFXDequeIterator gfx_deque_pop_front(
 }
 
 /******************************************************/
-GFXDequeIterator gfx_deque_pop_back(
+GFXDequeIterator gfx_deque_pop_end(
 
 		GFXDeque* deque)
 {

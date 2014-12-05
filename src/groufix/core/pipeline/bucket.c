@@ -144,7 +144,7 @@ static GFXBucketUnit _gfx_bucket_insert_ref(
 	{
 		/* Replace an empty reference */
 		ref = *(GFXBucketUnit*)bucket->emptyRefs.begin;
-		gfx_deque_pop_front(&bucket->emptyRefs);
+		gfx_deque_pop_begin(&bucket->emptyRefs);
 
 		*(unsigned int*)gfx_vector_at(&bucket->refs, ref - 1) =
 			unitIndex;
@@ -202,7 +202,7 @@ static void _gfx_bucket_erase_ref(
 	if(index < size)
 	{
 		/* Save ID and mark as empty */
-		gfx_deque_push_back(&bucket->emptyRefs, &index);
+		gfx_deque_push_end(&bucket->emptyRefs, &index);
 		*(unsigned int*)gfx_vector_at(&bucket->refs, index - 1) = 0;
 	}
 	else
@@ -545,7 +545,7 @@ GFXBucketSource gfx_bucket_add_source(
 	{
 		/* replace an empty ID */
 		id = *(GFXBucketSource*)internal->emptySources.begin;
-		gfx_deque_pop_front(&internal->emptySources);
+		gfx_deque_pop_begin(&internal->emptySources);
 
 		*(struct GFX_Source*)gfx_vector_at(&internal->sources, id - 1) = src;
 	}
@@ -618,7 +618,7 @@ void gfx_bucket_remove_source(
 		if(src < size)
 		{
 			/* Save ID and mark as empty */
-			gfx_deque_push_back(&internal->emptySources, &src);
+			gfx_deque_push_end(&internal->emptySources, &src);
 			((struct GFX_Source*)gfx_vector_at(&internal->sources, src - 1))->layout = NULL;
 		}
 		else

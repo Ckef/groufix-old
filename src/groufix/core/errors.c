@@ -98,7 +98,7 @@ void gfx_errors_pop(void)
 	{
 		/* Make sure to free it properly */
 		free((char*)err->description);
-		gfx_deque_pop_front(_gfx_errors);
+		gfx_deque_pop_begin(_gfx_errors);
 	}
 }
 
@@ -119,7 +119,7 @@ void gfx_errors_push(
 	}
 	else if(gfx_deque_get_size(_gfx_errors) == _gfx_errors_maximum)
 	{
-		gfx_deque_pop_back(_gfx_errors);
+		gfx_deque_pop_end(_gfx_errors);
 	}
 
 	/* Construct an error */
@@ -136,7 +136,7 @@ void gfx_errors_push(
 		error.description = des;
 	}
 
-	gfx_deque_push_front(_gfx_errors, &error);
+	gfx_deque_push_begin(_gfx_errors, &error);
 }
 
 /******************************************************/
@@ -179,7 +179,7 @@ void gfx_errors_set_maximum(
 			);
 
 			free((char*)((GFXError*)it)->description);
-			gfx_deque_pop_back(_gfx_errors);
+			gfx_deque_pop_end(_gfx_errors);
 		}
 
 		/* Reserve the memory */

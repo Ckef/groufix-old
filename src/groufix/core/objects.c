@@ -71,7 +71,7 @@ GFX_RenderObjectID _gfx_render_object_register(
 	{
 		/* Replace an empty ID */
 		id.id = *(unsigned int*)cont->empties.begin;
-		gfx_deque_pop_front(&cont->empties);
+		gfx_deque_pop_begin(&cont->empties);
 
 		*(struct GFX_Object*)gfx_vector_at(&cont->objects, id.id - 1) = obj;
 	}
@@ -131,7 +131,7 @@ void _gfx_render_object_unregister(
 		memset(obj, 0, sizeof(struct GFX_Object));
 
 		/* Save ID */
-		gfx_deque_push_back(&id.objects->empties, &id.id);
+		gfx_deque_push_end(&id.objects->empties, &id.id);
 	}
 
 	/* Remove last element */
