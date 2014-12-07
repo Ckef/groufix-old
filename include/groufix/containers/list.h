@@ -187,9 +187,9 @@ GFX_API void gfx_list_splice_before(
  */
 GFX_API void gfx_list_splice_range_after(
 
-		GFXList*  node,
 		GFXList*  first,
-		GFXList*  last);
+		GFXList*  last,
+		GFXList*  pos);
 
 /**
  * Inserts a range of elements before a given node.
@@ -202,9 +202,9 @@ GFX_API void gfx_list_splice_range_after(
  */
 GFX_API void gfx_list_splice_range_before(
 
-		GFXList*  node,
 		GFXList*  first,
-		GFXList*  last);
+		GFXList*  last,
+		GFXList*  pos);
 
 /**
  * Unlinks a range of elements, effectively creating two seperate lists.

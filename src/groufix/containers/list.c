@@ -23,13 +23,17 @@ GFXList* gfx_list_create(
 		size_t dataSize)
 {
 	/* Create a new list node */
-	GFXList* list = calloc(1, dataSize);
+	GFXList* list = malloc(dataSize);
 
 	/* Out of memory error */
 	if(!list) gfx_errors_push(
 		GFX_ERROR_OUT_OF_MEMORY,
 		"List could not be allocated."
 	);
+
+	/* Initialize */
+	list->next = NULL;
+	list->previous = NULL;
 
 	return list;
 }
@@ -175,26 +179,7 @@ GFXList* gfx_list_erase_range(
 		GFXList*  first,
 		GFXList*  last)
 {
-	GFXList* new = NULL;
-
-	/* Set next element */
-	if(first->previous)
-	{
-		first->previous->next = last->next;
-		new = first->previous;
-	}
-
-	/* Set previous element */
-	if(last->next)
-	{
-		last->next->previous = first->previous;
-		new = last->next;
-	}
-
-	/* Unlink range */
-	first->previous = NULL;
-	last->next = NULL;
-
+	GFXList* new = gfx_list_unsplice(first, last);
 	gfx_list_free(first);
 
 	return new;
@@ -249,45 +234,45 @@ void gfx_list_splice_before(
 /******************************************************/
 void gfx_list_splice_range_after(
 
-		GFXList*  node,
 		GFXList*  first,
-		GFXList*  last)
+		GFXList*  last,
+		GFXList*  pos)
 {
 	/* Close the gap of the range */
 	if(first->previous) first->previous->next = last->next;
 	if(last->next) last->next->previous = first->previous;
 
 	/* Link in the range */
-	first->previous = node;
-	last->next = node->next;
+	first->previous = pos;
+	last->next = pos->next;
 
 	/* Set the previous element */
-	if(node->next) node->next->previous = last;
+	if(pos->next) pos->next->previous = last;
 
 	/* Set the next element */
-	node->next = first;
+	pos->next = first;
 }
 
 /******************************************************/
 void gfx_list_splice_range_before(
 
-		GFXList*  node,
 		GFXList*  first,
-		GFXList*  last)
+		GFXList*  last,
+		GFXList*  pos)
 {
 	/* Close the gap of the range */
 	if(first->previous) first->previous->next = last->next;
 	if(last->next) last->next->previous = first->previous;
 
 	/* Link in the range */
-	first->previous = node->previous;
-	last->next = node;
+	first->previous = pos->previous;
+	last->next = pos;
 
 	/* Set the next element */
-	if(node->previous) node->previous->next = first;
+	if(pos->previous) pos->previous->next = first;
 
 	/* Set the previous element */
-	node->previous = last;
+	pos->previous = last;
 }
 
 /******************************************************/

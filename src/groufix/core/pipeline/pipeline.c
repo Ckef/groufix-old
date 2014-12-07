@@ -545,9 +545,9 @@ void gfx_pipeline_unlink_all(
 			internal->unlinked = internal->first;
 
 		else gfx_list_splice_range_after(
-			(GFXList*)internal->unlinked,
 			(GFXList*)internal->first,
-			(GFXList*)internal->last
+			(GFXList*)internal->last,
+			(GFXList*)internal->unlinked
 		);
 
 		internal->first = NULL;
