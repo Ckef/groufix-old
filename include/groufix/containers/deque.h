@@ -35,13 +35,12 @@ typedef void* GFXDequeIterator;
 /** Deque */
 typedef struct GFXDeque
 {
-	size_t elementSize;
-	size_t capacity; /* in bytes */
+	size_t            elementSize;
+	size_t            capacity; /* in bytes */
 
-	void* data;
-
-	GFXDequeIterator begin;
-	GFXDequeIterator end;
+	void*             data;
+	GFXDequeIterator  begin;
+	GFXDequeIterator  end;
 
 } GFXDeque;
 

@@ -67,6 +67,7 @@ LFLAGS_WIN32      = $(LFLAGS) -lwinmm -lopengl32 -lgdi32
 HEADERS = \
  include/groufix/containers/deque.h \
  include/groufix/containers/list.h \
+ include/groufix/containers/thread_pool.h \
  include/groufix/containers/vector.h \
  include/groufix/core/errors.h \
  include/groufix/core/keys.h \
@@ -134,6 +135,7 @@ endif
 OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/deque.o \
  $(OUT)/unix-x11/groufix/containers/list.o \
+ $(OUT)/unix-x11/groufix/containers/thread_pool.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
  $(OUT)/unix-x11/groufix/core/memory/buffer.o \
  $(OUT)/unix-x11/groufix/core/memory/formats.o \
@@ -206,6 +208,7 @@ $(OUT)/unix-x11%.o: src%.c $(HEADERS_UNIX_X11)
 OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/deque.o \
  $(OUT)/win32/groufix/containers/list.o \
+ $(OUT)/win32/groufix/containers/thread_pool.o \
  $(OUT)/win32/groufix/containers/vector.o \
  $(OUT)/win32/groufix/core/memory/buffer.o \
  $(OUT)/win32/groufix/core/memory/formats.o \

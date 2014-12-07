@@ -27,10 +27,12 @@ extern "C" {
 /********************************************************
  * List container
  *******************************************************/
+
+/** List node */
 typedef struct GFXList
 {
-	struct GFXList* next;
-	struct GFXList* previous;
+	struct GFXList*  next;
+	struct GFXList*  previous;
 
 } GFXList;
 

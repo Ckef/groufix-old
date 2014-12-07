@@ -35,11 +35,11 @@ typedef void* GFXVectorIterator;
 /** Vector */
 typedef struct GFXVector
 {
-	size_t elementSize;
-	size_t capacity; /* in bytes */
+	size_t             elementSize;
+	size_t             capacity; /* in bytes */
 
-	GFXVectorIterator begin;
-	GFXVectorIterator end;
+	GFXVectorIterator  begin;
+	GFXVectorIterator  end;
 
 } GFXVector;
 

@@ -79,6 +79,19 @@ typedef void* GFX_PlatformThread;
 #endif
 
 
+/** Thread local data key */
+#if defined(GFX_WIN32)
+typedef DWORD GFX_PlatformKey;
+
+#elif defined(GFX_UNIX)
+typedef pthread_key_t GFX_PlatformKey;
+
+#else
+typedef void* GFX_PlatformKey;
+
+#endif
+
+
 /** A Mutex */
 #if defined(GFX_WIN32)
 typedef CRITICAL_SECTION GFX_PlatformMutex;
@@ -101,19 +114,6 @@ typedef pthread_cond_t GFX_PlatformCond;
 
 #else
 typedef void* GFX_PlatformCond;
-
-#endif
-
-
-/** Thread local data key */
-#if defined(GFX_WIN32)
-typedef DWORD GFX_PlatformKey;
-
-#elif defined(GFX_UNIX)
-typedef pthread_key_t GFX_PlatformKey;
-
-#else
-typedef void* GFX_PlatformKey;
 
 #endif
 
