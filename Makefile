@@ -46,8 +46,15 @@ DEBUG    = NO
 COMPILER = SUPPORTED
 SSE      = YES
 
+# Debug flags
+ifeq ($(DEBUG),YES)
+ DFLAGS = -g
+else
+ DFLAGS = -DNDEBUG
+endif
+
 # Flags for all binaries files
-CFLAGS            = -Os -O2 -Wall -pedantic -Iinclude -DGFX_COMPILER_$(COMPILER) -DGFX_$(SSE)_SSE
+CFLAGS            = -Os -O2 -Wall -pedantic -Iinclude $(DFLAGS) -DGFX_COMPILER_$(COMPILER) -DGFX_$(SSE)_SSE
 CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32      = $(CFLAGS) -std=c99
 
@@ -200,11 +207,7 @@ unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
 
 # All the object files
 $(OUT)/unix-x11%.o: src%.c $(HEADERS_UNIX_X11)
-ifeq ($(DEBUG),YES)
-	$(CC) $(OBJFLAGS_UNIX_X11) -g $< -o $@
-else
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
-endif
 
 
 #################################################################
@@ -278,8 +281,4 @@ win32: before-win32 $(OBJS_WIN32)
 
 # All the object files
 $(OUT)/win32%.o: src%.c $(HEADERS_WIN32)
-ifeq ($(DEBUG),YES)
-	$(CC) $(OBJFLAGS_WIN32) -g $< -o $@
-else
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
-endif
