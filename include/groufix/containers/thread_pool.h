@@ -79,24 +79,6 @@ GFX_API void gfx_thread_pool_free(
 		GFXThreadPool* pool);
 
 /**
- * Suspends the thread pool, blocking any thread from executing any new tasks.
- *
- * Note: the threads will finish their current task before they are blocked.
- *
- */
-GFX_API void gfx_thread_pool_suspend(
-
-		GFXThreadPool* pool);
-
-/**
- * Resumes the thread from suspension, allowing all threads to execute tasks again.
- *
- */
-GFX_API void gfx_thread_pool_resume(
-
-		GFXThreadPool* pool);
-
-/**
  * Expands a thread pool by a number of threads.
  *
  * @param size Number of threads to add to the pool.
@@ -123,6 +105,35 @@ GFX_API int gfx_thread_pool_push(
 		GFXThreadPoolTask  task,
 		void*              data,
 		char               priority);
+
+/**
+ * Suspends the thread pool, blocking any thread from executing any new tasks.
+ *
+ * Note: the threads will finish their current task before they are blocked.
+ *
+ */
+GFX_API void gfx_thread_pool_suspend(
+
+		GFXThreadPool* pool);
+
+/**
+ * Resumes the thread from suspension, allowing all threads to execute tasks again.
+ *
+ */
+GFX_API void gfx_thread_pool_resume(
+
+		GFXThreadPool* pool);
+
+/**
+ * Blocks the calling thread until all pushed tasks are assigned to a thread.
+ *
+ * Note: if the pool is suspended and never gets resumed, this will block
+ * indefinitely.
+ *
+ */
+GFX_API void gfx_thread_pool_flush(
+
+		GFXThreadPool* pool);
 
 
 #ifdef __cplusplus

@@ -54,7 +54,8 @@ struct GFX_Pool
 	struct GFX_ThreadList*  threads; /* All associated threads */
 
 	GFX_PlatformMutex       mutex;
-	GFX_PlatformCond        cond;
+	GFX_PlatformCond        assign; /* Condition that waits for a task */
+	GFX_PlatformCond        flush;  /* Condition that waits for a flush to finish */
 };
 
 /******************************************************/
@@ -184,6 +185,10 @@ static unsigned int _gfx_thread_addr(
 
 			struct GFX_Task task = _gfx_thread_pool_pop(pool);
 
+			/* Tell flushing threads that everything is flushed */
+			if(pool->tasks.begin == pool->tasks.end)
+				_gfx_platform_cond_broadcast(&pool->flush);
+
 			/* Unlock during task */
 			_gfx_platform_mutex_unlock(&pool->mutex);
 
@@ -193,7 +198,7 @@ static unsigned int _gfx_thread_addr(
 		}
 
 		/* If not, block */
-		else _gfx_platform_cond_wait(&pool->cond, &pool->mutex);
+		else _gfx_platform_cond_wait(&pool->assign, &pool->mutex);
 	}
 
 	_gfx_platform_mutex_unlock(&pool->mutex);
@@ -229,27 +234,32 @@ GFXThreadPool* gfx_thread_pool_create(
 	if(_gfx_platform_mutex_init(&pool->mutex))
 	{
 		/* Create condition variable */
-		if(_gfx_platform_cond_init(&pool->cond))
+		if(_gfx_platform_cond_init(&pool->assign))
 		{
-			/* Initialize */
-			pool->status = suspend ?
+			if(_gfx_platform_cond_init(&pool->flush))
+			{
+				/* Initialize */
+				pool->status = suspend ?
 				GFX_INT_POOL_SUSPENDED :
 				GFX_INT_POOL_RESUMED;
 
-			pool->pool.size = 0;
-			pool->pool.init = init;
-			pool->pool.terminate = terminate;
+				pool->pool.size = 0;
+				pool->pool.init = init;
+				pool->pool.terminate = terminate;
 
-			gfx_vector_init(&pool->tasks, sizeof(struct GFX_Task));
-			pool->threads = NULL;
+				gfx_vector_init(&pool->tasks, sizeof(struct GFX_Task));
+				pool->threads = NULL;
 
-			/* Attempt to add the threads */
-			if(gfx_thread_pool_expand((GFXThreadPool*)pool, size))
-				return (GFXThreadPool*)pool;
+				/* Attempt to add the threads */
+				if(gfx_thread_pool_expand((GFXThreadPool*)pool, size))
+					return (GFXThreadPool*)pool;
 
-			/* Failure */
-			gfx_vector_clear(&pool->tasks);
-			_gfx_platform_cond_clear(&pool->cond);
+				/* Failure */
+				gfx_vector_clear(&pool->tasks);
+				_gfx_platform_cond_clear(&pool->flush);
+			}
+
+			_gfx_platform_cond_clear(&pool->assign);
 		}
 
 		_gfx_platform_mutex_clear(&pool->mutex);
@@ -274,7 +284,7 @@ void gfx_thread_pool_free(
 		_gfx_platform_mutex_lock(&internal->mutex);
 
 		internal->status = GFX_INT_POOL_TERMINATE;
-		_gfx_platform_cond_broadcast(&internal->cond);
+		_gfx_platform_cond_broadcast(&internal->assign);
 
 		_gfx_platform_mutex_unlock(&internal->mutex);
 
@@ -297,41 +307,11 @@ void gfx_thread_pool_free(
 		gfx_list_free((GFXList*)internal->threads);
 
 		_gfx_platform_mutex_clear(&internal->mutex);
-		_gfx_platform_cond_clear(&internal->cond);
+		_gfx_platform_cond_clear(&internal->assign);
+		_gfx_platform_cond_clear(&internal->flush);
 
 		free(pool);
 	}
-}
-
-/******************************************************/
-void gfx_thread_pool_suspend(
-
-		GFXThreadPool* pool)
-{
-	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
-
-	/* Tell threads to suspend */
-	_gfx_platform_mutex_lock(&internal->mutex);
-
-	internal->status = GFX_INT_POOL_SUSPENDED;
-
-	_gfx_platform_mutex_unlock(&internal->mutex);
-}
-
-/******************************************************/
-void gfx_thread_pool_resume(
-
-		GFXThreadPool* pool)
-{
-	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
-
-	/* Tell threads to resume */
-	_gfx_platform_mutex_lock(&internal->mutex);
-
-	internal->status = GFX_INT_POOL_RESUMED;
-	_gfx_platform_cond_broadcast(&internal->cond);
-
-	_gfx_platform_mutex_unlock(&internal->mutex);
 }
 
 /******************************************************/
@@ -416,9 +396,56 @@ int gfx_thread_pool_push(
 
 	int success = _gfx_thread_pool_push(internal, elem);
 	if(internal->status == GFX_INT_POOL_RESUMED)
-		_gfx_platform_cond_signal(&internal->cond);
+		_gfx_platform_cond_signal(&internal->assign);
 
 	_gfx_platform_mutex_unlock(&internal->mutex);
 
 	return success;
+}
+
+/******************************************************/
+void gfx_thread_pool_suspend(
+
+		GFXThreadPool* pool)
+{
+	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
+
+	/* Tell threads to suspend */
+	_gfx_platform_mutex_lock(&internal->mutex);
+
+	internal->status = GFX_INT_POOL_SUSPENDED;
+
+	_gfx_platform_mutex_unlock(&internal->mutex);
+}
+
+/******************************************************/
+void gfx_thread_pool_resume(
+
+		GFXThreadPool* pool)
+{
+	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
+
+	/* Tell threads to resume */
+	_gfx_platform_mutex_lock(&internal->mutex);
+
+	internal->status = GFX_INT_POOL_RESUMED;
+	_gfx_platform_cond_broadcast(&internal->assign);
+
+	_gfx_platform_mutex_unlock(&internal->mutex);
+}
+
+/******************************************************/
+void gfx_thread_pool_flush(
+
+		GFXThreadPool* pool)
+{
+	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
+
+	/* Wait until task queue is empty */
+	_gfx_platform_mutex_lock(&internal->mutex);
+
+	while(internal->tasks.begin != internal->tasks.end)
+		_gfx_platform_cond_wait(&internal->flush, &internal->mutex);
+
+	_gfx_platform_mutex_unlock(&internal->mutex);
 }
