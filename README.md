@@ -27,6 +27,8 @@ Groufix can be compiled with different OGL renderers. This must be given as a ma
 
 Along with the renderer value Groufix accepts more flags which can be defined while both compiling Groufix itself and any program or library using Groufix. All makefile flags are:
 
+* __DEBUG=YES__ Use this flag to compile Groufix with debug options.
+
 * __COMPILER=ANY__ Groufix will use compiler specific macros. If compiled with an unsupported compiler it will throw an error. Use this flag to turn the error off and force it to use compiler agnostic functionality. To disable it in a program or library using Groufix, `GFX_COMPILER_ANY` should be defined by the compiler.
 
 * __SSE=NO__ Groufix will compile certain functions using SSE instructions. Use this flag to disable this feature. This feature is disabled if `GFX_COMPILER_ANY` is defined. To disable it in a program or library using Groufix, `GFX_NO_SSE` should be defined by the compiler.
