@@ -480,12 +480,14 @@ GFX_API unsigned int gfx_property_map_shrink(
 		unsigned int     num);
 
 /**
- * Moves the values of all properties of a given copy to another copy.
+ * Moves the values of all properties of a given range of copies.
  *
  * @param dest Index of the destination copy.
  * @param src  Index of the source copy (can equal dest).
+ * @param num  Number of copies to move, the ranges can overlap.
  * @return Zero if either copy does not exist.
  *
+ * Note: neither of the ranges can be out of bounds.
  * The values of the source copies remain unaltered.
  *
  */
@@ -493,7 +495,8 @@ GFX_API int gfx_property_map_move(
 
 		GFXPropertyMap*  map,
 		unsigned int     dest,
-		unsigned int     src);
+		unsigned int     src,
+		unsigned int     num);
 
 /**
  * Forwards data send to a given index to a property within a program.

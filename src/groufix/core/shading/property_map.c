@@ -74,7 +74,7 @@ struct GFX_Value
 	size_t           size; /* Size of the entire value (of a single copy) in bytes */
 };
 
-/******************************************************/
+
 /* Internal vector/matrix pointer body */
 struct GFX_ValuePtr
 {
@@ -87,8 +87,8 @@ struct GFX_ValuePtr
 /* Internal sampler body */
 struct GFX_Sampler
 {
-	GLuint texture;
-	GLuint target;
+	GLuint  texture;
+	GLuint  target;
 };
 
 /* Internal block body */
@@ -733,13 +733,14 @@ int gfx_property_map_move(
 
 		GFXPropertyMap*  map,
 		unsigned int     dest,
-		unsigned int     src)
+		unsigned int     src,
+		unsigned int     num)
 {
 	struct GFX_Map* internal = (struct GFX_Map*)map;
 
 	/* Validate indices */
-	if(dest >= map->copies || src >= map->copies) return 0;
-	if(dest == src) return 1;
+	if(dest + num > map->copies || src + num > map->copies) return 0;
+	if(dest == src || !num) return 1;
 
 	/* Iterate over properties and move */
 	struct GFX_Property* prop;
@@ -758,7 +759,7 @@ int gfx_property_map_move(
 				_gfx_property_derive_copy(prop->type, it, &copySize, src);
 
 			/* Copy */
-			memcpy(destVal, srcVal, copySize);
+			memmove(destVal, srcVal, copySize * num);
 		}
 
 	return 1;
