@@ -91,6 +91,19 @@ GFX_API unsigned char gfx_thread_pool_expand(
 		unsigned char   size);
 
 /**
+ * Shrinks a thread pool by a number of threads.
+ *
+ * @return Number of threads terminated.
+ *
+ * This call undos the last yet to be undone call to gfx_thread_pool_expand.
+ * If no such call was made, the threads the pool was created with will be terminated.
+ *
+ */
+GFX_API unsigned char gfx_thread_pool_shrink(
+
+		GFXThreadPool* pool);
+
+/**
  * Pushes a new task to the queue of the thread pool.
  *
  * @param task     Function to execute.
@@ -127,8 +140,8 @@ GFX_API void gfx_thread_pool_resume(
 /**
  * Blocks the calling thread until all pushed tasks are assigned to a thread.
  *
- * Note: if the pool is suspended and never gets resumed, this will block
- * indefinitely.
+ * Note: if the pool is suspended and never gets resumed, or if no threads
+ * exist while there are tasks, this will block indefinitely.
  *
  */
 GFX_API void gfx_thread_pool_flush(
