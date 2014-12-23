@@ -145,16 +145,6 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/list.o \
  $(OUT)/unix-x11/groufix/containers/thread_pool.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
- $(OUT)/unix-x11/groufix/core/memory/buffer.o \
- $(OUT)/unix-x11/groufix/core/memory/formats.o \
- $(OUT)/unix-x11/groufix/core/memory/layout.o \
- $(OUT)/unix-x11/groufix/core/memory/shared_buffer.o \
- $(OUT)/unix-x11/groufix/core/memory/texture.o \
- $(OUT)/unix-x11/groufix/core/pipeline/bucket.o \
- $(OUT)/unix-x11/groufix/core/pipeline/pipe.o \
- $(OUT)/unix-x11/groufix/core/pipeline/pipeline.o \
- $(OUT)/unix-x11/groufix/core/pipeline/process.o \
- $(OUT)/unix-x11/groufix/core/pipeline/states.o \
  $(OUT)/unix-x11/groufix/core/platform/unix_thread.o \
  $(OUT)/unix-x11/groufix/core/platform/unix_time.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_context.o \
@@ -163,15 +153,25 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/platform/x11_window.o \
  $(OUT)/unix-x11/groufix/core/renderer/gl_emulate.o \
  $(OUT)/unix-x11/groufix/core/renderer/gl_load.o \
- $(OUT)/unix-x11/groufix/core/shading/binder.o \
- $(OUT)/unix-x11/groufix/core/shading/program.o \
- $(OUT)/unix-x11/groufix/core/shading/program_map.o \
- $(OUT)/unix-x11/groufix/core/shading/property_map.o \
- $(OUT)/unix-x11/groufix/core/shading/shader.o \
+ $(OUT)/unix-x11/groufix/core/binder.o \
+ $(OUT)/unix-x11/groufix/core/bucket.o \
+ $(OUT)/unix-x11/groufix/core/buffer.o \
  $(OUT)/unix-x11/groufix/core/errors.o \
  $(OUT)/unix-x11/groufix/core/events.o \
+ $(OUT)/unix-x11/groufix/core/formats.o \
+ $(OUT)/unix-x11/groufix/core/layout.o \
  $(OUT)/unix-x11/groufix/core/objects.o \
+ $(OUT)/unix-x11/groufix/core/pipe.o \
+ $(OUT)/unix-x11/groufix/core/pipeline.o \
+ $(OUT)/unix-x11/groufix/core/process.o \
+ $(OUT)/unix-x11/groufix/core/program.o \
+ $(OUT)/unix-x11/groufix/core/program_map.o \
+ $(OUT)/unix-x11/groufix/core/property_map.o \
  $(OUT)/unix-x11/groufix/core/screen.o \
+ $(OUT)/unix-x11/groufix/core/shader.o \
+ $(OUT)/unix-x11/groufix/core/shared_buffer.o \
+ $(OUT)/unix-x11/groufix/core/states.o \
+ $(OUT)/unix-x11/groufix/core/texture.o \
  $(OUT)/unix-x11/groufix/core/window.o \
  $(OUT)/unix-x11/groufix/scene/lod_map.o \
  $(OUT)/unix-x11/groufix/scene/material.o \
@@ -185,11 +185,8 @@ OBJS_UNIX_X11 = \
 before-unix-x11:
 	@mkdir -p $(BIN)/unix-x11
 	@mkdir -p $(OUT)/unix-x11/groufix/containers
-	@mkdir -p $(OUT)/unix-x11/groufix/core/memory
-	@mkdir -p $(OUT)/unix-x11/groufix/core/pipeline
 	@mkdir -p $(OUT)/unix-x11/groufix/core/platform
 	@mkdir -p $(OUT)/unix-x11/groufix/core/renderer
-	@mkdir -p $(OUT)/unix-x11/groufix/core/shading
 	@mkdir -p $(OUT)/unix-x11/groufix/scene
 
 
@@ -218,16 +215,6 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/list.o \
  $(OUT)/win32/groufix/containers/thread_pool.o \
  $(OUT)/win32/groufix/containers/vector.o \
- $(OUT)/win32/groufix/core/memory/buffer.o \
- $(OUT)/win32/groufix/core/memory/formats.o \
- $(OUT)/win32/groufix/core/memory/layout.o \
- $(OUT)/win32/groufix/core/memory/shared_buffer.o \
- $(OUT)/win32/groufix/core/memory/texture.o \
- $(OUT)/win32/groufix/core/pipeline/bucket.o \
- $(OUT)/win32/groufix/core/pipeline/pipe.o \
- $(OUT)/win32/groufix/core/pipeline/pipeline.o \
- $(OUT)/win32/groufix/core/pipeline/process.o \
- $(OUT)/win32/groufix/core/pipeline/states.o \
  $(OUT)/win32/groufix/core/platform/win32_context.o \
  $(OUT)/win32/groufix/core/platform/win32_init.o \
  $(OUT)/win32/groufix/core/platform/win32_screen.o \
@@ -237,15 +224,25 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/platform/win32_window.o \
  $(OUT)/win32/groufix/core/renderer/gl_emulate.o \
  $(OUT)/win32/groufix/core/renderer/gl_load.o \
- $(OUT)/win32/groufix/core/shading/binder.o \
- $(OUT)/win32/groufix/core/shading/program.o \
- $(OUT)/win32/groufix/core/shading/program_map.o \
- $(OUT)/win32/groufix/core/shading/property_map.o \
- $(OUT)/win32/groufix/core/shading/shader.o \
+ $(OUT)/win32/groufix/core/binder.o \
+ $(OUT)/win32/groufix/core/bucket.o \
+ $(OUT)/win32/groufix/core/buffer.o \
  $(OUT)/win32/groufix/core/errors.o \
  $(OUT)/win32/groufix/core/events.o \
+ $(OUT)/win32/groufix/core/formats.o \
+ $(OUT)/win32/groufix/core/layout.o \
  $(OUT)/win32/groufix/core/objects.o \
+ $(OUT)/win32/groufix/core/pipe.o \
+ $(OUT)/win32/groufix/core/pipeline.o \
+ $(OUT)/win32/groufix/core/process.o \
+ $(OUT)/win32/groufix/core/program.o \
+ $(OUT)/win32/groufix/core/program_map.o \
+ $(OUT)/win32/groufix/core/property_map.o \
  $(OUT)/win32/groufix/core/screen.o \
+ $(OUT)/win32/groufix/core/shader.o \
+ $(OUT)/win32/groufix/core/shared_buffer.o \
+ $(OUT)/win32/groufix/core/states.o \
+ $(OUT)/win32/groufix/core/texture.o \
  $(OUT)/win32/groufix/core/window.o \
  $(OUT)/win32/groufix/scene/lod_map.o \
  $(OUT)/win32/groufix/scene/material.o \
@@ -259,11 +256,8 @@ OBJS_WIN32 = \
 before-win32:
 	@if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
 	@if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
-	@if not exist $(OUT)\win32\groufix\core\memory\nul mkdir $(OUT)\win32\groufix\core\memory
-	@if not exist $(OUT)\win32\groufix\core\pipeline\nul mkdir $(OUT)\win32\groufix\core\pipeline
 	@if not exist $(OUT)\win32\groufix\core\platform\nul mkdir $(OUT)\win32\groufix\core\platform
 	@if not exist $(OUT)\win32\groufix\core\renderer\nul mkdir $(OUT)\win32\groufix\core\renderer
-	@if not exist $(OUT)\win32\groufix\core\shading\nul mkdir $(OUT)\win32\groufix\core\shading
 	@if not exist $(OUT)\win32\groufix\scene\nul mkdir $(OUT)\win32\groufix\scene
 
 
