@@ -16,7 +16,7 @@
 #include "groufix/containers/list.h"
 #include "groufix/containers/vector.h"
 #include "groufix/core/errors.h"
-#include "groufix/core/platform.h"
+#include "groufix/core/threading.h"
 
 #include <limits.h>
 #include <stdlib.h>

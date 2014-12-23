@@ -12,7 +12,7 @@
  *
  */
 
-#include "groufix/core/platform.h"
+#include "groufix/core/threading.h"
 
 #include <errno.h>
 #include <stdlib.h>
@@ -76,14 +76,6 @@ int _gfx_platform_thread_init(
 }
 
 /******************************************************/
-void _gfx_platform_thread_detach(
-
-		GFX_PlatformThread thread)
-{
-	pthread_detach(thread);
-}
-
-/******************************************************/
 int _gfx_platform_thread_join(
 
 		GFX_PlatformThread  thread,
@@ -95,112 +87,6 @@ int _gfx_platform_thread_join(
 	if(ret) *ret = GFX_VOID_TO_UINT(val);
 
 	return 1;
-}
-
-/******************************************************/
-void _gfx_platform_thread_exit(
-
-		unsigned int ret)
-{
-	pthread_exit(GFX_UINT_TO_VOID(ret));
-}
-
-/******************************************************/
-int _gfx_platform_key_init(
-
-		GFX_PlatformKey* key)
-{
-	return !pthread_key_create(key, NULL);
-}
-
-/******************************************************/
-void _gfx_platform_key_clear(
-
-		GFX_PlatformKey key)
-{
-	pthread_key_delete(key);
-}
-
-/******************************************************/
-int _gfx_platform_key_set(
-
-		GFX_PlatformKey  key,
-		void*            value)
-{
-	return !pthread_setspecific(key, value);
-}
-
-/******************************************************/
-void* _gfx_platform_key_get(
-
-		GFX_PlatformKey key)
-{
-	return pthread_getspecific(key);
-}
-
-/******************************************************/
-int _gfx_platform_mutex_init(
-
-		GFX_PlatformMutex* mutex)
-{
-	return !pthread_mutex_init(mutex, NULL);
-}
-
-/******************************************************/
-void _gfx_platform_mutex_clear(
-
-		GFX_PlatformMutex* mutex)
-{
-	pthread_mutex_destroy(mutex);
-}
-
-/******************************************************/
-int _gfx_platform_mutex_lock(
-
-		GFX_PlatformMutex* mutex)
-{
-	return !pthread_mutex_lock(mutex);
-}
-
-/******************************************************/
-int _gfx_platform_mutex_try_lock(
-
-		GFX_PlatformMutex* mutex)
-{
-	return !pthread_mutex_trylock(mutex);
-}
-
-/******************************************************/
-void _gfx_platform_mutex_unlock(
-
-		GFX_PlatformMutex* mutex)
-{
-	pthread_mutex_unlock(mutex);
-}
-
-/******************************************************/
-int _gfx_platform_cond_init(
-
-		GFX_PlatformCond* cond)
-{
-	return !pthread_cond_init(cond, NULL);
-}
-
-/******************************************************/
-void _gfx_platform_cond_clear(
-
-		GFX_PlatformCond* cond)
-{
-	pthread_cond_destroy(cond);
-}
-
-/******************************************************/
-int _gfx_platform_cond_wait(
-
-		GFX_PlatformCond*   cond,
-		GFX_PlatformMutex*  mutex)
-{
-	return !pthread_cond_wait(cond, mutex);
 }
 
 /******************************************************/
@@ -222,20 +108,4 @@ int _gfx_platform_cond_wait_time(
 	int ret = pthread_cond_timedwait(cond, mutex, &ts);
 
 	return (ret == ETIMEDOUT) ? -1 : (ret ? 0 : 1);
-}
-
-/******************************************************/
-void _gfx_platform_cond_signal(
-
-		GFX_PlatformCond* cond)
-{
-	pthread_cond_signal(cond);
-}
-
-/******************************************************/
-void _gfx_platform_cond_broadcast(
-
-		GFX_PlatformCond* cond)
-{
-	pthread_cond_broadcast(cond);
 }

@@ -13,8 +13,8 @@
  */
 
 #include "groufix/core/platform/win32.h"
+#include "groufix/core/threading.h"
 
-#include <process.h>
 #include <stdlib.h>
 
 /******************************************************/
@@ -71,14 +71,6 @@ int _gfx_platform_thread_init(
 }
 
 /******************************************************/
-void _gfx_platform_thread_detach(
-
-		GFX_PlatformThread thread)
-{
-	CloseHandle(thread);
-}
-
-/******************************************************/
 int _gfx_platform_thread_join(
 
 		GFX_PlatformThread  thread,
@@ -101,120 +93,6 @@ int _gfx_platform_thread_join(
 }
 
 /******************************************************/
-void _gfx_platform_thread_exit(
-
-		unsigned int ret)
-{
-	_endthreadex(ret);
-}
-
-/******************************************************/
-int _gfx_platform_key_init(
-
-		GFX_PlatformKey* key)
-{
-	*key = TlsAlloc();
-
-	return *key != TLS_OUT_OF_INDEXES;
-}
-
-/******************************************************/
-void _gfx_platform_key_clear(
-
-		GFX_PlatformKey key)
-{
-	TlsFree(key);
-}
-
-/******************************************************/
-int _gfx_platform_key_set(
-
-		GFX_PlatformKey  key,
-		void*            value)
-{
-	return TlsSetValue(key, value);
-}
-
-/******************************************************/
-void* _gfx_platform_key_get(
-
-		GFX_PlatformKey key)
-{
-	return TlsGetValue(key);
-}
-
-/******************************************************/
-int _gfx_platform_mutex_init(
-
-		GFX_PlatformMutex* mutex)
-{
-	InitializeCriticalSection(mutex);
-
-	return 1;
-}
-
-/******************************************************/
-void _gfx_platform_mutex_clear(
-
-		GFX_PlatformMutex* mutex)
-{
-	DeleteCriticalSection(mutex);
-}
-
-/******************************************************/
-int _gfx_platform_mutex_lock(
-
-		GFX_PlatformMutex* mutex)
-{
-	EnterCriticalSection(mutex);
-
-	return 1;
-}
-
-/******************************************************/
-int _gfx_platform_mutex_try_lock(
-
-		GFX_PlatformMutex* mutex)
-{
-	return TryEnterCriticalSection(mutex);
-}
-
-/******************************************************/
-void _gfx_platform_mutex_unlock(
-
-		GFX_PlatformMutex* mutex)
-{
-	LeaveCriticalSection(mutex);
-}
-
-/******************************************************/
-int _gfx_platform_cond_init(
-
-		GFX_PlatformCond* cond)
-{
-	InitializeConditionVariable(cond);
-
-	return 1;
-}
-
-/******************************************************/
-void _gfx_platform_cond_clear(
-
-		GFX_PlatformCond* cond)
-{
-	/* No-op on windows */
-}
-
-/******************************************************/
-int _gfx_platform_cond_wait(
-
-		GFX_PlatformCond*   cond,
-		GFX_PlatformMutex*  mutex)
-{
-	return SleepConditionVariableCS(cond, mutex, INFINITE);
-}
-
-/******************************************************/
 int _gfx_platform_cond_wait_time(
 
 		GFX_PlatformCond*   cond,
@@ -228,20 +106,4 @@ int _gfx_platform_cond_wait_time(
 		return (GetLastError() == ERROR_TIMEOUT) ? -1 : 0;
 
 	return 1;
-}
-
-/******************************************************/
-void _gfx_platform_cond_signal(
-
-		GFX_PlatformCond* cond)
-{
-	WakeConditionVariable(cond);
-}
-
-/******************************************************/
-void _gfx_platform_cond_broadcast(
-
-		GFX_PlatformCond* cond)
-{
-	WakeAllConditionVariable(cond);
 }

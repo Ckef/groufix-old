@@ -106,6 +106,7 @@ HEADERS_LIB = \
  src/groufix/core/shading/internal.h \
  src/groufix/core/platform.h \
  src/groufix/core/renderer.h \
+ src/groufix/core/threading.h \
  src/groufix/scene/internal.h \
 
 HEADERS_UNIX_X11 = \

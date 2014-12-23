@@ -14,6 +14,7 @@
 
 #include "groufix/core/pipeline/internal.h"
 #include "groufix/core/errors.h"
+#include "groufix/core/threading.h"
 
 #include <stdlib.h>
 
