@@ -43,6 +43,7 @@
 /* Max error length */
 #define GFX_X11_ERROR_LENGTH  0x100
 
+
 /* Missing things */
 #ifndef Button6
 	#define Button6 6

@@ -104,6 +104,7 @@ HEADERS_LIB = \
  src/groufix/core/pipeline/internal.h \
  src/groufix/core/renderer/gl.h \
  src/groufix/core/shading/internal.h \
+ src/groufix/core/callbacks.h \
  src/groufix/core/platform.h \
  src/groufix/core/renderer.h \
  src/groufix/core/threading.h \

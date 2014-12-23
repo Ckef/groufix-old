@@ -13,6 +13,7 @@
  */
 
 #include "groufix/core/platform/x11.h"
+#include "groufix/core/callbacks.h"
 
 #include <stdlib.h>
 #include <string.h>

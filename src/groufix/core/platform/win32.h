@@ -43,6 +43,7 @@
 #define GFX_WIN32_MAX_KEYCODE   0x0ff
 #define GFX_WIN32_NUM_KEYCODES  0x100
 
+
 /* Yeah these are missing */
 #ifndef DISPLAY_DEVICE_ACTIVE
 	#define DISPLAY_DEVICE_ACTIVE 0x001
