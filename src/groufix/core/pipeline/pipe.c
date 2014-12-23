@@ -12,7 +12,7 @@
  *
  */
 
-#include "groufix/core/pipeline/internal.h"
+#include "groufix/core/internal.h"
 
 /******************************************************/
 static GFX_Pipe* _gfx_pipe_create(

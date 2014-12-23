@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef GFX_CORE_INTERNAL_H
-#define GFX_CORE_INTERNAL_H
+#ifndef GFX_CORE_RENDERER_H
+#define GFX_CORE_RENDERER_H
 
 #include "groufix/containers/deque.h"
 #include "groufix/containers/vector.h"
@@ -306,4 +306,4 @@ void _gfx_window_swap_buffers(void);
 }
 #endif
 
-#endif // GFX_CORE_INTERNAL_H
+#endif // GFX_CORE_RENDERER_H

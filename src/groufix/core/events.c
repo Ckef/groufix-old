@@ -12,7 +12,7 @@
  *
  */
 
-#include "groufix/core/pipeline/internal.h"
+#include "groufix/core/internal.h"
 
 /******************************************************/
 void _gfx_event_window_close(

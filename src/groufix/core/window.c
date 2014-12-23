@@ -12,9 +12,9 @@
  *
  */
 
-#include "groufix/core/pipeline/internal.h"
-#include "groufix/core/errors.h"
+#include "groufix/core/internal.h"
 #include "groufix/core/threading.h"
+#include "groufix/core/errors.h"
 
 #include <stdlib.h>
 

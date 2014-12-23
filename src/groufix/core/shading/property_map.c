@@ -12,8 +12,7 @@
  *
  */
 
-#include "groufix/core/shading/internal.h"
-#include "groufix/core/memory/internal.h"
+#include "groufix/core/internal.h"
 #include "groufix/core/errors.h"
 
 #include <limits.h>

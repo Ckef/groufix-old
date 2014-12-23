@@ -12,7 +12,7 @@
  *
  */
 
-#include "groufix/core/memory/internal.h"
+#include "groufix/core/internal.h"
 
 #include <string.h>
 

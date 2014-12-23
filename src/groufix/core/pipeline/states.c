@@ -12,7 +12,7 @@
  *
  */
 
-#include "groufix/core/pipeline/internal.h"
+#include "groufix/core/internal.h"
 
 #include <limits.h>
 #include <string.h>
