@@ -53,17 +53,9 @@ static inline int _gfx_window_is_zombie(
 }
 
 /******************************************************/
-static inline int _gfx_window_is_offscreen(
-
-		const GFX_Window* window)
-{
-	return !window->handle && window->context;
-}
-
-/******************************************************/
 static GFX_PlatformContext _gfx_window_context_create(
 
-		GFX_PlatformWindow window)
+		GFX_PlatformWindow* window)
 {
 	/* Get the main window to share with (as all windows will share everything) */
 	GFX_PlatformContext share = NULL;
@@ -85,10 +77,10 @@ static GFX_PlatformContext _gfx_window_context_create(
 		/* Try to create it */
 		GFX_PlatformContext cont;
 
-		if(window) cont =
-			_gfx_platform_context_init(window, max.major, max.minor, share);
+		if(*window) cont =
+			_gfx_platform_context_init(*window, max.major, max.minor, share);
 		else cont =
-			_gfx_platform_context_create(max.major, max.minor, share);
+			_gfx_platform_context_create(window, max.major, max.minor, share);
 
 		if(cont) return cont;
 
@@ -127,6 +119,8 @@ static GFX_Window* _gfx_window_create_internal(
 		return NULL;
 	}
 
+	window->offscreen = attr ? 0 : 1;
+
 	/* Create data key */
 	if(!_gfx_alive_windows)
 	{
@@ -138,7 +132,7 @@ static GFX_Window* _gfx_window_create_internal(
 	}
 
 	/* Create platform window */
-	if(attr)
+	if(!window->offscreen)
 	{
 		attr->screen = attr->screen ?
 			attr->screen :
@@ -165,7 +159,7 @@ static GFX_Window* _gfx_window_create_internal(
 
 	/* Create context */
 	window->context =
-		_gfx_window_context_create(window->handle);
+		_gfx_window_context_create(&window->handle);
 
 	if(window->context)
 	{
@@ -201,7 +195,7 @@ static GFX_Window* _gfx_window_create_internal(
 		_gfx_platform_key_clear(_gfx_current_window);
 
 	/* Destroy window or context */
-	if(window->handle)
+	if(!window->offscreen)
 		_gfx_platform_window_free(window->handle);
 	else
 		_gfx_platform_context_free(window->context);
@@ -226,7 +220,7 @@ static int _gfx_window_insert(
 	/* Try to insert, destroy on failure */
 	/* Insert all off-screen windows at the end */
 	/* Insert all on-screen windows at the beginning */
-	size_t index = _gfx_window_is_offscreen(window) ?
+	size_t index = window->offscreen ?
 		gfx_vector_get_size(_gfx_windows) :
 		_gfx_public_windows;
 
@@ -248,7 +242,7 @@ static int _gfx_window_insert(
 
 	/* Count on-screen windows */
 	_gfx_public_windows +=
-		_gfx_window_is_offscreen(window) ? 0 : 1;
+		window->offscreen ? 0 : 1;
 
 	return 1;
 }
@@ -273,7 +267,7 @@ static void _gfx_window_erase(
 
 				/* Also count on-screen windows */
 				_gfx_public_windows -=
-					_gfx_window_is_offscreen(window) ? 0 : 1;
+					window->offscreen ? 0 : 1;
 
 				break;
 			}
@@ -346,7 +340,7 @@ GFX_Window* _gfx_window_get_from_handle(
 		it = gfx_vector_next(_gfx_windows, it))
 	{
 		if((*it)->handle == handle)
-			return *it;
+			return (*it)->offscreen ? NULL : *it;
 	}
 
 	return NULL;
@@ -413,7 +407,7 @@ void _gfx_window_destroy(
 	_gfx_renderer_unload();
 
 	/* Braaaaaaains! */
-	if(_gfx_window_is_offscreen(window))
+	if(window->offscreen)
 		_gfx_platform_context_free(window->context);
 	else
 		_gfx_platform_window_free(window->handle);
@@ -446,10 +440,13 @@ void _gfx_window_make_current(
 
 	if(current != window)
 	{
-		if(!window)
-			_gfx_platform_context_make_current(NULL);
-		else
-			_gfx_platform_context_make_current(window->context);
+		if(!window) _gfx_platform_context_make_current(
+			NULL,
+			NULL);
+
+		else _gfx_platform_context_make_current(
+			window->handle,
+			window->context);
 
 		_gfx_platform_key_set(_gfx_current_window, window);
 	}
@@ -470,7 +467,7 @@ void _gfx_window_swap_buffers(void)
 
 	if(window)
 	{
-		if(!_gfx_window_is_offscreen(window))
+		if(!window->offscreen)
 			_gfx_platform_context_swap_buffers(window->handle);
 
 		/* Poll errors while it's current */
@@ -589,7 +586,7 @@ GFXWindow* gfx_window_recreate(
 {
 	/* Check if zombie window */
 	GFX_Window* internal = (GFX_Window*)window;
-	if(_gfx_window_is_zombie(internal) || _gfx_window_is_offscreen(internal))
+	if(_gfx_window_is_zombie(internal) || internal->offscreen)
 		return NULL;
 
 	/* Get window properties */
@@ -674,7 +671,8 @@ GFXScreen gfx_window_get_screen(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(!internal->handle) return NULL;
+	if(_gfx_window_is_zombie(internal) || internal->offscreen)
+		return NULL;
 
 	return (GFXScreen)_gfx_platform_window_get_screen(internal->handle);
 }
@@ -694,7 +692,8 @@ char* gfx_window_get_name(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(!internal->handle) return NULL;
+	if(_gfx_window_is_zombie(internal) || internal->offscreen)
+		return NULL;
 
 	return _gfx_platform_window_get_name(internal->handle);
 }
@@ -708,11 +707,12 @@ void gfx_window_get_size(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(internal->handle) _gfx_platform_window_get_size(
-		internal->handle,
-		width,
-		height
-	);
+	if(!_gfx_window_is_zombie(internal) && !internal->offscreen)
+		_gfx_platform_window_get_size(
+			internal->handle,
+			width,
+			height
+		);
 }
 
 /******************************************************/
@@ -724,10 +724,11 @@ void gfx_window_get_position(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(internal->handle) _gfx_platform_window_get_position(
-		internal->handle,
-		x, y
-	);
+	if(!_gfx_window_is_zombie(internal) && !internal->offscreen)
+		_gfx_platform_window_get_position(
+			internal->handle,
+			x, y
+		);
 }
 
 /******************************************************/
@@ -738,10 +739,11 @@ void gfx_window_set_name(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(internal->handle) _gfx_platform_window_set_name(
-		internal->handle,
-		name
-	);
+	if(!_gfx_window_is_zombie(internal) && !internal->offscreen)
+		_gfx_platform_window_set_name(
+			internal->handle,
+			name
+		);
 }
 
 /******************************************************/
@@ -753,11 +755,12 @@ void gfx_window_set_size(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(internal->handle) _gfx_platform_window_set_size(
-		internal->handle,
-		width,
-		height
-	);
+	if(!_gfx_window_is_zombie(internal) && !internal->offscreen)
+		_gfx_platform_window_set_size(
+			internal->handle,
+			width,
+			height
+		);
 }
 
 /******************************************************/
@@ -769,10 +772,11 @@ void gfx_window_set_position(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(internal->handle) _gfx_platform_window_set_position(
-		internal->handle,
-		x, y
-	);
+	if(!_gfx_window_is_zombie(internal) && !internal->offscreen)
+		_gfx_platform_window_set_position(
+			internal->handle,
+			x, y
+		);
 }
 
 /******************************************************/
@@ -782,7 +786,8 @@ void gfx_window_show(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(internal->handle) _gfx_platform_window_show(internal->handle);
+	if(!_gfx_window_is_zombie(internal) && !internal->offscreen)
+		_gfx_platform_window_show(internal->handle);
 }
 
 /******************************************************/
@@ -792,7 +797,8 @@ void gfx_window_hide(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(internal->handle) _gfx_platform_window_hide(internal->handle);
+	if(!_gfx_window_is_zombie(internal) && !internal->offscreen)
+		_gfx_platform_window_hide(internal->handle);
 }
 
 /******************************************************/
@@ -803,7 +809,7 @@ int gfx_window_set_swap_interval(
 {
 	/* Check on window handle */
 	const GFX_Window* internal = (GFX_Window*)window;
-	if(internal->handle)
+	if(!_gfx_window_is_zombie(internal) && !internal->offscreen)
 	{
 		/* Again make sure the main window is current afterwards */
 		num = _gfx_platform_context_set_swap_interval(internal->handle, num);

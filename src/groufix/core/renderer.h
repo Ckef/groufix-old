@@ -217,6 +217,7 @@ typedef struct GFX_Window
 	GFX_PlatformWindow   handle;
 	GFX_PlatformContext  context;
 
+	char                 offscreen;
 	GFX_Renderer         renderer; /* Renderer data */
 	GFX_RenderObjects    objects;  /* Per window render objects */
 
@@ -245,6 +246,9 @@ void _gfx_window_manager_terminate(void);
 /**
  * Returns the top level window associated with a platform window.
  *
+ * Note: does not return off-screen windows of dummy windows returned by
+ * _gfx_platform_context_create.
+ *
  */
 GFX_Window* _gfx_window_get_from_handle(
 
@@ -256,8 +260,8 @@ GFX_Window* _gfx_window_get_from_handle(
  * Note: events have no effect on an off-screen window.
  *
  * The returned window does not behave as a regular window,
- * the only valid operations are making it current and
- * using it as active renderer context.
+ * the only valid operations, besides destroying and freeing,
+ * are making it current and using it as active renderer context.
  *
  */
 GFX_Window* _gfx_window_create(void);
@@ -280,6 +284,8 @@ void _gfx_window_destroy(
  *
  * @param window The window to make current, NULL to unmake any window current.
  *
+ * This function is thread safe.
+ *
  */
 void _gfx_window_make_current(
 
@@ -289,6 +295,8 @@ void _gfx_window_make_current(
  * Returns the window as current context of the calling thread.
  *
  * @return The current window, can be NULL.
+ *
+ * This function is thread safe.
  *
  */
 GFX_Window* _gfx_window_get_current(void);

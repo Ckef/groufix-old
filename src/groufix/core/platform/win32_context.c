@@ -44,6 +44,7 @@ static HGLRC _gfx_win32_create_context(
 /******************************************************/
 GFX_PlatformContext _gfx_platform_context_create(
 
+		GFX_PlatformWindow*  handle,
 		int                  major,
 		int                  minor,
 		GFX_PlatformContext  share)
@@ -63,6 +64,8 @@ GFX_PlatformContext _gfx_platform_context_create(
 	if(!window->context)
 		_gfx_platform_window_free(window->handle);
 
+	/* Return dummy window and context */
+	*handle = window->handle;
 	return window->context;
 }
 
@@ -144,6 +147,19 @@ void _gfx_platform_context_swap_buffers(
 }
 
 /******************************************************/
+void _gfx_platform_context_make_current(
+
+		GFX_PlatformWindow   handle,
+		GFX_PlatformContext  context)
+{
+	if(!context)
+		wglMakeCurrent(NULL, NULL);
+
+	else if(handle)
+		wglMakeCurrent(GetDC(handle), context);
+}
+
+/******************************************************/
 void _gfx_platform_context_get(
 
 		int*  major,
@@ -155,26 +171,6 @@ void _gfx_platform_context_get(
 
 	*major = ma;
 	*minor = mi;
-}
-
-/******************************************************/
-void _gfx_platform_context_make_current(
-
-		GFX_PlatformContext context)
-{
-	if(!context)
-		wglMakeCurrent(NULL, NULL);
-
-	else
-	{
-		GFX_Win32_Window* window =
-			_gfx_win32_get_window_from_context(context);
-
-		if(window) wglMakeCurrent(
-			GetDC(window->handle),
-			window->context
-		);
-	}
 }
 
 /******************************************************/

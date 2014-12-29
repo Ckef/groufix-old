@@ -300,14 +300,18 @@ void _gfx_platform_poll_events(void);
 /**
  * Creates a new windowless renderer context.
  *
- * @param major Major context version.
- * @param minor Minor context version.
- * @param share Context to share resources with (can be NULL to not share).
+ * @param handle Allows the implementation to return a dummy window.
+ * @param major  Major context version.
+ * @param minor  Minor context version.
+ * @param share  Context to share resources with (can be NULL to not share).
  * @return A handle to the context (NULL on failure).
+ *
+ * Note: the dummy window may only be used in _gfx_platform_context_make_current.
  *
  */
 GFX_PlatformContext _gfx_platform_context_create(
 
+		GFX_PlatformWindow*  handle,
 		int                  major,
 		int                  minor,
 		GFX_PlatformContext  share);
@@ -316,6 +320,7 @@ GFX_PlatformContext _gfx_platform_context_create(
  * Destroys a windowless context.
  *
  * This method is allowed to make all contexts inactive.
+ * It should also destroy the dummy window.
  *
  */
 void _gfx_platform_context_free(
@@ -370,6 +375,20 @@ void _gfx_platform_context_swap_buffers(
 		GFX_PlatformWindow handle);
 
 /**
+ * Makes a context the active context.
+ *
+ * @param handle  Associated window, in case of windowless, the returned dummy window.
+ * @param context Context to make current, NULL to unmake any context current.
+ *
+ * This is the only function required to be thread safe.
+ *
+ */
+void _gfx_platform_context_make_current(
+
+		GFX_PlatformWindow   handle,
+		GFX_PlatformContext  context);
+
+/**
  * Returns the context version of the current context.
  *
  * @param major Return parameter for the major version, 0 on failure.
@@ -380,16 +399,6 @@ void _gfx_platform_context_get(
 
 		int*  major,
 		int*  minor);
-
-/**
- * Makes a context the active context.
- *
- * @param handle Context to make current, NULL to unmake any context current.
- *
- */
-void _gfx_platform_context_make_current(
-
-		GFX_PlatformContext context);
 
 /**
  * Returns the address to a process of the current context.

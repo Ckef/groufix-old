@@ -52,6 +52,7 @@ static GLXContext _gfx_x11_create_context(
 /******************************************************/
 GFX_PlatformContext _gfx_platform_context_create(
 
+		GFX_PlatformWindow*  handle,
 		int                  major,
 		int                  minor,
 		GFX_PlatformContext  share)
@@ -81,6 +82,7 @@ GFX_PlatformContext _gfx_platform_context_create(
 
 	XFree(config);
 
+	*handle = NULL;
 	return context;
 }
 
@@ -165,6 +167,28 @@ void _gfx_platform_context_swap_buffers(
 }
 
 /******************************************************/
+void _gfx_platform_context_make_current(
+
+		GFX_PlatformWindow   handle,
+		GFX_PlatformContext  context)
+{
+	if(!context) glXMakeCurrent(
+		_gfx_x11->display,
+		None,
+		NULL);
+
+	else if(handle) glXMakeCurrent(
+		_gfx_x11->display,
+		(Window)GFX_VOID_TO_UINT(handle),
+		context);
+
+	else glXMakeCurrent(
+		_gfx_x11->display,
+		XDefaultRootWindow(_gfx_x11->display),
+		context);
+}
+
+/******************************************************/
 void _gfx_platform_context_get(
 
 		int*  major,
@@ -176,31 +200,6 @@ void _gfx_platform_context_get(
 
 	*major = ma;
 	*minor = mi;
-}
-
-/******************************************************/
-void _gfx_platform_context_make_current(
-
-		GFX_PlatformContext context)
-{
-	if(!context)
-		glXMakeCurrent(_gfx_x11->display, None, NULL);
-
-	else
-	{
-		GFX_X11_Window* window =
-			_gfx_x11_get_window_from_context(context);
-
-		if(window) glXMakeCurrent(
-			_gfx_x11->display,
-			window->handle,
-			window->context);
-
-		else glXMakeCurrent(
-			_gfx_x11->display,
-			XDefaultRootWindow(_gfx_x11->display),
-			context);
-	}
 }
 
 /******************************************************/
