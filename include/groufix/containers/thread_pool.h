@@ -93,15 +93,16 @@ GFX_API unsigned char gfx_thread_pool_expand(
 /**
  * Shrinks a thread pool by a number of threads.
  *
+ * @param join Non-zero to block until the removed threads are done with their current task.
  * @return Number of threads terminated.
  *
  * This call undos the last yet to be undone call to gfx_thread_pool_expand.
- * If no such call was made, the threads the pool was created with will be terminated.
  *
  */
 GFX_API unsigned char gfx_thread_pool_shrink(
 
-		GFXThreadPool* pool);
+		GFXThreadPool*  pool,
+		int             join);
 
 /**
  * Pushes a new task to the queue of the thread pool.

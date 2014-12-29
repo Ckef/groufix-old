@@ -80,6 +80,16 @@ static inline GFX_PlatformThread* _gfx_thread_list_get(
 }
 
 /******************************************************/
+static void _gfx_thread_list_join(
+
+		struct GFX_ThreadList* list)
+{
+	unsigned char s;
+	for(s = 0; s < list->size; ++s)
+		_gfx_platform_thread_join(*_gfx_thread_list_get(list, s), NULL);
+}
+
+/******************************************************/
 static int _gfx_thread_pool_push(
 
 		struct GFX_Pool*  pool,
@@ -300,32 +310,24 @@ void gfx_thread_pool_free(
 
 		_gfx_platform_mutex_unlock(&internal->mutex);
 
-		/* Join all threads */
+		/* Join all dead threads */
 		struct GFX_ThreadList* node = internal->threads;
-		unsigned char s;
 
-		/* Dead threads */
 		for(
 			node = internal->deads;
 			node;
 			node = (struct GFX_ThreadList*)node->node.next)
 		{
-			for(s = 0; s < node->size; ++s) _gfx_platform_thread_join(
-				*_gfx_thread_list_get(node, s),
-				NULL
-			);
+			_gfx_thread_list_join(node);
 		}
 
-		/* Alive threads */
+		/* And join all alive threads */
 		for(
 			node = internal->threads;
 			node;
 			node = (struct GFX_ThreadList*)node->node.next)
 		{
-			for(s = 0; s < node->size; ++s) _gfx_platform_thread_join(
-				*_gfx_thread_list_get(node, s),
-				NULL
-			);
+			_gfx_thread_list_join(node);
 		}
 
 		/* Clear all the things */
@@ -378,6 +380,7 @@ unsigned char gfx_thread_pool_expand(
 	/* Initialize all threads */
 	unsigned char s;
 	for(s = 0; s < size; ++s)
+	{
 		if(!_gfx_platform_thread_init(
 			_gfx_thread_list_get(node, s),
 			_gfx_thread_addr,
@@ -386,6 +389,7 @@ unsigned char gfx_thread_pool_expand(
 		{
 			break;
 		}
+	}
 
 	node->size = s;
 	pool->size += s;
@@ -411,7 +415,8 @@ unsigned char gfx_thread_pool_expand(
 /******************************************************/
 unsigned char gfx_thread_pool_shrink(
 
-		GFXThreadPool* pool)
+		GFXThreadPool*  pool,
+		int             join)
 {
 	unsigned char threads = 0;
 
@@ -433,18 +438,29 @@ unsigned char gfx_thread_pool_shrink(
 
 		_gfx_platform_mutex_unlock(&internal->mutex);
 
-		/* Move node to dead nodes */
+		/* Remove the node */
 		internal->threads = (struct GFX_ThreadList*)gfx_list_unsplice(
 			(GFXList*)node,
 			(GFXList*)node
 		);
 
-		if(internal->deads) gfx_list_splice_before(
-			(GFXList*)node,
-			(GFXList*)internal->deads
-		);
+		if(join)
+		{
+			/* If asked to join, join then free the node */
+			_gfx_thread_list_join(node);
+			gfx_list_free((GFXList*)node);
+		}
 
-		internal->deads = node;
+		else
+		{
+			/* Move node to dead nodes to join later */
+			if(internal->deads) gfx_list_splice_before(
+				(GFXList*)node,
+				(GFXList*)internal->deads
+			);
+
+			internal->deads = node;
+		}
 	}
 
 	return threads;
