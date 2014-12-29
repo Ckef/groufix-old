@@ -49,6 +49,7 @@ struct GFX_ThreadList
 	unsigned char     alive; /* Whether or not these threads are still alive */
 	struct GFX_Pool*  pool;
 	unsigned char     size;  /* Number of threads of this particular node */
+	void*             arg;   /* Argument for initialization */
 };
 
 /* Internal thread pool */
@@ -182,7 +183,7 @@ static unsigned int _gfx_thread_addr(
 	arg = NULL;
 
 	if(pool->pool.init)
-		arg = pool->pool.init();
+		arg = pool->pool.init(node->arg);
 
 	/* Run as long as not terminating */
 	_gfx_platform_mutex_lock(&pool->mutex);
@@ -345,7 +346,8 @@ void gfx_thread_pool_free(
 unsigned char gfx_thread_pool_expand(
 
 		GFXThreadPool*  pool,
-		unsigned char   size)
+		unsigned char   size,
+		void*           arg)
 {
 	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
 
@@ -371,6 +373,7 @@ unsigned char gfx_thread_pool_expand(
 
 	node->alive = 1;
 	node->pool = internal;
+	node->arg = arg;
 
 	/* Initialize all threads */
 	unsigned char s;

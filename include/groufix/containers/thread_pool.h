@@ -31,7 +31,7 @@ typedef void (*GFXThreadPoolTask) (void*);
 
 
 /** Thread initialization */
-typedef void* (*GFXThreadPoolInit) (void);
+typedef void* (*GFXThreadPoolInit) (void*);
 
 
 /** Thread termination */
@@ -80,13 +80,15 @@ GFX_API void gfx_thread_pool_free(
  * Expands a thread pool by a number of threads.
  *
  * @param size Number of threads to add to the pool.
+ * @param arg  Argument to be given to the init function of all threads.
  * @return Actual number of threads created (<= size).
  *
  */
 GFX_API unsigned char gfx_thread_pool_expand(
 
 		GFXThreadPool*  pool,
-		unsigned char   size);
+		unsigned char   size,
+		void*           arg);
 
 /**
  * Shrinks a thread pool by a number of threads.
