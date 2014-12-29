@@ -229,7 +229,6 @@ static unsigned int _gfx_thread_addr(
 /******************************************************/
 GFXThreadPool* gfx_thread_pool_create(
 
-		unsigned char           size,
 		GFXThreadPoolInit       init,
 		GFXThreadPoolTerminate  terminate,
 		int                     suspend)
@@ -268,16 +267,7 @@ GFXThreadPool* gfx_thread_pool_create(
 				pool->threads = NULL;
 				pool->deads = NULL;
 
-				/* Attempt to add the threads */
-				if(!size)
-					return (GFXThreadPool*)pool;
-
-				if(gfx_thread_pool_expand((GFXThreadPool*)pool, size))
-					return (GFXThreadPool*)pool;
-
-				/* Failure */
-				gfx_vector_clear(&pool->tasks);
-				_gfx_platform_cond_clear(&pool->flush);
+				return (GFXThreadPool*)pool;
 			}
 
 			_gfx_platform_cond_clear(&pool->assign);

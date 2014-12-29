@@ -55,7 +55,7 @@ extern "C" {
  *******************************************************/
 
 /** Process Address */
-typedef void (*GFX_ProcAddress)(void);
+typedef void (*GFX_ProcAddress) (void);
 
 
 /** A Screen */

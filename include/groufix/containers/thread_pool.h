@@ -51,7 +51,6 @@ typedef struct GFXThreadPool
 /**
  * Creates a new thread pool.
  *
- * @param size      Number of threads to create.
  * @param init      Initialization function to initialize all threads with (can be NULL).
  * @param terminate Termination function to terminate all threads with (can be NULL).
  * @param suspend   Non-zero if the pool should initialize into a suspended state.
@@ -63,7 +62,6 @@ typedef struct GFXThreadPool
  */
 GFX_API GFXThreadPool* gfx_thread_pool_create(
 
-		unsigned char           size,
 		GFXThreadPoolInit       init,
 		GFXThreadPoolTerminate  terminate,
 		int                     suspend);
