@@ -176,51 +176,52 @@ static unsigned int _gfx_thread_addr(
 		void* arg)
 {
 	struct GFX_ThreadList* node = (struct GFX_ThreadList*)arg;
+	struct GFX_Pool* pool = node->pool;
 
 	/* Initialize */
 	arg = NULL;
 
-	if(node->pool->pool.init)
-		arg = node->pool->pool.init();
+	if(pool->pool.init)
+		arg = pool->pool.init();
 
 	/* Run as long as not terminating */
-	_gfx_platform_mutex_lock(&node->pool->mutex);
+	_gfx_platform_mutex_lock(&pool->mutex);
 
 	while(
 		node->alive &&
-		node->pool->status != GFX_INT_POOL_TERMINATE)
+		pool->status != GFX_INT_POOL_TERMINATE)
 	{
 		/* If allowed and available, perform a task */
 		if(
-			node->pool->status == GFX_INT_POOL_RESUMED &&
-			node->pool->tasks.begin != node->pool->tasks.end)
+			pool->status == GFX_INT_POOL_RESUMED &&
+			pool->tasks.begin != pool->tasks.end)
 		{
-			struct GFX_Task task = _gfx_thread_pool_pop(node->pool);
+			struct GFX_Task task = _gfx_thread_pool_pop(pool);
 
 			/* Tell flushing threads that everything is flushed */
-			if(node->pool->tasks.begin == node->pool->tasks.end)
-				_gfx_platform_cond_broadcast(&node->pool->flush);
+			if(pool->tasks.begin == pool->tasks.end)
+				_gfx_platform_cond_broadcast(&pool->flush);
 
 			/* Unlock during task */
-			_gfx_platform_mutex_unlock(&node->pool->mutex);
+			_gfx_platform_mutex_unlock(&pool->mutex);
 
 			task.task(task.data);
 
-			_gfx_platform_mutex_lock(&node->pool->mutex);
+			_gfx_platform_mutex_lock(&pool->mutex);
 		}
 
 		/* If not, block */
 		else _gfx_platform_cond_wait(
-			&node->pool->assign,
-			&node->pool->mutex
+			&pool->assign,
+			&pool->mutex
 		);
 	}
 
-	_gfx_platform_mutex_unlock(&node->pool->mutex);
+	_gfx_platform_mutex_unlock(&pool->mutex);
 
 	/* Terminate */
-	if(node->pool->pool.terminate)
-		node->pool->pool.terminate(arg);
+	if(pool->pool.terminate)
+		pool->pool.terminate(arg);
 
 	return 0;
 }
