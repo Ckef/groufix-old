@@ -75,14 +75,19 @@ static GFX_PlatformContext _gfx_window_context_create(
 		max.minor >= _gfx_context.minor))
 	{
 		/* Try to create it */
+		GFX_PlatformWindow wind;
 		GFX_PlatformContext cont;
 
 		if(*window) cont =
 			_gfx_platform_context_init(*window, max.major, max.minor, share);
 		else cont =
-			_gfx_platform_context_create(window, max.major, max.minor, share);
+			_gfx_platform_context_create(&wind, max.major, max.minor, share);
 
-		if(cont) return cont;
+		if(cont)
+		{
+			*window = *window ? *window : wind;
+			return cont;
+		}
 
 		/* Previous version */
 		if(!max.minor)
