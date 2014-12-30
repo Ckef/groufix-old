@@ -476,8 +476,13 @@ void _gfx_window_swap_buffers(void)
 			_gfx_platform_context_swap_buffers(window->handle);
 
 		/* Poll errors while it's current */
+		/* Ignore error mode if debugging */
+
+#ifdef NDEBUG
 		if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG)
 		{
+#endif
+
 			/* Loop over all errors */
 			GLenum err = window->renderer.GetError();
 			while(err != GL_NO_ERROR)
@@ -485,7 +490,11 @@ void _gfx_window_swap_buffers(void)
 				gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
 				err = window->renderer.GetError();
 			}
+
+#ifdef NDEBUG
 		}
+#endif
+
 	}
 }
 

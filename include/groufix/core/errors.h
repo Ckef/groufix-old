@@ -80,6 +80,9 @@ typedef struct GFXError
  *
  * @param mode The error mode to use, debug reports hardware (OpenGL) errors as well.
  *
+ * Note: if groufix is compiled with DEBUG=YES, the error mode will be ignored
+ * in some cases and assumed to be GFX_ERROR_MODE_DEBUG instead.
+ *
  */
 GFX_API void gfx_set_error_mode(
 
