@@ -20,18 +20,20 @@
 
 /******************************************************/
 /* Internal thread arguments */
-struct GFX_ThreadArgs
+typedef struct GFX_ThreadArgs
 {
 	GFX_ThreadAddress  addr;
 	void*              args;
-};
+
+} GFX_ThreadArgs;
+
 
 /******************************************************/
 static void* _gfx_unix_thread_addr(
 
 		void* arg)
 {
-	struct GFX_ThreadArgs data = *(struct GFX_ThreadArgs*)arg;
+	GFX_ThreadArgs data = *(GFX_ThreadArgs*)arg;
 	free(arg);
 
 	return GFX_UINT_TO_VOID(data.addr(data.args));
@@ -46,7 +48,7 @@ int _gfx_platform_thread_init(
 		int                  joinable)
 {
 	/* Create arguments */
-	struct GFX_ThreadArgs* data = malloc(sizeof(struct GFX_ThreadArgs));
+	GFX_ThreadArgs* data = malloc(sizeof(GFX_ThreadArgs));
 	if(!data) return 0;
 
 	data->addr = func;

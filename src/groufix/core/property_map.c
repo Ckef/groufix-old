@@ -44,7 +44,7 @@ typedef void (*GFX_PropertyFunc)(
 
 
 /* Internal property map */
-struct GFX_Map
+typedef struct GFX_Map
 {
 	/* Super Class */
 	GFXPropertyMap map;
@@ -53,56 +53,67 @@ struct GFX_Map
 	GFXVector      data;     /* Data of all properties */
 	unsigned char  samplers; /* Number of sampler properties */
 	unsigned char  blocks;   /* Number of block properties */
-};
+
+} GFX_Map;
+
 
 /* Internal property */
-struct GFX_Property
+typedef struct GFX_Property
 {
 	GLuint         handle;   /* OpenGL program handle */
 	unsigned char  type;     /* Internal type and other flags */
 	GLuint         location; /* Block index or uniform location */
 	size_t         index;    /* Of value in value vector */
-};
+
+} GFX_Property;
+
 
 /* Internal vector/matrix (a.k.a value) header */
-struct GFX_Value
+typedef struct GFX_Value
 {
 	GFXUnpackedType  type;
 	unsigned char    components;
 	size_t           count;
 	size_t           size; /* Size of the entire value (of a single copy) in bytes */
-};
+
+} GFX_Value;
 
 
 /* Internal vector/matrix pointer body */
-struct GFX_ValuePtr
+typedef struct GFX_ValuePtr
 {
 	const void*  ptr;
 	size_t       size;   /* Max number of elements which can be read */
 	size_t       offset; /* Per instance offset in array elements */
 	size_t       bytes;  /* Per instance offset in bytes */
-};
+
+} GFX_ValuePtr;
+
 
 /* Internal sampler body */
-struct GFX_Sampler
+typedef struct GFX_Sampler
 {
 	GLuint  texture;
 	GLuint  target;
-};
+
+} GFX_Sampler;
+
 
 /* Internal block body */
-struct GFX_Block
+typedef struct GFX_Block
 {
 	GLuint      buffer;
 	GLintptr    offset;
 	GLsizeiptr  size;
-};
+
+} GFX_Block;
+
 
 /******************************************************/
 static int _gfx_property_map_eval_limits(
 
-		struct GFX_Map*  map,
-		unsigned char    type,
+		GFX_Map*       map,
+		unsigned char  type,
 		GFX_WIND_ARG)
 {
 	switch(type)
@@ -141,20 +152,20 @@ static int _gfx_property_map_eval_limits(
 }
 
 /******************************************************/
-static inline struct GFX_Property* _gfx_property_map_get_at(
+static inline GFX_Property* _gfx_property_map_get_at(
 
-		struct GFX_Map*  map,
-		unsigned char    index)
+		GFX_Map*       map,
+		unsigned char  index)
 {
 	return index >= map->map.properties ?
-		NULL : ((struct GFX_Property*)(map + 1)) + index;
+		NULL : ((GFX_Property*)(map + 1)) + index;
 }
 
 /******************************************************/
 static inline void* _gfx_property_get_data(
 
-		struct GFX_Map*       map,
-		struct GFX_Property*  prop)
+		GFX_Map*       map,
+		GFX_Property*  prop)
 {
 	return gfx_vector_at(&map->data, prop->index);
 }
@@ -184,22 +195,22 @@ static inline void* _gfx_property_derive_copy(
 	{
 		case GFX_INT_PROPERTY_VECTOR :
 		case GFX_INT_PROPERTY_MATRIX :
-			*copySize = ((struct GFX_Value*)data)->size;
-			data = GFX_PTR_ADD_BYTES(data, sizeof(struct GFX_Value));
+			*copySize = ((GFX_Value*)data)->size;
+			data = GFX_PTR_ADD_BYTES(data, sizeof(GFX_Value));
 			break;
 
 		case GFX_INT_PROPERTY_VECTOR_PTR :
 		case GFX_INT_PROPERTY_MATRIX_PTR :
-			*copySize = sizeof(struct GFX_ValuePtr);
-			data = GFX_PTR_ADD_BYTES(data, sizeof(struct GFX_Value));
+			*copySize = sizeof(GFX_ValuePtr);
+			data = GFX_PTR_ADD_BYTES(data, sizeof(GFX_Value));
 			break;
 
 		case GFX_INT_PROPERTY_SAMPLER :
-			*copySize = sizeof(struct GFX_Sampler);
+			*copySize = sizeof(GFX_Sampler);
 			break;
 
 		case GFX_INT_PROPERTY_BLOCK :
-			*copySize = sizeof(struct GFX_Block);
+			*copySize = sizeof(GFX_Block);
 			break;
 	}
 
@@ -223,11 +234,11 @@ static void _gfx_property_set_empty(
 /******************************************************/
 static inline void _gfx_property_set_vector_val(
 
-		GLuint             program,
-		GLuint             location,
-		struct GFX_Value*  val,
-		const void*        data,
-		size_t             elements,
+		GLuint       program,
+		GLuint       location,
+		GFX_Value*   val,
+		const void*  data,
+		size_t       elements,
 		GFX_WIND_ARG)
 {
 	switch(val->type)
@@ -292,16 +303,16 @@ static void _gfx_property_set_vector(
 {
 	void* val = _gfx_property_get_copy(
 		flags,
-		GFX_PTR_ADD_BYTES(data, sizeof(struct GFX_Value)),
-		((struct GFX_Value*)data)->size,
+		GFX_PTR_ADD_BYTES(data, sizeof(GFX_Value)),
+		((GFX_Value*)data)->size,
 		copy);
 
 	_gfx_property_set_vector_val(
 		program,
 		location,
-		(struct GFX_Value*)data,
+		(GFX_Value*)data,
 		val,
-		((struct GFX_Value*)data)->count,
+		((GFX_Value*)data)->count,
 		GFX_WIND_AS_ARG);
 }
 
@@ -316,15 +327,15 @@ static void _gfx_property_set_vector_ptr(
 		unsigned int   base,
 		GFX_WIND_ARG)
 {
-	struct GFX_ValuePtr* ptr = _gfx_property_get_copy(
+	GFX_ValuePtr* ptr = _gfx_property_get_copy(
 		flags,
-		GFX_PTR_ADD_BYTES(data, sizeof(struct GFX_Value)),
-		sizeof(struct GFX_ValuePtr),
+		GFX_PTR_ADD_BYTES(data, sizeof(GFX_Value)),
+		sizeof(GFX_ValuePtr),
 		copy
 	);
 
 	/* Compute number of elements to upload */
-	struct GFX_Value* val = (struct GFX_Value*)data;
+	GFX_Value* val = (GFX_Value*)data;
 
 	size_t elements = base * ptr->offset;
 	elements = (elements > ptr->size) ? 0 : ptr->size - elements;
@@ -342,11 +353,11 @@ static void _gfx_property_set_vector_ptr(
 /******************************************************/
 static inline void _gfx_property_set_matrix_val(
 
-		GLuint             program,
-		GLuint             location,
-		struct GFX_Value*  val,
-		const void*        data,
-		size_t             elements,
+		GLuint       program,
+		GLuint       location,
+		GFX_Value*   val,
+		const void*  data,
+		size_t       elements,
 		GFX_WIND_ARG)
 {
 	switch(val->type)
@@ -381,16 +392,16 @@ static void _gfx_property_set_matrix(
 {
 	void* val = _gfx_property_get_copy(
 		flags,
-		GFX_PTR_ADD_BYTES(data, sizeof(struct GFX_Value)),
-		((struct GFX_Value*)data)->size,
+		GFX_PTR_ADD_BYTES(data, sizeof(GFX_Value)),
+		((GFX_Value*)data)->size,
 		copy);
 
 	_gfx_property_set_matrix_val(
 		program,
 		location,
-		(struct GFX_Value*)data,
+		(GFX_Value*)data,
 		val,
-		((struct GFX_Value*)data)->count,
+		((GFX_Value*)data)->count,
 		GFX_WIND_AS_ARG);
 }
 
@@ -405,15 +416,15 @@ static void _gfx_property_set_matrix_ptr(
 		unsigned int   base,
 		GFX_WIND_ARG)
 {
-	struct GFX_ValuePtr* ptr = _gfx_property_get_copy(
+	GFX_ValuePtr* ptr = _gfx_property_get_copy(
 		flags,
-		GFX_PTR_ADD_BYTES(data, sizeof(struct GFX_Value)),
-		sizeof(struct GFX_ValuePtr),
+		GFX_PTR_ADD_BYTES(data, sizeof(GFX_Value)),
+		sizeof(GFX_ValuePtr),
 		copy
 	);
 
 	/* Compute number of elements to upload */
-	struct GFX_Value* val = (struct GFX_Value*)data;
+	GFX_Value* val = (GFX_Value*)data;
 
 	size_t elements = base * ptr->offset;
 	elements = (elements > ptr->size) ? 0 : ptr->size - elements;
@@ -439,10 +450,10 @@ static void _gfx_property_set_sampler(
 		unsigned int   base,
 		GFX_WIND_ARG)
 {
-	struct GFX_Sampler* val = _gfx_property_get_copy(
+	GFX_Sampler* val = _gfx_property_get_copy(
 		flags,
 		data,
-		sizeof(struct GFX_Sampler),
+		sizeof(GFX_Sampler),
 		copy
 	);
 
@@ -471,10 +482,10 @@ static void _gfx_property_set_block(
 		unsigned int   base,
 		GFX_WIND_ARG)
 {
-	struct GFX_Block* val = _gfx_property_get_copy(
+	GFX_Block* val = _gfx_property_get_copy(
 		flags,
 		data,
-		sizeof(struct GFX_Block),
+		sizeof(GFX_Block),
 		copy
 	);
 
@@ -500,7 +511,7 @@ void _gfx_property_map_use(
 		unsigned int     base,
 		GFX_WIND_ARG)
 {
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 
 	/* Use program map */
 	_gfx_program_map_use(map->programMap, GFX_WIND_AS_ARG);
@@ -509,10 +520,10 @@ void _gfx_property_map_use(
 	copy = (copy < map->copies) ? copy : map->copies - 1;
 
 	/* Set all values of the program */
-	struct GFX_Property* prop;
+	GFX_Property* prop;
 	unsigned char properties = map->properties;
 
-	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
+	for(prop = (GFX_Property*)(internal + 1); properties--; ++prop)
 	{
 		/* Jump table */
 		static const GFX_PropertyFunc jump[] =
@@ -551,10 +562,10 @@ GFXPropertyMap* gfx_property_map_create(
 
 	/* Create new property map, append properties to end of struct */
 	size_t size =
-		sizeof(struct GFX_Map) +
-		properties * sizeof(struct GFX_Property);
+		sizeof(GFX_Map) +
+		properties * sizeof(GFX_Property);
 
-	struct GFX_Map* map = calloc(1, size);
+	GFX_Map* map = calloc(1, size);
 	if(!map)
 	{
 		/* Out of memory error */
@@ -572,8 +583,8 @@ GFXPropertyMap* gfx_property_map_create(
 	map->map.copies = 1;
 
 	/* Initialize all properties */
-	struct GFX_Property* prop;
-	for(prop = (struct GFX_Property*)(map + 1); properties--; ++prop)
+	GFX_Property* prop;
+	for(prop = (GFX_Property*)(map + 1); properties--; ++prop)
 	{
 		prop->type = GFX_INT_PROPERTY_EMPTY;
 		prop->location = GL_INVALID_INDEX;
@@ -591,7 +602,7 @@ void gfx_property_map_free(
 {
 	if(map)
 	{
-		struct GFX_Map* internal = (struct GFX_Map*)map;
+		GFX_Map* internal = (GFX_Map*)map;
 
 		/* Unblock the associated program map */
 		_gfx_program_map_unblock(map->programMap);
@@ -620,15 +631,15 @@ int gfx_property_map_expand(
 		return 0;
 	}
 
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 
 	/* Calculate the needed memory */
 	size_t dSize = gfx_vector_get_byte_size(&internal->data);
 
-	struct GFX_Property* prop;
+	GFX_Property* prop;
 	unsigned char properties = map->properties;
 
-	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
+	for(prop = (GFX_Property*)(internal + 1); properties--; ++prop)
 		if(prop->type & GFX_INT_PROPERTY_HAS_COPIES)
 		{
 			size_t copySize = 0;
@@ -649,7 +660,7 @@ int gfx_property_map_expand(
 	/* Iterate and insert copies */
 	properties = map->properties;
 
-	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
+	for(prop = (GFX_Property*)(internal + 1); properties--; ++prop)
 		if(prop->type & GFX_INT_PROPERTY_HAS_COPIES)
 		{
 			size_t copySize = 0;
@@ -670,10 +681,10 @@ int gfx_property_map_expand(
 			memset(it, 0, copySize);
 
 			/* Adjust value index of all properties */
-			struct GFX_Property* Iprop;
+			GFX_Property* Iprop;
 			unsigned char Iprops = map->properties;
 
-			for(Iprop = (struct GFX_Property*)(internal + 1); Iprops--; ++Iprop)
+			for(Iprop = (GFX_Property*)(internal + 1); Iprops--; ++Iprop)
 				if(Iprop->index > prop->index) Iprop->index += copySize;
 		}
 
@@ -690,17 +701,17 @@ unsigned int gfx_property_map_shrink(
 		unsigned int     num)
 {
 	if(!num) return 0;
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 
 	/* Clamp copies to remove */
 	if(num >= map->copies) num = map->copies - 1;
 	map->copies -= num;
 
 	/* Iterate over properties and erase */
-	struct GFX_Property* prop;
+	GFX_Property* prop;
 	unsigned char properties = map->properties;
 
-	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
+	for(prop = (GFX_Property*)(internal + 1); properties--; ++prop)
 		if(prop->type & GFX_INT_PROPERTY_HAS_COPIES)
 		{
 			size_t copySize = 0;
@@ -717,10 +728,10 @@ unsigned int gfx_property_map_shrink(
 				it);
 
 			/* Adjust value index of all properties */
-			struct GFX_Property* Iprop;
+			GFX_Property* Iprop;
 			unsigned char Iprops = map->properties;
 
-			for(Iprop = (struct GFX_Property*)(internal + 1); Iprops--; ++Iprop)
+			for(Iprop = (GFX_Property*)(internal + 1); Iprops--; ++Iprop)
 				if(Iprop->index > prop->index) Iprop->index -= copySize;
 		}
 
@@ -735,17 +746,17 @@ int gfx_property_map_move(
 		unsigned int     src,
 		unsigned int     num)
 {
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 
 	/* Validate indices */
 	if(dest + num > map->copies || src + num > map->copies) return 0;
 	if(dest == src || !num) return 1;
 
 	/* Iterate over properties and move */
-	struct GFX_Property* prop;
+	GFX_Property* prop;
 	unsigned char properties = map->properties;
 
-	for(prop = (struct GFX_Property*)(internal + 1); properties--; ++prop)
+	for(prop = (GFX_Property*)(internal + 1); properties--; ++prop)
 		if(prop->type & GFX_INT_PROPERTY_HAS_COPIES)
 		{
 			size_t copySize = 0;
@@ -767,8 +778,8 @@ int gfx_property_map_move(
 /******************************************************/
 static void _gfx_property_map_disable(
 
-		struct GFX_Map*       map,
-		struct GFX_Property*  prop)
+		GFX_Map*       map,
+		GFX_Property*  prop)
 {
 	if(prop->type != GFX_INT_PROPERTY_EMPTY)
 	{
@@ -782,18 +793,18 @@ static void _gfx_property_map_disable(
 		}
 
 		/* Get the range to remove from the data */
-		struct GFX_Property* it;
+		GFX_Property* it;
 		size_t end = gfx_vector_get_byte_size(&map->data);
 		unsigned char properties = map->map.properties;
 
-		for(it = (struct GFX_Property*)(map + 1); properties--; ++it)
+		for(it = (GFX_Property*)(map + 1); properties--; ++it)
 			if(it->index > prop->index && it->index < end) end = it->index;
 
 		/* Adjust value index of all properties */
 		size_t offset = end - prop->index;
 		properties = map->map.properties;
 
-		for(it = (struct GFX_Property*)(map + 1); properties--; ++it)
+		for(it = (GFX_Property*)(map + 1); properties--; ++it)
 			if(it->index > prop->index) it->index -= offset;
 
 		/* Erase from data */
@@ -809,11 +820,11 @@ static void _gfx_property_map_disable(
 /******************************************************/
 static int _gfx_property_map_forward(
 
-		struct GFX_Map*       map,
-		struct GFX_Property*  prop,
-		const void*           headData,
-		size_t                headSize,
-		size_t                copySize,
+		GFX_Map*       map,
+		GFX_Property*  prop,
+		const void*    headData,
+		size_t         headSize,
+		size_t         copySize,
 		GFX_WIND_ARG)
 {
 	/* Attempt to allocate */
@@ -830,11 +841,11 @@ static int _gfx_property_map_forward(
 	if(it != map->data.end)
 	{
 		/* Disable any identical properties */
-		struct GFX_Property* disable;
+		GFX_Property* disable;
 		unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
 		unsigned char properties = map->map.properties;
 
-		for(disable = (struct GFX_Property*)(map + 1); properties--; ++disable)
+		for(disable = (GFX_Property*)(map + 1); properties--; ++disable)
 			if(
 				disable != prop &&
 				(disable->type & ~GFX_INT_PROPERTY_HAS_COPIES) == type &&
@@ -884,9 +895,9 @@ int gfx_property_map_forward(
 	GFXProgram* prog = gfx_program_map_get(map->programMap, stage);
 	if(!prog) return 0;
 
-	struct GFX_Map* internal =
-		(struct GFX_Map*)map;
-	struct GFX_Property* forward =
+	GFX_Map* internal =
+		(GFX_Map*)map;
+	GFX_Property* forward =
 		_gfx_property_map_get_at(internal, index);
 
 	/* Get property and location */
@@ -904,10 +915,12 @@ int gfx_property_map_forward(
 	_gfx_property_map_disable(internal, forward);
 
 	/* Calcualte copy size for values */
-	struct GFX_Value head;
-	head.type       = prop->dataType;
-	head.components = prop->components;
-	head.count      = prop->count;
+	GFX_Value head =
+	{
+		.type       = prop->dataType,
+		.components = prop->components,
+		.count      = prop->count
+	};
 
 	GFXDataType dataType;
 	dataType.unpacked = prop->dataType;
@@ -925,19 +938,19 @@ int gfx_property_map_forward(
 	{
 		case GFX_VECTOR_PROPERTY :
 			forward->type = ptr ? GFX_INT_PROPERTY_VECTOR_PTR : GFX_INT_PROPERTY_VECTOR;
-			headSize = sizeof(struct GFX_Value);
-			copySize = ptr ? sizeof(struct GFX_ValuePtr) : head.size;
+			headSize = sizeof(GFX_Value);
+			copySize = ptr ? sizeof(GFX_ValuePtr) : head.size;
 			break;
 
 		case GFX_MATRIX_PROPERTY :
 			forward->type = ptr ? GFX_INT_PROPERTY_MATRIX_PTR : GFX_INT_PROPERTY_MATRIX;
-			headSize = sizeof(struct GFX_Value);
-			copySize = ptr ? sizeof(struct GFX_ValuePtr) : head.size;
+			headSize = sizeof(GFX_Value);
+			copySize = ptr ? sizeof(GFX_ValuePtr) : head.size;
 			break;
 
 		case GFX_SAMPLER_PROPERTY :
 			forward->type = GFX_INT_PROPERTY_SAMPLER;
-			copySize = sizeof(struct GFX_Sampler);
+			copySize = sizeof(GFX_Sampler);
 			break;
 
 		/* I don't know D: */
@@ -996,9 +1009,9 @@ int gfx_property_map_forward_block(
 	GFXProgram* prog = gfx_program_map_get(map->programMap, stage);
 	if(!prog) return 0;
 
-	struct GFX_Map* internal =
-		(struct GFX_Map*)map;
-	struct GFX_Property* forward =
+	GFX_Map* internal =
+		(GFX_Map*)map;
+	GFX_Property* forward =
 		_gfx_property_map_get_at(internal, index);
 
 	/* Get block */
@@ -1028,7 +1041,7 @@ int gfx_property_map_forward_block(
 		forward,
 		NULL,
 		0,
-		sizeof(struct GFX_Block),
+		sizeof(GFX_Block),
 		GFX_WIND_AS_ARG
 	);
 }
@@ -1063,9 +1076,9 @@ int gfx_property_map_set_value(
 		size_t           offset,
 		size_t           size)
 {
-	struct GFX_Map* internal =
-		(struct GFX_Map*)map;
-	struct GFX_Property* prop =
+	GFX_Map* internal =
+		(GFX_Map*)map;
+	GFX_Property* prop =
 		_gfx_property_map_get_at(internal, index);
 
 	if(!prop || copy >= map->copies) return 0;
@@ -1080,13 +1093,13 @@ int gfx_property_map_set_value(
 	}
 
 	/* Get data */
-	struct GFX_Value* val = _gfx_property_get_data(
+	GFX_Value* val = _gfx_property_get_data(
 		internal,
 		prop);
 
 	void* data = _gfx_property_get_copy(
 		prop->type,
-		GFX_PTR_ADD_BYTES(val, sizeof(struct GFX_Value)),
+		GFX_PTR_ADD_BYTES(val, sizeof(GFX_Value)),
 		val->size,
 		copy);
 
@@ -1112,9 +1125,9 @@ int gfx_property_map_set_value_pointer(
 		size_t           offset,
 		size_t           size)
 {
-	struct GFX_Map* internal =
-		(struct GFX_Map*)map;
-	struct GFX_Property* prop =
+	GFX_Map* internal =
+		(GFX_Map*)map;
+	GFX_Property* prop =
 		_gfx_property_map_get_at(internal, index);
 
 	if(!prop || copy >= map->copies || offset > size) return 0;
@@ -1129,14 +1142,14 @@ int gfx_property_map_set_value_pointer(
 	}
 
 	/* Get data */
-	struct GFX_Value* val = _gfx_property_get_data(
+	GFX_Value* val = _gfx_property_get_data(
 		internal,
 		prop);
 
-	struct GFX_ValuePtr* data = _gfx_property_get_copy(
+	GFX_ValuePtr* data = _gfx_property_get_copy(
 		prop->type,
-		GFX_PTR_ADD_BYTES(val, sizeof(struct GFX_Value)),
-		sizeof(struct GFX_ValuePtr),
+		GFX_PTR_ADD_BYTES(val, sizeof(GFX_Value)),
+		sizeof(GFX_ValuePtr),
 		copy);
 
 	/* Scale offset by array element size */
@@ -1163,9 +1176,9 @@ int gfx_property_map_set_instance_offset(
 		unsigned int     copy,
 		unsigned int     offset)
 {
-	struct GFX_Map* internal =
-		(struct GFX_Map*)map;
-	struct GFX_Property* prop =
+	GFX_Map* internal =
+		(GFX_Map*)map;
+	GFX_Property* prop =
 		_gfx_property_map_get_at(internal, index);
 
 	if(!prop || copy >= map->copies) return 0;
@@ -1180,14 +1193,14 @@ int gfx_property_map_set_instance_offset(
 	}
 
 	/* Get data */
-	struct GFX_Value* val = _gfx_property_get_data(
+	GFX_Value* val = _gfx_property_get_data(
 		internal,
 		prop);
 
-	struct GFX_ValuePtr* data = _gfx_property_get_copy(
+	GFX_ValuePtr* data = _gfx_property_get_copy(
 		prop->type,
-		GFX_PTR_ADD_BYTES(val, sizeof(struct GFX_Value)),
-		sizeof(struct GFX_ValuePtr),
+		GFX_PTR_ADD_BYTES(val, sizeof(GFX_Value)),
+		sizeof(GFX_ValuePtr),
 		copy);
 
 	/* Calculate array element size and multiply by offset */
@@ -1210,9 +1223,9 @@ int gfx_property_map_set_sampler(
 		unsigned int       copy,
 		const GFXTexture*  texture)
 {
-	struct GFX_Map* internal =
-		(struct GFX_Map*)map;
-	struct GFX_Property* prop =
+	GFX_Map* internal =
+		(GFX_Map*)map;
+	GFX_Property* prop =
 		_gfx_property_map_get_at(internal, index);
 
 	if(!prop || copy >= map->copies) return 0;
@@ -1222,14 +1235,14 @@ int gfx_property_map_set_sampler(
 	if(type != GFX_INT_PROPERTY_SAMPLER) return 0;
 
 	/* Get data */
-	struct GFX_Sampler* samp = _gfx_property_get_data(
+	GFX_Sampler* samp = _gfx_property_get_data(
 		internal,
 		prop);
 
 	samp = _gfx_property_get_copy(
 		prop->type,
 		samp,
-		sizeof(struct GFX_Sampler),
+		sizeof(GFX_Sampler),
 		copy);
 
 	/* Set data */
@@ -1242,14 +1255,14 @@ int gfx_property_map_set_sampler(
 /******************************************************/
 static int _gfx_property_map_set_block(
 
-		struct GFX_Map*  map,
-		unsigned char    index,
-		unsigned int     copy,
-		GLuint           buffer,
-		size_t           offset,
-		size_t           size)
+		GFX_Map*       map,
+		unsigned char  index,
+		unsigned int   copy,
+		GLuint         buffer,
+		size_t         offset,
+		size_t         size)
 {
-	struct GFX_Property* prop =
+	GFX_Property* prop =
 		_gfx_property_map_get_at(map, index);
 
 	if(!prop || copy >= map->map.copies) return 0;
@@ -1259,14 +1272,14 @@ static int _gfx_property_map_set_block(
 	if(type != GFX_INT_PROPERTY_BLOCK) return 0;
 
 	/* Get data */
-	struct GFX_Block* block = _gfx_property_get_data(
+	GFX_Block* block = _gfx_property_get_data(
 		map,
 		prop);
 
 	block = _gfx_property_get_copy(
 		prop->type,
 		block,
-		sizeof(struct GFX_Block),
+		sizeof(GFX_Block),
 		copy);
 
 	/* Set data */
@@ -1287,7 +1300,7 @@ int gfx_property_map_set_buffer(
 		size_t            offset,
 		size_t            size)
 {
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 
 	return _gfx_property_map_set_block(
 		internal,
@@ -1309,7 +1322,7 @@ int gfx_property_map_set_shared_buffer(
 		size_t                  offset,
 		size_t                  size)
 {
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 
 	return _gfx_property_map_set_block(
 		internal,

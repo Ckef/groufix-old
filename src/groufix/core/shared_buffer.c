@@ -24,11 +24,13 @@
 /* Size of a new shared buffer */
 static unsigned long _gfx_shared_buffer_size = GFX_SHARED_BUFFER_SIZE_DEFAULT;
 
+
 /* All shared buffers */
 static GFXVector* _gfx_shared_buffers = NULL;
 
+
 /* Internal Shared Buffer */
-struct GFX_SharedBuffer
+typedef struct GFX_SharedBuffer
 {
 	GFX_RenderObjectID  id;
 	GLuint              handle;   /* OpenGL handle */
@@ -36,14 +38,18 @@ struct GFX_SharedBuffer
 	GFXBufferTarget     target;
 	size_t              size;     /* In bytes */
 	GFXVector           segments; /* Taken segments of the buffer */
-};
+
+} GFX_SharedBuffer;
+
 
 /* Internal Segment */
-struct GFX_Segment
+typedef struct GFX_Segment
 {
 	size_t offset; /* Sort key */
 	size_t size;
-};
+
+} GFX_Segment;
+
 
 /******************************************************/
 static void _gfx_shared_buffer_obj_free(
@@ -51,7 +57,7 @@ static void _gfx_shared_buffer_obj_free(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
+	GFX_SharedBuffer* buff = (GFX_SharedBuffer*)object;
 
 	buff->id = id;
 	buff->handle = 0;
@@ -66,7 +72,7 @@ static void _gfx_shared_buffer_obj_save_restore(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)object;
+	GFX_SharedBuffer* buff = (GFX_SharedBuffer*)object;
 	buff->id = id;
 }
 
@@ -87,7 +93,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 		GFX_WIND_ARG)
 {
 	/* Create a new shared buffer */
-	struct GFX_SharedBuffer* buff = malloc(sizeof(struct GFX_SharedBuffer));
+	GFX_SharedBuffer* buff = malloc(sizeof(GFX_SharedBuffer));
 	if(!buff)
 	{
 		/* Out of memory error */
@@ -135,7 +141,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 
 	GFX_REND_GET.NamedBufferData(buff->handle, buff->size, NULL, GL_STATIC_DRAW);
 
-	gfx_vector_init(&buff->segments, sizeof(struct GFX_Segment));
+	gfx_vector_init(&buff->segments, sizeof(GFX_Segment));
 
 	return it;
 }
@@ -148,7 +154,7 @@ static void _gfx_shared_buffer_free(
 {
 	if(it)
 	{
-		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
+		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(buff->id);
@@ -175,13 +181,15 @@ static void _gfx_shared_buffer_free(
 /******************************************************/
 static int _gfx_shared_buffer_insert_segment(
 
-		struct GFX_SharedBuffer*  buffer,
-		size_t                    size,
-		size_t*                   offset)
+		GFX_SharedBuffer*  buffer,
+		size_t             size,
+		size_t*            offset)
 {
-	struct GFX_Segment new;
-	new.offset = 0;
-	new.size = size;
+	GFX_Segment new =
+	{
+		.offset = 0,
+		.size = size
+	};
 
 	/* Iterate through segments and find a big enough empty spot */
 	GFXVectorIterator it;
@@ -190,7 +198,7 @@ static int _gfx_shared_buffer_insert_segment(
 		it != buffer->segments.end;
 		it = gfx_vector_next(&buffer->segments, it))
 	{
-		struct GFX_Segment* seg = it;
+		GFX_Segment* seg = it;
 		if(size > (seg->offset - new.offset))
 		{
 			new.offset = seg->offset + seg->size;
@@ -232,7 +240,7 @@ static int _gfx_shared_buffer_segment_comp(
 		const void*  elem)
 {
 	size_t offset = GFX_VOID_TO_UINT(key);
-	size_t found = ((struct GFX_Segment*)elem)->offset;
+	size_t found = ((GFX_Segment*)elem)->offset;
 
 	if(found < offset) return 1;
 	if(found > offset) return -1;
@@ -243,21 +251,21 @@ static int _gfx_shared_buffer_segment_comp(
 /******************************************************/
 static void _gfx_shared_buffer_erase_segment(
 
-		struct GFX_SharedBuffer*  buffer,
-		size_t                    offset)
+		GFX_SharedBuffer*  buffer,
+		size_t             offset)
 {
 	/* Retrieve segment */
 	GFXVectorIterator it = bsearch(
 		GFX_UINT_TO_VOID(offset),
 		buffer->segments.begin,
 		gfx_vector_get_size(&buffer->segments),
-		sizeof(struct GFX_Segment),
+		sizeof(GFX_Segment),
 		_gfx_shared_buffer_segment_comp
 	);
 
 	if(it)
 	{
-		struct GFX_Segment* seg = it;
+		GFX_Segment* seg = it;
 		if(seg->offset == offset)
 			gfx_vector_erase(&buffer->segments, it);
 	}
@@ -268,7 +276,7 @@ GLuint _gfx_shared_buffer_get_handle(
 
 		const GFXSharedBuffer* buffer)
 {
-	return ((struct GFX_SharedBuffer*)buffer->reference)->handle;
+	return ((GFX_SharedBuffer*)buffer->reference)->handle;
 }
 
 /******************************************************/
@@ -301,7 +309,7 @@ int gfx_shared_buffer_init(
 	if(!_gfx_shared_buffers)
 	{
 		_gfx_shared_buffers =
-			gfx_vector_create(sizeof(struct GFX_SharedBuffer*));
+			gfx_vector_create(sizeof(GFX_SharedBuffer*));
 
 		if(!_gfx_shared_buffers) return 0;
 	}
@@ -314,7 +322,7 @@ int gfx_shared_buffer_init(
 		it = gfx_vector_next(_gfx_shared_buffers, it))
 	{
 		/* Validate buffer and try to insert */
-		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
+		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
 		if(buff->target != target) continue;
 
 		size_t offset;
@@ -338,7 +346,7 @@ int gfx_shared_buffer_init(
 
 	if(it)
 	{
-		struct GFX_SharedBuffer* buff = *(struct GFX_SharedBuffer**)it;
+		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
 		size_t offset;
 
 		if(_gfx_shared_buffer_insert_segment(buff, size, &offset))
@@ -369,7 +377,7 @@ void gfx_shared_buffer_clear(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	struct GFX_SharedBuffer* buff = (struct GFX_SharedBuffer*)buffer->reference;
+	GFX_SharedBuffer* buff = (GFX_SharedBuffer*)buffer->reference;
 	_gfx_shared_buffer_erase_segment(buff, buffer->offset);
 
 	/* If empty, free it */
@@ -382,7 +390,7 @@ void gfx_shared_buffer_clear(
 			it != _gfx_shared_buffers->end;
 			it = gfx_vector_next(_gfx_shared_buffers, it))
 		{
-			if(*(struct GFX_SharedBuffer**)it == buff)
+			if(*(GFX_SharedBuffer**)it == buff)
 			{
 				_gfx_shared_buffer_free(it, GFX_WIND_AS_ARG);
 				break;

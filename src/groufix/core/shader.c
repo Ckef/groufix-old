@@ -33,8 +33,9 @@ static const char* _gfx_glsl_versions[] =
 	"#version 440\n"
 };
 
+
 /* Internal Shader */
-struct GFX_Shader
+typedef struct GFX_Shader
 {
 	/* Super class */
 	GFXShader shader;
@@ -42,7 +43,9 @@ struct GFX_Shader
 	/* Hidden data */
 	GFX_RenderObjectID  id;
 	GLuint              handle; /* OpenGL handle */
-};
+
+} GFX_Shader;
+
 
 /******************************************************/
 static int _gfx_shader_eval_stage(
@@ -290,7 +293,7 @@ static void _gfx_shader_obj_free(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_Shader* shader = (struct GFX_Shader*)object;
+	GFX_Shader* shader = (GFX_Shader*)object;
 
 	shader->id = id;
 	shader->shader.compiled = 0;
@@ -303,7 +306,7 @@ static void _gfx_shader_obj_save_restore(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_Shader* shader = (struct GFX_Shader*)object;
+	GFX_Shader* shader = (GFX_Shader*)object;
 	shader->id = id;
 }
 
@@ -321,7 +324,7 @@ GLuint _gfx_shader_get_handle(
 
 		const GFXShader* shader)
 {
-	return ((struct GFX_Shader*)shader)->handle;
+	return ((GFX_Shader*)shader)->handle;
 }
 
 /******************************************************/
@@ -335,7 +338,7 @@ GFXShader* gfx_shader_create(
 		return NULL;
 
 	/* Create new shader */
-	struct GFX_Shader* shader = calloc(1, sizeof(struct GFX_Shader));
+	GFX_Shader* shader = calloc(1, sizeof(GFX_Shader));
 	if(!shader)
 	{
 		/* Out of memory error */
@@ -375,7 +378,7 @@ void gfx_shader_free(
 	{
 		GFX_WIND_INIT_UNSAFE;
 
-		struct GFX_Shader* internal = (struct GFX_Shader*)shader;
+		GFX_Shader* internal = (GFX_Shader*)shader;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
@@ -424,7 +427,7 @@ int gfx_shader_set_source(
 		{
 			/* Set source */
 			GFX_REND_GET.ShaderSource(
-				((struct GFX_Shader*)shader)->handle,
+				((GFX_Shader*)shader)->handle,
 				num,
 				(const GLchar**)strings,
 				(const GLint*)lengths
@@ -454,7 +457,7 @@ char* gfx_shader_get_source(
 {
 	GFX_WIND_INIT((*length = 0, NULL));
 
-	struct GFX_Shader* internal = (struct GFX_Shader*)shader;
+	GFX_Shader* internal = (GFX_Shader*)shader;
 
 	/* Get source length */
 	GLint len;
@@ -494,7 +497,7 @@ int gfx_shader_compile(
 	{
 		GFX_WIND_INIT(0);
 
-		struct GFX_Shader* internal = (struct GFX_Shader*)shader;
+		GFX_Shader* internal = (GFX_Shader*)shader;
 
 		/* Try to compile */
 		GLint status;

@@ -19,6 +19,7 @@
 /* Starting point of time */
 static uint64_t _gfx_time_start = 0;
 
+
 /******************************************************/
 int gfx_init(
 

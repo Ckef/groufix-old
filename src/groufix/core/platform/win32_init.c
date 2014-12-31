@@ -22,6 +22,7 @@
 /* Instance */
 GFX_Win32_Instance* _gfx_win32 = NULL;
 
+
 /******************************************************/
 static int _gfx_win32_is_extension_supported(
 

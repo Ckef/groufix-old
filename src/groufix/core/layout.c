@@ -30,7 +30,7 @@ typedef void (*GFX_DrawFunc)(
 
 
 /* Internal vertex attribute */
-struct GFX_Attribute
+typedef struct GFX_Attribute
 {
 	unsigned char     size;
 	GLenum            type;
@@ -38,46 +38,54 @@ struct GFX_Attribute
 
 	unsigned int      buffer; /* Vertex buffer index */
 	GLuint            offset; /* Offset within the buffer */
-};
+
+} GFX_Attribute;
+
 
 /* Internal vertex buffer binding */
-struct GFX_Buffer
+typedef struct GFX_Buffer
 {
 	GLuint    buffer; /* 0 when empty */
 	GLintptr  offset; /* Base offset for all vertex attributes */
 	GLintptr  stride; /* Stride for all vertex attributes */
 	GLuint    divisor;
-};
+
+} GFX_Buffer;
+
 
 /* Internal transform feedback buffer */
-struct GFX_TFBuffer
+typedef struct GFX_TFBuffer
 {
 	GLuint      buffer;
 	GLintptr    offset;
 	GLsizeiptr  size;
-};
+
+} GFX_TFBuffer;
+
 
 /* Internal Vertex layout */
-struct GFX_Layout
+typedef struct GFX_Layout
 {
 	/* Super class */
 	GFXVertexLayout layout;
 
 	/* Hidden data */
-	GFX_RenderObjectID    id;
-	GLuint                vao;           /* OpenGL handle */
-	GFXVector             attributes;    /* Stores GFX_Attribute */
-	GFXVector             buffers;       /* Stores GFX_Buffer */
-	unsigned int          instanced;     /* Number of buffers with a non-zero divisor */
+	GFX_RenderObjectID  id;
+	GLuint              vao;           /* OpenGL handle */
+	GFXVector           attributes;    /* Stores GFX_Attribute */
+	GFXVector           buffers;       /* Stores GFX_Buffer */
+	unsigned int        instanced;     /* Number of buffers with a non-zero divisor */
 
-	GFXPrimitive          TFPrimitive;   /* Feedback output primitive */
-	size_t                TFNumBuffers;
-	struct GFX_TFBuffer*  TFBuffers;     /* Transform Feedback buffers */
+	GFXPrimitive        TFPrimitive;   /* Feedback output primitive */
+	size_t              TFNumBuffers;
+	GFX_TFBuffer*       TFBuffers;     /* Transform Feedback buffers */
 
-	GLuint                indexBuffer;
-	size_t                indexOffset;   /* Byte offset into index buffer */
-	GLint                 patchVertices; /* Number of vertices per patch */
-};
+	GLuint              indexBuffer;
+	size_t              indexOffset;   /* Byte offset into index buffer */
+	GLint               patchVertices; /* Number of vertices per patch */
+
+} GFX_Layout;
+
 
 /******************************************************/
 void _gfx_vertex_layout_bind(
@@ -201,12 +209,12 @@ static void _gfx_layout_draw_indexed_instanced_base(
 /******************************************************/
 static void _gfx_layout_invoke_draw(
 
-		struct GFX_Layout*  layout,
-		unsigned char       startIndex,
-		unsigned char       num,
-		size_t              inst,
-		unsigned int        base,
-		GFX_DrawType        type,
+		GFX_Layout*    layout,
+		unsigned char  startIndex,
+		unsigned char  num,
+		size_t         inst,
+		unsigned int   base,
+		GFX_DrawType   type,
 		GFX_WIND_ARG)
 {
 	/* Jump table */
@@ -237,9 +245,9 @@ static void _gfx_layout_invoke_draw(
 /******************************************************/
 static void _gfx_layout_init_attrib(
 
-		struct GFX_Layout*     layout,
-		unsigned int           index,
-		struct GFX_Attribute*  attr,
+		GFX_Layout*     layout,
+		unsigned int    index,
+		GFX_Attribute*  attr,
 		GFX_WIND_ARG)
 {
 	if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
@@ -285,7 +293,7 @@ static void _gfx_layout_init_attrib(
 	/* Fetch buffer if no separate buffers */
 	else if(attr->buffer < gfx_vector_get_size(&layout->buffers))
 	{
-		struct GFX_Buffer* buff =
+		GFX_Buffer* buff =
 			gfx_vector_at(&layout->buffers, attr->buffer);
 
 		/* Check if enabled */
@@ -334,16 +342,16 @@ static void _gfx_layout_init_attrib(
 /******************************************************/
 static void _gfx_layout_init_buff(
 
-		struct GFX_Layout*     layout,
-		unsigned int           index,
-		struct GFX_Buffer*     buff,
+		GFX_Layout*     layout,
+		unsigned int    index,
+		GFX_Buffer*     buff,
 		GFX_WIND_ARG)
 {
 	/* Iterate over all attributes and init them */
 	size_t ind = gfx_vector_get_size(&layout->attributes);
 	while(ind--)
 	{
-		struct GFX_Attribute* attr =
+		GFX_Attribute* attr =
 			gfx_vector_at(&layout->attributes, ind);
 
 		if(attr->buffer == index) _gfx_layout_init_attrib(
@@ -358,16 +366,16 @@ static void _gfx_layout_init_buff(
 /******************************************************/
 static void _gfx_layout_init_buff_divisor(
 
-		struct GFX_Layout*     layout,
-		unsigned int           index,
-		struct GFX_Buffer*     buff,
+		GFX_Layout*     layout,
+		unsigned int    index,
+		GFX_Buffer*     buff,
 		GFX_WIND_ARG)
 {
 	/* Iterate over all attributes and set divisors */
 	size_t ind = gfx_vector_get_size(&layout->attributes);
 	while(ind--)
 	{
-		struct GFX_Attribute* attr =
+		GFX_Attribute* attr =
 			gfx_vector_at(&layout->attributes, ind);
 
 		if(attr->buffer == index)
@@ -389,7 +397,7 @@ static void _gfx_layout_obj_free(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_Layout* layout = (struct GFX_Layout*)object;
+	GFX_Layout* layout = (GFX_Layout*)object;
 
 	layout->id = id;
 	layout->vao = 0;
@@ -403,7 +411,7 @@ static void _gfx_layout_obj_save(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	struct GFX_Layout* layout = (struct GFX_Layout*)object;
+	GFX_Layout* layout = (GFX_Layout*)object;
 
 	/* Just don't clear the attribute or buffer vector */
 	layout->id = id;
@@ -419,7 +427,7 @@ static void _gfx_layout_obj_restore(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	struct GFX_Layout* layout = (struct GFX_Layout*)object;
+	GFX_Layout* layout = (GFX_Layout*)object;
 
 	/* Create VAO */
 	layout->id = id;
@@ -444,7 +452,7 @@ static void _gfx_layout_obj_restore(
 	index = gfx_vector_get_size(&layout->buffers);
 	while(index--)
 	{
-		struct GFX_Buffer* buff = gfx_vector_at(
+		GFX_Buffer* buff = gfx_vector_at(
 			&layout->buffers, index);
 
 		if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
@@ -486,7 +494,7 @@ GLuint _gfx_vertex_layout_get_handle(
 
 		const GFXVertexLayout* layout)
 {
-	return ((struct GFX_Layout*)layout)->vao;
+	return ((GFX_Layout*)layout)->vao;
 }
 
 /******************************************************/
@@ -499,9 +507,9 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	if(!drawCalls) return NULL;
 
 	/* Create new layout, append draw calls to end of struct */
-	size_t size = sizeof(struct GFX_Layout) + drawCalls * sizeof(GFXDrawCall);
+	size_t size = sizeof(GFX_Layout) + drawCalls * sizeof(GFXDrawCall);
 
-	struct GFX_Layout* layout = calloc(1, size);
+	GFX_Layout* layout = calloc(1, size);
 	if(!layout)
 	{
 		/* Out of memory error */
@@ -529,8 +537,8 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	layout->layout.drawCalls = drawCalls;
 	GFX_REND_GET.CreateVertexArrays(1, &layout->vao);
 
-	gfx_vector_init(&layout->attributes, sizeof(struct GFX_Attribute));
-	gfx_vector_init(&layout->buffers, sizeof(struct GFX_Buffer));
+	gfx_vector_init(&layout->attributes, sizeof(GFX_Attribute));
+	gfx_vector_init(&layout->buffers, sizeof(GFX_Buffer));
 
 	return (GFXVertexLayout*)layout;
 }
@@ -544,7 +552,7 @@ void gfx_vertex_layout_free(
 	{
 		GFX_WIND_INIT_UNSAFE;
 
-		struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+		GFX_Layout* internal = (GFX_Layout*)layout;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
@@ -570,8 +578,8 @@ void gfx_vertex_layout_free(
 /******************************************************/
 static int _gfx_layout_set_attribute(
 
-		struct GFX_Layout*  layout,
-		unsigned int        index,
+		GFX_Layout*   layout,
+		unsigned int  index,
 		GFX_WIND_ARG)
 {
 	/* Check index */
@@ -593,7 +601,7 @@ static int _gfx_layout_set_attribute(
 		if(it == layout->attributes.end) return 0;
 
 		/* Initialize to 0 to indicate empty attributes */
-		memset(it, 0, sizeof(struct GFX_Attribute) * size);
+		memset(it, 0, sizeof(GFX_Attribute) * size);
 	}
 
 	return 1;
@@ -619,12 +627,12 @@ int gfx_vertex_layout_set_attribute(
 		return 0;
 	}
 
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 	if(!_gfx_layout_set_attribute(internal, index, GFX_WIND_AS_ARG))
 		return 0;
 
 	/* Set attribute */
-	struct GFX_Attribute* set =
+	GFX_Attribute* set =
 		gfx_vector_at(&internal->attributes, index);
 
 	int packed = _gfx_is_data_type_packed(attr->type);
@@ -659,7 +667,7 @@ int gfx_vertex_layout_set_attribute_buffer(
 {
 	GFX_WIND_INIT(0);
 
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 	if(
 		index >= gfx_vector_get_size(&internal->attributes) ||
 		buffer >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
@@ -668,7 +676,7 @@ int gfx_vertex_layout_set_attribute_buffer(
 	}
 
 	/* Set attribute buffer */
-	struct GFX_Attribute* set = gfx_vector_at(
+	GFX_Attribute* set = gfx_vector_at(
 		&internal->attributes,
 		index
 	);
@@ -696,8 +704,8 @@ int gfx_vertex_layout_set_attribute_buffer(
 /******************************************************/
 static int _gfx_layout_set_buffer(
 
-		struct GFX_Layout*  layout,
-		unsigned int        index,
+		GFX_Layout*   layout,
+		unsigned int  index,
 		GFX_WIND_ARG)
 {
 	/* Check index */
@@ -719,7 +727,7 @@ static int _gfx_layout_set_buffer(
 		if(it == layout->buffers.end) return 0;
 
 		/* Initialize to 0 to indicate it is empty */
-		memset(it, 0, sizeof(struct GFX_Buffer) * size);
+		memset(it, 0, sizeof(GFX_Buffer) * size);
 	}
 
 	return 1;
@@ -738,12 +746,12 @@ static int _gfx_layout_set_vertex_buffer(
 	if(stride > GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE])
 		return 0;
 
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 	if(!_gfx_layout_set_buffer(internal, index, GFX_WIND_AS_ARG))
 		return 0;
 
 	/* Set buffer */
-	struct GFX_Buffer* set =
+	GFX_Buffer* set =
 		gfx_vector_at(&internal->buffers, index);
 
 	set->buffer = buffer;
@@ -834,12 +842,12 @@ int gfx_vertex_layout_set_vertex_divisor(
 	if(!GFX_WIND_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES])
 		return 0;
 
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 	if(!_gfx_layout_set_buffer(internal, index, GFX_WIND_AS_ARG))
 		return 0;
 
 	/* Update instanced count */
-	struct GFX_Buffer* set =
+	GFX_Buffer* set =
 		gfx_vector_at(&internal->buffers, index);
 
 	if(!divisor && set->divisor)
@@ -873,7 +881,7 @@ unsigned int gfx_vertex_layout_count_instanced(
 
 		GFXVertexLayout* layout)
 {
-	return ((struct GFX_Layout*)layout)->instanced;
+	return ((GFX_Layout*)layout)->instanced;
 }
 
 /******************************************************/
@@ -887,7 +895,7 @@ int gfx_vertex_layout_set_draw_call(
 
 	/* Check index */
 	if(index >= layout->drawCalls) return 0;
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 
 	/* Check extensions */
 	if(
@@ -913,7 +921,7 @@ int gfx_vertex_layout_get_draw_call(
 	if(index >= layout->drawCalls) return 0;
 
 	/* Retrieve data */
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 	*call = ((GFXDrawCall*)(internal + 1))[index];
 
 	return 1;
@@ -926,7 +934,7 @@ static void _gfx_layout_set_index_buffer(
 		GLuint            buffer,
 		size_t            offset)
 {
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 
 	if(buffer)
 	{
@@ -986,7 +994,7 @@ int gfx_vertex_layout_set_patch_vertices(
 {
 	GFX_WIND_INIT(0);
 
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 
 	/* Bound check */
 	if(vertices > GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES])
@@ -1007,7 +1015,7 @@ int gfx_vertex_layout_set_feedback(
 {
 	GFX_WIND_INIT(0);
 
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 
 	/* Check number of buffers */
 	if(num > GFX_WIND_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS])
@@ -1022,7 +1030,7 @@ int gfx_vertex_layout_set_feedback(
 	if(num)
 	{
 		/* Construct feedback buffers */
-		internal->TFBuffers = malloc(sizeof(struct GFX_TFBuffer) * num);
+		internal->TFBuffers = malloc(sizeof(GFX_TFBuffer) * num);
 		if(!internal->TFBuffers)
 		{
 			/* Out of memory error */
@@ -1059,7 +1067,7 @@ void _gfx_vertex_layout_draw(
 		GFX_WIND_ARG)
 {
 	/* Bind VAO & Index buffer & Tessellation vertices */
-	struct GFX_Layout* internal = (struct GFX_Layout*)layout;
+	GFX_Layout* internal = (GFX_Layout*)layout;
 
 	_gfx_vertex_layout_bind(
 		internal->vao,

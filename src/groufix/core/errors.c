@@ -22,11 +22,14 @@
 /* Error mode */
 static GFXErrorMode _gfx_error_mode = GFX_ERROR_MODE_DEFAULT;
 
+
 /* Maximum number of errors stored */
 static size_t _gfx_errors_maximum = GFX_MAX_ERRORS_DEFAULT;
 
+
 /* Stored Errors */
 static GFXDeque* _gfx_errors = NULL;
+
 
 /******************************************************/
 static GFXError* _gfx_errors_last(void)

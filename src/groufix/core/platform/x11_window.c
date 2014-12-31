@@ -30,6 +30,7 @@ typedef struct
 
 } MotifWmHints;
 
+
 /******************************************************/
 static void _gfx_x11_enter_fullscreen(
 

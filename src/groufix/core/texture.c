@@ -19,7 +19,7 @@
 
 /******************************************************/
 /* Internal Texture */
-struct GFX_Texture
+typedef struct GFX_Texture
 {
 	/* Super class */
 	GFXTexture texture;
@@ -30,7 +30,9 @@ struct GFX_Texture
 	GLuint              handle; /* OpenGL handle */
 	GLenum              target;
 	GLint               format; /* Internal format */
-};
+
+} GFX_Texture;
+
 
 /******************************************************/
 static inline unsigned char _gfx_texture_get_num_mipmaps(
@@ -173,7 +175,7 @@ static void _gfx_texture_obj_free(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_Texture* texture = (struct GFX_Texture*)object;
+	GFX_Texture* texture = (GFX_Texture*)object;
 
 	texture->id = id;
 	texture->handle = 0;
@@ -186,7 +188,7 @@ static void _gfx_texture_obj_save_restore(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_Texture* texture = (struct GFX_Texture*)object;
+	GFX_Texture* texture = (GFX_Texture*)object;
 	texture->id = id;
 }
 
@@ -200,7 +202,7 @@ static GFX_RenderObjectFuncs _gfx_texture_obj_funcs =
 };
 
 /******************************************************/
-static struct GFX_Texture* _gfx_texture_alloc(
+static GFX_Texture* _gfx_texture_alloc(
 
 		GLenum            target,
 		GFXTextureFormat  format,
@@ -212,7 +214,7 @@ static struct GFX_Texture* _gfx_texture_alloc(
 		return NULL;
 
 	/* Create new texture */
-	struct GFX_Texture* tex = calloc(1, sizeof(struct GFX_Texture));
+	GFX_Texture* tex = calloc(1, sizeof(GFX_Texture));
 	if(!tex)
 	{
 		/* Out of memory error */
@@ -249,10 +251,10 @@ static struct GFX_Texture* _gfx_texture_alloc(
 /******************************************************/
 static void _gfx_texture_set_storage(
 
-		struct GFX_Texture*  tex,
-		size_t               width,
-		size_t               height,
-		size_t               depth,
+		GFX_Texture*  tex,
+		size_t        width,
+		size_t        height,
+		size_t        depth,
 		GFX_WIND_ARG)
 {
 	tex->texture.width  = width;
@@ -419,7 +421,7 @@ GLuint _gfx_texture_get_handle(
 
 		const GFXTexture* texture)
 {
-	return ((struct GFX_Texture*)texture)->handle;
+	return ((GFX_Texture*)texture)->handle;
 }
 
 /******************************************************/
@@ -427,7 +429,7 @@ GLenum _gfx_texture_get_internal_target(
 
 		const GFXTexture* texture)
 {
-	return ((struct GFX_Texture*)texture)->target;
+	return ((GFX_Texture*)texture)->target;
 }
 
 /******************************************************/
@@ -470,7 +472,7 @@ GFXTexture* gfx_texture_create(
 	}
 
 	/* Allocate texture */
-	struct GFX_Texture* tex = _gfx_texture_alloc(
+	GFX_Texture* tex = _gfx_texture_alloc(
 		target,
 		format,
 		GFX_WIND_AS_ARG
@@ -537,7 +539,7 @@ GFXTexture* gfx_texture_create_multisample(
 		GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
 
 	/* Allocate texture */
-	struct GFX_Texture* tex = _gfx_texture_alloc(
+	GFX_Texture* tex = _gfx_texture_alloc(
 		target,
 		format,
 		GFX_WIND_AS_ARG
@@ -581,7 +583,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 	}
 
 	/* Allocate texture */
-	struct GFX_Texture* tex = _gfx_texture_alloc(
+	GFX_Texture* tex = _gfx_texture_alloc(
 		GL_TEXTURE_BUFFER,
 		format,
 		GFX_WIND_AS_ARG
@@ -635,7 +637,7 @@ void gfx_texture_free(
 	{
 		GFX_WIND_INIT_UNSAFE;
 
-		struct GFX_Texture* internal = (struct GFX_Texture*)texture;
+		GFX_Texture* internal = (GFX_Texture*)texture;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
@@ -656,7 +658,7 @@ GFXTextureFormat gfx_texture_get_format(
 
 		GFXTexture* texture)
 {
-	struct GFX_Texture* internal = (struct GFX_Texture*)texture;
+	GFX_Texture* internal = (GFX_Texture*)texture;
 	return _gfx_texture_format_from_internal(internal->format);
 }
 
@@ -669,7 +671,7 @@ void gfx_texture_write(
 {
 	GFX_WIND_INIT();
 
-	struct GFX_Texture* internal = (struct GFX_Texture*)image.texture;
+	GFX_Texture* internal = (GFX_Texture*)image.texture;
 
 	if(internal->buffer)
 	{
@@ -939,7 +941,7 @@ void gfx_texture_write_from_buffer(
 {
 	GFX_WIND_INIT();
 
-	struct GFX_Texture* internal = (struct GFX_Texture*)image.texture;
+	GFX_Texture* internal = (GFX_Texture*)image.texture;
 
 	if(internal->buffer)
 	{
@@ -980,7 +982,7 @@ void gfx_texture_generate_mipmaps(
 {
 	GFX_WIND_INIT();
 
-	struct GFX_Texture* internal = (struct GFX_Texture*)texture;
+	GFX_Texture* internal = (GFX_Texture*)texture;
 
 	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
 	{

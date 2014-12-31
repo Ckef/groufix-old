@@ -22,6 +22,7 @@
 /* Instance */
 GFX_X11_Connection* _gfx_x11 = NULL;
 
+
 /******************************************************/
 static int _gfx_x11_is_extension_supported(
 

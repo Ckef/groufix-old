@@ -19,17 +19,19 @@
 
 /******************************************************/
 /* Internal Attachment */
-struct GFX_Attachment
+typedef struct GFX_Attachment
 {
 	GLenum         attachment; /* Key to sort on */
 	GLuint         texture;
 	GLenum         target;
 	unsigned char  mipmap;
 	unsigned int   layer;
-};
+
+} GFX_Attachment;
+
 
 /* Internal Pipeline */
-struct GFX_Pipeline
+typedef struct GFX_Pipeline
 {
 	/* Super class */
 	GFXPipeline pipeline;
@@ -45,7 +47,9 @@ struct GFX_Pipeline
 	GFX_Pipe*           last;
 	GFX_Pipe*           current;
 	GFX_Pipe*           unlinked;
-};
+
+} GFX_Pipeline;
+
 
 /******************************************************/
 void _gfx_pipeline_bind(
@@ -97,8 +101,8 @@ void _gfx_pipeline_bind(
 /******************************************************/
 static GFXVectorIterator _gfx_pipeline_find_attachment(
 
-		struct GFX_Pipeline*  pipeline,
-		GLenum                attach)
+		GFX_Pipeline*  pipeline,
+		GLenum         attach)
 {
 	/* Binary search for the attachment */
 	size_t min = 0;
@@ -111,7 +115,7 @@ static GFXVectorIterator _gfx_pipeline_find_attachment(
 		GFXVectorIterator it =
 			gfx_vector_at(&pipeline->attachments, mid);
 		GLenum found =
-			((struct GFX_Attachment*)it)->attachment;
+			((GFX_Attachment*)it)->attachment;
 
 		/* Compare against key */
 		if(found < attach)
@@ -128,8 +132,8 @@ static GFXVectorIterator _gfx_pipeline_find_attachment(
 /******************************************************/
 static void _gfx_pipeline_init_attachment(
 
-		GLuint                  fbo,
-		struct GFX_Attachment*  attach,
+		GLuint           fbo,
+		GFX_Attachment*  attach,
 		GFX_WIND_ARG)
 {
 	/* Check texture handle */
@@ -205,7 +209,7 @@ static void _gfx_pipeline_push_pipe(
 
 		GFX_Pipe* pipe)
 {
-	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)pipe->pipeline;
+	GFX_Pipeline* pipeline = (GFX_Pipeline*)pipe->pipeline;
 
 	if(pipeline->first)
 	{
@@ -231,7 +235,7 @@ static void _gfx_pipeline_obj_free(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
+	GFX_Pipeline* pipeline = (GFX_Pipeline*)object;
 
 	pipeline->id = id;
 	pipeline->fbo = 0;
@@ -245,7 +249,7 @@ static void _gfx_pipeline_obj_save(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
+	GFX_Pipeline* pipeline = (GFX_Pipeline*)object;
 
 	/* Don't clear the attachments vector or target array */
 	pipeline->id = id;
@@ -261,7 +265,7 @@ static void _gfx_pipeline_obj_restore(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)object;
+	GFX_Pipeline* pipeline = (GFX_Pipeline*)object;
 
 	/* Create FBO */
 	pipeline->id = id;
@@ -273,7 +277,7 @@ static void _gfx_pipeline_obj_restore(
 	{
 		_gfx_pipeline_init_attachment(
 			pipeline->fbo,
-			(struct GFX_Attachment*)it,
+			(GFX_Attachment*)it,
 			GFX_WIND_AS_ARG
 		);
 
@@ -303,7 +307,7 @@ GLuint _gfx_pipeline_get_handle(
 
 		const GFXPipeline* pipeline)
 {
-	return ((struct GFX_Pipeline*)pipeline)->fbo;
+	return ((GFX_Pipeline*)pipeline)->fbo;
 }
 
 /******************************************************/
@@ -312,7 +316,7 @@ GFXPipeline* gfx_pipeline_create(void)
 	GFX_WIND_INIT(NULL);
 
 	/* Create new pipeline */
-	struct GFX_Pipeline* pl = calloc(1, sizeof(struct GFX_Pipeline));
+	GFX_Pipeline* pl = calloc(1, sizeof(GFX_Pipeline));
 	if(!pl)
 	{
 		/* Out of memory error */
@@ -339,7 +343,7 @@ GFXPipeline* gfx_pipeline_create(void)
 	/* Create OpenGL resources */
 	GFX_REND_GET.CreateFramebuffers(1, &pl->fbo);
 
-	gfx_vector_init(&pl->attachments, sizeof(struct GFX_Attachment));
+	gfx_vector_init(&pl->attachments, sizeof(GFX_Attachment));
 
 	return (GFXPipeline*)pl;
 }
@@ -353,7 +357,7 @@ void gfx_pipeline_free(
 	{
 		GFX_WIND_INIT_UNSAFE;
 
-		struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
+		GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
@@ -392,7 +396,7 @@ unsigned int gfx_pipeline_target(
 	GFX_WIND_INIT(0);
 
 	if(!num) return 0;
-	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
+	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
 	/* Limit number of targets */
 	num = (num > GFX_WIND_GET.lim[GFX_LIM_MAX_COLOR_TARGETS]) ?
@@ -443,7 +447,7 @@ int gfx_pipeline_attach(
 {
 	GFX_WIND_INIT(0);
 
-	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
+	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
 	/* Check attachment limit */
 	if(attach != GFX_COLOR_ATTACHMENT) index = 0;
@@ -451,11 +455,13 @@ int gfx_pipeline_attach(
 		return 0;
 
 	/* Init attachment */
-	struct GFX_Attachment att;
-	att.attachment = attach + index;
-	att.texture    = _gfx_texture_get_handle(image.texture);
-	att.target     = _gfx_texture_get_internal_target(image.texture);
-	att.mipmap     = image.mipmap;
+	GFX_Attachment att =
+	{
+		.attachment = attach + index,
+		.texture    = _gfx_texture_get_handle(image.texture),
+		.target     = _gfx_texture_get_internal_target(image.texture),
+		.mipmap     = image.mipmap
+	};
 
 	/* Calculate appropriate layer */
 	switch(att.target)
@@ -482,11 +488,11 @@ int gfx_pipeline_attach(
 	int new;
 
 	if(it == internal->attachments.end) new = 1;
-	else new = ((struct GFX_Attachment*)it)->attachment != att.attachment ? 1 : 0;
+	else new = ((GFX_Attachment*)it)->attachment != att.attachment ? 1 : 0;
 
 	/* Now actually insert one or replace the old one */
 	if(new) gfx_vector_insert(&internal->attachments, &att, it);
-	else *((struct GFX_Attachment*)it) = att;
+	else *((GFX_Attachment*)it) = att;
 
 	/* Send attachment to OGL */
 	_gfx_pipeline_init_attachment(
@@ -535,7 +541,7 @@ void gfx_pipeline_unlink_all(
 
 		GFXPipeline* pipeline)
 {
-	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
+	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
 	/* Splice entire range into unlinked pipes */
 	if(internal->first)
@@ -560,8 +566,10 @@ void gfx_pipeline_unlink(
 
 		GFXPipe* pipe)
 {
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
-	struct GFX_Pipeline* pipeline = (struct GFX_Pipeline*)internal->pipeline;
+	GFX_Pipe* internal =
+		GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
+	GFX_Pipeline* pipeline =
+		(GFX_Pipeline*)internal->pipeline;
 
 	/* Fix current and unlink */
 	if(pipeline->current == internal)
@@ -609,7 +617,7 @@ void gfx_pipeline_move(
 		/* Check if it can be moved */
 		if(int2) if(int1->pipeline != int2->pipeline) return;
 
-		struct GFX_Pipeline* pl = (struct GFX_Pipeline*)int1->pipeline;
+		GFX_Pipeline* pl = (GFX_Pipeline*)int1->pipeline;
 
 		/* Reconstruct pointers */
 		if(pl->unlinked != int1)
@@ -672,7 +680,7 @@ void gfx_pipeline_swap(
 	/* Check if they can be swapped */
 	if(int1->pipeline == int2->pipeline)
 	{
-		struct GFX_Pipeline* pl = (struct GFX_Pipeline*)int1->pipeline;
+		GFX_Pipeline* pl = (GFX_Pipeline*)int1->pipeline;
 
 		/* Reconstruct pointers */
 		if(pl->first == int1)
@@ -742,8 +750,8 @@ void gfx_pipeline_remove(
 		offsetof(GFX_Pipe, ptr)
 	);
 
-	struct GFX_Pipeline* pipeline =
-		(struct GFX_Pipeline*)internal->pipeline;
+	GFX_Pipeline* pipeline =
+		(GFX_Pipeline*)internal->pipeline;
 
 	/* Fix current and erase */
 	if(pipeline->current == internal)
@@ -768,7 +776,7 @@ void gfx_pipeline_execute(
 {
 	GFX_WIND_INIT();
 
-	struct GFX_Pipeline* internal = (struct GFX_Pipeline*)pipeline;
+	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
 	/* Bind as framebuffer and set viewport */
 	_gfx_pipeline_bind(

@@ -20,8 +20,10 @@
 /* Whether the performance counter is used */
 static unsigned char _gfx_timer_pc = 0;
 
+
 /* Time resolution */
 static double _gfx_timer_resolution = 1e-3;
+
 
 /******************************************************/
 void _gfx_platform_init_timer(void)

@@ -19,6 +19,7 @@
 /* The clock ID being used */
 static clockid_t _gfx_timer_clock_id = CLOCK_REALTIME;
 
+
 /******************************************************/
 void _gfx_platform_init_timer(void)
 {

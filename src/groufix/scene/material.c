@@ -17,11 +17,13 @@
 
 /******************************************************/
 /* Internal Property Map data */
-struct GFX_MapData
+typedef struct GFX_MapData
 {
 	GFXPropertyMap*  map;    /* Super class */
 	unsigned int     copies; /* Number of copies used by units */
-};
+
+} GFX_MapData;
+
 
 /******************************************************/
 GFXMaterial* gfx_material_create(void)
@@ -29,7 +31,7 @@ GFXMaterial* gfx_material_create(void)
 	/* Allocate */
 	return (GFXMaterial*)gfx_lod_map_create(
 		0,
-		sizeof(struct GFX_MapData),
+		sizeof(GFX_MapData),
 		sizeof(GFXPropertyMap*)
 	);
 }
@@ -43,7 +45,7 @@ void gfx_material_free(
 	{
 		/* Free all property maps */
 		unsigned int num;
-		struct GFX_MapData* maps = gfx_lod_map_get_all(
+		GFX_MapData* maps = gfx_lod_map_get_all(
 			(GFXLodMap*)material,
 			&num
 		);
@@ -64,7 +66,7 @@ GFXPropertyMap* gfx_material_add(
 		unsigned char   properties)
 {
 	/* Create new property map */
-	struct GFX_MapData data;
+	GFX_MapData data;
 	data.copies = 0;
 
 	data.map = gfx_property_map_create(programMap, properties);
@@ -105,7 +107,7 @@ unsigned int gfx_property_map_list_copies_at(
 		GFXPropertyMapList  list,
 		unsigned int        index)
 {
-	return ((struct GFX_MapData*)list)[index].copies;
+	return ((GFX_MapData*)list)[index].copies;
 }
 
 /******************************************************/
@@ -114,5 +116,5 @@ GFXPropertyMap* gfx_property_map_list_at(
 		GFXPropertyMapList  list,
 		unsigned int        index)
 {
-	return ((struct GFX_MapData*)list)[index].map;
+	return ((GFX_MapData*)list)[index].map;
 }

@@ -21,7 +21,7 @@ static GFX_Pipe* _gfx_pipe_create(
 		GFXPipeline*  pipeline)
 {
 	/* Create the pipe */
-	GFX_Pipe* pipe = (GFX_Pipe*)gfx_list_create(sizeof(struct GFX_Pipe));
+	GFX_Pipe* pipe = (GFX_Pipe*)gfx_list_create(sizeof(GFX_Pipe));
 
 	if(!pipe) return NULL;
 

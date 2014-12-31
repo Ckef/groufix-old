@@ -32,15 +32,17 @@ struct GFX_Pool;
 
 
 /* Actual task */
-struct GFX_Task
+typedef struct GFX_Task
 {
 	char               priority;
 	void*              data;
 	GFXThreadPoolTask  task;
-};
+
+} GFX_Task;
+
 
 /* Actual thread node */
-struct GFX_ThreadList
+typedef struct GFX_ThreadList
 {
 	/* Super class */
 	GFXList node;
@@ -50,31 +52,35 @@ struct GFX_ThreadList
 	struct GFX_Pool*  pool;
 	unsigned char     size;  /* Number of threads of this particular node */
 	void*             arg;   /* Argument for initialization */
-};
+
+} GFX_ThreadList;
+
 
 /* Internal thread pool */
-struct GFX_Pool
+typedef struct GFX_Pool
 {
 	/* Super class */
 	GFXThreadPool pool;
 
 	/* Hidden data */
-	unsigned char           status;
-	GFXVector               tasks;   /* Priority queue storing GFX_Task */
+	unsigned char      status;
+	GFXVector          tasks;   /* Priority queue storing GFX_Task */
 
-	struct GFX_ThreadList*  threads; /* All associated threads */
-	struct GFX_ThreadList*  deads;   /* Terminated threads */
+	GFX_ThreadList*    threads; /* All associated threads */
+	GFX_ThreadList*    deads;   /* Terminated threads */
 
-	GFX_PlatformMutex       mutex;
-	GFX_PlatformCond        assign;  /* Condition that waits for a task */
-	GFX_PlatformCond        flush;   /* Condition that waits for a flush to finish */
-};
+	GFX_PlatformMutex  mutex;
+	GFX_PlatformCond   assign;  /* Condition that waits for a task */
+	GFX_PlatformCond   flush;   /* Condition that waits for a flush to finish */
+
+} GFX_Pool;
+
 
 /******************************************************/
 static inline GFX_PlatformThread* _gfx_thread_list_get(
 
-		struct GFX_ThreadList*  list,
-		unsigned char           index)
+		GFX_ThreadList*  list,
+		unsigned char    index)
 {
 	return ((GFX_PlatformThread*)(list + 1)) + index;
 }
@@ -82,7 +88,7 @@ static inline GFX_PlatformThread* _gfx_thread_list_get(
 /******************************************************/
 static void _gfx_thread_list_join(
 
-		struct GFX_ThreadList* list)
+		GFX_ThreadList* list)
 {
 	unsigned char s;
 	for(s = 0; s < list->size; ++s)
@@ -92,13 +98,13 @@ static void _gfx_thread_list_join(
 /******************************************************/
 static int _gfx_thread_pool_push(
 
-		struct GFX_Pool*  pool,
-		struct GFX_Task   task)
+		GFX_Pool*  pool,
+		GFX_Task   task)
 {
 	/* Insert the new element */
 	size_t elem = gfx_vector_get_size(&pool->tasks);
 
-	struct GFX_Task* et = gfx_vector_insert(
+	GFX_Task* et = gfx_vector_insert(
 		&pool->tasks,
 		&task,
 		pool->tasks.end
@@ -111,10 +117,7 @@ static int _gfx_thread_pool_push(
 	{
 		/* Get parent and compare */
 		size_t parent = (elem - 1) >> 1;
-
-		struct GFX_Task* pt = gfx_vector_at(
-			&pool->tasks,
-			parent);
+		GFX_Task* pt = gfx_vector_at(&pool->tasks, parent);
 
 		if(pt->priority <= et->priority)
 			break;
@@ -131,35 +134,33 @@ static int _gfx_thread_pool_push(
 }
 
 /******************************************************/
-static struct GFX_Task _gfx_thread_pool_pop(
+static GFX_Task _gfx_thread_pool_pop(
 
-		struct GFX_Pool* pool)
+		GFX_Pool* pool)
 {
-	struct GFX_Task* et = pool->tasks.begin;
-	struct GFX_Task ret = *et;
+	GFX_Task* et = pool->tasks.begin;
+	GFX_Task ret = *et;
 
 	/* Override root and remove element */
 	size_t size = gfx_vector_get_size(&pool->tasks) - 1;
 
-	*et = *(struct GFX_Task*)gfx_vector_at(
-		&pool->tasks, size);
-	gfx_vector_erase_at(
-		&pool->tasks, size);
+	*et = *(GFX_Task*)gfx_vector_at(&pool->tasks, size);
+	gfx_vector_erase_at(&pool->tasks, size);
 
 	/* Heapify the root */
 	size_t elem = 0;
 
 	while(1)
 	{
-		struct GFX_Task* bt = et;
+		GFX_Task* bt = et;
 		size_t b = elem;
 
 		/* Get child with largest priority */
 		size_t l = (elem << 1) + 1;
 		size_t r = (elem << 1) + 2;
 
-		struct GFX_Task* lt = gfx_vector_at(&pool->tasks, l);
-		struct GFX_Task* rt = gfx_vector_at(&pool->tasks, r);
+		GFX_Task* lt = gfx_vector_at(&pool->tasks, l);
+		GFX_Task* rt = gfx_vector_at(&pool->tasks, r);
 
 		if(l < size && lt->priority < bt->priority)
 			bt = lt, b = l;
@@ -170,7 +171,7 @@ static struct GFX_Task _gfx_thread_pool_pop(
 			break;
 
 		/* Swap */
-		struct GFX_Task temp = *bt;
+		GFX_Task temp = *bt;
 		*bt = *et;
 		*et = temp;
 
@@ -186,8 +187,8 @@ static unsigned int _gfx_thread_addr(
 
 		void* arg)
 {
-	struct GFX_ThreadList* node = (struct GFX_ThreadList*)arg;
-	struct GFX_Pool* pool = node->pool;
+	GFX_ThreadList* node = (GFX_ThreadList*)arg;
+	GFX_Pool* pool = node->pool;
 
 	/* Initialize */
 	arg = NULL;
@@ -207,7 +208,7 @@ static unsigned int _gfx_thread_addr(
 			pool->status == GFX_INT_POOL_RESUMED &&
 			pool->tasks.begin != pool->tasks.end)
 		{
-			struct GFX_Task task = _gfx_thread_pool_pop(pool);
+			GFX_Task task = _gfx_thread_pool_pop(pool);
 
 			/* Tell flushing threads that everything is flushed */
 			if(pool->tasks.begin == pool->tasks.end)
@@ -245,7 +246,7 @@ GFXThreadPool* gfx_thread_pool_create(
 		int                     suspend)
 {
 	/* Create a new thread pool */
-	struct GFX_Pool* pool = malloc(sizeof(struct GFX_Pool));
+	GFX_Pool* pool = malloc(sizeof(GFX_Pool));
 	if(!pool)
 	{
 		/* Out of memory error */
@@ -273,7 +274,7 @@ GFXThreadPool* gfx_thread_pool_create(
 				pool->pool.init = init;
 				pool->pool.terminate = terminate;
 
-				gfx_vector_init(&pool->tasks, sizeof(struct GFX_Task));
+				gfx_vector_init(&pool->tasks, sizeof(GFX_Task));
 
 				pool->threads = NULL;
 				pool->deads = NULL;
@@ -300,7 +301,7 @@ void gfx_thread_pool_free(
 {
 	if(pool)
 	{
-		struct GFX_Pool* internal = (struct GFX_Pool*)pool;
+		GFX_Pool* internal = (GFX_Pool*)pool;
 
 		/* Tell threads to terminate */
 		_gfx_platform_mutex_lock(&internal->mutex);
@@ -311,12 +312,12 @@ void gfx_thread_pool_free(
 		_gfx_platform_mutex_unlock(&internal->mutex);
 
 		/* Join all dead threads */
-		struct GFX_ThreadList* node = internal->threads;
+		GFX_ThreadList* node = internal->threads;
 
 		for(
 			node = internal->deads;
 			node;
-			node = (struct GFX_ThreadList*)node->node.next)
+			node = (GFX_ThreadList*)node->node.next)
 		{
 			_gfx_thread_list_join(node);
 		}
@@ -325,7 +326,7 @@ void gfx_thread_pool_free(
 		for(
 			node = internal->threads;
 			node;
-			node = (struct GFX_ThreadList*)node->node.next)
+			node = (GFX_ThreadList*)node->node.next)
 		{
 			_gfx_thread_list_join(node);
 		}
@@ -351,7 +352,7 @@ unsigned char gfx_thread_pool_expand(
 		unsigned char   size,
 		void*           arg)
 {
-	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
+	GFX_Pool* internal = (GFX_Pool*)pool;
 
 	/* Check for overflow */
 	if(USHRT_MAX - size < pool->size)
@@ -366,8 +367,8 @@ unsigned char gfx_thread_pool_expand(
 	/* Allocate new node */
 	if(!size) return 0;
 
-	struct GFX_ThreadList* node = (struct GFX_ThreadList*)gfx_list_create(
-		sizeof(struct GFX_ThreadList) +
+	GFX_ThreadList* node = (GFX_ThreadList*)gfx_list_create(
+		sizeof(GFX_ThreadList) +
 		sizeof(GFX_PlatformThread) * size
 	);
 
@@ -421,8 +422,8 @@ unsigned char gfx_thread_pool_shrink(
 	unsigned char threads = 0;
 
 	/* Get node to terminate */
-	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
-	struct GFX_ThreadList* node = internal->threads;
+	GFX_Pool* internal = (GFX_Pool*)pool;
+	GFX_ThreadList* node = internal->threads;
 
 	if(node)
 	{
@@ -439,7 +440,7 @@ unsigned char gfx_thread_pool_shrink(
 		_gfx_platform_mutex_unlock(&internal->mutex);
 
 		/* Remove the node */
-		internal->threads = (struct GFX_ThreadList*)gfx_list_unsplice(
+		internal->threads = (GFX_ThreadList*)gfx_list_unsplice(
 			(GFXList*)node,
 			(GFXList*)node
 		);
@@ -474,10 +475,10 @@ int gfx_thread_pool_push(
 		void*              data,
 		char               priority)
 {
-	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
+	GFX_Pool* internal = (GFX_Pool*)pool;
 
 	/* Create a new task */
-	struct GFX_Task elem =
+	GFX_Task elem =
 	{
 		.priority = priority,
 		.data = data,
@@ -501,7 +502,7 @@ void gfx_thread_pool_suspend(
 
 		GFXThreadPool* pool)
 {
-	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
+	GFX_Pool* internal = (GFX_Pool*)pool;
 
 	/* Tell threads to suspend */
 	_gfx_platform_mutex_lock(&internal->mutex);
@@ -516,7 +517,7 @@ void gfx_thread_pool_resume(
 
 		GFXThreadPool* pool)
 {
-	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
+	GFX_Pool* internal = (GFX_Pool*)pool;
 
 	/* Tell threads to resume */
 	_gfx_platform_mutex_lock(&internal->mutex);
@@ -532,7 +533,7 @@ void gfx_thread_pool_flush(
 
 		GFXThreadPool* pool)
 {
-	struct GFX_Pool* internal = (struct GFX_Pool*)pool;
+	GFX_Pool* internal = (GFX_Pool*)pool;
 
 	/* Wait until task queue is empty */
 	_gfx_platform_mutex_lock(&internal->mutex);

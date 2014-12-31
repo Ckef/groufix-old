@@ -22,20 +22,26 @@
 /* Current window data key */
 static GFX_PlatformKey _gfx_current_window;
 
+
 /* Dummy window (backup context) */
 static GFX_Window* _gfx_dummy_window = NULL;
+
 
 /* Main window (main context) */
 static GFX_Window* _gfx_main_window = NULL;
 
+
 /* Created windows */
 static GFXVector* _gfx_windows = NULL;
+
 
 /* Total number of living (non-zombie) windows */
 static unsigned int _gfx_alive_windows = 0;
 
+
 /* Number of on-screen windows */
 static unsigned int _gfx_public_windows = 0;
+
 
 /* OpenGL context request */
 static GFXContext _gfx_context =

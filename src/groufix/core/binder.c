@@ -26,24 +26,30 @@
 
 /******************************************************/
 /* Binder unit */
-struct GFX_Unit
+typedef struct GFX_Unit
 {
 	unsigned char counter;
-};
+
+} GFX_Unit;
+
 
 /* Uniform buffer key */
-struct GFX_UniformBuffer
+typedef struct GFX_UniformBuffer
 {
 	GLuint      buffer; /* Super class */
 	GLintptr    offset;
 	GLsizeiptr  size;
-};
+
+} GFX_UniformBuffer;
+
 
 /* Texture unit key */
-struct GFX_TextureUnit
+typedef struct GFX_TextureUnit
 {
 	GLuint texture; /* Super class */
-};
+
+} GFX_TextureUnit;
+
 
 /******************************************************/
 static void* _gfx_binder_init(
@@ -51,7 +57,7 @@ static void* _gfx_binder_init(
 		size_t  num,
 		size_t  size)
 {
-	size_t unitSize = sizeof(struct GFX_Unit) + size;
+	size_t unitSize = sizeof(GFX_Unit) + size;
 
 	/* Allocate */
 	void* data = calloc(num, unitSize);
@@ -70,7 +76,7 @@ static void* _gfx_binder_init(
 	/* Iterate and set to empty */
 	while(num--)
 	{
-		struct GFX_Unit* unit = (struct GFX_Unit*)bindings;
+		GFX_Unit* unit = (GFX_Unit*)bindings;
 		unit->counter = GFX_BINDER_COUNTER_EMPTY;
 
 		/* Next unit */
@@ -89,12 +95,12 @@ static void _gfx_binder_increase(
 		size_t         num,
 		size_t         size)
 {
-	size_t unitSize = sizeof(struct GFX_Unit) + size;
+	size_t unitSize = sizeof(GFX_Unit) + size;
 
 	/* Iterate and increase */
 	while(num--)
 	{
-		struct GFX_Unit* unit = (struct GFX_Unit*)bindings;
+		GFX_Unit* unit = (GFX_Unit*)bindings;
 
 		/* Check against minimum and increase according to sign */
 		if(unit->counter >= min)
@@ -122,8 +128,8 @@ static void _gfx_binder_unbind(
 		size_t       cmpSize,
 		const void*  cmp)
 {
-	struct GFX_Unit* curr = bindings;
-	size_t unitSize = sizeof(struct GFX_Unit) + size;
+	GFX_Unit* curr = bindings;
+	size_t unitSize = sizeof(GFX_Unit) + size;
 
 	/* Iterate */
 	size_t i;
@@ -169,12 +175,12 @@ static size_t _gfx_binder_request(
 		size
 	);
 
-	struct GFX_Unit* pos = NULL;
-	size_t unitSize = sizeof(struct GFX_Unit) + size;
+	GFX_Unit* pos = NULL;
+	size_t unitSize = sizeof(GFX_Unit) + size;
 
 	/* Find highest or equal entry */
-	struct GFX_Unit* high = (struct GFX_Unit*)bindings;
-	struct GFX_Unit* curr = high;
+	GFX_Unit* high = (GFX_Unit*)bindings;
+	GFX_Unit* curr = high;
 
 	while(num--)
 	{
@@ -217,23 +223,25 @@ size_t _gfx_binder_bind_uniform_buffer(
 	{
 		GFX_REND_GET.uniformBuffers = _gfx_binder_init(
 			GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
-			sizeof(struct GFX_UniformBuffer)
+			sizeof(GFX_UniformBuffer)
 		);
 
 		if(!GFX_REND_GET.uniformBuffers) return 0;
 	}
 
 	/* Get unit to bind it to */
-	struct GFX_UniformBuffer buff;
-	buff.buffer = buffer;
-	buff.offset = offset;
-	buff.size = size;
+	GFX_UniformBuffer buff =
+	{
+		.buffer = buffer,
+		.offset = offset,
+		.size = size
+	};
 
 	int old;
 	size_t bind = _gfx_binder_request(
 		GFX_REND_GET.uniformBuffers,
 		GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
-		sizeof(struct GFX_UniformBuffer),
+		sizeof(GFX_UniformBuffer),
 		&buff,
 		prioritize,
 		&old
@@ -259,13 +267,13 @@ void _gfx_binder_unbind_uniform_buffer(
 {
 	if(GFX_REND_GET.uniformBuffers)
 	{
-		struct GFX_UniformBuffer buff;
+		GFX_UniformBuffer buff;
 		buff.buffer = buffer;
 
 		_gfx_binder_unbind(
 			GFX_REND_GET.uniformBuffers,
 			GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
-			sizeof(struct GFX_UniformBuffer),
+			sizeof(GFX_UniformBuffer),
 			sizeof(GLuint),
 			&buff
 		);
@@ -285,21 +293,21 @@ size_t _gfx_binder_bind_texture(
 	{
 		GFX_REND_GET.textureUnits = _gfx_binder_init(
 			GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
-			sizeof(struct GFX_TextureUnit)
+			sizeof(GFX_TextureUnit)
 		);
 
 		if(!GFX_REND_GET.textureUnits) return 0;
 	}
 
 	/* Get unit to bind it to */
-	struct GFX_TextureUnit unit;
+	GFX_TextureUnit unit;
 	unit.texture = texture;
 
 	int old;
 	size_t bind = _gfx_binder_request(
 		GFX_REND_GET.textureUnits,
 		GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
-		sizeof(struct GFX_TextureUnit),
+		sizeof(GFX_TextureUnit),
 		&unit,
 		prioritize,
 		&old
@@ -327,13 +335,13 @@ void _gfx_binder_unbind_texture(
 {
 	if(GFX_REND_GET.textureUnits)
 	{
-		struct GFX_TextureUnit unit;
+		GFX_TextureUnit unit;
 		unit.texture = texture;
 
 		_gfx_binder_unbind(
 			GFX_REND_GET.textureUnits,
 			GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
-			sizeof(struct GFX_TextureUnit),
+			sizeof(GFX_TextureUnit),
 			sizeof(GLuint),
 			&unit
 		);

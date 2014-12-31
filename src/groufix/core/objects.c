@@ -19,20 +19,22 @@
 
 /******************************************************/
 /* Actual object storage */
-struct GFX_Object
+typedef struct GFX_Object
 {
 	void*                         handle;
 	const GFX_RenderObjectFuncs*  funcs; /* NULL when empty */
-};
+
+} GFX_Object;
+
 
 /******************************************************/
 void _gfx_render_objects_init(
 
 		GFX_RenderObjects* cont)
 {
-	gfx_vector_init(&cont->objects, sizeof(struct GFX_Object));
+	gfx_vector_init(&cont->objects, sizeof(GFX_Object));
 	gfx_deque_init(&cont->empties, sizeof(unsigned int));
-	gfx_vector_init(&cont->saved, sizeof(struct GFX_Object));
+	gfx_vector_init(&cont->saved, sizeof(GFX_Object));
 }
 
 /******************************************************/
@@ -61,7 +63,7 @@ GFX_RenderObjectID _gfx_render_object_register(
 	if(!funcs) return id;
 
 	/* Create internal object */
-	struct GFX_Object obj =
+	GFX_Object obj =
 	{
 		.handle = object,
 		.funcs = funcs
@@ -73,7 +75,7 @@ GFX_RenderObjectID _gfx_render_object_register(
 		id.id = *(unsigned int*)cont->empties.begin;
 		gfx_deque_pop_begin(&cont->empties);
 
-		*(struct GFX_Object*)gfx_vector_at(&cont->objects, id.id - 1) = obj;
+		*(GFX_Object*)gfx_vector_at(&cont->objects, id.id - 1) = obj;
 	}
 	else
 	{
@@ -122,13 +124,13 @@ void _gfx_render_object_unregister(
 	if(id.id < size)
 	{
 		/* Check if it is already empty */
-		struct GFX_Object* obj = gfx_vector_at(
+		GFX_Object* obj = gfx_vector_at(
 			&id.objects->objects,
 			id.id - 1
 		);
 
 		if(!obj->funcs) return;
-		memset(obj, 0, sizeof(struct GFX_Object));
+		memset(obj, 0, sizeof(GFX_Object));
 
 		/* Save ID */
 		gfx_deque_push_end(&id.objects->empties, &id.id);
@@ -150,7 +152,7 @@ void _gfx_render_objects_free(
 	};
 
 	/* Issue free request */
-	struct GFX_Object* it;
+	GFX_Object* it;
 	for(
 		it = cont->objects.begin;
 		it != cont->objects.end;
@@ -177,7 +179,7 @@ void _gfx_render_objects_save(
 	};
 
 	/* Issue save request */
-	struct GFX_Object* it;
+	GFX_Object* it;
 	for(
 		it = cont->objects.begin;
 		it != cont->objects.end;
@@ -215,7 +217,7 @@ void _gfx_render_objects_restore(
 	gfx_vector_reserve(&cont->objects, size);
 
 	/* Iterate over all saved objects */
-	struct GFX_Object* it;
+	GFX_Object* it;
 	for(
 		it = src->saved.begin;
 		it != src->saved.end;

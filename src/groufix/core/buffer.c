@@ -20,7 +20,7 @@
 
 /******************************************************/
 /* Internal Buffer */
-struct GFX_Buffer
+typedef struct GFX_Buffer
 {
 	/* Super class */
 	GFXBuffer buffer;
@@ -29,7 +29,9 @@ struct GFX_Buffer
 	GFX_RenderObjectID  id;
 	unsigned char       current; /* Current active buffer */
 	GFXVector           handles; /* Stores GLuint */
-};
+
+} GFX_Buffer;
+
 
 /******************************************************/
 static int _gfx_buffer_eval_target(
@@ -84,10 +86,10 @@ static inline GLenum _gfx_buffer_get_usage(
 /******************************************************/
 static void _gfx_buffer_alloc_buffers(
 
-		struct GFX_Buffer*  buffer,
-		GFXVectorIterator   it,
-		unsigned char       num,
-		const void*         data,
+		GFX_Buffer*        buffer,
+		GFXVectorIterator  it,
+		unsigned char      num,
+		const void*        data,
 		GFX_WIND_ARG)
 {
 	/* Allocate buffers */
@@ -120,9 +122,9 @@ static void _gfx_buffer_alloc_buffers(
 /******************************************************/
 static void _gfx_buffer_delete_buffers(
 
-		struct GFX_Buffer*  buffer,
-		GFXVectorIterator   it,
-		unsigned char       num,
+		GFX_Buffer*        buffer,
+		GFXVectorIterator  it,
+		unsigned char      num,
 		GFX_WIND_ARG)
 {
 	/* Iterate over buffers */
@@ -144,7 +146,7 @@ static void _gfx_buffer_obj_free(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
+	GFX_Buffer* buffer = (GFX_Buffer*)object;
 
 	buffer->id = id;
 	gfx_vector_clear(&buffer->handles);
@@ -156,7 +158,7 @@ static void _gfx_buffer_obj_save_restore(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_Buffer* buffer = (struct GFX_Buffer*)object;
+	GFX_Buffer* buffer = (GFX_Buffer*)object;
 	buffer->id = id;
 }
 
@@ -174,7 +176,7 @@ GLuint _gfx_buffer_get_handle(
 
 		const GFXBuffer* buffer)
 {
-	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
+	GFX_Buffer* internal = (GFX_Buffer*)buffer;
 	return *(GLuint*)gfx_vector_at(&internal->handles, internal->current);
 }
 
@@ -194,7 +196,7 @@ GFXBuffer* gfx_buffer_create(
 		return NULL;
 
 	/* Create new buffer */
-	struct GFX_Buffer* buffer = calloc(1, sizeof(struct GFX_Buffer));
+	GFX_Buffer* buffer = calloc(1, sizeof(GFX_Buffer));
 	if(!buffer)
 	{
 		/* Out of memory error */
@@ -287,7 +289,7 @@ void gfx_buffer_free(
 	{
 		GFX_WIND_INIT_UNSAFE;
 
-		struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
+		GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
@@ -315,7 +317,7 @@ int gfx_buffer_expand(
 	GFX_WIND_INIT(0);
 
 	if(!num) return 0;
-	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
+	GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
 	/* Allocate new handles */
 	GFXVectorIterator it = gfx_vector_insert_range(
@@ -348,7 +350,7 @@ int gfx_buffer_shrink(
 {
 	GFX_WIND_INIT(0);
 
-	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
+	GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
 	/* Get where to remove buffers */
 	num = num > buffer->multi ? buffer->multi : num;
@@ -398,7 +400,7 @@ void gfx_buffer_swap(
 
 		GFXBuffer* buffer)
 {
-	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
+	GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
 	/* Swap buffer */
 	internal->current =
@@ -416,7 +418,7 @@ void gfx_buffer_write(
 {
 	GFX_WIND_INIT();
 
-	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
+	GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
 	GFX_REND_GET.NamedBufferSubData(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
@@ -435,7 +437,7 @@ void gfx_buffer_read(
 {
 	GFX_WIND_INIT();
 
-	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
+	GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
 	GFX_REND_GET.GetNamedBufferSubData(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
@@ -454,7 +456,7 @@ void* gfx_buffer_map(
 {
 	GFX_WIND_INIT(NULL);
 
-	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
+	GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
 	/* Strip access bits */
 	access &= GFX_BUFFER_READ | GFX_BUFFER_WRITE;
@@ -475,7 +477,7 @@ void gfx_buffer_unmap(
 {
 	GFX_WIND_INIT();
 
-	struct GFX_Buffer* internal = (struct GFX_Buffer*)buffer;
+	GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
 	GLboolean success = GFX_REND_GET.UnmapNamedBuffer(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current));

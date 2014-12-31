@@ -28,7 +28,7 @@
 
 /******************************************************/
 /* Internal program map */
-struct GFX_Map
+typedef struct GFX_Map
 {
 	/* Super Class */
 	GFXProgramMap map;
@@ -38,7 +38,9 @@ struct GFX_Map
 	GLuint              handle;                     /* OpenGL program or program pipeline handle */
 	GFXProgram*         stages[GFX_INT_NUM_STAGES]; /* All stages with their associated program */
 	unsigned int        blocks;                     /* Number of times blocked */
-};
+
+} GFX_Map;
+
 
 /******************************************************/
 static inline unsigned char _gfx_program_map_get_stage(
@@ -79,9 +81,9 @@ static inline GLbitfield _gfx_program_map_get_bitfield(
 /******************************************************/
 static int _gfx_program_map_set_stages(
 
-		struct GFX_Map*  map,
-		GFXShaderStage   stage,
-		GFXProgram*      program)
+		GFX_Map*        map,
+		GFXShaderStage  stage,
+		GFXProgram*     program)
 {
 	GFX_WIND_INIT(0);
 
@@ -157,7 +159,7 @@ static void _gfx_program_map_obj_free(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	struct GFX_Map* map = (struct GFX_Map*)object;
+	GFX_Map* map = (GFX_Map*)object;
 
 	/* If it was already freed, free memory */
 	map->id = id;
@@ -172,7 +174,7 @@ static void _gfx_program_map_obj_save(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	struct GFX_Map* map = (struct GFX_Map*)object;
+	GFX_Map* map = (GFX_Map*)object;
 
 	map->id = id;
 	GFX_REND_GET.DeleteProgramPipelines(1, &map->handle);
@@ -187,7 +189,7 @@ static void _gfx_program_map_obj_restore(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	struct GFX_Map* map = (struct GFX_Map*)object;
+	GFX_Map* map = (GFX_Map*)object;
 
 	/* Create program pipeline */
 	map->id = id;
@@ -220,7 +222,7 @@ GLuint _gfx_program_map_get_handle(
 
 		const GFXProgramMap* map)
 {
-	return ((struct GFX_Map*)map)->handle;
+	return ((GFX_Map*)map)->handle;
 }
 
 /******************************************************/
@@ -230,7 +232,7 @@ int _gfx_program_map_block(
 {
 	GFX_WIND_INIT(0);
 
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 
 	/* Check if all programs are linked */
 	unsigned char stage;
@@ -273,8 +275,10 @@ void _gfx_program_map_unblock(
 
 		GFXProgramMap* map)
 {
-	struct GFX_Map* internal = (struct GFX_Map*)map;
-	internal->blocks = internal->blocks ? internal->blocks - 1 : 0;
+	GFX_Map* internal =
+		(GFX_Map*)map;
+	internal->blocks =
+		internal->blocks ? internal->blocks - 1 : 0;
 }
 
 /******************************************************/
@@ -284,7 +288,7 @@ void _gfx_program_map_save(
 {
 	GFX_WIND_INIT();
 
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 
 	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
 	{
@@ -327,7 +331,7 @@ void _gfx_program_map_use(
 		GFXProgramMap* map,
 		GFX_WIND_ARG)
 {
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 
 	/* Prevent binding it twice */
 	if(GFX_REND_GET.program != internal->handle)
@@ -343,7 +347,7 @@ GFXProgramMap* gfx_program_map_create(void)
 	GFX_WIND_INIT(NULL);
 
 	/* Create new program map */
-	struct GFX_Map* map = calloc(1, sizeof(struct GFX_Map));
+	GFX_Map* map = calloc(1, sizeof(GFX_Map));
 	if(!map)
 	{
 		/* Out of memory error */
@@ -385,7 +389,7 @@ void gfx_program_map_free(
 	{
 		GFX_WIND_INIT_UNSAFE;
 
-		struct GFX_Map* internal = (struct GFX_Map*)map;
+		GFX_Map* internal = (GFX_Map*)map;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
@@ -420,7 +424,7 @@ GFXProgram* gfx_program_map_add(
 		size_t          instances)
 {
 	/* Check if blocked */
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 	if(internal->blocks) return NULL;
 
 	/* Create the program */
@@ -445,7 +449,7 @@ int gfx_program_map_add_share(
 		GFXProgram*     share)
 {
 	/* Check if blocked */
-	struct GFX_Map* internal = (struct GFX_Map*)map;
+	GFX_Map* internal = (GFX_Map*)map;
 	if(internal->blocks) return 0;
 
 	if(share)
@@ -476,5 +480,5 @@ GFXProgram* gfx_program_map_get(
 	unsigned char index = _gfx_program_map_get_stage(stage);
 	if(index >= GFX_INT_NUM_STAGES) return NULL;
 
-	return ((struct GFX_Map*)map)->stages[index];
+	return ((GFX_Map*)map)->stages[index];
 }

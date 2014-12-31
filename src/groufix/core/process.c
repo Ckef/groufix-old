@@ -21,11 +21,13 @@
 /* All pipe processes */
 static GFXVector* _gfx_pipes = NULL;
 
+
 /* Shared vertex buffer */
 static GLuint _gfx_process_buffer = 0;
 
+
 /* Internal Pipe Process */
-struct GFX_Process
+typedef struct GFX_Process
 {
 	GFXProgramMap*   progs;
 	GFXPropertyMap*  map;
@@ -34,7 +36,9 @@ struct GFX_Process
 	GFX_Window*      target;
 	unsigned char    swap;    /* Whether to swap window buffers or not */
 	GFXViewport      viewport;
-};
+
+} GFX_Process;
+
 
 /******************************************************/
 static inline void _gfx_pipe_process_draw(
@@ -114,7 +118,7 @@ void _gfx_pipe_process_unprepare(
 		it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, reset post processing */
-		struct GFX_Process* proc = *(struct GFX_Process**)it;
+		GFX_Process* proc = *(GFX_Process**)it;
 		if(GFX_WIND_EQ(proc->target))
 		{
 			gfx_property_map_free(proc->map);
@@ -154,7 +158,7 @@ void _gfx_pipe_process_retarget(
 			it != _gfx_pipes->end;
 			it = gfx_vector_next(_gfx_pipes, it))
 		{
-			struct GFX_Process* proc = *(struct GFX_Process**)it;
+			GFX_Process* proc = *(GFX_Process**)it;
 			if(GFX_WIND_EQ(proc->target))
 				_gfx_program_map_save(proc->progs);
 		}
@@ -167,7 +171,7 @@ void _gfx_pipe_process_retarget(
 			it != _gfx_pipes->end;
 			it = gfx_vector_next(_gfx_pipes, it))
 		{
-			struct GFX_Process* proc = *(struct GFX_Process**)it;
+			GFX_Process* proc = *(GFX_Process**)it;
 			if(GFX_WIND_EQ(proc->target))
 			{
 				/* Also make sure to set the target */
@@ -195,7 +199,7 @@ void _gfx_pipe_process_resize(
 		it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, resize! */
-		struct GFX_Process* proc = *(struct GFX_Process**)it;
+		GFX_Process* proc = *(GFX_Process**)it;
 		if(target == proc->target)
 		{
 			proc->viewport.width = width;
@@ -213,7 +217,7 @@ GFXPipeProcess _gfx_pipe_process_create(
 	GFX_WIND_INIT(NULL);
 
 	/* Allocate */
-	struct GFX_Process* proc = calloc(1, sizeof(struct GFX_Process));
+	GFX_Process* proc = calloc(1, sizeof(GFX_Process));
 	if(!proc)
 	{
 		/* Out of memory error */
@@ -290,7 +294,7 @@ void _gfx_pipe_process_free(
 	{
 		GFX_WIND_INIT_UNSAFE;
 
-		struct GFX_Process* internal = (struct GFX_Process*)process;
+		GFX_Process* internal = (GFX_Process*)process;
 
 		/* Create context-bound objects */
 		if(internal->target)
@@ -335,7 +339,7 @@ GFXPropertyMap* gfx_pipe_process_get_map(
 		GFXPipeProcess  process,
 		unsigned char   properties)
 {
-	struct GFX_Process* internal = (struct GFX_Process*)process;
+	GFX_Process* internal = (GFX_Process*)process;
 
 	if(!internal->map)
 	{
@@ -363,7 +367,7 @@ void gfx_pipe_process_set_copy(
 		GFXPipeProcess  process,
 		unsigned int    copy)
 {
-	((struct GFX_Process*)process)->copy = copy;
+	((GFX_Process*)process)->copy = copy;
 }
 
 /******************************************************/
@@ -374,7 +378,7 @@ GFXProgram* gfx_pipe_process_add(
 		size_t          instances)
 {
 	return gfx_program_map_add(
-		((struct GFX_Process*)process)->progs,
+		((GFX_Process*)process)->progs,
 		stage,
 		instances
 	);
@@ -388,7 +392,7 @@ int gfx_pipe_process_add_share(
 		GFXProgram*     share)
 {
 	return gfx_program_map_add_share(
-		((struct GFX_Process*)process)->progs,
+		((GFX_Process*)process)->progs,
 		stage,
 		share
 	);
@@ -401,7 +405,7 @@ GFXProgram* gfx_pipe_process_get(
 		GFXShaderStage  stage)
 {
 	return gfx_program_map_get(
-		((struct GFX_Process*)process)->progs,
+		((GFX_Process*)process)->progs,
 		stage
 	);
 }
@@ -413,7 +417,7 @@ void _gfx_pipe_process_execute(
 		GFXPipeState*   state,
 		GFX_WIND_ARG)
 {
-	struct GFX_Process* internal = (struct GFX_Process*)process;
+	GFX_Process* internal = (GFX_Process*)process;
 
 	if(!internal->map) return;
 
