@@ -18,18 +18,16 @@
 help:
 	@echo ""
 	@echo "Use one of the following commands to build Groufix:"
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo " $(MAKE) clean             Clean temporary files."
-	@echo " $(MAKE) clean-all         Clean all files $(MAKE) produced."
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo " $(MAKE) unix-x11          Build the Groufix Unix target using X11."
-	@echo " $(MAKE) unix-x11-minimal  Build the minimal example Unix target using X11."
-	@echo " $(MAKE) unix-x11-simple   Build the simple example Unix target using X11."
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo " $(MAKE) win32             Build the Groufix Windows target."
-	@echo " $(MAKE) win32-minimal     Build the minimal example Windows target."
-	@echo " $(MAKE) win32-simple      Build the simple example Windows target."
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo " $(MAKE) clean              Clean temporary files."
+	@echo " $(MAKE) clean-all          Clean all files make produced."
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo " $(MAKE) unix-x11           Build the Groufix Unix-X11 target."
+	@echo " $(MAKE) unix-x11-examples  Build all targets and examples for Unix-X11."
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo " $(MAKE) win32              Build the Groufix Windows target."
+	@echo " $(MAKE) win32-examples     Build all tragets and examples for Windows."
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo ""
 
 
@@ -180,6 +178,10 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/math.o \
  $(OUT)/unix-x11/groufix.o
 
+EXAMPLES_UNIX_X11 = \
+ $(BIN)/unix-x11/minimal \
+ $(BIN)/unix-x11/simple
+
 
 # Directories
 before-unix-x11:
@@ -190,21 +192,20 @@ before-unix-x11:
 	@mkdir -p $(OUT)/unix-x11/groufix/scene
 
 
-# All examples
-unix-x11-minimal: examples/minimal.c unix-x11
-	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/minimal -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+# All the object and source files
+$(OUT)/unix-x11%.o: src%.c $(HEADERS_UNIX_X11)
+	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-unix-x11-simple: examples/simple.c unix-x11
-	$(CC) $(CFLAGS_UNIX_X11) $< -o $(BIN)/unix-x11/simple -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+$(BIN)/unix-x11%: examples%.c unix-x11
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $@ -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 
 # Shared Library
 unix-x11: before-unix-x11 $(OBJS_UNIX_X11)
 	$(CC) $(OBJS_UNIX_X11) -o $(BIN)/unix-x11/libGroufix.so $(LFLAGS_UNIX_X11)
 
-# All the object files
-$(OUT)/unix-x11%.o: src%.c $(HEADERS_UNIX_X11)
-	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
+# All examples
+unix-x11-examples: $(EXAMPLES_UNIX_X11)
 
 
 #################################################################
@@ -251,6 +252,10 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/math.o \
  $(OUT)/win32/groufix.o
 
+EXAMPLES_WIN32 = \
+ $(BIN)/win32/minimal \
+ $(BIN)/win32/simple
+
 
 # Directories
 before-win32:
@@ -261,18 +266,17 @@ before-win32:
 	@if not exist $(OUT)\win32\groufix\scene\nul mkdir $(OUT)\win32\groufix\scene
 
 
-# All examples
-win32-minimal: examples/minimal.c win32
-	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/minimal -L$(BIN)/win32/ -lGroufix
+# All the object and source files
+$(OUT)/win32%.o: src%.c $(HEADERS_WIN32)
+	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-win32-simple: examples/simple.c win32
-	$(CC) $(CFLAGS_WIN32) $< -o $(BIN)/win32/simple -L$(BIN)/win32/ -lGroufix
+$(BIN)/win32%: examples%.c win32
+	$(CC) $(CFLAGS_WIN32) $< -o $@ -L$(BIN)/win32/ -lGroufix
 
 
 # Shared library
 win32: before-win32 $(OBJS_WIN32)
 	$(CC) $(OBJS_WIN32) -o $(BIN)/win32/libGroufix.dll $(LFLAGS_WIN32)
 
-# All the object files
-$(OUT)/win32%.o: src%.c $(HEADERS_WIN32)
-	$(CC) $(OBJFLAGS_WIN32) $< -o $@
+# All examples
+win32-examples: $(EXAMPLES_WIN32)
