@@ -244,14 +244,24 @@ GFXVectorIterator gfx_vector_insert_range(
 	size_t mov = GFX_PTR_DIFF(pos, vector->end);
 
 	/* Copy to a temporary buffer */
-	int8_t buff[diff];
-	if(start) memcpy(buff, start, diff);
+	void* buff = NULL;
+
+	if(start)
+	{
+		buff = malloc(diff);
+		if(!buff) return vector->end;
+
+		memcpy(buff, start, diff);
+	}
 
 	/* Reallocate if necessary */
 	if(newSize > vector->capacity)
 	{
 		if(!_gfx_vector_realloc(vector, newSize, _gfx_vector_get_max_capacity(newSize)))
+		{
+			free(buff);
 			return vector->end;
+		}
 
 		pos = GFX_PTR_ADD_BYTES(vector->begin, oldSize - mov);
 	}
@@ -261,7 +271,9 @@ GFXVectorIterator gfx_vector_insert_range(
 
 	/* Move elements if inserting */
 	if(mov) memmove(GFX_PTR_ADD_BYTES(pos, diff), pos, mov);
-	memcpy(pos, buff, diff);
+	if(buff) memcpy(pos, buff, diff);
+
+	free(buff);
 
 	return pos;
 }
