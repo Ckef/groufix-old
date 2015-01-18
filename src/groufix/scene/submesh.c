@@ -29,7 +29,7 @@ typedef struct GFX_SubMesh
 
 	/* Hidden data */
 	unsigned int  references; /* Reference counter */
-	GFXVector     buckets;    /* Stores (GFX_Bucket + GFXBucketSource * sources) */
+	GFXVector     buckets;    /* Stores (GFX_Bucket + GFXVertexSource * sources) */
 	GFXVector     buffers;    /* Stores GFXSharedBuffer */
 
 } GFX_SubMesh;
