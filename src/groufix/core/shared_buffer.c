@@ -263,12 +263,7 @@ static void _gfx_shared_buffer_erase_segment(
 		_gfx_shared_buffer_segment_comp
 	);
 
-	if(it)
-	{
-		GFX_Segment* seg = it;
-		if(seg->offset == offset)
-			gfx_vector_erase(&buffer->segments, it);
-	}
+	if(it) gfx_vector_erase(&buffer->segments, it);
 }
 
 /******************************************************/

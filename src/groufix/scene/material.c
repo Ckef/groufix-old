@@ -12,18 +12,159 @@
  *
  */
 
+#include "groufix/containers/vector.h"
 #include "groufix/core/errors.h"
 #include "groufix/scene/material.h"
+
+#include <limits.h>
+#include <stdlib.h>
 
 /******************************************************/
 /* Internal Property Map data */
 typedef struct GFX_MapData
 {
-	GFXPropertyMap*  map;    /* Super class */
-	unsigned int     copies; /* Number of copies used by units */
+	GFXPropertyMap*  map;      /* Super class */
+	unsigned int     copies;   /* Number of copies used by units */
+	GFXVector        segments; /* Takes segments of the copy range */
 
 } GFX_MapData;
 
+
+/* Internal segment */
+typedef struct GFX_Segment
+{
+	unsigned int offset; /* Sort key */
+	unsigned int num;
+
+} GFX_Segment;
+
+
+/******************************************************/
+static int _gfx_material_segment_comp(
+
+		const void*  key,
+		const void*  elem)
+{
+	unsigned int offset = GFX_VOID_TO_UINT(key);
+	unsigned int found = ((GFX_Segment*)elem)->offset;
+
+	if(found < offset) return 1;
+	if(found > offset) return -1;
+
+	return 0;
+}
+
+/******************************************************/
+int _gfx_property_map_list_insert_copies_at(
+
+		GFXPropertyMapList  list,
+		unsigned int        index,
+		unsigned int        copies,
+		unsigned int*       offset)
+{
+	GFX_Segment new =
+	{
+		.offset = 0,
+		.num = copies
+	};
+
+	GFX_MapData* data = ((GFX_MapData*)list) + index;
+
+	/* Check for overflow */
+	if(UINT_MAX - copies < data->copies)
+	{
+		gfx_errors_push(
+			GFX_ERROR_OVERFLOW,
+			"Overflow occurred during copy insertion at a material."
+		);
+		return 0;
+	}
+
+	/* Iterate through segments and find a big enough empty spot */
+	GFXVectorIterator it;
+	for(
+		it = data->segments.begin;
+		it != data->segments.end;
+		it = gfx_vector_next(&data->segments, it))
+	{
+		GFX_Segment* seg = it;
+		if(copies > (seg->offset - new.offset))
+		{
+			new.offset = seg->offset + seg->num;
+			continue;
+		}
+
+		/* Now try to insert the segment */
+		it = gfx_vector_insert(&data->segments, &new, it);
+		if(it == data->segments.end) return 0;
+
+		data->copies += copies;
+		*offset = new.offset;
+
+		return 1;
+	}
+
+	/* Expand the property map if necessary */
+	unsigned int expand = new.offset + copies;
+
+	if(data->map->copies >= expand)
+		expand = 0;
+
+	else
+	{
+		expand -= data->map->copies;
+		if(!gfx_property_map_expand(data->map, expand))
+			return 0;
+	}
+
+	/* Insert at end instead */
+	it = gfx_vector_insert(
+		&data->segments,
+		&new,
+		data->segments.end
+	);
+
+	if(it != data->segments.end)
+	{
+		data->copies += copies;
+		*offset = new.offset;
+
+		return 1;
+	}
+
+	/* Shrink property map again.. */
+	gfx_property_map_shrink(data->map, expand);
+
+	return 0;
+}
+
+/******************************************************/
+void _gfx_property_map_list_erase_copies_at(
+
+		GFXPropertyMapList  list,
+		unsigned int        index,
+		unsigned int        offset)
+{
+	GFX_MapData* data = ((GFX_MapData*)list) + index;
+
+	/* Retrieve segment */
+	GFXVectorIterator it = bsearch(
+		GFX_UINT_TO_VOID(offset),
+		data->segments.begin,
+		gfx_vector_get_size(&data->segments),
+		sizeof(GFX_Segment),
+		_gfx_material_segment_comp
+	);
+
+	if(it)
+	{
+		/* Decrease used copies */
+		GFX_Segment* seg = it;
+		data->copies -= seg->num;
+
+		gfx_vector_erase(&data->segments, it);
+	}
+}
 
 /******************************************************/
 GFXMaterial* gfx_material_create(void)
@@ -50,7 +191,11 @@ void gfx_material_free(
 			&num
 		);
 
-		while(num--) gfx_property_map_free(maps[num].map);
+		while(num--)
+		{
+			gfx_property_map_free(maps[num].map);
+			gfx_vector_clear(&maps[num].segments);
+		}
 
 		/* Free */
 		gfx_lod_map_free((GFXLodMap*)material);
@@ -72,10 +217,14 @@ GFXPropertyMap* gfx_material_add(
 	data.map = gfx_property_map_create(programMap, properties);
 	if(!data.map) return NULL;
 
+	gfx_vector_init(&data.segments, sizeof(GFX_Segment));
+
 	/* Add it to the LOD map */
 	if(!gfx_lod_map_add((GFXLodMap*)material, level, &data))
 	{
 		gfx_property_map_free(data.map);
+		gfx_vector_clear(&data.segments);
+
 		return NULL;
 	}
 

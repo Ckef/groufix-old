@@ -100,6 +100,11 @@ GFX_API GFXPropertyMapList gfx_material_get_all(
 /**
  * Index into a list of property maps, retrieving the number of used copies.
  *
+ * @param list List of property maps returned by gfx_material_get or gfx_material_get_all.
+ *
+ * Note: this is not the number of copies stored in memory, but actual copies used.
+ * This is as copies act like a resource pool, freeing any fragmentates the pool.
+ *
  */
 GFX_API unsigned int gfx_property_map_list_copies_at(
 

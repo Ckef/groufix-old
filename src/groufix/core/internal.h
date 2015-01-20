@@ -261,6 +261,63 @@ void _gfx_event_mouse_wheel(
 
 
 /********************************************************
+ * Datatype helpers and format retrievers
+ *******************************************************/
+
+/**
+ * Returns 1 if packed data, 0 if unpacked.
+ *
+ */
+int _gfx_is_data_type_packed(
+
+		GFXDataType type);
+
+/**
+ * Returns the size of a data type in bytes.
+ *
+ */
+unsigned char _gfx_sizeof_data_type(
+
+		GFXDataType type);
+
+/**
+ * Returns the internal target of a texture (a.k.a type).
+ *
+ */
+GLenum _gfx_texture_get_internal_target(
+
+		const GFXTexture* texture);
+
+/**
+ * Converts a texture format to a client pixel format.
+ *
+ * @return Negative on failure.
+ *
+ */
+GLint _gfx_texture_format_to_pixel_format(
+
+		GFXTextureFormat format);
+
+/**
+ * Converts a texture format to an internal format.
+ *
+ * @return Negative on failure.
+ *
+ */
+GLint _gfx_texture_format_to_internal(
+
+		GFXTextureFormat format);
+
+/**
+ * Converts an internal format to a texture format.
+ *
+ */
+GFXTextureFormat _gfx_texture_format_from_internal(
+
+		GLint format);
+
+
+/********************************************************
  * State management
  *******************************************************/
 
@@ -448,6 +505,97 @@ void _gfx_vertex_layout_draw(
 
 
 /********************************************************
+ * Internal program & program map usage
+ *******************************************************/
+
+/**
+ * Creates a new program.
+ *
+ * @param instances Number of instances that can be drawn in a single draw call, 0 for infinite.
+ * @return NULL on failure.
+ *
+ */
+GFXProgram* _gfx_program_create(
+
+		size_t instances);
+
+/**
+ * References a program to postpone its destruction.
+ *
+ * @param references Number of times to reference it.
+ * @return Zero on overflow.
+ *
+ */
+int _gfx_program_reference(
+
+		GFXProgram*   program,
+		unsigned int  references);
+
+/**
+ * Makes sure the program is freed properly.
+ *
+ * Decrease the reference counter before freeing,
+ * only freeing if the counter hits 0.
+ *
+ */
+void _gfx_program_free(
+
+		GFXProgram* program);
+
+/**
+ * Get the location of a property (a.k.a uniform).
+ *
+ * @return Negative on failure, the location otherwise.
+ *
+ */
+GLint _gfx_program_get_location(
+
+		GFXProgram*     program,
+		unsigned short  index);
+
+/**
+ * Blocks the program map from adding anymore programs.
+ *
+ * @return Zero on failure.
+ *
+ * This so it can link the programs.
+ *
+ */
+int _gfx_program_map_block(
+
+		GFXProgramMap* map);
+
+/**
+ * Unblocks the program map from adding anymore programs.
+ *
+ * Must be called equally many times as _gfx_program_map_block has been called.
+ *
+ */
+void _gfx_program_map_unblock(
+
+		GFXProgramMap* map);
+
+/**
+ * Acts as if _gfx_render_objects_save was called for only the program map.
+ *
+ */
+void _gfx_program_map_save(
+
+		GFXProgramMap* map);
+
+/**
+ * Acts as if _gfx_render_objects_restore was called for only the program map.
+ *
+ * The source render object container is implied from _gfx_program_map_save.
+ *
+ */
+void _gfx_program_map_restore(
+
+		GFXProgramMap*      map,
+		GFX_RenderObjects*  cont);
+
+
+/********************************************************
  * Internal pipe
  *******************************************************/
 
@@ -606,159 +754,6 @@ void _gfx_pipe_process_execute(
 		GFXPipeProcess  process,
 		GFXPipeState*   state,
 		GFX_WIND_ARG);
-
-
-/********************************************************
- * Internal program & program map usage
- *******************************************************/
-
-/**
- * Creates a new program.
- *
- * @param instances Number of instances that can be drawn in a single draw call, 0 for infinite.
- * @return NULL on failure.
- *
- */
-GFXProgram* _gfx_program_create(
-
-		size_t instances);
-
-/**
- * References a program to postpone its destruction.
- *
- * @param references Number of times to reference it.
- * @return Zero on overflow.
- *
- */
-int _gfx_program_reference(
-
-		GFXProgram*   program,
-		unsigned int  references);
-
-/**
- * Makes sure the program is freed properly.
- *
- * Decrease the reference counter before freeing,
- * only freeing if the counter hits 0.
- *
- */
-void _gfx_program_free(
-
-		GFXProgram* program);
-
-/**
- * Get the location of a property (a.k.a uniform).
- *
- * @return Negative on failure, the location otherwise.
- *
- */
-GLint _gfx_program_get_location(
-
-		GFXProgram*     program,
-		unsigned short  index);
-
-/**
- * Blocks the program map from adding anymore programs.
- *
- * @return Zero on failure.
- *
- * This so it can link the programs.
- *
- */
-int _gfx_program_map_block(
-
-		GFXProgramMap* map);
-
-/**
- * Unblocks the program map from adding anymore programs.
- *
- * Must be called equally many times as _gfx_program_map_block has been called.
- *
- */
-void _gfx_program_map_unblock(
-
-		GFXProgramMap* map);
-
-/**
- * Acts as if _gfx_render_objects_save was called for only the program map.
- *
- */
-void _gfx_program_map_save(
-
-		GFXProgramMap* map);
-
-/**
- * Acts as if _gfx_render_objects_restore was called for only the program map.
- *
- * The source render object container is implied from _gfx_program_map_save.
- *
- */
-void _gfx_program_map_restore(
-
-		GFXProgramMap*      map,
-		GFX_RenderObjects*  cont);
-
-
-/********************************************************
- * Datatype helpers
- *******************************************************/
-
-/**
- * Returns 1 if packed data, 0 if unpacked.
- *
- */
-int _gfx_is_data_type_packed(
-
-		GFXDataType type);
-
-/**
- * Returns the size of a data type in bytes.
- *
- */
-unsigned char _gfx_sizeof_data_type(
-
-		GFXDataType type);
-
-
-/********************************************************
- * Format retrieval (of textures) & converters
- *******************************************************/
-
-/**
- * Returns the internal target of a texture (a.k.a type).
- *
- */
-GLenum _gfx_texture_get_internal_target(
-
-		const GFXTexture* texture);
-
-/**
- * Converts a texture format to a client pixel format.
- *
- * @return Negative on failure.
- *
- */
-GLint _gfx_texture_format_to_pixel_format(
-
-		GFXTextureFormat format);
-
-/**
- * Converts a texture format to an internal format.
- *
- * @return Negative on failure.
- *
- */
-GLint _gfx_texture_format_to_internal(
-
-		GFXTextureFormat format);
-
-/**
- * Converts an internal format to a texture format.
- *
- */
-GFXTextureFormat _gfx_texture_format_from_internal(
-
-		GLint format);
 
 
 #ifdef __cplusplus

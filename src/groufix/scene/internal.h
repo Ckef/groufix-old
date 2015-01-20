@@ -16,6 +16,7 @@
 #define GFX_SCENE_INTERNAL_H
 
 #include "groufix/containers/vector.h"
+#include "groufix/scene/material.h"
 #include "groufix/scene/mesh.h"
 
 #ifdef __cplusplus
@@ -62,6 +63,38 @@ void _gfx_lod_map_init(
 void _gfx_lod_map_clear(
 
 		GFX_LodMap* map);
+
+
+/********************************************************
+ * Material management
+ *******************************************************/
+
+/**
+ * Requests a sequential number of copies to be reserved at a property map.
+ *
+ * @param copies Number of copies to reserve.
+ * @param offset Returns the starting copy of the reserved range.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_property_map_list_insert_copies_at(
+
+		GFXPropertyMapList  list,
+		unsigned int        index,
+		unsigned int        copies,
+		unsigned int*       offset);
+
+/**
+ * Frees previously reserved copies so they can be reserved by someone else.
+ *
+ * @param offset Offset to free copies at as returned by _gfx_property_map_list_insert_copies_at.
+ *
+ */
+void _gfx_property_map_list_erase_copies_at(
+
+		GFXPropertyMapList  list,
+		unsigned int        index,
+		unsigned int        offset);
 
 
 /********************************************************
