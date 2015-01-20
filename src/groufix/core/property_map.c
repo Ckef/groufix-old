@@ -516,9 +516,6 @@ void _gfx_property_map_use(
 	/* Use program map */
 	_gfx_program_map_use(map->programMap, GFX_WIND_AS_ARG);
 
-	/* Clamp copy */
-	copy = (copy < map->copies) ? copy : map->copies - 1;
-
 	/* Set all values of the program */
 	GFX_Property* prop;
 	unsigned char properties = map->properties;

@@ -205,6 +205,9 @@ GFX_API int gfx_bucket_is_visible(
 /**
  * Sets the index of the copy of the property map to use.
  *
+ * Note: undefined behaviour is copy is out of bounds of the available copies
+ * at the property map!
+ *
  */
 GFX_API void gfx_bucket_set_copy(
 

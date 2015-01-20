@@ -479,6 +479,8 @@ void _gfx_program_map_use(
  * @param copy Index of the copy of the map to use.
  * @param base Base instance to use.
  *
+ * Note: undefined behaviour if copy is out of bounds!
+ *
  */
 void _gfx_property_map_use(
 
