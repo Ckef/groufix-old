@@ -14,7 +14,7 @@ void print_error(GFXError error)
 
 GFXMesh* create_mesh()
 {
-	GFXMesh* mesh = gfx_mesh_create();
+	GFXMesh* mesh = gfx_mesh_create(1);
 	GFXSubMesh* sub = gfx_mesh_add(mesh, 0, 1, 1);
 
 	GFXVertexAttribute attr;
@@ -211,9 +211,7 @@ int main()
 		gfx_material_get_all(material, &num),
 		0);
 
-	GFXSubMesh* sub = gfx_submesh_list_at(
-		gfx_mesh_get_all(mesh, &num),
-		0);
+	GFXSubMesh* sub = gfx_mesh_get(mesh, 0);
 
 	gfx_submesh_add_bucket(sub, bucket->bucket);
 	gfx_bucket_insert(

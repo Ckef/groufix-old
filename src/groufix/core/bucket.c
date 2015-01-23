@@ -79,8 +79,8 @@ typedef struct GFX_Unit
 	/* Drawing */
 	GFXPropertyMap*  map;
 	unsigned int     copy;   /* Copy of the property map to use */
-
 	GFXBucketSource  src;    /* Source of the bucket to use (ID - 1) */
+
 	size_t           inst;   /* Number of instances */
 	unsigned int     base;   /* Base instance */
 	GFX_DrawType     type;
@@ -629,7 +629,8 @@ void gfx_bucket_remove_source(
 			gfx_deque_push_end(&internal->emptySources, &src);
 			((GFX_Source*)gfx_vector_at(&internal->sources, src - 1))->layout = NULL;
 		}
-		else
+
+		else if(src == size)
 		{
 			/* Remove last element */
 			gfx_vector_erase_at(&internal->sources, src - 1);
@@ -743,41 +744,6 @@ GFXBucketUnit gfx_bucket_insert(
 	if(visible) internal->flags |= GFX_INT_BUCKET_SORT;
 
 	return unit.ref + 1;
-}
-
-/******************************************************/
-int gfx_bucket_rebuild(
-
-		GFXBucket*       bucket,
-		GFXBucketUnit    unit,
-		GFXBucketSource  src,
-		GFXPropertyMap*  map)
-{
-	--src;
-
-	/* Validate index & source */
-	GFX_Bucket* internal = (GFX_Bucket*)bucket;
-	size_t cnt = gfx_vector_get_size(&internal->sources);
-
-	if(!map || src >= cnt) return 0;
-
-	GFX_Source* source = gfx_vector_at(&internal->sources, src);
-	if(!source->layout) return 0;
-
-	/* Get unit and 'rebuild' it */
-	/* If you know a better name for it, feel free */
-	GFX_Unit* un = _gfx_bucket_ref_get(internal, unit);
-
-	un->program = _gfx_program_map_get_handle(map->programMap);
-	un->vao     = _gfx_vertex_layout_get_handle(source->layout);
-	un->map     = map;
-	un->src     = src;
-
-	/* Sort if necessary */
-	if(un->state & GFX_INT_UNIT_VISIBLE)
-		internal->flags |= GFX_INT_BUCKET_SORT;
-
-	return 1;
 }
 
 /******************************************************/
@@ -901,8 +867,10 @@ void gfx_bucket_set_visible(
 		if(visible != cur)
 			internal->flags |= GFX_INT_BUCKET_PROCESS_UNITS | GFX_INT_BUCKET_SORT;
 
-		if(visible) un->state |= GFX_INT_UNIT_VISIBLE;
-		else un->state &= ~GFX_INT_UNIT_VISIBLE;
+		if(visible)
+			un->state |= GFX_INT_UNIT_VISIBLE;
+		else
+			un->state &= ~GFX_INT_UNIT_VISIBLE;
 	}
 }
 

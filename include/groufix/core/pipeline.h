@@ -142,22 +142,6 @@ GFX_API GFXBucketUnit gfx_bucket_insert(
 		int              visible);
 
 /**
- * Rebuilds a unit with a new source and property map.
- *
- * @param unit ID from a unit (if it is never inserted, behaviour is undefined).
- * @return Zero on failure, in which case the unit remains unaltered.
- *
- * Note: the original ID is reused.
- *
- */
-GFX_API int gfx_bucket_rebuild(
-
-		GFXBucket*       bucket,
-		GFXBucketUnit    unit,
-		GFXBucketSource  src,
-		GFXPropertyMap*  map);
-
-/**
  * Returns the index of the copy of the property map in use.
  *
  */

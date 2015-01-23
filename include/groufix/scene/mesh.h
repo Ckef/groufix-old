@@ -158,22 +158,21 @@ GFX_API int gfx_submesh_set_index_buffer(
 /** Mesh */
 typedef struct GFXMesh
 {
-	GFXLodMap lodMap; /* Super class */
+	unsigned char subMeshes; /* Number of submeshes */
 
 } GFXMesh;
-
-
-/** Submesh list */
-typedef void* GFXSubMeshList;
 
 
 /**
  * Creates a new mesh.
  *
+ * @param subMeshes Fixed number of submeshes associated with this layout
  * @return NULL on failure.
  *
  */
-GFX_API GFXMesh* gfx_mesh_create(void);
+GFX_API GFXMesh* gfx_mesh_create(
+
+		unsigned char subMeshes);
 
 /**
  * Makes sure the mesh is freed properly.
@@ -184,26 +183,27 @@ GFX_API void gfx_mesh_free(
 		GFXMesh* mesh);
 
 /**
- * Creates a new submesh and maps it to a given level of detail.
+ * Creates a new submesh and replaces the submesh (if any) at a given index.
  *
- * @param level     Level of detail to map to (must be <= mesh->levels).
+ * @param index     Index to insert the submesh at.
  * @param drawCalls Fixed number of draw calls associated with the layout.
  * @param sources   Fixed number of sources to create.
  * @return The new submesh on success, NULL on failure.
+ *
+ * Note: the old submesh is freed if no mesh references it anymore.
  *
  */
 GFX_API GFXSubMesh* gfx_mesh_add(
 
 		GFXMesh*       mesh,
-		unsigned int   level,
+		unsigned char  index,
 		unsigned char  drawCalls,
 		unsigned char  sources);
 
 /**
- * Shares a submesh and maps it to a given level of detail.
+ * Shares a submesh and replaces the submesh (if any) at a given index.
  *
- * @param level Level of detail to map to (must be <= mesh->levels).
- * @param share Submesh to share.
+ * @param share Submesh to share, or NULL to only remove the current submesh.
  * @return Zero on failure.
  *
  * Note: A submesh can be added multiple times to the same mesh.
@@ -211,122 +211,21 @@ GFX_API GFXSubMesh* gfx_mesh_add(
  */
 GFX_API int gfx_mesh_add_share(
 
-		GFXMesh*      mesh,
-		unsigned int  level,
-		GFXSubMesh*   share);
+		GFXMesh*       mesh,
+		unsigned char  index,
+		GFXSubMesh*    share);
 
 /**
- * Sets the material index to use for all instances of a submesh added to a mesh.
+ * Returns a submesh at a given index.
  *
- * @param material Index of the property map within a material level of detail to use.
- * @return Number of found submeshes.
- *
- * Note: index is clamped to the number of property maps available when used.
+ * @param index Index to retrieve the submesh of.
+ * @return Mapped submesh, can be NULL.
  *
  */
-GFX_API unsigned int gfx_mesh_set_material(
-
-		GFXMesh*      mesh,
-		unsigned int  level,
-		GFXSubMesh*   sub,
-		unsigned int  material);
-
-/**
- * Sets the material index to use for a submesh added to a mesh.
- *
- * @param index Index of the submesh within the level as seen in the return of gfx_mesh_get.
- * @return Zero if the submesh does not exist.
- *
- */
-GFX_API int gfx_mesh_set_material_at(
-
-		GFXMesh*      mesh,
-		unsigned int  level,
-		unsigned int  index,
-		unsigned int  material);
-
-/**
- * Sets the source to sample from all instances of a submesh added to a mesh.
- *
- * @return Number of found submeshes (0 if source >= sub->sources).
- *
- */
-GFX_API unsigned int gfx_mesh_set_source(
+GFX_API GFXSubMesh* gfx_mesh_get(
 
 		GFXMesh*       mesh,
-		unsigned int   level,
-		GFXSubMesh*    sub,
-		unsigned char  source);
-
-/**
- * Sets the source to sample from a submesh added to a mesh.
- *
- * @return Zero if the submesh does not exist (or if source >= sources of the submesh).
- *
- */
-GFX_API int gfx_mesh_set_source_at(
-
-		GFXMesh*       mesh,
-		unsigned int   level,
-		unsigned int   index,
-		unsigned char  source);
-
-/**
- * Returns an abstract list of submeshes of a given level of detail.
- *
- * @param num Returns the number of submeshes in the returned list.
- * @return List of submeshes.
- *
- * Note: as soon as a submesh is added the list is invalidated.
- *
- */
-GFX_API GFXSubMeshList gfx_mesh_get(
-
-		GFXMesh*       mesh,
-		unsigned int   level,
-		unsigned int*  num);
-
-/**
- * Returns an abstract list of submeshes of all levels.
- *
- * Note: as soon as a submesh is added the list is invalidated.
- *
- */
-GFX_API GFXSubMeshList gfx_mesh_get_all(
-
-		GFXMesh*       mesh,
-		unsigned int*  num);
-
-/**
- * Index into a list of submeshes, retrieving the material index.
- *
- * @param list List of submeshes returned by gfx_mesh_get or gfx_mesh_get_all.
- *
- * Note: you can only retrieve a submesh with index < number of elements in list.
- *
- */
-GFX_API unsigned int gfx_submesh_list_material_at(
-
-		GFXSubMeshList  list,
-		unsigned int    index);
-
-/**
- * Index into a list of submeshes, retrieving the mesh source.
- *
- */
-GFX_API unsigned char gfx_submesh_list_source_at(
-
-		GFXSubMeshList  list,
-		unsigned int    index);
-
-/**
- * Index into a list of submeshes, retrieving the submesh.
- *
- */
-GFX_API GFXSubMesh* gfx_submesh_list_at(
-
-		GFXSubMeshList  list,
-		unsigned int    index);
+		unsigned char  index);
 
 
 #ifdef __cplusplus

@@ -456,19 +456,16 @@ int gfx_program_map_add_share(
 	{
 		/* Reference the program */
 		if(!_gfx_program_reference(share, 1)) return 0;
-
-		/* Attempt to map it to the given stage(s) */
-		if(!_gfx_program_map_set_stages(internal, stage, share))
-		{
-			_gfx_program_free(share);
-			return 0;
-		}
-
-		return 1;
 	}
 
-	/* Disable the stage */
-	return _gfx_program_map_set_stages(internal, stage, NULL);
+	/* Attempt to map it to the given stage(s) */
+	if(!_gfx_program_map_set_stages(internal, stage, share))
+	{
+		_gfx_program_free(share);
+		return 0;
+	}
+
+	return 1;
 }
 
 /******************************************************/

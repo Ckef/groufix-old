@@ -12,28 +12,56 @@
  *
  */
 
+#include "groufix/core/errors.h"
 #include "groufix/scene/internal.h"
 
-/******************************************************/
-/* Internal submesh data */
-typedef struct GFX_SubData
-{
-	GFXSubMesh*    sub;      /* Super class */
-	unsigned int   material; /* Property map index within material */
-	unsigned char  source;   /* Source to use within submesh */
-
-} GFX_SubData;
-
+#include <stdlib.h>
 
 /******************************************************/
-GFXMesh* gfx_mesh_create(void)
+static inline GFXSubMesh** _gfx_mesh_get_submesh(
+
+		GFXMesh*       mesh,
+		unsigned char  index)
 {
-	/* Allocate */
-	return (GFXMesh*)gfx_lod_map_create(
-		0,
-		sizeof(GFX_SubData),
-		sizeof(GFXSubMesh*)
-	);
+	return ((GFXSubMesh**)(mesh + 1)) + index;
+}
+
+/******************************************************/
+static inline void _gfx_mesh_set_submesh(
+
+		GFXMesh*       mesh,
+		unsigned char  index,
+		GFXSubMesh*    sub)
+{
+	_gfx_submesh_free(*_gfx_mesh_get_submesh(mesh, index));
+	*_gfx_mesh_get_submesh(mesh, index) = sub;
+}
+
+/******************************************************/
+GFXMesh* gfx_mesh_create(
+
+		unsigned char subMeshes)
+{
+	if(!subMeshes) return NULL;
+
+	/* Allocate mesh */
+	size_t size = sizeof(GFXMesh) + subMeshes * sizeof(GFXSubMesh*);
+	GFXMesh* mesh = calloc(1, size);
+
+	if(!mesh)
+	{
+		/* Out of memory error */
+		gfx_errors_push(
+			GFX_ERROR_OUT_OF_MEMORY,
+			"Mesh could not be allocated."
+		);
+		return NULL;
+	}
+
+	/* Initialize */
+	mesh->subMeshes = subMeshes;
+
+	return mesh;
 }
 
 /******************************************************/
@@ -44,16 +72,10 @@ void gfx_mesh_free(
 	if(mesh)
 	{
 		/* Free all submeshes */
-		unsigned int num;
-		GFX_SubData* subs = gfx_lod_map_get_all(
-			(GFXLodMap*)mesh,
-			&num
-		);
+		while(mesh->subMeshes--)
+			_gfx_submesh_free(*_gfx_mesh_get_submesh(mesh, mesh->subMeshes));
 
-		while(num--) _gfx_submesh_free(subs[num].sub);
-
-		/* Free */
-		gfx_lod_map_free((GFXLodMap*)mesh);
+		free(mesh);
 	}
 }
 
@@ -61,209 +83,44 @@ void gfx_mesh_free(
 GFXSubMesh* gfx_mesh_add(
 
 		GFXMesh*       mesh,
-		unsigned int   level,
+		unsigned char  index,
 		unsigned char  drawCalls,
 		unsigned char  sources)
 {
 	/* Create new submesh */
-	GFX_SubData data =
-	{
-		.material = 0,
-		.source = 0
-	};
+	GFXSubMesh* sub = _gfx_submesh_create(drawCalls, sources);
+	if(!sub) return NULL;
 
-	data.sub = _gfx_submesh_create(drawCalls, sources);
-	if(!data.sub) return NULL;
+	/* Free old submesh and replace it */
+	_gfx_mesh_set_submesh(mesh, index, sub);
 
-	/* Add it to the LOD map */
-	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))
-	{
-		_gfx_submesh_free(data.sub);
-		return NULL;
-	}
-
-	return data.sub;
+	return sub;
 }
 
 /******************************************************/
 int gfx_mesh_add_share(
 
-		GFXMesh*      mesh,
-		unsigned int  level,
-		GFXSubMesh*   share)
+		GFXMesh*       mesh,
+		unsigned char  index,
+		GFXSubMesh*    share)
 {
-	/* Reference the submesh */
-	if(!_gfx_submesh_reference(share)) return 0;
-
-	/* Add it to the LOD map */
-	GFX_SubData data =
+	if(share)
 	{
-		.sub      = share,
-		.material = 0,
-		.source   = 0
-	};
-
-	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))
-	{
-		_gfx_submesh_free(share);
-		return 0;
+		/* Reference the submesh */
+		if(!_gfx_submesh_reference(share)) return 0;
 	}
+
+	/* Free old submesh and replace it */
+	_gfx_mesh_set_submesh(mesh, index, share);
 
 	return 1;
 }
 
 /******************************************************/
-unsigned int gfx_mesh_set_material(
-
-		GFXMesh*      mesh,
-		unsigned int  level,
-		GFXSubMesh*   sub,
-		unsigned int  material)
-{
-	/* First find the submesh */
-	unsigned int num;
-	GFX_SubData* data = gfx_lod_map_get(
-		(GFXLodMap*)mesh,
-		level,
-		&num
-	);
-
-	unsigned int count = 0;
-
-	/* Set all materials */
-	while(num--) if(data[num].sub == sub)
-	{
-		data[num].material = material;
-		++count;
-	}
-
-	return count;
-}
-
-/******************************************************/
-int gfx_mesh_set_material_at(
-
-		GFXMesh*      mesh,
-		unsigned int  level,
-		unsigned int  index,
-		unsigned int  material)
-{
-	/* First get the submesh */
-	unsigned int num;
-	GFX_SubData* data = gfx_lod_map_get(
-		(GFXLodMap*)mesh,
-		level,
-		&num
-	);
-
-	if(index >= num) return 0;
-
-	/* Set material */
-	data[index].material = material;
-
-	return 1;
-}
-
-/******************************************************/
-unsigned int gfx_mesh_set_source(
+GFXSubMesh* gfx_mesh_get(
 
 		GFXMesh*       mesh,
-		unsigned int   level,
-		GFXSubMesh*    sub,
-		unsigned char  source)
+		unsigned char  index)
 {
-	/* Bound check */
-	if(source >= sub->sources) return 0;
-
-	/* First find the submesh */
-	unsigned int num;
-	GFX_SubData* data = gfx_lod_map_get(
-		(GFXLodMap*)mesh,
-		level,
-		&num
-	);
-
-	unsigned int count = 0;
-
-	/* Set all sources */
-	while(num--) if(data[num].sub == sub)
-	{
-		data[num].source = source;
-		++count;
-	}
-
-	return count;
-}
-
-/******************************************************/
-int gfx_mesh_set_source_at(
-
-		GFXMesh*       mesh,
-		unsigned int   level,
-		unsigned int   index,
-		unsigned char  source)
-{
-	/* First get the submesh */
-	unsigned int num;
-	GFX_SubData* data = gfx_lod_map_get(
-		(GFXLodMap*)mesh,
-		level,
-		&num
-	);
-
-	if(index >= num) return 0;
-
-	/* Bound check */
-	if(source >= data[index].sub->sources) return 0;
-
-	/* Set the source */
-	data[index].source = source;
-
-	return 1;
-}
-
-/******************************************************/
-GFXSubMeshList gfx_mesh_get(
-
-		GFXMesh*       mesh,
-		unsigned int   level,
-		unsigned int*  num)
-{
-	return gfx_lod_map_get((GFXLodMap*)mesh, level, num);
-}
-
-/******************************************************/
-GFXSubMeshList gfx_mesh_get_all(
-
-		GFXMesh*       mesh,
-		unsigned int*  num)
-{
-	return gfx_lod_map_get_all((GFXLodMap*)mesh, num);
-}
-
-/******************************************************/
-unsigned int gfx_submesh_list_material_at(
-
-		GFXSubMeshList  list,
-		unsigned int    index)
-{
-	return ((GFX_SubData*)list)[index].material;
-}
-
-/******************************************************/
-unsigned char gfx_submesh_list_source_at(
-
-		GFXSubMeshList  list,
-		unsigned int    index)
-{
-	return ((GFX_SubData*)list)[index].source;
-}
-
-/******************************************************/
-GFXSubMesh* gfx_submesh_list_at(
-
-		GFXSubMeshList  list,
-		unsigned int    index)
-{
-	return ((GFX_SubData*)list)[index].sub;
+	return *_gfx_mesh_get_submesh(mesh, index);
 }
