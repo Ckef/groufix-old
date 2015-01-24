@@ -377,7 +377,7 @@ GFX_API void gfx_program_map_free(
  * @return The new program on success, NULL on failure.
  *
  * Note: if GFX_EXT_PROGRAM_MAP is not supported, stage will be ignored and the
- * function will act as if stage was set to 0.
+ * function will act as if stage was set to GFX_ALL_SHADERS.
  *
  */
 GFX_API GFXProgram* gfx_program_map_add(
@@ -394,7 +394,7 @@ GFX_API GFXProgram* gfx_program_map_add(
  * @return Zero on failure.
  *
  * Note: if GFX_EXT_PROGRAM_MAP is not supported, stage will be ignored and the
- * function will act as if stage was set to 0.
+ * function will act as if stage was set to GFX_ALL_SHADERS.
  *
  */
 GFX_API int gfx_program_map_add_share(

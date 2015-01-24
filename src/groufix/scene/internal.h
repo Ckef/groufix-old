@@ -104,15 +104,10 @@ void _gfx_property_map_list_erase_copies_at(
 /**
  * Creates a new submesh.
  *
- * @param drawCalls Fixed number of draw calls associated with the layout.
- * @param sources   Fixed number of sources to create.
  * @return NULL on failure.
  *
  */
-GFXSubMesh* _gfx_submesh_create(
-
-		unsigned char  drawCalls,
-		unsigned char  sources);
+GFXSubMesh* _gfx_submesh_create(void);
 
 /**
  * References a submesh to postpone its destruction.

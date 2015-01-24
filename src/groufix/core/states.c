@@ -15,7 +15,6 @@
 #include "groufix/core/internal.h"
 
 #include <limits.h>
-#include <string.h>
 
 /* Compatibility defines */
 #ifndef GL_FILL
@@ -331,7 +330,11 @@ void _gfx_states_set_viewport(
 		GFXViewport viewport,
 		GFX_WIND_ARG)
 {
-	if(memcmp(&viewport, &GFX_REND_GET.viewport, sizeof(GFXViewport)))
+	if(
+		viewport.x != GFX_REND_GET.viewport.x ||
+		viewport.y != GFX_REND_GET.viewport.y ||
+		viewport.width != GFX_REND_GET.viewport.width ||
+		viewport.height != GFX_REND_GET.viewport.height)
 	{
 		GFX_REND_GET.Viewport(
 			viewport.x,

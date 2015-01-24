@@ -83,12 +83,10 @@ void gfx_mesh_free(
 GFXSubMesh* gfx_mesh_add(
 
 		GFXMesh*       mesh,
-		unsigned char  index,
-		unsigned char  drawCalls,
-		unsigned char  sources)
+		unsigned char  index)
 {
 	/* Create new submesh */
-	GFXSubMesh* sub = _gfx_submesh_create(drawCalls, sources);
+	GFXSubMesh* sub = _gfx_submesh_create();
 	if(!sub) return NULL;
 
 	/* Free old submesh and replace it */

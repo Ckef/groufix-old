@@ -15,7 +15,10 @@ void print_error(GFXError error)
 GFXMesh* create_mesh()
 {
 	GFXMesh* mesh = gfx_mesh_create(1);
-	GFXSubMesh* sub = gfx_mesh_add(mesh, 0, 1, 1);
+	GFXSubMesh* sub = gfx_mesh_add(mesh, 0);
+
+	GFXSubMeshLayout id = gfx_submesh_add_layout(sub, 1);
+	GFXVertexLayout* layout = gfx_submesh_get_layout(sub, id);
 
 	GFXVertexAttribute attr;
 	attr.size          = 3;
@@ -28,10 +31,10 @@ GFXMesh* create_mesh()
 	call.first     = 0;
 	call.count     = 3;
 
-	gfx_vertex_layout_set_attribute(sub->layout, 0, &attr, 0);
+	gfx_vertex_layout_set_attribute(layout, 0, &attr, 0);
 	attr.offset = sizeof(float) * 3;
-	gfx_vertex_layout_set_attribute(sub->layout, 1, &attr, 0);
-	gfx_vertex_layout_set_draw_call(sub->layout, 0, &call);
+	gfx_vertex_layout_set_attribute(layout, 1, &attr, 0);
+	gfx_vertex_layout_set_draw_call(layout, 0, &call);
 
 	float triangle[] = {
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -40,10 +43,10 @@ GFXMesh* create_mesh()
 	};
 
 	GFXSubMeshBuffer buff = gfx_submesh_add_buffer(sub, GFX_VERTEX_BUFFER, sizeof(triangle), triangle);
-	gfx_submesh_set_vertex_buffer(sub, 0, buff, 0, sizeof(float) * 6);
+	gfx_submesh_set_vertex_buffer(sub, id, buff, 0, 0, sizeof(float) * 6);
 
 	GFXVertexSource source = { 0, 1, 0, 0 };
-	gfx_submesh_set_source(sub, 0, source);
+	gfx_submesh_add(sub, 0, source, id);
 
 	return mesh;
 }
@@ -207,16 +210,16 @@ int main()
 
 
 	/* Units */
+	GFXSubMesh* sub = gfx_mesh_get(mesh, 0);
+	_gfx_submesh_add_bucket(sub, bucket->bucket);
+
 	GFXPropertyMap* map = gfx_property_map_list_at(
 		gfx_material_get_all(material, &num),
 		0);
 
-	GFXSubMesh* sub = gfx_mesh_get(mesh, 0);
-
-	gfx_submesh_add_bucket(sub, bucket->bucket);
 	gfx_bucket_insert(
 		bucket->bucket,
-		gfx_submesh_get_bucket_source(sub, bucket->bucket, 0),
+		_gfx_submesh_get_bucket_source(sub, bucket->bucket, 0),
 		map,
 		0,
 		1);
