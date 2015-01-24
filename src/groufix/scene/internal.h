@@ -85,9 +85,22 @@ int _gfx_property_map_list_insert_copies_at(
 		unsigned int*       offset);
 
 /**
- * Frees previously reserved copies so they can be reserved by someone else.
+ * References previously reserved copies to postpone erasing the reservation.
  *
  * @param offset Offset to free copies at as returned by _gfx_property_map_list_insert_copies_at.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_property_map_list_reference_copies_at(
+
+		GFXPropertyMapList  list,
+		unsigned int        index,
+		unsigned int        offset);
+
+/**
+ * Frees a reference of a previously reserved copies.
+ *
+ * Only once all references are freed will the copies be available for a new reservation.
  *
  */
 void _gfx_property_map_list_erase_copies_at(

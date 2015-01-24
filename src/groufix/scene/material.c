@@ -33,6 +33,7 @@ typedef struct GFX_MapData
 /* Internal segment */
 typedef struct GFX_Segment
 {
+	unsigned int ref;    /* Reference count */
 	unsigned int offset; /* Sort key */
 	unsigned int num;
 
@@ -55,6 +56,21 @@ static int _gfx_material_segment_comp(
 }
 
 /******************************************************/
+static inline GFX_Segment* _gfx_material_find_segment(
+
+		GFX_MapData*  data,
+		unsigned int  offset)
+{
+	return bsearch(
+		GFX_UINT_TO_VOID(offset),
+		data->segments.begin,
+		gfx_vector_get_size(&data->segments),
+		sizeof(GFX_Segment),
+		_gfx_material_segment_comp
+	);
+}
+
+/******************************************************/
 int _gfx_property_map_list_insert_copies_at(
 
 		GFXPropertyMapList  list,
@@ -64,8 +80,9 @@ int _gfx_property_map_list_insert_copies_at(
 {
 	GFX_Segment new =
 	{
+		.ref    = 1,
 		.offset = 0,
-		.num = copies
+		.num    = copies
 	};
 
 	GFX_MapData* data = ((GFX_MapData*)list) + index;
@@ -75,7 +92,7 @@ int _gfx_property_map_list_insert_copies_at(
 	{
 		gfx_errors_push(
 			GFX_ERROR_OVERFLOW,
-			"Overflow occurred during copy insertion at a material."
+			"Overflow occurred during copy insertion at a Material."
 		);
 		return 0;
 	}
@@ -139,29 +156,53 @@ int _gfx_property_map_list_insert_copies_at(
 }
 
 /******************************************************/
+int _gfx_property_map_list_reference_copies_at(
+
+		GFXPropertyMapList  list,
+		unsigned int        index,
+		unsigned int        offset)
+{
+	/* Retrieve segment */
+	GFX_MapData* data =
+		((GFX_MapData*)list) + index;
+	GFX_Segment* it =
+		_gfx_material_find_segment(data, offset);
+
+	if(!it) return 0;
+
+	/* Increase reference counter */
+	if(!(it->ref + 1))
+	{
+		/* Overflow error */
+		gfx_errors_push(
+			GFX_ERROR_OVERFLOW,
+			"Overflow occurred during Material copy referencing."
+		);
+		return 0;
+	}
+
+	++it->ref;
+	return 1;
+}
+
+/******************************************************/
 void _gfx_property_map_list_erase_copies_at(
 
 		GFXPropertyMapList  list,
 		unsigned int        index,
 		unsigned int        offset)
 {
-	GFX_MapData* data = ((GFX_MapData*)list) + index;
-
 	/* Retrieve segment */
-	GFXVectorIterator it = bsearch(
-		GFX_UINT_TO_VOID(offset),
-		data->segments.begin,
-		gfx_vector_get_size(&data->segments),
-		sizeof(GFX_Segment),
-		_gfx_material_segment_comp
-	);
+	GFX_MapData* data =
+		((GFX_MapData*)list) + index;
+	GFX_Segment* it =
+		_gfx_material_find_segment(data, offset);
 
-	if(it)
+	/* Check reference count */
+	if(it && !(--it->ref))
 	{
 		/* Decrease used copies */
-		GFX_Segment* seg = it;
-		data->copies -= seg->num;
-
+		data->copies -= it->num;
 		gfx_vector_erase(&data->segments, it);
 	}
 }

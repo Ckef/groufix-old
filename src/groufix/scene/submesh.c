@@ -219,7 +219,7 @@ int _gfx_submesh_add_bucket(
 				"Overflow occurred during SubMesh bucket referencing."
 			);
 			return 0;
-		};
+		}
 		++buck->ref;
 	}
 
@@ -354,54 +354,51 @@ void _gfx_submesh_free(
 
 		GFXSubMesh* mesh)
 {
-	if(mesh)
+	GFX_SubMesh* internal = (GFX_SubMesh*)mesh;
+
+	/* Check references */
+	if(mesh && !(--internal->references))
 	{
-		GFX_SubMesh* internal = (GFX_SubMesh*)mesh;
+		/* Remove all buckets */
+		size_t size = _gfx_submesh_bucket_size(mesh);
+		size_t total = gfx_vector_get_size(&internal->buckets);
 
-		/* Check references */
-		if(!(--internal->references))
+		while(total)
 		{
-			/* Remove all buckets */
-			size_t size = _gfx_submesh_bucket_size(mesh);
-			size_t total = gfx_vector_get_size(&internal->buckets);
-
-			while(total)
-			{
-				total -= size;
-				_gfx_submesh_erase_bucket(
-					internal,
-					gfx_vector_at(&internal->buckets, total),
-					size
-				);
-			}
-
-			/* Free all layouts */
-			GFXVectorIterator it;
-			for(
-				it = internal->layouts.begin;
-				it != internal->layouts.end;
-				it = gfx_vector_next(&internal->layouts, it))
-			{
-				gfx_vertex_layout_free(*(GFXVertexLayout**)it);
-			}
-
-			/* Clear all shared buffers */
-			for(
-				it = internal->buffers.begin;
-				it != internal->buffers.end;
-				it = gfx_vector_next(&internal->buffers, it))
-			{
-				gfx_shared_buffer_clear((GFXSharedBuffer*)it);
-			}
-
-			/* Free everything */
-			gfx_vector_clear(&internal->layouts);
-			gfx_vector_clear(&internal->buckets);
-			gfx_vector_clear(&internal->buffers);
-
-			_gfx_lod_map_clear((GFX_LodMap*)internal);
-			free(mesh);
+			total -= size;
+			_gfx_submesh_erase_bucket(
+				internal,
+				gfx_vector_at(&internal->buckets, total),
+				size
+			);
 		}
+
+		/* Free all layouts */
+		GFXVectorIterator it;
+		for(
+			it = internal->layouts.begin;
+			it != internal->layouts.end;
+			it = gfx_vector_next(&internal->layouts, it))
+		{
+			gfx_vertex_layout_free(*(GFXVertexLayout**)it);
+		}
+
+		/* Clear all shared buffers */
+		for(
+			it = internal->buffers.begin;
+			it != internal->buffers.end;
+			it = gfx_vector_next(&internal->buffers, it))
+		{
+			gfx_shared_buffer_clear((GFXSharedBuffer*)it);
+		}
+
+		/* Free everything */
+		gfx_vector_clear(&internal->layouts);
+		gfx_vector_clear(&internal->buckets);
+		gfx_vector_clear(&internal->buffers);
+
+		_gfx_lod_map_clear((GFX_LodMap*)internal);
+		free(mesh);
 	}
 }
 
