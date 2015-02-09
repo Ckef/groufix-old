@@ -14,11 +14,9 @@ void print_error(GFXError error)
 
 GFXMesh* create_mesh()
 {
-	GFXMesh* mesh = gfx_mesh_create(1);
-	GFXSubMesh* sub = gfx_mesh_add(mesh, 0);
-
-	GFXSubMeshLayout id = gfx_submesh_add_layout(sub, 1);
-	GFXVertexLayout* layout = gfx_submesh_get_layout(sub, id);
+	GFXMesh* mesh = gfx_mesh_create();
+	GFXMeshLayout id = gfx_mesh_add_layout(mesh, 1);
+	GFXVertexLayout* layout = gfx_mesh_get_layout(mesh, id);
 
 	GFXVertexAttribute attr;
 	attr.size          = 3;
@@ -42,11 +40,11 @@ GFXMesh* create_mesh()
 		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};
 
-	GFXSubMeshBuffer buff = gfx_submesh_add_buffer(sub, GFX_VERTEX_BUFFER, sizeof(triangle), triangle);
-	gfx_submesh_set_vertex_buffer(sub, id, buff, 0, 0, sizeof(float) * 6);
+	GFXMeshBuffer buff = gfx_mesh_add_buffer(mesh, GFX_VERTEX_BUFFER, sizeof(triangle), triangle);
+	gfx_mesh_set_vertex_buffer(mesh, id, buff, 0, 0, sizeof(float) * 6);
 
 	GFXVertexSource source = { 0, 1, 0, 0 };
-	gfx_submesh_add(sub, 0, source, id);
+	gfx_mesh_add(mesh, 0, source, id);
 
 	return mesh;
 }
@@ -210,8 +208,7 @@ int main()
 
 
 	/* Units */
-	GFXSubMesh* sub = gfx_mesh_get(mesh, 0);
-	_gfx_submesh_add_bucket(sub, bucket->bucket);
+	_gfx_mesh_add_bucket(mesh, bucket->bucket);
 
 	GFXPropertyMap* map = gfx_property_map_list_at(
 		gfx_material_get_all(material, &num),
@@ -219,7 +216,7 @@ int main()
 
 	gfx_bucket_insert(
 		bucket->bucket,
-		_gfx_submesh_get_bucket_source(sub, bucket->bucket, 0),
+		_gfx_mesh_get_bucket_source(mesh, bucket->bucket, 0),
 		map,
 		0,
 		1);

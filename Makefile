@@ -196,7 +196,6 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/scene/lod_map.o \
  $(OUT)/unix-x11/groufix/scene/material.o \
  $(OUT)/unix-x11/groufix/scene/mesh.o \
- $(OUT)/unix-x11/groufix/scene/submesh.o \
  $(OUT)/unix-x11/groufix/math.o \
  $(OUT)/unix-x11/groufix.o
 
@@ -267,7 +266,6 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/scene/lod_map.o \
  $(OUT)/win32/groufix/scene/material.o \
  $(OUT)/win32/groufix/scene/mesh.o \
- $(OUT)/win32/groufix/scene/submesh.o \
  $(OUT)/win32/groufix/math.o \
  $(OUT)/win32/groufix.o
 

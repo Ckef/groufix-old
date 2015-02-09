@@ -66,7 +66,7 @@ void _gfx_lod_map_clear(
 
 
 /********************************************************
- * Material management
+ * Material copy management
  *******************************************************/
 
 /**
@@ -108,40 +108,6 @@ void _gfx_property_map_list_erase_copies_at(
 		GFXPropertyMapList  list,
 		unsigned int        index,
 		unsigned int        offset);
-
-
-/********************************************************
- * SubMesh management
- *******************************************************/
-
-/**
- * Creates a new submesh.
- *
- * @return NULL on failure.
- *
- */
-GFXSubMesh* _gfx_submesh_create(void);
-
-/**
- * References a submesh to postpone its destruction.
- *
- * @return Zero on overflow.
- *
- */
-int _gfx_submesh_reference(
-
-		GFXSubMesh* mesh);
-
-/**
- * Makes sure the submesh is freed properly.
- *
- * Decreases the reference counter before freeing,
- * only freeing if the counter hits 0.
- *
- */
-void _gfx_submesh_free(
-
-		GFXSubMesh* mesh);
 
 
 #ifdef __cplusplus
