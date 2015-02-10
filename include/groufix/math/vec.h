@@ -148,7 +148,7 @@ typedef GFX_VEC_ALIGN
  * Returns a value of the vector.
  *
  */
-inline GFX_VEC_DATA* GFX_VEC_FUNC(get)(
+static GFX_ALWAYS_INLINE GFX_VEC_DATA* GFX_VEC_FUNC(get)(
 
 		GFX_VEC_NAME*  a,
 		size_t         component)
@@ -162,7 +162,7 @@ inline GFX_VEC_DATA* GFX_VEC_FUNC(get)(
  * @return The given vector itself.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(set_zero)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(set_zero)(
 
 		GFX_VEC_NAME* a)
 {
@@ -175,7 +175,7 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(set_zero)(
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(add)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(add)(
 
 		GFX_VEC_NAME*  dest,
 		GFX_VEC_NAME*  a,
@@ -194,7 +194,7 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(add)(
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(sub)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(sub)(
 
 		GFX_VEC_NAME*  dest,
 		GFX_VEC_NAME*  a,
@@ -213,7 +213,7 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(sub)(
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(mult)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(mult)(
 
 		GFX_VEC_NAME*  dest,
 		GFX_VEC_NAME*  a,
@@ -232,7 +232,7 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(mult)(
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(scale)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(scale)(
 
 		GFX_VEC_NAME*  dest,
 		GFX_VEC_NAME*  a,
@@ -249,7 +249,7 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(scale)(
  * Take the dot product of two vectors.
  *
  */
-inline GFX_VEC_DATA GFX_VEC_FUNC(dot)(
+static GFX_ALWAYS_INLINE GFX_VEC_DATA GFX_VEC_FUNC(dot)(
 
 		GFX_VEC_NAME*  a,
 		GFX_VEC_NAME*  b)
@@ -270,7 +270,7 @@ inline GFX_VEC_DATA GFX_VEC_FUNC(dot)(
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(cross)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(cross)(
 
 		GFX_VEC_NAME*  dest,
 		GFX_VEC_NAME*  a,
@@ -291,7 +291,7 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(cross)(
  * Take the squared magnitude of a vector.
  *
  */
-inline GFX_VEC_DATA GFX_VEC_FUNC(magnitude_squared)(
+static GFX_ALWAYS_INLINE GFX_VEC_DATA GFX_VEC_FUNC(magnitude_squared)(
 
 		GFX_VEC_NAME* a)
 {
@@ -310,7 +310,7 @@ inline GFX_VEC_DATA GFX_VEC_FUNC(magnitude_squared)(
  * Take the magnitude of a vector.
  *
  */
-inline double GFX_VEC_FUNC(magnitude)(
+static GFX_ALWAYS_INLINE double GFX_VEC_FUNC(magnitude)(
 
 		GFX_VEC_NAME* a)
 {
@@ -323,7 +323,7 @@ inline double GFX_VEC_FUNC(magnitude)(
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(
 
 		GFX_VEC_NAME*  dest,
 		GFX_VEC_NAME*  a)
@@ -340,7 +340,7 @@ inline GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(
  * @return If the vector is zero, a non-zero value is returned.
  *
  */
-inline int GFX_VEC_FUNC(is_zero)(
+static GFX_ALWAYS_INLINE int GFX_VEC_FUNC(is_zero)(
 
 		GFX_VEC_NAME* a)
 {

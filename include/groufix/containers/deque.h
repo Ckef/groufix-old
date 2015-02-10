@@ -213,7 +213,7 @@ GFX_API GFXDequeIterator gfx_deque_advance(
  * Returns the size of the deque in elements.
  *
  */
-inline size_t gfx_deque_get_size(
+static GFX_ALWAYS_INLINE size_t gfx_deque_get_size(
 
 		GFXDeque* deque)
 {
@@ -226,7 +226,7 @@ inline size_t gfx_deque_get_size(
  * This method does not check the bounds!
  *
  */
-inline GFXDequeIterator gfx_deque_at(
+static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_at(
 
 		GFXDeque*  deque,
 		size_t     index)
@@ -238,7 +238,7 @@ inline GFXDequeIterator gfx_deque_at(
  * Increments an iterator to the next element.
  *
  */
-inline GFXDequeIterator gfx_deque_next(
+static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_next(
 
 		GFXDeque*         deque,
 		GFXDequeIterator  it)
@@ -250,7 +250,7 @@ inline GFXDequeIterator gfx_deque_next(
  * Decrements an iterator to the previous element.
  *
  */
-inline GFXDequeIterator gfx_deque_previous(
+static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_previous(
 
 		GFXDeque*         deque,
 		GFXDequeIterator  it)

@@ -47,13 +47,24 @@
 #endif
 
 
+/* Always inline */
+#if defined(GFX_VISUAL_C)
+	#define GFX_ALWAYS_INLINE __forceinline
+#elif defined(GFX_MINGW) || defined(GFX_GCC)
+	#define GFX_ALWAYS_INLINE inline __attribute__((always_inline))
+
+#else
+	#define GFX_ALWAYS_INLINE inline
+#endif
+
+
 /* SSE alignment */
 #if defined(GFX_NO_SSE)
 	#define GFX_SSE_ALIGN struct
 #elif defined(GFX_VISUAL_C)
 	#define GFX_SSE_ALIGN __declspec(align(16)) struct
 #elif defined(GFX_MINGW) || defined(GFX_GCC)
-	#define GFX_SSE_ALIGN struct __attribute__ ((aligned(16)))
+	#define GFX_SSE_ALIGN struct __attribute__((aligned(16)))
 
 #else
 	#define GFX_SSE_ALIGN struct

@@ -102,7 +102,7 @@ typedef GFX_QUAT_ALIGN
  * Returns a value of the quaternion.
  *
  */
-inline GFX_QUAT_DATA* GFX_QUAT_FUNC(get)(
+static GFX_ALWAYS_INLINE GFX_QUAT_DATA* GFX_QUAT_FUNC(get)(
 
 		GFX_QUAT_NAME*  a,
 		size_t          component)
@@ -116,7 +116,7 @@ inline GFX_QUAT_DATA* GFX_QUAT_FUNC(get)(
  * @return The given quaternion itself.
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(set_zero)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(set_zero)(
 
 		GFX_QUAT_NAME* a)
 {
@@ -129,7 +129,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(set_zero)(
  * @param dest Destination quaternion.
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(add)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(add)(
 
 		GFX_QUAT_NAME*  dest,
 		GFX_QUAT_NAME*  a,
@@ -148,7 +148,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(add)(
  * @param dest Destination quaternion.
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(sub)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(sub)(
 
 		GFX_QUAT_NAME*  dest,
 		GFX_QUAT_NAME*  a,
@@ -167,7 +167,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(sub)(
  * @param dest Destination quaternion.
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(mult)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(mult)(
 
 		GFX_QUAT_NAME*  dest,
 		GFX_QUAT_NAME*  a,
@@ -190,7 +190,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(mult)(
  * @param dest Destination quaternion.
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(scale)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(scale)(
 
 		GFX_QUAT_NAME*  dest,
 		GFX_QUAT_NAME*  a,
@@ -209,7 +209,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(scale)(
  * @param dest Destination quaternion.
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(conjugate)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(conjugate)(
 
 		GFX_QUAT_NAME*  dest,
 		GFX_QUAT_NAME*  a)
@@ -226,7 +226,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(conjugate)(
  * Take the squared norm of a quaternion.
  *
  */
-inline GFX_QUAT_DATA GFX_QUAT_FUNC(norm_squared)(
+static GFX_ALWAYS_INLINE GFX_QUAT_DATA GFX_QUAT_FUNC(norm_squared)(
 
 		GFX_QUAT_NAME* a)
 {
@@ -245,7 +245,7 @@ inline GFX_QUAT_DATA GFX_QUAT_FUNC(norm_squared)(
  * Take the norm of a quaternion.
  *
  */
-inline double GFX_QUAT_FUNC(norm)(
+static GFX_ALWAYS_INLINE double GFX_QUAT_FUNC(norm)(
 
 		GFX_QUAT_NAME* a)
 {
@@ -258,7 +258,7 @@ inline double GFX_QUAT_FUNC(norm)(
  * @param dest Destination quaternion.
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(normalize)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(normalize)(
 
 		GFX_QUAT_NAME*  dest,
 		GFX_QUAT_NAME*  a)
@@ -275,7 +275,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(normalize)(
  * @param dest Destination quaternion.
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(inverse)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(inverse)(
 
 		GFX_QUAT_NAME*  dest,
 		GFX_QUAT_NAME*  a)
@@ -293,7 +293,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(inverse)(
  * @return If the quaternion is zero, a non-zero value is returned.
  *
  */
-inline int GFX_QUAT_FUNC(is_zero)(
+static GFX_ALWAYS_INLINE int GFX_QUAT_FUNC(is_zero)(
 
 		GFX_QUAT_NAME* a)
 {
@@ -315,7 +315,7 @@ inline int GFX_QUAT_FUNC(is_zero)(
  * This method assumes the axis is of unit length (magnitude or magnitude_squared = 1).
  *
  */
-inline GFX_QUAT_NAME* GFX_QUAT_FUNC(from_angle_axis)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(from_angle_axis)(
 
 		GFX_QUAT_NAME*  dest,
 		double          angle,
@@ -342,7 +342,7 @@ inline GFX_QUAT_NAME* GFX_QUAT_FUNC(from_angle_axis)(
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-inline void GFX_QUAT_FUNC(to_angle_axis)(
+static GFX_ALWAYS_INLINE void GFX_QUAT_FUNC(to_angle_axis)(
 
 		GFX_QUAT_NAME*  src,
 		double*         angle,
@@ -366,7 +366,7 @@ inline void GFX_QUAT_FUNC(to_angle_axis)(
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-inline GFX_VEC_NAME* GFX_QUAT_FUNC(mult_vec)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_QUAT_FUNC(mult_vec)(
 
 		GFX_VEC_NAME*   dest,
 		GFX_QUAT_NAME*  a,
@@ -401,7 +401,7 @@ inline GFX_VEC_NAME* GFX_QUAT_FUNC(mult_vec)(
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-inline GFX_MAT_NAME* GFX_QUAT_FUNC(to_matrix)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_QUAT_FUNC(to_matrix)(
 
 		GFX_MAT_NAME*   dest,
 		GFX_QUAT_NAME*  a)

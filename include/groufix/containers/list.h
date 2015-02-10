@@ -38,17 +38,6 @@ typedef struct GFXList
 
 
 /**
- * Returns the data attached to a node.
- *
- */
-inline void* gfx_list_get_data(
-
-		GFXList* node)
-{
-	return (void*)(node + 1);
-}
-
-/**
  * Creates a new list.
  *
  * @param dataSize Size of the node, >= sizeof(List).
@@ -241,10 +230,21 @@ GFX_API GFXList* gfx_list_advance(
 		int       num);
 
 /**
+ * Returns the data attached to a node.
+ *
+ */
+static GFX_ALWAYS_INLINE void* gfx_list_get_data(
+
+		GFXList* node)
+{
+	return (void*)(node + 1);
+}
+
+/**
  * Returns a node at a given index, can be NULL.
  *
  */
-inline GFXList* gfx_list_at(
+static GFX_ALWAYS_INLINE GFXList* gfx_list_at(
 
 		GFXList*  list,
 		size_t    index)

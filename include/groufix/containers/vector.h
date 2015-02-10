@@ -183,7 +183,7 @@ GFX_API GFXVectorIterator gfx_vector_erase_range(
  * Returns the size of the vector in bytes.
  *
  */
-inline size_t gfx_vector_get_byte_size(
+static GFX_ALWAYS_INLINE size_t gfx_vector_get_byte_size(
 
 		GFXVector* vector)
 {
@@ -194,7 +194,7 @@ inline size_t gfx_vector_get_byte_size(
  * Returns the size of the vector in elements.
  *
  */
-inline size_t gfx_vector_get_size(
+static GFX_ALWAYS_INLINE size_t gfx_vector_get_size(
 
 		GFXVector* vector)
 {
@@ -205,7 +205,7 @@ inline size_t gfx_vector_get_size(
  * Returns the index of an iterator.
  *
  */
-inline size_t gfx_vector_get_index(
+static GFX_ALWAYS_INLINE size_t gfx_vector_get_index(
 
 		GFXVector*         vector,
 		GFXVectorIterator  it)
@@ -219,7 +219,7 @@ inline size_t gfx_vector_get_index(
  * This method does not check the bounds!
  *
  */
-inline GFXVectorIterator gfx_vector_at(
+static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_at(
 
 		GFXVector*  vector,
 		size_t      index)
@@ -231,7 +231,7 @@ inline GFXVectorIterator gfx_vector_at(
  * Increments an iterator to the next element.
  *
  */
-inline GFXVectorIterator gfx_vector_next(
+static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_next(
 
 		GFXVector*         vector,
 		GFXVectorIterator  it)
@@ -243,7 +243,7 @@ inline GFXVectorIterator gfx_vector_next(
  * Decrements an iterator to the previous element.
  *
  */
-inline GFXVectorIterator gfx_vector_previous(
+static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_previous(
 
 		GFXVector*         vector,
 		GFXVectorIterator  it)
@@ -255,7 +255,7 @@ inline GFXVectorIterator gfx_vector_previous(
  * Advances an iterator an arbitrary amount of elements (can be negative).
  *
  */
-inline GFXVectorIterator gfx_vector_advance(
+static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_advance(
 
 		GFXVector*         vector,
 		GFXVectorIterator  it,
@@ -271,7 +271,7 @@ inline GFXVectorIterator gfx_vector_advance(
  * @return The iterator to the new element (vector->end on failure).
  *
  */
-inline GFXVectorIterator gfx_vector_insert_at(
+static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_insert_at(
 
 		GFXVector*   vector,
 		const void*  element,
@@ -288,7 +288,7 @@ inline GFXVectorIterator gfx_vector_insert_at(
  * @return The iterator to the beginning of the inserted range (vector->end on failure).
  *
  */
-inline GFXVectorIterator gfx_vector_insert_range_at(
+static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_insert_range_at(
 
 		GFXVector*         vector,
 		size_t             num,
@@ -304,7 +304,7 @@ inline GFXVectorIterator gfx_vector_insert_range_at(
  * @return The iterator to the element taking its place.
  *
  */
-inline GFXVectorIterator gfx_vector_erase(
+static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_erase(
 
 		GFXVector*         vector,
 		GFXVectorIterator  pos)
@@ -318,7 +318,7 @@ inline GFXVectorIterator gfx_vector_erase(
  * @return The iterator to the element taking its place.
  *
  */
-inline GFXVectorIterator gfx_vector_erase_at(
+static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_erase_at(
 
 		GFXVector*  vector,
 		size_t      index)
@@ -333,7 +333,7 @@ inline GFXVectorIterator gfx_vector_erase_at(
  * @return The iterator to the element taking its place.
  *
  */
-inline GFXVectorIterator gfx_vector_erase_range_at(
+static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_erase_range_at(
 
 		GFXVector*  vector,
 		size_t      num,

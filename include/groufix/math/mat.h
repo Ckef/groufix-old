@@ -117,7 +117,7 @@ typedef GFX_MAT_ALIGN
  * Returns a value of the matrix.
  *
  */
-inline GFX_MAT_DATA* GFX_MAT_FUNC(get)(
+static GFX_ALWAYS_INLINE GFX_MAT_DATA* GFX_MAT_FUNC(get)(
 
 		GFX_MAT_NAME*  a,
 		size_t         row,
@@ -132,7 +132,7 @@ inline GFX_MAT_DATA* GFX_MAT_FUNC(get)(
  * @return The given matrix itself.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(set_zero)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(set_zero)(
 
 		GFX_MAT_NAME* a)
 {
@@ -145,7 +145,7 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(set_zero)(
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(add)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(add)(
 
 		GFX_MAT_NAME*  dest,
 		GFX_MAT_NAME*  a,
@@ -164,7 +164,7 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(add)(
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(sub)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(sub)(
 
 		GFX_MAT_NAME*  dest,
 		GFX_MAT_NAME*  a,
@@ -183,7 +183,7 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(sub)(
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(mult)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult)(
 
 		GFX_MAT_NAME*  dest,
 		GFX_MAT_NAME*  a,
@@ -211,7 +211,7 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(mult)(
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(
 
 		GFX_MAT_NAME*  dest,
 		GFX_MAT_NAME*  a,
@@ -230,7 +230,7 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(
  * @param dest Destination matrix.
  *
  */
-inline GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(
 
 		GFX_MAT_NAME*  dest,
 		GFX_MAT_NAME*  a)
@@ -252,7 +252,7 @@ inline GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(
  * @return If the matrix is zero, a non-zero value is returned.
  *
  */
-inline int GFX_MAT_FUNC(is_zero)(
+static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(is_zero)(
 
 		GFX_MAT_NAME* a)
 {
@@ -268,7 +268,7 @@ inline int GFX_MAT_FUNC(is_zero)(
  * Computes the determinant of a matrix.
  *
  */
-inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
+static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
 
 		GFX_MAT_NAME* a)
 {
@@ -282,7 +282,7 @@ inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
  * @return Non-zero if it could take the inverse, otherwise zero.
  *
  */
-inline int GFX_MAT_FUNC(inverse)(
+static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
 		GFX_MAT_NAME*  dest,
 		GFX_MAT_NAME*  a)
@@ -307,7 +307,7 @@ inline int GFX_MAT_FUNC(inverse)(
  * Computes the determinant of a matrix.
  *
  */
-inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
+static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
 
 		GFX_MAT_NAME* a)
 {
@@ -327,7 +327,7 @@ inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
  * @return Non-zero if it could take the inverse, otherwise zero.
  *
  */
-inline int GFX_MAT_FUNC(inverse)(
+static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
 		GFX_MAT_NAME*  dest,
 		GFX_MAT_NAME*  a)
@@ -363,7 +363,7 @@ inline int GFX_MAT_FUNC(inverse)(
  * Computes the determinant of a matrix.
  *
  */
-inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
+static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
 
 		GFX_MAT_NAME* a)
 {
@@ -392,7 +392,7 @@ inline GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
  * @return Non-zero if it could take the inverse, otherwise zero.
  *
  */
-inline int GFX_MAT_FUNC(inverse)(
+static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
 		GFX_MAT_NAME*  dest,
 		GFX_MAT_NAME*  a)
@@ -446,7 +446,7 @@ inline int GFX_MAT_FUNC(inverse)(
  * Returns a column of a matrix as vector.
  *
  */
-inline GFX_VEC_NAME* GFX_MAT_FUNC(get_column)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(get_column)(
 
 		GFX_MAT_NAME*  a,
 		size_t         column)
@@ -460,7 +460,7 @@ inline GFX_VEC_NAME* GFX_MAT_FUNC(get_column)(
  * @param dest Destination vector.
  *
  */
-inline GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
 
 		GFX_VEC_NAME*  dest,
 		GFX_MAT_NAME*  a,

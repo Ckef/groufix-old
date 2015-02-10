@@ -129,7 +129,7 @@ int _gfx_platform_thread_join(
  * Detaches a thread, making it unjoinable.
  *
  */
-inline void _gfx_platform_thread_detach(
+static GFX_ALWAYS_INLINE void _gfx_platform_thread_detach(
 
 		GFX_PlatformThread thread)
 {
@@ -150,7 +150,7 @@ inline void _gfx_platform_thread_detach(
  * @param ret Return value of the thread.
  *
  */
-inline void _gfx_platform_thread_exit(
+static GFX_ALWAYS_INLINE void _gfx_platform_thread_exit(
 
 		unsigned int ret)
 {
@@ -172,7 +172,7 @@ inline void _gfx_platform_thread_exit(
  * @return Zero on failure.
  *
  */
-inline int _gfx_platform_key_init(
+static GFX_ALWAYS_INLINE int _gfx_platform_key_init(
 
 		GFX_PlatformKey* key)
 {
@@ -194,7 +194,7 @@ inline int _gfx_platform_key_init(
  * Note: this does not free any of the associated values!
  *
  */
-inline void _gfx_platform_key_clear(
+static GFX_ALWAYS_INLINE void _gfx_platform_key_clear(
 
 		GFX_PlatformKey key)
 {
@@ -215,7 +215,7 @@ inline void _gfx_platform_key_clear(
  * @return Zero on failure.
  *
  */
-inline int _gfx_platform_key_set(
+static GFX_ALWAYS_INLINE int _gfx_platform_key_set(
 
 		GFX_PlatformKey  key,
 		void*            value)
@@ -237,7 +237,7 @@ inline int _gfx_platform_key_set(
  * @return The stored value, NULL if no value is associated.
  *
  */
-inline void* _gfx_platform_key_get(
+static GFX_ALWAYS_INLINE void* _gfx_platform_key_get(
 
 		GFX_PlatformKey key)
 {
@@ -261,7 +261,7 @@ inline void* _gfx_platform_key_get(
  * Note: NEVER copy the initialized mutex, the same pointer must always be used!
  *
  */
-inline int _gfx_platform_mutex_init(
+static GFX_ALWAYS_INLINE int _gfx_platform_mutex_init(
 
 		GFX_PlatformMutex* mutex)
 {
@@ -283,7 +283,7 @@ inline int _gfx_platform_mutex_init(
  * Note: Clearing a locked mutex results in undefined behaviour.
  *
  */
-inline void _gfx_platform_mutex_clear(
+static GFX_ALWAYS_INLINE void _gfx_platform_mutex_clear(
 
 		GFX_PlatformMutex* mutex)
 {
@@ -306,7 +306,7 @@ inline void _gfx_platform_mutex_clear(
  * Note: locking a mutex you already own results in undefined behaviour.
  *
  */
-inline int _gfx_platform_mutex_lock(
+static GFX_ALWAYS_INLINE int _gfx_platform_mutex_lock(
 
 		GFX_PlatformMutex* mutex)
 {
@@ -328,7 +328,7 @@ inline int _gfx_platform_mutex_lock(
  * @return Non-zero if ownership was granted.
  *
  */
-inline int _gfx_platform_mutex_try_lock(
+static GFX_ALWAYS_INLINE int _gfx_platform_mutex_try_lock(
 
 		GFX_PlatformMutex* mutex)
 {
@@ -349,7 +349,7 @@ inline int _gfx_platform_mutex_try_lock(
  * Note: unlocking a mutex which was not locked results in undefined behaviour.
  *
  */
-inline void _gfx_platform_mutex_unlock(
+static GFX_ALWAYS_INLINE void _gfx_platform_mutex_unlock(
 
 		GFX_PlatformMutex* mutex)
 {
@@ -373,7 +373,7 @@ inline void _gfx_platform_mutex_unlock(
  * Note: NEVER copy the initialized condition, the same pointer must always be used!
  *
  */
-inline int _gfx_platform_cond_init(
+static GFX_ALWAYS_INLINE int _gfx_platform_cond_init(
 
 		GFX_PlatformCond* cond)
 {
@@ -395,7 +395,7 @@ inline int _gfx_platform_cond_init(
  * Note: Clearing a condition upon which threads are waiting results in undefined behaviour.
  *
  */
-inline void _gfx_platform_cond_clear(
+static GFX_ALWAYS_INLINE void _gfx_platform_cond_clear(
 
 		GFX_PlatformCond* cond)
 {
@@ -418,7 +418,7 @@ inline void _gfx_platform_cond_clear(
  * Note: waiting with an unlocked mutex or with different mutexes is undefined behaviour.
  *
  */
-inline int _gfx_platform_cond_wait(
+static GFX_ALWAYS_INLINE int _gfx_platform_cond_wait(
 
 		GFX_PlatformCond*   cond,
 		GFX_PlatformMutex*  mutex)
@@ -454,7 +454,7 @@ int _gfx_platform_cond_wait_time(
  * If no threads are waiting, the call simply returns.
  *
  */
-inline void _gfx_platform_cond_signal(
+static GFX_ALWAYS_INLINE void _gfx_platform_cond_signal(
 
 		GFX_PlatformCond* cond)
 {
@@ -475,7 +475,7 @@ inline void _gfx_platform_cond_signal(
  * If no threads are waiting, the call simply returns.
  *
  */
-inline void _gfx_platform_cond_broadcast(
+static GFX_ALWAYS_INLINE void _gfx_platform_cond_broadcast(
 
 		GFX_PlatformCond* cond)
 {
