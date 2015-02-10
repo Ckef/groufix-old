@@ -267,7 +267,9 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.Viewport                          = glViewport;
 
 	/* GFX_EXT_GEOMETRY_SHADER */
-	if(_gfx_is_extension_supported("GL_EXT_geometry_shader", GFX_WIND_AS_ARG))
+	if(
+		_gfx_is_extension_supported("GL_EXT_geometry_shader", GFX_WIND_AS_ARG) ||
+		_gfx_is_extension_supported("GL_OES_geometry_shader", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_GEOMETRY_SHADER] = 1;
 	}
@@ -385,6 +387,17 @@ void _gfx_renderer_load(void)
 
 		GFX_REND_GET.PatchParameteri =
 			(GFX_PATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteriEXT");
+	}
+
+	else if(_gfx_is_extension_supported("GL_OES_tessellation_shader", GFX_WIND_AS_ARG))
+	{
+		GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
+
+		glGetIntegerv(GL_MAX_PATCH_VERTICES_EXT, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
+
+		GFX_REND_GET.PatchParameteri =
+			(GFX_PATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteriOES");
 	}
 
 #elif defined(GFX_GL)

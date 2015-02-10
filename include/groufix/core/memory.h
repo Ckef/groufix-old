@@ -309,14 +309,18 @@ GFX_API void gfx_shared_buffer_clear(
 /** Primitive types */
 typedef enum GFXPrimitive
 {
-	GFX_POINTS          = 0x0000,
-	GFX_LINES           = 0x0001,
-	GFX_LINE_LOOP       = 0x0002,
-	GFX_LINE_STRIP      = 0x0003,
-	GFX_TRIANGLES       = 0x0004,
-	GFX_TRIANGLE_STRIP  = 0x0005,
-	GFX_TRIANGLE_FAN    = 0x0006,
-	GFX_PATCHES         = 0x000e  /* Requires GFX_EXT_TESSELLATION_SHADER */
+	GFX_POINTS                    = 0x0000,
+	GFX_LINES                     = 0x0001,
+	GFX_LINES_ADJACENCY           = 0x000a, /* Requires GFX_EXT_GEOMETRY_SHADER */
+	GFX_LINE_LOOP                 = 0x0002,
+	GFX_LINE_STRIP                = 0x0003,
+	GFX_LINE_STRIP_ADJACENCY      = 0x000b, /* Requires GFX_EXT_GEOMETRY_SHADER */
+	GFX_TRIANGLES                 = 0x0004,
+	GFX_TRIANGLES_ADJACENCY       = 0x000c, /* Requires GFX_EXT_GEOMETRY_SHADER */
+	GFX_TRIANGLE_STRIP            = 0x0005,
+	GFX_TRIANGLE_STRIP_ADJACENCY  = 0x000d, /* Requires GFX_EXT_GEOMETRY_SHADER */
+	GFX_TRIANGLE_FAN              = 0x0006,
+	GFX_PATCHES                   = 0x000e  /* Requires GFX_EXT_TESSELLATION_SHADER */
 
 } GFXPrimitive;
 
