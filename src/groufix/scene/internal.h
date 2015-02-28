@@ -87,7 +87,7 @@ int _gfx_property_map_list_insert_copies_at(
 /**
  * References previously reserved copies to postpone erasing the reservation.
  *
- * @param offset Offset to free copies at as returned by _gfx_property_map_list_insert_copies_at.
+ * @param offset Offset as returned by _gfx_property_map_list_insert_copies_at.
  * @return Zero on failure.
  *
  */

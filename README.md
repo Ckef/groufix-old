@@ -33,6 +33,7 @@ Along with the renderer value Groufix accepts more flags which can be defined wh
 
 * __SSE=NO__ Groufix will compile certain functions using SSE instructions. Use this flag to disable this feature. This feature is disabled if `GFX_COMPILER_ANY` is defined. To disable it in a program or library using Groufix, `GFX_NO_SSE` should be defined by the compiler.
 
+
 ## Usage
 
 Once Groufix is built, it can be used in your code with `#include <groufix.h>`. All _core_ functionality will be made available through that file. Make sure the include directory in this repository is listed as a directory to search for header files. This directory contains all public header files necessary to use the library. Before using the engine, it should be initialized with a call to `gfx_init`. After being done with the engine, it should be terminated with a call to `gfx_terminate`.
@@ -46,9 +47,9 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 * `<groufix/math.h>` includes all mathematical functions associated with groufix. This includes a handful of constants and linear algebra, namely vectors, matrices and quaternions.
 
-* `<groufix/scene.h>` includes everything related to constructing a scene to render. This also includes high level constructs such as meshes, materials and manners to manage level of detail.
+* `<groufix/scene.h>` includes everything related to constructing a scene to render. This includes high level constructs such as meshes, materials, objects and manners to manage level of detail.
 
-* `<groufix/containers/*.h>` holds a set of headers defining useful container objects. All available containers are `deque`, `list` and `vector`. Replace the asterisk with one of these names.
+* `<groufix/containers/*.h>` holds a set of headers defining useful container objects. All available containers are `deque`, `list`, `thread_pool` and `vector`. Replace the asterisk with one of these names.
 
 
 #### Threading

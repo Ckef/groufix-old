@@ -56,7 +56,7 @@ GFX_API void gfx_material_free(
 		GFXMaterial* material);
 
 /**
- * Creates a new property map and maps it to a given level of detail.
+ * Creates a new property map and appends it to a given level of detail.
  *
  * @param level      Level of detail to map to (must be <= material->levels).
  * @param programMap Program map to set inputs for.

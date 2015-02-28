@@ -666,7 +666,7 @@ void _gfx_bucket_free(
 		GFXBucket* bucket);
 
 /**
- * Processes the bucket, drawing all batches.
+ * Processes the bucket, drawing all units.
  *
  */
 void _gfx_bucket_process(

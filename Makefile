@@ -36,10 +36,11 @@ help:
 # Compiler/Linker options for all build targets
 #################################################################
 
-# Flags
+# Environment & Flags
 CC       = gcc
 BIN      = bin
 OUT      = obj
+
 RENDERER = GL
 DEBUG    = NO
 COMPILER = SUPPORTED
@@ -139,6 +140,7 @@ HEADERS = \
  include/groufix/scene/lod.h \
  include/groufix/scene/material.h \
  include/groufix/scene/mesh.h \
+ include/groufix/scene/object.h \
  include/groufix/math.h \
  include/groufix/scene.h \
  include/groufix/utils.h \
@@ -193,6 +195,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/states.o \
  $(OUT)/unix-x11/groufix/core/texture.o \
  $(OUT)/unix-x11/groufix/core/window.o \
+ $(OUT)/unix-x11/groufix/scene/batch.o \
  $(OUT)/unix-x11/groufix/scene/lod_map.o \
  $(OUT)/unix-x11/groufix/scene/material.o \
  $(OUT)/unix-x11/groufix/scene/mesh.o \
@@ -263,6 +266,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/states.o \
  $(OUT)/win32/groufix/core/texture.o \
  $(OUT)/win32/groufix/core/window.o \
+ $(OUT)/win32/groufix/scene/batch.o \
  $(OUT)/win32/groufix/scene/lod_map.o \
  $(OUT)/win32/groufix/scene/material.o \
  $(OUT)/win32/groufix/scene/mesh.o \

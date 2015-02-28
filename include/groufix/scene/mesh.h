@@ -176,7 +176,7 @@ GFX_API void gfx_mesh_set_index_buffer(
 		size_t         offset);
 
 /**
- * Creates a new vertex source and maps it to a given level of detail.
+ * Creates a new vertex source and appends it to a given level of detail.
  *
  * @param level  Level of detail to map to (must be <= mesh->levels).
  * @param source Vertex source to use.

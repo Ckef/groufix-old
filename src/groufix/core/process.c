@@ -68,10 +68,10 @@ int _gfx_pipe_process_prepare(void)
 	if(!_gfx_process_buffer)
 	{
 		GLbyte data[] = {
-			-1, -1, 0, 0,
-			 1, -1, 1, 0,
-			 1,  1, 1, 1,
-			-1,  1, 0, 1
+			-1, -1,  0,  0,
+			 1, -1,  1,  0,
+			 1,  1,  1,  1,
+			-1,  1,  0,  1
 		};
 
 		GFX_REND_GET.CreateBuffers(

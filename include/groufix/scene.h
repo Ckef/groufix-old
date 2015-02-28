@@ -15,7 +15,6 @@
 #ifndef GFX_SCENE_H
 #define GFX_SCENE_H
 
-#include "groufix/scene/material.h"
-#include "groufix/scene/mesh.h"
+#include "groufix/scene/object.h"
 
 #endif // GFX_SCENE_H
