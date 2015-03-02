@@ -56,13 +56,8 @@ typedef struct GFXVertexSource
  * Buckets to hold render units
  *******************************************************/
 
-/** Bucket to manage render units */
-typedef struct GFXBucket
-{
-	GFXBucketFlags  flags;
-	unsigned char   bits; /* Number of state bits sorted on */
-
-} GFXBucket;
+/** Key representing a state */
+typedef uint32_t GFXUnitState;
 
 
 /** Bucket source */
@@ -73,8 +68,13 @@ typedef unsigned int GFXBucketSource;
 typedef unsigned int GFXBucketUnit;
 
 
-/** Key representing a state */
-typedef uint32_t GFXUnitState;
+/** Bucket to manage render units */
+typedef struct GFXBucket
+{
+	GFXBucketFlags  flags;
+	unsigned char   bits; /* Number of state bits sorted on */
+
+} GFXBucket;
 
 
 /**

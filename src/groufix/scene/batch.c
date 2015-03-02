@@ -51,6 +51,15 @@ static inline GFXBucketUnit* _gfx_batch_get_unit(
 }
 
 /******************************************************/
+static inline int _gfx_batch_has_level(
+
+		GFXBatch*     batch,
+		unsigned int  level)
+{
+	return *_gfx_batch_get_unit(batch, level, 0) != 0;
+}
+
+/******************************************************/
 GFXBatch* gfx_batch_create(
 
 		GFXBucket*    bucket,

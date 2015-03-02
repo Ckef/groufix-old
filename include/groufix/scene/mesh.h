@@ -27,14 +27,6 @@ extern "C" {
  * Mesh (vertex layouts & buffer data abstraction)
  *******************************************************/
 
-/** Mesh */
-typedef struct GFXMesh
-{
-	GFXLodMap lodMap; /* Super class */
-
-} GFXMesh;
-
-
 /** Vertex source list */
 typedef void* GFXVertexSourceList;
 
@@ -45,6 +37,14 @@ typedef unsigned int GFXMeshLayout;
 
 /** Mesh buffer */
 typedef unsigned int GFXMeshBuffer;
+
+
+/** Mesh */
+typedef struct GFXMesh
+{
+	GFXLodMap lodMap; /* Super class */
+
+} GFXMesh;
 
 
 /**

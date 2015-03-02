@@ -27,16 +27,16 @@ extern "C" {
  * Material (collection of property maps)
  *******************************************************/
 
+/** Property map list */
+typedef void* GFXPropertyMapList;
+
+
 /** Material */
 typedef struct GFXMaterial
 {
 	GFXLodMap lodMap; /* Super class */
 
 } GFXMaterial;
-
-
-/** Property map list */
-typedef void* GFXPropertyMapList;
 
 
 /**

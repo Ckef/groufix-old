@@ -120,7 +120,7 @@ GFX_API int gfx_shader_compile(
 
 
 /********************************************************
- * Program properties
+ * Program properties & block properties
  *******************************************************/
 
 /** Property type */
@@ -143,10 +143,6 @@ typedef struct GFXProperty
 
 } GFXProperty;
 
-
-/********************************************************
- * Program block properties
- *******************************************************/
 
 /** Property Block Member */
 typedef struct GFXPropertyBlockMember
@@ -172,10 +168,6 @@ typedef struct GFXPropertyBlock
  * Program (linked shaders to form a GPU program)
  *******************************************************/
 
-/** Program Binary Format */
-typedef unsigned int GFXProgramFormat;
-
-
 /** Feedback Mode */
 typedef enum GFXFeedbackMode
 {
@@ -183,6 +175,10 @@ typedef enum GFXFeedbackMode
 	GFX_FEEDBACK_SEPARATE     = 0x8c8d
 
 } GFXFeedbackMode;
+
+
+/** Program Binary Format */
+typedef unsigned int GFXProgramFormat;
 
 
 /** Program */

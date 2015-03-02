@@ -15,6 +15,7 @@
 #include "groufix/core/internal.h"
 #include "groufix/core/errors.h"
 
+#include <limits.h>
 #include <stdlib.h>
 
 /******************************************************/
@@ -59,7 +60,7 @@ static inline unsigned char _gfx_texture_get_num_mipmaps(
 	size_t max = w > h ? (w > d ? w : d) : (h > d ? h : d);
 
 	unsigned char num = 0;
-	while(max >>= 1) ++num;
+	while(max >>= 1 && num < UCHAR_MAX) ++num;
 
 	return num;
 }
@@ -246,6 +247,36 @@ static GFX_Texture* _gfx_texture_alloc(
 	tex->texture.samples = 1;
 
 	return tex;
+}
+
+/******************************************************/
+static void _gfx_texture_set_mipmaps(
+
+		GFX_Texture*   tex,
+		unsigned char  mips,
+		GFX_WIND_ARG)
+{
+	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	{
+		GFX_REND_GET.TextureParameteri(
+			tex->handle, GL_TEXTURE_BASE_LEVEL, 0);
+		GFX_REND_GET.TextureParameteri(
+			tex->handle, GL_TEXTURE_MAX_LEVEL, mips);
+	}
+	else
+	{
+		_gfx_binder_bind_texture(
+			tex->handle,
+			tex->target,
+			0,
+			GFX_WIND_AS_ARG
+		);
+
+		GFX_REND_GET.TexParameteri(
+			tex->target, GL_TEXTURE_BASE_LEVEL, 0);
+		GFX_REND_GET.TexParameteri(
+			tex->target, GL_TEXTURE_MAX_LEVEL, mips);
+	}
 }
 
 /******************************************************/
@@ -490,27 +521,11 @@ GFXTexture* gfx_texture_create(
 	tex->texture.mipmaps = mipmaps;
 
 	/* Set parameters */
-	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
-	{
-		GFX_REND_GET.TextureParameteri(
-			tex->handle, GL_TEXTURE_BASE_LEVEL, 0);
-		GFX_REND_GET.TextureParameteri(
-			tex->handle, GL_TEXTURE_MAX_LEVEL, mipmaps);
-	}
-	else
-	{
-		_gfx_binder_bind_texture(
-			tex->handle,
-			target,
-			0,
-			GFX_WIND_AS_ARG
-		);
-
-		GFX_REND_GET.TexParameteri(
-			tex->target, GL_TEXTURE_BASE_LEVEL, 0);
-		GFX_REND_GET.TexParameteri(
-			tex->target, GL_TEXTURE_MAX_LEVEL, mipmaps);
-	}
+	_gfx_texture_set_mipmaps(
+		tex,
+		mipmaps,
+		GFX_WIND_AS_ARG
+	);
 
 	/* Allocate data */
 	_gfx_texture_set_storage(
@@ -556,6 +571,14 @@ GFXTexture* gfx_texture_create_multisample(
 		(samples > maxSamples) ?
 		maxSamples : (samples < 2 ? 2 : samples);
 
+	/* Set parameters */
+	_gfx_texture_set_mipmaps(
+		tex,
+		0,
+		GFX_WIND_AS_ARG
+	);
+
+	/* Allocate data */
 	_gfx_texture_set_storage(
 		tex,
 		width,
@@ -605,6 +628,13 @@ GFXTexture* gfx_texture_create_buffer_link(
 
 	tex->texture.height = 1;
 	tex->texture.depth  = 1;
+
+	/* Set parameters */
+	_gfx_texture_set_mipmaps(
+		tex,
+		0,
+		GFX_WIND_AS_ARG
+	);
 
 	/* Link buffer */
 	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
