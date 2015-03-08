@@ -23,7 +23,7 @@
 /******************************************************/
 static void _gfx_lod_map_get_boundaries(
 
-		GFX_LodMap*        map,
+		const GFX_LodMap*  map,
 		GFXVectorIterator  level,
 		unsigned int*      begin,
 		unsigned int*      end)
@@ -37,10 +37,10 @@ static void _gfx_lod_map_get_boundaries(
 /******************************************************/
 static unsigned int _gfx_lod_map_find_data(
 
-		GFX_LodMap*         map,
+		const GFX_LodMap*   map,
 		unsigned int        begin,
 		unsigned int        end,
-		void*               data,
+		const void*         data,
 		GFXVectorIterator*  found)
 {
 	/* Find the data and count */
@@ -56,6 +56,44 @@ static unsigned int _gfx_lod_map_find_data(
 	*found = it;
 
 	return begin;
+}
+
+/******************************************************/
+static int _gfx_lod_map_remove_at(
+
+		GFX_LodMap*        map,
+		GFXVectorIterator  level,
+		unsigned int       index)
+{
+	/* Get boundaries */
+	unsigned int begin;
+	unsigned int end;
+	_gfx_lod_map_get_boundaries(
+		map,
+		level,
+		&begin,
+		&end
+	);
+
+	unsigned int size = end - begin;
+	if(index >= size) return 0;
+
+	/* Erase the data */
+	gfx_vector_erase_at(&map->data, begin + index);
+	if(size == 1)
+	{
+		level = gfx_vector_erase(&map->levels, level);
+		--map->map.levels;
+	}
+
+	/* Decrease upper bounds */
+	while(level != map->levels.end)
+	{
+		--(*(unsigned int*)level);
+		level = gfx_vector_next(&map->levels, level);
+	}
+
+	return 1;
 }
 
 /******************************************************/
@@ -186,17 +224,17 @@ int gfx_lod_map_add(
 /******************************************************/
 unsigned int gfx_lod_map_has(
 
-		GFXLodMap*    map,
-		unsigned int  level,
-		void*         data)
+		const GFXLodMap*  map,
+		unsigned int      level,
+		const void*       data)
 {
 	if(level >= map->levels) return 0;
 
-	GFX_LodMap* internal = (GFX_LodMap*)map;
+	const GFX_LodMap* internal =
+		(const GFX_LodMap*)map;
 	GFXVectorIterator it = gfx_vector_at(
 		&internal->levels,
-		level
-	);
+		level);
 
 	/* Get boundaries */
 	unsigned int begin;
@@ -225,49 +263,11 @@ unsigned int gfx_lod_map_has(
 }
 
 /******************************************************/
-static int _gfx_lod_map_remove_at(
-
-		GFX_LodMap*        map,
-		GFXVectorIterator  level,
-		unsigned int       index)
-{
-	/* Get boundaries */
-	unsigned int begin;
-	unsigned int end;
-	_gfx_lod_map_get_boundaries(
-		map,
-		level,
-		&begin,
-		&end
-	);
-
-	unsigned int size = end - begin;
-	if(index >= size) return 0;
-
-	/* Erase the data */
-	gfx_vector_erase_at(&map->data, begin + index);
-	if(size == 1)
-	{
-		level = gfx_vector_erase(&map->levels, level);
-		--map->map.levels;
-	}
-
-	/* Decrease upper bounds */
-	while(level != map->levels.end)
-	{
-		--(*(unsigned int*)level);
-		level = gfx_vector_next(&map->levels, level);
-	}
-
-	return 1;
-}
-
-/******************************************************/
 unsigned int gfx_lod_map_remove(
 
 		GFXLodMap*    map,
 		unsigned int  level,
-		void*         data)
+		const void*   data)
 {
 	/* Check if erasable and level bounds */
 	if(!(map->flags & GFX_LOD_ERASABLE) || level >= map->levels) return 0;
@@ -317,7 +317,7 @@ unsigned int gfx_lod_map_remove(
 /******************************************************/
 int gfx_lod_map_remove_at(
 
-		GFXLodMap*  map,
+		GFXLodMap*    map,
 		unsigned int  level,
 		unsigned int  index)
 {
@@ -337,21 +337,24 @@ int gfx_lod_map_remove_at(
 /******************************************************/
 unsigned int gfx_lod_map_count(
 
-		GFXLodMap*    map,
-		unsigned int  levels)
+		const GFXLodMap*  map,
+		unsigned int      levels)
 {
 	levels = (levels > map->levels) ? map->levels : levels;
 	if(!levels) return 0;
 
-	return *(unsigned int*)gfx_vector_at(&((GFX_LodMap*)map)->levels, levels - 1);
+	return *(unsigned int*)gfx_vector_at(
+		&((const GFX_LodMap*)map)->levels,
+		levels - 1
+	);
 }
 
 /******************************************************/
 void* gfx_lod_map_get(
 
-		GFXLodMap*     map,
-		unsigned int   level,
-		unsigned int*  num)
+		const GFXLodMap*  map,
+		unsigned int      level,
+		unsigned int*     num)
 {
 	if(level >= map->levels)
 	{
@@ -359,7 +362,7 @@ void* gfx_lod_map_get(
 		return NULL;
 	}
 
-	GFX_LodMap* internal = (GFX_LodMap*)map;
+	const GFX_LodMap* internal = (const GFX_LodMap*)map;
 
 	/* Get boundaries */
 	unsigned int begin;
@@ -379,8 +382,8 @@ void* gfx_lod_map_get(
 /******************************************************/
 void* gfx_lod_map_get_all(
 
-		GFXLodMap*     map,
-		unsigned int*  num)
+		const GFXLodMap*  map,
+		unsigned int*     num)
 {
 	if(!map->levels)
 	{
@@ -388,11 +391,11 @@ void* gfx_lod_map_get_all(
 		return NULL;
 	}
 
-	GFX_LodMap* internal = (GFX_LodMap*)map;
+	const GFX_LodMap* internal =
+		(const GFX_LodMap*)map;
 	*num = *(unsigned int*)gfx_vector_at(
 		&internal->levels,
-		map->levels - 1
-	);
+		map->levels - 1);
 
 	return internal->data.begin;
 }

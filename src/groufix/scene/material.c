@@ -47,7 +47,7 @@ static int _gfx_material_segment_comp(
 		const void*  elem)
 {
 	unsigned int offset = GFX_VOID_TO_UINT(key);
-	unsigned int found = ((GFX_Segment*)elem)->offset;
+	unsigned int found = ((const GFX_Segment*)elem)->offset;
 
 	if(found < offset) return 1;
 	if(found > offset) return -1;
@@ -58,8 +58,8 @@ static int _gfx_material_segment_comp(
 /******************************************************/
 static inline GFX_Segment* _gfx_material_find_segment(
 
-		GFX_MapData*  data,
-		unsigned int  offset)
+		const GFX_MapData*  data,
+		unsigned int        offset)
 {
 	return bsearch(
 		GFX_UINT_TO_VOID(offset),
@@ -275,36 +275,36 @@ GFXPropertyMap* gfx_material_add(
 /******************************************************/
 GFXPropertyMapList gfx_material_get(
 
-		GFXMaterial*   material,
-		unsigned int   level,
-		unsigned int*  num)
+		const GFXMaterial*  material,
+		unsigned int        level,
+		unsigned int*       num)
 {
-	return gfx_lod_map_get((GFXLodMap*)material, level, num);
+	return gfx_lod_map_get((const GFXLodMap*)material, level, num);
 }
 
 /******************************************************/
 GFXPropertyMapList gfx_material_get_all(
 
-		GFXMaterial*   material,
-		unsigned int*  num)
+		const GFXMaterial*  material,
+		unsigned int*       num)
 {
-	return gfx_lod_map_get_all((GFXLodMap*)material, num);
+	return gfx_lod_map_get_all((const GFXLodMap*)material, num);
 }
 
 /******************************************************/
 unsigned int gfx_property_map_list_copies_at(
 
-		GFXPropertyMapList  list,
-		unsigned int        index)
+		const GFXPropertyMapList  list,
+		unsigned int              index)
 {
-	return ((GFX_MapData*)list)[index].copies;
+	return ((const GFX_MapData*)list)[index].copies;
 }
 
 /******************************************************/
 GFXPropertyMap* gfx_property_map_list_at(
 
-		GFXPropertyMapList  list,
-		unsigned int        index)
+		const GFXPropertyMapList  list,
+		unsigned int              index)
 {
-	return ((GFX_MapData*)list)[index].map;
+	return ((const GFX_MapData*)list)[index].map;
 }

@@ -61,8 +61,8 @@ typedef struct GFX_Bucket
 /* Internal source */
 typedef struct GFX_Source
 {
-	GFXVertexLayout*  layout; /* NULL when empty */
-	GFXVertexSource   source;
+	const GFXVertexLayout*  layout; /* NULL when empty */
+	GFXVertexSource         source;
 
 } GFX_Source;
 
@@ -94,8 +94,8 @@ static int _gfx_bucket_qsort_program(
 		const void* u1,
 		const void* u2)
 {
-	GFX_Unit* unit1 = (GFX_Unit*)u1;
-	GFX_Unit* unit2 = (GFX_Unit*)u2;
+	const GFX_Unit* unit1 = (const GFX_Unit*)u1;
+	const GFX_Unit* unit2 = (const GFX_Unit*)u2;
 
 	return
 		(unit1->program < unit2->program) ? -1 :
@@ -109,8 +109,8 @@ static int _gfx_bucket_qsort_layout(
 		const void* u1,
 		const void* u2)
 {
-	GFX_Unit* unit1 = (GFX_Unit*)u1;
-	GFX_Unit* unit2 = (GFX_Unit*)u2;
+	const GFX_Unit* unit1 = (const GFX_Unit*)u1;
+	const GFX_Unit* unit2 = (const GFX_Unit*)u2;
 
 	return
 		(unit1->vao < unit2->vao) ? -1 :
@@ -124,8 +124,8 @@ static int _gfx_bucket_qsort_all(
 		const void* u1,
 		const void* u2)
 {
-	GFX_Unit* unit1 = (GFX_Unit*)u1;
-	GFX_Unit* unit2 = (GFX_Unit*)u2;
+	const GFX_Unit* unit1 = (const GFX_Unit*)u1;
+	const GFX_Unit* unit2 = (const GFX_Unit*)u2;
 
 	return
 		(unit1->program < unit2->program) ? -1 :
@@ -185,8 +185,8 @@ static GFXBucketUnit _gfx_bucket_insert_ref(
 /******************************************************/
 static inline GFX_Unit* _gfx_bucket_ref_get(
 
-		GFX_Bucket*    bucket,
-		GFXBucketUnit  id)
+		const GFX_Bucket*  bucket,
+		GFXBucketUnit      id)
 {
 	return gfx_vector_at(
 		&bucket->units,
@@ -227,9 +227,8 @@ static void _gfx_bucket_erase_ref(
 /******************************************************/
 static inline void _gfx_bucket_swap_units(
 
-		GFX_Bucket*  bucket,
-		GFX_Unit*    unit1,
-		GFX_Unit*    unit2)
+		GFX_Unit* unit1,
+		GFX_Unit* unit2)
 {
 	GFX_Unit temp = *unit1;
 	*unit1 = *unit2;
@@ -271,7 +270,7 @@ static void _gfx_bucket_process_units(
 				((GFX_Unit*)it)->ref);
 
 			end = gfx_vector_previous(&bucket->units, end);
-			_gfx_bucket_swap_units(bucket, it, end);
+			_gfx_bucket_swap_units(it, end);
 
 			++num;
 		}
@@ -292,7 +291,7 @@ static void _gfx_bucket_process_units(
 		if(!(GFX_INT_UNIT_VISIBLE & ((GFX_Unit*)it)->state))
 		{
 			end = gfx_vector_previous(&bucket->units, end);
-			_gfx_bucket_swap_units(bucket, it, end);
+			_gfx_bucket_swap_units(it, end);
 		}
 		else
 		{
@@ -317,50 +316,49 @@ static void _gfx_bucket_sort_units(
 		unsigned int  start,
 		unsigned int  num)
 {
-	if(num > 1)
+	if(num <= 1) return;
+
+	if(!bit)
 	{
-		if(!bit)
+		/* Quicksort equal states based on bucket flags */
+		if(bucket->compare) qsort(
+			gfx_vector_at(&bucket->units, start),
+			num,
+			sizeof(GFX_Unit),
+			bucket->compare
+		);
+
+		return;
+	}
+
+	/* Radix sort based on state :) */
+	/* Start, mid, end */
+	unsigned int st = start;
+	unsigned int mi = start + num;
+	unsigned int en = mi;
+
+	while(st < mi)
+	{
+		GFX_Unit* unit = (GFX_Unit*)gfx_vector_at(
+			&bucket->units,
+			st
+		);
+
+		/* If 1, put in 1 bucket */
+		if(unit->state & bit)
 		{
-			/* Quicksort equal states based on bucket flags */
-			if(bucket->compare) qsort(
-				gfx_vector_at(&bucket->units, start),
-				num,
-				sizeof(GFX_Unit),
-				bucket->compare
+			_gfx_bucket_swap_units(unit, gfx_vector_at(
+				&bucket->units,
+				--mi)
 			);
 		}
-		else
-		{
-			/* Radix sort based on state :) */
-			/* Start, mid, end */
-			unsigned int st = start;
-			unsigned int mi = start + num;
-			unsigned int en = mi;
-
-			while(st < mi)
-			{
-				GFX_Unit* unit = (GFX_Unit*)gfx_vector_at(
-					&bucket->units,
-					st
-				);
-
-				/* If 1, put in 1 bucket */
-				if(unit->state & bit)
-				{
-					_gfx_bucket_swap_units(bucket, unit, gfx_vector_at(
-						&bucket->units,
-						--mi)
-					);
-				}
-				else ++st;
-			}
-
-			/* Sort both buckets */
-			bit >>= 1;
-			_gfx_bucket_sort_units(bucket, bit, start, mi - start);
-			_gfx_bucket_sort_units(bucket, bit, mi, en - mi);
-		}
+		else ++st;
 	}
+
+	/* Sort both buckets */
+	bit >>= 1;
+	_gfx_bucket_sort_units(bucket, bit, start, mi - start);
+	_gfx_bucket_sort_units(bucket, bit, mi, en - mi);
 }
 
 /******************************************************/
@@ -472,8 +470,8 @@ static void _gfx_bucket_preprocess(
 /******************************************************/
 void _gfx_bucket_process(
 
-		GFXBucket*     bucket,
-		GFXPipeState*  state,
+		GFXBucket*           bucket,
+		const GFXPipeState*  state,
 		GFX_WIND_ARG)
 {
 	GFX_Bucket* internal = (GFX_Bucket*)bucket;
@@ -530,8 +528,8 @@ void gfx_bucket_set_bits(
 /******************************************************/
 GFXBucketSource gfx_bucket_add_source(
 
-		GFXBucket*        bucket,
-		GFXVertexLayout*  layout)
+		GFXBucket*              bucket,
+		const GFXVertexLayout*  layout)
 {
 	/* Derp */
 	if(!layout) return 0;
@@ -749,47 +747,47 @@ GFXBucketUnit gfx_bucket_insert(
 /******************************************************/
 unsigned int gfx_bucket_get_copy(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit)
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit)
 {
-	return _gfx_bucket_ref_get((GFX_Bucket*)bucket, unit)->copy;
+	return _gfx_bucket_ref_get((const GFX_Bucket*)bucket, unit)->copy;
 }
 
 /******************************************************/
 size_t gfx_bucket_get_instances(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit)
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit)
 {
-	return _gfx_bucket_ref_get((GFX_Bucket*)bucket, unit)->inst;
+	return _gfx_bucket_ref_get((const GFX_Bucket*)bucket, unit)->inst;
 }
 
 /******************************************************/
 unsigned int gfx_bucket_get_instance_base(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit)
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit)
 {
-	return _gfx_bucket_ref_get((GFX_Bucket*)bucket, unit)->base;
+	return _gfx_bucket_ref_get((const GFX_Bucket*)bucket, unit)->base;
 }
 
 /******************************************************/
 GFXUnitState gfx_bucket_get_state(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit)
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit)
 {
-	GFX_Bucket* internal = (GFX_Bucket*)bucket;
+	const GFX_Bucket* internal = (const GFX_Bucket*)bucket;
 	return _gfx_bucket_ref_get(internal, unit)->state & GFX_INT_UNIT_MANUAL;
 }
 
 /******************************************************/
 int gfx_bucket_is_visible(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit)
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit)
 {
-	return _gfx_bucket_ref_get((GFX_Bucket*)bucket, unit)->state
+	return _gfx_bucket_ref_get((const GFX_Bucket*)bucket, unit)->state
 		& GFX_INT_UNIT_VISIBLE;
 }
 

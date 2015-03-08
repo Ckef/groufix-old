@@ -114,7 +114,7 @@ GFX_API int gfx_errors_peek(
 /**
  * Find a specific error code.
  *
- * @param code  The error code to search for.
+ * @param code The error code to search for.
  * @return non-zero if any error with the given code was found.
  *
  */

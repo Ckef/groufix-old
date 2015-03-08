@@ -86,7 +86,7 @@ static inline GLenum _gfx_buffer_get_usage(
 /******************************************************/
 static void _gfx_buffer_alloc_buffers(
 
-		GFX_Buffer*        buffer,
+		const GFX_Buffer*  buffer,
 		GFXVectorIterator  it,
 		unsigned char      num,
 		const void*        data,
@@ -122,9 +122,9 @@ static void _gfx_buffer_alloc_buffers(
 /******************************************************/
 static void _gfx_buffer_delete_buffers(
 
-		GFX_Buffer*        buffer,
-		GFXVectorIterator  it,
-		unsigned char      num,
+		const GFX_Buffer*        buffer,
+		const GFXVectorIterator  it,
+		unsigned char            num,
 		GFX_WIND_ARG)
 {
 	/* Iterate over buffers */
@@ -176,7 +176,7 @@ GLuint _gfx_buffer_get_handle(
 
 		const GFXBuffer* buffer)
 {
-	GFX_Buffer* internal = (GFX_Buffer*)buffer;
+	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
 	return *(GLuint*)gfx_vector_at(&internal->handles, internal->current);
 }
 
@@ -259,9 +259,9 @@ GFXBuffer* gfx_buffer_create(
 /******************************************************/
 GFXBuffer* gfx_buffer_create_copy(
 
-		GFXBuffer*       src,
-		GFXBufferUsage   usage,
-		GFXBufferTarget  target)
+		const GFXBuffer*  src,
+		GFXBufferUsage    usage,
+		GFXBufferTarget   target)
 {
 	/* Map buffer to copy data and create */
 	void* data = gfx_buffer_map(src, src->size, 0, GFX_BUFFER_READ);
@@ -411,14 +411,14 @@ void gfx_buffer_swap(
 /******************************************************/
 void gfx_buffer_write(
 
-		GFXBuffer*   buffer,
-		size_t       size,
-		const void*  data,
-		size_t       offset)
+		const GFXBuffer*  buffer,
+		size_t            size,
+		const void*       data,
+		size_t            offset)
 {
 	GFX_WIND_INIT();
 
-	GFX_Buffer* internal = (GFX_Buffer*)buffer;
+	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
 
 	GFX_REND_GET.NamedBufferSubData(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
@@ -430,14 +430,14 @@ void gfx_buffer_write(
 /******************************************************/
 void gfx_buffer_read(
 
-		GFXBuffer*  buffer,
-		size_t      size,
-		void*       data,
-		size_t      offset)
+		const GFXBuffer*  buffer,
+		size_t            size,
+		void*             data,
+		size_t            offset)
 {
 	GFX_WIND_INIT();
 
-	GFX_Buffer* internal = (GFX_Buffer*)buffer;
+	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
 
 	GFX_REND_GET.GetNamedBufferSubData(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
@@ -449,14 +449,14 @@ void gfx_buffer_read(
 /******************************************************/
 void* gfx_buffer_map(
 
-		GFXBuffer*      buffer,
-		size_t          size,
-		size_t          offset,
-		GFXBufferUsage  access)
+		const GFXBuffer*  buffer,
+		size_t            size,
+		size_t            offset,
+		GFXBufferUsage    access)
 {
 	GFX_WIND_INIT(NULL);
 
-	GFX_Buffer* internal = (GFX_Buffer*)buffer;
+	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
 
 	/* Strip access bits */
 	access &= GFX_BUFFER_READ | GFX_BUFFER_WRITE;
@@ -473,11 +473,11 @@ void* gfx_buffer_map(
 /******************************************************/
 void gfx_buffer_unmap(
 
-		GFXBuffer* buffer)
+		const GFXBuffer* buffer)
 {
 	GFX_WIND_INIT();
 
-	GFX_Buffer* internal = (GFX_Buffer*)buffer;
+	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
 
 	GLboolean success = GFX_REND_GET.UnmapNamedBuffer(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current));

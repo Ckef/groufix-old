@@ -61,7 +61,7 @@ void gfx_list_free(
 /******************************************************/
 size_t gfx_list_get_size(
 
-		GFXList* list)
+		const GFXList* list)
 {
 	size_t cnt = 1;
 	while(list->next)

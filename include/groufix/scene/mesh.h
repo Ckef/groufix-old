@@ -123,8 +123,8 @@ GFX_API GFXMeshLayout gfx_mesh_add_layout(
  */
 GFX_API GFXVertexLayout* gfx_mesh_get_layout(
 
-		GFXMesh*       mesh,
-		GFXMeshLayout  layout);
+		const GFXMesh*  mesh,
+		GFXMeshLayout   layout);
 
 /**
  * Creates an automatic buffer.
@@ -153,12 +153,12 @@ GFX_API GFXMeshBuffer gfx_mesh_add_buffer(
  */
 GFX_API int gfx_mesh_set_vertex_buffer(
 
-		GFXMesh*       mesh,
-		GFXMeshLayout  layout,
-		GFXMeshBuffer  buffer,
-		unsigned int   index,
-		size_t         offset,
-		size_t         stride);
+		const GFXMesh*  mesh,
+		GFXMeshLayout   layout,
+		GFXMeshBuffer   buffer,
+		unsigned int    index,
+		size_t          offset,
+		size_t          stride);
 
 /**
  * Uses an index buffer for a given layout.
@@ -170,10 +170,10 @@ GFX_API int gfx_mesh_set_vertex_buffer(
  */
 GFX_API void gfx_mesh_set_index_buffer(
 
-		GFXMesh*       mesh,
-		GFXMeshLayout  layout,
-		GFXMeshBuffer  buffer,
-		size_t         offset);
+		const GFXMesh*  mesh,
+		GFXMeshLayout   layout,
+		GFXMeshBuffer   buffer,
+		size_t          offset);
 
 /**
  * Creates a new vertex source and appends it to a given level of detail.
@@ -202,9 +202,9 @@ GFX_API int gfx_mesh_add(
  */
 GFX_API GFXVertexSourceList gfx_mesh_get(
 
-		GFXMesh*       mesh,
-		unsigned int   level,
-		unsigned int*  num);
+		const GFXMesh*  mesh,
+		unsigned int    level,
+		unsigned int*   num);
 
 /**
  * Returns an abstract list of vertex sources of all levels.
@@ -214,8 +214,8 @@ GFX_API GFXVertexSourceList gfx_mesh_get(
  */
 GFX_API GFXVertexSourceList gfx_mesh_get_all(
 
-		GFXMesh*       mesh,
-		unsigned int*  num);
+		const GFXMesh*  mesh,
+		unsigned int*   num);
 
 /**
  * Index into a list of vertex sources, retrieving the associated layout ID.
@@ -225,8 +225,8 @@ GFX_API GFXVertexSourceList gfx_mesh_get_all(
  */
 GFX_API GFXMeshLayout gfx_vertex_source_list_layout_at(
 
-		GFXVertexSourceList  list,
-		unsigned int         index);
+		const GFXVertexSourceList  list,
+		unsigned int               index);
 
 /**
  * Index into a list of vertex sources, retrieving the vertex source.
@@ -234,8 +234,8 @@ GFX_API GFXMeshLayout gfx_vertex_source_list_layout_at(
  */
 GFX_API GFXVertexSource gfx_vertex_source_list_at(
 
-		GFXVertexSourceList  list,
-		unsigned int         index);
+		const GFXVertexSourceList  list,
+		unsigned int               index);
 
 
 #ifdef __cplusplus

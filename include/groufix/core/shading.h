@@ -103,8 +103,8 @@ GFX_API int gfx_shader_set_source(
  */
 GFX_API char* gfx_shader_get_source(
 
-		GFXShader*  shader,
-		size_t*     length);
+		const GFXShader*  shader,
+		size_t*           length);
 
 /**
  * Compiles the shader if necessary.
@@ -261,7 +261,7 @@ GFX_API int gfx_program_link(
  */
 GFX_API void* gfx_program_get_binary(
 
-		GFXProgram*        program,
+		const GFXProgram*  program,
 		GFXProgramFormat*  format,
 		size_t*            size);
 
@@ -295,8 +295,8 @@ GFX_API int gfx_program_set_binary(
  */
 GFX_API const GFXProperty* gfx_program_get_property(
 
-		GFXProgram*     program,
-		unsigned short  index);
+		const GFXProgram*  program,
+		unsigned short     index);
 
 /**
  * Returns the index of the property with the given uniform name.
@@ -307,8 +307,8 @@ GFX_API const GFXProperty* gfx_program_get_property(
  */
 GFX_API unsigned short gfx_program_get_named_property(
 
-		GFXProgram*  program,
-		const char*  name);
+		const GFXProgram*  program,
+		const char*        name);
 
 /**
  * Returns a property block of the program.
@@ -321,8 +321,8 @@ GFX_API unsigned short gfx_program_get_named_property(
  */
 GFX_API const GFXPropertyBlock* gfx_program_get_property_block(
 
-		GFXProgram*     program,
-		unsigned short  index);
+		const GFXProgram*  program,
+		unsigned short     index);
 
 /**
  * Returns the index of the property block with the given uniform name.
@@ -333,8 +333,8 @@ GFX_API const GFXPropertyBlock* gfx_program_get_property_block(
  */
 GFX_API unsigned short gfx_program_get_named_property_block(
 
-		GFXProgram*  program,
-		const char*  name);
+		const GFXProgram*  program,
+		const char*        name);
 
 
 /********************************************************
@@ -408,8 +408,8 @@ GFX_API int gfx_program_map_add_share(
  */
 GFX_API GFXProgram* gfx_program_map_get(
 
-		GFXProgramMap*  map,
-		GFXShaderStage  stage);
+		const GFXProgramMap*  map,
+		GFXShaderStage        stage);
 
 
 /********************************************************

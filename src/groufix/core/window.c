@@ -50,6 +50,7 @@ static GFXContext _gfx_context =
 	.minor = GFX_CONTEXT_MINOR_MIN
 };
 
+
 /******************************************************/
 static inline int _gfx_window_is_zombie(
 

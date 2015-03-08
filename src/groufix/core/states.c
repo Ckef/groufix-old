@@ -155,7 +155,7 @@ void _gfx_states_set_default(
 /******************************************************/
 void _gfx_states_set(
 
-		GFXPipeState* state,
+		const GFXPipeState* state,
 		GFX_WIND_ARG)
 {
 	/* Clear buffers & check stripped render state */
@@ -264,7 +264,7 @@ void _gfx_states_set(
 /******************************************************/
 void _gfx_states_force_set(
 
-		GFXPipeState* state,
+		const GFXPipeState* state,
 		GFX_WIND_ARG)
 {
 	/* Clear buffers & strip state */

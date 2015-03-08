@@ -97,8 +97,8 @@ GFX_API void gfx_bucket_set_bits(
  */
 GFX_API GFXBucketSource gfx_bucket_add_source(
 
-		GFXBucket*        bucket,
-		GFXVertexLayout*  layout);
+		GFXBucket*              bucket,
+		const GFXVertexLayout*  layout);
 
 /**
  * Set the values of a source (default of everything is 0).
@@ -147,8 +147,8 @@ GFX_API GFXBucketUnit gfx_bucket_insert(
  */
 GFX_API unsigned int gfx_bucket_get_copy(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit);
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit);
 
 /**
  * Returns the number of instances to draw.
@@ -156,8 +156,8 @@ GFX_API unsigned int gfx_bucket_get_copy(
  */
 GFX_API size_t gfx_bucket_get_instances(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit);
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit);
 
 /**
  * Returns the starting instance offset.
@@ -165,8 +165,8 @@ GFX_API size_t gfx_bucket_get_instances(
  */
 GFX_API unsigned int gfx_bucket_get_instance_base(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit);
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit);
 
 /**
  * Returns the bits to sort on of the state associated with a unit.
@@ -174,8 +174,8 @@ GFX_API unsigned int gfx_bucket_get_instance_base(
  */
 GFX_API GFXUnitState gfx_bucket_get_state(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit);
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit);
 
 /**
  * Returns whether a unit is visible or not.
@@ -183,8 +183,8 @@ GFX_API GFXUnitState gfx_bucket_get_state(
  */
 GFX_API int gfx_bucket_is_visible(
 
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit);
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit);
 
 /**
  * Sets the index of the copy of the property map to use.
@@ -322,8 +322,8 @@ GFX_API int gfx_pipe_process_add_share(
  */
 GFX_API GFXProgram* gfx_pipe_process_get(
 
-		GFXPipeProcess  process,
-		GFXShaderStage  stage);
+		const GFXPipeProcess  process,
+		GFXShaderStage        stage);
 
 
 /********************************************************
@@ -501,7 +501,7 @@ typedef union GFXPipe
  */
 GFX_API GFXPipeType gfx_pipe_get_type(
 
-		GFXPipe* pipe);
+		const GFXPipe* pipe);
 
 /**
  * Returns the state of a pipe.

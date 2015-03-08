@@ -101,9 +101,9 @@ GFX_Pipe* _gfx_pipe_free(
 /******************************************************/
 GFXPipeType gfx_pipe_get_type(
 
-		GFXPipe* pipe)
+		const GFXPipe* pipe)
 {
-	return ((GFX_Pipe*)GFX_PTR_SUB_BYTES(
+	return ((const GFX_Pipe*)GFX_PTR_SUB_BYTES(
 		pipe,
 		offsetof(GFX_Pipe, ptr)))->type;
 }

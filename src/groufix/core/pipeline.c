@@ -101,8 +101,8 @@ void _gfx_pipeline_bind(
 /******************************************************/
 static GFXVectorIterator _gfx_pipeline_find_attachment(
 
-		GFX_Pipeline*  pipeline,
-		GLenum         attach)
+		const GFX_Pipeline*  pipeline,
+		GLenum               attach)
 {
 	/* Binary search for the attachment */
 	size_t min = 0;
@@ -132,8 +132,8 @@ static GFXVectorIterator _gfx_pipeline_find_attachment(
 /******************************************************/
 static void _gfx_pipeline_init_attachment(
 
-		GLuint           fbo,
-		GFX_Attachment*  attach,
+		GLuint                 fbo,
+		const GFX_Attachment*  attach,
 		GFX_WIND_ARG)
 {
 	/* Check texture handle */
@@ -307,7 +307,7 @@ GLuint _gfx_pipeline_get_handle(
 
 		const GFXPipeline* pipeline)
 {
-	return ((GFX_Pipeline*)pipeline)->fbo;
+	return ((const GFX_Pipeline*)pipeline)->fbo;
 }
 
 /******************************************************/

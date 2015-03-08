@@ -76,6 +76,8 @@ void _gfx_lod_map_clear(
  * @param offset Returns the starting copy of the reserved range.
  * @return Zero on failure.
  *
+ * Note: this will expand the property map if necessary.
+ *
  */
 int _gfx_property_map_list_insert_copies_at(
 
@@ -101,6 +103,8 @@ int _gfx_property_map_list_reference_copies_at(
  * Frees a reference of a previously reserved copies.
  *
  * Only once all references are freed will the copies be available for a new reservation.
+ *
+ * Note: this will NOT shrink the property map.
  *
  */
 void _gfx_property_map_list_erase_copies_at(

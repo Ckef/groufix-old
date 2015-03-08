@@ -147,9 +147,9 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(set_zero)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(add)(
 
-		GFX_MAT_NAME*  dest,
-		GFX_MAT_NAME*  a,
-		GFX_MAT_NAME*  b)
+		GFX_MAT_NAME*        dest,
+		const GFX_MAT_NAME*  a,
+		const GFX_MAT_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -166,9 +166,9 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(add)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(sub)(
 
-		GFX_MAT_NAME*  dest,
-		GFX_MAT_NAME*  a,
-		GFX_MAT_NAME*  b)
+		GFX_MAT_NAME*        dest,
+		const GFX_MAT_NAME*  a,
+		const GFX_MAT_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -185,9 +185,9 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(sub)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult)(
 
-		GFX_MAT_NAME*  dest,
-		GFX_MAT_NAME*  a,
-		GFX_MAT_NAME*  b)
+		GFX_MAT_NAME*        dest,
+		const GFX_MAT_NAME*  a,
+		const GFX_MAT_NAME*  b)
 {
 	GFX_MAT_NAME res;
 	GFX_MAT_FUNC(set_zero)(&res);
@@ -213,9 +213,9 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(
 
-		GFX_MAT_NAME*  dest,
-		GFX_MAT_NAME*  a,
-		GFX_MAT_DATA   scalar)
+		GFX_MAT_NAME*        dest,
+		const GFX_MAT_NAME*  a,
+		GFX_MAT_DATA         scalar)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -232,8 +232,8 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(
 
-		GFX_MAT_NAME*  dest,
-		GFX_MAT_NAME*  a)
+		GFX_MAT_NAME*        dest,
+		const GFX_MAT_NAME*  a)
 {
 	GFX_MAT_NAME res;
 
@@ -254,7 +254,7 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(
  */
 static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(is_zero)(
 
-		GFX_MAT_NAME* a)
+		const GFX_MAT_NAME* a)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -270,7 +270,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(is_zero)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
 
-		GFX_MAT_NAME* a)
+		const GFX_MAT_NAME* a)
 {
 	return a->data[0] * a->data[3] - a->data[2] * a->data[1];
 }
@@ -284,8 +284,8 @@ static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
  */
 static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
-		GFX_MAT_NAME*  dest,
-		GFX_MAT_NAME*  a)
+		GFX_MAT_NAME*        dest,
+		const GFX_MAT_NAME*  a)
 {
 	/* Check if determinant is non-zero */
 	double det = GFX_MAT_FUNC(determinant)(a);
@@ -309,7 +309,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
 
-		GFX_MAT_NAME* a)
+		const GFX_MAT_NAME* a)
 {
 	return
 		a->data[0] * a->data[4] * a->data[8] +
@@ -329,8 +329,8 @@ static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
  */
 static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
-		GFX_MAT_NAME*  dest,
-		GFX_MAT_NAME*  a)
+		GFX_MAT_NAME*        dest,
+		const GFX_MAT_NAME*  a)
 {
 	/* Compute adjugate matrix */
 	GFX_MAT_NAME adj;
@@ -353,7 +353,11 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 	if(fabs(det) <= DBL_EPSILON) return 0;
 
 	/* Write 1/det * adjugate to destination */
-	GFX_MAT_FUNC(mult_scalar)(dest, &adj, 1.0 / det);
+	det = 1.0 / det;
+
+	size_t i;
+	for(i = 0; i < GFX_MAT_STORE; ++i)
+		dest->data[i] = adj.data[i] * det;
 
 	return 1;
 }
@@ -365,7 +369,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
 
-		GFX_MAT_NAME* a)
+		const GFX_MAT_NAME* a)
 {
 	/* Determinants of 2x2 submatrices */
 	GFX_MAT_DATA S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
@@ -394,8 +398,8 @@ static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
  */
 static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
-		GFX_MAT_NAME*  dest,
-		GFX_MAT_NAME*  a)
+		GFX_MAT_NAME*        dest,
+		const GFX_MAT_NAME*  a)
 {
 	/* Determinants of 2x2 submatrices */
 	GFX_MAT_DATA S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
@@ -462,9 +466,9 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(get_column)(
  */
 static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
 
-		GFX_VEC_NAME*  dest,
-		GFX_MAT_NAME*  a,
-		GFX_VEC_NAME*  b)
+		GFX_VEC_NAME*        dest,
+		const GFX_MAT_NAME*  a,
+		const GFX_VEC_NAME*  b)
 {
 	GFX_VEC_NAME res;
 	GFX_VEC_FUNC(set_zero)(&res);

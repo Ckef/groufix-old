@@ -177,9 +177,9 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(set_zero)(
  */
 static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(add)(
 
-		GFX_VEC_NAME*  dest,
-		GFX_VEC_NAME*  a,
-		GFX_VEC_NAME*  b)
+		GFX_VEC_NAME*        dest,
+		const GFX_VEC_NAME*  a,
+		const GFX_VEC_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
@@ -196,9 +196,9 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(add)(
  */
 static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(sub)(
 
-		GFX_VEC_NAME*  dest,
-		GFX_VEC_NAME*  a,
-		GFX_VEC_NAME*  b)
+		GFX_VEC_NAME*        dest,
+		const GFX_VEC_NAME*  a,
+		const GFX_VEC_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
@@ -215,9 +215,9 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(sub)(
  */
 static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(mult)(
 
-		GFX_VEC_NAME*  dest,
-		GFX_VEC_NAME*  a,
-		GFX_VEC_NAME*  b)
+		GFX_VEC_NAME*        dest,
+		const GFX_VEC_NAME*  a,
+		const GFX_VEC_NAME*  b)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
@@ -234,9 +234,9 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(mult)(
  */
 static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(scale)(
 
-		GFX_VEC_NAME*  dest,
-		GFX_VEC_NAME*  a,
-		GFX_VEC_DATA   scalar)
+		GFX_VEC_NAME*        dest,
+		const GFX_VEC_NAME*  a,
+		const GFX_VEC_DATA   scalar)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)
@@ -251,8 +251,8 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(scale)(
  */
 static GFX_ALWAYS_INLINE GFX_VEC_DATA GFX_VEC_FUNC(dot)(
 
-		GFX_VEC_NAME*  a,
-		GFX_VEC_NAME*  b)
+		const GFX_VEC_NAME*  a,
+		const GFX_VEC_NAME*  b)
 {
 	GFX_VEC_DATA dot = 0;
 
@@ -272,9 +272,9 @@ static GFX_ALWAYS_INLINE GFX_VEC_DATA GFX_VEC_FUNC(dot)(
  */
 static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(cross)(
 
-		GFX_VEC_NAME*  dest,
-		GFX_VEC_NAME*  a,
-		GFX_VEC_NAME*  b)
+		GFX_VEC_NAME*        dest,
+		const GFX_VEC_NAME*  a,
+		const GFX_VEC_NAME*  b)
 {
 	GFX_VEC_NAME res;
 	res.data[0] = a->data[1] * b->data[2] - a->data[2] * b->data[1];
@@ -293,17 +293,9 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(cross)(
  */
 static GFX_ALWAYS_INLINE GFX_VEC_DATA GFX_VEC_FUNC(magnitude_squared)(
 
-		GFX_VEC_NAME* a)
+		const GFX_VEC_NAME* a)
 {
-	GFX_VEC_DATA dot = 0;
-
-	size_t i;
-	for(i = 0; i < GFX_VEC_SIZE; ++i)
-	{
-		GFX_VEC_DATA *val = a->data + i;
-		dot += (*val) * (*val);
-	}
-	return dot;
+	return GFX_VEC_FUNC(dot)(a, a);
 }
 
 /**
@@ -312,7 +304,7 @@ static GFX_ALWAYS_INLINE GFX_VEC_DATA GFX_VEC_FUNC(magnitude_squared)(
  */
 static GFX_ALWAYS_INLINE double GFX_VEC_FUNC(magnitude)(
 
-		GFX_VEC_NAME* a)
+		const GFX_VEC_NAME* a)
 {
 	return sqrt((double)GFX_VEC_FUNC(magnitude_squared)(a));
 }
@@ -325,13 +317,17 @@ static GFX_ALWAYS_INLINE double GFX_VEC_FUNC(magnitude)(
  */
 static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(
 
-		GFX_VEC_NAME*  dest,
-		GFX_VEC_NAME*  a)
+		GFX_VEC_NAME*        dest,
+		const GFX_VEC_NAME*  a)
 {
 	double mag = GFX_VEC_FUNC(magnitude)(a);
-	GFX_VEC_DATA scale = (GFX_VEC_DATA)(mag ? 1.0 / mag : 0.0);
+	if(mag) mag = 1.0 / mag;
 
-	return GFX_VEC_FUNC(scale)(dest, a, scale);
+	size_t i;
+	for(i = 0; i < GFX_VEC_SIZE; ++i)
+		dest->data[i] = a->data[i] * mag;
+
+	return dest;
 }
 
 /**
@@ -342,7 +338,7 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(normalize)(
  */
 static GFX_ALWAYS_INLINE int GFX_VEC_FUNC(is_zero)(
 
-		GFX_VEC_NAME* a)
+		const GFX_VEC_NAME* a)
 {
 	size_t i;
 	for(i = 0; i < GFX_VEC_SIZE; ++i)

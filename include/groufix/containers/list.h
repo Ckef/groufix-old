@@ -64,7 +64,7 @@ GFX_API void gfx_list_free(
  */
 GFX_API size_t gfx_list_get_size(
 
-		GFXList* list);
+		const GFXList* list);
 
 /**
  * Inserts an element after a given node.

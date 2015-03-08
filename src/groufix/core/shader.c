@@ -324,7 +324,7 @@ GLuint _gfx_shader_get_handle(
 
 		const GFXShader* shader)
 {
-	return ((GFX_Shader*)shader)->handle;
+	return ((const GFX_Shader*)shader)->handle;
 }
 
 /******************************************************/
@@ -452,12 +452,12 @@ int gfx_shader_set_source(
 /******************************************************/
 char* gfx_shader_get_source(
 
-		GFXShader*  shader,
-		size_t*     length)
+		const GFXShader*  shader,
+		size_t*           length)
 {
 	GFX_WIND_INIT((*length = 0, NULL));
 
-	GFX_Shader* internal = (GFX_Shader*)shader;
+	const GFX_Shader* internal = (const GFX_Shader*)shader;
 
 	/* Get source length */
 	GLint len;

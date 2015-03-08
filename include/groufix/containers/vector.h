@@ -76,7 +76,7 @@ GFX_API GFXVector* gfx_vector_create_from_buffer(
  */
 GFX_API GFXVector* gfx_vector_create_copy(
 
-		GFXVector* src);
+		const GFXVector* src);
 
 /**
  * Makes sure the vector is freed properly.
@@ -115,8 +115,8 @@ GFX_API void gfx_vector_init_from_buffer(
  */
 GFX_API void gfx_vector_init_copy(
 
-		GFXVector*  vector,
-		GFXVector*  src);
+		GFXVector*        vector,
+		const GFXVector*  src);
 
 /**
  * Clears the content of a vector.
@@ -160,10 +160,10 @@ GFX_API GFXVectorIterator gfx_vector_insert(
  */
 GFX_API GFXVectorIterator gfx_vector_insert_range(
 
-		GFXVector*         vector,
-		size_t             num,
-		GFXVectorIterator  start,
-		GFXVectorIterator  pos);
+		GFXVector*               vector,
+		size_t                   num,
+		const GFXVectorIterator  start,
+		GFXVectorIterator        pos);
 
 /**
  * Erases a range of elements at a given iterator.
@@ -185,7 +185,7 @@ GFX_API GFXVectorIterator gfx_vector_erase_range(
  */
 static GFX_ALWAYS_INLINE size_t gfx_vector_get_byte_size(
 
-		GFXVector* vector)
+		const GFXVector* vector)
 {
 	return GFX_PTR_DIFF(vector->begin, vector->end);
 }
@@ -196,7 +196,7 @@ static GFX_ALWAYS_INLINE size_t gfx_vector_get_byte_size(
  */
 static GFX_ALWAYS_INLINE size_t gfx_vector_get_size(
 
-		GFXVector* vector)
+		const GFXVector* vector)
 {
 	return GFX_PTR_DIFF(vector->begin, vector->end) / vector->elementSize;
 }
@@ -207,8 +207,8 @@ static GFX_ALWAYS_INLINE size_t gfx_vector_get_size(
  */
 static GFX_ALWAYS_INLINE size_t gfx_vector_get_index(
 
-		GFXVector*         vector,
-		GFXVectorIterator  it)
+		const GFXVector*         vector,
+		const GFXVectorIterator  it)
 {
 	return GFX_PTR_DIFF(vector->begin, it) / vector->elementSize;
 }
@@ -221,8 +221,8 @@ static GFX_ALWAYS_INLINE size_t gfx_vector_get_index(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_at(
 
-		GFXVector*  vector,
-		size_t      index)
+		const GFXVector*  vector,
+		size_t            index)
 {
 	return GFX_PTR_ADD_BYTES(vector->begin, index * vector->elementSize);
 }
@@ -233,8 +233,8 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_at(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_next(
 
-		GFXVector*         vector,
-		GFXVectorIterator  it)
+		const GFXVector*         vector,
+		const GFXVectorIterator  it)
 {
 	return GFX_PTR_ADD_BYTES(it, vector->elementSize);
 }
@@ -245,8 +245,8 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_next(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_previous(
 
-		GFXVector*         vector,
-		GFXVectorIterator  it)
+		const GFXVector*         vector,
+		const GFXVectorIterator  it)
 {
 	return GFX_PTR_SUB_BYTES(it, vector->elementSize);
 }
@@ -257,9 +257,9 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_previous(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_advance(
 
-		GFXVector*         vector,
-		GFXVectorIterator  it,
-		int                num)
+		const GFXVector*         vector,
+		const GFXVectorIterator  it,
+		int                      num)
 {
 	return GFX_PTR_ADD_BYTES(it, vector->elementSize * num);
 }
@@ -290,10 +290,10 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_insert_at(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_insert_range_at(
 
-		GFXVector*         vector,
-		size_t             num,
-		GFXVectorIterator  start,
-		size_t             index)
+		GFXVector*               vector,
+		size_t                   num,
+		const GFXVectorIterator  start,
+		size_t                   index)
 {
 	return gfx_vector_insert_range(vector, num, start, gfx_vector_at(vector, index));
 }

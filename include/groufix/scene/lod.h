@@ -97,9 +97,9 @@ GFX_API int gfx_lod_map_add(
  */
 GFX_API unsigned int gfx_lod_map_has(
 
-		GFXLodMap*    map,
-		unsigned int  level,
-		void*         data);
+		const GFXLodMap*  map,
+		unsigned int      level,
+		const void*       data);
 
 /**
  * Removes all instances mapped data from a given level of detail.
@@ -115,7 +115,7 @@ GFX_API unsigned int gfx_lod_map_remove(
 
 		GFXLodMap*    map,
 		unsigned int  level,
-		void*         data);
+		const void*   data);
 
 /**
  * Removes mapped data from a given level of detail.
@@ -143,8 +143,8 @@ GFX_API int gfx_lod_map_remove_at(
  */
 GFX_API unsigned int gfx_lod_map_count(
 
-		GFXLodMap*    map,
-		unsigned int  levels);
+		const GFXLodMap*  map,
+		unsigned int      levels);
 
 /**
  * Returns an array of data elements of dataSize bytes of a given level of detail.
@@ -157,9 +157,9 @@ GFX_API unsigned int gfx_lod_map_count(
  */
 GFX_API void* gfx_lod_map_get(
 
-		GFXLodMap*     map,
-		unsigned int   level,
-		unsigned int*  num);
+		const GFXLodMap*  map,
+		unsigned int      level,
+		unsigned int*     num);
 
 /**
  * Returns an array of data elements of dataSize bytes of all levels.
@@ -167,8 +167,8 @@ GFX_API void* gfx_lod_map_get(
  */
 GFX_API void* gfx_lod_map_get_all(
 
-		GFXLodMap*     map,
-		unsigned int*  num);
+		const GFXLodMap*  map,
+		unsigned int*     num);
 
 
 #ifdef __cplusplus

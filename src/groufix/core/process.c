@@ -18,14 +18,6 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* All pipe processes */
-static GFXVector* _gfx_pipes = NULL;
-
-
-/* Shared vertex buffer */
-static GLuint _gfx_process_buffer = 0;
-
-
 /* Internal Pipe Process */
 typedef struct GFX_Process
 {
@@ -40,12 +32,20 @@ typedef struct GFX_Process
 } GFX_Process;
 
 
+/* All pipe processes */
+static GFXVector* _gfx_pipes = NULL;
+
+
+/* Shared vertex buffer */
+static GLuint _gfx_process_buffer = 0;
+
+
 /******************************************************/
 static inline void _gfx_pipe_process_draw(
 
-		GFXPipeState*    state,
-		GFXPropertyMap*  map,
-		unsigned int     copy,
+		const GFXPipeState*    state,
+		const GFXPropertyMap*  map,
+		unsigned int           copy,
 		GFX_WIND_ARG)
 {
 	_gfx_states_set(
@@ -188,9 +188,9 @@ void _gfx_pipe_process_retarget(
 /******************************************************/
 void _gfx_pipe_process_resize(
 
-		GFX_Window*   target,
-		unsigned int  width,
-		unsigned int  height)
+		const GFX_Window*  target,
+		unsigned int       width,
+		unsigned int       height)
 {
 	GFXVectorIterator it;
 	if(_gfx_pipes) for(
@@ -296,7 +296,7 @@ void _gfx_pipe_process_free(
 
 		GFX_Process* internal = (GFX_Process*)process;
 
-		/* Create context-bound objects */
+		/* Free context-bound objects */
 		if(internal->target)
 			_gfx_window_make_current(internal->target);
 
@@ -331,6 +331,75 @@ void _gfx_pipe_process_free(
 
 		free(process);
 	}
+}
+
+/******************************************************/
+void _gfx_pipe_process_execute(
+
+		GFXPipeProcess       process,
+		const GFXPipeState*  state,
+		GFX_WIND_ARG)
+{
+	GFX_Process* internal = (GFX_Process*)process;
+
+	if(!internal->map) return;
+
+	/* Perform post-processing */
+	if(internal->target)
+	{
+		GLuint fbo = GFX_REND_GET.fbos[0];
+		GFXViewport vp = GFX_REND_GET.viewport;
+
+		_gfx_window_make_current(internal->target);
+
+		/* Set to new state of window to draw to */
+		_gfx_pipeline_bind(
+			GL_DRAW_FRAMEBUFFER,
+			0,
+			GFX_WIND_INT_AS_ARG(internal->target));
+
+		_gfx_states_set_viewport(
+			internal->viewport,
+			GFX_WIND_INT_AS_ARG(internal->target));
+
+		/* Draw to the window */
+		_gfx_pipe_process_draw(
+			state,
+			internal->map,
+			internal->copy,
+			GFX_WIND_INT_AS_ARG(internal->target));
+
+		/* Swap buffers */
+		/* If not swapping, at least flush all commands */
+		if(internal->swap)
+			_gfx_window_swap_buffers();
+		else
+			GFX_REND_GET.Flush();
+
+		/* Restore previous state if main context */
+		if(GFX_WIND_EQ(internal->target))
+		{
+			_gfx_pipeline_bind(
+				GL_DRAW_FRAMEBUFFER,
+				fbo,
+				GFX_WIND_AS_ARG);
+
+			_gfx_states_set_viewport(
+				vp,
+				GFX_WIND_AS_ARG);
+		}
+
+		/* Restore context if not main context */
+		else _gfx_window_make_current(&GFX_WIND_GET);
+	}
+
+	/* If no windowed rendering, just draw */
+	else _gfx_pipe_process_draw(
+		state,
+		internal->map,
+		internal->copy,
+		GFX_WIND_AS_ARG
+	);
 }
 
 /******************************************************/
@@ -401,80 +470,11 @@ int gfx_pipe_process_add_share(
 /******************************************************/
 GFXProgram* gfx_pipe_process_get(
 
-		GFXPipeProcess  process,
-		GFXShaderStage  stage)
+		const GFXPipeProcess  process,
+		GFXShaderStage        stage)
 {
 	return gfx_program_map_get(
 		((GFX_Process*)process)->progs,
 		stage
-	);
-}
-
-/******************************************************/
-void _gfx_pipe_process_execute(
-
-		GFXPipeProcess  process,
-		GFXPipeState*   state,
-		GFX_WIND_ARG)
-{
-	GFX_Process* internal = (GFX_Process*)process;
-
-	if(!internal->map) return;
-
-	/* Perform post-processing */
-	if(internal->target)
-	{
-		GLuint fbo = GFX_REND_GET.fbos[0];
-		GFXViewport vp = GFX_REND_GET.viewport;
-
-		_gfx_window_make_current(internal->target);
-
-		/* Set to new state of window to draw to */
-		_gfx_pipeline_bind(
-			GL_DRAW_FRAMEBUFFER,
-			0,
-			GFX_WIND_INT_AS_ARG(internal->target));
-
-		_gfx_states_set_viewport(
-			internal->viewport,
-			GFX_WIND_INT_AS_ARG(internal->target));
-
-		/* Draw to the window */
-		_gfx_pipe_process_draw(
-			state,
-			internal->map,
-			internal->copy,
-			GFX_WIND_INT_AS_ARG(internal->target));
-
-		/* Swap buffers */
-		/* If not swapping, at least flush all commands */
-		if(internal->swap)
-			_gfx_window_swap_buffers();
-		else
-			GFX_REND_GET.Flush();
-
-		/* Restore previous state if main context */
-		if(GFX_WIND_EQ(internal->target))
-		{
-			_gfx_pipeline_bind(
-				GL_DRAW_FRAMEBUFFER,
-				fbo,
-				GFX_WIND_AS_ARG);
-
-			_gfx_states_set_viewport(
-				vp,
-				GFX_WIND_AS_ARG);
-		}
-
-		/* Restore context if not main context */
-		else _gfx_window_make_current(&GFX_WIND_GET);
-	}
-
-	/* If no windowed rendering, just draw */
-	else _gfx_pipe_process_draw(
-		state,
-		internal->map,
-		internal->copy,
-		GFX_WIND_AS_ARG
 	);
 }

@@ -271,7 +271,7 @@ GLuint _gfx_shared_buffer_get_handle(
 
 		const GFXSharedBuffer* buffer)
 {
-	return ((GFX_SharedBuffer*)buffer->reference)->handle;
+	return ((const GFX_SharedBuffer*)buffer->reference)->handle;
 }
 
 /******************************************************/

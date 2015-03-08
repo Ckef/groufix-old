@@ -158,7 +158,7 @@ GFXDeque* gfx_deque_create_from_buffer(
 /******************************************************/
 GFXDeque* gfx_deque_create_copy(
 
-		GFXDeque* src)
+		const GFXDeque* src)
 {
 	/* Create a new deque */
 	GFXDeque* deque = gfx_deque_create(src->elementSize);
@@ -225,8 +225,8 @@ void gfx_deque_init_from_buffer(
 /******************************************************/
 void gfx_deque_init_copy(
 
-		GFXDeque*  deque,
-		GFXDeque*  src)
+		GFXDeque*        deque,
+		const GFXDeque*  src)
 {
 	/* Init the deque */
 	gfx_deque_init(deque, src->elementSize);
@@ -449,7 +449,7 @@ GFXDequeIterator gfx_deque_pop_end(
 /******************************************************/
 size_t gfx_deque_get_byte_size(
 
-		GFXDeque* deque)
+		const GFXDeque* deque)
 {
 	/* Get pointer difference */
 	long int begToEnd = GFX_PTR_DIFF(deque->begin, deque->end);
@@ -464,8 +464,8 @@ size_t gfx_deque_get_byte_size(
 /******************************************************/
 size_t gfx_deque_get_index(
 
-		GFXDeque*         deque,
-		GFXDequeIterator  it)
+		const GFXDeque*         deque,
+		const GFXDequeIterator  it)
 {
 	/* Get pointer difference */
 	long int diff = GFX_PTR_DIFF(deque->begin, it);
@@ -478,9 +478,9 @@ size_t gfx_deque_get_index(
 /******************************************************/
 GFXDequeIterator gfx_deque_advance(
 
-		GFXDeque*         deque,
-		GFXDequeIterator  it,
-		int               num)
+		const GFXDeque*         deque,
+		const GFXDequeIterator  it,
+		int                     num)
 {
 	/* Get sequential iterator */
 	GFXDequeIterator new = GFX_PTR_ADD_BYTES(it, deque->elementSize * num);

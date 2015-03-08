@@ -527,7 +527,7 @@ GLuint _gfx_program_get_handle(
 
 		const GFXProgram* program)
 {
-	return ((GFX_Program*)program)->handle;
+	return ((const GFX_Program*)program)->handle;
 }
 
 /******************************************************/
@@ -635,12 +635,12 @@ void _gfx_program_free(
 /******************************************************/
 GLint _gfx_program_get_location(
 
-		GFXProgram*     program,
-		unsigned short  index)
+		const GFXProgram*  program,
+		unsigned short     index)
 {
 	/* Validate index */
 	if(index >= program->properties) return -1;
-	GFX_Program* internal = (GFX_Program*)program;
+	const GFX_Program* internal = (const GFX_Program*)program;
 
 	return ((GFX_Property*)gfx_vector_at(&internal->properties, index))->location;
 }
@@ -799,13 +799,13 @@ int gfx_program_link(
 /******************************************************/
 void* gfx_program_get_binary(
 
-		GFXProgram*        program,
+		const GFXProgram*  program,
 		GFXProgramFormat*  format,
 		size_t*            size)
 {
 	GFX_WIND_INIT((*size = 0, NULL));
 
-	GFX_Program* internal = (GFX_Program*)program;
+	const GFX_Program* internal = (const GFX_Program*)program;
 
 	/* Get data byte size */
 	GLint bytes;
@@ -869,12 +869,12 @@ int gfx_program_set_binary(
 /******************************************************/
 const GFXProperty* gfx_program_get_property(
 
-		GFXProgram*     program,
-		unsigned short  index)
+		const GFXProgram*  program,
+		unsigned short     index)
 {
 	/* Validate index */
 	if(index >= program->properties) return NULL;
-	GFX_Program* internal = (GFX_Program*)program;
+	const GFX_Program* internal = (const GFX_Program*)program;
 
 	return gfx_vector_at(&internal->properties, index);
 }
@@ -882,12 +882,12 @@ const GFXProperty* gfx_program_get_property(
 /******************************************************/
 unsigned short gfx_program_get_named_property(
 
-		GFXProgram*  program,
-		const char*  name)
+		const GFXProgram*  program,
+		const char*        name)
 {
 	GFX_WIND_INIT(0);
 
-	GFX_Program* internal = (GFX_Program*)program;
+	const GFX_Program* internal = (const GFX_Program*)program;
 
 	/* Get index */
 	GLuint index;
@@ -904,12 +904,12 @@ unsigned short gfx_program_get_named_property(
 /******************************************************/
 const GFXPropertyBlock* gfx_program_get_property_block(
 
-		GFXProgram*     program,
-		unsigned short  index)
+		const GFXProgram*  program,
+		unsigned short     index)
 {
 	/* Validate index */
 	if(index >= program->blocks) return NULL;
-	GFX_Program* internal = (GFX_Program*)program;
+	const GFX_Program* internal = (const GFX_Program*)program;
 
 	return gfx_vector_at(&internal->blocks, index);
 }
@@ -917,12 +917,12 @@ const GFXPropertyBlock* gfx_program_get_property_block(
 /******************************************************/
 unsigned short gfx_program_get_named_property_block(
 
-		GFXProgram*  program,
-		const char*  name)
+		const GFXProgram*  program,
+		const char*        name)
 {
 	GFX_WIND_INIT(0);
 
-	GFX_Program* internal = (GFX_Program*)program;
+	const GFX_Program* internal = (const GFX_Program*)program;
 
 	/* Get index */
 	GLuint index = GFX_REND_GET.GetUniformBlockIndex(

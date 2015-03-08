@@ -222,7 +222,7 @@ GLuint _gfx_program_map_get_handle(
 
 		const GFXProgramMap* map)
 {
-	return ((GFX_Map*)map)->handle;
+	return ((const GFX_Map*)map)->handle;
 }
 
 /******************************************************/
@@ -328,10 +328,10 @@ void _gfx_program_map_restore(
 /******************************************************/
 void _gfx_program_map_use(
 
-		GFXProgramMap* map,
+		const GFXProgramMap* map,
 		GFX_WIND_ARG)
 {
-	GFX_Map* internal = (GFX_Map*)map;
+	const GFX_Map* internal = (const GFX_Map*)map;
 
 	/* Prevent binding it twice */
 	if(GFX_REND_GET.program != internal->handle)
@@ -471,11 +471,11 @@ int gfx_program_map_add_share(
 /******************************************************/
 GFXProgram* gfx_program_map_get(
 
-		GFXProgramMap*  map,
-		GFXShaderStage  stage)
+		const GFXProgramMap*  map,
+		GFXShaderStage        stage)
 {
 	unsigned char index = _gfx_program_map_get_stage(stage);
 	if(index >= GFX_INT_NUM_STAGES) return NULL;
 
-	return ((GFX_Map*)map)->stages[index];
+	return ((const GFX_Map*)map)->stages[index];
 }

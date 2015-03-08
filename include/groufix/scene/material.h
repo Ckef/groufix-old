@@ -82,9 +82,9 @@ GFX_API GFXPropertyMap* gfx_material_add(
  */
 GFX_API GFXPropertyMapList gfx_material_get(
 
-		GFXMaterial*   material,
-		unsigned int   level,
-		unsigned int*  num);
+		const GFXMaterial*  material,
+		unsigned int        level,
+		unsigned int*       num);
 
 /**
  * Returns an abstract list of property maps of all levels.
@@ -94,8 +94,8 @@ GFX_API GFXPropertyMapList gfx_material_get(
  */
 GFX_API GFXPropertyMapList gfx_material_get_all(
 
-		GFXMaterial*   material,
-		unsigned int*  num);
+		const GFXMaterial*  material,
+		unsigned int*       num);
 
 /**
  * Index into a list of property maps, retrieving the number of used copies.
@@ -108,8 +108,8 @@ GFX_API GFXPropertyMapList gfx_material_get_all(
  */
 GFX_API unsigned int gfx_property_map_list_copies_at(
 
-		GFXPropertyMapList  list,
-		unsigned int        index);
+		const GFXPropertyMapList  list,
+		unsigned int              index);
 
 /**
  * Index into a list of property maps, retrieving the property map.
@@ -117,8 +117,8 @@ GFX_API unsigned int gfx_property_map_list_copies_at(
  */
 GFX_API GFXPropertyMap* gfx_property_map_list_at(
 
-		GFXPropertyMapList  list,
-		unsigned int        index);
+		const GFXPropertyMapList  list,
+		unsigned int              index);
 
 
 #ifdef __cplusplus

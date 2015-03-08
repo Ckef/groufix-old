@@ -105,12 +105,13 @@ GFXVector* gfx_vector_create_from_buffer(
 /******************************************************/
 GFXVector* gfx_vector_create_copy(
 
-		GFXVector* src)
+		const GFXVector* src)
 {
 	return gfx_vector_create_from_buffer(
 		src->elementSize,
 		gfx_vector_get_size(src),
-		src->begin);
+		src->begin
+	);
 }
 
 /******************************************************/
@@ -158,13 +159,15 @@ void gfx_vector_init_from_buffer(
 /******************************************************/
 void gfx_vector_init_copy(
 
-		GFXVector*  vector,
-		GFXVector*  src)
+		GFXVector*        vector,
+		const GFXVector*  src)
 {
 	gfx_vector_init_from_buffer(
-		vector, src->elementSize,
+		vector,
+		src->elementSize,
 		gfx_vector_get_size(src),
-		src->begin);
+		src->begin
+	);
 }
 
 /******************************************************/
@@ -232,10 +235,10 @@ GFXVectorIterator gfx_vector_insert(
 /******************************************************/
 GFXVectorIterator gfx_vector_insert_range(
 
-		GFXVector*         vector,
-		size_t             num,
-		GFXVectorIterator  start,
-		GFXVectorIterator  pos)
+		GFXVector*               vector,
+		size_t                   num,
+		const GFXVectorIterator  start,
+		GFXVectorIterator        pos)
 {
 	/* Get properties */
 	size_t diff = num * vector->elementSize;

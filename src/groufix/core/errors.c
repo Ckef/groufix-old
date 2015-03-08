@@ -19,6 +19,15 @@
 #include <string.h>
 
 /******************************************************/
+/* Internal error */
+typedef struct GFX_Error
+{
+	GFXErrorCode  code;
+	char*         description; /* Can be NULL */
+
+} GFX_Error;
+
+
 /* Error mode */
 static GFXErrorMode _gfx_error_mode = GFX_ERROR_MODE_DEFAULT;
 
@@ -32,12 +41,12 @@ static GFXDeque* _gfx_errors = NULL;
 
 
 /******************************************************/
-static GFXError* _gfx_errors_last(void)
+static GFX_Error* _gfx_errors_last(void)
 {
 	if(!_gfx_errors) return NULL;
 
 	if(_gfx_errors->begin == _gfx_errors->end) return NULL;
-	return (GFXError*)_gfx_errors->begin;
+	return (GFX_Error*)_gfx_errors->begin;
 }
 
 /******************************************************/
@@ -66,10 +75,11 @@ int gfx_errors_peek(
 
 		GFXError* error)
 {
-	GFXError* err = _gfx_errors_last();
+	GFX_Error* err = _gfx_errors_last();
 	if(!err) return 0;
 
-	*error = *err;
+	error->code = err->code;
+	error->description = err->description;
 
 	return 1;
 }
@@ -87,7 +97,7 @@ int gfx_errors_find(
 		it != _gfx_errors->end;
 		it = gfx_deque_next(_gfx_errors, it))
 	{
-		if(((GFXError*)it)->code == code) break;
+		if(((GFX_Error*)it)->code == code) break;
 	}
 
 	return it != _gfx_errors->end;
@@ -96,11 +106,11 @@ int gfx_errors_find(
 /******************************************************/
 void gfx_errors_pop(void)
 {
-	GFXError* err = _gfx_errors_last();
+	GFX_Error* err = _gfx_errors_last();
 	if(err)
 	{
 		/* Make sure to free it properly */
-		free((char*)err->description);
+		free(err->description);
 		gfx_deque_pop_begin(_gfx_errors);
 	}
 }
@@ -114,7 +124,7 @@ void gfx_errors_push(
 	/* Allocate */
 	if(!_gfx_errors)
 	{
-		_gfx_errors = gfx_deque_create(sizeof(GFXError));
+		_gfx_errors = gfx_deque_create(sizeof(GFX_Error));
 		if(!_gfx_errors) return;
 
 		/* Reserve right away */
@@ -126,7 +136,7 @@ void gfx_errors_push(
 	}
 
 	/* Construct an error */
-	GFXError error;
+	GFX_Error error;
 	error.code = code;
 	error.description = NULL;
 
@@ -154,7 +164,7 @@ void gfx_errors_empty(void)
 			it != _gfx_errors->end;
 			it = gfx_deque_next(_gfx_errors, it))
 		{
-			free((char*)((GFXError*)it)->description);
+			free(((GFX_Error*)it)->description);
 		}
 
 		gfx_deque_free(_gfx_errors);
@@ -181,7 +191,7 @@ void gfx_errors_set_maximum(
 				_gfx_errors->end
 			);
 
-			free((char*)((GFXError*)it)->description);
+			free(((GFX_Error*)it)->description);
 			gfx_deque_pop_end(_gfx_errors);
 		}
 

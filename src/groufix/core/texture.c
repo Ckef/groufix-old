@@ -252,8 +252,8 @@ static GFX_Texture* _gfx_texture_alloc(
 /******************************************************/
 static void _gfx_texture_set_mipmaps(
 
-		GFX_Texture*   tex,
-		unsigned char  mips,
+		const GFX_Texture*  tex,
+		unsigned char       mips,
 		GFX_WIND_ARG)
 {
 	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
@@ -452,7 +452,7 @@ GLuint _gfx_texture_get_handle(
 
 		const GFXTexture* texture)
 {
-	return ((GFX_Texture*)texture)->handle;
+	return ((const GFX_Texture*)texture)->handle;
 }
 
 /******************************************************/
@@ -460,7 +460,7 @@ GLenum _gfx_texture_get_internal_target(
 
 		const GFXTexture* texture)
 {
-	return ((GFX_Texture*)texture)->target;
+	return ((const GFX_Texture*)texture)->target;
 }
 
 /******************************************************/
@@ -686,9 +686,9 @@ void gfx_texture_free(
 /******************************************************/
 GFXTextureFormat gfx_texture_get_format(
 
-		GFXTexture* texture)
+		const GFXTexture* texture)
 {
-	GFX_Texture* internal = (GFX_Texture*)texture;
+	const GFX_Texture* internal = (const GFX_Texture*)texture;
 	return _gfx_texture_format_from_internal(internal->format);
 }
 
@@ -701,16 +701,16 @@ void gfx_texture_write(
 {
 	GFX_WIND_INIT();
 
-	GFX_Texture* internal = (GFX_Texture*)image.texture;
+	const GFX_Texture* tex = (const GFX_Texture*)image.texture;
 
-	if(internal->buffer)
+	if(tex->buffer)
 	{
 		/* Write indirectly to the linked buffer */
 		size_t size = transfer->format.components *
 			_gfx_sizeof_data_type(transfer->format.type);
 
 		GFX_REND_GET.NamedBufferSubData(
-			internal->buffer,
+			tex->buffer,
 			transfer->xOffset * size,
 			transfer->width * size,
 			data);
@@ -734,11 +734,11 @@ void gfx_texture_write(
 
 		if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
 		{
-			switch(internal->target)
+			switch(tex->target)
 			{
 				case GL_TEXTURE_1D :
 					GFX_REND_GET.TextureSubImage1D(
-						internal->handle,
+						tex->handle,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->width,
@@ -750,7 +750,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_1D_ARRAY :
 					GFX_REND_GET.TextureSubImage2D(
-						internal->handle,
+						tex->handle,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset + image.layer,
@@ -764,7 +764,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_2D :
 					GFX_REND_GET.TextureSubImage2D(
-						internal->handle,
+						tex->handle,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -778,7 +778,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_2D_ARRAY :
 					GFX_REND_GET.TextureSubImage3D(
-						internal->handle,
+						tex->handle,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -794,7 +794,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_3D :
 					GFX_REND_GET.TextureSubImage3D(
-						internal->handle,
+						tex->handle,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -810,7 +810,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_CUBE_MAP :
 					GFX_REND_GET.TextureSubImage3D(
-						internal->handle,
+						tex->handle,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -826,7 +826,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_CUBE_MAP_ARRAY :
 					GFX_REND_GET.TextureSubImage3D(
-						internal->handle,
+						tex->handle,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -845,17 +845,17 @@ void gfx_texture_write(
 		{
 			/* Bind it to a unit if no direct state access */
 			_gfx_binder_bind_texture(
-				internal->handle,
-				internal->target,
+				tex->handle,
+				tex->target,
 				0,
 				GFX_WIND_AS_ARG
 			);
 
-			switch(internal->target)
+			switch(tex->target)
 			{
 				case GL_TEXTURE_1D :
 					GFX_REND_GET.TexSubImage1D(
-						internal->target,
+						tex->target,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->width,
@@ -867,7 +867,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_1D_ARRAY :
 					GFX_REND_GET.TexSubImage2D(
-						internal->target,
+						tex->target,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset + image.layer,
@@ -881,7 +881,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_2D :
 					GFX_REND_GET.TexSubImage2D(
-						internal->target,
+						tex->target,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -895,7 +895,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_2D_ARRAY :
 					GFX_REND_GET.TexSubImage3D(
-						internal->target,
+						tex->target,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -911,7 +911,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_3D :
 					GFX_REND_GET.TexSubImage3D(
-						internal->target,
+						tex->target,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -927,7 +927,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_CUBE_MAP :
 					GFX_REND_GET.TexSubImage3D(
-						internal->target,
+						tex->target,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -943,7 +943,7 @@ void gfx_texture_write(
 
 				case GL_TEXTURE_CUBE_MAP_ARRAY :
 					GFX_REND_GET.TexSubImage3D(
-						internal->target,
+						tex->target,
 						image.mipmap,
 						transfer->xOffset,
 						transfer->yOffset,
@@ -971,9 +971,9 @@ void gfx_texture_write_from_buffer(
 {
 	GFX_WIND_INIT();
 
-	GFX_Texture* internal = (GFX_Texture*)image.texture;
+	const GFX_Texture* tex = (const GFX_Texture*)image.texture;
 
-	if(internal->buffer)
+	if(tex->buffer)
 	{
 		/* Copy the buffer data to the linked buffer */
 		size_t size = transfer->format.components *
@@ -981,7 +981,7 @@ void gfx_texture_write_from_buffer(
 
 		GFX_REND_GET.CopyNamedBufferSubData(
 			_gfx_buffer_get_handle(buffer),
-			internal->buffer,
+			tex->buffer,
 			offset,
 			transfer->xOffset * size,
 			transfer->width * size);
@@ -1008,11 +1008,11 @@ void gfx_texture_write_from_buffer(
 /******************************************************/
 void gfx_texture_generate_mipmaps(
 
-		GFXTexture* texture)
+		const GFXTexture* texture)
 {
 	GFX_WIND_INIT();
 
-	GFX_Texture* internal = (GFX_Texture*)texture;
+	const GFX_Texture* internal = (const GFX_Texture*)texture;
 
 	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
 	{

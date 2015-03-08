@@ -337,7 +337,7 @@ void _gfx_states_set_default(
  */
 void _gfx_states_set(
 
-		GFXPipeState* state,
+		const GFXPipeState* state,
 		GFX_WIND_ARG);
 
 /**
@@ -348,7 +348,7 @@ void _gfx_states_set(
  */
 void _gfx_states_force_set(
 
-		GFXPipeState* state,
+		const GFXPipeState* state,
 		GFX_WIND_ARG);
 
 /**
@@ -470,7 +470,7 @@ void _gfx_pipeline_bind(
  */
 void _gfx_program_map_use(
 
-		GFXProgramMap* map,
+		const GFXProgramMap* map,
 		GFX_WIND_ARG);
 
 /**
@@ -484,9 +484,9 @@ void _gfx_program_map_use(
  */
 void _gfx_property_map_use(
 
-		GFXPropertyMap*  map,
-		unsigned int     copy,
-		unsigned int     base,
+		const GFXPropertyMap*  map,
+		unsigned int           copy,
+		unsigned int           base,
 		GFX_WIND_ARG);
 
 /**
@@ -552,8 +552,8 @@ void _gfx_program_free(
  */
 GLint _gfx_program_get_location(
 
-		GFXProgram*     program,
-		unsigned short  index);
+		const GFXProgram*  program,
+		unsigned short     index);
 
 /**
  * Blocks the program map from adding anymore programs.
@@ -671,8 +671,8 @@ void _gfx_bucket_free(
  */
 void _gfx_bucket_process(
 
-		GFXBucket*     bucket,
-		GFXPipeState*  state,
+		GFXBucket*           bucket,
+		const GFXPipeState*  state,
 		GFX_WIND_ARG);
 
 
@@ -741,9 +741,9 @@ void _gfx_pipe_process_retarget(
  */
 void _gfx_pipe_process_resize(
 
-		GFX_Window*   target,
-		unsigned int  width,
-		unsigned int  height);
+		const GFX_Window*  target,
+		unsigned int       width,
+		unsigned int       height);
 
 /**
  * Executes the pipe process.
@@ -753,8 +753,8 @@ void _gfx_pipe_process_resize(
  */
 void _gfx_pipe_process_execute(
 
-		GFXPipeProcess  process,
-		GFXPipeState*   state,
+		GFXPipeProcess       process,
+		const GFXPipeState*  state,
 		GFX_WIND_ARG);
 
 

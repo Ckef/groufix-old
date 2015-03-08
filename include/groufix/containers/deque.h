@@ -77,7 +77,7 @@ GFX_API GFXDeque* gfx_deque_create_from_buffer(
  */
 GFX_API GFXDeque* gfx_deque_create_copy(
 
-		GFXDeque* src);
+		const GFXDeque* src);
 
 /**
  * Makes sure the deque is freed properly.
@@ -102,6 +102,8 @@ GFX_API void gfx_deque_init(
  * @param numElements The number of elements stored in the buffer (not byte size!).
  * @param buff        Memory to copy content from, if NULL, nothing will be copied.
  *
+ * Note: size will be 0 if the data could not be allocated.
+ *
  */
 GFX_API void gfx_deque_init_from_buffer(
 
@@ -113,11 +115,13 @@ GFX_API void gfx_deque_init_from_buffer(
 /**
  * Initializes a copy of a deque.
  *
+ * Note: size will be 0 if the data could not be allocated.
+ *
  */
 GFX_API void gfx_deque_init_copy(
 
-		GFXDeque* deque,
-		GFXDeque* src);
+		GFXDeque*        deque,
+		const GFXDeque*  src);
 
 /**
  * Clears the content of a deque.
@@ -188,7 +192,7 @@ GFX_API GFXDequeIterator gfx_deque_pop_end(
  */
 GFX_API size_t gfx_deque_get_byte_size(
 
-		GFXDeque* deque);
+		const GFXDeque* deque);
 
 /**
  * Returns the index of an iterator.
@@ -196,8 +200,8 @@ GFX_API size_t gfx_deque_get_byte_size(
  */
 GFX_API size_t gfx_deque_get_index(
 
-		GFXDeque*         deque,
-		GFXDequeIterator  it);
+		const GFXDeque*         deque,
+		const GFXDequeIterator  it);
 
 /**
  * Advances an iterator an arbitrary amount of elements (can be negative).
@@ -205,9 +209,9 @@ GFX_API size_t gfx_deque_get_index(
  */
 GFX_API GFXDequeIterator gfx_deque_advance(
 
-		GFXDeque*         deque,
-		GFXDequeIterator  it,
-		int               num);
+		const GFXDeque*         deque,
+		const GFXDequeIterator  it,
+		int                     num);
 
 /**
  * Returns the size of the deque in elements.
@@ -215,7 +219,7 @@ GFX_API GFXDequeIterator gfx_deque_advance(
  */
 static GFX_ALWAYS_INLINE size_t gfx_deque_get_size(
 
-		GFXDeque* deque)
+		const GFXDeque* deque)
 {
 	return gfx_deque_get_byte_size(deque) / deque->elementSize;
 }
@@ -228,8 +232,8 @@ static GFX_ALWAYS_INLINE size_t gfx_deque_get_size(
  */
 static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_at(
 
-		GFXDeque*  deque,
-		size_t     index)
+		const GFXDeque*  deque,
+		size_t           index)
 {
 	return gfx_deque_advance(deque, deque->begin, index);
 }
@@ -240,8 +244,8 @@ static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_at(
  */
 static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_next(
 
-		GFXDeque*         deque,
-		GFXDequeIterator  it)
+		const GFXDeque*         deque,
+		const GFXDequeIterator  it)
 {
 	return gfx_deque_advance(deque, it, 1);
 }
@@ -252,8 +256,8 @@ static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_next(
  */
 static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_previous(
 
-		GFXDeque*         deque,
-		GFXDequeIterator  it)
+		const GFXDeque*         deque,
+		const GFXDequeIterator  it)
 {
 	return gfx_deque_advance(deque, it, -1);
 }

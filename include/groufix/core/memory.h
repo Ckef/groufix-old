@@ -156,9 +156,9 @@ GFX_API GFXBuffer* gfx_buffer_create(
  */
 GFX_API GFXBuffer* gfx_buffer_create_copy(
 
-		GFXBuffer*       src,
-		GFXBufferUsage   usage,
-		GFXBufferTarget  target);
+		const GFXBuffer*  src,
+		GFXBufferUsage    usage,
+		GFXBufferTarget   target);
 
 /**
  * Makes sure the buffer is freed properly.
@@ -210,10 +210,10 @@ GFX_API void gfx_buffer_swap(
  */
 GFX_API void gfx_buffer_write(
 
-		GFXBuffer*   buffer,
-		size_t       size,
-		const void*  data,
-		size_t       offset);
+		const GFXBuffer*  buffer,
+		size_t            size,
+		const void*       data,
+		size_t            offset);
 
 /**
  * Reads data from the current backbuffer synchronously.
@@ -225,10 +225,10 @@ GFX_API void gfx_buffer_write(
  */
 GFX_API void gfx_buffer_read(
 
-		GFXBuffer*  buffer,
-		size_t      size,
-		void*       data,
-		size_t      offset);
+		const GFXBuffer*  buffer,
+		size_t            size,
+		void*             data,
+		size_t            offset);
 
 /**
  * Maps the current backbuffer and returns a pointer to the mapped data.
@@ -240,10 +240,10 @@ GFX_API void gfx_buffer_read(
  */
 GFX_API void* gfx_buffer_map(
 
-		GFXBuffer*      buffer,
-		size_t          size,
-		size_t          offset,
-		GFXBufferUsage  access);
+		const GFXBuffer*  buffer,
+		size_t            size,
+		size_t            offset,
+		GFXBufferUsage    access);
 
 /**
  * Unmaps the buffer, invalidating the pointer returned by gfx_buffer_map.
@@ -253,7 +253,7 @@ GFX_API void* gfx_buffer_map(
  */
 GFX_API void gfx_buffer_unmap(
 
-		GFXBuffer* buffer);
+		const GFXBuffer* buffer);
 
 
 /********************************************************
@@ -458,31 +458,6 @@ GFX_API int gfx_vertex_layout_set_shared_vertex_buffer(
 		size_t                  stride);
 
 /**
- * Sets the divisor of a vertex buffer at a vertex layout.
- *
- * @param index   Index of the vertex buffer.
- * @param divisor Rate at which to advance measured in instances, 0 to advance each vertex.
- *
- * Note: requires GFX_EXT_INSTANCED_ATTRIBUTES.
- *
- */
-GFX_API int gfx_vertex_layout_set_vertex_divisor(
-
-		GFXVertexLayout*  layout,
-		unsigned int      index,
-		unsigned int      divisor);
-
-/**
- * Returns the number of instanced vertex buffers.
- *
- * This is equivalent to any buffer having a divisor not equal to zero.
- *
- */
-GFX_API unsigned int gfx_vertex_layout_count_instanced(
-
-		GFXVertexLayout* layout);
-
-/**
  * Changes a draw call of the vertex layout.
  *
  * @param index Index of the draw call (must be < layout->drawCalls).
@@ -507,9 +482,9 @@ GFX_API int gfx_vertex_layout_set_draw_call(
  */
 GFX_API int gfx_vertex_layout_get_draw_call(
 
-		GFXVertexLayout*  layout,
-		unsigned char     index,
-		GFXDrawCall*      call);
+		const GFXVertexLayout*  layout,
+		unsigned char           index,
+		GFXDrawCall*            call);
 
 /**
  * Sets the index buffer source of a draw call.
@@ -536,6 +511,21 @@ GFX_API void gfx_vertex_layout_set_shared_index_buffer(
 		GFXVertexLayout*        layout,
 		const GFXSharedBuffer*  buffer,
 		size_t                  offset);
+
+/**
+ * Sets the divisor of a vertex buffer at a vertex layout.
+ *
+ * @param index   Index of the vertex buffer.
+ * @param divisor Rate at which to advance measured in instances, 0 to advance each vertex.
+ *
+ * Note: requires GFX_EXT_INSTANCED_ATTRIBUTES.
+ *
+ */
+GFX_API int gfx_vertex_layout_set_vertex_divisor(
+
+		GFXVertexLayout*  layout,
+		unsigned int      index,
+		unsigned int      divisor);
 
 /**
  * Sets the number of vertices per patch (GFX_PATCHES).
@@ -568,6 +558,16 @@ GFX_API int gfx_vertex_layout_set_feedback(
 		GFXPrimitive              primitive,
 		size_t                    num,
 		const GFXFeedbackBuffer*  buffers);
+
+/**
+ * Returns the number of instanced vertex buffers.
+ *
+ * This is equivalent to any buffer having a divisor not equal to zero.
+ *
+ */
+GFX_API unsigned int gfx_vertex_layout_count_instanced(
+
+		const GFXVertexLayout* layout);
 
 
 /********************************************************
@@ -645,10 +645,10 @@ typedef struct GFXTexture
 /** Single image of a texture */
 typedef struct GFXTextureImage
 {
-	GFXTexture*     texture;
-	GFXTextureFace  face;   /* Face of the cubemap */
-	unsigned char   mipmap; /* Mipmap index */
-	unsigned int    layer;  /* Index of an array texture */
+	const GFXTexture*  texture;
+	GFXTextureFace     face;   /* Face of the cubemap */
+	unsigned char      mipmap; /* Mipmap index */
+	unsigned int       layer;  /* Index of an array texture */
 
 } GFXTextureImage;
 
@@ -724,7 +724,7 @@ GFX_API void gfx_texture_free(
  */
 GFX_API GFXTextureFormat gfx_texture_get_format(
 
-		GFXTexture* texture);
+		const GFXTexture* texture);
 
 /**
  * Writes to the texture synchronously.
@@ -763,7 +763,7 @@ GFX_API void gfx_texture_write_from_buffer(
  */
 GFX_API void gfx_texture_generate_mipmaps(
 
-		GFXTexture* texture);
+		const GFXTexture* texture);
 
 
 #ifdef __cplusplus

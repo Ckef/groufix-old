@@ -55,8 +55,8 @@ typedef struct GFX_Bucket
 /******************************************************/
 static inline GFXVertexLayout* _gfx_mesh_get_layout(
 
-		GFX_Mesh*     mesh,
-		unsigned int  index)
+		const GFX_Mesh*  mesh,
+		unsigned int     index)
 {
 	return *(GFXVertexLayout**)gfx_vector_at(&mesh->layouts, index);
 }
@@ -64,20 +64,20 @@ static inline GFXVertexLayout* _gfx_mesh_get_layout(
 /******************************************************/
 static inline size_t _gfx_mesh_bucket_size(
 
-		GFXMesh* mesh)
+		const GFXMesh* mesh)
 {
 	return
 		sizeof(GFX_Bucket) +
 		sizeof(GFXBucketSource) *
-		gfx_lod_map_count((GFXLodMap*)mesh, UINT_MAX);
+		gfx_lod_map_count((const GFXLodMap*)mesh, UINT_MAX);
 }
 
 /******************************************************/
 static GFX_Bucket* _gfx_mesh_find_bucket(
 
-		GFX_Mesh*   mesh,
-		GFXBucket*  bucket,
-		size_t      size)
+		const GFX_Mesh*   mesh,
+		const GFXBucket*  bucket,
+		size_t            size)
 {
 	GFX_Bucket* it;
 	for(
@@ -418,10 +418,10 @@ GFXMeshLayout gfx_mesh_add_layout(
 /******************************************************/
 GFXVertexLayout* gfx_mesh_get_layout(
 
-		GFXMesh*       mesh,
-		GFXMeshLayout  layout)
+		const GFXMesh*  mesh,
+		GFXMeshLayout   layout)
 {
-	return _gfx_mesh_get_layout((GFX_Mesh*)mesh, layout - 1);
+	return _gfx_mesh_get_layout((const GFX_Mesh*)mesh, layout - 1);
 }
 
 /******************************************************/
@@ -467,12 +467,12 @@ GFXMeshBuffer gfx_mesh_add_buffer(
 /******************************************************/
 int gfx_mesh_set_vertex_buffer(
 
-		GFXMesh*       mesh,
-		GFXMeshLayout  layout,
-		GFXMeshBuffer  buffer,
-		unsigned int   index,
-		size_t         offset,
-		size_t         stride)
+		const GFXMesh*  mesh,
+		GFXMeshLayout   layout,
+		GFXMeshBuffer   buffer,
+		unsigned int    index,
+		size_t          offset,
+		size_t          stride)
 {
 	GFX_Mesh* internal =
 		(GFX_Mesh*)mesh;
@@ -495,10 +495,10 @@ int gfx_mesh_set_vertex_buffer(
 /******************************************************/
 void gfx_mesh_set_index_buffer(
 
-		GFXMesh*       mesh,
-		GFXMeshLayout  layout,
-		GFXMeshBuffer  buffer,
-		size_t         offset)
+		const GFXMesh*  mesh,
+		GFXMeshLayout   layout,
+		GFXMeshBuffer   buffer,
+		size_t          offset)
 {
 	GFX_Mesh* internal =
 		(GFX_Mesh*)mesh;
@@ -562,36 +562,36 @@ int gfx_mesh_add(
 /******************************************************/
 GFXVertexSourceList gfx_mesh_get(
 
-		GFXMesh*       mesh,
-		unsigned int   level,
-		unsigned int*  num)
+		const GFXMesh*  mesh,
+		unsigned int    level,
+		unsigned int*   num)
 {
-	return gfx_lod_map_get((GFXLodMap*)mesh, level, num);
+	return gfx_lod_map_get((const GFXLodMap*)mesh, level, num);
 }
 
 /******************************************************/
 GFXVertexSourceList gfx_mesh_get_all(
 
-		GFXMesh*       mesh,
-		unsigned int*  num)
+		const GFXMesh*  mesh,
+		unsigned int*   num)
 {
-	return gfx_lod_map_get_all((GFXLodMap*)mesh, num);
+	return gfx_lod_map_get_all((const GFXLodMap*)mesh, num);
 }
 
 /******************************************************/
 GFXMeshLayout gfx_vertex_source_list_layout_at(
 
-		GFXVertexSourceList  list,
-		unsigned int         index)
+		const GFXVertexSourceList  list,
+		unsigned int               index)
 {
-	return ((GFX_SourceData*)list)[index].layout + 1;
+	return ((const GFX_SourceData*)list)[index].layout + 1;
 }
 
 /******************************************************/
 GFXVertexSource gfx_vertex_source_list_at(
 
-		GFXVertexSourceList  list,
-		unsigned int         index)
+		const GFXVertexSourceList  list,
+		unsigned int               index)
 {
-	return ((GFX_SourceData*)list)[index].source;
+	return ((const GFX_SourceData*)list)[index].source;
 }
