@@ -193,7 +193,7 @@ static void _gfx_program_map_obj_restore(
 
 	/* Create program pipeline */
 	map->id = id;
-	GFX_REND_GET.GenProgramPipelines(1, &map->handle);
+	GFX_REND_GET.CreateProgramPipelines(1, &map->handle);
 
 	/* Use all programs */
 	if(map->blocks)
@@ -374,7 +374,7 @@ GFXProgramMap* gfx_program_map_create(void)
 		}
 
 		/* Create OpenGL resources */
-		GFX_REND_GET.GenProgramPipelines(1, &map->handle);
+		GFX_REND_GET.CreateProgramPipelines(1, &map->handle);
 	}
 
 	return (GFXProgramMap*)map;

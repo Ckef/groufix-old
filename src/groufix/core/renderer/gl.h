@@ -96,6 +96,8 @@ typedef void (APIENTRYP GFX_COPYNAMEDBUFFERSUBDATAPROC)            (GLuint, GLui
 typedef void (APIENTRYP GFX_CREATEBUFFERSPROC)                     (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_CREATEFRAMEBUFFERSPROC)                (GLsizei, GLuint*);
 typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)                   (void);
+typedef void (APIENTRYP GFX_CREATEPROGRAMPIPELINESPROC)            (GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_CREATESAMPLERSPROC)                    (GLsizei, GLuint*);
 typedef GLuint (APIENTRYP GFX_CREATESHADERPROC)                    (GLenum);
 typedef void (APIENTRYP GFX_CREATETEXTURESPROC)                    (GLenum, GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_CREATEVERTEXARRAYSPROC)                (GLsizei, GLuint*);
@@ -104,6 +106,7 @@ typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)                     (GLsizei, con
 typedef void (APIENTRYP GFX_DELETEFRAMEBUFFERSPROC)                (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEPROGRAMPROC)                     (GLuint);
 typedef void (APIENTRYP GFX_DELETEPROGRAMPIPELINESPROC)            (GLsizei, const GLuint*);
+typedef void (APIENTRYP GFX_DELETESAMPLERSPROC)                    (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETESHADERPROC)                      (GLuint);
 typedef void (APIENTRYP GFX_DELETETEXTURESPROC)                    (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEVERTEXARRAYSPROC)                (GLsizei, const GLuint*);
@@ -134,6 +137,7 @@ typedef void (APIENTRYP GFX_GENERATEMIPMAPPROC)                    (GLenum);
 typedef void (APIENTRYP GFX_GENERATETEXTUREMIPMAPPROC)             (GLuint);
 typedef void (APIENTRYP GFX_GENFRAMEBUFFERSPROC)                   (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENPROGRAMPIPELINESPROC)               (GLsizei, GLuint*);
+typedef void (APIENTRYP GFX_GENSAMPLERSPROC)                       (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENTEXTURESPROC)                       (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GENVERTEXARRAYSPROC)                   (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_GETACTIVEUNIFORMPROC)                  (GLuint, GLuint, GLsizei, GLsizei*, GLint*, GLenum*, GLchar*);
@@ -254,6 +258,8 @@ void APIENTRY _gfx_gl_bind_vertex_buffer                    (GLuint, GLuint, GLi
 void APIENTRY _gfx_gl_copy_named_buffer_sub_data            (GLuint, GLuint, GLintptr, GLintptr, GLsizei);
 void APIENTRY _gfx_gl_create_buffers                        (GLsizei, GLuint*);
 void APIENTRY _gfx_gl_create_framebuffers                   (GLsizei, GLuint*);
+void APIENTRY _gfx_gl_create_program_pipelines              (GLsizei, GLuint*);
+void APIENTRY _gfx_gl_create_samplers                       (GLsizei, GLuint*);
 void APIENTRY _gfx_gl_create_textures                       (GLenum, GLsizei, GLuint*);
 void APIENTRY _gfx_gl_create_vertex_arrays                  (GLsizei, GLuint*);
 void APIENTRY _gfx_gl_delete_program_pipelines              (GLsizei, const GLuint*);
@@ -322,9 +328,11 @@ void APIENTRY _gfx_gles_tex_storage_1d                      (GLenum, GLsizei, GL
 void APIENTRY _gfx_gles_tex_storage_2d_multisample          (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLboolean);
 void APIENTRY _gfx_gles_tex_storage_3d_multisample          (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei, GLboolean);
 void APIENTRY _gfx_gles_tex_sub_image_1d                    (GLenum, GLint, GLint, GLsizei, GLenum, GLenum, const GLvoid*);
+void APIENTRY _gfx_gl_delete_samplers                       (GLsizei, const GLuint*);
+void APIENTRY _gfx_gl_gen_samplers                          (GLsizei, GLuint*);
+void APIENTRY _gfx_gl_get_program_binary                    (GLuint, GLsizei, GLsizei*, GLenum*, void*);
 void APIENTRY _gfx_gl_named_framebuffer_texture_1d          (GLuint, GLenum, GLenum, GLuint, GLint);
 void APIENTRY _gfx_gl_named_framebuffer_texture_2d          (GLuint, GLenum, GLenum, GLuint, GLint);
-void APIENTRY _gfx_gl_get_program_binary                    (GLuint, GLsizei, GLsizei*, GLenum*, void*);
 void APIENTRY _gfx_gl_program_binary                        (GLuint, GLenum, const void*, GLsizei);
 void APIENTRY _gfx_gl_program_parameter_i                   (GLuint, GLenum, GLint);
 void APIENTRY _gfx_gl_tex_storage_1d                        (GLenum, GLsizei, GLenum, GLsizei);
@@ -383,6 +391,8 @@ struct GFX_Renderer
 	GFX_CREATEBUFFERSPROC                      CreateBuffers;
 	GFX_CREATEFRAMEBUFFERSPROC                 CreateFramebuffers;
 	GFX_CREATEPROGRAMPROC                      CreateProgram;
+	GFX_CREATEPROGRAMPIPELINESPROC             CreateProgramPipelines;            /* GFX_EXT_PROGRAM_MAP */
+	GFX_CREATESAMPLERSPROC                     CreateSamplers;                    /* GFX_EXT_SAMPLER_OBJECTS */
 	GFX_CREATESHADERPROC                       CreateShader;
 	GFX_CREATETEXTURESPROC                     CreateTextures;
 	GFX_CREATEVERTEXARRAYSPROC                 CreateVertexArrays;
@@ -391,6 +401,7 @@ struct GFX_Renderer
 	GFX_DELETEFRAMEBUFFERSPROC                 DeleteFramebuffers;
 	GFX_DELETEPROGRAMPROC                      DeleteProgram;
 	GFX_DELETEPROGRAMPIPELINESPROC             DeleteProgramPipelines;            /* GFX_EXT_PROGRAM_MAP */
+	GFX_DELETESAMPLERSPROC                     DeleteSamplers;                    /* GFX_EXT_SAMPLER_OBJECTS */
 	GFX_DELETESHADERPROC                       DeleteShader;
 	GFX_DELETETEXTURESPROC                     DeleteTextures;
 	GFX_DELETEVERTEXARRAYSPROC                 DeleteVertexArrays;
@@ -421,6 +432,7 @@ struct GFX_Renderer
 	GFX_GENERATETEXTUREMIPMAPPROC              GenerateTextureMipmap;             /* GFX_EXT_DIRECT_STATE_ACCESS */
 	GFX_GENFRAMEBUFFERSPROC                    GenFramebuffers;
 	GFX_GENPROGRAMPIPELINESPROC                GenProgramPipelines;               /* GFX_EXT_PROGRAM_MAP */
+	GFX_GENSAMPLERSPROC                        GenSamplers;                       /* GFX_EXT_SAMPLER_OBJECTS */
 	GFX_GENTEXTURESPROC                        GenTextures;
 	GFX_GENVERTEXARRAYSPROC                    GenVertexArrays;
 	GFX_GETACTIVEUNIFORMPROC                   GetActiveUniform;

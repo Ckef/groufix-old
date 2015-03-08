@@ -121,6 +121,24 @@ void APIENTRY _gfx_gl_create_framebuffers(
 	GFX_REND_GET.GenFramebuffers(n, ids);
 }
 
+void APIENTRY _gfx_gl_create_program_pipelines(
+
+		GLsizei  n,
+		GLuint*  pipelines)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.GenProgramPipelines(n, pipelines);
+}
+
+void APIENTRY _gfx_gl_create_samplers(
+
+		GLsizei  n,
+		GLuint*  samplers)
+{
+	GFX_WIND_INIT_UNSAFE;
+	GFX_REND_GET.GenSamplers(n, samplers);
+}
+
 void APIENTRY _gfx_gl_create_textures(
 
 		GLenum   target,
@@ -814,11 +832,11 @@ static void _gfx_gles_error_tex_buffer(void)
 	);
 }
 
-static void _gfx_gles_error_tex_1d(void)
+static void _gfx_gles_error_layered_multisample_tex(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_TEXTURE_1D is incompatible with this context."
+		"GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE is incompatible with this context."
 	);
 }
 
@@ -830,11 +848,11 @@ static void _gfx_gles_error_multisample_tex(void)
 	);
 }
 
-static void _gfx_gles_error_layered_multisample_tex(void)
+static void _gfx_gles_error_tex_1d(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE is incompatible with this context."
+		"GFX_EXT_TEXTURE_1D is incompatible with this context."
 	);
 }
 
@@ -1053,6 +1071,43 @@ static void _gfx_gl_error_program_binary(void)
 	);
 }
 
+static void _gfx_gl_error_sampler_objects(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_SAMPLER_OBJECTS is incompatible with this context."
+	);
+}
+
+void APIENTRY _gfx_gl_delete_samplers(
+
+		GLsizei        n,
+		const GLuint*  samplers)
+{
+	_gfx_gl_error_sampler_objects();
+}
+
+void APIENTRY _gfx_gl_gen_samplers(
+
+		GLsizei  n,
+		GLuint*  samplers)
+{
+	_gfx_gl_error_sampler_objects();
+}
+
+void APIENTRY _gfx_gl_get_program_binary(
+
+		GLuint    program,
+		GLsizei   bufsize,
+		GLsizei*  length,
+		GLenum*   binaryFormat,
+		void*     binary)
+{
+	if(length) *length = 0;
+
+	_gfx_gl_error_program_binary();
+}
+
 void APIENTRY _gfx_gl_named_framebuffer_texture_1d(
 
 		GLuint  framebuffer,
@@ -1075,19 +1130,6 @@ void APIENTRY _gfx_gl_named_framebuffer_texture_2d(
 {
 	GFX_WIND_INIT_UNSAFE;
 	GFX_REND_GET.NamedFramebufferTexture(framebuffer, attach, texture, level);
-}
-
-void APIENTRY _gfx_gl_get_program_binary(
-
-		GLuint    program,
-		GLsizei   bufsize,
-		GLsizei*  length,
-		GLenum*   binaryFormat,
-		void*     binary)
-{
-	if(length) *length = 0;
-
-	_gfx_gl_error_program_binary();
 }
 
 void APIENTRY _gfx_gl_program_binary(

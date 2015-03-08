@@ -91,6 +91,7 @@ void _gfx_renderer_load(void)
 	GFX_WIND_GET.ext[GFX_EXT_IMMUTABLE_TEXTURE]    = 1;
 	GFX_WIND_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 	GFX_WIND_GET.ext[GFX_EXT_PROGRAM_BINARY]       = 1;
+	GFX_WIND_GET.ext[GFX_EXT_SAMPLER_OBJECTS]      = 1;
 
 	/* GLES, assumes 3.0+ */
 	GFX_REND_GET.ActiveTexture                     = glActiveTexture;
@@ -116,6 +117,8 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.CreateBuffers                     = _gfx_gl_create_buffers;
 	GFX_REND_GET.CreateFramebuffers                = _gfx_gl_create_framebuffers;
 	GFX_REND_GET.CreateProgram                     = glCreateProgram;
+	GFX_REND_GET.CreateProgramPipelines            = _gfx_gl_create_program_pipelines;
+	GFX_REND_GET.CreateSamplers                    = _gfx_gl_create_samplers;
 	GFX_REND_GET.CreateShader                      = glCreateShader;
 	GFX_REND_GET.CreateTextures                    = _gfx_gl_create_textures;
 	GFX_REND_GET.CreateVertexArrays                = _gfx_gl_create_vertex_arrays;
@@ -124,6 +127,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.DeleteFramebuffers                = glDeleteFramebuffers;
 	GFX_REND_GET.DeleteProgram                     = glDeleteProgram;
 	GFX_REND_GET.DeleteProgramPipelines            = _gfx_gl_delete_program_pipelines;
+	GFX_REND_GET.DeleteSamplers                    = glDeleteSamplers;
 	GFX_REND_GET.DeleteShader                      = glDeleteShader;
 	GFX_REND_GET.DeleteTextures                    = glDeleteTextures;
 	GFX_REND_GET.DeleteVertexArrays                = glDeleteVertexArrays;
@@ -154,6 +158,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.GenerateTextureMipmap             = glGenerateTextureMipmap;
 	GFX_REND_GET.GenFramebuffers                   = glGenFramebuffers;
 	GFX_REND_GET.GenProgramPipelines               = _gfx_gl_gen_program_pipelines;
+	GFX_REND_GET.GenSamplers                       = glGenSamplers;
 	GFX_REND_GET.GenTextures                       = glGenTextures;
 	GFX_REND_GET.GenVertexArrays                   = glGenVertexArrays;
 	GFX_REND_GET.GetActiveUniform                  = glGetActiveUniform;
@@ -465,6 +470,10 @@ void _gfx_renderer_load(void)
 		(PFNGLCREATEFRAMEBUFFERSPROC)_gfx_gl_create_framebuffers;
 	GFX_REND_GET.CreateProgram =
 		(PFNGLCREATEPROGRAMPROC)_gfx_platform_get_proc_address("glCreateProgram");
+	GFX_REND_GET.CreateProgramPipelines =
+		(PFNGLCREATEPROGRAMPIPELINESPROC)_gfx_gl_create_program_pipelines;
+	GFX_REND_GET.CreateSamplers =
+		(PFNGLCREATESAMPLERSPROC)_gfx_gl_create_samplers;
 	GFX_REND_GET.CreateShader =
 		(PFNGLCREATESHADERPROC)_gfx_platform_get_proc_address("glCreateShader");
 	GFX_REND_GET.CreateTextures =
@@ -481,6 +490,8 @@ void _gfx_renderer_load(void)
 		(PFNGLDELETEPROGRAMPROC)_gfx_platform_get_proc_address("glDeleteProgram");
 	GFX_REND_GET.DeleteProgramPipelines =
 		(PFNGLDELETEPROGRAMPIPELINESPROC)_gfx_gl_delete_program_pipelines;
+	GFX_REND_GET.DeleteSamplers =
+		(PFNGLDELETESAMPLERSPROC)_gfx_gl_delete_samplers;
 	GFX_REND_GET.DeleteShader =
 		(PFNGLDELETESHADERPROC)_gfx_platform_get_proc_address("glDeleteShader");
 	GFX_REND_GET.DeleteTextures =
@@ -541,6 +552,8 @@ void _gfx_renderer_load(void)
 		(PFNGLGENFRAMEBUFFERSPROC)_gfx_platform_get_proc_address("glGenFramebuffers");
 	GFX_REND_GET.GenProgramPipelines =
 		(PFNGLGENPROGRAMPIPELINESPROC)_gfx_gl_gen_program_pipelines;
+	GFX_REND_GET.GenSamplers =
+		(PFNGLGENSAMPLERSPROC)_gfx_gl_gen_samplers;
 	GFX_REND_GET.GenTextures =
 		(PFNGLGENTEXTURESPROC)glGenTextures;
 	GFX_REND_GET.GenVertexArrays =
@@ -779,6 +792,10 @@ void _gfx_renderer_load(void)
 			(PFNGLCREATEBUFFERSPROC)_gfx_platform_get_proc_address("glCreateBuffers");
 		GFX_REND_GET.CreateFramebuffers =
 			(PFNGLCREATEFRAMEBUFFERSPROC)_gfx_platform_get_proc_address("glCreateFramebuffers");
+		GFX_REND_GET.CreateProgramPipelines =
+			(PFNGLCREATEPROGRAMPIPELINESPROC)_gfx_platform_get_proc_address("glCreateProgramPipelines");
+		GFX_REND_GET.CreateSamplers =
+			(PFNGLCREATESAMPLERSPROC)_gfx_platform_get_proc_address("glCreateSamplers");
 		GFX_REND_GET.CreateTextures =
 			(PFNGLCREATETEXTURESPROC)_gfx_platform_get_proc_address("glCreateTextures");
 		GFX_REND_GET.CreateVertexArrays =
@@ -974,6 +991,20 @@ void _gfx_renderer_load(void)
 			(GFX_PROGRAMUNIFORMMATRIX4FVPROC)_gfx_platform_get_proc_address("glProgramUniformMatrix4fv");
 		GFX_REND_GET.UseProgramStages =
 			(PFNGLUSEPROGRAMSTAGESPROC)_gfx_platform_get_proc_address("glUseProgramStages");
+	}
+
+	/* GFX_EXT_SAMPLER_OBJECTS */
+	if(
+		GFX_WIND_GET.version.major > 3 ||
+		(GFX_WIND_GET.version.major == 3 && GFX_WIND_GET.version.minor > 2) ||
+		_gfx_is_extension_supported("GL_ARB_sampler_objects", GFX_WIND_AS_ARG))
+	{
+		GFX_WIND_GET.ext[GFX_EXT_SAMPLER_OBJECTS] = 1;
+
+		GFX_REND_GET.DeleteSamplers =
+			(PFNGLDELETESAMPLERSPROC)_gfx_platform_get_proc_address("glDeleteSamplers");
+		GFX_REND_GET.GenSamplers =
+			(PFNGLGENSAMPLERSPROC)_gfx_platform_get_proc_address("glGenSamplers");
 	}
 
 	/* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
