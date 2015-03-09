@@ -12,8 +12,8 @@
  *
  */
 
-#include "groufix/core/internal.h"
 #include "groufix/core/errors.h"
+#include "groufix/core/internal.h"
 
 #include <stdlib.h>
 
@@ -50,53 +50,6 @@ typedef struct GFX_Pipeline
 
 } GFX_Pipeline;
 
-
-/******************************************************/
-void _gfx_pipeline_bind(
-
-		GLenum  target,
-		GLuint  framebuffer,
-		GFX_WIND_ARG)
-{
-	switch(target)
-	{
-		/* Bind as both read and draw fbo */
-		case GL_FRAMEBUFFER :
-
-			if(
-				GFX_REND_GET.fbos[0] != framebuffer ||
-				GFX_REND_GET.fbos[1] != framebuffer)
-			{
-				GFX_REND_GET.BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-				GFX_REND_GET.fbos[0] = framebuffer;
-				GFX_REND_GET.fbos[1] = framebuffer;
-			}
-
-			break;
-
-		/* Bind as draw fbo */
-		case GL_DRAW_FRAMEBUFFER :
-
-			if(GFX_REND_GET.fbos[0] != framebuffer)
-			{
-				GFX_REND_GET.BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
-				GFX_REND_GET.fbos[0] = framebuffer;
-			}
-
-			break;
-
-		/* Bind as read fbo */
-		case GL_READ_FRAMEBUFFER :
-
-			if(GFX_REND_GET.fbos[1] != framebuffer)
-			{
-				GFX_REND_GET.BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
-				GFX_REND_GET.fbos[1] = framebuffer;
-			}
-
-			break;
-	}
-}
 
 /******************************************************/
 static GFXVectorIterator _gfx_pipeline_find_attachment(

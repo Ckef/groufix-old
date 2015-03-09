@@ -24,7 +24,7 @@
 /* Get renderer */
 #if defined(GFX_GL) || defined(GFX_GLES)
 	#define GFX_RENDERER_GL
-	#include "groufix/core/renderer/gl.h"
+	#include "groufix/core/renderer/gl_def.h"
 
 #else
 	#error "Renderer not supported"

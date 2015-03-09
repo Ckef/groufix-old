@@ -146,6 +146,7 @@ HEADERS = \
  include/groufix/utils.h \
  include/groufix.h \
  src/groufix/core/renderer/gl.h \
+ src/groufix/core/renderer/gl_def.h \
  src/groufix/core/internal.h \
  src/groufix/core/platform.h \
  src/groufix/core/renderer.h \
@@ -173,14 +174,14 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_screen.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_window.o \
+ $(OUT)/unix-x11/groufix/core/renderer/gl_binder.o \
  $(OUT)/unix-x11/groufix/core/renderer/gl_emulate.o \
+ $(OUT)/unix-x11/groufix/core/renderer/gl_formats.o \
  $(OUT)/unix-x11/groufix/core/renderer/gl_load.o \
- $(OUT)/unix-x11/groufix/core/binder.o \
  $(OUT)/unix-x11/groufix/core/bucket.o \
  $(OUT)/unix-x11/groufix/core/buffer.o \
  $(OUT)/unix-x11/groufix/core/errors.o \
  $(OUT)/unix-x11/groufix/core/events.o \
- $(OUT)/unix-x11/groufix/core/formats.o \
  $(OUT)/unix-x11/groufix/core/layout.o \
  $(OUT)/unix-x11/groufix/core/objects.o \
  $(OUT)/unix-x11/groufix/core/pipe.o \
@@ -194,6 +195,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/shared_buffer.o \
  $(OUT)/unix-x11/groufix/core/states.o \
  $(OUT)/unix-x11/groufix/core/texture.o \
+ $(OUT)/unix-x11/groufix/core/types.o \
  $(OUT)/unix-x11/groufix/core/window.o \
  $(OUT)/unix-x11/groufix/scene/batch.o \
  $(OUT)/unix-x11/groufix/scene/lod_map.o \
@@ -244,14 +246,14 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/platform/win32_thread.o \
  $(OUT)/win32/groufix/core/platform/win32_time.o \
  $(OUT)/win32/groufix/core/platform/win32_window.o \
+ $(OUT)/win32/groufix/core/renderer/gl_binder.o \
  $(OUT)/win32/groufix/core/renderer/gl_emulate.o \
+ $(OUT)/win32/groufix/core/renderer/gl_formats.o \
  $(OUT)/win32/groufix/core/renderer/gl_load.o \
- $(OUT)/win32/groufix/core/binder.o \
  $(OUT)/win32/groufix/core/bucket.o \
  $(OUT)/win32/groufix/core/buffer.o \
  $(OUT)/win32/groufix/core/errors.o \
  $(OUT)/win32/groufix/core/events.o \
- $(OUT)/win32/groufix/core/formats.o \
  $(OUT)/win32/groufix/core/layout.o \
  $(OUT)/win32/groufix/core/objects.o \
  $(OUT)/win32/groufix/core/pipe.o \
@@ -265,6 +267,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/shared_buffer.o \
  $(OUT)/win32/groufix/core/states.o \
  $(OUT)/win32/groufix/core/texture.o \
+ $(OUT)/win32/groufix/core/types.o \
  $(OUT)/win32/groufix/core/window.o \
  $(OUT)/win32/groufix/scene/batch.o \
  $(OUT)/win32/groufix/scene/lod_map.o \

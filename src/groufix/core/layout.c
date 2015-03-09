@@ -12,8 +12,8 @@
  *
  */
 
-#include "groufix/core/internal.h"
 #include "groufix/core/errors.h"
+#include "groufix/core/internal.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -86,20 +86,6 @@ typedef struct GFX_Buffer
 
 } GFX_Buffer;
 
-
-/******************************************************/
-void _gfx_vertex_layout_bind(
-
-		GLuint vao,
-		GFX_WIND_ARG)
-{
-	/* Prevent binding it twice */
-	if(GFX_REND_GET.vao != vao)
-	{
-		GFX_REND_GET.vao = vao;
-		GFX_REND_GET.BindVertexArray(vao);
-	}
-}
 
 /******************************************************/
 static void _gfx_layout_draw(

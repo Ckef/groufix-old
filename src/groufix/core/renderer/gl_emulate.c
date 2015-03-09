@@ -1079,6 +1079,14 @@ static void _gfx_gl_error_sampler_objects(void)
 	);
 }
 
+void APIENTRY _gfx_gl_bind_sampler(
+
+		GLuint  unit,
+		GLuint  sampler)
+{
+	/* Ignore it */
+}
+
 void APIENTRY _gfx_gl_delete_samplers(
 
 		GLsizei        n,

@@ -18,29 +18,9 @@
 #include "groufix/containers/list.h"
 #include "groufix/core/renderer.h"
 
-
-#ifdef GFX_RENDERER_GL
-
-	/* Compatibility texture defines */
-	#ifndef GL_TEXTURE_1D
-		#define GL_TEXTURE_1D                    0x0de0
-	#endif
-	#ifndef GL_TEXTURE_1D_ARRAY
-		#define GL_TEXTURE_1D_ARRAY              0x8c18
-	#endif
-	#ifndef GL_TEXTURE_2D_MULTISAMPLE
-		#define GL_TEXTURE_2D_MULTISAMPLE        0x9100
-	#endif
-	#ifndef GL_TEXTURE_2D_MULTISAMPLE_ARRAY
-		#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY  0x9102
-	#endif
-	#ifndef GL_TEXTURE_BUFFER
-		#define GL_TEXTURE_BUFFER                0x8c2a
-	#endif
-	#ifndef GL_TEXTURE_CUBE_MAP_ARRAY
-		#define GL_TEXTURE_CUBE_MAP_ARRAY        0x9009
-	#endif
-
+/* Internal renderer headers */
+#if defined(GFX_RENDERER_GL)
+	#include "groufix/core/renderer/gl.h"
 #endif
 
 
@@ -261,7 +241,7 @@ void _gfx_event_mouse_wheel(
 
 
 /********************************************************
- * Datatype helpers and format retrievers
+ * Datatype helpers
  *******************************************************/
 
 /**
@@ -279,42 +259,6 @@ int _gfx_is_data_type_packed(
 unsigned char _gfx_sizeof_data_type(
 
 		GFXDataType type);
-
-/**
- * Returns the internal target of a texture (a.k.a type).
- *
- */
-GLenum _gfx_texture_get_internal_target(
-
-		const GFXTexture* texture);
-
-/**
- * Converts a texture format to a client pixel format.
- *
- * @return Negative on failure.
- *
- */
-GLint _gfx_texture_format_to_pixel_format(
-
-		GFXTextureFormat format);
-
-/**
- * Converts a texture format to an internal format.
- *
- * @return Negative on failure.
- *
- */
-GLint _gfx_texture_format_to_internal(
-
-		GFXTextureFormat format);
-
-/**
- * Converts an internal format to a texture format.
- *
- */
-GFXTextureFormat _gfx_texture_format_from_internal(
-
-		GLint format);
 
 
 /********************************************************
@@ -389,124 +333,6 @@ void _gfx_states_set_patch_vertices(
 
 
 /********************************************************
- * Internal unit binding
- *******************************************************/
-
-/**
- * Binds a buffer to the appropriate uniform buffer index.
- *
- * @param prioritize Non-zero signifies this buffer must stay bound as long as possible.
- * @return the uniform buffer index it was bound to.
- *
- */
-size_t _gfx_binder_bind_uniform_buffer(
-
-		GLuint      buffer,
-		GLintptr    offset,
-		GLsizeiptr  size,
-		int         prioritize,
-		GFX_WIND_ARG);
-
-/**
- * Makes sure a buffer is unbound from any uniform buffer index.
- *
- */
-void _gfx_binder_unbind_uniform_buffer(
-
-		GLuint buffer,
-		GFX_WIND_ARG);
-
-/**
- * Binds a texture to the appropriate unit.
- *
- * @param target     Internal target of the texture.
- * @param prioritize Non-zero signifies this texture must stay bound as long as possible.
- * @return the texture unit it was bound to.
- *
- */
-size_t _gfx_binder_bind_texture(
-
-		GLuint  texture,
-		GLenum  target,
-		int     prioritize,
-		GFX_WIND_ARG);
-
-/**
- * Makes sure a texture is unbound from any unit.
- *
- */
-void _gfx_binder_unbind_texture(
-
-		GLuint texture,
-		GFX_WIND_ARG);
-
-
-/********************************************************
- * Internal object binding & draw calls
- *******************************************************/
-
-/**
- * Sets the layout handle as currently bound to the current context.
- *
- */
-void _gfx_vertex_layout_bind(
-
-		GLuint vao,
-		GFX_WIND_ARG);
-
-/**
- * Sets the framebuffer handle associated with a pipeline as current for the current context.
- *
- */
-void _gfx_pipeline_bind(
-
-		GLenum  target,
-		GLuint  framebuffer,
-		GFX_WIND_ARG);
-
-/**
- * Sets the program pipeline as currently in use.
- *
- */
-void _gfx_program_map_use(
-
-		const GFXProgramMap* map,
-		GFX_WIND_ARG);
-
-/**
- * Calls _gfx_program_map_use and uploads appropriate data.
- *
- * @param copy Index of the copy of the map to use.
- * @param base Base instance to use.
- *
- * Note: undefined behaviour if copy is out of bounds!
- *
- */
-void _gfx_property_map_use(
-
-		const GFXPropertyMap*  map,
-		unsigned int           copy,
-		unsigned int           base,
-		GFX_WIND_ARG);
-
-/**
- * Performs a complete draw operation.
- *
- * @param source Draw calls of the layout to issue.
- * @param type   Function to use for drawing.
- *
- */
-void _gfx_vertex_layout_draw(
-
-		const GFXVertexLayout*  layout,
-		GFXVertexSource         source,
-		size_t                  inst,
-		unsigned int            base,
-		GFX_DrawType            type,
-		GFX_WIND_ARG);
-
-
-/********************************************************
  * Internal program & program map usage
  *******************************************************/
 
@@ -543,17 +369,6 @@ int _gfx_program_reference(
 void _gfx_program_free(
 
 		GFXProgram* program);
-
-/**
- * Get the location of a property (a.k.a uniform).
- *
- * @return Negative on failure, the location otherwise.
- *
- */
-GLint _gfx_program_get_location(
-
-		const GFXProgram*  program,
-		unsigned short     index);
 
 /**
  * Blocks the program map from adding anymore programs.
@@ -595,6 +410,52 @@ void _gfx_program_map_restore(
 
 		GFXProgramMap*      map,
 		GFX_RenderObjects*  cont);
+
+
+/********************************************************
+ * Program usage & draw calls
+ *******************************************************/
+
+/**
+ * Sets the program pipeline as currently in use.
+ *
+ */
+void _gfx_program_map_use(
+
+		const GFXProgramMap* map,
+		GFX_WIND_ARG);
+
+/**
+ * Calls _gfx_program_map_use and uploads appropriate data.
+ *
+ * @param copy Index of the copy of the map to use.
+ * @param base Base instance to use.
+ *
+ * Note: undefined behaviour if copy is out of bounds!
+ *
+ */
+void _gfx_property_map_use(
+
+		const GFXPropertyMap*  map,
+		unsigned int           copy,
+		unsigned int           base,
+		GFX_WIND_ARG);
+
+/**
+ * Performs a complete draw operation.
+ *
+ * @param source Draw calls of the layout to issue.
+ * @param type   Function to use for drawing.
+ *
+ */
+void _gfx_vertex_layout_draw(
+
+		const GFXVertexLayout*  layout,
+		GFXVertexSource         source,
+		size_t                  inst,
+		unsigned int            base,
+		GFX_DrawType            type,
+		GFX_WIND_ARG);
 
 
 /********************************************************

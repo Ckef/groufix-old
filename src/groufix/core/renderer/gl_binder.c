@@ -1,3 +1,4 @@
+
 /**
  * Groufix  :  Graphics Engine produced by Ckef Worx.
  * www      :  <http://www.ckef-worx.com>.
@@ -23,6 +24,8 @@
 #define GFX_BINDER_COUNTER_EMPTY  UCHAR_MAX
 #define GFX_BINDER_COUNTER_MIN    0
 #define GFX_BINDER_COUNTER_MAX    (GFX_BINDER_COUNTER_EMPTY - 1)
+
+#ifdef GFX_RENDERER_GL
 
 /******************************************************/
 /* Binder unit */
@@ -347,3 +350,66 @@ void _gfx_binder_unbind_texture(
 		);
 	}
 }
+
+/******************************************************/
+void _gfx_vertex_layout_bind(
+
+		GLuint vao,
+		GFX_WIND_ARG)
+{
+	/* Prevent binding it twice */
+	if(GFX_REND_GET.vao != vao)
+	{
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
+	}
+}
+
+/******************************************************/
+void _gfx_pipeline_bind(
+
+		GLenum  target,
+		GLuint  framebuffer,
+		GFX_WIND_ARG)
+{
+	switch(target)
+	{
+		/* Bind as both read and draw fbo */
+		case GL_FRAMEBUFFER :
+
+			if(
+				GFX_REND_GET.fbos[0] != framebuffer ||
+				GFX_REND_GET.fbos[1] != framebuffer)
+			{
+				GFX_REND_GET.BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+				GFX_REND_GET.fbos[0] = framebuffer;
+				GFX_REND_GET.fbos[1] = framebuffer;
+			}
+
+			break;
+
+		/* Bind as draw fbo */
+		case GL_DRAW_FRAMEBUFFER :
+
+			if(GFX_REND_GET.fbos[0] != framebuffer)
+			{
+				GFX_REND_GET.BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+				GFX_REND_GET.fbos[0] = framebuffer;
+			}
+
+			break;
+
+		/* Bind as read fbo */
+		case GL_READ_FRAMEBUFFER :
+
+			if(GFX_REND_GET.fbos[1] != framebuffer)
+			{
+				GFX_REND_GET.BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+				GFX_REND_GET.fbos[1] = framebuffer;
+			}
+
+			break;
+	}
+}
+
+#endif // GFX_RENDERER_GL

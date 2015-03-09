@@ -13,7 +13,7 @@
  */
 
 #include "groufix/core/errors.h"
-#include "groufix/core/renderer.h"
+#include "groufix/core/internal.h"
 
 #include <limits.h>
 #include <stdlib.h>

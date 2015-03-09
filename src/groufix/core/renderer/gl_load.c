@@ -102,6 +102,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.BindBufferRange                   = glBindBufferRange;
 	GFX_REND_GET.BindFramebuffer                   = glBindFramebuffer;
 	GFX_REND_GET.BindProgramPipeline               = _gfx_gl_bind_program_pipeline;
+	GFX_REND_GET.BindSampler                       = glBindSampler;
 	GFX_REND_GET.BindTexture                       = glBindTexture;
 	GFX_REND_GET.BindTextureUnit                   = glBindTextureUnit;
 	GFX_REND_GET.BindVertexArray                   = glBindVertexArray;
@@ -440,6 +441,8 @@ void _gfx_renderer_load(void)
 		(PFNGLBINDFRAMEBUFFERPROC)_gfx_platform_get_proc_address("glBindFramebuffer");
 	GFX_REND_GET.BindProgramPipeline =
 		(PFNGLBINDPROGRAMPIPELINEPROC)_gfx_gl_bind_program_pipeline;
+	GFX_REND_GET.BindSampler =
+		(PFNGLBINDSAMPLERPROC)_gfx_gl_bind_sampler;
 	GFX_REND_GET.BindTexture =
 		(PFNGLBINDTEXTUREPROC)glBindTexture;
 	GFX_REND_GET.BindTextureUnit =
@@ -1001,6 +1004,8 @@ void _gfx_renderer_load(void)
 	{
 		GFX_WIND_GET.ext[GFX_EXT_SAMPLER_OBJECTS] = 1;
 
+		GFX_REND_GET.BindSampler =
+			(PFNGLBINDSAMPLERPROC)_gfx_platform_get_proc_address("glBindSampler");
 		GFX_REND_GET.DeleteSamplers =
 			(PFNGLDELETESAMPLERSPROC)_gfx_platform_get_proc_address("glDeleteSamplers");
 		GFX_REND_GET.GenSamplers =
