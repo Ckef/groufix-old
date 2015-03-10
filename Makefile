@@ -190,6 +190,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/program.o \
  $(OUT)/unix-x11/groufix/core/program_map.o \
  $(OUT)/unix-x11/groufix/core/property_map.o \
+ $(OUT)/unix-x11/groufix/core/sampler.o \
  $(OUT)/unix-x11/groufix/core/screen.o \
  $(OUT)/unix-x11/groufix/core/shader.o \
  $(OUT)/unix-x11/groufix/core/shared_buffer.o \
@@ -262,6 +263,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/program.o \
  $(OUT)/win32/groufix/core/program_map.o \
  $(OUT)/win32/groufix/core/property_map.o \
+ $(OUT)/win32/groufix/core/sampler.o \
  $(OUT)/win32/groufix/core/screen.o \
  $(OUT)/win32/groufix/core/shader.o \
  $(OUT)/win32/groufix/core/shared_buffer.o \

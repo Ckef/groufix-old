@@ -32,6 +32,7 @@ extern "C" {
 /** Renderer Extensions */
 typedef enum GFXExtension
 {
+	GFX_EXT_ANISOTROPIC_FILTER,
 	GFX_EXT_BUFFER_TEXTURE,
 	GFX_EXT_DIRECT_STATE_ACCESS,
 	GFX_EXT_GEOMETRY_SHADER,
@@ -59,6 +60,7 @@ typedef enum GFXExtension
 /** Renderer Limits */
 typedef enum GFXLimit
 {
+	GFX_LIM_MAX_ANISOTROPY,
 	GFX_LIM_MAX_BUFFER_PROPERTIES,
 	GFX_LIM_MAX_BUFFER_TEXTURE_SIZE,
 	GFX_LIM_MAX_COLOR_ATTACHMENTS,

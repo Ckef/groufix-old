@@ -333,6 +333,43 @@ void _gfx_states_set_patch_vertices(
 
 
 /********************************************************
+ * Internal sampler usage
+ *******************************************************/
+
+/**
+ * Creates a new sampler.
+ *
+ * @param values Values to use.
+ * @return NULL on failure.
+ *
+ */
+GFXSampler* _gfx_sampler_create(
+
+		GFXSampler* values);
+
+/**
+ * References a sampler to postpone its destruction.
+ *
+ * @return Zero on overflow.
+ *
+ */
+int _gfx_sampler_reference(
+
+		GFXSampler* sampler);
+
+/**
+ * Makes sure the sampler is freed properly.
+ *
+ * Decreases the reference counter before freeing,
+ * only freeing if the counter hits 0.
+ *
+ */
+void _gfx_sampler_free(
+
+		GFXSampler* sampler);
+
+
+/********************************************************
  * Internal program & program map usage
  *******************************************************/
 
@@ -362,7 +399,7 @@ int _gfx_program_reference(
 /**
  * Makes sure the program is freed properly.
  *
- * Decrease the reference counter before freeing,
+ * Decreases the reference counter before freeing,
  * only freeing if the counter hits 0.
  *
  */
@@ -413,17 +450,8 @@ void _gfx_program_map_restore(
 
 
 /********************************************************
- * Program usage & draw calls
+ * Usage of property map & drawing using layout
  *******************************************************/
-
-/**
- * Sets the program pipeline as currently in use.
- *
- */
-void _gfx_program_map_use(
-
-		const GFXProgramMap* map,
-		GFX_WIND_ARG);
 
 /**
  * Calls _gfx_program_map_use and uploads appropriate data.

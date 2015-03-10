@@ -413,6 +413,47 @@ GFX_API GFXProgram* gfx_program_map_get(
 
 
 /********************************************************
+ * Sampler property (how to sample texels)
+ *******************************************************/
+
+/** Texture filter */
+typedef enum GFXFilter
+{
+	GFX_FILTER_NEAREST  = 0x2600,
+	GFX_FILTER_LINEAR   = 0x2601
+
+} GFXFilter;
+
+
+/** Texture wrap */
+typedef enum GFXWrap
+{
+	GFX_WRAP_REPEAT         = 0x2901,
+	GFX_WRAP_REPEAT_MIRROR  = 0x8370,
+	GFX_WRAP_CLAMP          = 0x812f
+
+} GFXWrap;
+
+
+/** Sampler */
+typedef struct GFXSampler
+{
+	GFXFilter  minFilter;    /* Minification filter (multiple texels within a sample) */
+	GFXFilter  mipFilter;    /* Mipmapping filter (minification over multiple mipmaps) */
+	GFXFilter  magFilter;    /* Magnification filter (less than one texel within a sample) */
+	float      maxAnistropy; /* Maximum anisotropy, must be >= 1, requires GFX_EXT_ANISOTROPIC_FILTER */
+
+	float      lodMin;       /* Limits selection of highest resolution mipmap */
+	float      lodMax;       /* Limits selection of lowest resolution mipmap */
+
+	GFXWrap    wrapS;
+	GFXWrap    wrapT;
+	GFXWrap    wrapR;
+
+} GFXSampler;
+
+
+/********************************************************
  * Property Map (inputs associated with a program)
  *******************************************************/
 

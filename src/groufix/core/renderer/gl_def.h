@@ -27,9 +27,37 @@
 
 
 /* Default limits */
+#define GFX_GL_DEF_MAX_ANISOTROPY            0x0001
 #define GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET  0x07ff
 #define GFX_GL_DEF_MAX_VERTEX_BUFFERS        0x0010
 #define GFX_GL_DEF_MAX_VERTEX_STRIDE         0x0800
+
+
+/* Missing defines (extensions n such) */
+#ifndef GL_TEXTURE_1D
+	#define GL_TEXTURE_1D                      0x0de0
+#endif
+#ifndef GL_TEXTURE_1D_ARRAY
+	#define GL_TEXTURE_1D_ARRAY                0x8c18
+#endif
+#ifndef GL_TEXTURE_2D_MULTISAMPLE
+	#define GL_TEXTURE_2D_MULTISAMPLE          0x9100
+#endif
+#ifndef GL_TEXTURE_2D_MULTISAMPLE_ARRAY
+	#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY    0x9102
+#endif
+#ifndef GL_TEXTURE_BUFFER
+	#define GL_TEXTURE_BUFFER                  0x8c2a
+#endif
+#ifndef GL_TEXTURE_CUBE_MAP_ARRAY
+	#define GL_TEXTURE_CUBE_MAP_ARRAY          0x9009
+#endif
+#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
+	#define GL_TEXTURE_MAX_ANISOTROPY_EXT      0x84fe
+#endif
+#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+	#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT  0x84ff
+#endif
 
 
 /* Correct context versions */

@@ -601,8 +601,9 @@ static void _gfx_property_set_sampler(
 	);
 
 	/* Bind texture and upload binding point */
-	GLint unit = _gfx_binder_bind_texture(
+	GLint unit = _gfx_binder_bind_sampler(
 		val->texture,
+		0,
 		val->target,
 		1,
 		GFX_WIND_AS_ARG);

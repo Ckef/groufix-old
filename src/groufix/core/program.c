@@ -69,15 +69,6 @@
 
 
 /******************************************************/
-/* Internal Property */
-typedef struct GFX_Property
-{
-	GFXProperty  property; /* Super class */
-	GLint        location;
-
-} GFX_Property;
-
-
 /* Internal Program */
 typedef struct GFX_Program
 {
@@ -92,6 +83,15 @@ typedef struct GFX_Program
 	GFXVector           blocks;     /* Stores GFXPropertyBlock */
 
 } GFX_Program;
+
+
+/* Internal Property */
+typedef struct GFX_Property
+{
+	GFXProperty  property; /* Super class */
+	GLint        location;
+
+} GFX_Property;
 
 
 /******************************************************/

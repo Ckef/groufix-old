@@ -17,28 +17,6 @@
 
 #include "groufix/core/renderer.h"
 
-
-/* Compatibility texture defines */
-#ifndef GL_TEXTURE_1D
-	#define GL_TEXTURE_1D                    0x0de0
-#endif
-#ifndef GL_TEXTURE_1D_ARRAY
-	#define GL_TEXTURE_1D_ARRAY              0x8c18
-#endif
-#ifndef GL_TEXTURE_2D_MULTISAMPLE
-	#define GL_TEXTURE_2D_MULTISAMPLE        0x9100
-#endif
-#ifndef GL_TEXTURE_2D_MULTISAMPLE_ARRAY
-	#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY  0x9102
-#endif
-#ifndef GL_TEXTURE_BUFFER
-	#define GL_TEXTURE_BUFFER                0x8c2a
-#endif
-#ifndef GL_TEXTURE_CUBE_MAP_ARRAY
-	#define GL_TEXTURE_CUBE_MAP_ARRAY        0x9009
-#endif
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -47,10 +25,6 @@ extern "C" {
 /********************************************************
  * Internal GL object access
  *******************************************************/
-
-/** Sampler */
-typedef struct GFX_Sampler GFX_Sampler;
-
 
 /**
  * Returns the current handle of a buffer.
@@ -101,7 +75,7 @@ GLuint _gfx_program_map_get_handle(
  */
 GLuint _gfx_sampler_get_handle(
 
-		const GFX_Sampler* sampler);
+		const GFXSampler* sampler);
 
 /**
  * Returns the handle of a shader.
@@ -221,12 +195,36 @@ size_t _gfx_binder_bind_texture(
 		GFX_WIND_ARG);
 
 /**
+ * Binds a texture and sampler to the appropriate unit.
+ *
+ * @param prioritize Non-zero signifies this texture sampler pair must stay bound as long as possible.
+ * @return the texture unit they were bound to.
+ *
+ */
+size_t _gfx_binder_bind_sampler(
+
+		GLuint  texture,
+		GLuint  sampler,
+		GLenum  target,
+		int     prioritize,
+		GFX_WIND_ARG);
+
+/**
  * Makes sure a texture is unbound from any unit.
  *
  */
 void _gfx_binder_unbind_texture(
 
 		GLuint texture,
+		GFX_WIND_ARG);
+
+/**
+ * Makes sure a sampler is unbound from any unit.
+ *
+ */
+void _gfx_binder_unbind_sampler(
+
+		GLuint sampler,
 		GFX_WIND_ARG);
 
 /**

@@ -29,9 +29,8 @@ static int _gfx_is_extension_supported(
 	GLint num;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &num);
 
-	while(num) if(!strcmp(
-		(const char*)GFX_REND_GET.GetStringi(GL_EXTENSIONS, --num),
-		(const char*)ext))
+	while(num) if(!strcmp(ext,
+		(const char*)GFX_REND_GET.GetStringi(GL_EXTENSIONS, --num)))
 	{
 		return 1;
 	}
@@ -52,6 +51,8 @@ void _gfx_renderer_load(void)
 	);
 
 	/* Defaults */
+	GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] =
+		GFX_GL_DEF_MAX_ANISOTROPY;
 	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] =
 		GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET;
 	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] =
@@ -271,6 +272,15 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.VertexAttribPointer               = glVertexAttribPointer;
 	GFX_REND_GET.VertexBindingDivisor              = _gfx_gl_vertex_binding_divisor;
 	GFX_REND_GET.Viewport                          = glViewport;
+
+	/* GFX_EXT_ANISOTROPIC_FILTER */
+	if(_gfx_is_extension_supported("GL_EXT_texture_filter_anisotropic", GFX_WIND_AS_ARG))
+	{
+		GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER] = 1;
+
+		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] = limit;
+	}
 
 	/* GFX_EXT_GEOMETRY_SHADER */
 	if(
@@ -778,6 +788,15 @@ void _gfx_renderer_load(void)
 		(PFNGLVERTEXBINDINGDIVISORPROC)_gfx_gl_vertex_binding_divisor;
 	GFX_REND_GET.Viewport =
 		(PFNGLVIEWPORTPROC)glViewport;
+
+	/* GFX_EXT_ANISOTROPIC_FILTER */
+	if(_gfx_is_extension_supported("GL_EXT_texture_filter_anisotropic", GFX_WIND_AS_ARG))
+	{
+		GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER] = 1;
+
+		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] = limit;
+	}
 
 	/* GFX_EXT_DIRECT_STATE_ACCESS */
 	if(
