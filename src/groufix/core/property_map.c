@@ -50,6 +50,7 @@ typedef struct GFX_Map
 	GFXPropertyMap map;
 
 	/* Hidden data */
+	GLuint         handle;   /* OpenGL program map handle */
 	GFXVector      data;     /* Data of all properties */
 	unsigned char  samplers; /* Number of sampler properties */
 	unsigned char  blocks;   /* Number of block properties */
@@ -91,12 +92,12 @@ typedef struct GFX_ValuePtr
 
 
 /* Internal sampler body */
-typedef struct GFX_Sampler
+typedef struct GFX_TexSampler
 {
 	GLuint  texture;
 	GLuint  target;
 
-} GFX_Sampler;
+} GFX_TexSampler;
 
 
 /* Internal block body */
@@ -206,7 +207,7 @@ static inline void* _gfx_property_derive_copy(
 			break;
 
 		case GFX_INT_PROPERTY_SAMPLER :
-			*copySize = sizeof(GFX_Sampler);
+			*copySize = sizeof(GFX_TexSampler);
 			break;
 
 		case GFX_INT_PROPERTY_BLOCK :
@@ -592,10 +593,10 @@ static void _gfx_property_set_sampler(
 		unsigned int   base,
 		GFX_WIND_ARG)
 {
-	GFX_Sampler* val = _gfx_property_get_copy(
+	GFX_TexSampler* val = _gfx_property_get_copy(
 		flags,
 		data,
-		sizeof(GFX_Sampler),
+		sizeof(GFX_TexSampler),
 		copy
 	);
 
@@ -656,7 +657,10 @@ void _gfx_property_map_use(
 	const GFX_Map* internal = (const GFX_Map*)map;
 
 	/* Use program map */
-	_gfx_program_map_use(map->programMap, GFX_WIND_AS_ARG);
+	_gfx_program_map_bind(
+		internal->handle,
+		GFX_WIND_AS_ARG
+	);
 
 	/* Set all values of the program */
 	const GFX_Property* prop;
@@ -716,6 +720,8 @@ GFXPropertyMap* gfx_property_map_create(
 		_gfx_program_map_unblock(programMap);
 		return NULL;
 	}
+
+	map->handle = _gfx_program_map_get_handle(programMap);
 
 	map->map.programMap = programMap;
 	map->map.properties = properties;
@@ -985,7 +991,7 @@ int gfx_property_map_forward(
 
 		case GFX_SAMPLER_PROPERTY :
 			forward->type = GFX_INT_PROPERTY_SAMPLER;
-			copySize = sizeof(GFX_Sampler);
+			copySize = sizeof(GFX_TexSampler);
 			break;
 
 		/* I don't know D: */
@@ -1270,14 +1276,14 @@ int gfx_property_map_set_sampler(
 	if(type != GFX_INT_PROPERTY_SAMPLER) return 0;
 
 	/* Get data */
-	GFX_Sampler* samp = _gfx_property_get_data(
+	GFX_TexSampler* samp = _gfx_property_get_data(
 		internal,
 		prop);
 
 	samp = _gfx_property_get_copy(
 		prop->type,
 		samp,
-		sizeof(GFX_Sampler),
+		sizeof(GFX_TexSampler),
 		copy);
 
 	/* Set data */

@@ -48,6 +48,10 @@ extern "C" {
  * Internal GL object access
  *******************************************************/
 
+/** Sampler */
+typedef struct GFX_Sampler GFX_Sampler;
+
+
 /**
  * Returns the current handle of a buffer.
  *
@@ -55,30 +59,6 @@ extern "C" {
 GLuint _gfx_buffer_get_handle(
 
 		const GFXBuffer* buffer);
-
-/**
- * Returns the VAO of a layout.
- *
- */
-GLuint _gfx_vertex_layout_get_handle(
-
-		const GFXVertexLayout* layout);
-
-/**
- * Returns the handle of a shared buffer.
- *
- */
-GLuint _gfx_shared_buffer_get_handle(
-
-		const GFXSharedBuffer* buffer);
-
-/**
- * Returns the handle of a texture.
- *
- */
-GLuint _gfx_texture_get_handle(
-
-		const GFXTexture* texture);
 
 /**
  * Returns the handle of the framebuffer associated with a pipeline.
@@ -108,12 +88,20 @@ GLint _gfx_program_get_location(
 		unsigned short     index);
 
 /**
- * Returns the handle of the program pipeline associated with a program map.
+ * Returns the handle of the program pipeline or program associated with a program map.
  *
  */
 GLuint _gfx_program_map_get_handle(
 
 		const GFXProgramMap* map);
+
+/**
+ * Returns the handle of a sampler.
+ *
+ */
+GLuint _gfx_sampler_get_handle(
+
+		const GFX_Sampler* sampler);
 
 /**
  * Returns the handle of a shader.
@@ -122,6 +110,30 @@ GLuint _gfx_program_map_get_handle(
 GLuint _gfx_shader_get_handle(
 
 		const GFXShader* shader);
+
+/**
+ * Returns the handle of a shared buffer.
+ *
+ */
+GLuint _gfx_shared_buffer_get_handle(
+
+		const GFXSharedBuffer* buffer);
+
+/**
+ * Returns the handle of a texture.
+ *
+ */
+GLuint _gfx_texture_get_handle(
+
+		const GFXTexture* texture);
+
+/**
+ * Returns the VAO of a layout.
+ *
+ */
+GLuint _gfx_vertex_layout_get_handle(
+
+		const GFXVertexLayout* layout);
 
 
 /********************************************************
@@ -218,15 +230,6 @@ void _gfx_binder_unbind_texture(
 		GFX_WIND_ARG);
 
 /**
- * Sets the layout handle as currently bound to the current context.
- *
- */
-void _gfx_vertex_layout_bind(
-
-		GLuint vao,
-		GFX_WIND_ARG);
-
-/**
  * Sets the framebuffer handle associated with a pipeline as current for the current context.
  *
  */
@@ -234,6 +237,24 @@ void _gfx_pipeline_bind(
 
 		GLenum  target,
 		GLuint  framebuffer,
+		GFX_WIND_ARG);
+
+/**
+ * Sets the program pipeline or program handle as currently bound to the current context.
+ *
+ */
+void _gfx_program_map_bind(
+
+		GLuint id,
+		GFX_WIND_ARG);
+
+/**
+ * Sets the layout handle as currently bound to the current context.
+ *
+ */
+void _gfx_vertex_layout_bind(
+
+		GLuint vao,
 		GFX_WIND_ARG);
 
 

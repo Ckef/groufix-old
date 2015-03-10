@@ -326,22 +326,6 @@ void _gfx_program_map_restore(
 }
 
 /******************************************************/
-void _gfx_program_map_use(
-
-		const GFXProgramMap* map,
-		GFX_WIND_ARG)
-{
-	const GFX_Map* internal = (const GFX_Map*)map;
-
-	/* Prevent binding it twice */
-	if(GFX_REND_GET.program != internal->handle)
-	{
-		GFX_REND_GET.program = internal->handle;
-		GFX_REND_GET.BindProgramPipeline(internal->handle);
-	}
-}
-
-/******************************************************/
 GFXProgramMap* gfx_program_map_create(void)
 {
 	GFX_WIND_INIT(NULL);

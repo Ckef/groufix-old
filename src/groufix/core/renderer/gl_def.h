@@ -354,8 +354,8 @@ struct GFX_Renderer
 {
 	/* State & bound objects */
 	GLuint         fbos[2];  /* Currently bound FBOs (0 = draw, 1 = read) */
-	GLuint         vao;      /* Currently bound VAO */
 	GLuint         program;  /* Currently used program or program pipeline */
+	GLuint         vao;      /* Currently bound VAO */
 	GLuint         post;     /* Layout for post processing */
 
 	/* Viewport & state values */

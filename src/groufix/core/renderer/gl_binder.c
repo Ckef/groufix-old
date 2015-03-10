@@ -352,20 +352,6 @@ void _gfx_binder_unbind_texture(
 }
 
 /******************************************************/
-void _gfx_vertex_layout_bind(
-
-		GLuint vao,
-		GFX_WIND_ARG)
-{
-	/* Prevent binding it twice */
-	if(GFX_REND_GET.vao != vao)
-	{
-		GFX_REND_GET.vao = vao;
-		GFX_REND_GET.BindVertexArray(vao);
-	}
-}
-
-/******************************************************/
 void _gfx_pipeline_bind(
 
 		GLenum  target,
@@ -409,6 +395,34 @@ void _gfx_pipeline_bind(
 			}
 
 			break;
+	}
+}
+
+/******************************************************/
+void _gfx_program_map_bind(
+
+		GLuint id,
+		GFX_WIND_ARG)
+{
+	/* Prevent binding it twice */
+	if(GFX_REND_GET.program != id)
+	{
+		GFX_REND_GET.program = id;
+		GFX_REND_GET.BindProgramPipeline(id);
+	}
+}
+
+/******************************************************/
+void _gfx_vertex_layout_bind(
+
+		GLuint vao,
+		GFX_WIND_ARG)
+{
+	/* Prevent binding it twice */
+	if(GFX_REND_GET.vao != vao)
+	{
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
 	}
 }
 
