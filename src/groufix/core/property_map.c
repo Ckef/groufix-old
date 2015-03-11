@@ -219,148 +219,6 @@ static inline void* _gfx_property_derive_copy(
 }
 
 /******************************************************/
-static void _gfx_property_map_disable(
-
-		GFX_Map*       map,
-		GFX_Property*  prop)
-{
-	if(prop->type != GFX_INT_PROPERTY_EMPTY)
-	{
-		unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
-
-		/* Check if any limits are being negated */
-		switch(type)
-		{
-			case GFX_INT_PROPERTY_SAMPLER : --map->samplers; break;
-			case GFX_INT_PROPERTY_BLOCK : --map->blocks; break;
-		}
-
-		/* Get the range to remove from the data */
-		GFX_Property* it;
-		size_t end = gfx_vector_get_byte_size(&map->data);
-		unsigned char properties = map->map.properties;
-
-		for(it = (GFX_Property*)(map + 1); properties--; ++it)
-			if(it->index > prop->index && it->index < end) end = it->index;
-
-		/* Adjust value index of all properties */
-		size_t offset = end - prop->index;
-		properties = map->map.properties;
-
-		for(it = (GFX_Property*)(map + 1); properties--; ++it)
-			if(it->index > prop->index) it->index -= offset;
-
-		/* Erase from data */
-		gfx_vector_erase_range_at(&map->data, offset, prop->index);
-
-		prop->handle   = 0;
-		prop->type     = GFX_INT_PROPERTY_EMPTY;
-		prop->location = GL_INVALID_INDEX;
-		prop->index    = 0;
-	}
-}
-
-/******************************************************/
-static int _gfx_property_map_forward(
-
-		GFX_Map*       map,
-		GFX_Property*  prop,
-		const void*    headData,
-		size_t         headSize,
-		size_t         copySize,
-		GFX_WIND_ARG)
-{
-	/* Attempt to allocate */
-	size_t size = headSize + copySize *
-		(prop->type & GFX_INT_PROPERTY_HAS_COPIES ? map->map.copies : 1);
-
-	GFXVectorIterator it = gfx_vector_insert_range(
-		&map->data,
-		size,
-		NULL,
-		map->data.end
-	);
-
-	if(it != map->data.end)
-	{
-		/* Disable any identical properties */
-		GFX_Property* disable;
-		unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
-		unsigned char properties = map->map.properties;
-
-		for(disable = (GFX_Property*)(map + 1); properties--; ++disable)
-			if(
-				disable != prop &&
-				(disable->type & ~GFX_INT_PROPERTY_HAS_COPIES) == type &&
-				disable->location == prop->location)
-			{
-				_gfx_property_map_disable(map, disable);
-			}
-
-		/* Check limits */
-		if(_gfx_property_map_eval_limits(map, type, GFX_WIND_AS_ARG))
-		{
-			/* Initialize memory and set index */
-			memset(GFX_PTR_ADD_BYTES(it, headSize), 0, size - headSize);
-			if(headSize) memcpy(it, headData, headSize);
-
-			prop->index = gfx_vector_get_index(&map->data, it);
-
-			return 1;
-		}
-
-		/* Nevermind, remove memory */
-		gfx_vector_erase_range(&map->data, size, it);
-	}
-
-	/* Failed */
-	prop->handle   = 0;
-	prop->type     = GFX_INT_PROPERTY_EMPTY;
-	prop->location = GL_INVALID_INDEX;
-	prop->index    = 0;
-
-	return 0;
-}
-
-/******************************************************/
-static int _gfx_property_map_set_block(
-
-		GFX_Map*       map,
-		unsigned char  index,
-		unsigned int   copy,
-		GLuint         buffer,
-		size_t         offset,
-		size_t         size)
-{
-	GFX_Property* prop =
-		_gfx_property_map_get_at(map, index);
-
-	if(!prop || copy >= map->map.copies) return 0;
-
-	/* Check type */
-	unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
-	if(type != GFX_INT_PROPERTY_BLOCK) return 0;
-
-	/* Get data */
-	GFX_Block* block = _gfx_property_get_data(
-		map,
-		prop);
-
-	block = _gfx_property_get_copy(
-		prop->type,
-		block,
-		sizeof(GFX_Block),
-		copy);
-
-	/* Set data */
-	block->buffer = buffer;
-	block->offset = offset;
-	block->size = size;
-
-	return 1;
-}
-
-/******************************************************/
 static void _gfx_property_set_empty(
 
 		unsigned char  flags,
@@ -693,6 +551,148 @@ void _gfx_property_map_use(
 			GFX_WIND_AS_ARG
 		);
 	}
+}
+
+/******************************************************/
+static void _gfx_property_map_disable(
+
+		GFX_Map*       map,
+		GFX_Property*  prop)
+{
+	if(prop->type != GFX_INT_PROPERTY_EMPTY)
+	{
+		unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
+
+		/* Check if any limits are being negated */
+		switch(type)
+		{
+			case GFX_INT_PROPERTY_SAMPLER : --map->samplers; break;
+			case GFX_INT_PROPERTY_BLOCK : --map->blocks; break;
+		}
+
+		/* Get the range to remove from the data */
+		GFX_Property* it;
+		size_t end = gfx_vector_get_byte_size(&map->data);
+		unsigned char properties = map->map.properties;
+
+		for(it = (GFX_Property*)(map + 1); properties--; ++it)
+			if(it->index > prop->index && it->index < end) end = it->index;
+
+		/* Adjust value index of all properties */
+		size_t offset = end - prop->index;
+		properties = map->map.properties;
+
+		for(it = (GFX_Property*)(map + 1); properties--; ++it)
+			if(it->index > prop->index) it->index -= offset;
+
+		/* Erase from data */
+		gfx_vector_erase_range_at(&map->data, offset, prop->index);
+
+		prop->handle   = 0;
+		prop->type     = GFX_INT_PROPERTY_EMPTY;
+		prop->location = GL_INVALID_INDEX;
+		prop->index    = 0;
+	}
+}
+
+/******************************************************/
+static int _gfx_property_map_forward(
+
+		GFX_Map*       map,
+		GFX_Property*  prop,
+		const void*    headData,
+		size_t         headSize,
+		size_t         copySize,
+		GFX_WIND_ARG)
+{
+	/* Attempt to allocate */
+	size_t size = headSize + copySize *
+		(prop->type & GFX_INT_PROPERTY_HAS_COPIES ? map->map.copies : 1);
+
+	GFXVectorIterator it = gfx_vector_insert_range(
+		&map->data,
+		size,
+		NULL,
+		map->data.end
+	);
+
+	if(it != map->data.end)
+	{
+		/* Disable any identical properties */
+		GFX_Property* disable;
+		unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
+		unsigned char properties = map->map.properties;
+
+		for(disable = (GFX_Property*)(map + 1); properties--; ++disable)
+			if(
+				disable != prop &&
+				(disable->type & ~GFX_INT_PROPERTY_HAS_COPIES) == type &&
+				disable->location == prop->location)
+			{
+				_gfx_property_map_disable(map, disable);
+			}
+
+		/* Check limits */
+		if(_gfx_property_map_eval_limits(map, type, GFX_WIND_AS_ARG))
+		{
+			/* Initialize memory and set index */
+			memset(GFX_PTR_ADD_BYTES(it, headSize), 0, size - headSize);
+			if(headSize) memcpy(it, headData, headSize);
+
+			prop->index = gfx_vector_get_index(&map->data, it);
+
+			return 1;
+		}
+
+		/* Nevermind, remove memory */
+		gfx_vector_erase_range(&map->data, size, it);
+	}
+
+	/* Failed */
+	prop->handle   = 0;
+	prop->type     = GFX_INT_PROPERTY_EMPTY;
+	prop->location = GL_INVALID_INDEX;
+	prop->index    = 0;
+
+	return 0;
+}
+
+/******************************************************/
+static int _gfx_property_map_set_block(
+
+		GFX_Map*       map,
+		unsigned char  index,
+		unsigned int   copy,
+		GLuint         buffer,
+		size_t         offset,
+		size_t         size)
+{
+	GFX_Property* prop =
+		_gfx_property_map_get_at(map, index);
+
+	if(!prop || copy >= map->map.copies) return 0;
+
+	/* Check type */
+	unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
+	if(type != GFX_INT_PROPERTY_BLOCK) return 0;
+
+	/* Get data */
+	GFX_Block* block = _gfx_property_get_data(
+		map,
+		prop);
+
+	block = _gfx_property_get_copy(
+		prop->type,
+		block,
+		sizeof(GFX_Block),
+		copy);
+
+	/* Set data */
+	block->buffer = buffer;
+	block->offset = offset;
+	block->size = size;
+
+	return 1;
 }
 
 /******************************************************/

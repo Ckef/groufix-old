@@ -438,13 +438,13 @@ typedef enum GFXWrap
 /** Sampler */
 typedef struct GFXSampler
 {
-	GFXFilter  minFilter;    /* Minification filter (multiple texels within a sample) */
-	GFXFilter  mipFilter;    /* Mipmapping filter (minification over multiple mipmaps) */
-	GFXFilter  magFilter;    /* Magnification filter (less than one texel within a sample) */
-	float      maxAnistropy; /* Maximum anisotropy, must be >= 1, requires GFX_EXT_ANISOTROPIC_FILTER */
+	GFXFilter  minFilter;     /* Minification filter (multiple texels within a sample) */
+	GFXFilter  mipFilter;     /* Mipmapping filter (minification over multiple mipmaps) */
+	GFXFilter  magFilter;     /* Magnification filter (less than one texel within a sample) */
+	float      maxAnisotropy; /* Maximum anisotropy, must be >= 1.0, requires GFX_EXT_ANISOTROPIC_FILTER */
 
-	float      lodMin;       /* Limits selection of highest resolution mipmap */
-	float      lodMax;       /* Limits selection of lowest resolution mipmap */
+	float      lodMin;        /* Limits selection of highest resolution mipmap */
+	float      lodMax;        /* Limits selection of lowest resolution mipmap */
 
 	GFXWrap    wrapS;
 	GFXWrap    wrapT;

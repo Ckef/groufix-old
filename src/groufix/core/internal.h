@@ -345,7 +345,7 @@ void _gfx_states_set_patch_vertices(
  */
 GFXSampler* _gfx_sampler_create(
 
-		GFXSampler* values);
+		const GFXSampler* values);
 
 /**
  * References a sampler to postpone its destruction.
