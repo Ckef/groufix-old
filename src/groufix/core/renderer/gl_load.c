@@ -209,6 +209,8 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.ProgramUniformMatrix2fv           = _gfx_gl_program_uniform_matrix_2fv;
 	GFX_REND_GET.ProgramUniformMatrix3fv           = _gfx_gl_program_uniform_matrix_3fv;
 	GFX_REND_GET.ProgramUniformMatrix4fv           = _gfx_gl_program_uniform_matrix_4fv;
+	GFX_REND_GET.SamplerParameterf                 = glSamplerParameterf;
+	GFX_REND_GET.SamplerParameteri                 = glSamplerParameteri;
 	GFX_REND_GET.ShaderSource                      = glShaderSource;
 	GFX_REND_GET.StencilFuncSeparate               = glStencilFuncSeparate;
 	GFX_REND_GET.StencilOpSeparate                 = glStencilOpSeparate;
@@ -218,6 +220,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.TexImage2DMultisample             = _gfx_gles_tex_image_2d_multisample;
 	GFX_REND_GET.TexImage3D                        = glTexImage3D;
 	GFX_REND_GET.TexImage3DMultisample             = _gfx_gles_tex_image_3d_multisample;
+	GFX_REND_GET.TexParameterf                     = glTexParameterf;
 	GFX_REND_GET.TexParameteri                     = glTexParameteri;
 	GFX_REND_GET.TexStorage1D                      = _gfx_gles_tex_storage_1d;
 	GFX_REND_GET.TexStorage2D                      = glTexStorage2D;
@@ -228,6 +231,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.TexSubImage2D                     = glTexSubImage2D;
 	GFX_REND_GET.TexSubImage3D                     = glTexSubImage3D;
 	GFX_REND_GET.TextureBuffer                     = _gfx_gl_texture_buffer;
+	GFX_REND_GET.TextureParameterf                 = _gfx_gl_texture_parameter_f;
 	GFX_REND_GET.TextureParameteri                 = _gfx_gl_texture_parameter_i;
 	GFX_REND_GET.TextureStorage1D                  = _gfx_gl_texture_storage_1d;
 	GFX_REND_GET.TextureStorage2D                  = _gfx_gl_texture_storage_2d;
@@ -663,6 +667,10 @@ void _gfx_renderer_load(void)
 		(GFX_PROGRAMUNIFORMMATRIX3FVPROC)_gfx_gl_program_uniform_matrix_3fv;
 	GFX_REND_GET.ProgramUniformMatrix4fv =
 		(GFX_PROGRAMUNIFORMMATRIX4FVPROC)_gfx_gl_program_uniform_matrix_4fv;
+	GFX_REND_GET.SamplerParameterf =
+		(PFNGLSAMPLERPARAMETERFPROC)_gfx_gl_sampler_parameter_f;
+	GFX_REND_GET.SamplerParameteri =
+		(PFNGLSAMPLERPARAMETERIPROC)_gfx_gl_sampler_parameter_i;
 	GFX_REND_GET.ShaderSource =
 		(PFNGLSHADERSOURCEPROC)_gfx_platform_get_proc_address("glShaderSource");
 	GFX_REND_GET.StencilFuncSeparate =
@@ -681,6 +689,8 @@ void _gfx_renderer_load(void)
 		(PFNGLTEXIMAGE3DPROC)_gfx_platform_get_proc_address("glTexImage3D");
 	GFX_REND_GET.TexImage3DMultisample =
 		(PFNGLTEXIMAGE3DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexImage3DMultisample");
+	GFX_REND_GET.TexParameterf =
+		(PFNGLTEXPARAMETERFPROC)glTexParameterf;
 	GFX_REND_GET.TexParameteri =
 		(PFNGLTEXPARAMETERIPROC)glTexParameteri;
 	GFX_REND_GET.TexStorage1D =
@@ -701,6 +711,8 @@ void _gfx_renderer_load(void)
 		(PFNGLTEXSUBIMAGE3DPROC)_gfx_platform_get_proc_address("glTexSubImage3D");
 	GFX_REND_GET.TextureBuffer =
 		(PFNGLTEXTUREBUFFERPROC)_gfx_gl_texture_buffer;
+	GFX_REND_GET.TextureParameterf =
+		(PFNGLTEXTUREPARAMETERFPROC)_gfx_gl_texture_parameter_f;
 	GFX_REND_GET.TextureParameteri =
 		(PFNGLTEXTUREPARAMETERIPROC)_gfx_gl_texture_parameter_i;
 	GFX_REND_GET.TextureStorage1D =
@@ -844,6 +856,8 @@ void _gfx_renderer_load(void)
 			(PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC)_gfx_platform_get_proc_address("glNamedFramebufferTextureLayer");
 		GFX_REND_GET.TextureBuffer =
 			(PFNGLTEXTUREBUFFERPROC)_gfx_platform_get_proc_address("glTextureBuffer");
+		GFX_REND_GET.TextureParameterf =
+			(PFNGLTEXTUREPARAMETERFPROC)_gfx_platform_get_proc_address("glTextureParameterf");
 		GFX_REND_GET.TextureParameteri =
 			(PFNGLTEXTUREPARAMETERIPROC)_gfx_platform_get_proc_address("glTextureParameteri");
 		GFX_REND_GET.TextureStorage1D =
@@ -1029,6 +1043,10 @@ void _gfx_renderer_load(void)
 			(PFNGLDELETESAMPLERSPROC)_gfx_platform_get_proc_address("glDeleteSamplers");
 		GFX_REND_GET.GenSamplers =
 			(PFNGLGENSAMPLERSPROC)_gfx_platform_get_proc_address("glGenSamplers");
+		GFX_REND_GET.SamplerParameterf =
+			(PFNGLSAMPLERPARAMETERFPROC)_gfx_platform_get_proc_address("glSamplerParameterf");
+		GFX_REND_GET.SamplerParameteri =
+			(PFNGLSAMPLERPARAMETERIPROC)_gfx_platform_get_proc_address("glSamplerParameteri");
 	}
 
 	/* GFX_EXT_SEPARATE_VERTEX_BUFFERS */

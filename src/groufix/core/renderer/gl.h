@@ -115,6 +115,14 @@ GLuint _gfx_vertex_layout_get_handle(
  *******************************************************/
 
 /**
+ * Returns a minification filter of a sampler.
+ *
+ */
+GLint _gfx_texture_min_filter_from_sampler(
+
+		const GFXSampler* sampler);
+
+/**
  * Returns the internal target of a texture (a.k.a type).
  *
  */

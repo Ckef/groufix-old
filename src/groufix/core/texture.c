@@ -27,10 +27,10 @@ typedef struct GFX_Texture
 
 	/* Hidden data */
 	GFX_RenderObjectID  id;
-	GLuint              buffer;
-	GLuint              handle; /* OpenGL handle */
+	GLuint              handle;  /* OpenGL handle */
 	GLenum              target;
-	GLint               format; /* Internal format */
+	GLint               format;  /* Internal format */
+	GLuint              buffer;
 
 } GFX_Texture;
 
@@ -246,6 +246,17 @@ static GFX_Texture* _gfx_texture_alloc(
 	tex->format = form;
 	tex->texture.samples = 1;
 
+	if(!GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	{
+		/* Bind it to a unit if no direct state access */
+		_gfx_binder_bind_texture(
+			tex->handle,
+			tex->target,
+			0,
+			GFX_WIND_AS_ARG
+		);
+	}
+
 	return tex;
 }
 
@@ -265,13 +276,7 @@ static void _gfx_texture_set_mipmaps(
 	}
 	else
 	{
-		_gfx_binder_bind_texture(
-			tex->handle,
-			tex->target,
-			0,
-			GFX_WIND_AS_ARG
-		);
-
+		/* Assumes it is already bound */
 		GFX_REND_GET.TexParameteri(
 			tex->target, GL_TEXTURE_BASE_LEVEL, 0);
 		GFX_REND_GET.TexParameteri(
@@ -367,14 +372,7 @@ static void _gfx_texture_set_storage(
 	}
 	else
 	{
-		/* Bind it to a unit if no direct state access */
-		_gfx_binder_bind_texture(
-			tex->handle,
-			tex->target,
-			0,
-			GFX_WIND_AS_ARG
-		);
-
+		/* Assumes it is already bound */
 		switch(tex->target)
 		{
 			case GL_TEXTURE_1D :
@@ -444,6 +442,104 @@ static void _gfx_texture_set_storage(
 				);
 				break;
 		}
+	}
+}
+
+/******************************************************/
+void _gfx_texture_set_sampler(
+
+		GFXTexture*        texture,
+		const GFXSampler*  sampler,
+		GFX_WIND_ARG)
+{
+	GFX_Texture* internal = (GFX_Texture*)texture;
+
+	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	{
+		GFX_REND_GET.TextureParameteri(
+			internal->handle,
+			GL_TEXTURE_MIN_FILTER,
+			_gfx_texture_min_filter_from_sampler(sampler));
+
+		GFX_REND_GET.TextureParameteri(
+			internal->handle,
+			GL_TEXTURE_MAG_FILTER,
+			sampler->magFilter);
+
+		GFX_REND_GET.TextureParameterf(
+			internal->handle,
+			GL_TEXTURE_MIN_LOD,
+			sampler->lodMin);
+
+		GFX_REND_GET.TextureParameterf(
+			internal->handle,
+			GL_TEXTURE_MAX_LOD,
+			sampler->lodMax);
+
+		GFX_REND_GET.TextureParameteri(
+			internal->handle,
+			GL_TEXTURE_WRAP_S,
+			sampler->wrapS);
+
+		GFX_REND_GET.TextureParameteri(
+			internal->handle,
+			GL_TEXTURE_WRAP_T,
+			sampler->wrapT);
+
+		GFX_REND_GET.TextureParameteri(
+			internal->handle,
+			GL_TEXTURE_WRAP_R,
+			sampler->wrapR);
+
+		if(GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
+			GFX_REND_GET.TextureParameterf(
+				internal->handle,
+				GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				sampler->maxAnisotropy);
+	}
+	else
+	{
+		/* Assumes it is already bound */
+		GFX_REND_GET.TexParameteri(
+			internal->target,
+			GL_TEXTURE_MIN_FILTER,
+			_gfx_texture_min_filter_from_sampler(sampler));
+
+		GFX_REND_GET.TexParameteri(
+			internal->target,
+			GL_TEXTURE_MAG_FILTER,
+			sampler->magFilter);
+
+		GFX_REND_GET.TexParameterf(
+			internal->target,
+			GL_TEXTURE_MIN_LOD,
+			sampler->lodMin);
+
+		GFX_REND_GET.TexParameterf(
+			internal->target,
+			GL_TEXTURE_MAX_LOD,
+			sampler->lodMax);
+
+		GFX_REND_GET.TexParameteri(
+			internal->target,
+			GL_TEXTURE_WRAP_S,
+			sampler->wrapS);
+
+		GFX_REND_GET.TexParameteri(
+			internal->target,
+			GL_TEXTURE_WRAP_T,
+			sampler->wrapT);
+
+		GFX_REND_GET.TexParameteri(
+			internal->target,
+			GL_TEXTURE_WRAP_R,
+			sampler->wrapR);
+
+		if(GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
+			GFX_REND_GET.TexParameterf(
+				internal->target,
+				GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				sampler->maxAnisotropy);
 	}
 }
 
@@ -644,13 +740,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 	}
 	else
 	{
-		_gfx_binder_bind_texture(
-			tex->handle,
-			tex->target,
-			0,
-			GFX_WIND_AS_ARG
-		);
-
+		/* Assumes it is already bound */
 		GFX_REND_GET.TexBuffer(
 			tex->target, tex->format, tex->buffer);
 	}
@@ -1020,6 +1110,7 @@ void gfx_texture_generate_mipmaps(
 	}
 	else
 	{
+		/* Bind it to a unit if no direct state access */
 		_gfx_binder_bind_texture(
 			internal->handle,
 			internal->target,

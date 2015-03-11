@@ -110,8 +110,8 @@ GFXSampler* _gfx_sampler_create(
 	}
 
 	/* Initialize */
-	samp->sampler = *values;
 	samp->references = 1;
+	_gfx_sampler_set((GFXSampler*)samp, values, GFX_WIND_AS_ARG);
 
 	return (GFXSampler*)samp;
 }
@@ -171,5 +171,74 @@ void _gfx_sampler_free(
 
 			free(sampler);
 		}
+	}
+}
+
+/******************************************************/
+void _gfx_sampler_set(
+
+		GFXSampler*        sampler,
+		const GFXSampler*  values,
+		GFX_WIND_ARG)
+{
+	/* Copy values */
+	*sampler = *values;
+
+	/* Clamp values */
+	sampler->maxAnisotropy =
+		sampler->maxAnisotropy < 1.0f ? 1.0f :
+		sampler->maxAnisotropy;
+
+	sampler->maxAnisotropy =
+		sampler->maxAnisotropy >
+		GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] ?
+		GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] :
+		sampler->maxAnisotropy;
+
+	if(GFX_WIND_GET.ext[GFX_EXT_SAMPLER_OBJECTS])
+	{
+		/* Send values to GL */
+		GFX_Sampler* internal = (GFX_Sampler*)sampler;
+
+		GFX_REND_GET.SamplerParameteri(
+			internal->handle,
+			GL_TEXTURE_MIN_FILTER,
+			_gfx_texture_min_filter_from_sampler(sampler));
+
+		GFX_REND_GET.SamplerParameteri(
+			internal->handle,
+			GL_TEXTURE_MAG_FILTER,
+			sampler->magFilter);
+
+		GFX_REND_GET.SamplerParameterf(
+			internal->handle,
+			GL_TEXTURE_MIN_LOD,
+			sampler->lodMin);
+
+		GFX_REND_GET.SamplerParameterf(
+			internal->handle,
+			GL_TEXTURE_MAX_LOD,
+			sampler->lodMax);
+
+		GFX_REND_GET.SamplerParameteri(
+			internal->handle,
+			GL_TEXTURE_WRAP_S,
+			sampler->wrapS);
+
+		GFX_REND_GET.SamplerParameteri(
+			internal->handle,
+			GL_TEXTURE_WRAP_T,
+			sampler->wrapT);
+
+		GFX_REND_GET.SamplerParameteri(
+			internal->handle,
+			GL_TEXTURE_WRAP_R,
+			sampler->wrapR);
+
+		if(GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
+			GFX_REND_GET.SamplerParameterf(
+				internal->handle,
+				GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				sampler->maxAnisotropy);
 	}
 }

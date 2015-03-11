@@ -339,7 +339,7 @@ void _gfx_states_set_patch_vertices(
 /**
  * Creates a new sampler.
  *
- * @param values Values to use.
+ * @param values Initial values to use, values will be clamped to valid range.
  * @return NULL on failure.
  *
  */
@@ -367,6 +367,34 @@ int _gfx_sampler_reference(
 void _gfx_sampler_free(
 
 		GFXSampler* sampler);
+
+/**
+ * Sets the state values of a sampler.
+ *
+ * @param values Values to use, values will be clamped to valid range.
+ *
+ */
+void _gfx_sampler_set(
+
+		GFXSampler*        sampler,
+		const GFXSampler*  values,
+		GFX_WIND_ARG);
+
+/**
+ * Sets the sampler properties of a texture itself.
+ *
+ * @param values Sampler values to use for the texture's state.
+ *
+ * Note: this function assumes the texture is currently bound
+ * to a unit and active, if GFX_EXT_DIRECT_STATE_ACCESS is unavailable.
+ * The sampler state is copied into the texture.
+ *
+ */
+void _gfx_texture_set_sampler(
+
+		GFXTexture*        texture,
+		const GFXSampler*  values,
+		GFX_WIND_ARG);
 
 
 /********************************************************

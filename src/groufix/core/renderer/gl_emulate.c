@@ -541,6 +541,15 @@ void APIENTRY _gfx_gl_texture_buffer(
 	_gfx_gl_error_direct_state_access();
 }
 
+void APIENTRY _gfx_gl_texture_parameter_f(
+
+		GLuint   texture,
+		GLenum   pname,
+		GLfloat  param)
+{
+	_gfx_gl_error_direct_state_access();
+}
+
 void APIENTRY _gfx_gl_texture_parameter_i(
 
 		GLuint  texture,
@@ -1160,6 +1169,24 @@ void APIENTRY _gfx_gl_program_parameter_i(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
 		"GFX_EXT_PROGRAM_BINARY and GFX_EXT_PROGRAM_MAP are incompatible with this context."
 	);
+}
+
+void APIENTRY _gfx_gl_sampler_parameter_f(
+
+		GLuint   sampler,
+		GLenum   pname,
+		GLfloat  param)
+{
+	_gfx_gl_error_sampler_objects();
+}
+
+void APIENTRY _gfx_gl_sampler_parameter_i(
+
+		GLuint  sampler,
+		GLenum  pname,
+		GLint   param)
+{
+	_gfx_gl_error_sampler_objects();
 }
 
 void APIENTRY _gfx_gl_tex_storage_1d(

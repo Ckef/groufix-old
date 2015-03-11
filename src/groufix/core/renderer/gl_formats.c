@@ -230,6 +230,22 @@
 #ifdef GFX_RENDERER_GL
 
 /******************************************************/
+GLint _gfx_texture_min_filter_from_sampler(
+
+		const GFXSampler* sampler)
+{
+	return sampler->minFilter == GFX_FILTER_NEAREST ?
+
+		(sampler->mipFilter == GFX_FILTER_NEAREST ?
+		GL_NEAREST_MIPMAP_NEAREST :
+		GL_NEAREST_MIPMAP_LINEAR) :
+
+		(sampler->mipFilter == GFX_FILTER_NEAREST ?
+		GL_LINEAR_MIPMAP_NEAREST :
+		GL_LINEAR_MIPMAP_LINEAR);
+}
+
+/******************************************************/
 GLint _gfx_texture_format_to_pixel_format(
 
 		GFXTextureFormat format)
