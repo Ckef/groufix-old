@@ -135,11 +135,11 @@ GFX_API void gfx_bucket_remove_source(
  */
 GFX_API GFXBucketUnit gfx_bucket_insert(
 
-		GFXBucket*       bucket,
-		GFXBucketSource  src,
-		GFXPropertyMap*  map,
-		GFXUnitState     state,
-		int              visible);
+		GFXBucket*             bucket,
+		GFXBucketSource        src,
+		const GFXPropertyMap*  map,
+		GFXUnitState           state,
+		int                    visible);
 
 /**
  * Returns the index of the copy of the property map in use.

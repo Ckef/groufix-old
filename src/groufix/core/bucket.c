@@ -71,19 +71,19 @@ typedef struct GFX_Source
 typedef struct GFX_Unit
 {
 	/* Sorting */
-	GFXUnitState     state;   /* Combination of unit state, action and manual state */
-	GFXBucketUnit    ref;     /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
-	GLuint           program; /* Program or program map to sort on */
-	GLuint           vao;     /* layout to sort on */
+	GFXUnitState           state;   /* Combination of unit state, action and manual state */
+	GFXBucketUnit          ref;     /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
+	GLuint                 program; /* Program or program map to sort on */
+	GLuint                 vao;     /* layout to sort on */
 
 	/* Drawing */
-	GFXPropertyMap*  map;
-	unsigned int     copy;   /* Copy of the property map to use */
-	GFXBucketSource  src;    /* Source of the bucket to use (ID - 1) */
+	const GFXPropertyMap*  map;
+	unsigned int           copy;   /* Copy of the property map to use */
+	GFXBucketSource        src;    /* Source of the bucket to use (ID - 1) */
 
-	size_t           inst;   /* Number of instances */
-	unsigned int     base;   /* Base instance */
-	GFX_DrawType     type;
+	size_t                 inst;   /* Number of instances */
+	unsigned int           base;   /* Base instance */
+	GFX_DrawType           type;
 
 } GFX_Unit;
 
@@ -682,11 +682,11 @@ static void _gfx_bucket_set_draw_type(
 /******************************************************/
 GFXBucketUnit gfx_bucket_insert(
 
-		GFXBucket*       bucket,
-		GFXBucketSource  src,
-		GFXPropertyMap*  map,
-		GFXUnitState     state,
-		int              visible)
+		GFXBucket*             bucket,
+		GFXBucketSource        src,
+		const GFXPropertyMap*  map,
+		GFXUnitState           state,
+		int                    visible)
 {
 	--src;
 

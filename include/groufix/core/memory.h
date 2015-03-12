@@ -392,7 +392,7 @@ GFX_API void gfx_vertex_layout_free(
  * Adds/sets an attribute of a vertex layout.
  *
  * @param index  Index of the attribute to set (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
- * @param attr   Attribute parameters (cannot be NULL).
+ * @param attr   Attribute parameters.
  * @param buffer Index of the vertex buffer to use.
  * @return Zero on failure.
  *
@@ -402,10 +402,10 @@ GFX_API void gfx_vertex_layout_free(
  */
 GFX_API int gfx_vertex_layout_set_attribute(
 
-		GFXVertexLayout*           layout,
-		unsigned int               index,
-		const GFXVertexAttribute*  attr,
-		unsigned int               buffer);
+		GFXVertexLayout*    layout,
+		unsigned int        index,
+		GFXVertexAttribute  attr,
+		unsigned int        buffer);
 
 /**
  * Changes the buffer an attribute samples from.
@@ -461,15 +461,15 @@ GFX_API int gfx_vertex_layout_set_shared_vertex_buffer(
  * Changes a draw call of the vertex layout.
  *
  * @param index Index of the draw call (must be < layout->drawCalls).
- * @param call  Draw call parameters (cannot be NULL).
+ * @param call  Draw call parameters.
  * @return Zero on failure or if the draw call does not exist.
  *
  */
 GFX_API int gfx_vertex_layout_set_draw_call(
 
-		GFXVertexLayout*    layout,
-		unsigned char       index,
-		const GFXDrawCall*  call);
+		GFXVertexLayout*  layout,
+		unsigned char     index,
+		GFXDrawCall       call);
 
 /**
  * Retrieves a draw call from the vertex layout.

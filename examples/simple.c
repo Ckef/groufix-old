@@ -29,10 +29,10 @@ GFXMesh* create_mesh()
 	call.first     = 0;
 	call.count     = 3;
 
-	gfx_vertex_layout_set_attribute(layout, 0, &attr, 0);
+	gfx_vertex_layout_set_attribute(layout, 0, attr, 0);
 	attr.offset = sizeof(float) * 3;
-	gfx_vertex_layout_set_attribute(layout, 1, &attr, 0);
-	gfx_vertex_layout_set_draw_call(layout, 0, &call);
+	gfx_vertex_layout_set_attribute(layout, 1, attr, 0);
+	gfx_vertex_layout_set_draw_call(layout, 0, call);
 
 	float triangle[] = {
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,

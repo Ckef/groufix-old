@@ -62,7 +62,9 @@ GLint _gfx_program_get_location(
 		unsigned short     index);
 
 /**
- * Returns the handle of the program pipeline or program associated with a program map.
+ * Returns the handle of the program pipeline.
+ *
+ * Note: handle of a program if GFX_EXT_PROGRAM_MAP is unavailable.
  *
  */
 GLuint _gfx_program_map_get_handle(
@@ -71,6 +73,8 @@ GLuint _gfx_program_map_get_handle(
 
 /**
  * Returns the handle of a sampler.
+ *
+ * Note: 0 if GFX_EXT_SAMPLER_OBJECTS is unavailable.
  *
  */
 GLuint _gfx_sampler_get_handle(

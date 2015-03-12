@@ -760,18 +760,18 @@ void gfx_vertex_layout_free(
 /******************************************************/
 int gfx_vertex_layout_set_attribute(
 
-		GFXVertexLayout*           layout,
-		unsigned int               index,
-		const GFXVertexAttribute*  attr,
-		unsigned int               buffer)
+		GFXVertexLayout*    layout,
+		unsigned int        index,
+		GFXVertexAttribute  attr,
+		unsigned int        buffer)
 {
 	GFX_WIND_INIT(0);
 
 	if(
-		!attr->size ||
-		attr->type.unpacked == GFX_BIT ||
-		attr->type.unpacked == GFX_NIBBLE ||
-		attr->offset > GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] ||
+		!attr.size ||
+		attr.type.unpacked == GFX_BIT ||
+		attr.type.unpacked == GFX_NIBBLE ||
+		attr.offset > GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] ||
 		buffer >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
 	{
 		return 0;
@@ -785,14 +785,14 @@ int gfx_vertex_layout_set_attribute(
 	GFX_Attribute* set =
 		gfx_vector_at(&internal->attributes, index);
 
-	int packed = _gfx_is_data_type_packed(attr->type);
+	int packed = _gfx_is_data_type_packed(attr.type);
 
-	set->size      = attr->size;
-	set->type      = packed ? attr->type.packed : attr->type.unpacked;
-	set->interpret = attr->interpret;
+	set->size      = attr.size;
+	set->type      = packed ? attr.type.packed : attr.type.unpacked;
+	set->interpret = attr.interpret;
 
 	set->buffer    = buffer;
-	set->offset    = attr->offset;
+	set->offset    = attr.offset;
 
 	/* Resolve how to interpret */
 	set->interpret = (set->interpret & GFX_INTERPRET_DEPTH) ?
@@ -906,9 +906,9 @@ int gfx_vertex_layout_set_shared_vertex_buffer(
 /******************************************************/
 int gfx_vertex_layout_set_draw_call(
 
-		GFXVertexLayout*    layout,
-		unsigned char       index,
-		const GFXDrawCall*  call)
+		GFXVertexLayout*  layout,
+		unsigned char     index,
+		GFXDrawCall       call)
 {
 	GFX_WIND_INIT(0);
 
@@ -918,13 +918,13 @@ int gfx_vertex_layout_set_draw_call(
 
 	/* Check extensions */
 	if(
-		call->primitive == GFX_PATCHES &&
+		call.primitive == GFX_PATCHES &&
 		!GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER])
 	{
 		return 0;
 	}
 
-	((GFXDrawCall*)(internal + 1))[index] = *call;
+	((GFXDrawCall*)(internal + 1))[index] = call;
 
 	return 1;
 }
