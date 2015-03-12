@@ -663,7 +663,7 @@ GFX_API int gfx_property_map_set_instance_offset(
 		unsigned int     offset);
 
 /**
- * Sets the value of a sampler property.
+ * Sets the parameter values of a sampler property.
  *
  * @return Non-zero on success.
  *
@@ -671,6 +671,37 @@ GFX_API int gfx_property_map_set_instance_offset(
  *
  */
 GFX_API int gfx_property_map_set_sampler(
+
+		GFXPropertyMap*  map,
+		unsigned char    index,
+		unsigned int     copy,
+		GFXSampler       values);
+
+/**
+ * Shares the parameter values of a sampler property with another.
+ *
+ * @return Non-zero on success (fails if the source did not set values yet).
+ *
+ * Note: if the other's values are changed, it will affect this property map,
+ * as the values are shared.
+ *
+ */
+GFX_API int gfx_property_map_set_sampler_share(
+
+		GFXPropertyMap*  map,
+		unsigned char    index,
+		unsigned int     copy,
+		GFXPropertyMap*  src,
+		unsigned char    srcIndex,
+		unsigned int     srcCopy);
+
+/**
+ * Sets the texture of a sampler property.
+ *
+ * @return Non-zero on success.
+ *
+ */
+GFX_API int gfx_property_map_set_texture(
 
 		GFXPropertyMap*    map,
 		unsigned char      index,

@@ -115,7 +115,7 @@ GLuint _gfx_vertex_layout_get_handle(
 
 
 /********************************************************
- * Texture format retrievers
+ * Texture format handling
  *******************************************************/
 
 /**
@@ -125,6 +125,23 @@ GLuint _gfx_vertex_layout_get_handle(
 GLint _gfx_texture_min_filter_from_sampler(
 
 		const GFXSampler* sampler);
+
+/**
+ * Sets the sampler properties of a texture itself.
+ *
+ * @param target Internal target of the texture.
+ * @param values Sampler values to use for the texture's state.
+ *
+ * Note: this function assumes the texture is currently bound
+ * to a unit and active if GFX_EXT_DIRECT_STATE_ACCESS is unavailable.
+ *
+ */
+void _gfx_texture_set_sampler(
+
+		GLuint             texture,
+		GLuint             target,
+		const GFXSampler*  values,
+		GFX_WIND_ARG);
 
 /**
  * Returns the internal target of a texture (a.k.a type).
@@ -215,8 +232,8 @@ size_t _gfx_binder_bind_texture(
  */
 size_t _gfx_binder_bind_sampler(
 
-		GLuint  texture,
 		GLuint  sampler,
+		GLuint  texture,
 		GLenum  target,
 		int     prioritize,
 		GFX_WIND_ARG);

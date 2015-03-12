@@ -192,12 +192,30 @@ int main()
 
 
 	/* Property map */
+	GFXSampler sampler =
+	{
+		.minFilter = GFX_FILTER_LINEAR,
+		.mipFilter = GFX_FILTER_NEAREST,
+		.magFilter = GFX_FILTER_LINEAR,
+
+		.maxAnisotropy = 1.0f,
+
+		.lodMin = 0,
+		.lodMax = 0,
+
+		.wrapS = GFX_WRAP_REPEAT,
+		.wrapT = GFX_WRAP_REPEAT,
+		.wrapR = GFX_WRAP_REPEAT
+	};
+
 	GFXPropertyMap* mapA = gfx_pipe_process_get_map(pipeA->process, 1);
 	GFXPropertyMap* mapB = gfx_pipe_process_get_map(pipeB->process, 1);
 	gfx_property_map_forward_named(mapA, 0, 0, 0, GFX_FRAGMENT_SHADER, "tex");
-	gfx_property_map_set_sampler(mapA, 0, 0, tex);
+	gfx_property_map_set_sampler(mapA, 0, 0, sampler);
+	gfx_property_map_set_texture(mapA, 0, 0, tex);
 	gfx_property_map_forward_named(mapB, 0, 0, 0, GFX_FRAGMENT_SHADER, "tex");
-	gfx_property_map_set_sampler(mapB, 0, 0, tex);
+	gfx_property_map_set_sampler_share(mapB, 0, 0, mapA, 0, 0);
+	gfx_property_map_set_texture(mapB, 0, 0, tex);
 
 
 	/* Mesh and material */

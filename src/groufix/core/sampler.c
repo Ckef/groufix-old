@@ -111,7 +111,7 @@ GFXSampler* _gfx_sampler_create(
 
 	/* Initialize */
 	samp->references = 1;
-	_gfx_sampler_set((GFXSampler*)samp, values, GFX_WIND_AS_ARG);
+	_gfx_sampler_set((GFXSampler*)samp, values);
 
 	return (GFXSampler*)samp;
 }
@@ -175,12 +175,13 @@ void _gfx_sampler_free(
 }
 
 /******************************************************/
-void _gfx_sampler_set(
+int _gfx_sampler_set(
 
 		GFXSampler*        sampler,
-		const GFXSampler*  values,
-		GFX_WIND_ARG)
+		const GFXSampler*  values)
 {
+	GFX_WIND_INIT(0);
+
 	/* Copy values */
 	*sampler = *values;
 
@@ -241,4 +242,6 @@ void _gfx_sampler_set(
 				GL_TEXTURE_MAX_ANISOTROPY_EXT,
 				sampler->maxAnisotropy);
 	}
+
+	return 1;
 }

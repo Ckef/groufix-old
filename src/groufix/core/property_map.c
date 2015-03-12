@@ -92,12 +92,14 @@ typedef struct GFX_ValuePtr
 
 
 /* Internal sampler body */
-typedef struct GFX_TexSampler
+typedef struct GFX_Sampler
 {
-	GLuint  texture;
-	GLuint  target;
+	GFXSampler*  sampler;
+	GLuint       handle;  /* Handle of the sampler object */
+	GLuint       texture;
+	GLuint       target;  /* Target of the texture */
 
-} GFX_TexSampler;
+} GFX_Sampler;
 
 
 /* Internal block body */
@@ -207,7 +209,7 @@ static inline void* _gfx_property_derive_copy(
 			break;
 
 		case GFX_INT_PROPERTY_SAMPLER :
-			*copySize = sizeof(GFX_TexSampler);
+			*copySize = sizeof(GFX_Sampler);
 			break;
 
 		case GFX_INT_PROPERTY_BLOCK :
@@ -451,17 +453,17 @@ static void _gfx_property_set_sampler(
 		unsigned int   base,
 		GFX_WIND_ARG)
 {
-	GFX_TexSampler* val = _gfx_property_get_copy(
+	GFX_Sampler* val = _gfx_property_get_copy(
 		flags,
 		data,
-		sizeof(GFX_TexSampler),
+		sizeof(GFX_Sampler),
 		copy
 	);
 
 	/* Bind texture and upload binding point */
 	GLint unit = _gfx_binder_bind_sampler(
+		val->handle,
 		val->texture,
-		0,
 		val->target,
 		1,
 		GFX_WIND_AS_ARG);
@@ -471,6 +473,13 @@ static void _gfx_property_set_sampler(
 		location,
 		1,
 		&unit);
+
+	/* Set sampler values of texture if necessary */
+	if(!val->handle) _gfx_texture_set_sampler(
+		val->texture,
+		val->target,
+		val->sampler,
+		GFX_WIND_AS_ARG);
 }
 
 /******************************************************/
@@ -554,6 +563,25 @@ void _gfx_property_map_use(
 }
 
 /******************************************************/
+static void _gfx_property_map_free_samplers(
+
+		GFX_Map*       map,
+		GFX_Property*  prop)
+{
+	GFX_Sampler* samp =
+		_gfx_property_get_data(map, prop);
+	unsigned char c =
+		(prop->type & GFX_INT_PROPERTY_HAS_COPIES) ?
+		map->map.copies : 1;
+
+	while(c--)
+	{
+		_gfx_sampler_free(samp->sampler);
+		samp = GFX_PTR_ADD_BYTES(samp, sizeof(GFX_Sampler));
+	}
+}
+
+/******************************************************/
 static void _gfx_property_map_disable(
 
 		GFX_Map*       map,
@@ -563,11 +591,21 @@ static void _gfx_property_map_disable(
 	{
 		unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
 
-		/* Check if any limits are being negated */
+		/* Do any type specific handling */
 		switch(type)
 		{
-			case GFX_INT_PROPERTY_SAMPLER : --map->samplers; break;
-			case GFX_INT_PROPERTY_BLOCK : --map->blocks; break;
+			case GFX_INT_PROPERTY_SAMPLER :
+			{
+				_gfx_property_map_free_samplers(map, prop);
+				--map->samplers;
+				break;
+			}
+
+			case GFX_INT_PROPERTY_BLOCK :
+			{
+				--map->blocks;
+				break;
+			}
 		}
 
 		/* Get the range to remove from the data */
@@ -588,10 +626,8 @@ static void _gfx_property_map_disable(
 		/* Erase from data */
 		gfx_vector_erase_range_at(&map->data, offset, prop->index);
 
-		prop->handle   = 0;
-		prop->type     = GFX_INT_PROPERTY_EMPTY;
+		prop->type = GFX_INT_PROPERTY_EMPTY;
 		prop->location = GL_INVALID_INDEX;
-		prop->index    = 0;
 	}
 }
 
@@ -649,50 +685,10 @@ static int _gfx_property_map_forward(
 	}
 
 	/* Failed */
-	prop->handle   = 0;
-	prop->type     = GFX_INT_PROPERTY_EMPTY;
+	prop->type = GFX_INT_PROPERTY_EMPTY;
 	prop->location = GL_INVALID_INDEX;
-	prop->index    = 0;
 
 	return 0;
-}
-
-/******************************************************/
-static int _gfx_property_map_set_block(
-
-		GFX_Map*       map,
-		unsigned char  index,
-		unsigned int   copy,
-		GLuint         buffer,
-		size_t         offset,
-		size_t         size)
-{
-	GFX_Property* prop =
-		_gfx_property_map_get_at(map, index);
-
-	if(!prop || copy >= map->map.copies) return 0;
-
-	/* Check type */
-	unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
-	if(type != GFX_INT_PROPERTY_BLOCK) return 0;
-
-	/* Get data */
-	GFX_Block* block = _gfx_property_get_data(
-		map,
-		prop);
-
-	block = _gfx_property_get_copy(
-		prop->type,
-		block,
-		sizeof(GFX_Block),
-		copy);
-
-	/* Set data */
-	block->buffer = buffer;
-	block->offset = offset;
-	block->size = size;
-
-	return 1;
 }
 
 /******************************************************/
@@ -752,6 +748,18 @@ void gfx_property_map_free(
 
 		/* Unblock the associated program map */
 		_gfx_program_map_unblock(map->programMap);
+
+		/* Free any samplers */
+		GFX_Property* prop;
+		unsigned char properties = map->properties;
+
+		for(prop = (GFX_Property*)(internal + 1); properties--; ++prop)
+			if(
+				(prop->type & ~GFX_INT_PROPERTY_HAS_COPIES) ==
+				GFX_INT_PROPERTY_SAMPLER)
+			{
+				_gfx_property_map_free_samplers(internal, prop);
+			}
 
 		gfx_vector_clear(&internal->data);
 		free(map);
@@ -992,7 +1000,7 @@ int gfx_property_map_forward(
 
 		case GFX_SAMPLER_PROPERTY :
 			forward->type = GFX_INT_PROPERTY_SAMPLER;
-			copySize = sizeof(GFX_TexSampler);
+			copySize = sizeof(GFX_Sampler);
 			break;
 
 		/* I don't know D: */
@@ -1260,6 +1268,109 @@ int gfx_property_map_set_instance_offset(
 /******************************************************/
 int gfx_property_map_set_sampler(
 
+		GFXPropertyMap*  map,
+		unsigned char    index,
+		unsigned int     copy,
+		GFXSampler       values)
+{
+	GFX_Map* internal =
+		(GFX_Map*)map;
+	GFX_Property* prop =
+		_gfx_property_map_get_at(internal, index);
+
+	if(!prop || copy >= map->copies) return 0;
+
+	/* Check type */
+	unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
+	if(type != GFX_INT_PROPERTY_SAMPLER) return 0;
+
+	/* Get data */
+	GFX_Sampler* samp = _gfx_property_get_data(
+		internal, prop);
+	samp = _gfx_property_get_copy(
+		prop->type, samp, sizeof(GFX_Sampler), copy);
+
+	/* Set data */
+	if(samp->sampler)
+	{
+		if(!_gfx_sampler_set(samp->sampler, &values))
+			return 0;
+	}
+	else
+	{
+		if(!(samp->sampler = _gfx_sampler_create(&values)))
+			return 0;
+
+		samp->handle = _gfx_sampler_get_handle(samp->sampler);
+	}
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_property_map_set_sampler_share(
+
+		GFXPropertyMap*  map,
+		unsigned char    index,
+		unsigned int     copy,
+		GFXPropertyMap*  src,
+		unsigned char    srcIndex,
+		unsigned int     srcCopy)
+{
+	GFX_Map* internal =
+		(GFX_Map*)map;
+	GFX_Map* srcInternal =
+		(GFX_Map*)src;
+	GFX_Property* prop =
+		_gfx_property_map_get_at(internal, index);
+	GFX_Property* srcProp =
+		_gfx_property_map_get_at(srcInternal, srcIndex);
+
+	if(
+		!prop || !srcProp ||
+		copy >= map->copies || srcCopy >= src->copies)
+	{
+		return 0;
+	}
+
+	/* Check type */
+	unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
+	unsigned char srcType = srcProp->type & ~GFX_INT_PROPERTY_HAS_COPIES;
+
+	if(
+		type != GFX_INT_PROPERTY_SAMPLER ||
+		srcType != GFX_INT_PROPERTY_SAMPLER)
+	{
+		return 0;
+	}
+
+	/* Get data */
+	GFX_Sampler* samp = _gfx_property_get_data(
+		internal, prop);
+	GFX_Sampler* srcSamp = _gfx_property_get_data(
+		srcInternal, srcProp);
+
+	samp = _gfx_property_get_copy(
+		prop->type, samp, sizeof(GFX_Sampler), copy);
+	srcSamp = _gfx_property_get_copy(
+		srcProp->type, srcSamp, sizeof(GFX_Sampler), srcCopy);
+
+	/* Set data */
+	if(!srcSamp->sampler || !_gfx_sampler_reference(srcSamp->sampler))
+		return 0;
+
+	if(samp->sampler)
+		_gfx_sampler_free(samp->sampler);
+
+	samp->sampler = srcSamp->sampler;
+	samp->handle = srcSamp->handle;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_property_map_set_texture(
+
 		GFXPropertyMap*    map,
 		unsigned char      index,
 		unsigned int       copy,
@@ -1277,19 +1388,47 @@ int gfx_property_map_set_sampler(
 	if(type != GFX_INT_PROPERTY_SAMPLER) return 0;
 
 	/* Get data */
-	GFX_TexSampler* samp = _gfx_property_get_data(
-		internal,
-		prop);
-
+	GFX_Sampler* samp = _gfx_property_get_data(
+		internal, prop);
 	samp = _gfx_property_get_copy(
-		prop->type,
-		samp,
-		sizeof(GFX_TexSampler),
-		copy);
+		prop->type, samp, sizeof(GFX_Sampler), copy);
 
 	/* Set data */
 	samp->texture = _gfx_texture_get_handle(texture);
 	samp->target = _gfx_texture_get_internal_target(texture);
+
+	return 1;
+}
+
+/******************************************************/
+static int _gfx_property_map_set_block(
+
+		GFX_Map*       map,
+		unsigned char  index,
+		unsigned int   copy,
+		GLuint         buffer,
+		size_t         offset,
+		size_t         size)
+{
+	GFX_Property* prop =
+		_gfx_property_map_get_at(map, index);
+
+	if(!prop || copy >= map->map.copies) return 0;
+
+	/* Check type */
+	unsigned char type = prop->type & ~GFX_INT_PROPERTY_HAS_COPIES;
+	if(type != GFX_INT_PROPERTY_BLOCK) return 0;
+
+	/* Get data */
+	GFX_Block* block = _gfx_property_get_data(
+		map, prop);
+	block = _gfx_property_get_copy(
+		prop->type, block, sizeof(GFX_Block), copy);
+
+	/* Set data */
+	block->buffer = buffer;
+	block->offset = offset;
+	block->size = size;
 
 	return 1;
 }

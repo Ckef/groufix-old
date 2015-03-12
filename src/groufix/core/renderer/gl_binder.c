@@ -385,8 +385,8 @@ size_t _gfx_binder_bind_texture(
 /******************************************************/
 size_t _gfx_binder_bind_sampler(
 
-		GLuint  texture,
 		GLuint  sampler,
+		GLuint  texture,
 		GLenum  target,
 		int     prioritize,
 		GFX_WIND_ARG)

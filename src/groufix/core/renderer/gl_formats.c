@@ -246,6 +246,103 @@ GLint _gfx_texture_min_filter_from_sampler(
 }
 
 /******************************************************/
+void _gfx_texture_set_sampler(
+
+		GLuint             texture,
+		GLuint             target,
+		const GFXSampler*  sampler,
+		GFX_WIND_ARG)
+{
+	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	{
+		GFX_REND_GET.TextureParameteri(
+			texture,
+			GL_TEXTURE_MIN_FILTER,
+			_gfx_texture_min_filter_from_sampler(sampler));
+
+		GFX_REND_GET.TextureParameteri(
+			texture,
+			GL_TEXTURE_MAG_FILTER,
+			sampler->magFilter);
+
+		GFX_REND_GET.TextureParameterf(
+			texture,
+			GL_TEXTURE_MIN_LOD,
+			sampler->lodMin);
+
+		GFX_REND_GET.TextureParameterf(
+			texture,
+			GL_TEXTURE_MAX_LOD,
+			sampler->lodMax);
+
+		GFX_REND_GET.TextureParameteri(
+			texture,
+			GL_TEXTURE_WRAP_S,
+			sampler->wrapS);
+
+		GFX_REND_GET.TextureParameteri(
+			texture,
+			GL_TEXTURE_WRAP_T,
+			sampler->wrapT);
+
+		GFX_REND_GET.TextureParameteri(
+			texture,
+			GL_TEXTURE_WRAP_R,
+			sampler->wrapR);
+
+		if(GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
+			GFX_REND_GET.TextureParameterf(
+				texture,
+				GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				sampler->maxAnisotropy);
+	}
+	else
+	{
+		/* Assumes it is already bound */
+		GFX_REND_GET.TexParameteri(
+			target,
+			GL_TEXTURE_MIN_FILTER,
+			_gfx_texture_min_filter_from_sampler(sampler));
+
+		GFX_REND_GET.TexParameteri(
+			target,
+			GL_TEXTURE_MAG_FILTER,
+			sampler->magFilter);
+
+		GFX_REND_GET.TexParameterf(
+			target,
+			GL_TEXTURE_MIN_LOD,
+			sampler->lodMin);
+
+		GFX_REND_GET.TexParameterf(
+			target,
+			GL_TEXTURE_MAX_LOD,
+			sampler->lodMax);
+
+		GFX_REND_GET.TexParameteri(
+			target,
+			GL_TEXTURE_WRAP_S,
+			sampler->wrapS);
+
+		GFX_REND_GET.TexParameteri(
+			target,
+			GL_TEXTURE_WRAP_T,
+			sampler->wrapT);
+
+		GFX_REND_GET.TexParameteri(
+			target,
+			GL_TEXTURE_WRAP_R,
+			sampler->wrapR);
+
+		if(GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
+			GFX_REND_GET.TexParameterf(
+				target,
+				GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				sampler->maxAnisotropy);
+	}
+}
+
+/******************************************************/
 GLint _gfx_texture_format_to_pixel_format(
 
 		GFXTextureFormat format)
