@@ -1,6 +1,6 @@
 # Groufix
 
-Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in C using OpenGL. The library has no external dependencies besides native windowing APIs and OpenGL to access the GPU. Desktop OpenGL is supported from 3.2 and up. OpenGL ES is supported from 3.0 and up.
+Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in C. The library has no external dependencies besides native windowing APIs and the renderer to access the GPU. Desktop OpenGL is supported from 3.2 and up. OpenGL ES is supported from 3.0 and up.
 
 Supported targets and their APIs:
 
@@ -19,7 +19,7 @@ The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 
 A Makefile is shipped with the project, run make without a target to view all build targets. All necessary headers are shipped with the project as well. The appropriate compiler is expected to be installed, see above for all expected compiler collections. Once the library is built, link against it using `-lGroufix`.
 
-Groufix can be compiled with different OGL renderers. This must be given as a makefile flag in the form of `RENDERER=VALUE`, in which `VALUE` can be:
+Groufix can be compiled with different renderers. This must be given as a makefile flag in the form of `RENDERER=VALUE`, in which `VALUE` can be:
 
 * __GL__, To compile using desktop OpenGL, this is the default value.
 

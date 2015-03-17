@@ -14,6 +14,8 @@
 
 #include "groufix/core/platform/win32.h"
 
+#include <stdlib.h>
+
 /******************************************************/
 WCHAR* _gfx_win32_utf8_to_utf16(
 
