@@ -64,12 +64,13 @@ static inline GFXVertexLayout* _gfx_mesh_get_layout(
 /******************************************************/
 static inline size_t _gfx_mesh_bucket_size(
 
-		const GFXMesh* mesh)
+		const GFXMesh*  mesh,
+		unsigned int    levels)
 {
 	return
 		sizeof(GFX_Bucket) +
 		sizeof(GFXBucketSource) *
-		gfx_lod_map_count((const GFXLodMap*)mesh, UINT_MAX);
+		gfx_lod_map_count((const GFXLodMap*)mesh, levels);
 }
 
 /******************************************************/
@@ -115,9 +116,10 @@ static void _gfx_mesh_erase_bucket(
 /******************************************************/
 static int _gfx_mesh_expand_buckets(
 
-		GFX_Mesh* mesh)
+		GFX_Mesh*     mesh,
+		unsigned int  level)
 {
-	size_t size = _gfx_mesh_bucket_size((GFXMesh*)mesh);
+	size_t size = _gfx_mesh_bucket_size((GFXMesh*)mesh, UINT_MAX);
 	size_t total = gfx_vector_get_size(&mesh->buckets);
 
 	/* First reserve some memory */
@@ -131,17 +133,17 @@ static int _gfx_mesh_expand_buckets(
 
 	/* Append an empty source to all buckets */
 	GFXBucketSource insert = 0;
+	size_t ind = _gfx_mesh_bucket_size((GFXMesh*)mesh, level + 1);
 
 	while(total)
 	{
+		total -= size;
 		gfx_vector_insert_range_at(
 			&mesh->buckets,
 			sizeof(GFXBucketSource),
 			&insert,
-			total
+			total + ind
 		);
-
-		total -= size;
 	}
 
 	return 1;
@@ -150,15 +152,16 @@ static int _gfx_mesh_expand_buckets(
 /******************************************************/
 static void _gfx_mesh_shrink_buckets(
 
-		GFX_Mesh* mesh)
+		GFX_Mesh*     mesh,
+		unsigned int  level)
 {
 	/* Size will be smaller than the actual stored size in buckets */
 	/* As this is only allowed to be called when the lod map is smaller */
-	size_t size = _gfx_mesh_bucket_size((GFXMesh*)mesh);
+	size_t size = _gfx_mesh_bucket_size((GFXMesh*)mesh, UINT_MAX);
 	size_t total = gfx_vector_get_size(&mesh->buckets);
 
-	/* Remove the last source of all buckets */
-	size_t ind = size;
+	/* Remove the source from all buckets */
+	size_t ind = _gfx_mesh_bucket_size((GFXMesh*)mesh, level + 1);
 
 	while(ind < total)
 	{
@@ -183,7 +186,7 @@ int _gfx_mesh_add_bucket(
 	GFX_Mesh* internal =
 		(GFX_Mesh*)mesh;
 	size_t size =
-		_gfx_mesh_bucket_size(mesh);
+		_gfx_mesh_bucket_size(mesh, UINT_MAX);
 	GFX_Bucket* buck =
 		_gfx_mesh_find_bucket(internal, bucket, size);
 
@@ -235,7 +238,7 @@ GFXBucketSource _gfx_mesh_get_bucket_source(
 	GFX_Mesh* internal =
 		(GFX_Mesh*)mesh;
 	size_t size =
-		_gfx_mesh_bucket_size(mesh);
+		_gfx_mesh_bucket_size(mesh, UINT_MAX);
 	GFX_Bucket* buck =
 		_gfx_mesh_find_bucket(internal, bucket, size);
 
@@ -281,7 +284,7 @@ int _gfx_mesh_remove_bucket(
 	GFX_Mesh* internal =
 		(GFX_Mesh*)mesh;
 	size_t size =
-		_gfx_mesh_bucket_size(mesh);
+		_gfx_mesh_bucket_size(mesh, UINT_MAX);
 	GFX_Bucket* buck =
 		_gfx_mesh_find_bucket(internal, bucket, size);
 
@@ -334,7 +337,7 @@ void gfx_mesh_free(
 		GFX_Mesh* internal = (GFX_Mesh*)mesh;
 
 		/* Remove all buckets */
-		size_t size = _gfx_mesh_bucket_size(mesh);
+		size_t size = _gfx_mesh_bucket_size(mesh, UINT_MAX);
 		size_t total = gfx_vector_get_size(&internal->buckets);
 
 		while(total)
@@ -535,7 +538,7 @@ int gfx_mesh_add(
 		return 0;
 
 	/* First extend the bucket vector */
-	if(!_gfx_mesh_expand_buckets((GFX_Mesh*)mesh))
+	if(!_gfx_mesh_expand_buckets((GFX_Mesh*)mesh, level))
 		return 0;
 
 	/* Memset so memcmp will be correct */
@@ -552,7 +555,7 @@ int gfx_mesh_add(
 	/* Add it to the LOD map */
 	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))
 	{
-		_gfx_mesh_shrink_buckets((GFX_Mesh*)mesh);
+		_gfx_mesh_shrink_buckets((GFX_Mesh*)mesh, level);
 		return 0;
 	}
 
