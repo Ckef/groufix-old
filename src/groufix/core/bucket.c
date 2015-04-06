@@ -685,7 +685,7 @@ GFXBucketUnit gfx_bucket_insert(
 		GFXBucket*             bucket,
 		GFXBucketSource        src,
 		const GFXPropertyMap*  map,
-		GFXUnitState           state,
+		unsigned int           copy,
 		int                    visible)
 {
 	--src;
@@ -702,13 +702,12 @@ GFXBucketUnit gfx_bucket_insert(
 	/* Initialize the new unit */
 	GFX_Unit unit;
 
-	unit.state    = state & GFX_INT_UNIT_MANUAL;
-	unit.state   |= visible ? GFX_INT_UNIT_VISIBLE : 0;
-	unit.program  = _gfx_program_map_get_handle(map->programMap);
-	unit.vao      = _gfx_vertex_layout_get_handle(source->layout);
+	unit.state   = visible ? GFX_INT_UNIT_VISIBLE : 0;
+	unit.program = _gfx_program_map_get_handle(map->programMap);
+	unit.vao     = _gfx_vertex_layout_get_handle(source->layout);
 
 	unit.map  = map;
-	unit.copy = 0;
+	unit.copy = copy;
 	unit.src  = src;
 	unit.inst = 1;
 	unit.base = 0;

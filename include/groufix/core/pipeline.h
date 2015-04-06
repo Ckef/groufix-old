@@ -127,8 +127,8 @@ GFX_API void gfx_bucket_remove_source(
 /**
  * Insert a unit to be processed into the bucket.
  *
- * @param state    30 manual bits of the state to associate this unit with (2 MSB bits are ignored).
  * @param map      Property map (and thus program) to use for rendering this unit.
+ * @param copy     Index of the copy of the property map to use.
  * @param visible  Non-zero if visible, invisible otherwise.
  * @return The ID of the inserted unit, 0 on failure.
  *
@@ -138,7 +138,7 @@ GFX_API GFXBucketUnit gfx_bucket_insert(
 		GFXBucket*             bucket,
 		GFXBucketSource        src,
 		const GFXPropertyMap*  map,
-		GFXUnitState           state,
+		unsigned int           copy,
 		int                    visible);
 
 /**
