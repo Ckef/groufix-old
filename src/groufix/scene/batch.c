@@ -318,7 +318,7 @@ GFXBucketUnit* gfx_batch_set(
 	{
 		/* Get bucket source */
 		unsigned int index =
-			gfx_lod_map_count((GFXLodMap*)batch->mesh, level) +
+			gfx_lod_map_count((GFXLodMap*)batch->mesh, lev->mesh) +
 			batch->meshIndex;
 
 		GFXBucketSource src = _gfx_mesh_get_bucket_source(
@@ -328,7 +328,7 @@ GFXBucketUnit* gfx_batch_set(
 
 		/* Get property map */
 		GFXPropertyMap* map = gfx_property_map_list_at(
-			gfx_material_get(batch->material, level, &index),
+			gfx_material_get(batch->material, lev->material, &index),
 			batch->materialIndex);
 
 		/* Insert more units */
