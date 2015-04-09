@@ -168,7 +168,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/list.o \
  $(OUT)/unix-x11/groufix/containers/thread_pool.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
- $(OUT)/unix-x11/groufix/core/platform/unix_thread.o \
+ $(OUT)/unix-x11/groufix/core/platform/unix_threading.o \
  $(OUT)/unix-x11/groufix/core/platform/unix_time.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_context.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_init.o \
@@ -244,7 +244,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/platform/win32_init.o \
  $(OUT)/win32/groufix/core/platform/win32_screen.o \
  $(OUT)/win32/groufix/core/platform/win32_strings.o \
- $(OUT)/win32/groufix/core/platform/win32_thread.o \
+ $(OUT)/win32/groufix/core/platform/win32_threading.o \
  $(OUT)/win32/groufix/core/platform/win32_time.o \
  $(OUT)/win32/groufix/core/platform/win32_window.o \
  $(OUT)/win32/groufix/core/renderer/gl_binder.o \
