@@ -82,6 +82,10 @@ GFX_API void gfx_batch_free(
  * @return Zero on failure.
  *
  * Note: this will reallocate copies at the property map, which is expensive!
+ * If this level already has allocated units, the function will fail.
+ *
+ * If it already had a level and the function failed, the previous level is not
+ * guaranteed to still be set.
  *
  */
 GFX_API int gfx_batch_set_level(
@@ -99,7 +103,7 @@ GFX_API int gfx_batch_set_level(
  * @param srcLevel Level at the source batch to share with.
  * @return Zero on failure.
  *
- * Note: this will fail if the batches do not share the material index,
+ * Note: this will fail if the batches do not share the material and material index,
  * as it will attempt to share copies at a property map.
  *
  */
@@ -122,16 +126,17 @@ GFX_API int gfx_batch_set_level_share(
  */
 GFX_API int gfx_batch_get_level(
 
-		GFXBatch*      batch,
-		unsigned char  level,
-		unsigned int*  copies,
-		unsigned int*  instances,
-		unsigned int*  offset);
+		const GFXBatch*  batch,
+		unsigned char    level,
+		unsigned int*    copies,
+		unsigned int*    instances,
+		unsigned int*    offset);
 
 /**
  * Sets the number of allocated units at a level at a batch.
  *
- * @param num Number of units to allocate.
+ * @param num     Number of units to allocate.
+ * @param visible If new units are created, non-zero if visible, invisible otherwise.
  * @return Array of allocated bucket units (of num length), NULL on failure.
  *
  * If num is less than currently allocated units, units will be destroyed.
@@ -141,7 +146,8 @@ GFX_API GFXBucketUnit* gfx_batch_set(
 
 		GFXBatch*      batch,
 		unsigned char  level,
-		unsigned int   num);
+		unsigned int   num,
+		int            visible);
 
 /**
  * Fetches the allocated units at a level at a batch.

@@ -48,45 +48,6 @@ typedef struct GFXMesh
 
 
 /**
- * References a bucket at a mesh.
- *
- * @param bucket Bucket to reference.
- * @return Zero on failure.
- *
- * Note: it must be removed equally many times to free all
- * references to a bucket.
- *
- */
-GFX_API int _gfx_mesh_add_bucket(
-
-		GFXMesh*    mesh,
-		GFXBucket*  bucket);
-
-/**
- * Fetches the source ID at a bucket of a source at a mesh.
- *
- * @param index Index of the source as seen in gfx_mesh_get_all.
- * @return Source ID at the bucket.
- *
- */
-GFX_API GFXBucketSource _gfx_mesh_get_bucket_source(
-
-		GFXMesh*      mesh,
-		GFXBucket*    bucket,
-		unsigned int  index);
-
-/**
- * Frees a single reference of a bucket at a mesh.
- *
- * @return Non-zero if a reference was freed.
- *
- */
-GFX_API int _gfx_mesh_remove_bucket(
-
-		GFXMesh*    mesh,
-		GFXBucket*  bucket);
-
-/**
  * Creates a new mesh.
  *
  * @return NULL on failure.

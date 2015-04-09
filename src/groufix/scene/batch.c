@@ -37,8 +37,8 @@ typedef struct GFX_Level
 /******************************************************/
 static inline GFX_Level* _gfx_batch_get_level(
 
-		GFXBatch*     batch,
-		unsigned int  level)
+		const GFXBatch*  batch,
+		unsigned char    level)
 {
 	return ((GFX_Level*)(batch + 1)) + level;
 }
@@ -46,12 +46,37 @@ static inline GFX_Level* _gfx_batch_get_level(
 /******************************************************/
 static inline GFXBucketUnit* _gfx_batch_get_unit(
 
-		GFXBatch*     batch,
-		unsigned int  level,
-		unsigned int  unit)
+		const GFXBatch*  batch,
+		unsigned char    level,
+		unsigned int     unit)
 {
 	return ((GFXBucketUnit*)(((GFX_Level*)(batch + 1)) + batch->levels)) +
 		(batch->units * level + unit);
+}
+
+/******************************************************/
+static void _gfx_batch_erase_copies(
+
+		GFXBatch*   batch,
+		GFX_Level*  level)
+{
+	if(level->copies)
+	{
+		/* Get property map and erase copies */
+		unsigned int num;
+		GFXPropertyMapList list = gfx_material_get(
+			batch->material,
+			level->material,
+			&num);
+
+		_gfx_property_map_list_erase_copies_at(
+			list,
+			batch->materialIndex,
+			level->offset);
+
+		/* Mark as uninitialized */
+		level->copies = 0;
+	}
 }
 
 /******************************************************/
@@ -114,6 +139,23 @@ void gfx_batch_free(
 {
 	if(batch)
 	{
+		/* Erase all units and copies */
+		unsigned char level;
+		unsigned int unit;
+
+		for(level = 0; level < batch->levels; ++level)
+		{
+			GFX_Level* lev = _gfx_batch_get_level(
+				batch, level);
+			_gfx_batch_erase_copies(
+				batch, lev);
+
+			for(unit = 0; unit < lev->num; ++unit) gfx_bucket_erase(
+				batch->bucket,
+				*_gfx_batch_get_unit(batch, level, unit)
+			);
+		}
+
 		/* Dereference bucket at mesh */
 		_gfx_mesh_remove_bucket(batch->mesh, batch->bucket);
 
@@ -130,7 +172,51 @@ int gfx_batch_set_level(
 		unsigned int   mesh,
 		unsigned int   copies)
 {
-	return 0;
+	/* Check units */
+	GFX_Level* lev = _gfx_batch_get_level(batch, level);
+	if(lev->num) return 0;
+
+	/* Validate material and mesh indices */
+	unsigned int matNum;
+	unsigned int mesNum;
+
+	GFXPropertyMapList list = gfx_material_get(
+		batch->material, material, &matNum);
+	gfx_mesh_get(
+		batch->mesh, mesh, &mesNum);
+
+	if(
+		batch->materialIndex >= matNum ||
+		batch->meshIndex >= mesNum)
+	{
+		return 0;
+	}
+
+	/* Erase previous copies */
+	_gfx_batch_erase_copies(batch, lev);
+
+	/* Insert copies at material */
+	unsigned int offset;
+	if(!_gfx_property_map_list_insert_copies_at(
+		list,
+		batch->materialIndex,
+		copies,
+		&offset))
+	{
+		return 0;
+	}
+
+	lev->material = material;
+	lev->mesh     = mesh;
+	lev->copies   = copies;
+	lev->offset   = offset;
+
+	/* Fetch instances from property map */
+	lev->instances = gfx_property_map_list_at(
+		list,
+		batch->materialIndex)->programMap->instances;
+
+	return 1;
 }
 
 /******************************************************/
@@ -142,19 +228,78 @@ int gfx_batch_set_level_share(
 		unsigned char  srcLevel,
 		unsigned int   mesh)
 {
-	return 0;
+	GFX_Level* lev = _gfx_batch_get_level(batch, level);
+	GFX_Level* srcLev = _gfx_batch_get_level(src, srcLevel);
+
+	/* Herpderp */
+	if(
+		lev->num ||
+		lev == srcLev ||
+		batch->material != src->material ||
+		batch->materialIndex != src->materialIndex)
+	{
+		return 0;
+	}
+
+	/* Validate material and mesh indices */
+	unsigned int matNum;
+	unsigned int mesNum;
+
+	GFXPropertyMapList list = gfx_material_get(
+		batch->material, srcLev->material, &matNum);
+	gfx_mesh_get(
+		batch->mesh, mesh, &mesNum);
+
+	if(
+		batch->materialIndex >= matNum ||
+		batch->meshIndex >= mesNum)
+	{
+		return 0;
+	}
+
+	/* Erase previous copies */
+	_gfx_batch_erase_copies(batch, lev);
+
+	/* Reference copies at material */
+	if(!_gfx_property_map_list_reference_copies_at(
+		list,
+		batch->materialIndex,
+		srcLev->offset))
+	{
+		return 0;
+	}
+
+	lev->material = srcLev->material;
+	lev->mesh     = mesh;
+	lev->copies   = srcLev->copies;
+	lev->offset   = srcLev->offset;
+
+	/* Fetch instances from property map */
+	lev->instances = gfx_property_map_list_at(
+		list,
+		batch->materialIndex)->programMap->instances;
+
+	return 1;
 }
 
 /******************************************************/
 int gfx_batch_get_level(
 
-		GFXBatch*      batch,
-		unsigned char  level,
-		unsigned int*  copies,
-		unsigned int*  instances,
-		unsigned int*  offset)
+		const GFXBatch*  batch,
+		unsigned char    level,
+		unsigned int*    copies,
+		unsigned int*    instances,
+		unsigned int*    offset)
 {
-	return 0;
+	/* Check if properties are set */
+	GFX_Level* lev = _gfx_batch_get_level(batch, level);
+	if(!lev->copies) return 0;
+
+	*copies = lev->copies;
+	*instances = lev->instances;
+	*offset = lev->offset;
+
+	return 1;
 }
 
 /******************************************************/
@@ -162,9 +307,64 @@ GFXBucketUnit* gfx_batch_set(
 
 		GFXBatch*      batch,
 		unsigned char  level,
-		unsigned int   num)
+		unsigned int   num,
+		int            visible)
 {
-	return NULL;
+	/* Check if properties are set */
+	GFX_Level* lev = _gfx_batch_get_level(batch, level);
+	if(!lev->copies) return NULL;
+
+	if(num > lev->num)
+	{
+		/* Get bucket source */
+		unsigned int index =
+			gfx_lod_map_count((GFXLodMap*)batch->mesh, level) +
+			batch->meshIndex;
+
+		GFXBucketSource src = _gfx_mesh_get_bucket_source(
+			batch->mesh,
+			batch->bucket,
+			index);
+
+		/* Get property map */
+		GFXPropertyMap* map = gfx_property_map_list_at(
+			gfx_material_get(batch->material, level, &index),
+			batch->materialIndex);
+
+		/* Insert more units */
+		unsigned int unit;
+		for(unit = lev->num; unit < num; ++unit)
+		{
+			GFXBucketUnit new = gfx_bucket_insert(
+				batch->bucket, src, map, lev->offset, visible);
+			*_gfx_batch_get_unit(
+				batch, level, unit) = new;
+
+			/* Nevermind erase them all again */
+			if(!new)
+			{
+				while(unit > lev->num) gfx_bucket_erase(
+					batch->bucket,
+					*_gfx_batch_get_unit(batch, level, unit--)
+				);
+
+				return NULL;
+			}
+		}
+	}
+	else
+	{
+		/* Destroy excess units */
+		unsigned int unit;
+		for(unit = num; unit < lev->num; ++unit) gfx_bucket_erase(
+			batch->bucket,
+			*_gfx_batch_get_unit(batch, level, unit)
+		);
+	}
+
+	/* Update */
+	lev->num = num;
+	return _gfx_batch_get_unit(batch, level, 0);
 }
 
 /******************************************************/
@@ -174,5 +374,6 @@ GFXBucketUnit* gfx_batch_get(
 		unsigned char    level,
 		unsigned int*    num)
 {
-	return NULL;
+	*num = _gfx_batch_get_level(batch, level)->num;
+	return _gfx_batch_get_unit(batch, level, 0);
 }

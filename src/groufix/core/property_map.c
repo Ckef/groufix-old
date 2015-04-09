@@ -157,8 +157,8 @@ static int _gfx_property_map_eval_limits(
 /******************************************************/
 static inline GFX_Property* _gfx_property_map_get_at(
 
-		GFX_Map*       map,
-		unsigned char  index)
+		const GFX_Map*  map,
+		unsigned char   index)
 {
 	return index >= map->map.properties ?
 		NULL : ((GFX_Property*)(map + 1)) + index;

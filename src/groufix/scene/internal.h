@@ -114,6 +114,50 @@ void _gfx_property_map_list_erase_copies_at(
 		unsigned int        offset);
 
 
+/********************************************************
+ * Mesh bucket source management
+ *******************************************************/
+
+/**
+ * References a bucket at a mesh.
+ *
+ * @param bucket Bucket to reference.
+ * @return Zero on failure.
+ *
+ * Note: it must be removed equally many times to free all
+ * references to a bucket.
+ *
+ */
+int _gfx_mesh_add_bucket(
+
+		GFXMesh*    mesh,
+		GFXBucket*  bucket);
+
+/**
+ * Fetches the source ID at a bucket of a source at a mesh.
+ *
+ * @param index Index of the source as seen in gfx_mesh_get_all.
+ * @return Source ID at the bucket.
+ *
+ */
+GFXBucketSource _gfx_mesh_get_bucket_source(
+
+		GFXMesh*      mesh,
+		GFXBucket*    bucket,
+		unsigned int  index);
+
+/**
+ * Frees a single reference of a bucket at a mesh.
+ *
+ * @return Non-zero if a reference was freed.
+ *
+ */
+int _gfx_mesh_remove_bucket(
+
+		GFXMesh*    mesh,
+		GFXBucket*  bucket);
+
+
 #ifdef __cplusplus
 }
 #endif

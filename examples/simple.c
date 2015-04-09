@@ -219,25 +219,17 @@ int main()
 
 
 	/* Mesh and material */
-	unsigned int num;
-
 	GFXMaterial* material = create_material();
 	GFXMesh* mesh = create_mesh();
 
 
-	/* Units */
-	_gfx_mesh_add_bucket(mesh, bucket->bucket);
-
-	GFXPropertyMap* map = gfx_property_map_list_at(
-		gfx_material_get_all(material, &num),
-		0);
-
-	gfx_bucket_insert(
-		bucket->bucket,
-		_gfx_mesh_get_bucket_source(mesh, bucket->bucket, 0),
-		map,
-		0,
-		1);
+	/* Batch */
+	GFXBatch* batch = gfx_batch_create(
+		bucket->bucket, material, mesh, 0, 0, 1, 1);
+	gfx_batch_set_level(
+		batch, 0, 0, 0, 1);
+	gfx_batch_set(
+		batch, 0, 1, 1);
 
 
 	/* Setup a loop */
@@ -263,6 +255,7 @@ int main()
 
 
 	/* Free all the things */
+	gfx_batch_free(batch);
 	gfx_mesh_free(mesh);
 	gfx_material_free(material);
 	gfx_program_map_free(programMap);
