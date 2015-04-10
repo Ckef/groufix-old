@@ -142,6 +142,7 @@ HEADERS = \
  include/groufix/scene/mesh.h \
  include/groufix/scene/object.h \
  include/groufix/math.h \
+ include/groufix/resources.h \
  include/groufix/scene.h \
  include/groufix/utils.h \
  include/groufix.h \
