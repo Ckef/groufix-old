@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef GFX_CORE_THREADS_H
-#define GFX_CORE_THREADS_H
+#ifndef GFX_CORE_THREADING_H
+#define GFX_CORE_THREADING_H
 
 #include "groufix/core/platform.h"
 
@@ -495,4 +495,4 @@ static GFX_ALWAYS_INLINE void _gfx_platform_cond_broadcast(
 }
 #endif
 
-#endif // GFX_CORE_THREADS_H
+#endif // GFX_CORE_THREADING_H

@@ -147,6 +147,7 @@ HEADERS = \
  include/groufix.h \
  src/groufix/core/renderer/gl.h \
  src/groufix/core/renderer/gl_def.h \
+ src/groufix/core/file.h \
  src/groufix/core/internal.h \
  src/groufix/core/platform.h \
  src/groufix/core/renderer.h \
@@ -168,6 +169,7 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/containers/list.o \
  $(OUT)/unix-x11/groufix/containers/thread_pool.o \
  $(OUT)/unix-x11/groufix/containers/vector.o \
+ $(OUT)/unix-x11/groufix/core/platform/unix_file.o \
  $(OUT)/unix-x11/groufix/core/platform/unix_threading.o \
  $(OUT)/unix-x11/groufix/core/platform/unix_time.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_context.o \
@@ -241,6 +243,7 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/containers/thread_pool.o \
  $(OUT)/win32/groufix/containers/vector.o \
  $(OUT)/win32/groufix/core/platform/win32_context.o \
+ $(OUT)/win32/groufix/core/platform/win32_file.o \
  $(OUT)/win32/groufix/core/platform/win32_init.o \
  $(OUT)/win32/groufix/core/platform/win32_screen.o \
  $(OUT)/win32/groufix/core/platform/win32_strings.o \
