@@ -16,6 +16,7 @@
 
 #include <fcntl.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 /******************************************************/
 int _gfx_platform_file_open(
@@ -30,15 +31,13 @@ int _gfx_platform_file_open(
 		(flags & GFX_RESOURCE_WRITE ? O_RDWR : O_RDONLY) :
 		(flags & GFX_RESOURCE_WRITE ? O_WRONLY : 0);
 
-	if(!oflags)
+	if(
+		!oflags ||
+		((flags & GFX_RESOURCE_EXIST) && !(flags & GFX_RESOURCE_CREATE)) ||
+		((flags & GFX_RESOURCE_TRUNCATE) && !(flags & GFX_RESOURCE_WRITE)))
+	{
 		return 0;
-
-	/* Check flag compatibility */
-	if((flags & GFX_RESOURCE_TRUNCATE) && !(flags & GFX_RESOURCE_WRITE))
-		return 0;
-
-	if((flags & GFX_RESOURCE_EXIST) && !(flags & GFX_RESOURCE_CREATE))
-		return 0;
+	}
 
 	/* Open file */
 	*file = open(path, oflags |
@@ -49,7 +48,15 @@ int _gfx_platform_file_open(
 		S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 	);
 
-	return *file != -1;
+	/* Check if actually a file */
+	struct stat sb;
+	if(fstat(*file, &sb) == -1 || (sb.st_mode & S_IFMT) != S_IFREG)
+	{
+		close(*file);
+		return 0;
+	}
+
+	return 1;
 }
 
 /******************************************************/
@@ -58,6 +65,11 @@ int _gfx_platform_file_move(
 		const char*  oldPath,
 		const char*  newPath)
 {
+	/* Check if it is in fact a file */
+	struct stat sb;
+	if(stat(oldPath, &sb) == -1 || (sb.st_mode & S_IFMT) != S_IFREG)
+		return 0;
+
 	return rename(oldPath, newPath) != -1;
 }
 
