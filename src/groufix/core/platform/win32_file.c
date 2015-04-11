@@ -23,3 +23,20 @@ int _gfx_platform_file_open(
 {
 	return 0;
 }
+
+/******************************************************/
+int _gfx_platform_file_move(
+
+		const char*  oldPath,
+		const char*  newPath)
+{
+	return 0;
+}
+
+/******************************************************/
+int _gfx_platform_file_remove(
+
+		const char* path)
+{
+	return 0;
+}

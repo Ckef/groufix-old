@@ -15,6 +15,7 @@
 #include "groufix/core/file.h"
 
 #include <fcntl.h>
+#include <stdio.h>
 
 /******************************************************/
 int _gfx_platform_file_open(
@@ -49,4 +50,21 @@ int _gfx_platform_file_open(
 	);
 
 	return *file != -1;
+}
+
+/******************************************************/
+int _gfx_platform_file_move(
+
+		const char*  oldPath,
+		const char*  newPath)
+{
+	return rename(oldPath, newPath) != -1;
+}
+
+/******************************************************/
+int _gfx_platform_file_remove(
+
+		const char* path)
+{
+	return unlink(path) != -1;
 }
