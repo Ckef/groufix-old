@@ -90,16 +90,14 @@ GFX_API GFXVertexLayout* gfx_mesh_get_layout(
 /**
  * Creates an automatic buffer.
  *
- * @param target Storage type the buffer is targeted for.
  * @return ID to identify the buffer (0 on failure).
  *
  */
 GFX_API GFXMeshBuffer gfx_mesh_add_buffer(
 
-		GFXMesh*         mesh,
-		GFXBufferTarget  target,
-		size_t           size,
-		const void*      data);
+		GFXMesh*     mesh,
+		size_t       size,
+		const void*  data);
 
 /**
  * Uses a vertex buffer for a given attribue of a layout.

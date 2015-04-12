@@ -430,10 +430,9 @@ GFXVertexLayout* gfx_mesh_get_layout(
 /******************************************************/
 GFXMeshBuffer gfx_mesh_add_buffer(
 
-		GFXMesh*         mesh,
-		GFXBufferTarget  target,
-		size_t           size,
-		const void*      data)
+		GFXMesh*     mesh,
+		size_t       size,
+		const void*  data)
 {
 	/* Overflow */
 	GFX_Mesh* internal = (GFX_Mesh*)mesh;
@@ -458,7 +457,7 @@ GFXMeshBuffer gfx_mesh_add_buffer(
 	if(it == internal->buffers.end) return 0;
 
 	/* Create new shared buffer */
-	if(!gfx_shared_buffer_init(it, target, size, data))
+	if(!gfx_shared_buffer_init(it, size, data))
 	{
 		gfx_vector_erase(&internal->buffers, it);
 		return 0;

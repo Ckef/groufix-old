@@ -34,8 +34,6 @@ typedef struct GFX_SharedBuffer
 {
 	GFX_RenderObjectID  id;
 	GLuint              handle;   /* OpenGL handle */
-
-	GFXBufferTarget     target;
 	size_t              size;     /* In bytes */
 	GFXVector           segments; /* Taken segments of the buffer */
 
@@ -88,8 +86,7 @@ static GFX_RenderObjectFuncs _gfx_shared_buffer_obj_funcs =
 /******************************************************/
 static GFXVectorIterator _gfx_shared_buffer_create(
 
-		GFXBufferTarget  target,
-		size_t           minSize,
+		size_t minSize,
 		GFX_WIND_ARG)
 {
 	/* Create a new shared buffer */
@@ -131,14 +128,10 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 	}
 
 	/* Initialize buffer */
-	buff->target = target;
 	buff->size = (_gfx_shared_buffer_size < minSize) ?
 		minSize : _gfx_shared_buffer_size;
 
 	GFX_REND_GET.CreateBuffers(1, &buff->handle);
-	if(!GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
-		GFX_REND_GET.BindBuffer(target, buff->handle);
-
 	GFX_REND_GET.NamedBufferData(buff->handle, buff->size, NULL, GL_STATIC_DRAW);
 
 	gfx_vector_init(&buff->segments, sizeof(GFX_Segment));
@@ -294,7 +287,6 @@ void gfx_shared_buffer_request_size(
 int gfx_shared_buffer_init(
 
 		GFXSharedBuffer*  buffer,
-		GFXBufferTarget   target,
 		size_t            size,
 		const void*       data)
 {
@@ -316,11 +308,10 @@ int gfx_shared_buffer_init(
 		it != _gfx_shared_buffers->end;
 		it = gfx_vector_next(_gfx_shared_buffers, it))
 	{
-		/* Validate buffer and try to insert */
+		/* Try to insert */
 		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
-		if(buff->target != target) continue;
-
 		size_t offset;
+
 		if(_gfx_shared_buffer_insert_segment(buff, size, &offset))
 		{
 			buffer->reference = buff;
@@ -337,7 +328,7 @@ int gfx_shared_buffer_init(
 	}
 
 	/* Create new shared buffer */
-	it = _gfx_shared_buffer_create(target, size, GFX_WIND_AS_ARG);
+	it = _gfx_shared_buffer_create(size, GFX_WIND_AS_ARG);
 
 	if(it)
 	{

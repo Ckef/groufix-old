@@ -378,6 +378,31 @@ static void _gfx_bucket_fix_units(
 }
 
 /******************************************************/
+static void _gfx_bucket_preprocess(
+
+		GFX_Bucket* bucket)
+{
+	/* Process all units */
+	if(bucket->flags & GFX_INT_BUCKET_PROCESS_UNITS)
+		_gfx_bucket_process_units(bucket);
+
+	/* Sort all units */
+	if(bucket->flags & GFX_INT_BUCKET_SORT)
+		_gfx_bucket_sort_units(
+			bucket,
+			(GFXUnitState)1 << (bucket->bucket.bits - 1),
+			0,
+			gfx_vector_get_index(&bucket->units, bucket->visible)
+		);
+
+	/* Fix all unit references */
+	if(bucket->flags)
+		_gfx_bucket_fix_units(bucket);
+
+	bucket->flags = 0;
+}
+
+/******************************************************/
 GFXBucket* _gfx_bucket_create(
 
 		unsigned char   bits,
@@ -440,31 +465,6 @@ void _gfx_bucket_free(
 
 		free(bucket);
 	}
-}
-
-/******************************************************/
-static void _gfx_bucket_preprocess(
-
-		GFX_Bucket* bucket)
-{
-	/* Process all units */
-	if(bucket->flags & GFX_INT_BUCKET_PROCESS_UNITS)
-		_gfx_bucket_process_units(bucket);
-
-	/* Sort all units */
-	if(bucket->flags & GFX_INT_BUCKET_SORT)
-		_gfx_bucket_sort_units(
-			bucket,
-			(GFXUnitState)1 << (bucket->bucket.bits - 1),
-			0,
-			gfx_vector_get_index(&bucket->units, bucket->visible)
-		);
-
-	/* Fix all unit references */
-	if(bucket->flags)
-		_gfx_bucket_fix_units(bucket);
-
-	bucket->flags = 0;
 }
 
 /******************************************************/

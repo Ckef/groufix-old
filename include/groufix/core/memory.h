@@ -100,26 +100,12 @@ typedef enum GFXBufferUsage
 } GFXBufferUsage;
 
 
-/** Buffer target */
-typedef enum GFXBufferTarget
-{
-	GFX_FEEDBACK_BUFFER  = 0x8c8e,
-	GFX_INDEX_BUFFER     = 0x8893,
-	GFX_PROPERTY_BUFFER  = 0x8a11,
-	GFX_TEXTURE_BUFFER   = 0x8c2a, /* Requires GFX_EXT_BUFFER_TEXTURE */
-	GFX_VERTEX_BUFFER    = 0x8892
-
-} GFXBufferTarget;
-
-
 /** Buffer */
 typedef struct GFXBuffer
 {
-	size_t           size;   /* Size of the buffer in bytes */
-	unsigned char    multi;  /* Number of extra buffers (0 = regular buffering) */
-
-	GFXBufferUsage   usage;  /* Intended usage of the buffer */
-	GFXBufferTarget  target; /* Storage type the buffer is targeted for */
+	GFXBufferUsage  usage;  /* Intended usage of the buffer */
+	size_t          size;   /* Size of the buffer in bytes */
+	unsigned char   multi;  /* Number of extra buffers (0 = regular buffering) */
 
 } GFXBuffer;
 
@@ -127,10 +113,9 @@ typedef struct GFXBuffer
 /**
  * Creates a new buffer.
  *
- * @param usage    Usage bitflag, how the buffer is intended to be used.
- * @param target   Storage type the buffer is targeted for.
- * @param size     Size of each individual backbuffer.
- * @param multi    Number of extra backbuffers to allocate (> 0 for multi buffering, 0 for regular buffering).
+ * @param usage Usage bitflag, how the buffer is intended to be used.
+ * @param size  Size of each individual backbuffer.
+ * @param multi Number of extra backbuffers to allocate (> 0 for multi buffering, 0 for regular buffering).
  * @return NULL on failure.
  *
  * Note: if data is not NULL, this data is NOT copied to any extra buffers.
@@ -138,17 +123,15 @@ typedef struct GFXBuffer
  */
 GFX_API GFXBuffer* gfx_buffer_create(
 
-		GFXBufferUsage   usage,
-		GFXBufferTarget  target,
-		size_t           size,
-		const void*      data,
-		unsigned char    multi);
+		GFXBufferUsage  usage,
+		size_t          size,
+		const void*     data,
+		unsigned char   multi);
 
 /**
  * Creates a copy of a buffer.
  *
- * @param usage  Usage bitflag, how the buffer is intended to be used.
- * @param target Storage type the buffer is targeted for.
+ * @param usage Usage bitflag, how the buffer is intended to be used.
  * @return Non-zero on success.
  *
  * Note: only copies the current backbuffer when multi buffering.
@@ -157,8 +140,7 @@ GFX_API GFXBuffer* gfx_buffer_create(
 GFX_API GFXBuffer* gfx_buffer_create_copy(
 
 		const GFXBuffer*  src,
-		GFXBufferUsage    usage,
-		GFXBufferTarget   target);
+		GFXBufferUsage    usage);
 
 /**
  * Makes sure the buffer is freed properly.
@@ -282,14 +264,12 @@ GFX_API void gfx_shared_buffer_request_size(
 /**
  * Initializes a shared buffer.
  *
- * @param target Storage type the buffer is targeted for.
  * @return Non-zero on success (it will not touch buffer on failure).
  *
  */
 GFX_API int gfx_shared_buffer_init(
 
 		GFXSharedBuffer*  buffer,
-		GFXBufferTarget   target,
 		size_t            size,
 		const void*       data);
 

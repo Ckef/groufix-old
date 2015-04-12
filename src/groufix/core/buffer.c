@@ -34,32 +34,6 @@ typedef struct GFX_Buffer
 
 
 /******************************************************/
-static int _gfx_buffer_eval_target(
-
-		GFXBufferTarget target,
-		GFX_WIND_ARG)
-{
-	switch(target)
-	{
-		/* GFX_EXT_BUFFER_TEXTURE */
-		case GFX_TEXTURE_BUFFER :
-
-			if(!GFX_WIND_GET.ext[GFX_EXT_BUFFER_TEXTURE])
-			{
-				gfx_errors_push(
-					GFX_ERROR_INCOMPATIBLE_CONTEXT,
-					"GFX_EXT_BUFFER_TEXTURE is incompatible with this context."
-				);
-				return 0;
-			}
-			return 1;
-
-		/* Everything else */
-		default : return 1;
-	}
-}
-
-/******************************************************/
 static inline GLenum _gfx_buffer_get_usage(
 
 		GFXBufferUsage usage)
@@ -100,14 +74,6 @@ static void _gfx_buffer_alloc_buffers(
 	unsigned char i;
 	for(i = 0; i < num; ++i)
 	{
-		if(!GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
-		{
-			/* Bind just so to hint the buffer type */
-			GFX_REND_GET.BindBuffer(
-				buffer->buffer.target,
-				*(GLuint*)it);
-		}
-
 		/* Only write data to the first buffer */
 		GFX_REND_GET.NamedBufferData(
 			*(GLuint*)it,
@@ -183,17 +149,12 @@ GLuint _gfx_buffer_get_handle(
 /******************************************************/
 GFXBuffer* gfx_buffer_create(
 
-		GFXBufferUsage   usage,
-		GFXBufferTarget  target,
-		size_t           size,
-		const void*      data,
-		unsigned char    multi)
+		GFXBufferUsage  usage,
+		size_t          size,
+		const void*     data,
+		unsigned char   multi)
 {
 	GFX_WIND_INIT(NULL);
-
-	/* Validate target */
-	if(!_gfx_buffer_eval_target(target, GFX_WIND_AS_ARG))
-		return NULL;
 
 	/* Create new buffer */
 	GFX_Buffer* buffer = calloc(1, sizeof(GFX_Buffer));
@@ -224,9 +185,8 @@ GFXBuffer* gfx_buffer_create(
 	if(!(usage & (GFX_BUFFER_STREAM | GFX_BUFFER_DYNAMIC)) && multi)
 		usage |= GFX_BUFFER_DYNAMIC;
 
-	buffer->buffer.size   = size;
 	buffer->buffer.usage  = usage;
-	buffer->buffer.target = target;
+	buffer->buffer.size   = size;
 	buffer->buffer.multi  = multi;
 
 	/* Increment multi, as we need a front buffer too! */
@@ -260,8 +220,7 @@ GFXBuffer* gfx_buffer_create(
 GFXBuffer* gfx_buffer_create_copy(
 
 		const GFXBuffer*  src,
-		GFXBufferUsage    usage,
-		GFXBufferTarget   target)
+		GFXBufferUsage    usage)
 {
 	/* Map buffer to copy data and create */
 	void* data = gfx_buffer_map(src, src->size, 0, GFX_BUFFER_READ);
@@ -269,7 +228,6 @@ GFXBuffer* gfx_buffer_create_copy(
 
 	GFXBuffer* buffer = gfx_buffer_create(
 		usage,
-		target,
 		src->size,
 		data,
 		src->multi
