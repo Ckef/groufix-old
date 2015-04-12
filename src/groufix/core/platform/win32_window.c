@@ -579,6 +579,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	rect.right += rect.left;
 	rect.bottom += rect.top;
+
+	/* Make sure the client area is the specified size */
 	AdjustWindowRectEx(&rect, style, FALSE, styleEx);
 
 	/* Convert name to UTF-16 */
@@ -714,9 +716,9 @@ void _gfx_platform_window_get_size(
 	RECT rect;
 	ZeroMemory(&rect, sizeof(RECT));
 
-	GetWindowRect(handle, &rect);
-	*width = rect.right - rect.left;
-	*height = rect.bottom - rect.top;
+	GetClientRect(handle, &rect);
+	*width = rect.right;
+	*height = rect.bottom;
 }
 
 /******************************************************/
@@ -736,12 +738,13 @@ void _gfx_platform_window_get_position(
 		*y = screen->y;
 	}
 
-	RECT rect;
-	ZeroMemory(&rect, sizeof(RECT));
+	POINT point;
+	point.x = 0;
+	point.y = 0;
+	MapWindowPoints(handle, GetParent(handle), &point, 1);
 
-	GetWindowRect(handle, &rect);
-	*x = rect.left - *x;
-	*y = rect.top - *y;
+	*x = point.x - *x;
+	*y = point.y - *y;
 }
 
 /******************************************************/
@@ -767,14 +770,29 @@ void _gfx_platform_window_set_size(
 		unsigned int        height)
 {
 	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
-	if(it && !(it->flags & GFX_WIN32_FULLSCREEN)) SetWindowPos(
-		handle,
-		NULL,
-		0, 0,
-		width,
-		height,
-		SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOZORDER
-	);
+	if(it && !(it->flags & GFX_WIN32_FULLSCREEN))
+	{
+		RECT rect;
+		rect.left   = 0;
+		rect.right  = width;
+		rect.top    = 0;
+		rect.bottom = height;
+
+		/* Make sure the client area is the specified size */
+		AdjustWindowRectEx(
+			&rect,
+			GetWindowLong(handle, GWL_STYLE),
+			FALSE,
+			GetWindowLong(handle, GWL_EXSTYLE));
+
+		SetWindowPos(
+			handle,
+			NULL,
+			0, 0,
+			rect.right - rect.left,
+			rect.bottom - rect.top,
+			SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOZORDER);
+	}
 }
 
 /******************************************************/
@@ -798,11 +816,24 @@ void _gfx_platform_window_set_position(
 			yM = it->screen->y;
 		}
 
+		RECT rect;
+		rect.left   = x + xM;
+		rect.right  = rect.left;
+		rect.top    = y + yM;
+		rect.bottom = rect.top;
+
+		/* Make sure the client area is the specified size */
+		AdjustWindowRectEx(
+			&rect,
+			GetWindowLong(handle, GWL_STYLE),
+			FALSE,
+			GetWindowLong(handle, GWL_EXSTYLE));
+
 		SetWindowPos(
 			handle,
 			NULL,
-			x + xM,
-			y + yM,
+			rect.left,
+			rect.top,
 			0, 0,
 			SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOZORDER);
 	}
