@@ -94,9 +94,11 @@ typedef enum GFX_Win32_Flags
 /** Win32 Screen */
 typedef struct GFX_Win32_Screen
 {
-	TCHAR  name[32];
-	int    width;  /* Actual width, not virtual */
-	int    height; /* Actual height, not virtual */
+	TCHAR         name[32]; /* Name of the adapter */
+	int           x;
+	int           y;
+	unsigned int  width;
+	unsigned int  height;
 
 } GFX_Win32_Screen;
 

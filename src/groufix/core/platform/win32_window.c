@@ -52,28 +52,6 @@ static void _gfx_win32_leave_fullscreen(
 }
 
 /******************************************************/
-static void _gfx_win32_get_screen_position(
-
-		GFX_Win32_Screen*  screen,
-		int*               x,
-		int*               y)
-{
-	DEVMODE mode;
-	ZeroMemory(&mode, sizeof(DEVMODE));
-	mode.dmSize = sizeof(DEVMODE);
-
-	EnumDisplaySettingsEx(
-		screen->name,
-		ENUM_CURRENT_SETTINGS,
-		&mode,
-		EDS_ROTATEMODE
-	);
-
-	*x = mode.dmPosition.x;
-	*y = mode.dmPosition.y;
-}
-
-/******************************************************/
 static void _gfx_win32_track_mouse(
 
 		HWND handle)
@@ -159,7 +137,11 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			GFX_Win32_Screen* screen =
 				_gfx_platform_window_get_screen(window);
 
-			if(screen) _gfx_win32_get_screen_position(screen, &xS, &yS);
+			if(screen)
+			{
+				xS = screen->x;
+				yS = screen->y;
+			}
 
 			int x = (int)(short)LOWORD(lParam);
 			int y = (int)(short)HIWORD(lParam);
@@ -533,10 +515,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	window.context = NULL;
 	window.flags   = 0;
 
-	/* Get screen position */
-	int xS = 0;
-	int yS = 0;
-	_gfx_win32_get_screen_position(attributes->screen, &xS, &yS);
+	GFX_Win32_Screen* screen = attributes->screen;
 
 	/* Style and window rectangle */
 	DWORD styleEx =
@@ -565,8 +544,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		styleEx |= WS_EX_TOPMOST;
 		style = WS_POPUP | WS_VISIBLE;
 
-		rect.left = xS;
-		rect.top = yS;
+		rect.left = screen->x;
+		rect.top = screen->y;
 	}
 	else
 	{
@@ -594,8 +573,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		}
 
 		/* Rectangle */
-		rect.left = xS + attributes->x;
-		rect.top = yS + attributes->y;
+		rect.left = screen->x + attributes->x;
+		rect.top = screen->y + attributes->y;
 	}
 
 	rect.right += rect.left;
@@ -748,8 +727,14 @@ void _gfx_platform_window_get_position(
 		int*                y)
 {
 	/* Get window's screen position */
-	GFX_Win32_Screen* screen = _gfx_platform_window_get_screen(handle);
-	if(screen) _gfx_win32_get_screen_position(screen, x, y);
+	GFX_Win32_Screen* screen =
+		_gfx_platform_window_get_screen(handle);
+
+	if(screen)
+	{
+		*x = screen->x;
+		*y = screen->y;
+	}
 
 	RECT rect;
 	ZeroMemory(&rect, sizeof(RECT));
@@ -807,10 +792,11 @@ void _gfx_platform_window_set_position(
 		int xM = 0;
 		int yM = 0;
 
-		if(it->screen) _gfx_win32_get_screen_position(
-			it->screen,
-			&xM,
-			&yM);
+		if(it->screen)
+		{
+			xM = it->screen->x;
+			yM = it->screen->y;
+		}
 
 		SetWindowPos(
 			handle,

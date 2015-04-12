@@ -294,25 +294,25 @@ int _gfx_platform_init(void)
 				continue;
 			}
 
-			/* Get display device (screen) */
-			DISPLAY_DEVICE display;
-			ZeroMemory(&display, sizeof(DISPLAY_DEVICE));
-			display.cb = sizeof(DISPLAY_DEVICE);
-
-			EnumDisplayDevices(adapter.DeviceName, 0, &display, 0);
-
 			/* Create new screen */
 			GFX_Win32_Screen screen;
 			memcpy(screen.name, adapter.DeviceName, sizeof(screen.name));
 
-			HDC dc =
-				CreateDC(L"DISPLAY", display.DeviceString, NULL, NULL);
-			screen.width =
-				GetDeviceCaps(dc, HORZRES);
-			screen.height =
-				GetDeviceCaps(dc, VERTRES);
+			DEVMODE mode;
+			ZeroMemory(&mode, sizeof(DEVMODE));
+			mode.dmSize = sizeof(DEVMODE);
 
-			DeleteDC(dc);
+			EnumDisplaySettingsEx(
+				adapter.DeviceName,
+				ENUM_CURRENT_SETTINGS,
+				&mode,
+				EDS_ROTATEMODE
+			);
+
+			screen.x      = mode.dmPosition.x;
+			screen.y      = mode.dmPosition.y;
+			screen.width  = mode.dmPelsWidth;
+			screen.height = mode.dmPelsHeight;
 
 			/* Insert at beginning if primary */
 			GFXVectorIterator scrPos =
