@@ -486,26 +486,18 @@ static void _gfx_layout_set_index_buffer(
 		GLuint            buffer,
 		size_t            offset)
 {
+	GFX_WIND_INIT();
+
 	GFX_Layout* internal = (GFX_Layout*)layout;
 
-	if(buffer)
-	{
-		GFX_WIND_INIT();
+	internal->indexBuffer = buffer;
+	internal->indexOffset = buffer ? offset : 0;
 
-		internal->indexBuffer = buffer;
-		internal->indexOffset = offset;
-
-		/* Attach as index buffer to the layout */
-		GFX_REND_GET.VertexArrayElementBuffer(
-			internal->vao,
-			buffer
-		);
-	}
-	else
-	{
-		internal->indexBuffer = 0;
-		internal->indexOffset = 0;
-	}
+	/* Attach as index buffer to the layout */
+	GFX_REND_GET.VertexArrayElementBuffer(
+		internal->vao,
+		buffer
+	);
 }
 
 /******************************************************/
