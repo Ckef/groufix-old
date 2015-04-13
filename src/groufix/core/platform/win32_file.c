@@ -13,6 +13,29 @@
  */
 
 #include "groufix/core/file.h"
+#include "groufix/core/platform/win32.h"
+
+#include <string.h>
+
+/******************************************************/
+static WCHAR* _gfx_win32_get_path(
+
+		const char* path)
+{
+	/* Replace '/' with '\' */
+	size_t len = strlen(path) + 1;
+
+	char* repl = malloc(len * sizeof(char));
+	if(!repl) return NULL;
+
+	while(len--) repl[len] = path[len] == '/' ? '\\' : path[len];
+
+	/* Get wide char path */
+	WCHAR* wide = _gfx_win32_utf8_to_utf16(repl);
+	free(repl);
+
+	return wide;
+}
 
 /******************************************************/
 int _gfx_platform_file_open(
@@ -21,7 +44,50 @@ int _gfx_platform_file_open(
 		const char*        path,
 		GFXResourceFlags   flags)
 {
-	return 0;
+	/* Validate access method */
+	DWORD access =
+		(flags & GFX_RESOURCE_READ ? GENERIC_READ : 0) |
+		(flags & GFX_RESOURCE_WRITE ? GENERIC_WRITE : 0);
+
+	DWORD share =
+		!(flags & GFX_RESOURCE_WRITE) ? FILE_SHARE_READ : 0;
+
+	DWORD creation =
+		flags & GFX_RESOURCE_CREATE ?
+		(flags & GFX_RESOURCE_EXIST ? CREATE_NEW :
+		(flags & GFX_RESOURCE_TRUNCATE ? CREATE_ALWAYS : OPEN_ALWAYS)) :
+		(flags & GFX_RESOURCE_EXIST ? 0 :
+		(flags & GFX_RESOURCE_TRUNCATE ? TRUNCATE_EXISTING : OPEN_EXISTING));
+
+	if(
+		!access || !creation ||
+		((flags & GFX_RESOURCE_TRUNCATE) && !(flags & GFX_RESOURCE_WRITE)))
+	{
+		return 0;
+	}
+
+	/* Get path string to use */
+	WCHAR* wpath = _gfx_win32_get_path(path);
+	if(!wpath) return 0;
+
+	/* Create file */
+	*file = CreateFile(
+		wpath,
+		access,
+		share,
+		NULL,
+		creation,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+
+	free(wpath);
+
+	/* Move file pointer if appending */
+	if(flags & GFX_RESOURCE_APPEND)
+		SetFilePointer(*file, 0, NULL, FILE_END);
+
+	return *file != INVALID_HANDLE_VALUE;
 }
 
 /******************************************************/
@@ -30,7 +96,23 @@ int _gfx_platform_file_move(
 		const char*  oldPath,
 		const char*  newPath)
 {
-	return 0;
+	/* Get paths string to use */
+	WCHAR* wold = _gfx_win32_get_path(oldPath);
+	WCHAR* wnew = _gfx_win32_get_path(newPath);
+
+	if(!wold || !wnew)
+	{
+		free(wold);
+		free(wnew);
+		return 0;
+	}
+
+	BOOL ret = MoveFileEx(wold, wnew, MOVEFILE_REPLACE_EXISTING);
+
+	free(wold);
+	free(wnew);
+
+	return ret != 0;
 }
 
 /******************************************************/
@@ -38,5 +120,12 @@ int _gfx_platform_file_remove(
 
 		const char* path)
 {
-	return 0;
+	/* Get path string to use */
+	WCHAR* wpath = _gfx_win32_get_path(path);
+	if(!wpath) return 0;
+
+	BOOL ret = DeleteFile(wpath);
+	free(wpath);
+
+	return ret != 0;
 }

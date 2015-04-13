@@ -147,7 +147,11 @@ static GFX_ALWAYS_INLINE intptr_t _gfx_platform_file_seek(
 {
 #if defined(GFX_WIN32)
 
-	return -1;
+	LARGE_INTEGER val;
+	val.QuadPart = offset;
+
+	BOOL ret = SetFilePointerEx(file, val, &val, rel);
+	return ret ? val.QuadPart : -1;
 
 #elif defined(GFX_UNIX)
 
@@ -168,7 +172,11 @@ static GFX_ALWAYS_INLINE intptr_t _gfx_platform_file_tell(
 {
 #if defined(GFX_WIN32)
 
-	return -1;
+	LARGE_INTEGER val;
+	val.QuadPart = 0;
+
+	BOOL ret = SetFilePointerEx(file, val, &val, FILE_CURRENT);
+	return ret ? val.QuadPart : -1;
 
 #elif defined(GFX_UNIX)
 
@@ -195,7 +203,10 @@ static GFX_ALWAYS_INLINE size_t _gfx_platform_file_read(
 {
 #if defined(GFX_WIN32)
 
-	return 0;
+	DWORD ret;
+	ReadFile(file, data, num, &ret, NULL);
+
+	return ret;
 
 #elif defined(GFX_UNIX)
 
@@ -223,7 +234,10 @@ static GFX_ALWAYS_INLINE size_t _gfx_platform_file_write(
 {
 #if defined(GFX_WIN32)
 
-	return 0;
+	DWORD ret;
+	WriteFile(file, data, num, &ret, NULL);
+
+	return ret;
 
 #elif defined(GFX_UNIX)
 
