@@ -222,20 +222,20 @@ GFXBuffer* gfx_buffer_create_copy(
 		const GFXBuffer*  src,
 		GFXBufferUsage    usage)
 {
-	/* Map buffer to copy data and create */
-	void* data = gfx_buffer_map(src, src->size, 0, GFX_BUFFER_READ);
-	if(!data) return NULL;
-
+	/* Create buffer */
 	GFXBuffer* buffer = gfx_buffer_create(
 		usage,
 		src->size,
-		data,
+		NULL,
 		src->multi
 	);
 
-	gfx_buffer_unmap(src);
+	if(!buffer) return NULL;
 
-	return buffer;
+	/* Copy data */
+	gfx_buffer_copy(buffer, src, 0, 0, src->size);
+
+	return (GFXBuffer*)buffer;
 }
 
 /******************************************************/
@@ -367,25 +367,6 @@ void gfx_buffer_swap(
 }
 
 /******************************************************/
-void gfx_buffer_write(
-
-		const GFXBuffer*  buffer,
-		size_t            size,
-		const void*       data,
-		size_t            offset)
-{
-	GFX_WIND_INIT();
-
-	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
-
-	GFX_REND_GET.NamedBufferSubData(
-		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
-		offset,
-		size,
-		data);
-}
-
-/******************************************************/
 void gfx_buffer_read(
 
 		const GFXBuffer*  buffer,
@@ -401,7 +382,58 @@ void gfx_buffer_read(
 		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
 		offset,
 		size,
-		data);
+		data
+	);
+}
+
+/******************************************************/
+void gfx_buffer_write(
+
+		const GFXBuffer*  buffer,
+		size_t            size,
+		const void*       data,
+		size_t            offset)
+{
+	GFX_WIND_INIT();
+
+	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
+
+	GFX_REND_GET.NamedBufferSubData(
+		*(GLuint*)gfx_vector_at(&internal->handles, internal->current),
+		offset,
+		size,
+		data
+	);
+}
+
+/******************************************************/
+GFX_API void gfx_buffer_copy(
+
+		const GFXBuffer*  dest,
+		const GFXBuffer*  src,
+		size_t            srcOffset,
+		size_t            destOffset,
+		size_t            size)
+{
+	GFX_WIND_INIT();
+
+	const GFX_Buffer* intDest = (const GFX_Buffer*)dest;
+	const GFX_Buffer* intSrc = (const GFX_Buffer*)src;
+
+	/* Clip range */
+	size = (destOffset + size > dest->size) ?
+		dest->size - destOffset : size;
+	size = (srcOffset + size > src->size) ?
+		src->size - srcOffset : size;
+
+	/* Copy data */
+	GFX_REND_GET.CopyNamedBufferSubData(
+		*(GLuint*)gfx_vector_at(&intSrc->handles, intSrc->current),
+		*(GLuint*)gfx_vector_at(&intDest->handles, intDest->current),
+		srcOffset,
+		destOffset,
+		size
+	);
 }
 
 /******************************************************/

@@ -183,6 +183,21 @@ GFX_API void gfx_buffer_swap(
 		GFXBuffer* buffer);
 
 /**
+ * Reads data from the current backbuffer synchronously.
+ *
+ * @param size   Size of the data to read, in bytes.
+ * @param data   Pointer to write to, cannot be NULL.
+ * @param offset Byte offset in the buffer to begin reading at.
+ *
+ */
+GFX_API void gfx_buffer_read(
+
+		const GFXBuffer*  buffer,
+		size_t            size,
+		void*             data,
+		size_t            offset);
+
+/**
  * Writes data to the current backbuffer synchronously.
  *
  * @param size   Size of the data to write, in bytes.
@@ -198,19 +213,25 @@ GFX_API void gfx_buffer_write(
 		size_t            offset);
 
 /**
- * Reads data from the current backbuffer synchronously.
+ * Copies the content of one buffer's current backbuffer to another.
  *
- * @param size   Size of the data to read, in bytes.
- * @param data   Pointer to write to, cannot be NULL.
- * @param offset Byte offset in the buffer to begin reading at.
+ * @param dest       Buffer to write to.
+ * @param src        Buffer to read from.
+ * @param srcOffset  Byte offset within src to start reading.
+ * @param destOffset Byte offset within dest to start writing.
+ * @param size       Size of the data to be copied, in bytes.
+ *
+ * Note: If src and dest are equal and the ranges overlap, undefined behaviour is expected.
+ * The size is clipped to the size of the buffers (offsets included).
  *
  */
-GFX_API void gfx_buffer_read(
+GFX_API void gfx_buffer_copy(
 
-		const GFXBuffer*  buffer,
-		size_t            size,
-		void*             data,
-		size_t            offset);
+		const GFXBuffer*  dest,
+		const GFXBuffer*  src,
+		size_t            srcOffset,
+		size_t            destOffset,
+		size_t            size);
 
 /**
  * Maps the current backbuffer and returns a pointer to the mapped data.
