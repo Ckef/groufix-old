@@ -152,7 +152,6 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.EndTransformFeedback              = glEndTransformFeedback;
 	GFX_REND_GET.Flush                             = glFlush;
 	GFX_REND_GET.FramebufferTexture                = _gfx_gles_framebuffer_texture;
-	GFX_REND_GET.FramebufferTexture1D              = _gfx_gles_framebuffer_texture_1d;
 	GFX_REND_GET.FramebufferTexture2D              = glFramebufferTexture2D;
 	GFX_REND_GET.FramebufferTextureLayer           = glFramebufferTextureLayer;
 	GFX_REND_GET.GenBuffers                        = glGenBuffers;
@@ -186,7 +185,6 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.NamedBufferSubData                = _gfx_gl_named_buffer_sub_data;
 	GFX_REND_GET.NamedFramebufferDrawBuffers       = _gfx_gl_named_framebuffer_draw_buffers;
 	GFX_REND_GET.NamedFramebufferTexture           = _gfx_gl_named_framebuffer_texture;
-	GFX_REND_GET.NamedFramebufferTexture1D         = _gfx_gles_named_framebuffer_texture_1d;
 	GFX_REND_GET.NamedFramebufferTexture2D         = _gfx_gles_named_framebuffer_texture_2d;
 	GFX_REND_GET.NamedFramebufferTextureLayer      = _gfx_gl_named_framebuffer_texture_layer;
 	GFX_REND_GET.PatchParameteri                   = _gfx_gl_patch_parameter_i;
@@ -215,30 +213,25 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.StencilFuncSeparate               = glStencilFuncSeparate;
 	GFX_REND_GET.StencilOpSeparate                 = glStencilOpSeparate;
 	GFX_REND_GET.TexBuffer                         = _gfx_gles_tex_buffer;
-	GFX_REND_GET.TexImage1D                        = _gfx_gles_tex_image_1d;
 	GFX_REND_GET.TexImage2D                        = glTexImage2D;
 	GFX_REND_GET.TexImage2DMultisample             = _gfx_gles_tex_image_2d_multisample;
 	GFX_REND_GET.TexImage3D                        = glTexImage3D;
 	GFX_REND_GET.TexImage3DMultisample             = _gfx_gles_tex_image_3d_multisample;
 	GFX_REND_GET.TexParameterf                     = glTexParameterf;
 	GFX_REND_GET.TexParameteri                     = glTexParameteri;
-	GFX_REND_GET.TexStorage1D                      = _gfx_gles_tex_storage_1d;
 	GFX_REND_GET.TexStorage2D                      = glTexStorage2D;
 	GFX_REND_GET.TexStorage2DMultisample           = _gfx_gles_tex_storage_2d_multisample;
 	GFX_REND_GET.TexStorage3D                      = glTexStorage3D;
 	GFX_REND_GET.TexStorage3DMultisample           = _gfx_gles_tex_storage_3d_multisample;
-	GFX_REND_GET.TexSubImage1D                     = _gfx_gles_tex_sub_image_1d;
 	GFX_REND_GET.TexSubImage2D                     = glTexSubImage2D;
 	GFX_REND_GET.TexSubImage3D                     = glTexSubImage3D;
 	GFX_REND_GET.TextureBuffer                     = _gfx_gl_texture_buffer;
 	GFX_REND_GET.TextureParameterf                 = _gfx_gl_texture_parameter_f;
 	GFX_REND_GET.TextureParameteri                 = _gfx_gl_texture_parameter_i;
-	GFX_REND_GET.TextureStorage1D                  = _gfx_gl_texture_storage_1d;
 	GFX_REND_GET.TextureStorage2D                  = _gfx_gl_texture_storage_2d;
 	GFX_REND_GET.TextureStorage2DMultisample       = _gfx_gl_texture_storage_2d_multisample;
 	GFX_REND_GET.TextureStorage3D                  = _gfx_gl_texture_storage_3d;
 	GFX_REND_GET.TextureStorage3DMultisample       = _gfx_gl_texture_storage_3d_multisample;
-	GFX_REND_GET.TextureSubImage1D                 = _gfx_gl_texture_sub_image_1d;
 	GFX_REND_GET.TextureSubImage2D                 = _gfx_gl_texture_sub_image_2d;
 	GFX_REND_GET.TextureSubImage3D                 = _gfx_gl_texture_sub_image_3d;
 	GFX_REND_GET.TransformFeedbackVaryings         = glTransformFeedbackVaryings;
@@ -436,7 +429,6 @@ void _gfx_renderer_load(void)
 	GFX_WIND_GET.ext[GFX_EXT_MULTISAMPLE_TEXTURE]         = 1;
 	GFX_WIND_GET.ext[GFX_EXT_POLYGON_STATE]               = 1;
 	GFX_WIND_GET.ext[GFX_EXT_SEAMLESS_CUBEMAP]            = 1;
-	GFX_WIND_GET.ext[GFX_EXT_TEXTURE_1D]                  = 1;
 
 	/* Core, assumes 3.2+.version */
 	GFX_REND_GET.ActiveTexture =
@@ -553,8 +545,6 @@ void _gfx_renderer_load(void)
 		(PFNGLFLUSHPROC)glFlush;
 	GFX_REND_GET.FramebufferTexture =
 		(PFNGLFRAMEBUFFERTEXTUREPROC)_gfx_platform_get_proc_address("glFramebufferTexture");
-	GFX_REND_GET.FramebufferTexture1D =
-		(PFNGLFRAMEBUFFERTEXTURE1DPROC)_gfx_platform_get_proc_address("glFramebufferTexture1D");
 	GFX_REND_GET.FramebufferTexture2D =
 		(PFNGLFRAMEBUFFERTEXTURE2DPROC)_gfx_platform_get_proc_address("glFramebufferTexture2D");
 	GFX_REND_GET.FramebufferTextureLayer =
@@ -621,8 +611,6 @@ void _gfx_renderer_load(void)
 		(PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC)_gfx_gl_named_framebuffer_draw_buffers;
 	GFX_REND_GET.NamedFramebufferTexture =
 		(PFNGLNAMEDFRAMEBUFFERTEXTUREPROC)_gfx_gl_named_framebuffer_texture;
-	GFX_REND_GET.NamedFramebufferTexture1D =
-		(GFX_NAMEDFRAMEBUFFERTEXTURE1DPROC)_gfx_gl_named_framebuffer_texture_1d;
 	GFX_REND_GET.NamedFramebufferTexture2D =
 		(GFX_NAMEDFRAMEBUFFERTEXTURE2DPROC)_gfx_gl_named_framebuffer_texture_2d;
 	GFX_REND_GET.NamedFramebufferTextureLayer =
@@ -679,8 +667,6 @@ void _gfx_renderer_load(void)
 		(PFNGLSTENCILOPSEPARATEPROC)_gfx_platform_get_proc_address("glStencilOpSeparate");
 	GFX_REND_GET.TexBuffer =
 		(PFNGLTEXBUFFERPROC)_gfx_platform_get_proc_address("glTexBuffer");
-	GFX_REND_GET.TexImage1D =
-		(PFNGLTEXIMAGE1DPROC)glTexImage1D;
 	GFX_REND_GET.TexImage2D =
 		(PFNGLTEXIMAGE2DPROC)glTexImage2D;
 	GFX_REND_GET.TexImage2DMultisample =
@@ -693,8 +679,6 @@ void _gfx_renderer_load(void)
 		(PFNGLTEXPARAMETERFPROC)glTexParameterf;
 	GFX_REND_GET.TexParameteri =
 		(PFNGLTEXPARAMETERIPROC)glTexParameteri;
-	GFX_REND_GET.TexStorage1D =
-		(PFNGLTEXSTORAGE1DPROC)_gfx_gl_tex_storage_1d;
 	GFX_REND_GET.TexStorage2D =
 		(PFNGLTEXSTORAGE2DPROC)_gfx_gl_tex_storage_2d;
 	GFX_REND_GET.TexStorage2DMultisample =
@@ -703,8 +687,6 @@ void _gfx_renderer_load(void)
 		(PFNGLTEXSTORAGE3DPROC)_gfx_gl_tex_storage_3d;
 	GFX_REND_GET.TexStorage3DMultisample =
 		(PFNGLTEXSTORAGE3DMULTISAMPLEPROC)_gfx_gl_tex_storage_3d_multisample;
-	GFX_REND_GET.TexSubImage1D =
-		(PFNGLTEXSUBIMAGE1DPROC)glTexSubImage1D;
 	GFX_REND_GET.TexSubImage2D =
 		(PFNGLTEXSUBIMAGE2DPROC)glTexSubImage2D;
 	GFX_REND_GET.TexSubImage3D =
@@ -715,8 +697,6 @@ void _gfx_renderer_load(void)
 		(PFNGLTEXTUREPARAMETERFPROC)_gfx_gl_texture_parameter_f;
 	GFX_REND_GET.TextureParameteri =
 		(PFNGLTEXTUREPARAMETERIPROC)_gfx_gl_texture_parameter_i;
-	GFX_REND_GET.TextureStorage1D =
-		(PFNGLTEXTURESTORAGE1DPROC)_gfx_gl_texture_storage_1d;
 	GFX_REND_GET.TextureStorage2D =
 		(PFNGLTEXTURESTORAGE2DPROC)_gfx_gl_texture_storage_2d;
 	GFX_REND_GET.TextureStorage2DMultisample =
@@ -725,8 +705,6 @@ void _gfx_renderer_load(void)
 		(PFNGLTEXTURESTORAGE3DPROC)_gfx_gl_texture_storage_3d;
 	GFX_REND_GET.TextureStorage3DMultisample =
 		(PFNGLTEXTURESTORAGE3DMULTISAMPLEPROC)_gfx_gl_texture_storage_3d_multisample;
-	GFX_REND_GET.TextureSubImage1D =
-		(PFNGLTEXTURESUBIMAGE1DPROC)_gfx_gl_texture_sub_image_1d;
 	GFX_REND_GET.TextureSubImage2D =
 		(PFNGLTEXTURESUBIMAGE2DPROC)_gfx_gl_texture_sub_image_2d;
 	GFX_REND_GET.TextureSubImage3D =
@@ -860,8 +838,6 @@ void _gfx_renderer_load(void)
 			(PFNGLTEXTUREPARAMETERFPROC)_gfx_platform_get_proc_address("glTextureParameterf");
 		GFX_REND_GET.TextureParameteri =
 			(PFNGLTEXTUREPARAMETERIPROC)_gfx_platform_get_proc_address("glTextureParameteri");
-		GFX_REND_GET.TextureStorage1D =
-			(PFNGLTEXTURESTORAGE1DPROC)_gfx_platform_get_proc_address("glTextureStorage1D");
 		GFX_REND_GET.TextureStorage2D =
 			(PFNGLTEXTURESTORAGE2DPROC)_gfx_platform_get_proc_address("glTextureStorage2D");
 		GFX_REND_GET.TextureStorage2DMultisample =
@@ -870,8 +846,6 @@ void _gfx_renderer_load(void)
 			(PFNGLTEXTURESTORAGE3DPROC)_gfx_platform_get_proc_address("glTextureStorage3D");
 		GFX_REND_GET.TextureStorage3DMultisample =
 			(PFNGLTEXTURESTORAGE3DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTextureStorage3DMultisample");
-		GFX_REND_GET.TextureSubImage1D =
-			(PFNGLTEXTURESUBIMAGE1DPROC)_gfx_platform_get_proc_address("glTextureSubImage1D");
 		GFX_REND_GET.TextureSubImage2D =
 			(PFNGLTEXTURESUBIMAGE2DPROC)_gfx_platform_get_proc_address("glTextureSubImage2D");
 		GFX_REND_GET.TextureSubImage3D =
@@ -900,8 +874,6 @@ void _gfx_renderer_load(void)
 	{
 		GFX_WIND_GET.ext[GFX_EXT_IMMUTABLE_TEXTURE] = 1;
 
-		GFX_REND_GET.TexStorage1D =
-			(PFNGLTEXSTORAGE1DPROC)_gfx_platform_get_proc_address("glTexStorage1D");
 		GFX_REND_GET.TexStorage2D =
 			(PFNGLTEXSTORAGE2DPROC)_gfx_platform_get_proc_address("glTexStorage2D");
 		GFX_REND_GET.TexStorage3D =

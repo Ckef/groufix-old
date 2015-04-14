@@ -557,7 +557,6 @@ GFX_API unsigned int gfx_vertex_layout_count_instanced(
 /** Texture types */
 typedef enum GFXTextureType
 {
-	GFX_TEXTURE_1D, /* requires GFX_EXT_1D_TEXTURE */
 	GFX_TEXTURE_2D,
 	GFX_TEXTURE_3D,
 	GFX_CUBEMAP,
@@ -595,10 +594,10 @@ typedef struct GFXPixelTransfer
 	unsigned char     alignment; /* Row byte alignment of client memory, can be 1, 2, 4 or 8 */
 
 	unsigned int      xOffset;
-	unsigned int      yOffset;   /* Layer offset for 1D textures */
+	unsigned int      yOffset;
 	unsigned int      zOffset;   /* Layer offset for 2D textures (including cube maps) */
 	size_t            width;
-	size_t            height;    /* Layer count for 1D textures */
+	size_t            height;
 	size_t            depth;     /* Layer count for 2D textures (face count for cube maps) */
 
 } GFXPixelTransfer;
@@ -616,7 +615,7 @@ typedef struct GFXTexture
 	unsigned char   samples; /* Number of samples for multisampled textures (1 for other textures) */
 
 	size_t          width;
-	size_t          height;  /* Layer count for 1D textures */
+	size_t          height;
 	size_t          depth;   /* Layer count for 2D textures */
 
 } GFXTexture;
@@ -637,11 +636,10 @@ typedef struct GFXTextureImage
  * Creates a new texture.
  *
  * @param mipmaps Number of mipmaps to allocate, 0 for just the base texture, < 0 to use all mipmap levels.
- * @param height  If 1D texture, acts as an array of images.
  * @param depth   If 2D texture, acts as an array of images.
  * @return NULL on failure.
  *
- * Note: layers can only be used for 1D or 2D textures, or cubemaps if GFX_EXT_LAYERED_CUBEMAP.
+ * Note: layers can only be used for 2D textures, or cubemaps if GFX_EXT_LAYERED_CUBEMAP.
  *
  */
 GFX_API GFXTexture* gfx_texture_create(
@@ -681,6 +679,7 @@ GFX_API GFXTexture* gfx_texture_create_multisample(
  * Also, a multi buffer swap will have no effect on the texture.
  *
  * Note: requires GFX_EXT_BUFFER_TEXTURE.
+ * The type of the texture will store GFX_TEXTURE_2D.
  *
  */
 GFX_API GFXTexture* gfx_texture_create_buffer_link(

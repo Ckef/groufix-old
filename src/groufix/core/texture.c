@@ -44,17 +44,8 @@ static inline unsigned char _gfx_texture_get_num_mipmaps(
 		size_t          d)
 {
 	/* Get correct dimensions */
-	switch(type)
-	{
-		case GFX_TEXTURE_1D :
-			h = 1;
-
-		case GFX_TEXTURE_2D :
-		case GFX_CUBEMAP :
-			d = 1;
-
-		default : break;
-	}
+	if(type == GFX_TEXTURE_2D || type == GFX_CUBEMAP)
+		d = 1;
 
 	/* Calculate number of mipmaps */
 	size_t max = w > h ? (w > d ? w : d) : (h > d ? h : d);
@@ -73,20 +64,6 @@ static int _gfx_texture_eval_target(
 {
 	switch(target)
 	{
-		/* GFX_EXT_TEXTURE_1D */
-		case GL_TEXTURE_1D :
-		case GL_TEXTURE_1D_ARRAY :
-
-			if(!GFX_WIND_GET.ext[GFX_EXT_TEXTURE_1D])
-			{
-				gfx_errors_push(
-					GFX_ERROR_INCOMPATIBLE_CONTEXT,
-					"GFX_EXT_TEXTURE_1D is incompatible with this context."
-				);
-				return 0;
-			}
-			return 1;
-
 		/* GFX_EXT_BUFFER_TEXTURE */
 		case GL_TEXTURE_BUFFER :
 
@@ -302,16 +279,6 @@ static void _gfx_texture_set_storage(
 	{
 		switch(tex->target)
 		{
-			case GL_TEXTURE_1D :
-				GFX_REND_GET.TextureStorage1D(
-					tex->handle,
-					tex->texture.mipmaps + 1,
-					tex->format,
-					width
-				);
-				break;
-
-			case GL_TEXTURE_1D_ARRAY :
 			case GL_TEXTURE_2D :
 			case GL_TEXTURE_CUBE_MAP :
 				GFX_REND_GET.TextureStorage2D(
@@ -375,16 +342,6 @@ static void _gfx_texture_set_storage(
 		/* Assumes it is already bound */
 		switch(tex->target)
 		{
-			case GL_TEXTURE_1D :
-				GFX_REND_GET.TexStorage1D(
-					tex->target,
-					tex->texture.mipmaps + 1,
-					tex->format,
-					width
-				);
-				break;
-
-			case GL_TEXTURE_1D_ARRAY :
 			case GL_TEXTURE_2D :
 			case GL_TEXTURE_CUBE_MAP :
 				GFX_REND_GET.TexStorage2D(
@@ -477,11 +434,6 @@ GFXTexture* gfx_texture_create(
 	GLenum target;
 	switch(type)
 	{
-		case GFX_TEXTURE_1D :
-			target = (height > 1) ?
-				GL_TEXTURE_1D_ARRAY : GL_TEXTURE_1D;
-			break;
-
 		case GFX_TEXTURE_2D :
 			target = (depth > 1) ?
 				GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
@@ -613,7 +565,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 	if(!tex) return NULL;
 
 	tex->buffer = _gfx_buffer_get_handle(buffer);
-	tex->texture.type = GFX_TEXTURE_1D;
+	tex->texture.type = GFX_TEXTURE_2D;
 
 	/* Compute dimensions */
 	tex->texture.width =
@@ -728,32 +680,6 @@ void gfx_texture_write(
 		{
 			switch(tex->target)
 			{
-				case GL_TEXTURE_1D :
-					GFX_REND_GET.TextureSubImage1D(
-						tex->handle,
-						image.mipmap,
-						transfer->xOffset,
-						transfer->width,
-						pixForm,
-						pixType,
-						data
-					);
-					break;
-
-				case GL_TEXTURE_1D_ARRAY :
-					GFX_REND_GET.TextureSubImage2D(
-						tex->handle,
-						image.mipmap,
-						transfer->xOffset,
-						transfer->yOffset + image.layer,
-						transfer->width,
-						transfer->height,
-						pixForm,
-						pixType,
-						data
-					);
-					break;
-
 				case GL_TEXTURE_2D :
 					GFX_REND_GET.TextureSubImage2D(
 						tex->handle,
@@ -845,32 +771,6 @@ void gfx_texture_write(
 
 			switch(tex->target)
 			{
-				case GL_TEXTURE_1D :
-					GFX_REND_GET.TexSubImage1D(
-						tex->target,
-						image.mipmap,
-						transfer->xOffset,
-						transfer->width,
-						pixForm,
-						pixType,
-						data
-					);
-					break;
-
-				case GL_TEXTURE_1D_ARRAY :
-					GFX_REND_GET.TexSubImage2D(
-						tex->target,
-						image.mipmap,
-						transfer->xOffset,
-						transfer->yOffset + image.layer,
-						transfer->width,
-						transfer->height,
-						pixForm,
-						pixType,
-						data
-					);
-					break;
-
 				case GL_TEXTURE_2D :
 					GFX_REND_GET.TexSubImage2D(
 						tex->target,

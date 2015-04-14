@@ -101,16 +101,6 @@ static void _gfx_pipeline_init_attachment(
 			);
 			break;
 
-		case GL_TEXTURE_1D :
-			GFX_REND_GET.NamedFramebufferTexture1D(
-				fbo,
-				attach->attachment,
-				GL_TEXTURE_1D,
-				attach->texture,
-				attach->mipmap
-			);
-			break;
-
 		case GL_TEXTURE_2D :
 			GFX_REND_GET.NamedFramebufferTexture2D(
 				fbo,
@@ -142,7 +132,6 @@ static void _gfx_pipeline_init_attachment(
 			break;
 
 		case GL_TEXTURE_3D :
-		case GL_TEXTURE_1D_ARRAY :
 		case GL_TEXTURE_2D_ARRAY :
 		case GL_TEXTURE_CUBE_MAP :
 		case GL_TEXTURE_CUBE_MAP_ARRAY :

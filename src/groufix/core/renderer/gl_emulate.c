@@ -559,16 +559,6 @@ void APIENTRY _gfx_gl_texture_parameter_i(
 	_gfx_gl_error_direct_state_access();
 }
 
-void APIENTRY _gfx_gl_texture_storage_1d(
-
-		GLuint   texture,
-		GLsizei  levels,
-		GLenum   internalFormat,
-		GLsizei  w)
-{
-	_gfx_gl_error_direct_state_access();
-}
-
 void APIENTRY _gfx_gl_texture_storage_2d(
 
 		GLuint   texture,
@@ -613,19 +603,6 @@ void APIENTRY _gfx_gl_texture_storage_3d_multisample(
 		GLsizei    h,
 		GLsizei    d,
 		GLboolean  f)
-{
-	_gfx_gl_error_direct_state_access();
-}
-
-void APIENTRY _gfx_gl_texture_sub_image_1d(
-
-		GLuint       texture,
-		GLint        level,
-		GLint        xoffset,
-		GLsizei      w,
-		GLenum       format,
-		GLenum       type,
-		const void*  pixels)
 {
 	_gfx_gl_error_direct_state_access();
 }
@@ -857,14 +834,6 @@ static void _gfx_gles_error_multisample_tex(void)
 	);
 }
 
-static void _gfx_gles_error_tex_1d(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_TEXTURE_1D is incompatible with this context."
-	);
-}
-
 void APIENTRY _gfx_gles_framebuffer_texture(
 
 		GLenum  target,
@@ -873,17 +842,6 @@ void APIENTRY _gfx_gles_framebuffer_texture(
 		GLint   level)
 {
 	_gfx_gles_error_tex_buffer();
-}
-
-void APIENTRY _gfx_gles_framebuffer_texture_1d(
-
-		GLenum  target,
-		GLenum  attach,
-		GLenum  textarget,
-		GLuint  texture,
-		GLint   level)
-{
-	_gfx_gles_error_tex_1d();
 }
 
 void APIENTRY _gfx_gles_get_buffer_sub_data(
@@ -909,31 +867,6 @@ void APIENTRY _gfx_gles_get_buffer_sub_data(
 			"Reading from a buffer might have corrupted its memory."
 		);
 	}
-}
-
-void APIENTRY _gfx_gles_named_framebuffer_texture_1d(
-
-		GLuint  framebuffer,
-		GLenum  attach,
-		GLenum  textarget,
-		GLuint  texture,
-		GLint   level)
-{
-	GFX_WIND_INIT_UNSAFE;
-
-	if(GFX_REND_GET.fbos[0] != framebuffer)
-	{
-		GFX_REND_GET.fbos[0] = framebuffer;
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
-	}
-
-	GFX_REND_GET.FramebufferTexture1D(
-		GL_DRAW_FRAMEBUFFER,
-		attach,
-		textarget,
-		texture,
-		level
-	);
 }
 
 void APIENTRY _gfx_gles_named_framebuffer_texture_2d(
@@ -978,20 +911,6 @@ void APIENTRY _gfx_gles_tex_buffer(
 	_gfx_gles_error_tex_buffer();
 }
 
-void APIENTRY _gfx_gles_tex_image_1d(
-
-		GLenum         target,
-		GLint          level,
-		GLint          internalFormat,
-		GLsizei        w,
-		GLint          b,
-		GLenum         format,
-		GLenum         type,
-		const GLvoid*  data)
-{
-	_gfx_gles_error_tex_1d();
-}
-
 void APIENTRY _gfx_gles_tex_image_2d_multisample(
 
 		GLenum     target,
@@ -1017,16 +936,6 @@ void APIENTRY _gfx_gles_tex_image_3d_multisample(
 	_gfx_gles_error_layered_multisample_tex();
 }
 
-void APIENTRY _gfx_gles_tex_storage_1d(
-
-		GLenum   target,
-		GLsizei  levels,
-		GLenum   internalFormat,
-		GLsizei  w)
-{
-	_gfx_gles_error_tex_1d();
-}
-
 void APIENTRY _gfx_gles_tex_storage_2d_multisample(
 
 		GLenum     target,
@@ -1050,19 +959,6 @@ void APIENTRY _gfx_gles_tex_storage_3d_multisample(
 		GLboolean  f)
 {
 	_gfx_gles_error_layered_multisample_tex();
-}
-
-void APIENTRY _gfx_gles_tex_sub_image_1d(
-
-		GLenum         target,
-		GLint          level,
-		GLint          xoff,
-		GLsizei        w,
-		GLenum         format,
-		GLenum         type,
-		const GLvoid*  data)
-{
-	_gfx_gles_error_tex_1d();
 }
 
 
@@ -1125,18 +1021,6 @@ void APIENTRY _gfx_gl_get_program_binary(
 	_gfx_gl_error_program_binary();
 }
 
-void APIENTRY _gfx_gl_named_framebuffer_texture_1d(
-
-		GLuint  framebuffer,
-		GLenum  attach,
-		GLenum  textarget,
-		GLuint  texture,
-		GLint   level)
-{
-	GFX_WIND_INIT_UNSAFE;
-	GFX_REND_GET.NamedFramebufferTexture(framebuffer, attach, texture, level);
-}
-
 void APIENTRY _gfx_gl_named_framebuffer_texture_2d(
 
 		GLuint  framebuffer,
@@ -1189,23 +1073,6 @@ void APIENTRY _gfx_gl_sampler_parameter_i(
 	_gfx_gl_error_sampler_objects();
 }
 
-void APIENTRY _gfx_gl_tex_storage_1d(
-
-		GLenum   target,
-		GLsizei  levels,
-		GLenum   internalFormat,
-		GLsizei  w)
-{
-	GFX_WIND_INIT_UNSAFE;
-
-	GLsizei l;
-	for(l = 0; l < levels; ++l)
-	{
-		GFX_REND_GET.TexImage1D(target, l, internalFormat, w, 0, GL_RED, GL_BYTE, NULL);
-		w >>= (w > 1) ? 1 : 0;
-	}
-}
-
 void APIENTRY _gfx_gl_tex_storage_2d(
 
 		GLenum   target,
@@ -1216,8 +1083,6 @@ void APIENTRY _gfx_gl_tex_storage_2d(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	GLsizei hf =
-		(target == GL_TEXTURE_1D || target == GL_TEXTURE_1D_ARRAY) ? 0 : 1;
 	GLenum first =
 		(target == GL_TEXTURE_CUBE_MAP) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : target;
 	GLenum last =
@@ -1231,7 +1096,7 @@ void APIENTRY _gfx_gl_tex_storage_2d(
 			GFX_REND_GET.TexImage2D(face, l, internalFormat, w, h, 0, GL_RED, GL_BYTE, NULL);
 
 		w >>= (w > 1) ? 1 : 0;
-		h >>= (h > 1) ? hf : 0;
+		h >>= (h > 1) ? 1 : 0;
 	}
 }
 
