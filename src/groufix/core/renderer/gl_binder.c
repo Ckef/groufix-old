@@ -25,8 +25,6 @@
 #define GFX_BINDER_COUNTER_MIN    0
 #define GFX_BINDER_COUNTER_MAX    (GFX_BINDER_COUNTER_EMPTY - 1)
 
-#ifdef GFX_RENDERER_GL
-
 /******************************************************/
 /* Binder unit */
 typedef struct GFX_Unit
@@ -545,5 +543,3 @@ void _gfx_vertex_layout_bind(
 		GFX_REND_GET.BindVertexArray(vao);
 	}
 }
-
-#endif // GFX_RENDERER_GL

@@ -16,7 +16,7 @@
 #include "groufix/core/errors.h"
 #include "groufix/core/renderer.h"
 
-#ifdef GFX_RENDERER_GL
+#include <string.h>
 
 
 /********************************************************
@@ -1163,5 +1163,3 @@ void APIENTRY _gfx_gl_vertex_attrib_divisor(
 }
 
 #endif
-
-#endif // GFX_RENDERER_GL

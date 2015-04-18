@@ -26,34 +26,6 @@
 #endif
 
 
-/* Default limits */
-#define GFX_GL_DEF_MAX_ANISOTROPY            0x0001
-#define GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET  0x07ff
-#define GFX_GL_DEF_MAX_VERTEX_BUFFERS        0x0010
-#define GFX_GL_DEF_MAX_VERTEX_STRIDE         0x0800
-
-
-/* Missing defines (extensions n such) */
-#ifndef GL_TEXTURE_2D_MULTISAMPLE
-	#define GL_TEXTURE_2D_MULTISAMPLE          0x9100
-#endif
-#ifndef GL_TEXTURE_2D_MULTISAMPLE_ARRAY
-	#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY    0x9102
-#endif
-#ifndef GL_TEXTURE_BUFFER
-	#define GL_TEXTURE_BUFFER                  0x8c2a
-#endif
-#ifndef GL_TEXTURE_CUBE_MAP_ARRAY
-	#define GL_TEXTURE_CUBE_MAP_ARRAY          0x9009
-#endif
-#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
-	#define GL_TEXTURE_MAX_ANISOTROPY_EXT      0x84fe
-#endif
-#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
-	#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT  0x84ff
-#endif
-
-
 /* Correct context versions */
 #if defined(GFX_GL)
 
@@ -75,6 +47,54 @@
 
 	#define GFX_CONTEXT_ALL_MINORS_MAX 1
 
+#endif
+
+
+/* Default limits */
+#define GFX_GL_DEF_MAX_ANISOTROPY            0x0001
+#define GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET  0x07ff
+#define GFX_GL_DEF_MAX_VERTEX_BUFFERS        0x0010
+#define GFX_GL_DEF_MAX_VERTEX_STRIDE         0x0800
+
+
+/* Missing defines (extensions n such) */
+#ifndef GL_GEOMETRY_SHADER_BIT
+	#define GL_GEOMETRY_SHADER_BIT             0x00000004
+#endif
+#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+	#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT  0x84ff
+#endif
+#ifndef GL_MAX_PATCH_VERTICES_EXT
+	#define GL_MAX_PATCH_VERTICES_EXT          0x8e7d
+#endif
+#ifndef GL_TESS_CONTROL_SHADER_BIT
+	#define GL_TESS_CONTROL_SHADER_BIT         0x00000008
+#endif
+#ifndef GL_TESS_EVALUATION_SHADER_BIT
+	#define GL_TESS_EVALUATION_SHADER_BIT      0x00000010
+#endif
+#ifndef GL_TEXTURE_2D_MULTISAMPLE
+	#define GL_TEXTURE_2D_MULTISAMPLE          0x9100
+#endif
+#ifndef GL_TEXTURE_2D_MULTISAMPLE_ARRAY
+	#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY    0x9102
+#endif
+#ifndef GL_TEXTURE_BUFFER
+	#define GL_TEXTURE_BUFFER                  0x8c2a
+#endif
+#ifndef GL_TEXTURE_CUBE_MAP_ARRAY
+	#define GL_TEXTURE_CUBE_MAP_ARRAY          0x9009
+#endif
+#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
+	#define GL_TEXTURE_MAX_ANISOTROPY_EXT      0x84fe
+#endif
+
+
+/* Some type differences */
+#if defined(GFX_GL)
+	#define GFX_SIZEIPTR GLsizeiptr
+#elif defined(GFX_GLES)
+	#define GFX_SIZEIPTR GLsizei
 #endif
 
 
@@ -115,7 +135,7 @@ typedef void (APIENTRYP GFX_BUFFERSUBDATAPROC)                     (GLenum, GLin
 typedef void (APIENTRYP GFX_CLEARPROC)                             (GLbitfield);
 typedef void (APIENTRYP GFX_COMPILESHADERPROC)                     (GLuint);
 typedef void (APIENTRYP GFX_COPYBUFFERSUBDATAPROC)                 (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr);
-typedef void (APIENTRYP GFX_COPYNAMEDBUFFERSUBDATAPROC)            (GLuint, GLuint, GLintptr, GLintptr, GLsizei);
+typedef void (APIENTRYP GFX_COPYNAMEDBUFFERSUBDATAPROC)            (GLuint, GLuint, GLintptr, GLintptr, GFX_SIZEIPTR);
 typedef void (APIENTRYP GFX_CREATEBUFFERSPROC)                     (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_CREATEFRAMEBUFFERSPROC)                (GLsizei, GLuint*);
 typedef GLuint (APIENTRYP GFX_CREATEPROGRAMPROC)                   (void);
@@ -167,7 +187,7 @@ typedef void (APIENTRYP GFX_GETACTIVEUNIFORMBLOCKIVPROC)           (GLuint, GLui
 typedef void (APIENTRYP GFX_GETACTIVEUNIFORMSIVPROC)               (GLuint, GLsizei, const GLuint*, GLenum, GLint*);
 typedef void (APIENTRYP GFX_GETBUFFERSUBDATAPROC)                  (GLenum, GLintptr, GLsizeiptr, GLvoid*);
 typedef GLenum (APIENTRYP GFX_GETERRORPROC)                        (void);
-typedef void (APIENTRYP GFX_GETNAMEDBUFFERSUBDATAPROC)             (GLuint, GLintptr, GLsizei, void*);
+typedef void (APIENTRYP GFX_GETNAMEDBUFFERSUBDATAPROC)             (GLuint, GLintptr, GFX_SIZEIPTR, void*);
 typedef void (APIENTRYP GFX_GETPROGRAMBINARYPROC)                  (GLuint, GLsizei, GLsizei*, GLenum*, void*);
 typedef void (APIENTRYP GFX_GETPROGRAMINFOLOGPROC)                 (GLuint, GLsizei, GLsizei*, GLchar*);
 typedef void (APIENTRYP GFX_GETPROGRAMIVPROC)                      (GLuint, GLenum, GLint*);
@@ -180,9 +200,9 @@ typedef void (APIENTRYP GFX_GETUNIFORMINDICESPROC)                 (GLuint, GLsi
 typedef GLint (APIENTRYP GFX_GETUNIFORMLOCATIONPROC)               (GLuint, const GLchar*);
 typedef void (APIENTRYP GFX_LINKPROGRAMPROC)                       (GLuint);
 typedef void* (APIENTRYP GFX_MAPBUFFERRANGEPROC)                   (GLenum, GLintptr, GLsizeiptr, GLbitfield);
-typedef void* (APIENTRYP GFX_MAPNAMEDBUFFERRANGEPROC)              (GLuint, GLintptr, GLsizei, GLbitfield);
-typedef void (APIENTRYP GFX_NAMEDBUFFERDATAPROC)                   (GLuint, GLsizei, const void*, GLenum);
-typedef void (APIENTRYP GFX_NAMEDBUFFERSUBDATAPROC)                (GLuint, GLintptr, GLsizei, const void*);
+typedef void* (APIENTRYP GFX_MAPNAMEDBUFFERRANGEPROC)              (GLuint, GLintptr, GFX_SIZEIPTR, GLbitfield);
+typedef void (APIENTRYP GFX_NAMEDBUFFERDATAPROC)                   (GLuint, GFX_SIZEIPTR, const void*, GLenum);
+typedef void (APIENTRYP GFX_NAMEDBUFFERSUBDATAPROC)                (GLuint, GLintptr, GFX_SIZEIPTR, const void*);
 typedef void (APIENTRYP GFX_NAMEDFRAMEBUFFERDRAWBUFFERSPROC)       (GLuint, GLsizei, const GLenum*);
 typedef void (APIENTRYP GFX_NAMEDFRAMEBUFFERTEXTUREPROC)           (GLuint, GLenum, GLuint, GLint);
 typedef void (APIENTRYP GFX_NAMEDFRAMEBUFFERTEXTURE2DPROC)         (GLuint, GLenum, GLenum, GLuint, GLint);

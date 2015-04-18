@@ -18,8 +18,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef GFX_RENDERER_GL
-
 /******************************************************/
 static int _gfx_is_extension_supported(
 
@@ -105,7 +103,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.BindProgramPipeline               = _gfx_gl_bind_program_pipeline;
 	GFX_REND_GET.BindSampler                       = glBindSampler;
 	GFX_REND_GET.BindTexture                       = glBindTexture;
-	GFX_REND_GET.BindTextureUnit                   = glBindTextureUnit;
+	GFX_REND_GET.BindTextureUnit                   = _gfx_gl_bind_texture_unit;
 	GFX_REND_GET.BindVertexArray                   = glBindVertexArray;
 	GFX_REND_GET.BindVertexBuffer                  = _gfx_gl_bind_vertex_buffer;
 	GFX_REND_GET.BlendEquationSeparate             = glBlendEquationSeparate;
@@ -156,7 +154,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.FramebufferTextureLayer           = glFramebufferTextureLayer;
 	GFX_REND_GET.GenBuffers                        = glGenBuffers;
 	GFX_REND_GET.GenerateMipmap                    = glGenerateMipmap;
-	GFX_REND_GET.GenerateTextureMipmap             = glGenerateTextureMipmap;
+	GFX_REND_GET.GenerateTextureMipmap             = _gfx_gl_generate_texture_mipmap;
 	GFX_REND_GET.GenFramebuffers                   = glGenFramebuffers;
 	GFX_REND_GET.GenProgramPipelines               = _gfx_gl_gen_program_pipelines;
 	GFX_REND_GET.GenSamplers                       = glGenSamplers;
@@ -180,7 +178,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.GetUniformLocation                = glGetUniformLocation;
 	GFX_REND_GET.LinkProgram                       = glLinkProgram;
 	GFX_REND_GET.MapBufferRange                    = glMapBufferRange;
-	GFX_REND_GET.MapNamedBufferRange               = glMapNamedBufferRange;
+	GFX_REND_GET.MapNamedBufferRange               = _gfx_gl_map_named_buffer_range;
 	GFX_REND_GET.NamedBufferData                   = _gfx_gl_named_buffer_data;
 	GFX_REND_GET.NamedBufferSubData                = _gfx_gl_named_buffer_sub_data;
 	GFX_REND_GET.NamedFramebufferDrawBuffers       = _gfx_gl_named_framebuffer_draw_buffers;
@@ -311,7 +309,7 @@ void _gfx_renderer_load(void)
 		GFX_REND_GET.GenProgramPipelines     = glGenProgramPipelines;
 		GFX_REND_GET.ProgramUniform1fv       = glProgramUniform1fv;
 		GFX_REND_GET.ProgramUniform1iv       = glProgramUniform1iv;
-		GFX_REND_GET.ProgramUniform1uiv      = glprogramUniform1uiv;
+		GFX_REND_GET.ProgramUniform1uiv      = glProgramUniform1uiv;
 		GFX_REND_GET.ProgramUniform2fv       = glProgramUniform2fv;
 		GFX_REND_GET.ProgramUniform2iv       = glProgramUniform2iv;
 		GFX_REND_GET.ProgramUniform2uiv      = glProgramUniform2uiv;
@@ -342,7 +340,7 @@ void _gfx_renderer_load(void)
 		GFX_REND_GET.ProgramUniform1iv =
 			(GFX_PROGRAMUNIFORM1IVPROC)_gfx_platform_get_proc_address("glProgramUniform1ivEXT");
 		GFX_REND_GET.ProgramUniform1uiv =
-			(GFX_PROGRAMUNIFORM1UIVPROC)_gfx_platform_get_proc_address("glprogramUniform1uivEXT");
+			(GFX_PROGRAMUNIFORM1UIVPROC)_gfx_platform_get_proc_address("glProgramUniform1uivEXT");
 		GFX_REND_GET.ProgramUniform2fv =
 			(GFX_PROGRAMUNIFORM2FVPROC)_gfx_platform_get_proc_address("glProgramUniform2fvEXT");
 		GFX_REND_GET.ProgramUniform2iv =
@@ -972,7 +970,7 @@ void _gfx_renderer_load(void)
 		GFX_REND_GET.ProgramUniform1iv =
 			(GFX_PROGRAMUNIFORM1IVPROC)_gfx_platform_get_proc_address("glProgramUniform1iv");
 		GFX_REND_GET.ProgramUniform1uiv =
-			(GFX_PROGRAMUNIFORM1UIVPROC)_gfx_platform_get_proc_address("glprogramUniform1uiv");
+			(GFX_PROGRAMUNIFORM1UIVPROC)_gfx_platform_get_proc_address("glProgramUniform1uiv");
 		GFX_REND_GET.ProgramUniform2fv =
 			(GFX_PROGRAMUNIFORM2FVPROC)_gfx_platform_get_proc_address("glProgramUniform2fv");
 		GFX_REND_GET.ProgramUniform2iv =
@@ -1078,5 +1076,3 @@ void _gfx_renderer_unload(void)
 	GFX_REND_GET.uniformBuffers = NULL;
 	GFX_REND_GET.textureUnits = NULL;
 }
-
-#endif // GFX_RENDERER_GL

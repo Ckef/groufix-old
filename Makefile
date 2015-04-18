@@ -55,10 +55,10 @@ else
 endif
 
 
-# Flags for all binaries files
-CFLAGS            = -Os -O2 -Wall -pedantic -Iinclude $(DFLAGS) -DGFX_COMPILER_$(COMPILER) -DGFX_$(SSE)_SSE
-CFLAGS_UNIX_X11   = $(CFLAGS) -std=gnu99
-CFLAGS_WIN32      = $(CFLAGS) -std=c99
+# Flags for all binaries
+CFLAGS          = -Os -O2 -Wall -pedantic -Iinclude $(DFLAGS) -DGFX_COMPILER_$(COMPILER) -DGFX_$(SSE)_SSE
+CFLAGS_UNIX_X11 = $(CFLAGS) -std=gnu99
+CFLAGS_WIN32    = $(CFLAGS) -std=c99
 
 
 # Library object files only
@@ -68,9 +68,9 @@ OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32) -DWINVER=0x0600 -D_WIN32_WINNT=0
 
 
 # Linker flags
-LFLAGS            = -shared
-LFLAGS_UNIX_X11   = $(LFLAGS) -pthread -lX11 -lGL
-LFLAGS_WIN32      = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
+LFLAGS          = -shared
+LFLAGS_UNIX_X11 = $(LFLAGS) -pthread -lX11 -lGL
+LFLAGS_WIN32    = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
 
 
 #################################################################
@@ -116,14 +116,32 @@ endif
 
 
 #################################################################
-# Header file dependencies for everything
+# Shared file dependencies for everything
 #################################################################
 
+# Renderer headers
+ifeq ($(RENDERER),GL)
+ HEADERS_RENDERER = \
+  depend/GL/glcorearb.h \
+  depend/GL/glxext.h \
+  depend/GL/wglext.h \
+  src/groufix/core/renderer/gl.h \
+  src/groufix/core/renderer/gl_def.h \
+
+else ifeq ($(RENDERER),GLES)
+ HEADERS_RENDERER = \
+  depend/GLES3/gl31.h \
+  depend/GLES3/gl3platform.h \
+  depend/KHR/khrplatform.h \
+  src/groufix/core/renderer/gl.h \
+  src/groufix/core/renderer/gl_def.h \
+
+endif
+
+
+# All headers
 HEADERS = \
- depend/GL/glcorearb.h \
- depend/GLES3/gl31.h \
- depend/GLES3/gl3platform.h \
- depend/KHR/khrplatform.h \
+ $(HEADERS_RENDERER) \
  include/groufix/containers/deque.h \
  include/groufix/containers/list.h \
  include/groufix/containers/thread_pool.h \
@@ -146,8 +164,6 @@ HEADERS = \
  include/groufix/scene.h \
  include/groufix/utils.h \
  include/groufix.h \
- src/groufix/core/renderer/gl.h \
- src/groufix/core/renderer/gl_def.h \
  src/groufix/core/file.h \
  src/groufix/core/internal.h \
  src/groufix/core/platform.h \
@@ -160,12 +176,31 @@ HEADERS = \
 # Unix X11 builds
 #################################################################
 
+# Renderer sources
+ifeq ($(RENDERER),GL)
+ OBJS_RENDERER_UNIX_X11 = \
+  $(OUT)/unix-x11/groufix/core/renderer/gl_binder.o \
+  $(OUT)/unix-x11/groufix/core/renderer/gl_emulate.o \
+  $(OUT)/unix-x11/groufix/core/renderer/gl_formats.o \
+  $(OUT)/unix-x11/groufix/core/renderer/gl_load.o \
+
+else ifeq ($(RENDERER),GLES)
+ OBJS_RENDERER_UNIX_X11 = \
+  $(OUT)/unix-x11/groufix/core/renderer/gl_binder.o \
+  $(OUT)/unix-x11/groufix/core/renderer/gl_emulate.o \
+  $(OUT)/unix-x11/groufix/core/renderer/gl_formats.o \
+  $(OUT)/unix-x11/groufix/core/renderer/gl_load.o \
+
+endif
+
+
+# Platform headers & sources
 HEADERS_UNIX_X11 = \
  $(HEADERS) \
- depend/GL/glxext.h \
  src/groufix/core/platform/x11.h
 
 OBJS_UNIX_X11 = \
+ $(OBJS_RENDERER_UNIX_X11) \
  $(OUT)/unix-x11/groufix/containers/deque.o \
  $(OUT)/unix-x11/groufix/containers/list.o \
  $(OUT)/unix-x11/groufix/containers/thread_pool.o \
@@ -177,10 +212,6 @@ OBJS_UNIX_X11 = \
  $(OUT)/unix-x11/groufix/core/platform/x11_init.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_screen.o \
  $(OUT)/unix-x11/groufix/core/platform/x11_window.o \
- $(OUT)/unix-x11/groufix/core/renderer/gl_binder.o \
- $(OUT)/unix-x11/groufix/core/renderer/gl_emulate.o \
- $(OUT)/unix-x11/groufix/core/renderer/gl_formats.o \
- $(OUT)/unix-x11/groufix/core/renderer/gl_load.o \
  $(OUT)/unix-x11/groufix/core/bucket.o \
  $(OUT)/unix-x11/groufix/core/buffer.o \
  $(OUT)/unix-x11/groufix/core/errors.o \
@@ -233,12 +264,31 @@ unix-x11-examples: $(EXAMPLES_UNIX_X11)
 # Windows builds
 #################################################################
 
+# Renderer sources
+ifeq ($(RENDERER),GL)
+ OBJS_RENDERER_WIN32 = \
+  $(OUT)/win32/groufix/core/renderer/gl_binder.o \
+  $(OUT)/win32/groufix/core/renderer/gl_emulate.o \
+  $(OUT)/win32/groufix/core/renderer/gl_formats.o \
+  $(OUT)/win32/groufix/core/renderer/gl_load.o \
+
+else ifeq ($(RENDERER),GLES)
+ OBJS_RENDERER_WIN32 = \
+  $(OUT)/win32/groufix/core/renderer/gl_binder.o \
+  $(OUT)/win32/groufix/core/renderer/gl_emulate.o \
+  $(OUT)/win32/groufix/core/renderer/gl_formats.o \
+  $(OUT)/win32/groufix/core/renderer/gl_load.o \
+
+endif
+
+
+# Platform headers & sources
 HEADERS_WIN32 = \
  $(HEADERS) \
- depend/GL/wglext.h \
  src/groufix/core/platform/win32.h
 
 OBJS_WIN32 = \
+ $(OBJS_RENDERER_WIN32) \
  $(OUT)/win32/groufix/containers/deque.o \
  $(OUT)/win32/groufix/containers/list.o \
  $(OUT)/win32/groufix/containers/thread_pool.o \
@@ -251,10 +301,6 @@ OBJS_WIN32 = \
  $(OUT)/win32/groufix/core/platform/win32_threading.o \
  $(OUT)/win32/groufix/core/platform/win32_time.o \
  $(OUT)/win32/groufix/core/platform/win32_window.o \
- $(OUT)/win32/groufix/core/renderer/gl_binder.o \
- $(OUT)/win32/groufix/core/renderer/gl_emulate.o \
- $(OUT)/win32/groufix/core/renderer/gl_formats.o \
- $(OUT)/win32/groufix/core/renderer/gl_load.o \
  $(OUT)/win32/groufix/core/bucket.o \
  $(OUT)/win32/groufix/core/buffer.o \
  $(OUT)/win32/groufix/core/errors.o \

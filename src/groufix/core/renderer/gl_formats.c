@@ -227,8 +227,6 @@
 #endif
 
 
-#ifdef GFX_RENDERER_GL
-
 /******************************************************/
 GLint _gfx_texture_min_filter_from_sampler(
 
@@ -976,5 +974,3 @@ GFXTextureFormat _gfx_texture_format_from_internal(
 
 	return ret;
 }
-
-#endif // GFX_RENDERER_GL
