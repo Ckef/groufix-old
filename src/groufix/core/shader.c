@@ -157,6 +157,32 @@ static const char* _gfx_shader_eval_glsl(
 }
 
 /******************************************************/
+static const char* _gfx_shader_find(
+
+		const char*  haystack,
+		const char*  needle,
+		size_t       len)
+{
+	size_t s;
+	for(s = len; len; s = --len)
+	{
+		/* Test current position */
+		const char* h = haystack;
+		const char* n = needle;
+
+		while(s-- && *n)
+			if(*(n++) != *(h++)) break;
+
+		if(!(*n)) return haystack;
+
+		/* Next position */
+		++haystack;
+	}
+
+	return NULL;
+}
+
+/******************************************************/
 static int _gfx_shader_parse(
 
 		GFXShaderStage  stage,
@@ -174,21 +200,22 @@ static int _gfx_shader_parse(
 		stage == GFX_VERTEX_SHADER;
 
 	/* First attempt to find version and/or per vertex built-ins */
+	/* Note this function assumes all lengths are >= 0 */
 	size_t ver;
 	size_t out = 0;
 	const char* verStr = NULL;
 
 	for(ver = 0; ver < *count; ++ver)
-	{
-		verStr = strstr((*strings)[ver], "#version");
-		if(verStr) break;
-	}
+		if((verStr = _gfx_shader_find(
+			(*strings)[ver],
+			"#version",
+			(*lengths)[ver]))) break;
 
 	if(hasOut) for(out = 0; out < *count; ++out)
-	{
-		if(strstr((*strings)[out], "gl_PerVertex"))
-			break;
-	}
+		if(_gfx_shader_find(
+			(*strings)[out],
+			"gl_PerVertex",
+			(*lengths)[out])) break;
 
 	/* Calculate number of strings to insert */
 	size_t strs = (out >= *count) ? 2 : (!verStr ? 1 : 0);
@@ -246,20 +273,23 @@ static int _gfx_shader_parse(
 				newLengths + strs,
 				sizeof(GLint) * (ver + 1));
 
-			/* Move everything after version to new position */
-			size_t spn =
-				strcspn(verStr, "\n");
+			/* Get the index of everything after the version directive */
 			size_t len =
-				GFX_PTR_DIFF(newStrings[ver], verStr) / sizeof(char) +
-				spn + 1;
+				GFX_PTR_DIFF(newStrings[ver], verStr) / sizeof(char);
 
+			size_t spn;
+			for(spn = 0; len < newLengths[ver]; ++len)
+				if(verStr[spn++] == '\n')
+				{
+					++len;
+					break;
+				}
+
+			/* And now move everything after it to a new position */
 			newStrings[ver + 2] = newStrings[ver] + len;
-			newLengths[ver + 2] = newLengths[ver];
-			newLengths[ver + 2] -= (verStr[spn] == '\0') ?
-				newLengths[ver + 2] :
-				(newLengths[ver + 2] >= 0 ? len : 0);
-
+			newLengths[ver + 2] = newLengths[ver] - len;
 			newLengths[ver] = len;
+
 			out = ver + 1;
 		}
 		else out = 1;
@@ -408,6 +438,7 @@ int gfx_shader_set_source(
 	if(strings && lengths)
 	{
 		/* Fill with data */
+		/* Find out length of all strings as parse assumes them to be >= 0 */
 		memcpy(strings, src, sizeof(char*) * num);
 
 		size_t n;
@@ -416,6 +447,9 @@ int gfx_shader_set_source(
 
 		else for(n = 0; n < num; ++n)
 			lengths[n] = -1;
+
+		for(n = 0; n < num; ++n)
+			if(lengths[n] < 0) lengths[n] = strlen(src[n]);
 
 		/* Parse source */
 		if(_gfx_shader_parse(
