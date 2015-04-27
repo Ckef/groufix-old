@@ -36,14 +36,6 @@
 #include <GL/glxext.h>
 
 
-/* Maximum key code lookup */
-#define GFX_X11_MAX_KEYCODE   0x0ff
-#define GFX_X11_NUM_KEYCODES  0x100
-
-/* Max error length */
-#define GFX_X11_ERROR_LENGTH  0x100
-
-
 /* Missing things */
 #ifndef Button6
 	#define Button6 6
@@ -58,9 +50,12 @@
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/* Maximum key code lookup */
+#define GFX_X11_MAX_KEYCODE   0x0ff
+#define GFX_X11_NUM_KEYCODES  0x100
+
+/* Max error length */
+#define GFX_X11_ERROR_LENGTH  0x100
 
 
 /********************************************************
@@ -163,9 +158,5 @@ GFX_X11_Window* _gfx_x11_get_window_from_context(
 
 		GLXContext context);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_PLATFORM_X11_H

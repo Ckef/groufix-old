@@ -19,10 +19,6 @@
 #include "groufix/scene/material.h"
 #include "groufix/scene/mesh.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Internal LOD map
@@ -157,9 +153,5 @@ int _gfx_mesh_remove_bucket(
 		GFXMesh*    mesh,
 		GFXBucket*  bucket);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_SCENE_INTERNAL_H

@@ -23,7 +23,6 @@
 	#include <unistd.h>
 #endif
 
-
 /* Relative seeking positions */
 #if defined(GFX_WIN32)
 	#define GFX_FILE_BEG  FILE_BEGIN
@@ -33,11 +32,6 @@
 	#define GFX_FILE_BEG  SEEK_SET
 	#define GFX_FILE_CUR  SEEK_CUR
 	#define GFX_FILE_END  SEEK_END
-#endif
-
-
-#ifdef __cplusplus
-extern "C" {
 #endif
 
 
@@ -247,9 +241,5 @@ static GFX_ALWAYS_INLINE size_t _gfx_platform_file_write(
 #endif
 }
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_FILE_H

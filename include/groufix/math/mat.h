@@ -72,9 +72,6 @@
 /********************************************************
  * Template definition
  *******************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Name & Function */
 #define GFX_MAT_NAME GFX_MAT_CREATE_NAME(GFX_MAT_SIZE, GFX_MAT_TYPE)
@@ -99,6 +96,11 @@ extern "C" {
 	#endif
 	#define GFX_VEC_NAME GFX_VEC_CREATE_NAME(GFX_MAT_SIZE, GFX_MAT_TYPE)
 	#define GFX_VEC_FUNC(postfix) GFX_VEC_CREATE_FUNC(GFX_MAT_SIZE, GFX_MAT_TYPE, postfix)
+#endif
+
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
@@ -486,6 +488,11 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
 }
 #endif // GFX_MAT_USE_VEC
 
+
+#ifdef __cplusplus
+}
+#endif
+
 #undef GFX_MAT_NAME
 #undef GFX_MAT_FUNC
 #undef GFX_MAT_STORE
@@ -493,9 +500,5 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
 
 #undef GFX_VEC_NAME
 #undef GFX_VEC_FUNC
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // TEMPLATE

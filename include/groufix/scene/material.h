@@ -15,8 +15,8 @@
 #ifndef GFX_SCENE_MATERIAL_H
 #define GFX_SCENE_MATERIAL_H
 
-#include "groufix/scene/lod.h"
 #include "groufix/core/shading.h"
+#include "groufix/scene/lod.h"
 
 #ifdef __cplusplus
 extern "C" {

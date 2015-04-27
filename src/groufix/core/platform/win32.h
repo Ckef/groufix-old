@@ -34,16 +34,6 @@
 #include <GL/wglext.h>
 
 
-/* Window classes */
-#define GFX_WIN32_WINDOW_CLASS        L"GROUFIX"
-#define GFX_WIN32_WINDOW_CLASS_DUMMY  L"GROUFIXDUMMY"
-
-
-/* Maximum key code lookup */
-#define GFX_WIN32_MAX_KEYCODE   0x0ff
-#define GFX_WIN32_NUM_KEYCODES  0x100
-
-
 /* Yeah these are missing */
 #ifndef DISPLAY_DEVICE_ACTIVE
 	#define DISPLAY_DEVICE_ACTIVE 0x001
@@ -58,9 +48,13 @@
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/* Window classes */
+#define GFX_WIN32_WINDOW_CLASS        L"GROUFIX"
+#define GFX_WIN32_WINDOW_CLASS_DUMMY  L"GROUFIXDUMMY"
+
+/* Maximum key code lookup */
+#define GFX_WIN32_MAX_KEYCODE   0x0ff
+#define GFX_WIN32_NUM_KEYCODES  0x100
 
 
 /********************************************************
@@ -200,9 +194,5 @@ void _gfx_win32_set_pixel_format(
 		const GFXColorDepth*  depth,
 		int                   backBuffer);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_PLATFORM_WIN32_H

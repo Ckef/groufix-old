@@ -45,11 +45,6 @@
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 /********************************************************
  * Platform window manager definitions
  *******************************************************/
@@ -410,9 +405,5 @@ GFX_ProcAddress _gfx_platform_get_proc_address(
 
 		const char* proc);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_PLATFORM_H

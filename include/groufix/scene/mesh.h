@@ -15,8 +15,8 @@
 #ifndef GFX_SCENE_MESH_H
 #define GFX_SCENE_MESH_H
 
-#include "groufix/scene/lod.h"
 #include "groufix/core/pipeline.h"
+#include "groufix/scene/lod.h"
 
 #ifdef __cplusplus
 extern "C" {

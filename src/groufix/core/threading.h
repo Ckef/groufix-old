@@ -25,11 +25,6 @@
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 /********************************************************
  * Platform thread definitions
  *******************************************************/
@@ -490,9 +485,5 @@ static GFX_ALWAYS_INLINE void _gfx_platform_cond_broadcast(
 #endif
 }
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_THREADING_H

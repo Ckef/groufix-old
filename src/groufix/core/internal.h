@@ -24,11 +24,6 @@
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 /********************************************************
  * Internal definitions
  *******************************************************/
@@ -658,9 +653,5 @@ void _gfx_pipe_process_execute(
 		const GFXPipeState*  state,
 		GFX_WIND_ARG);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_INTERNAL_H

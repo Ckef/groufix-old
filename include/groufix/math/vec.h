@@ -107,9 +107,6 @@
 /********************************************************
  * Template definition
  *******************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Name & Function */
 #define GFX_VEC_NAME GFX_VEC_CREATE_NAME(GFX_VEC_SIZE, GFX_VEC_TYPE)
@@ -130,6 +127,11 @@ extern "C" {
 
 #else
 	#define GFX_VEC_ALIGN GFX_SSE_NO_ALIGN
+#endif
+
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
@@ -347,12 +349,13 @@ static GFX_ALWAYS_INLINE int GFX_VEC_FUNC(is_zero)(
 	return 1;
 }
 
-#undef GFX_VEC_NAME
-#undef GFX_VEC_FUNC
-#undef GFX_VEC_ALIGN
 
 #ifdef __cplusplus
 }
 #endif
+
+#undef GFX_VEC_NAME
+#undef GFX_VEC_FUNC
+#undef GFX_VEC_ALIGN
 
 #endif // TEMPLATE

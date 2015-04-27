@@ -17,10 +17,6 @@
 
 #include "groufix/core/renderer.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Internal GL object access
@@ -284,9 +280,5 @@ void _gfx_vertex_layout_bind(
 		GLuint vao,
 		GFX_WIND_ARG);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_RENDERER_GL_H

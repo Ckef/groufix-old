@@ -48,11 +48,6 @@
 #define GFX_REND_GET                (_gfx_w__->renderer)
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 /********************************************************
  * Renderer interface definitions
  *******************************************************/
@@ -309,9 +304,5 @@ GFX_Window* _gfx_window_get_current(void);
  */
 void _gfx_window_swap_buffers(void);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_RENDERER_H

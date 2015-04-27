@@ -55,9 +55,6 @@
 /********************************************************
  * Template definition
  *******************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Name & Function */
 #define GFX_QUAT_NAME GFX_QUAT_CREATE_NAME(GFX_QUAT_TYPE)
@@ -84,6 +81,11 @@ extern "C" {
 		#error "Need to include groufix/math/vec.h to use GFX_QUAT_USE_VEC"
 	#endif
 	#define GFX_VEC_NAME GFX_VEC_CREATE_NAME(3, GFX_QUAT_TYPE)
+#endif
+
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
@@ -437,15 +439,16 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_QUAT_FUNC(to_matrix)(
 }
 #endif // GFX_QUAT_USE_MAT
 
+
+#ifdef __cplusplus
+}
+#endif
+
 #undef GFX_QUAT_NAME
 #undef GFX_QUAT_FUNC
 #undef GFX_QUAT_ALIGN
 
 #undef GFX_MAT_NAME
 #undef GFX_VEC_NAME
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // TEMPLATE

@@ -105,10 +105,6 @@
 #define APIENTRYP APIENTRY *
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * OpenGL extensions & emulators
@@ -579,9 +575,5 @@ struct GFX_Renderer
 	GFX_VIEWPORTPROC                           Viewport;
 };
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_RENDERER_GL_DEF_H
