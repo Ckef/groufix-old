@@ -180,41 +180,44 @@ static int _gfx_shared_buffer_insert_segment(
 {
 	GFX_Segment new =
 	{
-		.offset = 0,
+		.offset = buffer->size,
 		.size = size
 	};
 
 	/* Iterate through segments and find a big enough empty spot */
-	GFXVectorIterator it;
-	for(
-		it = buffer->segments.begin;
-		it != buffer->segments.end;
-		it = gfx_vector_next(&buffer->segments, it))
+	/* Iterate back to front as it's likely to find space at the end */
+	GFXVectorIterator it = buffer->segments.end;
+
+	while(it != buffer->segments.begin)
 	{
-		GFX_Segment* seg = it;
-		if(size > (seg->offset - new.offset))
+		GFX_Segment* seg = gfx_vector_previous(&buffer->segments, it);
+
+		/* Continue if it does not fit */
+		size_t off = seg->offset + seg->size;
+		if(size > (new.offset - off))
 		{
-			new.offset = seg->offset + seg->size;
+			new.offset = seg->offset;
+			it = seg;
+
 			continue;
 		}
 
 		/* Great, try to insert the segment */
+		new.offset = off;
 		it = gfx_vector_insert(&buffer->segments, &new, it);
-		if(it == buffer->segments.end) return 0;
 
+		if(it == buffer->segments.end) return 0;
 		*offset = new.offset;
+
 		return 1;
 	}
 
-	/* Check the trailing empty space */
-	if(size <= (buffer->size - new.offset))
+	/* Check the leading empty space */
+	if(size <= new.offset)
 	{
-		/* Try to insert at the end */
-		it = gfx_vector_insert(
-			&buffer->segments,
-			&new,
-			buffer->segments.end
-		);
+		/* Try to insert at the beginning */
+		new.offset = 0;
+		it = gfx_vector_insert(&buffer->segments, &new, it);
 
 		if(it != buffer->segments.end)
 		{
@@ -302,16 +305,16 @@ int gfx_shared_buffer_init(
 	}
 
 	/* Iterate through all shared buffers */
-	GFXVectorIterator it;
-	for(
-		it = _gfx_shared_buffers->begin;
-		it != _gfx_shared_buffers->end;
-		it = gfx_vector_next(_gfx_shared_buffers, it))
+	/* Iterate from back to front as back likely contains empty space */
+	GFXVectorIterator it = _gfx_shared_buffers->end;
+
+	while(it != _gfx_shared_buffers->begin)
 	{
 		/* Try to insert */
+		it = gfx_vector_previous(_gfx_shared_buffers, it);
 		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
-		size_t offset;
 
+		size_t offset;
 		if(_gfx_shared_buffer_insert_segment(buff, size, &offset))
 		{
 			buffer->reference = buff;
@@ -333,8 +336,8 @@ int gfx_shared_buffer_init(
 	if(it)
 	{
 		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
-		size_t offset;
 
+		size_t offset;
 		if(_gfx_shared_buffer_insert_segment(buff, size, &offset))
 		{
 			buffer->reference = buff;
@@ -363,7 +366,7 @@ void gfx_shared_buffer_clear(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	GFX_SharedBuffer* buff = (GFX_SharedBuffer*)buffer->reference;
+	GFX_SharedBuffer* buff = buffer->reference;
 	_gfx_shared_buffer_erase_segment(buff, buffer->offset);
 
 	/* If empty, free it */
