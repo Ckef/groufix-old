@@ -15,10 +15,10 @@
 #ifndef GFX_CORE_RENDERER_H
 #define GFX_CORE_RENDERER_H
 
+#include "groufix.h"
 #include "groufix/containers/deque.h"
 #include "groufix/containers/vector.h"
 #include "groufix/core/platform.h"
-#include "groufix/core/pipeline.h"
 
 
 /* Get renderer */

@@ -24,6 +24,19 @@ extern "C" {
 #endif
 
 
+/********************************************************
+ * Groufix initialization, timing and polling
+ *******************************************************/
+
+/* Renderer Context */
+typedef struct GFXContext
+{
+	int major;
+	int minor;
+
+} GFXContext;
+
+
 /**
  * Initializes the Groufix engine.
  *

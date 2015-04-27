@@ -61,7 +61,7 @@ _The library is thread affine_. All functonality should be executed from the sam
 
 #### Termination
 
-As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all renderer and window manager related resources. This means the connection to both the renderer and the windowing manager is lost. It will also clear the error queue, as it will be irrelevant.
+As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all renderer and window manager related resources. This means the connection to both the renderer and the windowing manager is lost. It will also clean up shared buffer memory and clear the error queue, as it will be irrelevant.
 
 _It will not free any other resources_. All user allocated resources must be freed by the user. To make sure everything is freed properly, every `*_create` method must be followed up by the appropriate `*_free` method and every `*_init` method must be followed up by the appropriate `*_clear` method. On a side note, any free method can take NULL as parameter and it will do nothing.
 

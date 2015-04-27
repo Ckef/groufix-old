@@ -12,7 +12,6 @@
  *
  */
 
-#include "groufix/core/errors.h"
 #include "groufix/core/internal.h"
 #include "groufix/core/threading.h"
 
@@ -696,14 +695,6 @@ GFXScreen gfx_window_get_screen(
 		return NULL;
 
 	return (GFXScreen)_gfx_platform_window_get_screen(internal->handle);
-}
-
-/******************************************************/
-GFXContext gfx_window_get_context(
-
-		const GFXWindow* window)
-{
-	return ((const GFX_Window*)window)->version;
 }
 
 /******************************************************/

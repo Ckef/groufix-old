@@ -12,7 +12,6 @@
  *
  */
 
-#include "groufix/core/errors.h"
 #include "groufix/core/internal.h"
 
 #include <stdint.h>

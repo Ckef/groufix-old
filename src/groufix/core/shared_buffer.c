@@ -12,7 +12,6 @@
  *
  */
 
-#include "groufix/core/errors.h"
 #include "groufix/core/renderer.h"
 
 #include <limits.h>
@@ -287,6 +286,32 @@ void gfx_shared_buffer_request_size(
 }
 
 /******************************************************/
+void gfx_shared_buffer_cleanup(void)
+{
+	if(_gfx_shared_buffers)
+	{
+		GFX_WIND_INIT_UNSAFE;
+
+		/* Find any empty buffers and free them */
+		/* Iterate from back to front again, because erasal efficiency */
+		GFXVectorIterator it = _gfx_shared_buffers->end;
+
+		while(it != _gfx_shared_buffers->begin)
+		{
+			it = gfx_vector_previous(_gfx_shared_buffers, it);
+			GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
+
+			if(buff->segments.begin == buff->segments.end)
+			{
+				/* Also bail if all buffers are freed */
+				_gfx_shared_buffer_free(it, GFX_WIND_AS_ARG);
+				if(!_gfx_shared_buffers) break;
+			}
+		}
+	}
+}
+
+/******************************************************/
 int gfx_shared_buffer_init(
 
 		GFXSharedBuffer*  buffer,
@@ -362,15 +387,19 @@ int gfx_shared_buffer_init(
 /******************************************************/
 void gfx_shared_buffer_clear(
 
-		GFXSharedBuffer* buffer)
+		GFXSharedBuffer*  buffer,
+		int               keep)
 {
 	GFX_WIND_INIT_UNSAFE;
 
 	GFX_SharedBuffer* buff = buffer->reference;
 	_gfx_shared_buffer_erase_segment(buff, buffer->offset);
 
-	/* If empty, free it */
-	if(buff->segments.begin == buff->segments.end)
+	/* If already terminated, ignore keep */
+	if(GFX_WIND_EQ(NULL)) keep = 0;
+
+	/* If empty and no keep flag, free it */
+	if(!keep && buff->segments.begin == buff->segments.end)
 	{
 		/* Find buffer iterator and free it */
 		GFXVectorIterator it;

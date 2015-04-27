@@ -366,7 +366,7 @@ void gfx_mesh_free(
 			it != internal->buffers.end;
 			it = gfx_vector_next(&internal->buffers, it))
 		{
-			gfx_shared_buffer_clear((GFXSharedBuffer*)it);
+			gfx_shared_buffer_clear((GFXSharedBuffer*)it, 1);
 		}
 
 		/* Free everything */

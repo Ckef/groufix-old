@@ -67,6 +67,9 @@ void gfx_set_time(
 /******************************************************/
 void gfx_terminate(void)
 {
+	/* Cleanup shared buffers */
+	gfx_shared_buffer_cleanup();
+
 	/* Terminate */
 	_gfx_window_manager_terminate();
 	_gfx_platform_terminate();

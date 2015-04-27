@@ -12,7 +12,6 @@
  *
  */
 
-#include "groufix/core/errors.h"
 #include "groufix/core/renderer.h"
 
 #include <stdlib.h>

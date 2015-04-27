@@ -144,6 +144,28 @@ GFX_API void gfx_screen_get_size(
  * Window Callbacks & Metadata
  *******************************************************/
 
+/** Window flags */
+typedef enum GFXWindowFlags
+{
+	GFX_WINDOW_FULLSCREEN     = 0x0001,
+	GFX_WINDOW_BORDERLESS     = 0x0002,
+	GFX_WINDOW_RESIZABLE      = 0x0004,
+	GFX_WINDOW_HIDDEN         = 0x0008,
+	GFX_WINDOW_DOUBLE_BUFFER  = 0x0010
+
+} GFXWindowFlags;
+
+
+/** Color depth */
+typedef struct GFXColorDepth
+{
+	unsigned short redBits;
+	unsigned short greenBits;
+	unsigned short blueBits;
+
+} GFXColorDepth;
+
+
 /* Forward declerate */
 struct GFXWindow;
 
@@ -162,40 +184,9 @@ typedef void (*GFXMouseReleaseFunc) (struct GFXWindow*, GFXMouseKey, int, int, G
 typedef void (*GFXMouseWheelFunc)   (struct GFXWindow*, int, int, int, int, GFXKeyState);
 
 
-/** Color depth */
-typedef struct GFXColorDepth
-{
-	unsigned short redBits;
-	unsigned short greenBits;
-	unsigned short blueBits;
-
-} GFXColorDepth;
-
-
-/* OpenGL Context */
-typedef struct GFXContext
-{
-	int major;
-	int minor;
-
-} GFXContext;
-
-
 /********************************************************
  * Top level windowing
  *******************************************************/
-
-/** Window flags */
-typedef enum GFXWindowFlags
-{
-	GFX_WINDOW_FULLSCREEN     = 0x0001,
-	GFX_WINDOW_BORDERLESS     = 0x0002,
-	GFX_WINDOW_RESIZABLE      = 0x0004,
-	GFX_WINDOW_HIDDEN         = 0x0008,
-	GFX_WINDOW_DOUBLE_BUFFER  = 0x0010
-
-} GFXWindowFlags;
-
 
 /** A top level window */
 typedef struct GFXWindow
@@ -308,14 +299,6 @@ GFX_API int gfx_window_is_open(
  *
  */
 GFX_API GFXScreen gfx_window_get_screen(
-
-		const GFXWindow* window);
-
-/**
- * Returns the context of the window.
- *
- */
-GFX_API GFXContext gfx_window_get_context(
 
 		const GFXWindow* window);
 

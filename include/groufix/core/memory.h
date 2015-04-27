@@ -283,6 +283,15 @@ GFX_API void gfx_shared_buffer_request_size(
 		unsigned long size);
 
 /**
+ * Erases empty buffers from the buffer pool.
+ *
+ * In case gfx_shared_buffer_clear is called with the keep param as zero value,
+ * this call will clean up any left over buffers.
+ *
+ */
+GFX_API void gfx_shared_buffer_cleanup(void);
+
+/**
  * Initializes a shared buffer.
  *
  * @return Non-zero on success (it will not touch buffer on failure).
@@ -297,10 +306,16 @@ GFX_API int gfx_shared_buffer_init(
 /**
  * Clears a shared buffer, freeing the internal data.
  *
+ * @param keep If zero, the associated buffer from the buffer pool will be erased if empty.
+ *
+ * Setting keep to zero will essentially keep buffers in memory in case any
+ * new buffers are initialized.
+ *
  */
 GFX_API void gfx_shared_buffer_clear(
 
-		GFXSharedBuffer* buffer);
+		GFXSharedBuffer*  buffer,
+		int               keep);
 
 
 /********************************************************
