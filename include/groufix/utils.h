@@ -59,7 +59,7 @@
 
 
 /* SSE alignment */
-#if defined(GFX_NO_SSE)
+#if defined(GFX_SSE_NO)
 	#define GFX_SSE_ALIGN struct
 #elif defined(GFX_VISUAL_C)
 	#define GFX_SSE_ALIGN __declspec(align(16)) struct
@@ -68,7 +68,7 @@
 
 #else
 	#define GFX_SSE_ALIGN struct
-	#define GFX_NO_SSE
+	#define GFX_SSE_NO
 #endif
 
 #define GFX_SSE_NO_ALIGN struct

@@ -57,7 +57,7 @@ endif
 
 
 # Flags for all binaries
-CFLAGS          = -Os -O2 -Wall -pedantic -Iinclude $(DFLAGS) -DGFX_COMPILER_$(COMPILER) -DGFX_$(SSE)_SSE
+CFLAGS          = -Os -O2 -Wall -pedantic -Iinclude $(DFLAGS) -DGFX_COMPILER_$(COMPILER) -DGFX_SSE_$(SSE)
 CFLAGS_UNIX_X11 = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32    = $(CFLAGS) -std=c99
 
@@ -81,17 +81,19 @@ LFLAGS_WIN32    = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
 # Creation
 $(BIN):
 ifeq ($(OS),Windows_NT)
-	@if not exist $(subst /,\,$(BIN)$(SUB))\nul mkdir $(subst /,\,$(BIN)$(SUB))
+	$(eval BINSUB = $(subst /,\,$(BIN)$(SUB)))
+	@if not exist $(BINSUB)\nul mkdir $(BINSUB)
 else
 	@mkdir -p $(BIN)$(SUB)
 endif
 
 $(OUT):
 ifeq ($(OS),Windows_NT)
-	@if not exist $(subst /,\,$(OUT)$(SUB))\groufix\containers\nul mkdir $(subst /,\,$(OUT)$(SUB))\groufix\containers
-	@if not exist $(subst /,\,$(OUT)$(SUB))\groufix\core\platform\nul mkdir $(subst /,\,$(OUT)$(SUB))\groufix\core\platform
-	@if not exist $(subst /,\,$(OUT)$(SUB))\groufix\core\renderer\nul mkdir $(subst /,\,$(OUT)$(SUB))\groufix\core\renderer
-	@if not exist $(subst /,\,$(OUT)$(SUB))\groufix\scene\nul mkdir $(subst /,\,$(OUT)$(SUB))\groufix\scene
+	$(eval OUTSUB = $(subst /,\,$(OUT)$(SUB)))
+	@if not exist $(OUTSUB)\groufix\containers\nul mkdir $(OUTSUB)\groufix\containers
+	@if not exist $(OUTSUB)\groufix\core\platform\nul mkdir $(OUTSUB)\groufix\core\platform
+	@if not exist $(OUTSUB)\groufix\core\renderer\nul mkdir $(OUTSUB)\groufix\core\renderer
+	@if not exist $(OUTSUB)\groufix\scene\nul mkdir $(OUTSUB)\groufix\scene
 else
 	@mkdir -p $(OUT)$(SUB)/groufix/containers
 	@mkdir -p $(OUT)$(SUB)/groufix/core/platform
@@ -174,10 +176,10 @@ HEADERS = \
 
 
 #################################################################
-# Shared source files for everything
+# Shared object files for everything
 #################################################################
 
-# Renderer sources
+# Renderer objects
 ifeq ($(RENDERER),GL)
  OBJS_RENDERER = \
   $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
@@ -195,7 +197,7 @@ else ifeq ($(RENDERER),GLES)
 endif
 
 
-# All sources
+# All objects
 OBJS = \
  $(OBJS_RENDERER) \
  $(OUT)$(SUB)/groufix/containers/deque.o \
@@ -234,7 +236,7 @@ OBJS = \
 # Unix X11 builds
 #################################################################
 
-# Platform headers & sources
+# Platform headers & objects
 HEADERS_UNIX_X11 = \
  $(HEADERS) \
  src/groufix/core/platform/x11.h
@@ -250,7 +252,7 @@ OBJS_UNIX_X11 = \
  $(OUT)$(SUB)/groufix/core/platform/x11_window.o \
 
 
-# All the object and source files
+# All the build targets
 $(OUT)/unix-x11/%.o: src/%.c $(HEADERS_UNIX_X11) | $(OUT)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
@@ -261,7 +263,7 @@ $(BIN)/unix-x11/%: examples/%.c $(BIN)/unix-x11/libGroufix.so
 	$(CC) $(CFLAGS_UNIX_X11) $< -o $@ -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 
-# Available targets
+# Available user targets
 unix-x11:
 	@$(MAKE) $(BIN)/unix-x11/libGroufix.so SUB=/unix-x11
 unix-x11-examples:
@@ -273,7 +275,7 @@ unix-x11-examples:
 # Windows builds
 #################################################################
 
-# Platform headers & sources
+# Platform headers & objects
 HEADERS_WIN32 = \
  $(HEADERS) \
  src/groufix/core/platform/win32.h
@@ -290,7 +292,7 @@ OBJS_WIN32 = \
  $(OUT)$(SUB)/groufix/core/platform/win32_window.o \
 
 
-# All the object and source files
+# All the build targets
 $(OUT)/win32/%.o: src/%.c $(HEADERS_WIN32) | $(OUT)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
@@ -301,7 +303,7 @@ $(BIN)/win32/%: examples/%.c $(BIN)/win32/libGroufix.dll
 	$(CC) $(CFLAGS_WIN32) $< -o $@ -L$(BIN)/win32/ -lGroufix
 
 
-# Available targets
+# Available user targets
 win32:
 	@$(MAKE) $(BIN)/win32/libGroufix.dll SUB=/win32
 win32-examples:
