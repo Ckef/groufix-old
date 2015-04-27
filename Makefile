@@ -42,8 +42,8 @@ BIN      = bin
 OUT      = obj
 
 RENDERER = GL
-DEBUG    = NO
 COMPILER = SUPPORTED
+DEBUG    = NO
 SSE      = YES
 
 
@@ -80,36 +80,36 @@ LFLAGS_WIN32    = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
 # Creation
 $(BIN):
 ifeq ($(OS),Windows_NT)
-	@if not exist $(BIN)\win32\nul mkdir $(BIN)\win32
+	@if not exist $(BIN)/nul mkdir $(BIN)
 else
-	@mkdir -p $(BIN)/unix-x11
+	@mkdir -p $(BIN)
 endif
 
 $(OUT):
 ifeq ($(OS),Windows_NT)
-	@if not exist $(OUT)\win32\groufix\containers\nul mkdir $(OUT)\win32\groufix\containers
-	@if not exist $(OUT)\win32\groufix\core\platform\nul mkdir $(OUT)\win32\groufix\core\platform
-	@if not exist $(OUT)\win32\groufix\core\renderer\nul mkdir $(OUT)\win32\groufix\core\renderer
-	@if not exist $(OUT)\win32\groufix\scene\nul mkdir $(OUT)\win32\groufix\scene
+	@if not exist $(OUT)/groufix/containers/nul mkdir $(OUT)/groufix/containers
+	@if not exist $(OUT)/groufix/core/platform/nul mkdir $(OUT)/groufix/core/platform
+	@if not exist $(OUT)/groufix/core/renderer/nul mkdir $(OUT)/groufix/core/renderer
+	@if not exist $(OUT)/groufix/scene/nul mkdir $(OUT)/groufix/scene
 else
-	@mkdir -p $(OUT)/unix-x11/groufix/containers
-	@mkdir -p $(OUT)/unix-x11/groufix/core/platform
-	@mkdir -p $(OUT)/unix-x11/groufix/core/renderer
-	@mkdir -p $(OUT)/unix-x11/groufix/scene
+	@mkdir -p $(OUT)/groufix/containers
+	@mkdir -p $(OUT)/groufix/core/platform
+	@mkdir -p $(OUT)/groufix/core/renderer
+	@mkdir -p $(OUT)/groufix/scene
 endif
 
 
 # Cleaning
 clean:
 ifeq ($(OS),Windows_NT)
-	@if exist $(OUT)\nul rmdir /s /q $(OUT)
+	@if exist $(OUT)/nul rmdir /s /q $(OUT)
 else
 	@rm -Rf $(OUT)
 endif
 
 clean-all: clean
 ifeq ($(OS),Windows_NT)
-	@if exist $(BIN)\nul rmdir /s /q $(BIN)
+	@if exist $(BIN)/nul rmdir /s /q $(BIN)
 else
 	@rm -Rf $(BIN)
 endif
@@ -173,26 +173,65 @@ HEADERS = \
 
 
 #################################################################
-# Unix X11 builds
+# Shared source files for everything
 #################################################################
 
 # Renderer sources
 ifeq ($(RENDERER),GL)
- OBJS_RENDERER_UNIX_X11 = \
-  $(OUT)/unix-x11/groufix/core/renderer/gl_binder.o \
-  $(OUT)/unix-x11/groufix/core/renderer/gl_emulate.o \
-  $(OUT)/unix-x11/groufix/core/renderer/gl_formats.o \
-  $(OUT)/unix-x11/groufix/core/renderer/gl_load.o \
+ OBJS_RENDERER = \
+  $(OUT)/groufix/core/renderer/gl_binder.o \
+  $(OUT)/groufix/core/renderer/gl_emulate.o \
+  $(OUT)/groufix/core/renderer/gl_formats.o \
+  $(OUT)/groufix/core/renderer/gl_load.o \
 
 else ifeq ($(RENDERER),GLES)
- OBJS_RENDERER_UNIX_X11 = \
-  $(OUT)/unix-x11/groufix/core/renderer/gl_binder.o \
-  $(OUT)/unix-x11/groufix/core/renderer/gl_emulate.o \
-  $(OUT)/unix-x11/groufix/core/renderer/gl_formats.o \
-  $(OUT)/unix-x11/groufix/core/renderer/gl_load.o \
+ OBJS_RENDERER = \
+  $(OUT)/groufix/core/renderer/gl_binder.o \
+  $(OUT)/groufix/core/renderer/gl_emulate.o \
+  $(OUT)/groufix/core/renderer/gl_formats.o \
+  $(OUT)/groufix/core/renderer/gl_load.o \
 
 endif
 
+
+# All sources
+OBJS = \
+ $(OBJS_RENDERER) \
+ $(OUT)/groufix/containers/deque.o \
+ $(OUT)/groufix/containers/list.o \
+ $(OUT)/groufix/containers/thread_pool.o \
+ $(OUT)/groufix/containers/vector.o \
+ $(OUT)/groufix/core/bucket.o \
+ $(OUT)/groufix/core/buffer.o \
+ $(OUT)/groufix/core/errors.o \
+ $(OUT)/groufix/core/events.o \
+ $(OUT)/groufix/core/layout.o \
+ $(OUT)/groufix/core/objects.o \
+ $(OUT)/groufix/core/pipe.o \
+ $(OUT)/groufix/core/pipeline.o \
+ $(OUT)/groufix/core/process.o \
+ $(OUT)/groufix/core/program.o \
+ $(OUT)/groufix/core/program_map.o \
+ $(OUT)/groufix/core/property_map.o \
+ $(OUT)/groufix/core/sampler.o \
+ $(OUT)/groufix/core/screen.o \
+ $(OUT)/groufix/core/shader.o \
+ $(OUT)/groufix/core/shared_buffer.o \
+ $(OUT)/groufix/core/states.o \
+ $(OUT)/groufix/core/texture.o \
+ $(OUT)/groufix/core/types.o \
+ $(OUT)/groufix/core/window.o \
+ $(OUT)/groufix/scene/batch.o \
+ $(OUT)/groufix/scene/lod_map.o \
+ $(OUT)/groufix/scene/material.o \
+ $(OUT)/groufix/scene/mesh.o \
+ $(OUT)/groufix/math.o \
+ $(OUT)/groufix.o
+
+
+#################################################################
+# Unix X11 builds
+#################################################################
 
 # Platform headers & sources
 HEADERS_UNIX_X11 = \
@@ -200,87 +239,38 @@ HEADERS_UNIX_X11 = \
  src/groufix/core/platform/x11.h
 
 OBJS_UNIX_X11 = \
- $(OBJS_RENDERER_UNIX_X11) \
- $(OUT)/unix-x11/groufix/containers/deque.o \
- $(OUT)/unix-x11/groufix/containers/list.o \
- $(OUT)/unix-x11/groufix/containers/thread_pool.o \
- $(OUT)/unix-x11/groufix/containers/vector.o \
- $(OUT)/unix-x11/groufix/core/platform/unix_file.o \
- $(OUT)/unix-x11/groufix/core/platform/unix_threading.o \
- $(OUT)/unix-x11/groufix/core/platform/unix_time.o \
- $(OUT)/unix-x11/groufix/core/platform/x11_context.o \
- $(OUT)/unix-x11/groufix/core/platform/x11_init.o \
- $(OUT)/unix-x11/groufix/core/platform/x11_screen.o \
- $(OUT)/unix-x11/groufix/core/platform/x11_window.o \
- $(OUT)/unix-x11/groufix/core/bucket.o \
- $(OUT)/unix-x11/groufix/core/buffer.o \
- $(OUT)/unix-x11/groufix/core/errors.o \
- $(OUT)/unix-x11/groufix/core/events.o \
- $(OUT)/unix-x11/groufix/core/layout.o \
- $(OUT)/unix-x11/groufix/core/objects.o \
- $(OUT)/unix-x11/groufix/core/pipe.o \
- $(OUT)/unix-x11/groufix/core/pipeline.o \
- $(OUT)/unix-x11/groufix/core/process.o \
- $(OUT)/unix-x11/groufix/core/program.o \
- $(OUT)/unix-x11/groufix/core/program_map.o \
- $(OUT)/unix-x11/groufix/core/property_map.o \
- $(OUT)/unix-x11/groufix/core/sampler.o \
- $(OUT)/unix-x11/groufix/core/screen.o \
- $(OUT)/unix-x11/groufix/core/shader.o \
- $(OUT)/unix-x11/groufix/core/shared_buffer.o \
- $(OUT)/unix-x11/groufix/core/states.o \
- $(OUT)/unix-x11/groufix/core/texture.o \
- $(OUT)/unix-x11/groufix/core/types.o \
- $(OUT)/unix-x11/groufix/core/window.o \
- $(OUT)/unix-x11/groufix/scene/batch.o \
- $(OUT)/unix-x11/groufix/scene/lod_map.o \
- $(OUT)/unix-x11/groufix/scene/material.o \
- $(OUT)/unix-x11/groufix/scene/mesh.o \
- $(OUT)/unix-x11/groufix/math.o \
- $(OUT)/unix-x11/groufix.o
-
-EXAMPLES_UNIX_X11 = \
- $(BIN)/unix-x11/minimal \
- $(BIN)/unix-x11/simple
+ $(OBJS) \
+ $(OUT)/groufix/core/platform/unix_file.o \
+ $(OUT)/groufix/core/platform/unix_threading.o \
+ $(OUT)/groufix/core/platform/unix_time.o \
+ $(OUT)/groufix/core/platform/x11_context.o \
+ $(OUT)/groufix/core/platform/x11_init.o \
+ $(OUT)/groufix/core/platform/x11_screen.o \
+ $(OUT)/groufix/core/platform/x11_window.o \
 
 
 # All the object and source files
-$(OUT)/unix-x11%.o: src%.c $(HEADERS_UNIX_X11) | $(OUT)
+$(OUT)/%.o: src/%.c $(HEADERS_UNIX_X11) | $(OUT)
 	$(CC) $(OBJFLAGS_UNIX_X11) $< -o $@
 
-$(BIN)/unix-x11/libGroufix.so: $(OBJS_UNIX_X11) | $(BIN)
+$(BIN)/libGroufix.so: $(OBJS_UNIX_X11) | $(BIN)
 	$(CC) $(OBJS_UNIX_X11) -o $@ $(LFLAGS_UNIX_X11)
 
-$(BIN)/unix-x11%: examples%.c $(BIN)/unix-x11/libGroufix.so
-	$(CC) $(CFLAGS_UNIX_X11) $< -o $@ -L$(BIN)/unix-x11/ -Wl,-rpath='$$ORIGIN' -lGroufix
+$(BIN)/%: examples/%.c $(BIN)/libGroufix.so
+	$(CC) $(CFLAGS_UNIX_X11) $< -o $@ -L$(BIN)/ -Wl,-rpath='$$ORIGIN' -lGroufix
 
 
 # Available targets
-unix-x11: $(BIN)/unix-x11/libGroufix.so
-unix-x11-examples: $(EXAMPLES_UNIX_X11)
+unix-x11:
+	@$(MAKE) $(BIN)/unix-x11/libGroufix.so BIN=$(BIN)/unix-x11 OUT=$(OUT)/unix-x11
+unix-x11-examples:
+	@$(MAKE) $(BIN)/unix-x11/minimal BIN=$(BIN)/unix-x11 OUT=$(OUT)/unix-x11
+	@$(MAKE) $(BIN)/unix-x11/simple BIN=$(BIN)/unix-x11 OUT=$(OUT)/unix-x11
 
 
 #################################################################
 # Windows builds
 #################################################################
-
-# Renderer sources
-ifeq ($(RENDERER),GL)
- OBJS_RENDERER_WIN32 = \
-  $(OUT)/win32/groufix/core/renderer/gl_binder.o \
-  $(OUT)/win32/groufix/core/renderer/gl_emulate.o \
-  $(OUT)/win32/groufix/core/renderer/gl_formats.o \
-  $(OUT)/win32/groufix/core/renderer/gl_load.o \
-
-else ifeq ($(RENDERER),GLES)
- OBJS_RENDERER_WIN32 = \
-  $(OUT)/win32/groufix/core/renderer/gl_binder.o \
-  $(OUT)/win32/groufix/core/renderer/gl_emulate.o \
-  $(OUT)/win32/groufix/core/renderer/gl_formats.o \
-  $(OUT)/win32/groufix/core/renderer/gl_load.o \
-
-endif
-
 
 # Platform headers & sources
 HEADERS_WIN32 = \
@@ -288,62 +278,31 @@ HEADERS_WIN32 = \
  src/groufix/core/platform/win32.h
 
 OBJS_WIN32 = \
- $(OBJS_RENDERER_WIN32) \
- $(OUT)/win32/groufix/containers/deque.o \
- $(OUT)/win32/groufix/containers/list.o \
- $(OUT)/win32/groufix/containers/thread_pool.o \
- $(OUT)/win32/groufix/containers/vector.o \
- $(OUT)/win32/groufix/core/platform/win32_context.o \
- $(OUT)/win32/groufix/core/platform/win32_file.o \
- $(OUT)/win32/groufix/core/platform/win32_init.o \
- $(OUT)/win32/groufix/core/platform/win32_screen.o \
- $(OUT)/win32/groufix/core/platform/win32_strings.o \
- $(OUT)/win32/groufix/core/platform/win32_threading.o \
- $(OUT)/win32/groufix/core/platform/win32_time.o \
- $(OUT)/win32/groufix/core/platform/win32_window.o \
- $(OUT)/win32/groufix/core/bucket.o \
- $(OUT)/win32/groufix/core/buffer.o \
- $(OUT)/win32/groufix/core/errors.o \
- $(OUT)/win32/groufix/core/events.o \
- $(OUT)/win32/groufix/core/layout.o \
- $(OUT)/win32/groufix/core/objects.o \
- $(OUT)/win32/groufix/core/pipe.o \
- $(OUT)/win32/groufix/core/pipeline.o \
- $(OUT)/win32/groufix/core/process.o \
- $(OUT)/win32/groufix/core/program.o \
- $(OUT)/win32/groufix/core/program_map.o \
- $(OUT)/win32/groufix/core/property_map.o \
- $(OUT)/win32/groufix/core/sampler.o \
- $(OUT)/win32/groufix/core/screen.o \
- $(OUT)/win32/groufix/core/shader.o \
- $(OUT)/win32/groufix/core/shared_buffer.o \
- $(OUT)/win32/groufix/core/states.o \
- $(OUT)/win32/groufix/core/texture.o \
- $(OUT)/win32/groufix/core/types.o \
- $(OUT)/win32/groufix/core/window.o \
- $(OUT)/win32/groufix/scene/batch.o \
- $(OUT)/win32/groufix/scene/lod_map.o \
- $(OUT)/win32/groufix/scene/material.o \
- $(OUT)/win32/groufix/scene/mesh.o \
- $(OUT)/win32/groufix/math.o \
- $(OUT)/win32/groufix.o
-
-EXAMPLES_WIN32 = \
- $(BIN)/win32/minimal \
- $(BIN)/win32/simple
+ $(OBJS) \
+ $(OUT)/groufix/core/platform/win32_context.o \
+ $(OUT)/groufix/core/platform/win32_file.o \
+ $(OUT)/groufix/core/platform/win32_init.o \
+ $(OUT)/groufix/core/platform/win32_screen.o \
+ $(OUT)/groufix/core/platform/win32_strings.o \
+ $(OUT)/groufix/core/platform/win32_threading.o \
+ $(OUT)/groufix/core/platform/win32_time.o \
+ $(OUT)/groufix/core/platform/win32_window.o \
 
 
 # All the object and source files
-$(OUT)/win32%.o: src%.c $(HEADERS_WIN32) | $(OUT)
+$(OUT)/%.o: src/%.c $(HEADERS_WIN32) | $(OUT)
 	$(CC) $(OBJFLAGS_WIN32) $< -o $@
 
-$(BIN)/win32/libGroufix.dll: $(OBJS_WIN32) | $(BIN)
+$(BIN)/libGroufix.dll: $(OBJS_WIN32) | $(BIN)
 	$(CC) $(OBJS_WIN32) -o $@ $(LFLAGS_WIN32)
 
-$(BIN)/win32%: examples%.c $(BIN)/win32/libGroufix.dll
-	$(CC) $(CFLAGS_WIN32) $< -o $@ -L$(BIN)/win32/ -lGroufix
+$(BIN)/%: examples/%.c $(BIN)/libGroufix.dll
+	$(CC) $(CFLAGS_WIN32) $< -o $@ -L$(BIN)/ -lGroufix
 
 
 # Available targets
-win32: $(BIN)/win32/libGroufix.dll
-win32-examples: $(EXAMPLES_WIN32)
+win32:
+	@$(MAKE) $(BIN)/win32/libGroufix.dll BIN=$(BIN)/win32 OUT=$(OUT)/win32
+win32-examples:
+	@$(MAKE) $(BIN)/win32/minimal BIN=$(BIN)/win32 OUT=$(OUT)/win32
+	@$(MAKE) $(BIN)/win32/simple BIN=$(BIN)/win32 OUT=$(OUT)/win32
