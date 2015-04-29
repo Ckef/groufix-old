@@ -195,8 +195,7 @@ static void _gfx_layout_draw_indexed_instanced_base(
 static void _gfx_layout_invoke_draw(
 
 		const GFX_Layout*  layout,
-		unsigned char      startIndex,
-		unsigned char      num,
+		unsigned char      draw,
 		size_t             inst,
 		unsigned int       base,
 		GFX_DrawType       type,
@@ -216,12 +215,9 @@ static void _gfx_layout_invoke_draw(
 	/* Get table index */
 	type = (type << 1) + (layout->indexBuffer ? 1 : 0);
 
-	/* Iterate over all draw calls & invoke */
-	const GFXDrawCall* call =
-		(const GFXDrawCall*)(layout + 1) + startIndex;
-
-	while(num--) jump[type](
-		call++,
+	/* Invoke the draw call */
+	jump[type](
+		(const GFXDrawCall*)(layout + 1) + draw,
 		layout->indexOffset,
 		inst,
 		base,
@@ -648,8 +644,7 @@ void _gfx_vertex_layout_draw(
 
 		_gfx_layout_invoke_draw(
 			internal,
-			source.startDraw,
-			source.numDraw,
+			source.drawIndex,
 			inst,
 			base,
 			type,
@@ -661,8 +656,7 @@ void _gfx_vertex_layout_draw(
 	/* Draw without feedback buffer */
 	else _gfx_layout_invoke_draw(
 		internal,
-		source.startDraw,
-		source.numDraw,
+		source.drawIndex,
 		inst,
 		base,
 		type,

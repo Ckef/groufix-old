@@ -352,16 +352,6 @@ typedef struct GFXVertexAttribute
 } GFXVertexAttribute;
 
 
-/** Feedback buffer argument */
-typedef struct GFXFeedbackBuffer
-{
-	GFXBuffer*  buffer;
-	size_t      offset; /* Must be 4-byte aligned */
-	size_t      size;
-
-} GFXFeedbackBuffer;
-
-
 /** Draw call */
 typedef struct GFXDrawCall
 {
@@ -371,6 +361,16 @@ typedef struct GFXDrawCall
 	GFXUnpackedType  indexType; /* Can only be an unsigned type */
 
 } GFXDrawCall;
+
+
+/** Feedback buffer argument */
+typedef struct GFXFeedbackBuffer
+{
+	GFXBuffer*  buffer;
+	size_t      offset; /* Must be 4-byte aligned */
+	size_t      size;
+
+} GFXFeedbackBuffer;
 
 
 /********************************************************

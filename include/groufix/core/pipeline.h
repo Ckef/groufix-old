@@ -43,9 +43,7 @@ typedef enum GFXBucketFlags
 /** Source to sample from a vertex layout */
 typedef struct GFXVertexSource
 {
-	unsigned char  startDraw;
-	unsigned char  numDraw;
-
+	unsigned char  drawIndex;
 	unsigned char  startFeedback;
 	unsigned char  numFeedback;
 

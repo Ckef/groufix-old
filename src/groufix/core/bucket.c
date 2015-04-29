@@ -595,16 +595,12 @@ int gfx_bucket_set_source(
 	if(src >= cnt)
 		return 0;
 
+	/* Check source and draw call index */
 	GFX_Source* source = gfx_vector_at(&internal->sources, src);
-	if(!source->layout)
-		return 0;
-
-	/* Check draw call boundaries */
-	if(values.startDraw + values.numDraw > source->layout->drawCalls)
+	if(!source->layout || values.drawIndex >= source->layout->drawCalls)
 		return 0;
 
 	source->source = values;
-
 	return 1;
 }
 

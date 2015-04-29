@@ -528,12 +528,12 @@ int gfx_mesh_add(
 {
 	--layout;
 
-	/* Check draw call boundaries */
+	/* Check draw call index */
 	GFXVertexLayout* lay = _gfx_mesh_get_layout(
 		(GFX_Mesh*)mesh,
 		layout);
 
-	if(source.startDraw + source.numDraw > lay->drawCalls)
+	if(source.drawIndex >= lay->drawCalls)
 		return 0;
 
 	/* First extend the bucket vector */
@@ -544,8 +544,7 @@ int gfx_mesh_add(
 	GFX_SourceData data;
 	memset(&data, 0, sizeof(GFX_SourceData));
 
-	data.source.startDraw     = source.startDraw;
-	data.source.numDraw       = source.numDraw;
+	data.source.drawIndex     = source.drawIndex;
 	data.source.startFeedback = source.startFeedback;
 	data.source.numFeedback   = source.numFeedback;
 

@@ -43,7 +43,7 @@ GFXMesh* create_mesh()
 	GFXMeshBuffer buff = gfx_mesh_add_buffer(mesh, sizeof(triangle), triangle);
 	gfx_mesh_set_vertex_buffer(mesh, id, buff, 0, 0, sizeof(float) * 6);
 
-	GFXVertexSource source = { 0, 1, 0, 0 };
+	GFXVertexSource source = { 0, 0, 0 };
 	gfx_mesh_add(mesh, 0, source, id);
 
 	return mesh;
