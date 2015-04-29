@@ -25,6 +25,7 @@ typedef void (*GFX_DrawFunc)(
 		size_t,
 		size_t,
 		unsigned int,
+		int,
 		GFX_WIND_ARG);
 
 
@@ -91,13 +92,51 @@ static void _gfx_layout_draw(
 		const GFXDrawCall*  call,
 		size_t              offset,
 		size_t              inst,
-		unsigned int        base,
+		unsigned int        instBase,
+		int                 vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawArrays(
 		call->primitive,
-		call->first,
+		call->first + vertBase,
 		call->count
+	);
+}
+
+/******************************************************/
+static void _gfx_layout_draw_instanced(
+
+		const GFXDrawCall*  call,
+		size_t              offset,
+		size_t              inst,
+		unsigned int        instBase,
+		int                 vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawArraysInstanced(
+		call->primitive,
+		call->first + vertBase,
+		call->count,
+		inst
+	);
+}
+
+/******************************************************/
+static void _gfx_layout_draw_instanced_base(
+
+		const GFXDrawCall*  call,
+		size_t              offset,
+		size_t              inst,
+		unsigned int        instBase,
+		int                 vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawArraysInstancedBaseInstance(
+		call->primitive,
+		call->first + vertBase,
+		call->count,
+		inst,
+		instBase
 	);
 }
 
@@ -107,7 +146,8 @@ static void _gfx_layout_draw_indexed(
 		const GFXDrawCall*  call,
 		size_t              offset,
 		size_t              inst,
-		unsigned int        base,
+		unsigned int        instBase,
+		int                 vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElements(
@@ -119,29 +159,13 @@ static void _gfx_layout_draw_indexed(
 }
 
 /******************************************************/
-static void _gfx_layout_draw_instanced(
-
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        base,
-		GFX_WIND_ARG)
-{
-	GFX_REND_GET.DrawArraysInstanced(
-		call->primitive,
-		call->first,
-		call->count,
-		inst
-	);
-}
-
-/******************************************************/
 static void _gfx_layout_draw_indexed_instanced(
 
 		const GFXDrawCall*  call,
 		size_t              offset,
 		size_t              inst,
-		unsigned int        base,
+		unsigned int        instBase,
+		int                 vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstanced(
@@ -154,30 +178,13 @@ static void _gfx_layout_draw_indexed_instanced(
 }
 
 /******************************************************/
-static void _gfx_layout_draw_instanced_base(
-
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        base,
-		GFX_WIND_ARG)
-{
-	GFX_REND_GET.DrawArraysInstancedBaseInstance(
-		call->primitive,
-		call->first,
-		call->count,
-		inst,
-		base
-	);
-}
-
-/******************************************************/
 static void _gfx_layout_draw_indexed_instanced_base(
 
 		const GFXDrawCall*  call,
 		size_t              offset,
 		size_t              inst,
-		unsigned int        base,
+		unsigned int        instBase,
+		int                 vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseInstance(
@@ -186,7 +193,67 @@ static void _gfx_layout_draw_indexed_instanced_base(
 		call->indexType,
 		(GLvoid*)(offset + call->first),
 		inst,
-		base
+		instBase
+	);
+}
+
+/******************************************************/
+static void _gfx_layout_draw_indexed_vertex(
+
+		const GFXDrawCall*  call,
+		size_t              offset,
+		size_t              inst,
+		unsigned int        instBase,
+		int                 vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawElementsBaseVertex(
+		call->primitive,
+		call->count,
+		call->indexType,
+		(GLvoid*)(offset + call->first),
+		vertBase
+	);
+}
+
+/******************************************************/
+static void _gfx_layout_draw_indexed_instanced_vertex(
+
+		const GFXDrawCall*  call,
+		size_t              offset,
+		size_t              inst,
+		unsigned int        instBase,
+		int                 vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawElementsInstancedBaseVertex(
+		call->primitive,
+		call->count,
+		call->indexType,
+		(GLvoid*)(offset + call->first),
+		inst,
+		vertBase
+	);
+}
+
+/******************************************************/
+static void _gfx_layout_draw_indexed_instanced_base_vertex(
+
+		const GFXDrawCall*  call,
+		size_t              offset,
+		size_t              inst,
+		unsigned int        instBase,
+		int                 vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawElementsInstancedBaseVertexBaseInstance(
+		call->primitive,
+		call->count,
+		call->indexType,
+		(GLvoid*)(offset + call->first),
+		inst,
+		vertBase,
+		instBase
 	);
 }
 
@@ -196,7 +263,8 @@ static void _gfx_layout_invoke_draw(
 		const GFX_Layout*  layout,
 		unsigned char      draw,
 		size_t             inst,
-		unsigned int       base,
+		unsigned int       instBase,
+		int                vertBase,
 		GFX_DrawType       type,
 		GFX_WIND_ARG)
 {
@@ -204,22 +272,26 @@ static void _gfx_layout_invoke_draw(
 	static const GFX_DrawFunc jump[] =
 	{
 		_gfx_layout_draw,
-		_gfx_layout_draw_indexed,
 		_gfx_layout_draw_instanced,
-		_gfx_layout_draw_indexed_instanced,
 		_gfx_layout_draw_instanced_base,
-		_gfx_layout_draw_indexed_instanced_base
+		_gfx_layout_draw_indexed,
+		_gfx_layout_draw_indexed_instanced,
+		_gfx_layout_draw_indexed_instanced_base,
+		_gfx_layout_draw_indexed_vertex,
+		_gfx_layout_draw_indexed_instanced_vertex,
+		_gfx_layout_draw_indexed_instanced_base_vertex
 	};
 
 	/* Get table index */
-	type = (type << 1) + (layout->indexBuffer ? 1 : 0);
+	type += layout->indexBuffer ? (vertBase ? 6 : 3) : 0;
 
 	/* Invoke the draw call */
 	jump[type](
 		(const GFXDrawCall*)(layout + 1) + draw,
 		layout->indexOffset,
 		inst,
-		base,
+		instBase,
+		vertBase,
 		GFX_WIND_AS_ARG
 	);
 }
@@ -606,7 +678,8 @@ void _gfx_vertex_layout_draw(
 		const GFXVertexLayout*  layout,
 		GFXVertexSource         source,
 		size_t                  inst,
-		unsigned int            base,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_DrawType            type,
 		GFX_WIND_ARG)
 {
@@ -645,7 +718,8 @@ void _gfx_vertex_layout_draw(
 			internal,
 			source.drawIndex,
 			inst,
-			base,
+			instBase,
+			vertBase,
 			type,
 			GFX_WIND_AS_ARG);
 
@@ -657,7 +731,8 @@ void _gfx_vertex_layout_draw(
 		internal,
 		source.drawIndex,
 		inst,
-		base,
+		instBase,
+		vertBase,
 		type,
 		GFX_WIND_AS_ARG
 	);

@@ -22,19 +22,19 @@
  * GL core & GL ES emulators
  *******************************************************/
 
-static void _gfx_gl_error_base_instance(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_INSTANCED_BASE_ATTRIBUTES is incompatible with this context."
-	);
-}
-
 static void _gfx_gl_error_direct_state_access(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
 		"GFX_EXT_DIRECT_STATE_ACCESS is incompatible with this context."
+	);
+}
+
+static void _gfx_gl_error_instanced_base_attributes(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_INSTANCED_BASE_ATTRIBUTES is incompatible with this context."
 	);
 }
 
@@ -189,7 +189,7 @@ void APIENTRY _gfx_gl_draw_arrays_instanced_base_instance(
 		GLsizei  primcount,
 		GLuint   baseinstance)
 {
-	_gfx_gl_error_base_instance();
+	_gfx_gl_error_instanced_base_attributes();
 }
 
 void APIENTRY _gfx_gl_draw_elements_instanced_base_instance(
@@ -201,7 +201,20 @@ void APIENTRY _gfx_gl_draw_elements_instanced_base_instance(
 		GLsizei        primcount,
 		GLuint         baseinstance)
 {
-	_gfx_gl_error_base_instance();
+	_gfx_gl_error_instanced_base_attributes();
+}
+
+void APIENTRY _gfx_gl_draw_elements_instanced_base_vertex_base_instance(
+
+		GLenum         mode,
+		GLsizei        count,
+		GLenum         type,
+		const GLvoid*  indices,
+		GLsizei        primcount,
+		GLint          basevertex,
+		GLuint         baseinstance)
+{
+	_gfx_gl_error_instanced_base_attributes();
 }
 
 void APIENTRY _gfx_gl_enable_vertex_array_attrib(
@@ -809,7 +822,7 @@ void APIENTRY _gfx_gl_vertex_binding_divisor(
  * GL ES emulators
  *******************************************************/
 
-static void _gfx_gles_error_tex_buffer(void)
+static void _gfx_gles_error_buffer_texture(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -817,7 +830,7 @@ static void _gfx_gles_error_tex_buffer(void)
 	);
 }
 
-static void _gfx_gles_error_layered_multisample_tex(void)
+static void _gfx_gles_error_layered_multisample_texture(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -825,12 +838,43 @@ static void _gfx_gles_error_layered_multisample_tex(void)
 	);
 }
 
-static void _gfx_gles_error_multisample_tex(void)
+static void _gfx_gles_error_multisample_texture(void)
 {
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
 		"GFX_EXT_MULTISAMPLE_TEXTURE is incompatible with this context."
 	);
+}
+
+static void _gfx_gles_error_vertex_base(void)
+{
+	gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"GFX_EXT_VERTEX_BASE is incompatible with this context."
+	);
+}
+
+void APIENTRY _gfx_gles_draw_elements_base_vertex(
+
+		GLenum         mode,
+		GLsizei        count,
+		GLenum         type,
+		const GLvoid*  indices,
+		GLint          basevertex)
+{
+	_gfx_gles_error_vertex_base();
+}
+
+void APIENTRY _gfx_gles_draw_elements_instanced_base_vertex(
+
+		GLenum         mode,
+		GLsizei        count,
+		GLenum         type,
+		const GLvoid*  indices,
+		GLsizei        primcount,
+		GLint          basevertex)
+{
+	_gfx_gles_error_vertex_base();
 }
 
 void APIENTRY _gfx_gles_framebuffer_texture(
@@ -840,7 +884,7 @@ void APIENTRY _gfx_gles_framebuffer_texture(
 		GLuint  texture,
 		GLint   level)
 {
-	_gfx_gles_error_tex_buffer();
+	_gfx_gles_error_buffer_texture();
 }
 
 void APIENTRY _gfx_gles_get_buffer_sub_data(
@@ -907,7 +951,7 @@ void APIENTRY _gfx_gles_tex_buffer(
 		GLenum  internalFormat,
 		GLuint  buffer)
 {
-	_gfx_gles_error_tex_buffer();
+	_gfx_gles_error_buffer_texture();
 }
 
 void APIENTRY _gfx_gles_tex_image_2d_multisample(
@@ -919,7 +963,7 @@ void APIENTRY _gfx_gles_tex_image_2d_multisample(
 		GLsizei    h,
 		GLboolean  f)
 {
-	_gfx_gles_error_multisample_tex();
+	_gfx_gles_error_multisample_texture();
 }
 
 void APIENTRY _gfx_gles_tex_image_3d_multisample(
@@ -932,7 +976,7 @@ void APIENTRY _gfx_gles_tex_image_3d_multisample(
 		GLsizei    d,
 		GLboolean  f)
 {
-	_gfx_gles_error_layered_multisample_tex();
+	_gfx_gles_error_layered_multisample_texture();
 }
 
 void APIENTRY _gfx_gles_tex_storage_2d_multisample(
@@ -944,7 +988,7 @@ void APIENTRY _gfx_gles_tex_storage_2d_multisample(
 		GLsizei    h,
 		GLboolean  f)
 {
-	_gfx_gles_error_multisample_tex();
+	_gfx_gles_error_multisample_texture();
 }
 
 void APIENTRY _gfx_gles_tex_storage_3d_multisample(
@@ -957,7 +1001,7 @@ void APIENTRY _gfx_gles_tex_storage_3d_multisample(
 		GLsizei    d,
 		GLboolean  f)
 {
-	_gfx_gles_error_layered_multisample_tex();
+	_gfx_gles_error_layered_multisample_texture();
 }
 
 

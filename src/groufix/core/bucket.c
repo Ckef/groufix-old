@@ -70,18 +70,19 @@ typedef struct GFX_Source
 typedef struct GFX_Unit
 {
 	/* Sorting */
-	GFXUnitState           state;   /* Combination of unit state, action and manual state */
-	GFXBucketUnit          ref;     /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
-	GLuint                 program; /* Program or program map to sort on */
-	GLuint                 vao;     /* layout to sort on */
+	GFXUnitState           state;    /* Combination of unit state, action and manual state */
+	GFXBucketUnit          ref;      /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
+	GLuint                 program;  /* Program or program map to sort on */
+	GLuint                 vao;      /* layout to sort on */
 
 	/* Drawing */
 	const GFXPropertyMap*  map;
-	unsigned int           copy;   /* Copy of the property map to use */
-	GFXBucketSource        src;    /* Source of the bucket to use (ID - 1) */
+	unsigned int           copy;     /* Copy of the property map to use */
+	GFXBucketSource        src;      /* Source of the bucket to use (ID - 1) */
 
-	size_t                 inst;   /* Number of instances */
-	unsigned int           base;   /* Base instance */
+	size_t                 inst;     /* Number of instances */
+	unsigned int           instBase; /* Instance base */
+	int                    vertBase; /* Vertex base */
 	GFX_DrawType           type;
 
 } GFX_Unit;
@@ -415,7 +416,7 @@ static void _gfx_bucket_set_draw_type(
 		base = GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
 
 	unit->type =
-		(unit->base != 0 && base) ?
+		(unit->instBase != 0 && base) ?
 			GFX_INT_DRAW_INSTANCED_BASE :
 		(unit->inst != 1) ?
 			GFX_INT_DRAW_INSTANCED :
@@ -515,14 +516,15 @@ void _gfx_bucket_process(
 		_gfx_property_map_use(
 			unit->map,
 			unit->copy,
-			unit->base,
+			unit->instBase,
 			GFX_WIND_AS_ARG);
 
 		_gfx_vertex_layout_draw(
 			src->layout,
 			src->source,
 			unit->inst,
-			unit->base,
+			unit->instBase,
+			unit->vertBase,
 			unit->type,
 			GFX_WIND_AS_ARG);
 	}
@@ -695,15 +697,16 @@ GFXBucketUnit gfx_bucket_insert(
 	/* Initialize the new unit */
 	GFX_Unit unit;
 
-	unit.state   = visible ? GFX_INT_UNIT_VISIBLE : 0;
-	unit.program = _gfx_program_map_get_handle(map->programMap);
-	unit.vao     = _gfx_vertex_layout_get_handle(source->layout);
+	unit.state    = visible ? GFX_INT_UNIT_VISIBLE : 0;
+	unit.program  = _gfx_program_map_get_handle(map->programMap);
+	unit.vao      = _gfx_vertex_layout_get_handle(source->layout);
 
-	unit.map  = map;
-	unit.copy = copy;
-	unit.src  = src;
-	unit.inst = 1;
-	unit.base = 0;
+	unit.map      = map;
+	unit.copy     = copy;
+	unit.src      = src;
+	unit.inst     = 1;
+	unit.instBase = 0;
+	unit.vertBase = 0;
 
 	_gfx_bucket_set_draw_type(&unit);
 
@@ -760,7 +763,16 @@ unsigned int gfx_bucket_get_instance_base(
 		const GFXBucket*  bucket,
 		GFXBucketUnit     unit)
 {
-	return _gfx_bucket_ref_get((const GFX_Bucket*)bucket, unit)->base;
+	return _gfx_bucket_ref_get((const GFX_Bucket*)bucket, unit)->instBase;
+}
+
+/******************************************************/
+int gfx_bucket_get_vertex_base(
+
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit)
+{
+	return _gfx_bucket_ref_get((const GFX_Bucket*)bucket, unit)->vertBase;
 }
 
 /******************************************************/
@@ -814,9 +826,20 @@ void gfx_bucket_set_instance_base(
 		unsigned int   base)
 {
 	GFX_Unit* un = _gfx_bucket_ref_get((GFX_Bucket*)bucket, unit);
-	un->base = base;
+	un->instBase = base;
 
 	_gfx_bucket_set_draw_type(un);
+}
+
+/******************************************************/
+void gfx_bucket_set_vertex_base(
+
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		int            base)
+{
+	GFX_Unit* un = _gfx_bucket_ref_get((GFX_Bucket*)bucket, unit);
+	un->vertBase = base;
 }
 
 /******************************************************/

@@ -488,7 +488,8 @@ void _gfx_vertex_layout_draw(
 		const GFXVertexLayout*  layout,
 		GFXVertexSource         source,
 		size_t                  inst,
-		unsigned int            base,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_DrawType            type,
 		GFX_WIND_ARG);
 
