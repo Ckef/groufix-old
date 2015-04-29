@@ -402,6 +402,27 @@ static void _gfx_bucket_preprocess(
 }
 
 /******************************************************/
+static void _gfx_bucket_set_draw_type(
+
+		GFX_Unit* unit)
+{
+	GFX_WIND_INIT_UNSAFE;
+
+	unsigned int base = 0;
+
+	/* Check the extension for base instancing */
+	if(!GFX_WIND_EQ(NULL))
+		base = GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
+
+	unit->type =
+		(unit->base != 0 && base) ?
+			GFX_INT_DRAW_INSTANCED_BASE :
+		(unit->inst != 1) ?
+			GFX_INT_DRAW_INSTANCED :
+			GFX_INT_DRAW;
+}
+
+/******************************************************/
 GFXBucket* _gfx_bucket_create(
 
 		unsigned char   bits,
@@ -652,29 +673,6 @@ void gfx_bucket_remove_source(
 }
 
 /******************************************************/
-static void _gfx_bucket_set_draw_type(
-
-		GFX_Bucket*  bucket,
-		GFX_Unit*    unit)
-{
-	/* Check at vertex layout whether to use base instances */
-	GFX_Source* src = gfx_vector_at(&bucket->sources, unit->src);
-	unsigned int inst = gfx_vertex_layout_count_instanced(src->layout);
-
-	/* Also check the extension for base instancing */
-	GFX_WIND_INIT_UNSAFE;
-	if(!GFX_WIND_EQ(NULL))
-		inst = inst && GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
-
-	unit->type =
-		(unit->base != 0 && inst) ?
-			GFX_INT_DRAW_INSTANCED_BASE :
-		(unit->inst != 1) ?
-			GFX_INT_DRAW_INSTANCED :
-			GFX_INT_DRAW;
-}
-
-/******************************************************/
 GFXBucketUnit gfx_bucket_insert(
 
 		GFXBucket*             bucket,
@@ -707,7 +705,7 @@ GFXBucketUnit gfx_bucket_insert(
 	unit.inst = 1;
 	unit.base = 0;
 
-	_gfx_bucket_set_draw_type(internal, &unit);
+	_gfx_bucket_set_draw_type(&unit);
 
 	/* Insert a reference for it */
 	unit.ref = _gfx_bucket_insert_ref(
@@ -805,7 +803,7 @@ void gfx_bucket_set_instances(
 	GFX_Unit* un = _gfx_bucket_ref_get((GFX_Bucket*)bucket, unit);
 	un->inst = instances;
 
-	_gfx_bucket_set_draw_type((GFX_Bucket*)bucket, un);
+	_gfx_bucket_set_draw_type(un);
 }
 
 /******************************************************/
@@ -818,7 +816,7 @@ void gfx_bucket_set_instance_base(
 	GFX_Unit* un = _gfx_bucket_ref_get((GFX_Bucket*)bucket, unit);
 	un->base = base;
 
-	_gfx_bucket_set_draw_type((GFX_Bucket*)bucket, un);
+	_gfx_bucket_set_draw_type(un);
 }
 
 /******************************************************/

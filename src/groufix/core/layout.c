@@ -49,7 +49,6 @@ typedef struct GFX_Layout
 	GLuint              vao;           /* OpenGL handle */
 	GFXVector           attributes;    /* Stores GFX_Attribute */
 	GFXVector           buffers;       /* Stores GFX_Buffer */
-	unsigned int        instanced;     /* Number of buffers with a non-zero divisor */
 
 	GFXPrimitive        TFPrimitive;   /* Feedback output primitive */
 	size_t              TFNumBuffers;
@@ -837,6 +836,49 @@ int gfx_vertex_layout_set_attribute_buffer(
 }
 
 /******************************************************/
+int gfx_vertex_layout_set_draw_call(
+
+		GFXVertexLayout*  layout,
+		unsigned char     index,
+		GFXDrawCall       call)
+{
+	GFX_WIND_INIT(0);
+
+	/* Check index */
+	if(index >= layout->drawCalls) return 0;
+	GFX_Layout* internal = (GFX_Layout*)layout;
+
+	/* Check extensions */
+	if(
+		call.primitive == GFX_PATCHES &&
+		!GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER])
+	{
+		return 0;
+	}
+
+	((GFXDrawCall*)(internal + 1))[index] = call;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_vertex_layout_get_draw_call(
+
+		const GFXVertexLayout*  layout,
+		unsigned char           index,
+		GFXDrawCall*            call)
+{
+	/* Validate index */
+	if(index >= layout->drawCalls) return 0;
+
+	/* Retrieve data */
+	const GFX_Layout* internal = (const GFX_Layout*)layout;
+	*call = ((const GFXDrawCall*)(internal + 1))[index];
+
+	return 1;
+}
+
+/******************************************************/
 int gfx_vertex_layout_set_vertex_buffer(
 
 		GFXVertexLayout*  layout,
@@ -889,49 +931,6 @@ int gfx_vertex_layout_set_shared_vertex_buffer(
 }
 
 /******************************************************/
-int gfx_vertex_layout_set_draw_call(
-
-		GFXVertexLayout*  layout,
-		unsigned char     index,
-		GFXDrawCall       call)
-{
-	GFX_WIND_INIT(0);
-
-	/* Check index */
-	if(index >= layout->drawCalls) return 0;
-	GFX_Layout* internal = (GFX_Layout*)layout;
-
-	/* Check extensions */
-	if(
-		call.primitive == GFX_PATCHES &&
-		!GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER])
-	{
-		return 0;
-	}
-
-	((GFXDrawCall*)(internal + 1))[index] = call;
-
-	return 1;
-}
-
-/******************************************************/
-int gfx_vertex_layout_get_draw_call(
-
-		const GFXVertexLayout*  layout,
-		unsigned char           index,
-		GFXDrawCall*            call)
-{
-	/* Validate index */
-	if(index >= layout->drawCalls) return 0;
-
-	/* Retrieve data */
-	const GFX_Layout* internal = (const GFX_Layout*)layout;
-	*call = ((const GFXDrawCall*)(internal + 1))[index];
-
-	return 1;
-}
-
-/******************************************************/
 void gfx_vertex_layout_set_index_buffer(
 
 		GFXVertexLayout*  layout,
@@ -977,16 +976,8 @@ int gfx_vertex_layout_set_vertex_divisor(
 	if(!_gfx_layout_alloc_buffer(internal, index, GFX_WIND_AS_ARG))
 		return 0;
 
-	/* Update instanced count */
-	GFX_Buffer* set =
-		gfx_vector_at(&internal->buffers, index);
-
-	if(!divisor && set->divisor)
-		--internal->instanced;
-	else if(divisor && !set->divisor)
-		++internal->instanced;
-
 	/* Set divisor */
+	GFX_Buffer* set = gfx_vector_at(&internal->buffers, index);
 	set->divisor = divisor;
 
 	/* Initialize the buffer divisor */
@@ -1002,25 +993,6 @@ int gfx_vertex_layout_set_vertex_divisor(
 		set,
 		GFX_WIND_AS_ARG
 	);
-
-	return 1;
-}
-
-/******************************************************/
-int gfx_vertex_layout_set_patch_vertices(
-
-		GFXVertexLayout*  layout,
-		unsigned int      vertices)
-{
-	GFX_WIND_INIT(0);
-
-	GFX_Layout* internal = (GFX_Layout*)layout;
-
-	/* Bound check */
-	if(vertices > GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES])
-		return 0;
-
-	internal->patchVertices = vertices;
 
 	return 1;
 }
@@ -1077,9 +1049,20 @@ int gfx_vertex_layout_set_feedback(
 }
 
 /******************************************************/
-unsigned int gfx_vertex_layout_count_instanced(
+int gfx_vertex_layout_set_patch_vertices(
 
-		const GFXVertexLayout* layout)
+		GFXVertexLayout*  layout,
+		unsigned int      vertices)
 {
-	return ((const GFX_Layout*)layout)->instanced;
+	GFX_WIND_INIT(0);
+
+	GFX_Layout* internal = (GFX_Layout*)layout;
+
+	/* Bound check */
+	if(vertices > GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES])
+		return 0;
+
+	internal->patchVertices = vertices;
+
+	return 1;
 }
