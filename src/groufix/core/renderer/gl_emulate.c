@@ -54,6 +54,32 @@ static void _gfx_gl_error_separate_vertex_buffers(void)
 	);
 }
 
+void APIENTRY _gfx_gl_bind_buffers_range(
+
+		GLenum             target,
+		GLuint             first,
+		GLsizei            count,
+		const GLuint*      buffers,
+		const GLintptr*    offsets,
+		const GLsizeiptr*  sizes)
+{
+	GFX_WIND_INIT_UNSAFE;
+
+	GLsizei i;
+	for(i = 0; i < count; ++i)
+	{
+		if(!buffers)
+			GFX_REND_GET.BindBufferBase(target, first + i, 0);
+
+		else GFX_REND_GET.BindBufferRange(
+			target,
+			first + i,
+			buffers[i],
+			offsets[i],
+			sizes[i]);
+	}
+}
+
 void APIENTRY _gfx_gl_bind_program_pipeline(
 
 		GLuint pipeline)

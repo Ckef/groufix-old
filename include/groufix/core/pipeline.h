@@ -27,30 +27,6 @@ extern "C" {
 
 
 /********************************************************
- * Bucket metadata
- *******************************************************/
-
-/** Bucket sort flags */
-typedef enum GFXBucketFlags
-{
-	GFX_BUCKET_SORT_PROGRAM        = 0x01,
-	GFX_BUCKET_SORT_VERTEX_LAYOUT  = 0x02,
-	GFX_BUCKET_SORT_ALL            = 0x03
-
-} GFXBucketFlags;
-
-
-/** Source to sample from a vertex layout */
-typedef struct GFXVertexSource
-{
-	unsigned char  drawIndex;
-	unsigned char  startFeedback;
-	unsigned char  numFeedback;
-
-} GFXVertexSource;
-
-
-/********************************************************
  * Buckets to hold render units
  *******************************************************/
 
@@ -64,6 +40,16 @@ typedef unsigned int GFXBucketSource;
 
 /** Bucket unit */
 typedef unsigned int GFXBucketUnit;
+
+
+/** Bucket sort flags */
+typedef enum GFXBucketFlags
+{
+	GFX_BUCKET_SORT_PROGRAM        = 0x01,
+	GFX_BUCKET_SORT_VERTEX_LAYOUT  = 0x02,
+	GFX_BUCKET_SORT_ALL            = 0x03
+
+} GFXBucketFlags;
 
 
 /** Bucket to manage render units */
@@ -99,17 +85,17 @@ GFX_API GFXBucketSource gfx_bucket_add_source(
 		const GFXVertexLayout*  layout);
 
 /**
- * Set the values of a source (default of everything is 0).
+ * Set the draw index of a source (default is 0).
  *
  * @param src Source ID to change the values of.
- * @return Zero when not enough draw calls, non-zero on success.
+ * @return 0 on failure.
  *
  */
 GFX_API int gfx_bucket_set_source(
 
 		GFXBucket*       bucket,
 		GFXBucketSource  src,
-		GFXVertexSource  values);
+		unsigned char    drawIndex);
 
 /**
  * Removes a source from the bucket.

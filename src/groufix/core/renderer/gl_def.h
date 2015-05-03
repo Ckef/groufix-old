@@ -116,7 +116,9 @@ typedef void (APIENTRYP GFX_ATTACHSHADERPROC)                                (GL
 typedef void (APIENTRYP GFX_BEGINTRANSFORMFEEDBACKPROC)                      (GLenum);
 typedef void (APIENTRYP GFX_BINDATTRIBLOCATIONPROC)                          (GLuint, GLuint, const GLchar*);
 typedef void (APIENTRYP GFX_BINDBUFFERPROC)                                  (GLenum, GLuint);
+typedef void (APIENTRYP GFX_BINDBUFFERBASEPROC)                              (GLenum, GLuint, GLuint);
 typedef void (APIENTRYP GFX_BINDBUFFERRANGEPROC)                             (GLenum, GLuint, GLuint, GLintptr, GLsizeiptr);
+typedef void (APIENTRYP GFX_BINDBUFFERSRANGEPROC)                            (GLenum, GLuint, GLsizei, const GLuint*, const GLintptr*, const GLsizeiptr*);
 typedef void (APIENTRYP GFX_BINDFRAMEBUFFERPROC)                             (GLenum, GLuint);
 typedef void (APIENTRYP GFX_BINDPROGRAMPIPELINEPROC)                         (GLuint);
 typedef void (APIENTRYP GFX_BINDSAMPLERPROC)                                 (GLuint, GLuint);
@@ -291,6 +293,7 @@ typedef void (APIENTRYP GFX_VIEWPORTPROC)                                    (GL
 
 
 /* Emulators */
+void APIENTRY _gfx_gl_bind_buffers_range                                (GLenum, GLuint, GLsizei, const GLuint*, const GLintptr*, const GLsizeiptr*);
 void APIENTRY _gfx_gl_bind_program_pipeline                             (GLuint);
 void APIENTRY _gfx_gl_bind_texture_unit                                 (GLuint, GLuint);
 void APIENTRY _gfx_gl_bind_vertex_buffer                                (GLuint, GLuint, GLintptr, GLsizei);
@@ -410,7 +413,9 @@ struct GFX_Renderer
 	GFX_BEGINTRANSFORMFEEDBACKPROC                      BeginTransformFeedback;
 	GFX_BINDATTRIBLOCATIONPROC                          BindAttribLocation;
 	GFX_BINDBUFFERPROC                                  BindBuffer;
+	GFX_BINDBUFFERBASEPROC                              BindBufferBase;
 	GFX_BINDBUFFERRANGEPROC                             BindBufferRange;
+	GFX_BINDBUFFERSRANGEPROC                            BindBuffersRange;
 	GFX_BINDFRAMEBUFFERPROC                             BindFramebuffer;
 	GFX_BINDPROGRAMPIPELINEPROC                         BindProgramPipeline;                         /* GFX_EXT_PROGRAM_MAP, fallback to UseProgram */
 	GFX_BINDSAMPLERPROC                                 BindSampler;                                 /* GFX_EXT_SAMPLER_OBJECTS, fallback to no-op */

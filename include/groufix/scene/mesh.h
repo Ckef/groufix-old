@@ -137,18 +137,18 @@ GFX_API void gfx_mesh_set_index_buffer(
 /**
  * Creates a new vertex source and appends it to a given level of detail.
  *
- * @param level  Level of detail to map to (must be <= mesh->levels).
- * @param source Vertex source to use.
- * @param layout Vertex layout ID to use for the source.
+ * @param level     Level of detail to map to (must be <= mesh->levels).
+ * @param layout    Vertex layout ID to use for the source.
+ * @param drawIndex Draw index into the layout to use.
  * @return Zero on failure.
  *
  */
 GFX_API int gfx_mesh_add(
 
-		GFXMesh*         mesh,
-		unsigned int     level,
-		GFXVertexSource  source,
-		GFXMeshLayout    layout);
+		GFXMesh*       mesh,
+		unsigned int   level,
+		GFXMeshLayout  layout,
+		unsigned char  drawIndex);
 
 /**
  * Returns an abstract list of vertex sources of a given level of detail.
@@ -188,10 +188,10 @@ GFX_API GFXMeshLayout gfx_vertex_source_list_layout_at(
 		unsigned int               index);
 
 /**
- * Index into a list of vertex sources, retrieving the vertex source.
+ * Index into a list of vertex sources, retrieving the draw index.
  *
  */
-GFX_API GFXVertexSource gfx_vertex_source_list_at(
+GFX_API unsigned char gfx_vertex_source_list_at(
 
 		const GFXVertexSourceList  list,
 		unsigned int               index);

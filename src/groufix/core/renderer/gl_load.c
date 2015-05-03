@@ -98,7 +98,9 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.BeginTransformFeedback                      = glBeginTransformFeedback;
 	GFX_REND_GET.BindAttribLocation                          = glBindAttribLocation;
 	GFX_REND_GET.BindBuffer                                  = glBindBuffer;
+	GFX_REND_GET.BindBufferBase                              = glBindBufferBase;
 	GFX_REND_GET.BindBufferRange                             = glBindBufferRange;
+	GFX_REND_GET.BindBuffersRange                            = _gfx_gl_bind_buffers_range;
 	GFX_REND_GET.BindFramebuffer                             = glBindFramebuffer;
 	GFX_REND_GET.BindProgramPipeline                         = _gfx_gl_bind_program_pipeline;
 	GFX_REND_GET.BindSampler                                 = glBindSampler;
@@ -282,8 +284,8 @@ void _gfx_renderer_load(void)
 
 	/* GFX_EXT_GEOMETRY_SHADER */
 	if(
-		_gfx_is_extension_supported("GL_EXT_geometry_shader", GFX_WIND_AS_ARG) ||
-		_gfx_is_extension_supported("GL_OES_geometry_shader", GFX_WIND_AS_ARG))
+		_gfx_is_extension_supported("GL_OES_geometry_shader", GFX_WIND_AS_ARG) ||
+		_gfx_is_extension_supported("GL_EXT_geometry_shader", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_GEOMETRY_SHADER] = 1;
 	}
@@ -405,18 +407,7 @@ void _gfx_renderer_load(void)
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
-	if(_gfx_is_extension_supported("GL_EXT_tessellation_shader", GFX_WIND_AS_ARG))
-	{
-		GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
-
-		glGetIntegerv(GL_MAX_PATCH_VERTICES_EXT, &limit),
-			GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
-
-		GFX_REND_GET.PatchParameteri =
-			(GFX_PATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteriEXT");
-	}
-
-	else if(_gfx_is_extension_supported("GL_OES_tessellation_shader", GFX_WIND_AS_ARG))
+	if(_gfx_is_extension_supported("GL_OES_tessellation_shader", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
 
@@ -427,18 +418,19 @@ void _gfx_renderer_load(void)
 			(GFX_PATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteriOES");
 	}
 
-	/* GFX_EXT_VERTEX_BASE */
-	if(_gfx_is_extension_supported("GL_EXT_elements_base_vertex", GFX_WIND_AS_ARG))
+	else if(_gfx_is_extension_supported("GL_EXT_tessellation_shader", GFX_WIND_AS_ARG))
 	{
-		GFX_WIND_GET.ext[GFX_EXT_VERTEX_BASE_INDICES] = 1;
+		GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
 
-		GFX_REND_GET.DrawElementsBaseVertex =
-			(GFX_DRAWELEMENTSBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsBaseVertexEXT");
-		GFX_REND_GET.DrawElementsInstancedBaseVertex =
-			(GFX_DRAWELEMENTSINSTANCEDBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseVertexEXT");
+		glGetIntegerv(GL_MAX_PATCH_VERTICES_EXT, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
+
+		GFX_REND_GET.PatchParameteri =
+			(GFX_PATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteriEXT");
 	}
 
-	else if(_gfx_is_extension_supported("GL_OES_elements_base_vertex", GFX_WIND_AS_ARG))
+	/* GFX_EXT_VERTEX_BASE */
+	if(_gfx_is_extension_supported("GL_OES_elements_base_vertex", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_VERTEX_BASE_INDICES] = 1;
 
@@ -446,6 +438,16 @@ void _gfx_renderer_load(void)
 			(GFX_DRAWELEMENTSBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsBaseVertexOES");
 		GFX_REND_GET.DrawElementsInstancedBaseVertex =
 			(GFX_DRAWELEMENTSINSTANCEDBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseVertexOES");
+	}
+
+	else if(_gfx_is_extension_supported("GL_EXT_elements_base_vertex", GFX_WIND_AS_ARG))
+	{
+		GFX_WIND_GET.ext[GFX_EXT_VERTEX_BASE_INDICES] = 1;
+
+		GFX_REND_GET.DrawElementsBaseVertex =
+			(GFX_DRAWELEMENTSBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsBaseVertexEXT");
+		GFX_REND_GET.DrawElementsInstancedBaseVertex =
+			(GFX_DRAWELEMENTSINSTANCEDBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseVertexEXT");
 	}
 
 #elif defined(GFX_GL)
@@ -477,8 +479,12 @@ void _gfx_renderer_load(void)
 		(PFNGLBINDATTRIBLOCATIONPROC)_gfx_platform_get_proc_address("glBindAttribLocation");
 	GFX_REND_GET.BindBuffer =
 		(PFNGLBINDBUFFERPROC)_gfx_platform_get_proc_address("glBindBuffer");
+	GFX_REND_GET.BindBufferBase =
+		(PFNGLBINDBUFFERBASEPROC)_gfx_platform_get_proc_address("glBindBufferBase");
 	GFX_REND_GET.BindBufferRange =
 		(PFNGLBINDBUFFERRANGEPROC)_gfx_platform_get_proc_address("glBindBufferRange");
+	GFX_REND_GET.BindBuffersRange =
+		(PFNGLBINDBUFFERSRANGEPROC)_gfx_gl_bind_buffers_range;
 	GFX_REND_GET.BindFramebuffer =
 		(PFNGLBINDFRAMEBUFFERPROC)_gfx_platform_get_proc_address("glBindFramebuffer");
 	GFX_REND_GET.BindProgramPipeline =
@@ -977,6 +983,18 @@ void _gfx_renderer_load(void)
 		_gfx_is_extension_supported("GL_ARB_texture_cube_map_array", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_LAYERED_CUBEMAP] = 1;
+	}
+
+	/* GFX_EXT_MULTI_BIND */
+	if(
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 3) ||
+		_gfx_is_extension_supported("GL_ARB_multi_bind", GFX_WIND_AS_ARG))
+	{
+		GFX_WIND_GET.ext[GFX_EXT_MULTI_BIND] = 1;
+
+		GFX_REND_GET.BindBuffersRange =
+			(PFNGLBINDBUFFERSRANGEPROC)_gfx_platform_get_proc_address("glBindBuffersRange");
 	}
 
 	/* GFX_EXT_PROGRAM_BINARY */

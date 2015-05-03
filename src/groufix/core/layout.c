@@ -29,16 +29,6 @@ typedef void (*GFX_DrawFunc)(
 		GFX_WIND_ARG);
 
 
-/* Internal transform feedback buffer */
-typedef struct GFX_TFBuffer
-{
-	GLuint      buffer;
-	GLintptr    offset;
-	GLsizeiptr  size;
-
-} GFX_TFBuffer;
-
-
 /* Internal Vertex layout */
 typedef struct GFX_Layout
 {
@@ -50,10 +40,6 @@ typedef struct GFX_Layout
 	GLuint              vao;           /* OpenGL handle */
 	GFXVector           attributes;    /* Stores GFX_Attribute */
 	GFXVector           buffers;       /* Stores GFX_Buffer */
-
-	GFXPrimitive        TFPrimitive;   /* Feedback output primitive */
-	size_t              TFNumBuffers;
-	GFX_TFBuffer*       TFBuffers;     /* Transform Feedback buffers */
 
 	GLuint              indexBuffer;
 	size_t              indexOffset;   /* Byte offset into index buffer */
@@ -254,45 +240,6 @@ static void _gfx_layout_draw_indexed_instanced_base_vertex(
 		inst,
 		vertBase,
 		instBase
-	);
-}
-
-/******************************************************/
-static void _gfx_layout_invoke_draw(
-
-		const GFX_Layout*  layout,
-		unsigned char      draw,
-		size_t             inst,
-		unsigned int       instBase,
-		int                vertBase,
-		GFX_DrawType       type,
-		GFX_WIND_ARG)
-{
-	/* Jump table */
-	static const GFX_DrawFunc jump[] =
-	{
-		_gfx_layout_draw,
-		_gfx_layout_draw_instanced,
-		_gfx_layout_draw_instanced_base,
-		_gfx_layout_draw_indexed,
-		_gfx_layout_draw_indexed_instanced,
-		_gfx_layout_draw_indexed_instanced_base,
-		_gfx_layout_draw_indexed_vertex,
-		_gfx_layout_draw_indexed_instanced_vertex,
-		_gfx_layout_draw_indexed_instanced_base_vertex
-	};
-
-	/* Get table index */
-	type += layout->indexBuffer ? (vertBase ? 6 : 3) : 0;
-
-	/* Invoke the draw call */
-	jump[type](
-		(const GFXDrawCall*)(layout + 1) + draw,
-		layout->indexOffset,
-		inst,
-		instBase,
-		vertBase,
-		GFX_WIND_AS_ARG
 	);
 }
 
@@ -676,7 +623,7 @@ GLuint _gfx_vertex_layout_get_handle(
 void _gfx_vertex_layout_draw(
 
 		const GFXVertexLayout*  layout,
-		GFXVertexSource         source,
+		unsigned char           drawIndex,
 		size_t                  inst,
 		unsigned int            instBase,
 		int                     vertBase,
@@ -694,46 +641,30 @@ void _gfx_vertex_layout_draw(
 		internal->patchVertices,
 		GFX_WIND_AS_ARG);
 
-	/* Draw using a feedback buffer */
-	if(source.numFeedback)
+	/* Jump table */
+	static const GFX_DrawFunc jump[] =
 	{
-		while(source.numFeedback--)
-		{
-			size_t i = source.startFeedback + source.numFeedback;
+		_gfx_layout_draw,
+		_gfx_layout_draw_instanced,
+		_gfx_layout_draw_instanced_base,
+		_gfx_layout_draw_indexed,
+		_gfx_layout_draw_indexed_instanced,
+		_gfx_layout_draw_indexed_instanced_base,
+		_gfx_layout_draw_indexed_vertex,
+		_gfx_layout_draw_indexed_instanced_vertex,
+		_gfx_layout_draw_indexed_instanced_base_vertex
+	};
 
-			GFX_REND_GET.BindBufferRange(
-				GL_TRANSFORM_FEEDBACK_BUFFER,
-				source.numFeedback,
-				internal->TFBuffers[i].buffer,
-				internal->TFBuffers[i].offset,
-				internal->TFBuffers[i].size
-			);
-		}
+	/* Get table index */
+	type += internal->indexBuffer ? (vertBase ? 6 : 3) : 0;
 
-		/* Begin feedback, draw, end feedback */
-		GFX_REND_GET.BeginTransformFeedback(
-			internal->TFPrimitive);
-
-		_gfx_layout_invoke_draw(
-			internal,
-			source.drawIndex,
-			inst,
-			instBase,
-			vertBase,
-			type,
-			GFX_WIND_AS_ARG);
-
-		GFX_REND_GET.EndTransformFeedback();
-	}
-
-	/* Draw without feedback buffer */
-	else _gfx_layout_invoke_draw(
-		internal,
-		source.drawIndex,
+	/* Invoke the draw call */
+	jump[type](
+		(const GFXDrawCall*)(internal + 1) + drawIndex,
+		internal->indexOffset,
 		inst,
 		instBase,
 		vertBase,
-		type,
 		GFX_WIND_AS_ARG
 	);
 }
@@ -811,7 +742,6 @@ void gfx_vertex_layout_free(
 		gfx_vector_clear(&internal->attributes);
 		gfx_vector_clear(&internal->buffers);
 
-		free(internal->TFBuffers);
 		free(layout);
 	}
 }
@@ -1068,57 +998,6 @@ int gfx_vertex_layout_set_vertex_divisor(
 		set,
 		GFX_WIND_AS_ARG
 	);
-
-	return 1;
-}
-
-/******************************************************/
-int gfx_vertex_layout_set_feedback(
-
-		GFXVertexLayout*          layout,
-		GFXPrimitive              primitive,
-		size_t                    num,
-		const GFXFeedbackBuffer*  buffers)
-{
-	GFX_WIND_INIT(0);
-
-	GFX_Layout* internal = (GFX_Layout*)layout;
-
-	/* Check number of buffers */
-	if(num > GFX_WIND_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS])
-		return 0;
-
-	free(internal->TFBuffers);
-	internal->TFPrimitive  = primitive;
-	internal->TFNumBuffers = num;
-	internal->TFBuffers    = NULL;
-
-	/* Free all buffers */
-	if(num)
-	{
-		/* Construct feedback buffers */
-		internal->TFBuffers = malloc(sizeof(GFX_TFBuffer) * num);
-		if(!internal->TFBuffers)
-		{
-			/* Out of memory error */
-			gfx_errors_push(
-				GFX_ERROR_OUT_OF_MEMORY,
-				"Vertex Layout ran out of memory during feedback allocation."
-			);
-			return 0;
-		}
-
-		size_t i;
-		for(i = 0; i < num; ++i)
-		{
-			internal->TFBuffers[i].buffer =
-				_gfx_buffer_get_handle(buffers[i].buffer);
-			internal->TFBuffers[i].offset =
-				buffers[i].offset;
-			internal->TFBuffers[i].size =
-				buffers[i].size;
-		}
-	}
 
 	return 1;
 }

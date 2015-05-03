@@ -363,16 +363,6 @@ typedef struct GFXDrawCall
 } GFXDrawCall;
 
 
-/** Feedback buffer argument */
-typedef struct GFXFeedbackBuffer
-{
-	GFXBuffer*  buffer;
-	size_t      offset; /* Must be 4-byte aligned */
-	size_t      size;
-
-} GFXFeedbackBuffer;
-
-
 /********************************************************
  * Vertex Layout (vertex specifications + draw calls)
  *******************************************************/
@@ -542,24 +532,6 @@ GFX_API int gfx_vertex_layout_set_vertex_divisor(
 		GFXVertexLayout*  layout,
 		unsigned int      index,
 		unsigned int      divisor);
-
-/**
- * Sets a feedback attribute of a vertex layout.
- *
- * @param primitive Primitive to output to the buffers, can only be GFX_POINTS, GFX_LINES or GFX_TRIANGLES.
- * @param num       Size of buffers, must be <= GFX_LIM_MAX_FEEDBACK_BUFFERS.
- * @param buffers   Array of buffers to receive program feedback from.
- * @return Zero on failure.
- *
- * Note: any two given buffer ranges cannot overlap.
- *
- */
-GFX_API int gfx_vertex_layout_set_feedback(
-
-		GFXVertexLayout*          layout,
-		GFXPrimitive              primitive,
-		size_t                    num,
-		const GFXFeedbackBuffer*  buffers);
 
 /**
  * Sets the number of vertices per patch (GFX_PATCHES).

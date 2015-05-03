@@ -37,8 +37,8 @@ typedef struct GFX_Mesh
 /* Internal source data */
 typedef struct GFX_SourceData
 {
-	GFXVertexSource  source;
-	unsigned int     layout; /* Index into layouts (layout ID - 1) */
+	unsigned int   layout; /* Index into layouts (layout ID - 1) */
+	unsigned char  index;  /* Draw index of the layout */
 
 } GFX_SourceData;
 
@@ -268,7 +268,7 @@ GFXBucketSource _gfx_mesh_get_bucket_source(
 		gfx_bucket_set_source(
 			bucket,
 			*src,
-			list[index].source);
+			list[index].index);
 	}
 
 	return *src;
@@ -521,19 +521,18 @@ void gfx_mesh_set_index_buffer(
 /******************************************************/
 int gfx_mesh_add(
 
-		GFXMesh*         mesh,
-		unsigned int     level,
-		GFXVertexSource  source,
-		GFXMeshLayout    layout)
+		GFXMesh*       mesh,
+		unsigned int   level,
+		GFXMeshLayout  layout,
+		unsigned char  drawIndex)
 {
 	--layout;
 
-	/* Check draw call index */
-	GFXVertexLayout* lay = _gfx_mesh_get_layout(
-		(GFX_Mesh*)mesh,
-		layout);
+	/* Check draw index */
+	GFXVertexLayout* lay =
+		_gfx_mesh_get_layout((GFX_Mesh*)mesh, layout);
 
-	if(source.drawIndex >= lay->drawCalls)
+	if(drawIndex >= lay->drawCalls)
 		return 0;
 
 	/* First extend the bucket vector */
@@ -544,11 +543,8 @@ int gfx_mesh_add(
 	GFX_SourceData data;
 	memset(&data, 0, sizeof(GFX_SourceData));
 
-	data.source.drawIndex     = source.drawIndex;
-	data.source.startFeedback = source.startFeedback;
-	data.source.numFeedback   = source.numFeedback;
-
 	data.layout = layout;
+	data.index = drawIndex;
 
 	/* Add it to the LOD map */
 	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))
@@ -589,10 +585,10 @@ GFXMeshLayout gfx_vertex_source_list_layout_at(
 }
 
 /******************************************************/
-GFXVertexSource gfx_vertex_source_list_at(
+unsigned char gfx_vertex_source_list_at(
 
 		const GFXVertexSourceList  list,
 		unsigned int               index)
 {
-	return ((const GFX_SourceData*)list)[index].source;
+	return ((const GFX_SourceData*)list)[index].index;
 }

@@ -486,7 +486,7 @@ void _gfx_property_map_use(
 void _gfx_vertex_layout_draw(
 
 		const GFXVertexLayout*  layout,
-		GFXVertexSource         source,
+		unsigned char           drawIndex,
 		size_t                  inst,
 		unsigned int            instBase,
 		int                     vertBase,
