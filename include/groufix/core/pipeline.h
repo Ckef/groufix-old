@@ -85,7 +85,7 @@ GFX_API GFXBucketSource gfx_bucket_add_source(
 		const GFXVertexLayout*  layout);
 
 /**
- * Set the draw index of a source (default is 0).
+ * Set the source index of a source (default is 0).
  *
  * @param src Source ID to change the values of.
  * @return 0 on failure.
@@ -95,7 +95,7 @@ GFX_API int gfx_bucket_set_source(
 
 		GFXBucket*       bucket,
 		GFXBucketSource  src,
-		unsigned char    drawIndex);
+		unsigned char    srcIndex);
 
 /**
  * Removes a source from the bucket.

@@ -21,7 +21,7 @@
 /* Internal draw function */
 typedef void (*GFX_DrawFunc)(
 
-		const GFXDrawCall*,
+		const GFXVertexSource*,
 		size_t,
 		size_t,
 		unsigned int,
@@ -43,7 +43,6 @@ typedef struct GFX_Layout
 
 	GLuint              indexBuffer;
 	size_t              indexOffset;   /* Byte offset into index buffer */
-	GLint               patchVertices; /* Number of vertices per patch */
 
 } GFX_Layout;
 
@@ -75,34 +74,34 @@ typedef struct GFX_Buffer
 /******************************************************/
 static void _gfx_layout_draw(
 
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        instBase,
-		int                 vertBase,
+		const GFXVertexSource*  src,
+		size_t                  offset,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawArrays(
-		call->primitive,
-		call->first + vertBase,
-		call->count
+		src->primitive,
+		src->first + vertBase,
+		src->count
 	);
 }
 
 /******************************************************/
 static void _gfx_layout_draw_instanced(
 
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        instBase,
-		int                 vertBase,
+		const GFXVertexSource*  src,
+		size_t                  offset,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawArraysInstanced(
-		call->primitive,
-		call->first + vertBase,
-		call->count,
+		src->primitive,
+		src->first + vertBase,
+		src->count,
 		inst
 	);
 }
@@ -110,17 +109,17 @@ static void _gfx_layout_draw_instanced(
 /******************************************************/
 static void _gfx_layout_draw_instanced_base(
 
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        instBase,
-		int                 vertBase,
+		const GFXVertexSource*  src,
+		size_t                  offset,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawArraysInstancedBaseInstance(
-		call->primitive,
-		call->first + vertBase,
-		call->count,
+		src->primitive,
+		src->first + vertBase,
+		src->count,
 		inst,
 		instBase
 	);
@@ -129,36 +128,36 @@ static void _gfx_layout_draw_instanced_base(
 /******************************************************/
 static void _gfx_layout_draw_indexed(
 
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        instBase,
-		int                 vertBase,
+		const GFXVertexSource*  src,
+		size_t                  offset,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElements(
-		call->primitive,
-		call->count,
-		call->indexType,
-		(GLvoid*)(offset + call->first)
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)(offset + src->first)
 	);
 }
 
 /******************************************************/
 static void _gfx_layout_draw_indexed_instanced(
 
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        instBase,
-		int                 vertBase,
+		const GFXVertexSource*  src,
+		size_t                  offset,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstanced(
-		call->primitive,
-		call->count,
-		call->indexType,
-		(GLvoid*)(offset + call->first),
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)(offset + src->first),
 		inst
 	);
 }
@@ -166,18 +165,18 @@ static void _gfx_layout_draw_indexed_instanced(
 /******************************************************/
 static void _gfx_layout_draw_indexed_instanced_base(
 
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        instBase,
-		int                 vertBase,
+		const GFXVertexSource*  src,
+		size_t                  offset,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseInstance(
-		call->primitive,
-		call->count,
-		call->indexType,
-		(GLvoid*)(offset + call->first),
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)(offset + src->first),
 		inst,
 		instBase
 	);
@@ -186,18 +185,18 @@ static void _gfx_layout_draw_indexed_instanced_base(
 /******************************************************/
 static void _gfx_layout_draw_indexed_vertex(
 
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        instBase,
-		int                 vertBase,
+		const GFXVertexSource*  src,
+		size_t                  offset,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsBaseVertex(
-		call->primitive,
-		call->count,
-		call->indexType,
-		(GLvoid*)(offset + call->first),
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)(offset + src->first),
 		vertBase
 	);
 }
@@ -205,18 +204,18 @@ static void _gfx_layout_draw_indexed_vertex(
 /******************************************************/
 static void _gfx_layout_draw_indexed_instanced_vertex(
 
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        instBase,
-		int                 vertBase,
+		const GFXVertexSource*  src,
+		size_t                  offset,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseVertex(
-		call->primitive,
-		call->count,
-		call->indexType,
-		(GLvoid*)(offset + call->first),
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)(offset + src->first),
 		inst,
 		vertBase
 	);
@@ -225,18 +224,18 @@ static void _gfx_layout_draw_indexed_instanced_vertex(
 /******************************************************/
 static void _gfx_layout_draw_indexed_instanced_base_vertex(
 
-		const GFXDrawCall*  call,
-		size_t              offset,
-		size_t              inst,
-		unsigned int        instBase,
-		int                 vertBase,
+		const GFXVertexSource*  src,
+		size_t                  offset,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseVertexBaseInstance(
-		call->primitive,
-		call->count,
-		call->indexType,
-		(GLvoid*)(offset + call->first),
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)(offset + src->first),
 		inst,
 		vertBase,
 		instBase
@@ -623,7 +622,7 @@ GLuint _gfx_vertex_layout_get_handle(
 void _gfx_vertex_layout_draw(
 
 		const GFXVertexLayout*  layout,
-		unsigned char           drawIndex,
+		unsigned char           srcIndex,
 		size_t                  inst,
 		unsigned int            instBase,
 		int                     vertBase,
@@ -631,14 +630,17 @@ void _gfx_vertex_layout_draw(
 		GFX_WIND_ARG)
 {
 	/* Bind VAO & Index buffer & Tessellation vertices */
-	const GFX_Layout* internal = (const GFX_Layout*)layout;
+	const GFX_Layout* internal =
+		(const GFX_Layout*)layout;
+	const GFXVertexSource* src =
+		(const GFXVertexSource*)(internal + 1) + srcIndex;
 
 	_gfx_vertex_layout_bind(
 		internal->vao,
 		GFX_WIND_AS_ARG);
 
 	_gfx_states_set_patch_vertices(
-		internal->patchVertices,
+		src->patchSize,
 		GFX_WIND_AS_ARG);
 
 	/* Jump table */
@@ -660,7 +662,7 @@ void _gfx_vertex_layout_draw(
 
 	/* Invoke the draw call */
 	jump[type](
-		(const GFXDrawCall*)(internal + 1) + drawIndex,
+		src,
 		internal->indexOffset,
 		inst,
 		instBase,
@@ -672,14 +674,14 @@ void _gfx_vertex_layout_draw(
 /******************************************************/
 GFXVertexLayout* gfx_vertex_layout_create(
 
-		unsigned char drawCalls)
+		unsigned char sources)
 {
 	GFX_WIND_INIT(NULL);
 
-	if(!drawCalls) return NULL;
+	if(!sources) return NULL;
 
-	/* Create new layout, append draw calls to end of struct */
-	size_t size = sizeof(GFX_Layout) + drawCalls * sizeof(GFXDrawCall);
+	/* Create new layout, append sources to end of struct */
+	size_t size = sizeof(GFX_Layout) + sources * sizeof(GFXVertexSource);
 
 	GFX_Layout* layout = calloc(1, size);
 	if(!layout)
@@ -706,7 +708,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	}
 
 	/* Create OpenGL resources */
-	layout->layout.drawCalls = drawCalls;
+	layout->layout.sources = sources;
 	GFX_REND_GET.CreateVertexArrays(1, &layout->vao);
 
 	gfx_vector_init(&layout->attributes, sizeof(GFX_Attribute));
@@ -749,18 +751,18 @@ void gfx_vertex_layout_free(
 /******************************************************/
 int gfx_vertex_layout_set_attribute(
 
-		GFXVertexLayout*    layout,
-		unsigned int        index,
-		GFXVertexAttribute  attr,
-		unsigned int        buffer)
+		GFXVertexLayout*           layout,
+		unsigned int               index,
+		const GFXVertexAttribute*  attr,
+		unsigned int               buffer)
 {
 	GFX_WIND_INIT(0);
 
 	if(
-		!attr.size ||
-		attr.type.unpacked == GFX_BIT ||
-		attr.type.unpacked == GFX_NIBBLE ||
-		attr.offset > GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] ||
+		!attr->size ||
+		attr->type.unpacked == GFX_BIT ||
+		attr->type.unpacked == GFX_NIBBLE ||
+		attr->offset > GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] ||
 		buffer >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
 	{
 		return 0;
@@ -774,14 +776,14 @@ int gfx_vertex_layout_set_attribute(
 	GFX_Attribute* set =
 		gfx_vector_at(&internal->attributes, index);
 
-	int packed = _gfx_is_data_type_packed(attr.type);
+	int packed = _gfx_is_data_type_packed(attr->type);
 
-	set->size      = attr.size;
-	set->type      = packed ? attr.type.packed : attr.type.unpacked;
-	set->interpret = attr.interpret;
+	set->size      = attr->size;
+	set->type      = packed ? attr->type.packed : attr->type.unpacked;
+	set->interpret = attr->interpret;
 
 	set->buffer    = buffer;
-	set->offset    = attr.offset;
+	set->offset    = attr->offset;
 
 	/* Resolve how to interpret */
 	set->interpret = (set->interpret & GFX_INTERPRET_DEPTH) ?
@@ -841,44 +843,50 @@ int gfx_vertex_layout_set_attribute_buffer(
 }
 
 /******************************************************/
-int gfx_vertex_layout_set_draw_call(
+int gfx_vertex_layout_set_source(
 
-		GFXVertexLayout*  layout,
-		unsigned char     index,
-		GFXDrawCall       call)
+		GFXVertexLayout*        layout,
+		unsigned char           index,
+		const GFXVertexSource*  source)
 {
 	GFX_WIND_INIT(0);
 
 	/* Check index */
-	if(index >= layout->drawCalls) return 0;
+	if(index >= layout->sources) return 0;
 	GFX_Layout* internal = (GFX_Layout*)layout;
 
-	/* Check extensions */
+	/* Check extensions and bounds */
 	if(
-		call.primitive == GFX_PATCHES &&
-		!GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER])
+		source->primitive == GFX_PATCHES && (
+		!GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] ||
+		source->patchSize > GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES]))
 	{
 		return 0;
 	}
 
-	((GFXDrawCall*)(internal + 1))[index] = call;
+	/* Set the source */
+	GFXVertexSource* set = ((GFXVertexSource*)(internal + 1)) + index;
+	*set = *source;
+
+	if(source->primitive != GFX_PATCHES)
+		set->patchSize = 0;
 
 	return 1;
 }
 
 /******************************************************/
-int gfx_vertex_layout_get_draw_call(
+int gfx_vertex_layout_get_source(
 
 		const GFXVertexLayout*  layout,
 		unsigned char           index,
-		GFXDrawCall*            call)
+		GFXVertexSource*        source)
 {
 	/* Validate index */
-	if(index >= layout->drawCalls) return 0;
+	if(index >= layout->sources) return 0;
 
 	/* Retrieve data */
 	const GFX_Layout* internal = (const GFX_Layout*)layout;
-	*call = ((const GFXDrawCall*)(internal + 1))[index];
+	*source = ((const GFXVertexSource*)(internal + 1))[index];
 
 	return 1;
 }
@@ -998,25 +1006,6 @@ int gfx_vertex_layout_set_vertex_divisor(
 		set,
 		GFX_WIND_AS_ARG
 	);
-
-	return 1;
-}
-
-/******************************************************/
-int gfx_vertex_layout_set_patch_vertices(
-
-		GFXVertexLayout*  layout,
-		unsigned int      vertices)
-{
-	GFX_WIND_INIT(0);
-
-	GFX_Layout* internal = (GFX_Layout*)layout;
-
-	/* Bound check */
-	if(vertices > GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES])
-		return 0;
-
-	internal->patchVertices = vertices;
 
 	return 1;
 }

@@ -479,14 +479,14 @@ void _gfx_property_map_use(
 /**
  * Performs a complete draw operation.
  *
- * @param source Draw calls of the layout to issue.
- * @param type   Function to use for drawing.
+ * @param srcIndex Source index of the layout to issue.
+ * @param type     Function type to use for drawing.
  *
  */
 void _gfx_vertex_layout_draw(
 
 		const GFXVertexLayout*  layout,
-		unsigned char           drawIndex,
+		unsigned char           srcIndex,
 		size_t                  inst,
 		unsigned int            instBase,
 		int                     vertBase,

@@ -61,7 +61,7 @@ typedef struct GFX_Bucket
 typedef struct GFX_Source
 {
 	const GFXVertexLayout*  layout; /* NULL when empty */
-	unsigned char           index;  /* Draw index into the layout */
+	unsigned char           index;  /* Source index into the layout */
 
 } GFX_Source;
 
@@ -607,7 +607,7 @@ int gfx_bucket_set_source(
 
 		GFXBucket*       bucket,
 		GFXBucketSource  src,
-		unsigned char    drawIndex)
+		unsigned char    srcIndex)
 {
 	--src;
 
@@ -620,10 +620,10 @@ int gfx_bucket_set_source(
 
 	/* Validate and set source */
 	GFX_Source* source = gfx_vector_at(&internal->sources, src);
-	if(!source->layout || drawIndex >= source->layout->drawCalls)
+	if(!source->layout || srcIndex >= source->layout->sources)
 		return 0;
 
-	source->index = drawIndex;
+	source->index = srcIndex;
 	return 1;
 }
 

@@ -66,14 +66,14 @@ GFX_API void gfx_mesh_free(
 /**
  * Creates a new vertex layout associated with the mesh.
  *
- * @param drawCalls Fixed number of draw calls associated with this layout.
+ * @param sources Fixed number of vertex sources associated with this layout.
  * @return ID to identify the layout (0 on failure).
  *
  */
 GFX_API GFXMeshLayout gfx_mesh_add_layout(
 
 		GFXMesh*       mesh,
-		unsigned char  drawCalls);
+		unsigned char  sources);
 
 /**
  * Retrieves the vertex layout from a mesh.
@@ -139,7 +139,7 @@ GFX_API void gfx_mesh_set_index_buffer(
  *
  * @param level     Level of detail to map to (must be <= mesh->levels).
  * @param layout    Vertex layout ID to use for the source.
- * @param drawIndex Draw index into the layout to use.
+ * @param srcIndex  Source index into the layout to use.
  * @return Zero on failure.
  *
  */
@@ -148,7 +148,7 @@ GFX_API int gfx_mesh_add(
 		GFXMesh*       mesh,
 		unsigned int   level,
 		GFXMeshLayout  layout,
-		unsigned char  drawIndex);
+		unsigned char  srcIndex);
 
 /**
  * Returns an abstract list of vertex sources of a given level of detail.
@@ -188,7 +188,7 @@ GFX_API GFXMeshLayout gfx_vertex_source_list_layout_at(
 		unsigned int               index);
 
 /**
- * Index into a list of vertex sources, retrieving the draw index.
+ * Index into a list of vertex sources, retrieving the source index.
  *
  */
 GFX_API unsigned char gfx_vertex_source_list_at(

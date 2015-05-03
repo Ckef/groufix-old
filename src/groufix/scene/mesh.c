@@ -38,7 +38,7 @@ typedef struct GFX_Mesh
 typedef struct GFX_SourceData
 {
 	unsigned int   layout; /* Index into layouts (layout ID - 1) */
-	unsigned char  index;  /* Draw index of the layout */
+	unsigned char  index;  /* Source index of the layout */
 
 } GFX_SourceData;
 
@@ -383,7 +383,7 @@ void gfx_mesh_free(
 GFXMeshLayout gfx_mesh_add_layout(
 
 		GFXMesh*       mesh,
-		unsigned char  drawCalls)
+		unsigned char  sources)
 {
 	/* Overflow */
 	GFX_Mesh* internal = (GFX_Mesh*)mesh;
@@ -408,7 +408,7 @@ GFXMeshLayout gfx_mesh_add_layout(
 	if(it == internal->layouts.end) return 0;
 
 	/* Create new layout */
-	*it = gfx_vertex_layout_create(drawCalls);
+	*it = gfx_vertex_layout_create(sources);
 	if(!(*it))
 	{
 		gfx_vector_erase(&internal->layouts, it);
@@ -524,7 +524,7 @@ int gfx_mesh_add(
 		GFXMesh*       mesh,
 		unsigned int   level,
 		GFXMeshLayout  layout,
-		unsigned char  drawIndex)
+		unsigned char  srcIndex)
 {
 	--layout;
 
@@ -532,7 +532,7 @@ int gfx_mesh_add(
 	GFXVertexLayout* lay =
 		_gfx_mesh_get_layout((GFX_Mesh*)mesh, layout);
 
-	if(drawIndex >= lay->drawCalls)
+	if(srcIndex >= lay->sources)
 		return 0;
 
 	/* First extend the bucket vector */
@@ -544,7 +544,7 @@ int gfx_mesh_add(
 	memset(&data, 0, sizeof(GFX_SourceData));
 
 	data.layout = layout;
-	data.index = drawIndex;
+	data.index = srcIndex;
 
 	/* Add it to the LOD map */
 	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))

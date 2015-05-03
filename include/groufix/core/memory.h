@@ -352,25 +352,26 @@ typedef struct GFXVertexAttribute
 } GFXVertexAttribute;
 
 
-/** Draw call */
-typedef struct GFXDrawCall
+/** Vertex Source */
+typedef struct GFXVertexSource
 {
 	GFXPrimitive     primitive;
-	uintptr_t        first;     /* Byte offset if an index buffer is used, first index otherwise */
-	size_t           count;     /* Number of vertices to draw */
 	GFXUnpackedType  indexType; /* Can only be an unsigned type */
+	uintptr_t        first;     /* Byte offset if an index buffer is used, first index otherwise */
+	size_t           count;     /* Number of drawable vertices */
+	unsigned int     patchSize; /* Number of vertices per patch, ignored if primitive is not GFX_PATCHES */
 
-} GFXDrawCall;
+} GFXVertexSource;
 
 
 /********************************************************
- * Vertex Layout (vertex specifications + draw calls)
+ * Vertex Layout (vertex specifications + sources)
  *******************************************************/
 
 /** Vertex Layout */
 typedef struct GFXVertexLayout
 {
-	unsigned char drawCalls; /* Number of draw calls */
+	unsigned char sources; /* Number of vertex sources */
 
 } GFXVertexLayout;
 
@@ -378,13 +379,13 @@ typedef struct GFXVertexLayout
 /**
  * Creates a new vertex layout.
  *
- * @param drawCalls Fixed number of draw calls associated with this layout.
+ * @param sources Fixed number of vertex sources associated with this layout.
  * @return NULL on failure.
  *
  */
 GFX_API GFXVertexLayout* gfx_vertex_layout_create(
 
-		unsigned char drawCalls);
+		unsigned char sources);
 
 /**
  * Makes sure the vertex layout is freed properly.
@@ -408,10 +409,10 @@ GFX_API void gfx_vertex_layout_free(
  */
 GFX_API int gfx_vertex_layout_set_attribute(
 
-		GFXVertexLayout*    layout,
-		unsigned int        index,
-		GFXVertexAttribute  attr,
-		unsigned int        buffer);
+		GFXVertexLayout*           layout,
+		unsigned int               index,
+		const GFXVertexAttribute*  attr,
+		unsigned int               buffer);
 
 /**
  * Changes the buffer an attribute samples from.
@@ -430,33 +431,37 @@ GFX_API int gfx_vertex_layout_set_attribute_buffer(
 		unsigned int      buffer);
 
 /**
- * Changes a draw call of the vertex layout.
+ * Changes a source of the vertex layout.
  *
- * @param index Index of the draw call (must be < layout->drawCalls).
- * @param call  Draw call parameters.
- * @return Zero on failure or if the draw call does not exist.
+ * @param index  Index of the source (must be < layout->sources).
+ * @param source Vertex source parameters.
+ * @return Zero on failure or if the source does not exist.
+ *
+ * Note: To use GFX_PATCHES, GFX_EXT_TESSELLATION_SHADER is required,
+ * if using it, source->patchSize must be <= GFX_LIM_MAX_PATCH_VERTICES.
  *
  */
-GFX_API int gfx_vertex_layout_set_draw_call(
+GFX_API int gfx_vertex_layout_set_source(
 
-		GFXVertexLayout*  layout,
-		unsigned char     index,
-		GFXDrawCall       call);
+		GFXVertexLayout*        layout,
+		unsigned char           index,
+		const GFXVertexSource*  source);
 
 /**
- * Retrieves a draw call from the vertex layout.
+ * Retrieves a source from the vertex layout.
  *
- * @param index Index of the draw call to retrieve (must be < layout->drawCalls).
+ * @param index  Index of the source to retrieve (must be < layout->sources).
+ * @param source Output of the vertex source parameters.
  * @return Zero on failure (nothing is written to the output parameters).
  *
- * If a shared buffer was used, call->first will be the given offset + the shared buffer offset.
+ * If a shared buffer was used, source->first will be the given offset + the shared buffer offset.
  *
  */
-GFX_API int gfx_vertex_layout_get_draw_call(
+GFX_API int gfx_vertex_layout_get_source(
 
 		const GFXVertexLayout*  layout,
 		unsigned char           index,
-		GFXDrawCall*            call);
+		GFXVertexSource*        source);
 
 /**
  * Adds/sets a vertex buffer of a vertex layout.
@@ -493,7 +498,7 @@ GFX_API int gfx_vertex_layout_set_shared_vertex_buffer(
 		size_t                  stride);
 
 /**
- * Sets the index buffer source of a draw call.
+ * Sets the index buffer.
  *
  * @param buffer Buffer to use as index buffer, only the current backbuffer of a multi buffer will be used (can be NULL).
  * @param offset Byte offset within the buffer to start reading at.
@@ -506,7 +511,7 @@ GFX_API void gfx_vertex_layout_set_index_buffer(
 		size_t            offset);
 
 /**
- * Sets the (shared) index buffer source of a draw call.
+ * Sets the (shared) index buffer.
  *
  * @param buffer Shared buffer to use as index buffer (can be NULL).
  * @param offset Byte offset within the buffer to start reading at.
@@ -532,20 +537,6 @@ GFX_API int gfx_vertex_layout_set_vertex_divisor(
 		GFXVertexLayout*  layout,
 		unsigned int      index,
 		unsigned int      divisor);
-
-/**
- * Sets the number of vertices per patch (GFX_PATCHES).
- *
- * @param vertices Number of vertices per patch, must be <= GFX_LIM_MAX_PATCH_VERTICES.
- * @return Zero on failure.
- *
- * Note: requires GFX_EXT_TESSELLATION_SHADER.
- *
- */
-GFX_API int gfx_vertex_layout_set_patch_vertices(
-
-		GFXVertexLayout*  layout,
-		unsigned int      vertices);
 
 
 /********************************************************
