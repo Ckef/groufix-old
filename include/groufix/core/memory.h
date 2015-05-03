@@ -294,14 +294,18 @@ GFX_API void gfx_shared_buffer_cleanup(void);
 /**
  * Initializes a shared buffer.
  *
+ * @param align Byte alignment to force upon the offset within the internal buffer pool.
  * @return Non-zero on success (it will not touch buffer on failure).
+ *
+ * Note: align set to 0 behaves equivalent to 1.
  *
  */
 GFX_API int gfx_shared_buffer_init(
 
 		GFXSharedBuffer*  buffer,
 		size_t            size,
-		const void*       data);
+		const void*       data,
+		unsigned char     align);
 
 /**
  * Clears a shared buffer, freeing the internal data.

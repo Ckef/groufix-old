@@ -122,7 +122,9 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 
 	if(!buff->id.id)
 	{
+		gfx_vector_erase(_gfx_shared_buffers, it);
 		free(buff);
+
 		return NULL;
 	}
 
@@ -175,6 +177,7 @@ static int _gfx_shared_buffer_insert_segment(
 
 		GFX_SharedBuffer*  buffer,
 		size_t             size,
+		unsigned char      align,
 		size_t*            offset)
 {
 	GFX_Segment new =
@@ -193,7 +196,9 @@ static int _gfx_shared_buffer_insert_segment(
 
 		/* Continue if it does not fit */
 		size_t off = seg->offset + seg->size;
-		if(size > (new.offset - off))
+		off += (align - (off % align)) % align;
+
+		if(off >= new.offset || size > (new.offset - off))
 		{
 			new.offset = seg->offset;
 			it = seg;
@@ -316,9 +321,13 @@ int gfx_shared_buffer_init(
 
 		GFXSharedBuffer*  buffer,
 		size_t            size,
-		const void*       data)
+		const void*       data,
+		unsigned char     align)
 {
 	GFX_WIND_INIT(0);
+
+	/* Validate alignment */
+	align = align ? align : 1;
 
 	/* Create vector if it doesn't exist yet */
 	if(!_gfx_shared_buffers)
@@ -340,7 +349,7 @@ int gfx_shared_buffer_init(
 		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
 
 		size_t offset;
-		if(_gfx_shared_buffer_insert_segment(buff, size, &offset))
+		if(_gfx_shared_buffer_insert_segment(buff, size, align, &offset))
 		{
 			buffer->reference = buff;
 			buffer->offset = offset;
@@ -363,7 +372,7 @@ int gfx_shared_buffer_init(
 		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
 
 		size_t offset;
-		if(_gfx_shared_buffer_insert_segment(buff, size, &offset))
+		if(_gfx_shared_buffer_insert_segment(buff, size, align, &offset))
 		{
 			buffer->reference = buff;
 			buffer->offset = offset;

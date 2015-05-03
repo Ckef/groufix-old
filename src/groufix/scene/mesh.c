@@ -457,7 +457,7 @@ GFXMeshBuffer gfx_mesh_add_buffer(
 	if(it == internal->buffers.end) return 0;
 
 	/* Create new shared buffer */
-	if(!gfx_shared_buffer_init(it, size, data))
+	if(!gfx_shared_buffer_init(it, size, data, 0))
 	{
 		gfx_vector_erase(&internal->buffers, it);
 		return 0;
