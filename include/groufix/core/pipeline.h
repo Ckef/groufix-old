@@ -18,8 +18,10 @@
 #include "groufix/core/shading.h"
 #include "groufix/core/window.h"
 
+#include <limits.h>
+
 /* Maximum bits used for unit states */
-#define GFX_UNIT_STATE_MAX_BITS  ((sizeof(GFXUnitState) << 3) - 2)
+#define GFX_UNIT_STATE_MAX_BITS  ((sizeof(GFXUnitState) * CHAR_BIT) - 2)
 
 #ifdef __cplusplus
 extern "C" {
