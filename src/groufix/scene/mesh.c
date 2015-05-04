@@ -263,11 +263,7 @@ GFXBucketSource _gfx_mesh_get_bucket_source(
 
 		*src = gfx_bucket_add_source(
 			bucket,
-			layout);
-
-		gfx_bucket_set_source(
-			bucket,
-			*src,
+			layout,
 			list[index].index);
 	}
 

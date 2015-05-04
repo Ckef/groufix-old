@@ -497,19 +497,21 @@ void gfx_bucket_set_bits(
 GFXBucketSource gfx_bucket_add_source(
 
 		GFXBucket*              bucket,
-		const GFXVertexLayout*  layout)
+		const GFXVertexLayout*  layout,
+		unsigned char           srcIndex)
 {
 	/* Derp */
-	if(!layout) return 0;
-
-	GFX_Bucket* internal = (GFX_Bucket*)bucket;
+	if(!layout || srcIndex >= layout->sources) return 0;
 
 	/* Create source */
-	GFX_Source src;
-	src.layout = layout;
-	src.index = 0;
-
+	GFX_Bucket* internal = (GFX_Bucket*)bucket;
 	GFXBucketSource id = 0;
+
+	GFX_Source src =
+	{
+		.layout = layout,
+		.index = srcIndex
+	};
 
 	if(internal->emptySources.begin != internal->emptySources.end)
 	{
@@ -546,31 +548,6 @@ GFXBucketSource gfx_bucket_add_source(
 	}
 
 	return id;
-}
-
-/******************************************************/
-int gfx_bucket_set_source(
-
-		GFXBucket*       bucket,
-		GFXBucketSource  src,
-		unsigned char    srcIndex)
-{
-	--src;
-
-	/* Validate index */
-	GFX_Bucket* internal = (GFX_Bucket*)bucket;
-	size_t cnt = gfx_vector_get_size(&internal->sources);
-
-	if(src >= cnt)
-		return 0;
-
-	/* Validate and set source */
-	GFX_Source* source = gfx_vector_at(&internal->sources, src);
-	if(!source->layout || srcIndex >= source->layout->sources)
-		return 0;
-
-	source->index = srcIndex;
-	return 1;
 }
 
 /******************************************************/

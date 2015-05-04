@@ -66,27 +66,16 @@ GFX_API void gfx_bucket_set_bits(
 /**
  * Adds a new source to the bucket.
  *
- * @param layout Vertex layout to use, cannot be NULL.
+ * @param layout   Vertex layout to use, cannot be NULL.
+ * @param srcIndex Source index within the layout to use.
  * @return The ID of the source, 0 on failure.
  *
  */
 GFX_API GFXBucketSource gfx_bucket_add_source(
 
 		GFXBucket*              bucket,
-		const GFXVertexLayout*  layout);
-
-/**
- * Set the source index of a source (default is 0).
- *
- * @param src Source ID to change the values of.
- * @return 0 on failure.
- *
- */
-GFX_API int gfx_bucket_set_source(
-
-		GFXBucket*       bucket,
-		GFXBucketSource  src,
-		unsigned char    srcIndex);
+		const GFXVertexLayout*  layout,
+		unsigned char           srcIndex);
 
 /**
  * Removes a source from the bucket.

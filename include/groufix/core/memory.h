@@ -43,7 +43,9 @@ typedef enum GFXUnpackedType
 	GFX_INT             = 0x1404,
 	GFX_UNSIGNED_INT    = 0x1405,
 	GFX_HALF_FLOAT      = 0x140b,
-	GFX_FLOAT           = 0x1406
+	GFX_FLOAT           = 0x1406,
+
+	GFX_LARGE_INTEGER   = GFX_INT /* Largest signed integer (equally large as unsigned) */
 
 } GFXUnpackedType;
 
