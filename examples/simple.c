@@ -122,7 +122,7 @@ int main()
 	pipeline->viewport = viewport;
 	gfx_pipeline_target(pipeline, 1, targets);
 
-	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0, GFX_BUCKET_SORT_ALL);
+	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0);
 	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;
 
 

@@ -508,8 +508,7 @@ void _gfx_vertex_layout_draw(
 GFX_Pipe* _gfx_pipe_create_bucket(
 
 		GFXPipeline*    pipeline,
-		unsigned char   bits,
-		GFXBucketFlags  flags);
+		unsigned char   bits);
 
 /**
  * Creates a new process pipe.
@@ -551,8 +550,7 @@ GFX_Pipe* _gfx_pipe_free(
  */
 GFXBucket* _gfx_bucket_create(
 
-		unsigned char   bits,
-		GFXBucketFlags  flags);
+		unsigned char bits);
 
 /**
  * Makes sure the bucket is freed properly.

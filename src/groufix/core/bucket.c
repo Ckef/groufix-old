@@ -29,13 +29,6 @@
 #define GFX_INT_UNIT_MANUAL      (~((~(GFX_INT_UNIT_MANUAL_MSB << 1)) + 1))
 
 /******************************************************/
-/* Internal comparison function */
-typedef int (*GFX_BucketComp)(
-
-		const void* u1,
-		const void* u2);
-
-
 /* Internal bucket */
 typedef struct GFX_Bucket
 {
@@ -44,7 +37,6 @@ typedef struct GFX_Bucket
 
 	/* Hidden data */
 	unsigned char      flags;
-	GFX_BucketComp     compare;      /* Quicksort compare */
 
 	GFXVector          sources;      /* Stores GFX_Source */
 	GFXDeque           emptySources; /* Stores GFXBucketSource, free source IDs */
@@ -89,37 +81,7 @@ typedef struct GFX_Unit
 
 
 /******************************************************/
-static int _gfx_bucket_qsort_program(
-
-		const void* u1,
-		const void* u2)
-{
-	const GFX_Unit* unit1 = (const GFX_Unit*)u1;
-	const GFX_Unit* unit2 = (const GFX_Unit*)u2;
-
-	return
-		(unit1->program < unit2->program) ? -1 :
-		(unit1->program > unit2->program) ? 1 :
-		0;
-}
-
-/******************************************************/
-static int _gfx_bucket_qsort_layout(
-
-		const void* u1,
-		const void* u2)
-{
-	const GFX_Unit* unit1 = (const GFX_Unit*)u1;
-	const GFX_Unit* unit2 = (const GFX_Unit*)u2;
-
-	return
-		(unit1->vao < unit2->vao) ? -1 :
-		(unit1->vao > unit2->vao) ? 1 :
-		0;
-}
-
-/******************************************************/
-static int _gfx_bucket_qsort_all(
+static int _gfx_bucket_qsort(
 
 		const void* u1,
 		const void* u2)
@@ -318,47 +280,44 @@ static void _gfx_bucket_sort_units(
 {
 	if(num <= 1) return;
 
-	if(!bit)
+	/* Quicksort equal states based on bucket flags */
+	if(!bit) qsort(
+		gfx_vector_at(&bucket->units, start),
+		num,
+		sizeof(GFX_Unit),
+		_gfx_bucket_qsort);
+
+	else
 	{
-		/* Quicksort equal states based on bucket flags */
-		if(bucket->compare) qsort(
-			gfx_vector_at(&bucket->units, start),
-			num,
-			sizeof(GFX_Unit),
-			bucket->compare
-		);
+		/* Radix sort based on state :) */
+		/* Start, mid, end */
+		unsigned int st = start;
+		unsigned int mi = start + num;
+		unsigned int en = mi;
 
-		return;
-	}
-
-	/* Radix sort based on state :) */
-	/* Start, mid, end */
-	unsigned int st = start;
-	unsigned int mi = start + num;
-	unsigned int en = mi;
-
-	while(st < mi)
-	{
-		GFX_Unit* unit = (GFX_Unit*)gfx_vector_at(
-			&bucket->units,
-			st
-		);
-
-		/* If 1, put in 1 bucket */
-		if(unit->state & bit)
+		while(st < mi)
 		{
-			_gfx_bucket_swap_units(unit, gfx_vector_at(
+			GFX_Unit* unit = (GFX_Unit*)gfx_vector_at(
 				&bucket->units,
-				--mi)
+				st
 			);
-		}
-		else ++st;
-	}
 
-	/* Sort both buckets */
-	bit >>= 1;
-	_gfx_bucket_sort_units(bucket, bit, start, mi - start);
-	_gfx_bucket_sort_units(bucket, bit, mi, en - mi);
+			/* If 1, put in 1 bucket */
+			if(unit->state & bit)
+			{
+				_gfx_bucket_swap_units(unit, gfx_vector_at(
+					&bucket->units,
+					--mi)
+				);
+			}
+			else ++st;
+		}
+
+		/* Sort both buckets */
+		bit >>= 1;
+		_gfx_bucket_sort_units(bucket, bit, start, mi - start);
+		_gfx_bucket_sort_units(bucket, bit, mi, en - mi);
+	}
 }
 
 /******************************************************/
@@ -426,8 +385,7 @@ static void _gfx_bucket_set_draw_type(
 /******************************************************/
 GFXBucket* _gfx_bucket_create(
 
-		unsigned char   bits,
-		GFXBucketFlags  flags)
+		unsigned char bits)
 {
 	/* Allocate bucket */
 	GFX_Bucket* bucket = calloc(1, sizeof(GFX_Bucket));
@@ -450,20 +408,8 @@ GFXBucket* _gfx_bucket_create(
 
 	bucket->visible
 		= bucket->units.end;
-	bucket->bucket.flags
-		= flags;
 	bucket->bucket.bits
 		= bits > GFX_UNIT_STATE_MAX_BITS ? GFX_UNIT_STATE_MAX_BITS : bits;
-
-	/* Get comparison function from flags */
-	bucket->compare =
-		((flags & GFX_BUCKET_SORT_ALL) == GFX_BUCKET_SORT_ALL) ?
-			_gfx_bucket_qsort_all :
-		(flags & GFX_BUCKET_SORT_PROGRAM) ?
-			_gfx_bucket_qsort_program :
-		(flags & GFX_BUCKET_SORT_VERTEX_LAYOUT) ?
-			_gfx_bucket_qsort_layout :
-			NULL;
 
 	return (GFXBucket*)bucket;
 }

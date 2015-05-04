@@ -38,14 +38,13 @@ static GFX_Pipe* _gfx_pipe_create(
 GFX_Pipe* _gfx_pipe_create_bucket(
 
 		GFXPipeline*    pipeline,
-		unsigned char   bits,
-		GFXBucketFlags  flags)
+		unsigned char   bits)
 {
 	GFX_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_BUCKET, pipeline);
 	if(!pipe) return NULL;
 
 	/* Create bucket */
-	GFXBucket* bucket = _gfx_bucket_create(bits, flags);
+	GFXBucket* bucket = _gfx_bucket_create(bits);
 	if(!bucket)
 	{
 		_gfx_pipe_free((GFX_Pipe*)pipe);

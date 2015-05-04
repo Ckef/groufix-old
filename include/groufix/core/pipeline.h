@@ -42,21 +42,10 @@ typedef unsigned int GFXBucketSource;
 typedef unsigned int GFXBucketUnit;
 
 
-/** Bucket sort flags */
-typedef enum GFXBucketFlags
-{
-	GFX_BUCKET_SORT_PROGRAM        = 0x01,
-	GFX_BUCKET_SORT_VERTEX_LAYOUT  = 0x02,
-	GFX_BUCKET_SORT_ALL            = 0x03
-
-} GFXBucketFlags;
-
-
 /** Bucket to manage render units */
 typedef struct GFXBucket
 {
-	GFXBucketFlags  flags;
-	unsigned char   bits; /* Number of state bits sorted on */
+	unsigned char bits; /* Number of state bits sorted on */
 
 } GFXBucket;
 
@@ -613,8 +602,7 @@ GFX_API int gfx_pipeline_attach(
 GFX_API GFXPipe* gfx_pipeline_push_bucket(
 
 		GFXPipeline*    pipeline,
-		unsigned char   bits,
-		GFXBucketFlags  flags);
+		unsigned char   bits);
 
 /**
  * Adds a process to the pipeline.

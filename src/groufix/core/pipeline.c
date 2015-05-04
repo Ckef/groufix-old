@@ -449,11 +449,10 @@ int gfx_pipeline_attach(
 GFXPipe* gfx_pipeline_push_bucket(
 
 		GFXPipeline*    pipeline,
-		unsigned char   bits,
-		GFXBucketFlags  flags)
+		unsigned char   bits)
 {
 	/* Create the pipe and push it */
-	GFX_Pipe* pipe = _gfx_pipe_create_bucket(pipeline, bits, flags);
+	GFX_Pipe* pipe = _gfx_pipe_create_bucket(pipeline, bits);
 	if(!pipe) return 0;
 
 	_gfx_pipeline_push_pipe(pipe);
