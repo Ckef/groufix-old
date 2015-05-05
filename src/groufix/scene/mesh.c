@@ -39,6 +39,8 @@ typedef struct GFX_SourceData
 {
 	unsigned int   layout; /* Index into layouts (layout ID - 1) */
 	unsigned char  index;  /* Source index of the layout */
+	size_t         offset;
+	size_t         count;
 
 } GFX_SourceData;
 
@@ -264,7 +266,9 @@ GFXBucketSource _gfx_mesh_get_bucket_source(
 		*src = gfx_bucket_add_source(
 			bucket,
 			layout,
-			list[index].index);
+			list[index].index,
+			list[index].offset,
+			list[index].count);
 	}
 
 	return *src;
@@ -453,7 +457,11 @@ GFXMeshBuffer gfx_mesh_add_buffer(
 	if(it == internal->buffers.end) return 0;
 
 	/* Create new shared buffer */
-	if(!gfx_shared_buffer_init(it, size, data, 0))
+	/* Align with largest integer so index offset can be aligned */
+	GFXDataType type;
+	type.unpacked = GFX_LARGE_INTEGER;
+
+	if(!gfx_shared_buffer_init_align(it, size, data, type))
 	{
 		gfx_vector_erase(&internal->buffers, it);
 		return 0;
@@ -520,7 +528,9 @@ int gfx_mesh_add(
 		GFXMesh*       mesh,
 		unsigned int   level,
 		GFXMeshLayout  layout,
-		unsigned char  srcIndex)
+		unsigned char  srcIndex,
+		size_t         offset,
+		size_t         count)
 {
 	--layout;
 
@@ -540,7 +550,9 @@ int gfx_mesh_add(
 	memset(&data, 0, sizeof(GFX_SourceData));
 
 	data.layout = layout;
-	data.index = srcIndex;
+	data.index  = srcIndex;
+	data.offset = offset;
+	data.count  = count;
 
 	/* Add it to the LOD map */
 	if(!gfx_lod_map_add((GFXLodMap*)mesh, level, &data))
@@ -578,6 +590,24 @@ GFXMeshLayout gfx_vertex_source_list_layout_at(
 		unsigned int               index)
 {
 	return ((const GFX_SourceData*)list)[index].layout + 1;
+}
+
+/******************************************************/
+size_t gfx_vertex_source_list_offset_at(
+
+		const GFXVertexSourceList  list,
+		unsigned int               index)
+{
+	return ((const GFX_SourceData*)list)[index].offset;
+}
+
+/******************************************************/
+size_t gfx_vertex_source_list_count_at(
+
+		const GFXVertexSourceList  list,
+		unsigned int               index)
+{
+	return ((const GFX_SourceData*)list)[index].count;
 }
 
 /******************************************************/

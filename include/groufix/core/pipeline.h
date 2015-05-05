@@ -68,14 +68,23 @@ GFX_API void gfx_bucket_set_bits(
  *
  * @param layout   Vertex layout to use, cannot be NULL.
  * @param srcIndex Source index within the layout to use.
+ * @param offset   Offset to add to first.
+ * @param count    Number of vertices to use.
  * @return The ID of the source, 0 on failure.
+ *
+ * Once the source is added to a bucket, the source and the index buffer of the layout
+ * cannot be changed until it is removed from all buckets.
+ *
+ * Note: the interval described by offset and count must fit within the original interval.
  *
  */
 GFX_API GFXBucketSource gfx_bucket_add_source(
 
-		GFXBucket*              bucket,
-		const GFXVertexLayout*  layout,
-		unsigned char           srcIndex);
+		GFXBucket*        bucket,
+		GFXVertexLayout*  layout,
+		unsigned char     srcIndex,
+		size_t            offset,
+		size_t            count);
 
 /**
  * Removes a source from the bucket.

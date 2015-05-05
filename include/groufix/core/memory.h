@@ -310,6 +310,20 @@ GFX_API int gfx_shared_buffer_init(
 		unsigned char     align);
 
 /**
+ * Initializes a shared buffer aligned with the size of a data type.
+ *
+ * @param type The type to use the size as alignment for.
+ * @return Non-zero on success (it will not touch buffer on failure).
+ *
+ */
+GFX_API int gfx_shared_buffer_init_align(
+
+		GFXSharedBuffer*  buffer,
+		size_t            size,
+		const void*       data,
+		GFXDataType       type);
+
+/**
  * Clears a shared buffer, freeing the internal data.
  *
  * @param keep If zero, the associated buffer from the buffer pool will be erased if empty.
@@ -363,7 +377,7 @@ typedef struct GFXVertexSource
 {
 	GFXPrimitive     primitive;
 	GFXUnpackedType  indexType; /* Can only be an unsigned type */
-	uintptr_t        first;     /* Byte offset if an index buffer is used, first index otherwise */
+	size_t           first;     /* First index to start reading at */
 	size_t           count;     /* Number of drawable vertices */
 	unsigned int     patchSize; /* Number of vertices per patch, ignored if primitive is not GFX_PATCHES */
 
@@ -443,6 +457,8 @@ GFX_API int gfx_vertex_layout_set_attribute_buffer(
  * @param source Vertex source parameters.
  * @return Zero on failure or if the source does not exist.
  *
+ * This will fail if the source was added to a bucket.
+ *
  * Note: To use GFX_PATCHES, GFX_EXT_TESSELLATION_SHADER is required,
  * if using it, source->patchSize must be <= GFX_LIM_MAX_PATCH_VERTICES.
  *
@@ -458,9 +474,7 @@ GFX_API int gfx_vertex_layout_set_source(
  *
  * @param index  Index of the source to retrieve (must be < layout->sources).
  * @param source Output of the vertex source parameters.
- * @return Zero on failure (nothing is written to the output parameters).
- *
- * If a shared buffer was used, source->first will be the given offset + the shared buffer offset.
+ * @return Zero on failure (nothing is written to source).
  *
  */
 GFX_API int gfx_vertex_layout_get_source(
@@ -504,13 +518,35 @@ GFX_API int gfx_vertex_layout_set_shared_vertex_buffer(
 		size_t                  stride);
 
 /**
+ * Sets the divisor of a vertex buffer at a vertex layout.
+ *
+ * @param index   Index of the vertex buffer.
+ * @param divisor Rate at which to advance measured in instances, 0 to advance each vertex.
+ * @return Zero on failure.
+ *
+ * Note: requires GFX_EXT_INSTANCED_ATTRIBUTES.
+ *
+ */
+GFX_API int gfx_vertex_layout_set_vertex_divisor(
+
+		GFXVertexLayout*  layout,
+		unsigned int      index,
+		unsigned int      divisor);
+
+/**
  * Sets the index buffer.
  *
  * @param buffer Buffer to use as index buffer, only the current backbuffer of a multi buffer will be used (can be NULL).
  * @param offset Byte offset within the buffer to start reading at.
+ * @return Zero on failure.
+ *
+ * This will fail if a source was added to a bucket.
+ *
+ * Note: offset must be a multiple of the size of the largest index used within this layout.
+ * If not, adding the source to a bucket will fail.
  *
  */
-GFX_API void gfx_vertex_layout_set_index_buffer(
+GFX_API int gfx_vertex_layout_set_index_buffer(
 
 		GFXVertexLayout*  layout,
 		const GFXBuffer*  buffer,
@@ -521,28 +557,19 @@ GFX_API void gfx_vertex_layout_set_index_buffer(
  *
  * @param buffer Shared buffer to use as index buffer (can be NULL).
  * @param offset Byte offset within the buffer to start reading at.
+ * @return Zero on failure.
+ *
+ * This will fail if a source was added to a bucket.
+ *
+ * Note: offset has equal restraints as it has in gfx_vertex_layout_set_index_buffer, besides that,
+ * the alignment of buffer must be the size of the larget index used as well.
  *
  */
-GFX_API void gfx_vertex_layout_set_shared_index_buffer(
+GFX_API int gfx_vertex_layout_set_shared_index_buffer(
 
 		GFXVertexLayout*        layout,
 		const GFXSharedBuffer*  buffer,
 		size_t                  offset);
-
-/**
- * Sets the divisor of a vertex buffer at a vertex layout.
- *
- * @param index   Index of the vertex buffer.
- * @param divisor Rate at which to advance measured in instances, 0 to advance each vertex.
- *
- * Note: requires GFX_EXT_INSTANCED_ATTRIBUTES.
- *
- */
-GFX_API int gfx_vertex_layout_set_vertex_divisor(
-
-		GFXVertexLayout*  layout,
-		unsigned int      index,
-		unsigned int      divisor);
 
 
 /********************************************************

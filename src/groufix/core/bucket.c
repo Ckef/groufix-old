@@ -28,7 +28,22 @@
 #define GFX_INT_UNIT_MANUAL_MSB  (1 << (GFX_UNIT_STATE_MAX_BITS -1))
 #define GFX_INT_UNIT_MANUAL      (~((~(GFX_INT_UNIT_MANUAL_MSB << 1)) + 1))
 
+/* Internal draw function types */
+#define GFX_INT_DRAW                 0
+#define GFX_INT_DRAW_INSTANCED       1
+#define GFX_INT_DRAW_INSTANCED_BASE  2
+
 /******************************************************/
+/* Internal draw function */
+typedef void (*GFX_DrawFunc)(
+
+		const GFXVertexSource*,
+		size_t,
+		unsigned int,
+		int,
+		GFX_WIND_ARG);
+
+
 /* Internal bucket */
 typedef struct GFX_Bucket
 {
@@ -52,8 +67,10 @@ typedef struct GFX_Bucket
 /* Internal source */
 typedef struct GFX_Source
 {
-	const GFXVertexLayout*  layout; /* NULL when empty */
-	unsigned char           index;  /* Source index into the layout */
+	GFXVertexLayout*  layout;  /* NULL when empty */
+	unsigned char     index;   /* Source index at the layout */
+	GFXVertexSource   source;  /* If indexed, source.first will be in bytes */
+	unsigned char     indexed; /* 1 if index buffer is used, 0 if not */
 
 } GFX_Source;
 
@@ -61,40 +78,256 @@ typedef struct GFX_Source
 /* Internal render unit */
 typedef struct GFX_Unit
 {
+	/* References */
+	GFXBucketUnit          ref;      /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
+	GFXBucketSource        src;      /* Source of the bucket to use (ID - 1) */
+	const GFXPropertyMap*  map;
+	unsigned int           copy;     /* Copy of the property map to use */
+
 	/* Sorting */
 	GFXUnitState           state;    /* Combination of unit state, action and manual state */
-	GFXBucketUnit          ref;      /* Reference of the unit units[refs[ref] - 1] = this (const, equal to ID - 1) */
 	GLuint                 program;  /* Program or program map to sort on */
 	GLuint                 vao;      /* layout to sort on */
 
 	/* Drawing */
-	const GFXPropertyMap*  map;
-	unsigned int           copy;     /* Copy of the property map to use */
-	GFXBucketSource        src;      /* Source of the bucket to use (ID - 1) */
-
+	unsigned char          type;     /* Drawing type */
 	size_t                 inst;     /* Number of instances */
 	unsigned int           instBase; /* Instance base */
 	int                    vertBase; /* Vertex base */
-	GFX_DrawType           type;
 
 } GFX_Unit;
 
 
 /******************************************************/
-static int _gfx_bucket_qsort(
+static void _gfx_draw(
 
-		const void* u1,
-		const void* u2)
+		const GFXVertexSource*  src,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
+		GFX_WIND_ARG)
 {
-	const GFX_Unit* unit1 = (const GFX_Unit*)u1;
-	const GFX_Unit* unit2 = (const GFX_Unit*)u2;
+	GFX_REND_GET.DrawArrays(
+		src->primitive,
+		src->first + vertBase,
+		src->count
+	);
+}
 
-	return
-		(unit1->program < unit2->program) ? -1 :
-		(unit1->program > unit2->program) ? 1 :
-		(unit1->vao < unit2->vao) ? -1 :
-		(unit1->vao > unit2->vao) ? 1 :
-		0;
+/******************************************************/
+static void _gfx_draw_instanced(
+
+		const GFXVertexSource*  src,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawArraysInstanced(
+		src->primitive,
+		src->first + vertBase,
+		src->count,
+		inst
+	);
+}
+
+/******************************************************/
+static void _gfx_draw_instanced_base(
+
+		const GFXVertexSource*  src,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawArraysInstancedBaseInstance(
+		src->primitive,
+		src->first + vertBase,
+		src->count,
+		inst,
+		instBase
+	);
+}
+
+/******************************************************/
+static void _gfx_draw_indexed(
+
+		const GFXVertexSource*  src,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawElements(
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)src->first
+	);
+}
+
+/******************************************************/
+static void _gfx_draw_indexed_instanced(
+
+		const GFXVertexSource*  src,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawElementsInstanced(
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)src->first,
+		inst
+	);
+}
+
+/******************************************************/
+static void _gfx_draw_indexed_instanced_base(
+
+		const GFXVertexSource*  src,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawElementsInstancedBaseInstance(
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)src->first,
+		inst,
+		instBase
+	);
+}
+
+/******************************************************/
+static void _gfx_draw_indexed_vertex(
+
+		const GFXVertexSource*  src,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawElementsBaseVertex(
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)src->first,
+		vertBase
+	);
+}
+
+/******************************************************/
+static void _gfx_draw_indexed_instanced_vertex(
+
+		const GFXVertexSource*  src,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawElementsInstancedBaseVertex(
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)src->first,
+		inst,
+		vertBase
+	);
+}
+
+/******************************************************/
+static void _gfx_draw_indexed_instanced_base_vertex(
+
+		const GFXVertexSource*  src,
+		size_t                  inst,
+		unsigned int            instBase,
+		int                     vertBase,
+		GFX_WIND_ARG)
+{
+	GFX_REND_GET.DrawElementsInstancedBaseVertexBaseInstance(
+		src->primitive,
+		src->count,
+		src->indexType,
+		(GLvoid*)src->first,
+		inst,
+		vertBase,
+		instBase
+	);
+}
+
+/******************************************************/
+static void _gfx_bucket_invoke(
+
+		const GFX_Source*  source,
+		const GFX_Unit*    unit,
+		GFX_WIND_ARG)
+{
+	/* Bind VAO & Tessellation vertices */
+	_gfx_vertex_layout_bind(
+		unit->vao,
+		GFX_WIND_AS_ARG);
+
+	_gfx_states_set_patch_vertices(
+		source->source.patchSize,
+		GFX_WIND_AS_ARG);
+
+	/* Bind shader program */
+	_gfx_property_map_use(
+		unit->map,
+		unit->copy,
+		unit->instBase,
+		GFX_WIND_AS_ARG);
+
+	/* Jump table */
+	static const GFX_DrawFunc jump[] =
+	{
+		_gfx_draw,
+		_gfx_draw_instanced,
+		_gfx_draw_instanced_base,
+		_gfx_draw_indexed,
+		_gfx_draw_indexed_instanced,
+		_gfx_draw_indexed_instanced_base,
+		_gfx_draw_indexed_vertex,
+		_gfx_draw_indexed_instanced_vertex,
+		_gfx_draw_indexed_instanced_base_vertex
+	};
+
+	/* Invoke draw call */
+	unsigned char type =
+		unit->type + source->indexed ? (unit->vertBase ? 6 : 3) : 0;
+
+	jump[type](
+		&source->source,
+		unit->inst,
+		unit->instBase,
+		unit->vertBase,
+		GFX_WIND_AS_ARG);
+}
+
+/******************************************************/
+static void _gfx_bucket_set_draw_type(
+
+		GFX_Unit* unit)
+{
+	GFX_WIND_INIT_UNSAFE;
+
+	unsigned int base = 0;
+
+	/* Check the extension for base instancing */
+	if(!GFX_WIND_EQ(NULL))
+		base = GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
+
+	unit->type =
+		(unit->instBase != 0 && base) ?
+			GFX_INT_DRAW_INSTANCED_BASE :
+		(unit->inst != 1) ?
+			GFX_INT_DRAW_INSTANCED :
+			GFX_INT_DRAW;
 }
 
 /******************************************************/
@@ -271,6 +504,23 @@ static void _gfx_bucket_process_units(
 }
 
 /******************************************************/
+static int _gfx_bucket_qsort(
+
+		const void* u1,
+		const void* u2)
+{
+	const GFX_Unit* unit1 = (const GFX_Unit*)u1;
+	const GFX_Unit* unit2 = (const GFX_Unit*)u2;
+
+	return
+		(unit1->program < unit2->program) ? -1 :
+		(unit1->program > unit2->program) ? 1 :
+		(unit1->vao < unit2->vao) ? -1 :
+		(unit1->vao > unit2->vao) ? 1 :
+		0;
+}
+
+/******************************************************/
 static void _gfx_bucket_sort_units(
 
 		GFX_Bucket*   bucket,
@@ -362,27 +612,6 @@ static void _gfx_bucket_preprocess(
 }
 
 /******************************************************/
-static void _gfx_bucket_set_draw_type(
-
-		GFX_Unit* unit)
-{
-	GFX_WIND_INIT_UNSAFE;
-
-	unsigned int base = 0;
-
-	/* Check the extension for base instancing */
-	if(!GFX_WIND_EQ(NULL))
-		base = GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
-
-	unit->type =
-		(unit->instBase != 0 && base) ?
-			GFX_INT_DRAW_INSTANCED_BASE :
-		(unit->inst != 1) ?
-			GFX_INT_DRAW_INSTANCED :
-			GFX_INT_DRAW;
-}
-
-/******************************************************/
 GFXBucket* _gfx_bucket_create(
 
 		unsigned char bits)
@@ -423,6 +652,20 @@ void _gfx_bucket_free(
 	{
 		GFX_Bucket* internal = (GFX_Bucket*)bucket;
 
+		/* Unblock all layouts */
+		GFX_Source* src;
+		for(
+			src = internal->sources.begin;
+			src != internal->sources.end;
+			src = gfx_vector_next(&internal->sources, src))
+		{
+			if(src->layout) _gfx_vertex_layout_unblock(
+				src->layout,
+				src->index
+			);
+		}
+
+		/* Free all the things */
 		gfx_vector_clear(&internal->sources);
 		gfx_deque_clear(&internal->emptySources);
 
@@ -443,7 +686,7 @@ void _gfx_bucket_process(
 {
 	GFX_Bucket* internal = (GFX_Bucket*)bucket;
 
-	/* Preprocess, set states and process */
+	/* Preprocess, set states and invoke units */
 	_gfx_bucket_preprocess(internal);
 	_gfx_states_set(state, GFX_WIND_AS_ARG);
 
@@ -455,23 +698,11 @@ void _gfx_bucket_process(
 	{
 		GFX_Source* src = gfx_vector_at(
 			&internal->sources,
-			unit->src
-		);
+			unit->src);
 
-		/* Bind shader program & draw */
-		_gfx_property_map_use(
-			unit->map,
-			unit->copy,
-			unit->instBase,
-			GFX_WIND_AS_ARG);
-
-		_gfx_vertex_layout_draw(
-			src->layout,
-			src->index,
-			unit->inst,
-			unit->instBase,
-			unit->vertBase,
-			unit->type,
+		_gfx_bucket_invoke(
+			src,
+			unit,
 			GFX_WIND_AS_ARG);
 	}
 }
@@ -496,22 +727,52 @@ void gfx_bucket_set_bits(
 /******************************************************/
 GFXBucketSource gfx_bucket_add_source(
 
-		GFXBucket*              bucket,
-		const GFXVertexLayout*  layout,
-		unsigned char           srcIndex)
+		GFXBucket*        bucket,
+		GFXVertexLayout*  layout,
+		unsigned char     srcIndex,
+		size_t            offset,
+		size_t            count)
 {
-	/* Derp */
-	if(!layout || srcIndex >= layout->sources) return 0;
+	/* Get source */
+	GFX_Source src;
+	src.layout  = layout;
+	src.index   = srcIndex;
+	src.indexed = 0;
 
-	/* Create source */
+	if(!layout || !gfx_vertex_layout_get_source(layout, srcIndex, &src.source))
+		return 0;
+
+	/* Adjust source and bound check */
+	if(offset + count > src.source.count)
+		return 0;
+
+	src.source.first += offset;
+	src.source.count = count;
+
+	/* Apply index buffer offset */
+	if(_gfx_vertex_layout_get_index_buffer(layout, &offset));
+	{
+		GFXDataType type;
+		type.unpacked = src.source.indexType;
+
+		unsigned char size = _gfx_sizeof_data_type(type);
+		src.indexed = 1;
+
+		/* Also check alignment of the buffer */
+		if(offset % size)
+			return 0;
+
+		src.source.first =
+			src.source.first * size + offset;
+	}
+
+	/* Attempt to block the layout */
+	if(!_gfx_vertex_layout_block(layout, srcIndex))
+		return 0;
+
+	/* Insert source */
 	GFX_Bucket* internal = (GFX_Bucket*)bucket;
 	GFXBucketSource id = 0;
-
-	GFX_Source src =
-	{
-		.layout = layout,
-		.index = srcIndex
-	};
 
 	if(internal->emptySources.begin != internal->emptySources.end)
 	{
@@ -534,6 +795,8 @@ GFXBucketSource gfx_bucket_add_source(
 				GFX_ERROR_OVERFLOW,
 				"Overflow occurred during source insertion at a bucket."
 			);
+
+			_gfx_vertex_layout_unblock(layout, srcIndex);
 			return 0;
 		}
 
@@ -544,7 +807,11 @@ GFXBucketSource gfx_bucket_add_source(
 			internal->sources.end
 		);
 
-		if(it == internal->sources.end) return 0;
+		if(it == internal->sources.end)
+		{
+			_gfx_vertex_layout_unblock(layout, srcIndex);
+			return 0;
+		}
 	}
 
 	return id;
@@ -556,17 +823,21 @@ void gfx_bucket_remove_source(
 		GFXBucket*       bucket,
 		GFXBucketSource  src)
 {
+	GFX_Bucket* internal = (GFX_Bucket*)bucket;
+	GFX_Source* source = gfx_vector_at(&internal->sources, src - 1);
+
 	/* Derpsies */
-	if(src)
+	size_t size = gfx_vector_get_size(&internal->sources);
+	if(src && src <= size && source->layout)
 	{
-		GFX_Bucket* internal = (GFX_Bucket*)bucket;
-		size_t size = gfx_vector_get_size(&internal->sources);
+		/* Unblock the layout */
+		_gfx_vertex_layout_unblock(source->layout, source->index);
 
 		if(src < size)
 		{
 			/* Save ID and mark as empty */
 			gfx_deque_push_end(&internal->emptySources, &src);
-			((GFX_Source*)gfx_vector_at(&internal->sources, src - 1))->layout = NULL;
+			source->layout = NULL;
 		}
 
 		else if(src == size)
@@ -610,12 +881,10 @@ GFXBucketUnit gfx_bucket_insert(
 
 	/* Validate index & source */
 	GFX_Bucket* internal = (GFX_Bucket*)bucket;
-	size_t cnt = gfx_vector_get_size(&internal->sources);
-
-	if(!map || src >= cnt) return 0;
-
 	GFX_Source* source = gfx_vector_at(&internal->sources, src);
-	if(!source->layout) return 0;
+
+	size_t cnt = gfx_vector_get_size(&internal->sources);
+	if(!map || src >= cnt || !source->layout) return 0;
 
 	/* Initialize the new unit */
 	GFX_Unit unit;

@@ -12,7 +12,7 @@
  *
  */
 
-#include "groufix/core/renderer.h"
+#include "groufix/core/internal.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -391,6 +391,22 @@ int gfx_shared_buffer_init(
 	_gfx_shared_buffer_free(it, GFX_WIND_AS_ARG);
 
 	return 0;
+}
+
+/******************************************************/
+int gfx_shared_buffer_init_align(
+
+		GFXSharedBuffer*  buffer,
+		size_t            size,
+		const void*       data,
+		GFXDataType       type)
+{
+	return gfx_shared_buffer_init(
+		buffer,
+		size,
+		data,
+		_gfx_sizeof_data_type(type)
+	);
 }
 
 /******************************************************/

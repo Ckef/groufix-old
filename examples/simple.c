@@ -26,6 +26,7 @@ GFXMesh* create_mesh()
 
 	GFXVertexSource src;
 	src.primitive = GFX_TRIANGLES;
+	src.indexType = GFX_UNSIGNED_BYTE;
 	src.first     = 0;
 	src.count     = 3;
 
@@ -40,9 +41,16 @@ GFXMesh* create_mesh()
 		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};
 
-	GFXMeshBuffer buff = gfx_mesh_add_buffer(mesh, sizeof(triangle), triangle);
-	gfx_mesh_set_vertex_buffer(mesh, id, buff, 0, 0, sizeof(float) * 6);
-	gfx_mesh_add(mesh, 0, id, 0);
+	unsigned char indices[] = {
+		0, 1, 2
+	};
+
+	GFXMeshBuffer ver = gfx_mesh_add_buffer(mesh, sizeof(triangle), triangle);
+	GFXMeshBuffer ind = gfx_mesh_add_buffer(mesh, sizeof(indices), indices);
+
+	gfx_mesh_set_vertex_buffer(mesh, id, ver, 0, 0, sizeof(float) * 6);
+	gfx_mesh_set_index_buffer(mesh, id, ind, 0);
+	gfx_mesh_add(mesh, 0, id, 0, 0, 3);
 
 	return mesh;
 }

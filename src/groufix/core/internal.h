@@ -28,16 +28,6 @@
  * Internal definitions
  *******************************************************/
 
-/** Internal draw type */
-typedef enum GFX_DrawType
-{
-	GFX_INT_DRAW,
-	GFX_INT_DRAW_INSTANCED,
-	GFX_INT_DRAW_INSTANCED_BASE
-
-} GFX_DrawType;
-
-
 /** Internal Pipe */
 typedef struct GFX_Pipe
 {
@@ -328,6 +318,34 @@ void _gfx_states_set_patch_vertices(
 
 
 /********************************************************
+ * Internal vertex layout usage
+ *******************************************************/
+
+/**
+ * Blocks the layout from changing the source or the index buffer.
+ *
+ * @param index Index of the source at the layout to block.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_vertex_layout_block(
+
+		GFXVertexLayout*  layout,
+		unsigned char     index);
+
+/**
+ * Unblocks the source at the layout.
+ *
+ * Must be called equally many times as _gfx_vertex_layout_block has been called.
+ *
+ */
+void _gfx_vertex_layout_unblock(
+
+		GFXVertexLayout*  layout,
+		unsigned char     index);
+
+
+/********************************************************
  * Internal sampler usage
  *******************************************************/
 
@@ -377,7 +395,7 @@ int _gfx_sampler_set(
 
 
 /********************************************************
- * Internal program & program map usage
+ * Internal program, program map & property map usage
  *******************************************************/
 
 /**
@@ -455,11 +473,6 @@ void _gfx_program_map_restore(
 		GFXProgramMap*      map,
 		GFX_RenderObjects*  cont);
 
-
-/********************************************************
- * Usage of property map & drawing using layout
- *******************************************************/
-
 /**
  * Calls _gfx_program_map_use and uploads appropriate data.
  *
@@ -474,23 +487,6 @@ void _gfx_property_map_use(
 		const GFXPropertyMap*  map,
 		unsigned int           copy,
 		unsigned int           base,
-		GFX_WIND_ARG);
-
-/**
- * Performs a complete draw operation.
- *
- * @param srcIndex Source index of the layout to issue.
- * @param type     Function type to use for drawing.
- *
- */
-void _gfx_vertex_layout_draw(
-
-		const GFXVertexLayout*  layout,
-		unsigned char           srcIndex,
-		size_t                  inst,
-		unsigned int            instBase,
-		int                     vertBase,
-		GFX_DrawType            type,
 		GFX_WIND_ARG);
 
 

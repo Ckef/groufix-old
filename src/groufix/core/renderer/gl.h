@@ -109,6 +109,17 @@ GLuint _gfx_vertex_layout_get_handle(
 
 		const GFXVertexLayout* layout);
 
+/**
+ * Returns the index buffer and the byte offset within it of a layout.
+ *
+ * @return 0 if no index buffer is used.
+ *
+ */
+GLuint _gfx_vertex_layout_get_index_buffer(
+
+		const GFXVertexLayout*  layout,
+		size_t*                 offset);
+
 
 /********************************************************
  * Texture format handling

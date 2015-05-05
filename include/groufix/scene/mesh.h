@@ -92,6 +92,9 @@ GFX_API GFXVertexLayout* gfx_mesh_get_layout(
  *
  * @return ID to identify the buffer (0 on failure).
  *
+ * Note: the buffer will be aligned to GFX_LARGE_INTEGER so it can be used
+ * for any index buffer.
+ *
  */
 GFX_API GFXMeshBuffer gfx_mesh_add_buffer(
 
@@ -126,6 +129,9 @@ GFX_API int gfx_mesh_set_vertex_buffer(
  * @param buffer Buffer ID to use for this layout.
  * @param offset Byte offset within the buffer to start reading at.
  *
+ * Note: offset must be a multiple of the size of the largest index used within layout.
+ * If not, using this layout in a batch will fail.
+ *
  */
 GFX_API void gfx_mesh_set_index_buffer(
 
@@ -140,6 +146,8 @@ GFX_API void gfx_mesh_set_index_buffer(
  * @param level     Level of detail to map to (must be <= mesh->levels).
  * @param layout    Vertex layout ID to use for the source.
  * @param srcIndex  Source index into the layout to use.
+ * @param offset    Offset to add to first.
+ * @param count     Number of vertices to use.
  * @return Zero on failure.
  *
  */
@@ -148,7 +156,9 @@ GFX_API int gfx_mesh_add(
 		GFXMesh*       mesh,
 		unsigned int   level,
 		GFXMeshLayout  layout,
-		unsigned char  srcIndex);
+		unsigned char  srcIndex,
+		size_t         offset,
+		size_t         count);
 
 /**
  * Returns an abstract list of vertex sources of a given level of detail.
@@ -183,6 +193,24 @@ GFX_API GFXVertexSourceList gfx_mesh_get_all(
  *
  */
 GFX_API GFXMeshLayout gfx_vertex_source_list_layout_at(
+
+		const GFXVertexSourceList  list,
+		unsigned int               index);
+
+/**
+ * Index into the list of vertex sources, retrieving the offset added to the source.
+ *
+ */
+GFX_API size_t gfx_vertex_source_list_offset_at(
+
+		const GFXVertexSourceList  list,
+		unsigned int               index);
+
+/**
+ * Index into the list of vertex sources, retrieving the count of vertices used.
+ *
+ */
+GFX_API size_t gfx_vertex_source_list_count_at(
 
 		const GFXVertexSourceList  list,
 		unsigned int               index);
