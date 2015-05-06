@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 /* Internal bucket flags */
 #define GFX_INT_BUCKET_PROCESS_UNITS  0x01
 #define GFX_INT_BUCKET_SORT           0x02
@@ -29,9 +30,15 @@
 #define GFX_INT_UNIT_MANUAL      (~((~(GFX_INT_UNIT_MANUAL_MSB << 1)) + 1))
 
 /* Internal draw function types */
-#define GFX_INT_DRAW                 0
-#define GFX_INT_DRAW_INSTANCED       1
-#define GFX_INT_DRAW_INSTANCED_BASE  2
+#define GFX_INT_DRAW                             0
+#define GFX_INT_DRAW_INSTANCED                   1
+#define GFX_INT_DRAW_INSTANCED_BASE              2
+#define GFX_INT_DRAW_VERTEX_BASE                 3
+#define GFX_INT_DRAW_INSTANCED_VERTEX_BASE       4
+#define GFX_INT_DRAW_INSTANCED_BASE_VERTEX_BASE  5
+
+#define GFX_INT_DRAW_COUNT                       6
+
 
 /******************************************************/
 /* Internal draw function */
@@ -69,8 +76,7 @@ typedef struct GFX_Source
 {
 	GFXVertexLayout*  layout;  /* NULL when empty */
 	unsigned char     index;   /* Source index at the layout */
-	GFXVertexSource   source;  /* If indexed, source.first will be in bytes */
-	unsigned char     indexed; /* 1 if index buffer is used, 0 if not */
+	GFXVertexSource   source;  /* If indexed, source.indexed will be GFX_INT_DRAW_COUNT if non-zero */
 
 } GFX_Source;
 
@@ -204,7 +210,7 @@ static void _gfx_draw_indexed_instanced_base(
 }
 
 /******************************************************/
-static void _gfx_draw_indexed_vertex(
+static void _gfx_draw_indexed_vertex_base(
 
 		const GFXVertexSource*  src,
 		size_t                  inst,
@@ -222,7 +228,7 @@ static void _gfx_draw_indexed_vertex(
 }
 
 /******************************************************/
-static void _gfx_draw_indexed_instanced_vertex(
+static void _gfx_draw_indexed_instanced_vertex_base(
 
 		const GFXVertexSource*  src,
 		size_t                  inst,
@@ -241,7 +247,7 @@ static void _gfx_draw_indexed_instanced_vertex(
 }
 
 /******************************************************/
-static void _gfx_draw_indexed_instanced_base_vertex(
+static void _gfx_draw_indexed_instanced_base_vertex_base(
 
 		const GFXVertexSource*  src,
 		size_t                  inst,
@@ -283,30 +289,30 @@ static void _gfx_bucket_invoke(
 		unit->instBase,
 		GFX_WIND_AS_ARG);
 
-	/* Jump table */
+	/* Jump table & invoke draw call */
 	static const GFX_DrawFunc jump[] =
 	{
+		_gfx_draw,
+		_gfx_draw_instanced,
+		_gfx_draw_instanced_base,
 		_gfx_draw,
 		_gfx_draw_instanced,
 		_gfx_draw_instanced_base,
 		_gfx_draw_indexed,
 		_gfx_draw_indexed_instanced,
 		_gfx_draw_indexed_instanced_base,
-		_gfx_draw_indexed_vertex,
-		_gfx_draw_indexed_instanced_vertex,
-		_gfx_draw_indexed_instanced_base_vertex
+		_gfx_draw_indexed_vertex_base,
+		_gfx_draw_indexed_instanced_vertex_base,
+		_gfx_draw_indexed_instanced_base_vertex_base
 	};
 
-	/* Invoke draw call */
-	unsigned char type =
-		unit->type + source->indexed ? (unit->vertBase ? 6 : 3) : 0;
-
-	jump[type](
+	jump[unit->type + source->source.indexed](
 		&source->source,
 		unit->inst,
 		unit->instBase,
 		unit->vertBase,
-		GFX_WIND_AS_ARG);
+		GFX_WIND_AS_ARG
+	);
 }
 
 /******************************************************/
@@ -316,18 +322,36 @@ static void _gfx_bucket_set_draw_type(
 {
 	GFX_WIND_INIT_UNSAFE;
 
-	unsigned int base = 0;
+	unsigned int inst = 0;
+	unsigned int vert = 0;
 
-	/* Check the extension for base instancing */
+	/* Check the extension for bases */
 	if(!GFX_WIND_EQ(NULL))
-		base = GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
+	{
+		inst = unit->instBase &&
+			GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
+		vert = unit->vertBase &&
+			GFX_WIND_GET.ext[GFX_EXT_VERTEX_BASE_INDICES];
+	}
 
-	unit->type =
-		(unit->instBase != 0 && base) ?
-			GFX_INT_DRAW_INSTANCED_BASE :
-		(unit->inst != 1) ?
-			GFX_INT_DRAW_INSTANCED :
-			GFX_INT_DRAW;
+	unit->type = inst ?
+
+		/* Instance base */
+		(vert ?
+		GFX_INT_DRAW_INSTANCED_BASE_VERTEX_BASE :
+		GFX_INT_DRAW_INSTANCED_BASE) :
+
+		unit->inst != 1 ?
+
+		/* Instanced */
+ 		(vert ?
+		GFX_INT_DRAW_INSTANCED_VERTEX_BASE :
+		GFX_INT_DRAW_INSTANCED) :
+
+		/* Regular */
+		(vert ?
+		GFX_INT_DRAW_VERTEX_BASE :
+		GFX_INT_DRAW);
 }
 
 /******************************************************/
@@ -735,12 +759,16 @@ GFXBucketSource gfx_bucket_add_source(
 {
 	/* Get source */
 	GFX_Source src;
-	src.layout  = layout;
-	src.index   = srcIndex;
-	src.indexed = 0;
+	src.layout = layout;
+	src.index = srcIndex;
 
-	if(!layout || !gfx_vertex_layout_get_source(layout, srcIndex, &src.source))
+	if(!layout || !gfx_vertex_layout_get_source(
+		layout,
+		srcIndex,
+		&src.source))
+	{
 		return 0;
+	}
 
 	/* Adjust source and bound check */
 	if(offset + count > src.source.count)
@@ -750,20 +778,19 @@ GFXBucketSource gfx_bucket_add_source(
 	src.source.count = count;
 
 	/* Apply index buffer offset */
-	if(_gfx_vertex_layout_get_index_buffer(layout, &offset));
+	if(src.source.indexed && _gfx_vertex_layout_get_index_buffer(
+		layout,
+		&offset))
 	{
 		GFXDataType type;
 		type.unpacked = src.source.indexType;
-
 		unsigned char size = _gfx_sizeof_data_type(type);
-		src.indexed = 1;
 
 		/* Also check alignment of the buffer */
-		if(offset % size)
-			return 0;
+		if(offset % size) return 0;
 
-		src.source.first =
-			src.source.first * size + offset;
+		src.source.first = src.source.first * size + offset;
+		src.source.indexed = GFX_INT_DRAW_COUNT;
 	}
 
 	/* Attempt to block the layout */

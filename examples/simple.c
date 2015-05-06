@@ -26,6 +26,7 @@ GFXMesh* create_mesh()
 
 	GFXVertexSource src;
 	src.primitive = GFX_TRIANGLES;
+	src.indexed   = 1;
 	src.indexType = GFX_UNSIGNED_BYTE;
 	src.first     = 0;
 	src.count     = 3;

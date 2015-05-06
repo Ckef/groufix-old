@@ -376,6 +376,7 @@ typedef struct GFXVertexAttribute
 typedef struct GFXVertexSource
 {
 	GFXPrimitive     primitive;
+	unsigned char    indexed;   /* Non-zero if indexed via the index buffer */
 	GFXUnpackedType  indexType; /* Can only be an unsigned type */
 	size_t           first;     /* First index to start reading at */
 	size_t           count;     /* Number of drawable vertices */

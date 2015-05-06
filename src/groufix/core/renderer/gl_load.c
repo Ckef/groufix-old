@@ -430,7 +430,7 @@ void _gfx_renderer_load(void)
 	}
 
 	/* GFX_EXT_VERTEX_BASE */
-	if(_gfx_is_extension_supported("GL_OES_elements_base_vertex", GFX_WIND_AS_ARG))
+	if(_gfx_is_extension_supported("GL_OES_draw_elements_base_vertex", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_VERTEX_BASE_INDICES] = 1;
 
@@ -440,7 +440,7 @@ void _gfx_renderer_load(void)
 			(GFX_DRAWELEMENTSINSTANCEDBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseVertexOES");
 	}
 
-	else if(_gfx_is_extension_supported("GL_EXT_elements_base_vertex", GFX_WIND_AS_ARG))
+	else if(_gfx_is_extension_supported("GL_EXT_draw_elements_base_vertex", GFX_WIND_AS_ARG))
 	{
 		GFX_WIND_GET.ext[GFX_EXT_VERTEX_BASE_INDICES] = 1;
 
