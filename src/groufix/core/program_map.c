@@ -115,7 +115,7 @@ static int _gfx_program_map_set_stages(
 		{
 			/* Free previous program */
 			if(map->stages[index])
-				_gfx_program_free(map->stages[index]);
+				gfx_program_free(map->stages[index]);
 
 			map->stages[index] = program;
 		}
@@ -128,7 +128,7 @@ static int _gfx_program_map_set_stages(
 
 		/* Free previous program */
 		if(map->stages[index])
-			_gfx_program_free(map->stages[index]);
+			gfx_program_free(map->stages[index]);
 
 		map->stages[index] = program;
 
@@ -392,7 +392,7 @@ void gfx_program_map_free(
 		for(stage = 0; stage < GFX_INT_NUM_STAGES; ++stage)
 		{
 			if(internal->stages[stage])
-				_gfx_program_free(internal->stages[stage]);
+				gfx_program_free(internal->stages[stage]);
 		}
 
 		free(map);
@@ -411,13 +411,13 @@ GFXProgram* gfx_program_map_add(
 	if(internal->blocks) return NULL;
 
 	/* Create the program */
-	GFXProgram* program = _gfx_program_create(instances);
+	GFXProgram* program = gfx_program_create(instances);
 	if(!program) return NULL;
 
 	/* Attempt to map it to the given stage(s) */
 	if(!_gfx_program_map_set_stages(internal, stage, program))
 	{
-		_gfx_program_free(program);
+		gfx_program_free(program);
 		return NULL;
 	}
 
@@ -444,7 +444,7 @@ int gfx_program_map_add_share(
 	/* Attempt to map it to the given stage(s) */
 	if(!_gfx_program_map_set_stages(internal, stage, share))
 	{
-		_gfx_program_free(share);
+		gfx_program_free(share);
 		return 0;
 	}
 

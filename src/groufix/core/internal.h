@@ -399,38 +399,19 @@ int _gfx_sampler_set(
  *******************************************************/
 
 /**
- * Creates a new program.
- *
- * @param instances Number of instances that can be drawn in a single draw call, 0 for infinite.
- * @return NULL on failure.
- *
- */
-GFXProgram* _gfx_program_create(
-
-		size_t instances);
-
-/**
  * References a program to postpone its destruction.
  *
  * @param references Number of times to reference it.
  * @return Zero on overflow.
+ *
+ * This increases the number of required gfx_program_free calls
+ * to actually destroy the program.
  *
  */
 int _gfx_program_reference(
 
 		GFXProgram*   program,
 		unsigned int  references);
-
-/**
- * Makes sure the program is freed properly.
- *
- * Decreases the reference counter before freeing,
- * only freeing if the counter hits 0.
- *
- */
-void _gfx_program_free(
-
-		GFXProgram* program);
 
 /**
  * Blocks the program map from adding anymore programs.

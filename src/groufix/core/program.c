@@ -530,7 +530,29 @@ GLuint _gfx_program_get_handle(
 }
 
 /******************************************************/
-GFXProgram* _gfx_program_create(
+int _gfx_program_reference(
+
+		GFXProgram*   program,
+		unsigned int  references)
+{
+	GFX_Program* internal = (GFX_Program*)program;
+
+	if(UINT_MAX - references < internal->references)
+	{
+		/* Overflow error */
+		gfx_errors_push(
+			GFX_ERROR_OVERFLOW,
+			"Overflow occurred during Program referencing."
+		);
+		return 0;
+	}
+
+	internal->references += references;
+	return 1;
+}
+
+/******************************************************/
+GFXProgram* gfx_program_create(
 
 		size_t instances)
 {
@@ -573,29 +595,7 @@ GFXProgram* _gfx_program_create(
 }
 
 /******************************************************/
-int _gfx_program_reference(
-
-		GFXProgram*   program,
-		unsigned int  references)
-{
-	GFX_Program* internal = (GFX_Program*)program;
-
-	if(UINT_MAX - references < internal->references)
-	{
-		/* Overflow error */
-		gfx_errors_push(
-			GFX_ERROR_OVERFLOW,
-			"Overflow occurred during Program referencing."
-		);
-		return 0;
-	}
-
-	internal->references += references;
-	return 1;
-}
-
-/******************************************************/
-void _gfx_program_free(
+void gfx_program_free(
 
 		GFXProgram* program)
 {

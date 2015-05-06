@@ -193,6 +193,27 @@ typedef struct GFXProgram
 
 
 /**
+ * Creates a new program.
+ *
+ * @param instances Number of instances that can be drawn in a single draw call, 0 for infinite.
+ * @return NULL on failure.
+ *
+ */
+GFXProgram* gfx_program_create(
+
+		size_t instances);
+
+/**
+ * Makes sure the program is freed properly.
+ *
+ * The program is only ever freed if no more program maps reference it.
+ *
+ */
+void gfx_program_free(
+
+		GFXProgram* program);
+
+/**
  * Forwards data send to the given index to a given name within the program.
  *
  * @param index Index of the attribute (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
