@@ -778,16 +778,19 @@ GFXBucketSource gfx_bucket_add_source(
 	src.source.count = count;
 
 	/* Apply index buffer offset */
-	if(src.source.indexed && _gfx_vertex_layout_get_index_buffer(
-		layout,
-		&offset))
+	if(src.source.indexed)
 	{
+		/* Get index buffer offset */
+		if(!_gfx_vertex_layout_get_index_buffer(layout, &offset))
+			return 0;
+
 		GFXDataType type;
 		type.unpacked = src.source.indexType;
 		unsigned char size = _gfx_sizeof_data_type(type);
 
 		/* Also check alignment of the buffer */
-		if(offset % size) return 0;
+		if(offset % size)
+			return 0;
 
 		src.source.first = src.source.first * size + offset;
 		src.source.indexed = GFX_INT_DRAW_COUNT;
