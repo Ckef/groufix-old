@@ -67,13 +67,25 @@ GFX_API void gfx_mesh_free(
  * Creates a new vertex layout associated with the mesh.
  *
  * @param sources Fixed number of vertex sources associated with this layout.
- * @return ID to identify the layout (0 on failure).
+ * @return ID to identify the layout at this mesh (0 on failure).
  *
  */
 GFX_API GFXMeshLayout gfx_mesh_add_layout(
 
 		GFXMesh*       mesh,
 		unsigned char  sources);
+
+/**
+ * Shares a vertex layout associated with the mesh.
+ *
+ * @param share Vertex Layout to share.
+ * @return ID to identify the layout at this mesh (0 on failure).
+ *
+ */
+GFX_API GFXMeshLayout gfx_mesh_share_layout(
+
+		GFXMesh*          mesh,
+		GFXVertexLayout*  layout);
 
 /**
  * Retrieves the vertex layout from a mesh.

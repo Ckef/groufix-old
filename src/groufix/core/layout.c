@@ -26,6 +26,7 @@ typedef struct GFX_Layout
 
 	/* Hidden data */
 	GFX_RenderObjectID  id;
+	unsigned int        references;  /* Reference counter */
 	GLuint              vao;         /* OpenGL handle */
 	unsigned int        blocks;      /* Total number of blocks */
 
@@ -548,7 +549,8 @@ GFXVertexLayout* gfx_vertex_layout_create(
 		return NULL;
 	}
 
-	/* Create OpenGL resources */
+	/* Initialize */
+	layout->references = 1;
 	layout->layout.sources = sources;
 	GFX_REND_GET.CreateVertexArrays(1, &layout->vao);
 
@@ -559,33 +561,58 @@ GFXVertexLayout* gfx_vertex_layout_create(
 }
 
 /******************************************************/
+int gfx_vertex_layout_share(
+
+		GFXVertexLayout* layout)
+{
+	GFX_Layout* internal = (GFX_Layout*)layout;
+
+	if(!(internal->references + 1))
+	{
+		/* Overflow error */
+		gfx_errors_push(
+			GFX_ERROR_OVERFLOW,
+			"Overflow occurred during Vertex Layout referencing."
+		);
+		return 0;
+	}
+
+	++internal->references;
+	return 1;
+}
+
+/******************************************************/
 void gfx_vertex_layout_free(
 
 		GFXVertexLayout* layout)
 {
 	if(layout)
 	{
-		GFX_WIND_INIT_UNSAFE;
-
 		GFX_Layout* internal = (GFX_Layout*)layout;
 
-		/* Unregister as object */
-		_gfx_render_object_unregister(internal->id);
-
-		if(!GFX_WIND_EQ(NULL))
+		/* Check references */
+		if(!(--internal->references))
 		{
-			/* Delete VAO */
-			if(GFX_REND_GET.vao == internal->vao)
-				GFX_REND_GET.vao = 0;
+			GFX_WIND_INIT_UNSAFE;
 
-			GFX_REND_GET.DeleteVertexArrays(1, &internal->vao);
+			/* Unregister as object */
+			_gfx_render_object_unregister(internal->id);
+
+			if(!GFX_WIND_EQ(NULL))
+			{
+				/* Delete VAO */
+				if(GFX_REND_GET.vao == internal->vao)
+					GFX_REND_GET.vao = 0;
+
+				GFX_REND_GET.DeleteVertexArrays(1, &internal->vao);
+			}
+
+			/* Clear resources */
+			gfx_vector_clear(&internal->attributes);
+			gfx_vector_clear(&internal->buffers);
+
+			free(layout);
 		}
-
-		/* Clear resources */
-		gfx_vector_clear(&internal->attributes);
-		gfx_vector_clear(&internal->buffers);
-
-		free(layout);
 	}
 }
 

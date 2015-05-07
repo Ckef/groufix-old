@@ -409,6 +409,19 @@ GFX_API GFXVertexLayout* gfx_vertex_layout_create(
 		unsigned char sources);
 
 /**
+ * References a vertex layout to postpone its destruction.
+ *
+ * @return Zero on overflow.
+ *
+ * This increases the number of required gfx_vertex_layout_free calls
+ * to actually destroy the vertex layout.
+ *
+ */
+GFX_API int gfx_vertex_layout_share(
+
+		GFXVertexLayout* layout);
+
+/**
  * Makes sure the vertex layout is freed properly.
  *
  */

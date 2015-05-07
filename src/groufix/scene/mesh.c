@@ -76,6 +76,29 @@ static inline size_t _gfx_mesh_bucket_size(
 }
 
 /******************************************************/
+static GFXMeshLayout _gfx_mesh_insert_layout(
+
+		GFX_Mesh*         mesh,
+		GFXVertexLayout*  layout)
+{
+	GFXVectorIterator it = gfx_vector_insert(
+		&mesh->layouts,
+		&layout,
+		mesh->layouts.end
+	);
+
+	if(it == mesh->layouts.end)
+	{
+		/* Free on failure */
+		gfx_vertex_layout_free(layout);
+		return 0;
+	}
+
+	/* Return the ID */
+	return gfx_vector_get_size(&mesh->layouts);
+}
+
+/******************************************************/
 static GFX_Bucket* _gfx_mesh_find_bucket(
 
 		const GFX_Mesh*   mesh,
@@ -385,37 +408,27 @@ GFXMeshLayout gfx_mesh_add_layout(
 		GFXMesh*       mesh,
 		unsigned char  sources)
 {
-	/* Overflow */
-	GFX_Mesh* internal = (GFX_Mesh*)mesh;
-	size_t max = gfx_vector_get_size(&internal->layouts);
-
-	if(max == UINT_MAX)
-	{
-		gfx_errors_push(
-			GFX_ERROR_OVERFLOW,
-			"Overflow occurred during layout creation at a Mesh."
-		);
-		return 0;
-	}
-
-	/* Insert new vector element */
-	GFXVertexLayout** it = gfx_vector_insert(
-		&internal->layouts,
-		NULL,
-		internal->layouts.end
-	);
-
-	if(it == internal->layouts.end) return 0;
-
 	/* Create new layout */
-	*it = gfx_vertex_layout_create(sources);
-	if(!(*it))
-	{
-		gfx_vector_erase(&internal->layouts, it);
-		return 0;
-	}
+	GFXVertexLayout* layout =
+		gfx_vertex_layout_create(sources);
 
-	return max + 1;
+	if(!layout) return 0;
+
+	/* Attempt to insert it */
+	return _gfx_mesh_insert_layout((GFX_Mesh*)mesh, layout);
+}
+
+/******************************************************/
+GFXMeshLayout gfx_mesh_share_layout(
+
+		GFXMesh*          mesh,
+		GFXVertexLayout*  layout)
+{
+	/* Share the layout */
+	if(!gfx_vertex_layout_share(layout)) return 0;
+
+	/* Attempt to insert it */
+	return _gfx_mesh_insert_layout((GFX_Mesh*)mesh, layout);
 }
 
 /******************************************************/
@@ -434,18 +447,7 @@ GFXMeshBuffer gfx_mesh_add_buffer(
 		size_t       size,
 		const void*  data)
 {
-	/* Overflow */
 	GFX_Mesh* internal = (GFX_Mesh*)mesh;
-	size_t max = gfx_vector_get_size(&internal->buffers);
-
-	if(max == UINT_MAX)
-	{
-		gfx_errors_push(
-			GFX_ERROR_OVERFLOW,
-			"Overflow occurred during buffer creation at a Mesh."
-		);
-		return 0;
-	}
 
 	/* Insert new vector element */
 	GFXSharedBuffer* it = gfx_vector_insert(
@@ -467,7 +469,8 @@ GFXMeshBuffer gfx_mesh_add_buffer(
 		return 0;
 	}
 
-	return max + 1;
+	/* Return ID */
+	return gfx_vector_get_size(&internal->buffers);
 }
 
 /******************************************************/

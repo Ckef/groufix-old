@@ -201,7 +201,13 @@ int gfx_lod_map_add(
 	);
 
 	/* Insert the data */
-	if(gfx_vector_insert_at(&internal->data, data, end) == internal->data.end)
+	GFXVectorIterator it = gfx_vector_insert_at(
+		&internal->data,
+		data,
+		end
+	);
+
+	if(it == internal->data.end)
 	{
 		if(begin == end)
 		{
