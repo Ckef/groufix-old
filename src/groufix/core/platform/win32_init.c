@@ -122,6 +122,73 @@ static int _gfx_win32_load_extensions(void)
 }
 
 /******************************************************/
+static int _gfx_win32_init_screens(void)
+{
+	/* Enumerate all display adapters */
+	DISPLAY_DEVICE adapter;
+	ZeroMemory(&adapter, sizeof(DISPLAY_DEVICE));
+	adapter.cb = sizeof(DISPLAY_DEVICE);
+
+	DWORD adapterIndex = 0;
+	while(EnumDisplayDevices(NULL, adapterIndex++, &adapter, 0))
+	{
+		/* Validate adapter */
+		if(!(adapter.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP))
+		{
+			continue;
+		}
+
+		/* Enumerate all monitors associated with the adapter. */
+		DISPLAY_DEVICE monitor;
+		ZeroMemory(&monitor, sizeof(DISPLAY_DEVICE));
+		monitor.cb = sizeof(DISPLAY_DEVICE);
+
+		DWORD monitorIndex = 0;
+		while(EnumDisplayDevices(adapter.DeviceName, monitorIndex++, &monitor, 0))
+		{
+			/* Validate monitor */
+			if(
+				!(monitor.StateFlags & DISPLAY_DEVICE_ACTIVE) ||
+				monitor.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER
+			)
+			{
+				continue;
+			}
+
+			/* Create new screen */
+			GFX_Win32_Screen screen;
+			memcpy(screen.name, adapter.DeviceName, sizeof(screen.name));
+
+			DEVMODE mode;
+			ZeroMemory(&mode, sizeof(DEVMODE));
+			mode.dmSize = sizeof(DEVMODE);
+
+			EnumDisplaySettingsEx(
+				monitor.DeviceName,
+				ENUM_CURRENT_SETTINGS,
+				&mode,
+				EDS_ROTATEMODE
+			);
+
+			screen.x      = mode.dmPosition.x;
+			screen.y      = mode.dmPosition.y;
+			screen.width  = mode.dmPelsWidth;
+			screen.height = mode.dmPelsHeight;
+
+			/* Insert at beginning if primary */
+			GFXVectorIterator scrPos =
+				(adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE && monitorIndex == 0) ?
+				_gfx_win32->screens.begin : _gfx_win32->screens.end;
+
+			gfx_vector_insert(&_gfx_win32->screens, &screen, scrPos);
+		}
+	}
+
+	/* Need at least one screen */
+	return _gfx_win32->screens.begin != _gfx_win32->screens.end;
+}
+
+/******************************************************/
 static GFXKey _gfx_win32_get_key(
 
 		int symbol)
@@ -204,70 +271,6 @@ static inline void _gfx_win32_create_key_table(void)
 }
 
 /******************************************************/
-static inline void _gfx_win32_init_monitors(void)
-{
-	/* Enumerate all display adapters */
-	DISPLAY_DEVICE adapter;
-	ZeroMemory(&adapter, sizeof(DISPLAY_DEVICE));
-	adapter.cb = sizeof(DISPLAY_DEVICE);
-
-	DWORD adapterIndex = 0;
-	while(EnumDisplayDevices(NULL, adapterIndex++, &adapter, 0))
-	{
-		/* Validate adapter */
-		if(!(adapter.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP))
-		{
-			continue;
-		}
-
-		/* Enumerate all monitors associated with the adapter. */
-		DISPLAY_DEVICE monitor;
-		ZeroMemory(&monitor, sizeof(DISPLAY_DEVICE));
-		monitor.cb = sizeof(DISPLAY_DEVICE);
-
-		DWORD monitorIndex = 0;
-		while(EnumDisplayDevices(adapter.DeviceName, monitorIndex++, &monitor, 0))
-		{
-			/* Validate monitor */
-			if(
-				!(monitor.StateFlags & DISPLAY_DEVICE_ACTIVE) ||
-				monitor.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER
-			)
-			{
-				continue;
-			}
-
-			/* Create new screen */
-			GFX_Win32_Screen screen;
-			memcpy(screen.name, monitor.DeviceName, sizeof(screen.name));
-
-			DEVMODE mode;
-			ZeroMemory(&mode, sizeof(DEVMODE));
-			mode.dmSize = sizeof(DEVMODE);
-
-			EnumDisplaySettingsEx(
-				monitor.DeviceName,
-				ENUM_CURRENT_SETTINGS,
-				&mode,
-				EDS_ROTATEMODE
-			);
-
-			screen.x      = mode.dmPosition.x;
-			screen.y      = mode.dmPosition.y;
-			screen.width  = mode.dmPelsWidth;
-			screen.height = mode.dmPelsHeight;
-
-			/* Insert at beginning if primary */
-			GFXVectorIterator scrPos =
-				(adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE && monitorIndex == 0) ?
-				_gfx_win32->screens.begin : _gfx_win32->screens.end;
-
-			gfx_vector_insert(&_gfx_win32->screens, &screen, scrPos);
-		}
-	}
-}
-
-/******************************************************/
 GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 
 		HWND handle)
@@ -342,10 +345,8 @@ int _gfx_platform_init(void)
 		gfx_vector_init(&_gfx_win32->screens, sizeof(GFX_Win32_Screen));
 		gfx_vector_init(&_gfx_win32->windows, sizeof(GFX_Win32_Window));
 
-		_gfx_win32_init_monitors();
-
-		/* Need at least one screen */
-		if(_gfx_win32->screens.begin == _gfx_win32->screens.end)
+		/* Init screens */
+		if(!_gfx_win32_init_screens())
 		{
 			_gfx_platform_terminate();
 			return 0;
