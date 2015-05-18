@@ -145,6 +145,11 @@ static GFX_Window* _gfx_window_create_internal(
 	/* Create platform window */
 	if(!window->offscreen)
 	{
+		/* Adjust attributes */
+		attr->flags = attr->flags & GFX_WINDOW_FULLSCREEN ?
+			attr->flags & ~GFX_WINDOW_RESIZABLE :
+			attr->flags;
+
 		attr->screen = attr->screen ?
 			attr->screen :
 			_gfx_platform_get_default_screen();

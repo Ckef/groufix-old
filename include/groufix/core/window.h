@@ -199,7 +199,7 @@ typedef enum GFXWindowFlags
 {
 	GFX_WINDOW_FULLSCREEN     = 0x0001,
 	GFX_WINDOW_BORDERLESS     = 0x0002,
-	GFX_WINDOW_RESIZABLE      = 0x0004,
+	GFX_WINDOW_RESIZABLE      = 0x0004, /* Removed if fullscreen */
 	GFX_WINDOW_HIDDEN         = 0x0008,
 	GFX_WINDOW_DOUBLE_BUFFER  = 0x0010
 
@@ -279,7 +279,7 @@ GFX_API GFXWindow* gfx_get_window(
  * @param mode   Display mode to use.
  * @param x      X position of the window.
  * @param y      Y position of the window.
- * @param flags  Flags to apply to this window, fullscreen has precedence over all other flags.
+ * @param flags  Flags to apply to this window.
  * @return NULL on failure.
  *
  * Note: the display mode must be one fetched through gfx_screen_get_mode() if the fullscreen
@@ -298,8 +298,6 @@ GFX_API GFXWindow* gfx_window_create(
 /**
  * Recreates a window using a new screen, depth and flags.
  *
- * @param screen New screen to use, NULL for default screen.
- * @param flags  Flags to apply to this window, full screen has precedence over all other flags.
  * @return The new window on success, NULL on failure (old window is still functional).
  *
  * Note: if NULL is returned, the original window is still functional, but hidden.
@@ -404,7 +402,8 @@ GFX_API void gfx_window_set_position(
 /**
  * Makes a window visible.
  *
- * Note: this might misbehave if directly called after gfx_window_hide.
+ * Note: this might misbehave if directly called after gfx_window_hide or
+ * when the window was just created.
  *
  */
 GFX_API void gfx_window_show(
@@ -414,7 +413,8 @@ GFX_API void gfx_window_show(
 /**
  * Makes a window invisible.
  *
- * Note: this might misbehave if directly called after gfx_window_show.
+ * Note: this might misbehave if directly called after gfx_window_show or
+ * when the window was just created.
  *
  */
 GFX_API void gfx_window_hide(

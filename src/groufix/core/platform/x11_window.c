@@ -425,6 +425,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	window.context = NULL;
 	window.flags   = 0;
 
+	window.flags |=
+		attributes->flags & GFX_WINDOW_RESIZABLE ?
+		GFX_X11_RESIZABLE : 0;
+
 	/* Get visual from config */
 	XVisualInfo* visual = glXGetVisualFromFBConfig(
 		_gfx_x11->display,
@@ -521,45 +525,39 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			_gfx_x11->display,
 			window.handle,
 			&_gfx_x11->WM_DELETE_WINDOW,
-			1
-		);
+			1);
 
 		XStoreName(
 			_gfx_x11->display,
 			window.handle,
-			attributes->name
-		);
+			attributes->name);
 
-		/* Set full screen */
+		/* Make it visible */
+		if(!(attributes->flags & GFX_WINDOW_HIDDEN))
+			XMapWindow(_gfx_x11->display, window.handle);
+
+		/* Set fullscreen */
 		if(attributes->flags & GFX_WINDOW_FULLSCREEN)
 		{
 			window.flags |= GFX_X11_FULLSCREEN;
-			XMapWindow(_gfx_x11->display, window.handle);
-
-			_gfx_x11_enter_fullscreen(window.handle, get.root);
+			if(!(attributes->flags & GFX_WINDOW_HIDDEN))
+				_gfx_x11_enter_fullscreen(window.handle, get.root);
 		}
 
-		else
+		/* Set size hints */
+		else if(!(attributes->flags & GFX_WINDOW_RESIZABLE))
 		{
-			/* Set size hints */
-			if(!(GFX_WINDOW_RESIZABLE & attributes->flags))
-			{
-				XSizeHints* hints = XAllocSizeHints();
-				hints->flags = PMinSize | PMaxSize;
+			XSizeHints* hints = XAllocSizeHints();
+			hints->flags = PMinSize | PMaxSize;
 
-				hints->min_width = attributes->mode.width;
-				hints->max_width = attributes->mode.width;
-				hints->min_height = attributes->mode.height;
-				hints->max_height = attributes->mode.height;
+			hints->min_width = attributes->mode.width;
+			hints->max_width = attributes->mode.width;
+			hints->min_height = attributes->mode.height;
+			hints->max_height = attributes->mode.height;
 
-				XSetWMNormalHints(_gfx_x11->display, window.handle, hints);
+			XSetWMNormalHints(_gfx_x11->display, window.handle, hints);
 
-				XFree(hints);
-			}
-
-			/* Make it visible */
-			if(!(attributes->flags & GFX_WINDOW_HIDDEN))
-				XMapWindow(_gfx_x11->display, window.handle);
+			XFree(hints);
 		}
 
 		/* Add window to vector */
@@ -717,12 +715,16 @@ void _gfx_platform_window_set_size(
 		unsigned int        width,
 		unsigned int        height)
 {
-	if(_gfx_x11) XResizeWindow(
-		_gfx_x11->display,
-		GFX_VOID_TO_UINT(handle),
-		width,
-		height
-	);
+	GFX_X11_Window* internal =
+		_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+
+	if(internal && (internal->flags & GFX_X11_RESIZABLE))
+		XResizeWindow(
+			_gfx_x11->display,
+			GFX_VOID_TO_UINT(handle),
+			width,
+			height
+		);
 }
 
 /******************************************************/
