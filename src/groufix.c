@@ -21,6 +21,28 @@ static uint64_t _gfx_time_start = 0;
 
 
 /******************************************************/
+int gfx_is_extension_supported(
+
+		GFXExtension extension)
+{
+	GFX_Window* window = _gfx_window_get_current();
+	if(!window || extension >= GFX_EXT_COUNT) return 0;
+
+	return window->ext[extension];
+}
+
+/******************************************************/
+int gfx_get_limit(
+
+		GFXLimit limit)
+{
+	GFX_Window* window = _gfx_window_get_current();
+	if(!window || limit >= GFX_LIM_COUNT) return -1;
+
+	return window->lim[limit];
+}
+
+/******************************************************/
 int gfx_init(
 
 		GFXContext context)

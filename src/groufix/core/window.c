@@ -510,28 +510,6 @@ void _gfx_window_swap_buffers(void)
 }
 
 /******************************************************/
-int gfx_is_extension_supported(
-
-		GFXExtension extension)
-{
-	if(!_gfx_alive_windows) return 0;
-	GFX_Window* window = _gfx_platform_key_get(_gfx_current_window);
-
-	return window->ext[extension];
-}
-
-/******************************************************/
-int gfx_get_limit(
-
-		GFXLimit limit)
-{
-	if(!_gfx_alive_windows) return -1;
-	GFX_Window* window = _gfx_platform_key_get(_gfx_current_window);
-
-	return window->lim[limit];
-}
-
-/******************************************************/
 unsigned int gfx_get_num_windows(void)
 {
 	return _gfx_public_windows;
