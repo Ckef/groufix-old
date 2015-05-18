@@ -199,7 +199,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			if(internal->flags & GFX_WIN32_FULLSCREEN)
 			{
 				_gfx_win32_leave_fullscreen(internal->screen);
-				ShowWindow(handle, SW_MINIMIZE);
+				if(!(internal->flags & GFX_WIN32_HIDDEN))
+					ShowWindow(handle, SW_MINIMIZE);
 			}
 
 			_gfx_event_window_blur(window);
@@ -431,7 +432,7 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 	GFX_Win32_Window window;
 	window.screen  = NULL;
 	window.context = NULL;
-	window.flags   = 0;
+	window.flags   = GFX_WIN32_HIDDEN;
 
 	window.mode.depth.redBits   = 0;
 	window.mode.depth.greenBits = 0;
@@ -518,10 +519,14 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	window.screen  = attributes->screen;
 	window.context = NULL;
 	window.mode    = attributes->mode;
+	window.flags   = 0;
 
-	window.flags =
+	window.flags |=
 		attributes->flags & GFX_WINDOW_RESIZABLE ?
 		GFX_WIN32_RESIZABLE : 0;
+	window.flags |=
+		attributes->flags & GFX_WINDOW_HIDDEN ?
+		GFX_WIN32_HIDDEN : 0;
 
 	GFX_Win32_Screen* screen = attributes->screen;
 
@@ -529,7 +534,6 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	DWORD styleEx =
 		WS_EX_APPWINDOW;
 	DWORD style =
-		WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 		(!(attributes->flags & GFX_WINDOW_HIDDEN) ?
 		WS_VISIBLE : 0);
 
@@ -540,24 +544,27 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
 	{
 		/* Change to fullscreen */
-		if(!_gfx_win32_enter_fullscreen(
-			attributes->screen,
-			&attributes->mode)) return NULL;
+		if(!(attributes->flags & GFX_WINDOW_HIDDEN))
+		{
+			if(!_gfx_win32_enter_fullscreen(
+				attributes->screen,
+				&attributes->mode)) return NULL;
+		}
 
 		window.flags |= GFX_WIN32_FULLSCREEN;
 
 		/* Style and rectangle */
 		styleEx |= WS_EX_TOPMOST;
-		style = WS_POPUP | WS_VISIBLE;
+		style |= WS_POPUP | WS_MAXIMIZE;
 
 		rect.left = screen->x;
 		rect.top = screen->y;
 	}
 	else
 	{
-		/* Create window style */
 		if(!(attributes->flags & GFX_WINDOW_BORDERLESS))
 		{
+			/* With a border */
 			styleEx |=
 				WS_EX_WINDOWEDGE;
 
@@ -567,6 +574,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 				WS_OVERLAPPED |
 				WS_SYSMENU;
 
+			/* With size options */
 			if(attributes->flags & GFX_WINDOW_RESIZABLE) style |=
 				WS_MAXIMIZEBOX |
 				WS_SIZEBOX;
@@ -578,7 +586,9 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			style |= WS_POPUP;
 		}
 
-		/* Rectangle */
+		/* Style and rectangle */
+		style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+
 		rect.left = screen->x + attributes->x;
 		rect.top = screen->y + attributes->y;
 	}
@@ -633,18 +643,6 @@ GFX_PlatformWindow _gfx_platform_window_create(
 				&window.mode.depth,
 				attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 			);
-
-			/* Some fullscreen options */
-			if(attributes->flags & GFX_WINDOW_FULLSCREEN)
-			{
-				SetWindowPos(
-					window.handle,
-					HWND_TOPMOST,
-					0,0,0,0,
-					SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW
-				);
-				ShowWindow(window.handle, SW_MAXIMIZE);
-			}
 
 			/* Start tracking the mouse */
 			_gfx_win32_track_mouse(window.handle);
@@ -863,6 +861,11 @@ void _gfx_platform_window_show(
 
 		GFX_PlatformWindow handle)
 {
+	GFX_Win32_Window* it =
+		_gfx_win32_get_window_from_handle(handle);
+	if(it) it->flags &=
+		~GFX_WIN32_HIDDEN;
+
 	ShowWindow(handle, SW_SHOW);
 }
 
@@ -871,13 +874,12 @@ void _gfx_platform_window_hide(
 
 		GFX_PlatformWindow handle)
 {
-	ShowWindow(handle, SW_HIDE);
-
-	/* Also leave fullscreen */
 	GFX_Win32_Window* it =
 		_gfx_win32_get_window_from_handle(handle);
-	if(it && it->flags & GFX_WIN32_FULLSCREEN)
-		_gfx_win32_leave_fullscreen(it->screen);
+	if(it) it->flags |=
+		GFX_WIN32_HIDDEN;
+
+	ShowWindow(handle, SW_HIDE);
 }
 
 /******************************************************/
