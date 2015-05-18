@@ -862,19 +862,26 @@ void _gfx_platform_window_hide(
 }
 
 /******************************************************/
-void _gfx_platform_poll_events(void)
+int _gfx_platform_poll_events(void)
 {
+	if(!_gfx_win32) return 0;
+
 	MSG msg;
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
-		/* Dispatch any regular message */
 		if(msg.message != WM_QUIT)
 		{
+			/* Dispatch any regular message */
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
-		/* Terminate properly on WM_QUIT */
-		else gfx_terminate();
+		else
+		{
+			/* Terminate properly on WM_QUIT */
+			gfx_terminate();
+			return 0;
+		}
 	}
+
+	return 1;
 }

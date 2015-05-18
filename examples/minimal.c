@@ -18,10 +18,9 @@ int main()
 
 	GFXWindow* window = gfx_window_create(NULL, mode, "Groufix Window", 100, 100, GFX_WINDOW_RESIZABLE);
 
-	while(gfx_poll_events(), gfx_window_is_open(window));
+	while(gfx_poll_events() && gfx_window_is_open(window));
 
 	gfx_window_free(window);
-
 	gfx_terminate();
 
 	return 0;

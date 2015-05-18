@@ -51,10 +51,12 @@ GFX_API int gfx_init(
 /**
  * Polls events of all windows.
  *
+ * @return Zero if groufix was not yet initialized or already terminated.
+ *
  * Note: this must be called on the same thread gfx_init was called on.
  *
  */
-GFX_API void gfx_poll_events(void);
+GFX_API int gfx_poll_events(void);
 
 /**
  * Returns time in seconds since groufix was initialized.

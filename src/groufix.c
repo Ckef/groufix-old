@@ -43,9 +43,9 @@ int gfx_init(
 }
 
 /******************************************************/
-void gfx_poll_events(void)
+int gfx_poll_events(void)
 {
-	_gfx_platform_poll_events();
+	return _gfx_platform_poll_events();
 }
 
 /******************************************************/

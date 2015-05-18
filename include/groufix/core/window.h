@@ -155,6 +155,8 @@ GFX_API GFXScreen gfx_get_default_screen(void);
 /**
  * Gets the resolution of a screen in pixels.
  *
+ * @param screen Screen to retrieve resolution of, NULL for default screen.
+ *
  */
 GFX_API void gfx_screen_get_size(
 
@@ -165,6 +167,8 @@ GFX_API void gfx_screen_get_size(
 /**
  * Returns the number of display modes associated with a screen.
  *
+ * @param screen Screen to retrieve number of modes of, NULL for default screen.
+ *
  */
 GFX_API unsigned int gfx_screen_get_num_modes(
 
@@ -173,8 +177,9 @@ GFX_API unsigned int gfx_screen_get_num_modes(
 /**
  * Returns a display mode.
  *
- * @param num  The number of the mode (num < gfx_screen_get_num_modes()).
- * @param mode Returns the mode, not written to on failure.
+ * @param screen Screen to retrieve the mode of, NULL for default screen.
+ * @param num    The number of the mode (num < gfx_screen_get_num_modes()).
+ * @param mode   Returns the mode, not written to on failure.
  * @return Zero if the mode could not be retrieved.
  *
  */

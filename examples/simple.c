@@ -242,7 +242,7 @@ int main()
 
 
 	/* Setup a loop */
-	while(gfx_poll_events(), gfx_get_num_windows())
+	while(gfx_poll_events() && gfx_get_num_windows())
 	{
 		/* Execute pipeline & swap buffers */
 		gfx_pipeline_execute(pipeline, 0);

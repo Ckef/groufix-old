@@ -797,17 +797,18 @@ void _gfx_platform_window_hide(
 }
 
 /******************************************************/
-void _gfx_platform_poll_events(void)
+int _gfx_platform_poll_events(void)
 {
-	if(_gfx_x11)
-	{
-		XEvent event;
+	if(!_gfx_x11) return 0;
 
-		int cnt = XPending(_gfx_x11->display);
-		while(cnt--)
-		{
-			XNextEvent(_gfx_x11->display, &event);
-			_gfx_x11_event_proc(&event);
-		}
+	XEvent event;
+	int cnt = XPending(_gfx_x11->display);
+
+	while(cnt--)
+	{
+		XNextEvent(_gfx_x11->display, &event);
+		_gfx_x11_event_proc(&event);
 	}
+
+	return 1;
 }

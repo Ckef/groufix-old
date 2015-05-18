@@ -303,8 +303,10 @@ void _gfx_platform_window_hide(
 /**
  * Polls events of all windows.
  *
+ * @return Zero if the platform is not initialized or terminated.
+ *
  */
-void _gfx_platform_poll_events(void);
+int _gfx_platform_poll_events(void);
 
 
 /********************************************************
