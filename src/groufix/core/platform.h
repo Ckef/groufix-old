@@ -197,7 +197,7 @@ int _gfx_platform_screen_get_mode(
  * @brief attributes The attributes to initialize the window with (cannot be NULL).
  * @return A handle to the window (NULL on failure).
  *
- * Note: if GFX_WINDOW_FULLSCREEN is set, all other flags may be ignored.
+ * Note: GFX_WINDOW_FULLSCREEN and GFX_WINDOW_RESIZABLE can never both be set.
  *
  */
 GFX_PlatformWindow _gfx_platform_window_create(

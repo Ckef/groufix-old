@@ -21,25 +21,23 @@
 /******************************************************/
 static int _gfx_win32_enter_fullscreen(
 
-		GFX_Win32_Screen*     screen,
-		unsigned int          width,
-		unsigned int          height,
-		const GFXColorDepth*  depth)
+		GFX_Win32_Screen*      screen,
+		const GFXDisplayMode*  mode)
 {
 	/* Minimum of 32 bits */
-	DEVMODE mode;
-	ZeroMemory(&mode, sizeof(DEVMODE));
+	DEVMODE dev;
+	ZeroMemory(&dev, sizeof(DEVMODE));
 
-	mode.dmSize       = sizeof(DEVMODE);
-	mode.dmBitsPerPel = depth->redBits + depth->greenBits + depth->blueBits;
-	mode.dmBitsPerPel = mode.dmBitsPerPel < 32 ? 32 : mode.dmBitsPerPel;
-	mode.dmPelsWidth  = width;
-	mode.dmPelsHeight = height;
-	mode.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+	dev.dmSize       = sizeof(DEVMODE);
+	dev.dmBitsPerPel = mode->depth.redBits + mode->depth.greenBits + mode->depth.blueBits;
+	dev.dmBitsPerPel = dev.dmBitsPerPel < 32 ? 32 : dev.dmBitsPerPel;
+	dev.dmPelsWidth  = mode->width;
+	dev.dmPelsHeight = mode->height;
+	dev.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 	/* Actual call */
 	return
-		(ChangeDisplaySettingsEx(screen->name, &mode, NULL, CDS_FULLSCREEN, NULL)
+		(ChangeDisplaySettingsEx(screen->name, &dev, NULL, CDS_FULLSCREEN, NULL)
 		== DISP_CHANGE_SUCCESSFUL);
 }
 
@@ -154,11 +152,18 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		/* Resize */
 		case WM_SIZE :
 		{
+			GFX_Win32_Window* internal =
+				_gfx_win32_get_window_from_handle(handle);
+
+			internal->mode.width = LOWORD(lParam);
+			internal->mode.height = HIWORD(lParam);
+
 			_gfx_event_window_resize(
 				window,
-				LOWORD(lParam),
-				HIWORD(lParam)
+				internal->mode.width,
+				internal->mode.height
 			);
+
 			return 0;
 		}
 
@@ -172,18 +177,10 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			if(!internal) return 0;
 
 			if(internal->flags & GFX_WIN32_FULLSCREEN)
-			{
-				unsigned int w;
-				unsigned int h;
-				_gfx_platform_window_get_size(window, &w, &h);
-
 				_gfx_win32_enter_fullscreen(
 					internal->screen,
-					w,
-					h,
-					&internal->depth
+					&internal->mode
 				);
-			}
 
 			_gfx_event_window_focus(window);
 
@@ -436,9 +433,9 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 	window.context = NULL;
 	window.flags   = 0;
 
-	window.depth.redBits   = 0;
-	window.depth.greenBits = 0;
-	window.depth.blueBits  = 0;
+	window.mode.depth.redBits   = 0;
+	window.mode.depth.greenBits = 0;
+	window.mode.depth.blueBits  = 0;
 
 	window.handle = CreateWindow(
 		GFX_WIN32_WINDOW_CLASS_DUMMY,
@@ -453,6 +450,14 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 
 	if(window.handle)
 	{
+		/* Get actual size */
+		RECT rect;
+		ZeroMemory(&rect, sizeof(RECT));
+
+		GetClientRect(window.handle, &rect);
+		window.mode.width = rect.right;
+		window.mode.height = rect.bottom;
+
 		/* Add window to vector */
 		GFXVectorIterator it = gfx_vector_insert(
 			&_gfx_win32->windows,
@@ -463,7 +468,7 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 		if(it != _gfx_win32->windows.end)
 		{
 			/* Set pixel format */
-			_gfx_win32_set_pixel_format(window.handle, &window.depth, 0);
+			_gfx_win32_set_pixel_format(window.handle, &window.mode.depth, 0);
 
 			return it;
 		}
@@ -511,9 +516,12 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	/* Setup the win32 window */
 	GFX_Win32_Window window;
 	window.screen  = attributes->screen;
-	window.depth   = attributes->mode.depth;
 	window.context = NULL;
-	window.flags   = 0;
+	window.mode    = attributes->mode;
+
+	window.flags =
+		attributes->flags & GFX_WINDOW_RESIZABLE ?
+		GFX_WIN32_RESIZABLE : 0;
 
 	GFX_Win32_Screen* screen = attributes->screen;
 
@@ -534,9 +542,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		/* Change to fullscreen */
 		if(!_gfx_win32_enter_fullscreen(
 			attributes->screen,
-			attributes->mode.width,
-			attributes->mode.height,
-			&attributes->mode.depth)) return NULL;
+			&attributes->mode)) return NULL;
 
 		window.flags |= GFX_WIN32_FULLSCREEN;
 
@@ -606,6 +612,12 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	if(window.handle)
 	{
+		/* Get actual size */
+		ZeroMemory(&rect, sizeof(RECT));
+		GetClientRect(window.handle, &rect);
+		window.mode.width = rect.right;
+		window.mode.height = rect.bottom;
+
 		/* Add window to vector */
 		GFXVectorIterator it = gfx_vector_insert(
 			&_gfx_win32->windows,
@@ -618,7 +630,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			/* Set pixel format */
 			_gfx_win32_set_pixel_format(
 				window.handle,
-				&window.depth,
+				&window.mode.depth,
 				attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 			);
 
@@ -713,12 +725,19 @@ void _gfx_platform_window_get_size(
 		unsigned int*       width,
 		unsigned int*       height)
 {
-	RECT rect;
-	ZeroMemory(&rect, sizeof(RECT));
+	GFX_Win32_Window* it =
+		_gfx_win32_get_window_from_handle(handle);
 
-	GetClientRect(handle, &rect);
-	*width = rect.right;
-	*height = rect.bottom;
+	if(!it)
+	{
+		*width = 0;
+		*height = 0;
+	}
+	else
+	{
+		*width = it->mode.width;
+		*height = it->mode.height;
+	}
 }
 
 /******************************************************/
@@ -770,7 +789,7 @@ void _gfx_platform_window_set_size(
 		unsigned int        height)
 {
 	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
-	if(it && !(it->flags & GFX_WIN32_FULLSCREEN))
+	if(it && (it->flags & GFX_WIN32_RESIZABLE))
 	{
 		RECT rect;
 		rect.left   = 0;

@@ -80,7 +80,8 @@ typedef struct GFX_Win32_Extensions
 typedef enum GFX_Win32_Flags
 {
 	GFX_WIN32_MOUSEINSIDE  = 0x01,
-	GFX_WIN32_FULLSCREEN   = 0x02
+	GFX_WIN32_FULLSCREEN   = 0x02,
+	GFX_WIN32_RESIZABLE    = 0x04
 
 } GFX_Win32_Flags;
 
@@ -102,8 +103,8 @@ typedef struct GFX_Win32_Window
 {
 	HWND               handle; /* Given to the outside world */
 	GFX_Win32_Screen*  screen;
-	GFXColorDepth      depth;
 	HGLRC              context;
+	GFXDisplayMode     mode;
 	GFX_Win32_Flags    flags;
 
 } GFX_Win32_Window;
