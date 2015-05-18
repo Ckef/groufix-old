@@ -72,3 +72,4 @@ _It will not free any other resources_. All user allocated resources must be fre
 * Grace Fu
 * Martin Dørum Nygaard
 * Michael Andrews
+* Structinf
