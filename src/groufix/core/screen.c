@@ -47,3 +47,27 @@ void gfx_screen_get_size(
 		height
 	);
 }
+
+/******************************************************/
+unsigned int gfx_screen_get_num_modes(
+
+		GFXScreen screen)
+{
+	return _gfx_platform_screen_get_num_modes(
+		(GFX_PlatformScreen)screen
+	);
+}
+
+/******************************************************/
+int gfx_screen_get_mode(
+
+		GFXScreen        screen,
+		unsigned int     num,
+		GFXDisplayMode*  mode)
+{
+	return _gfx_platform_screen_get_mode(
+		(GFX_PlatformScreen)screen,
+		num,
+		mode
+	);
+}

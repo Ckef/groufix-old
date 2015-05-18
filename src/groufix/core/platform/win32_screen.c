@@ -51,3 +51,21 @@ void _gfx_platform_screen_get_size(
 	*width = screen->width;
 	*height = screen->height;
 }
+
+/******************************************************/
+unsigned int _gfx_platform_screen_get_num_modes(
+
+		GFX_PlatformScreen handle)
+{
+	return 0;
+}
+
+/******************************************************/
+int _gfx_platform_screen_get_mode(
+
+		GFX_PlatformScreen  handle,
+		unsigned int        num,
+		GFXDisplayMode*     mode)
+{
+	return 0;
+}

@@ -105,6 +105,27 @@ GFX_API int gfx_get_limit(
  * Top level screen
  *******************************************************/
 
+/** Color depth */
+typedef struct GFXColorDepth
+{
+	unsigned short redBits;
+	unsigned short greenBits;
+	unsigned short blueBits;
+
+} GFXColorDepth;
+
+
+/** Display mode */
+typedef struct GFXDisplayMode
+{
+	unsigned int    width;
+	unsigned int    height;
+	GFXColorDepth   depth;
+	unsigned short  refresh; /* Refresh rate in Hz, only used in fullscreen */
+
+} GFXDisplayMode;
+
+
 /** A top level screen */
 typedef void* GFXScreen;
 
@@ -141,6 +162,28 @@ GFX_API void gfx_screen_get_size(
 		unsigned int*  width,
 		unsigned int*  height);
 
+/**
+ * Returns the number of display modes associated with a screen.
+ *
+ */
+GFX_API unsigned int gfx_screen_get_num_modes(
+
+		GFXScreen screen);
+
+/**
+ * Returns a display mode.
+ *
+ * @param num  The number of the mode (num < gfx_screen_get_num_modes()).
+ * @param mode Returns the mode, not written to on failure.
+ * @return Zero if the mode could not be retrieved.
+ *
+ */
+GFX_API int gfx_screen_get_mode(
+
+		GFXScreen        screen,
+		unsigned int     num,
+		GFXDisplayMode*  mode);
+
 
 /********************************************************
  * Window Callbacks & Metadata
@@ -156,16 +199,6 @@ typedef enum GFXWindowFlags
 	GFX_WINDOW_DOUBLE_BUFFER  = 0x0010
 
 } GFXWindowFlags;
-
-
-/** Color depth */
-typedef struct GFXColorDepth
-{
-	unsigned short redBits;
-	unsigned short greenBits;
-	unsigned short blueBits;
-
-} GFXColorDepth;
 
 
 /* Forward declerate */
@@ -238,23 +271,23 @@ GFX_API GFXWindow* gfx_get_window(
  * Creates a new window.
  *
  * @param screen Screen to use, NULL for default screen.
+ * @param mode   Display mode to use.
  * @param x      X position of the window.
  * @param y      Y position of the window.
- * @param w      Width of the window.
- * @param h      Height of the window.
- * @param flags  Flags to apply to this window, full screen has precedence over all other flags.
+ * @param flags  Flags to apply to this window, fullscreen has precedence over all other flags.
  * @return NULL on failure.
+ *
+ * Note: the display mode must be one fetched through gfx_screen_get_mode() if the fullscreen
+ * flag was given, otherwise, all but the width and height of the mode are hints.
  *
  */
 GFX_API GFXWindow* gfx_window_create(
 
 		GFXScreen       screen,
-		GFXColorDepth   depth,
+		GFXDisplayMode  mode,
 		const char*     name,
 		int             x,
 		int             y,
-		unsigned int    w,
-		unsigned int    h,
 		GFXWindowFlags  flags);
 
 /**
@@ -271,7 +304,7 @@ GFX_API GFXWindow* gfx_window_recreate(
 
 		GFXWindow*      window,
 		GFXScreen       screen,
-		GFXColorDepth   depth,
+		GFXDisplayMode  mode,
 		GFXWindowFlags  flags);
 
 /**

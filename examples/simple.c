@@ -114,13 +114,15 @@ int main()
 
 
 	/* Setup 2 windows */
-	GFXColorDepth depth;
-	depth.redBits   = 8;
-	depth.greenBits = 8;
-	depth.blueBits  = 8;
+	GFXDisplayMode mode;
+	mode.width           = 800;
+	mode.height          = 600;
+	mode.depth.redBits   = 8;
+	mode.depth.greenBits = 8;
+	mode.depth.blueBits  = 8;
 
-	GFXWindow* window1 = gfx_window_create(NULL, depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
-	GFXWindow* window2 = gfx_window_create(NULL, depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow* window1 = gfx_window_create(NULL, mode, "Window Unos", 100, 100, GFX_WINDOW_RESIZABLE);
+	GFXWindow* window2 = gfx_window_create(NULL, mode, "Window Deux", 200, 200, GFX_WINDOW_RESIZABLE);
 
 
 	/* Pipeline */

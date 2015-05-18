@@ -545,12 +545,10 @@ GFXWindow* gfx_get_window(
 GFXWindow* gfx_window_create(
 
 		GFXScreen       screen,
-		GFXColorDepth   depth,
+		GFXDisplayMode  mode,
 		const char*     name,
 		int             x,
 		int             y,
-		unsigned int    w,
-		unsigned int    h,
 		GFXWindowFlags  flags)
 {
 	/* Create the window */
@@ -558,12 +556,10 @@ GFXWindow* gfx_window_create(
 	{
 		.screen = (GFX_PlatformScreen)screen,
 		.name   = name,
-		.width  = w,
-		.height = h,
+		.mode   = mode,
+		.flags  = flags,
 		.x      = x,
-		.y      = y,
-		.depth  = depth,
-		.flags  = flags
+		.y      = y
 	};
 
 	GFX_Window* window = _gfx_window_create_internal(&attr);
@@ -601,7 +597,7 @@ GFXWindow* gfx_window_recreate(
 
 		GFXWindow*      window,
 		GFXScreen       screen,
-		GFXColorDepth   depth,
+		GFXDisplayMode  mode,
 		GFXWindowFlags  flags)
 {
 	/* Check if zombie window */
@@ -610,18 +606,11 @@ GFXWindow* gfx_window_recreate(
 		return NULL;
 
 	/* Get window properties */
-	unsigned int width;
-	unsigned int height;
 	int x;
 	int y;
 
 	char* name = _gfx_platform_window_get_name(
 		internal->handle);
-
-	_gfx_platform_window_get_size(
-		internal->handle,
-		&width,
-		&height);
 
 	_gfx_platform_window_get_position(
 		internal->handle,
@@ -635,11 +624,10 @@ GFXWindow* gfx_window_recreate(
 	/* Create our new window */
 	GFXWindow* new = gfx_window_create(
 		screen,
-		depth,
+		mode,
 		name,
-		x, y,
-		width,
-		height,
+		x,
+		y,
 		flags
 	);
 

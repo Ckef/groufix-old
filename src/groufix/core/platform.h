@@ -71,13 +71,10 @@ typedef struct GFX_PlatformAttributes
 	GFX_PlatformScreen  screen;
 	const char*         name;
 
-	unsigned int        width;
-	unsigned int        height;
+	GFXDisplayMode      mode;
+	GFXWindowFlags      flags;
 	int                 x;
 	int                 y;
-
-	GFXColorDepth       depth;
-	GFXWindowFlags      flags;
 
 } GFX_PlatformAttributes;
 
@@ -166,6 +163,28 @@ void _gfx_platform_screen_get_size(
 		GFX_PlatformScreen  handle,
 		unsigned int*       width,
 		unsigned int*       height);
+
+/**
+ * Returns the number of display modes associated with a screen.
+ *
+ */
+unsigned int _gfx_platform_screen_get_num_modes(
+
+		GFX_PlatformScreen handle);
+
+/**
+ * Returns a display mode.
+ *
+ * @param num  The number of the mode (num < num_modes).
+ * @param mode Returns the mode, not written to on failure.
+ * @return Zero if the mode could not be retrieved.
+ *
+ */
+int _gfx_platform_screen_get_mode(
+
+		GFX_PlatformScreen  handle,
+		unsigned int        num,
+		GFXDisplayMode*     mode);
 
 
 /********************************************************

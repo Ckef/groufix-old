@@ -413,7 +413,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	/* Get FB Config */
 	GLXFBConfig* config = _gfx_x11_get_config(
 		attributes->screen,
-		&attributes->depth,
+		&attributes->mode.depth,
 		attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 	);
 
@@ -470,8 +470,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		RootWindowOfScreen((Screen*)attributes->screen),
 		attributes->x,
 		attributes->y,
-		attributes->width,
-		attributes->height,
+		attributes->mode.width,
+		attributes->mode.height,
 		0,
 		visual->depth,
 		InputOutput,
@@ -547,10 +547,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 				XSizeHints* hints = XAllocSizeHints();
 				hints->flags = PMinSize | PMaxSize;
 
-				hints->min_width = attributes->width;
-				hints->max_width = attributes->width;
-				hints->min_height = attributes->height;
-				hints->max_height = attributes->height;
+				hints->min_width = attributes->mode.width;
+				hints->max_width = attributes->mode.width;
+				hints->min_height = attributes->mode.height;
+				hints->max_height = attributes->mode.height;
 
 				XSetWMNormalHints(_gfx_x11->display, window.handle, hints);
 

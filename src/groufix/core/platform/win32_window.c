@@ -511,7 +511,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	/* Setup the win32 window */
 	GFX_Win32_Window window;
 	window.screen  = attributes->screen;
-	window.depth   = attributes->depth;
+	window.depth   = attributes->mode.depth;
 	window.context = NULL;
 	window.flags   = 0;
 
@@ -526,17 +526,17 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		WS_VISIBLE : 0);
 
 	RECT rect;
-	rect.right = attributes->width;
-	rect.bottom = attributes->height;
+	rect.right = attributes->mode.width;
+	rect.bottom = attributes->mode.height;
 
 	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
 	{
 		/* Change to fullscreen */
 		if(!_gfx_win32_enter_fullscreen(
 			attributes->screen,
-			attributes->width,
-			attributes->height,
-			&attributes->depth)) return NULL;
+			attributes->mode.width,
+			attributes->mode.height,
+			&attributes->mode.depth)) return NULL;
 
 		window.flags |= GFX_WIN32_FULLSCREEN;
 
