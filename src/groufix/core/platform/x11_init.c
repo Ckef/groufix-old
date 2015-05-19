@@ -59,7 +59,7 @@ static int _gfx_x11_is_extension_supported(
 /******************************************************/
 static int _gfx_x11_load_extensions(void)
 {
-	Screen* screen = _gfx_platform_get_default_screen();
+	Screen* screen = _gfx_platform_get_default_monitor();
 	if(!screen) return 0;
 
 	int num = XScreenNumberOfScreen(screen);

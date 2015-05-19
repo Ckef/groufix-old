@@ -122,7 +122,7 @@ static int _gfx_win32_load_extensions(void)
 }
 
 /******************************************************/
-static int _gfx_win32_init_screens(void)
+static int _gfx_win32_init_monitors(void)
 {
 	/* Enumerate all display adapters */
 	DISPLAY_DEVICE adapter;
@@ -155,9 +155,9 @@ static int _gfx_win32_init_screens(void)
 				continue;
 			}
 
-			/* Create new screen */
-			GFX_Win32_Screen screen;
-			memcpy(screen.name, adapter.DeviceName, sizeof(screen.name));
+			/* Create new monitor */
+			GFX_Win32_Monitor mon;
+			memcpy(mon.name, adapter.DeviceName, sizeof(mon.name));
 
 			DEVMODE mode;
 			ZeroMemory(&mode, sizeof(DEVMODE));
@@ -170,22 +170,23 @@ static int _gfx_win32_init_screens(void)
 				EDS_ROTATEMODE
 			);
 
-			screen.x      = mode.dmPosition.x;
-			screen.y      = mode.dmPosition.y;
-			screen.width  = mode.dmPelsWidth;
-			screen.height = mode.dmPelsHeight;
+			mon.x      = mode.dmPosition.x;
+			mon.y      = mode.dmPosition.y;
+			mon.width  = mode.dmPelsWidth;
+			mon.height = mode.dmPelsHeight;
 
 			/* Insert at beginning if primary */
 			GFXVectorIterator scrPos =
-				(adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE && monitorIndex == 0) ?
-				_gfx_win32->screens.begin : _gfx_win32->screens.end;
+				(adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) &&
+				monitorIndex == 0 ?
+				_gfx_win32->monitors.begin : _gfx_win32->monitors.end;
 
-			gfx_vector_insert(&_gfx_win32->screens, &screen, scrPos);
+			gfx_vector_insert(&_gfx_win32->monitors, &mon, scrPos);
 		}
 	}
 
-	/* Need at least one screen */
-	return _gfx_win32->screens.begin != _gfx_win32->screens.end;
+	/* Need at least one monitor */
+	return _gfx_win32->monitors.begin != _gfx_win32->monitors.end;
 }
 
 /******************************************************/
@@ -342,11 +343,11 @@ int _gfx_platform_init(void)
 			return 0;
 		}
 
-		gfx_vector_init(&_gfx_win32->screens, sizeof(GFX_Win32_Screen));
+		gfx_vector_init(&_gfx_win32->monitors, sizeof(GFX_Win32_Monitor));
 		gfx_vector_init(&_gfx_win32->windows, sizeof(GFX_Win32_Window));
 
-		/* Init screens */
-		if(!_gfx_win32_init_screens())
+		/* Init monitors */
+		if(!_gfx_win32_init_monitors())
 		{
 			_gfx_platform_terminate();
 			return 0;
@@ -375,7 +376,7 @@ void _gfx_platform_terminate(void)
 
 			_gfx_platform_window_free(((GFX_Win32_Window*)it)->handle);
 		}
-		gfx_vector_clear(&_gfx_win32->screens);
+		gfx_vector_clear(&_gfx_win32->monitors);
 		gfx_vector_clear(&_gfx_win32->windows);
 
 		/* Unregister window classes */

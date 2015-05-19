@@ -209,6 +209,7 @@ OBJS = \
  $(OUT)$(SUB)/groufix/core/errors.o \
  $(OUT)$(SUB)/groufix/core/events.o \
  $(OUT)$(SUB)/groufix/core/layout.o \
+ $(OUT)$(SUB)/groufix/core/monitor.o \
  $(OUT)$(SUB)/groufix/core/objects.o \
  $(OUT)$(SUB)/groufix/core/pipe.o \
  $(OUT)$(SUB)/groufix/core/pipeline.o \
@@ -217,7 +218,6 @@ OBJS = \
  $(OUT)$(SUB)/groufix/core/program_map.o \
  $(OUT)$(SUB)/groufix/core/property_map.o \
  $(OUT)$(SUB)/groufix/core/sampler.o \
- $(OUT)$(SUB)/groufix/core/screen.o \
  $(OUT)$(SUB)/groufix/core/shader.o \
  $(OUT)$(SUB)/groufix/core/shared_buffer.o \
  $(OUT)$(SUB)/groufix/core/states.o \
@@ -248,7 +248,7 @@ OBJS_UNIX_X11 = \
  $(OUT)$(SUB)/groufix/core/platform/unix_time.o \
  $(OUT)$(SUB)/groufix/core/platform/x11_context.o \
  $(OUT)$(SUB)/groufix/core/platform/x11_init.o \
- $(OUT)$(SUB)/groufix/core/platform/x11_screen.o \
+ $(OUT)$(SUB)/groufix/core/platform/x11_monitor.o \
  $(OUT)$(SUB)/groufix/core/platform/x11_window.o \
 
 
@@ -285,7 +285,7 @@ OBJS_WIN32 = \
  $(OUT)$(SUB)/groufix/core/platform/win32_context.o \
  $(OUT)$(SUB)/groufix/core/platform/win32_file.o \
  $(OUT)$(SUB)/groufix/core/platform/win32_init.o \
- $(OUT)$(SUB)/groufix/core/platform/win32_screen.o \
+ $(OUT)$(SUB)/groufix/core/platform/win32_monitor.o \
  $(OUT)$(SUB)/groufix/core/platform/win32_strings.o \
  $(OUT)$(SUB)/groufix/core/platform/win32_threading.o \
  $(OUT)$(SUB)/groufix/core/platform/win32_time.o \

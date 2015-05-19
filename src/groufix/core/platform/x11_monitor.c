@@ -15,14 +15,14 @@
 #include "groufix/core/platform/x11.h"
 
 /******************************************************/
-unsigned int _gfx_platform_get_num_screens(void)
+unsigned int _gfx_platform_get_num_monitors(void)
 {
 	if(!_gfx_x11) return 0;
 	return ScreenCount(_gfx_x11->display);
 }
 
 /******************************************************/
-GFX_PlatformScreen _gfx_platform_get_screen(
+GFX_PlatformMonitor _gfx_platform_get_monitor(
 
 		unsigned int num)
 {
@@ -34,35 +34,35 @@ GFX_PlatformScreen _gfx_platform_get_screen(
 }
 
 /******************************************************/
-GFX_PlatformScreen _gfx_platform_get_default_screen(void)
+GFX_PlatformMonitor _gfx_platform_get_default_monitor(void)
 {
 	if(!_gfx_x11) return NULL;
 	return DefaultScreenOfDisplay(_gfx_x11->display);
 }
 
 /******************************************************/
-void _gfx_platform_screen_get_size(
+void _gfx_platform_monitor_get_size(
 
-		GFX_PlatformScreen  handle,
-		unsigned int*       width,
-		unsigned int*       height)
+		GFX_PlatformMonitor  handle,
+		unsigned int*        width,
+		unsigned int*        height)
 {
 	*width = WidthOfScreen((Screen*)handle);
 	*height = HeightOfScreen((Screen*)handle);
 }
 
 /******************************************************/
-unsigned int _gfx_platform_screen_get_num_modes(
+unsigned int _gfx_platform_monitor_get_num_modes(
 
-		GFX_PlatformScreen handle)
+		GFX_PlatformMonitor handle)
 {
 	return 0;
 }
 
 /******************************************************/
-int _gfx_platform_screen_get_mode(
+int _gfx_platform_monitor_get_mode(
 
-		GFX_PlatformScreen  handle,
+		GFX_PlatformMonitor  handle,
 		unsigned int        num,
 		GFXDisplayMode*     mode)
 {

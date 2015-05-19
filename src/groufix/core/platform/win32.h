@@ -73,7 +73,7 @@ typedef struct GFX_Win32_Extensions
 
 
 /********************************************************
- * Win32 Window & Screen (a.k.a Display Device)
+ * Win32 Window & Monitor
  *******************************************************/
 
 /** Win32 Window Flags */
@@ -87,8 +87,8 @@ typedef enum GFX_Win32_Flags
 } GFX_Win32_Flags;
 
 
-/** Win32 Screen */
-typedef struct GFX_Win32_Screen
+/** Win32 Monitor */
+typedef struct GFX_Win32_Monitor
 {
 	TCHAR         name[32]; /* Name of the adapter */
 	int           x;
@@ -96,17 +96,17 @@ typedef struct GFX_Win32_Screen
 	unsigned int  width;
 	unsigned int  height;
 
-} GFX_Win32_Screen;
+} GFX_Win32_Monitor;
 
 
 /** Win32 Window */
 typedef struct GFX_Win32_Window
 {
-	HWND               handle; /* Given to the outside world */
-	GFX_Win32_Screen*  screen;
-	HGLRC              context;
-	GFXDisplayMode     mode;
-	GFX_Win32_Flags    flags;
+	HWND                handle; /* Given to the outside world */
+	GFX_Win32_Monitor*  monitor;
+	HGLRC               context;
+	GFXDisplayMode      mode;
+	GFX_Win32_Flags     flags;
 
 } GFX_Win32_Window;
 
@@ -119,7 +119,7 @@ typedef struct GFX_Win32_Window
 typedef struct GFX_Win32_Instance
 {
 	/* Monitors and Windows */
-	GFXVector  screens;         /* Stores GFX_Win32_Screen */
+	GFXVector  monitors;        /* Stores GFX_Win32_Monitor */
 	GFXVector  windows;         /* Stores GFX_Win32_Window */
 	char       classRegistered; /* Whether or not the window class is registered */
 

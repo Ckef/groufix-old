@@ -53,8 +53,8 @@
 typedef void (*GFX_ProcAddress) (void);
 
 
-/** A Screen */
-typedef void* GFX_PlatformScreen;
+/** A Monitor */
+typedef void* GFX_PlatformMonitor;
 
 
 /** A Window */
@@ -68,13 +68,13 @@ typedef void* GFX_PlatformContext;
 /** Window initialization attributes */
 typedef struct GFX_PlatformAttributes
 {
-	GFX_PlatformScreen  screen;
-	const char*         name;
+	GFX_PlatformMonitor  monitor;
+	const char*          name;
 
-	GFXDisplayMode      mode;
-	GFXWindowFlags      flags;
-	int                 x;
-	int                 y;
+	GFXDisplayMode       mode;
+	GFXWindowFlags       flags;
+	int                  x;
+	int                  y;
 
 } GFX_PlatformAttributes;
 
@@ -128,49 +128,49 @@ double _gfx_platform_get_time_resolution(void);
 
 
 /********************************************************
- * Screen retrieval
+ * Monitor retrieval
  *******************************************************/
 
 /**
- * Returns the number of visible screens.
+ * Returns the number of visible monitors.
  *
  */
-unsigned int _gfx_platform_get_num_screens(void);
+unsigned int _gfx_platform_get_num_monitors(void);
 
 /**
- * Returns a screen.
+ * Returns a monitor.
  *
- * @param num The number of the screens (num < num_screens).
- * @return A handle to the screen, NULL if not found.
+ * @param num The number of the monitors (num < num_monitors).
+ * @return A handle to the monitor, NULL if not found.
  *
  */
-GFX_PlatformScreen _gfx_platform_get_screen(
+GFX_PlatformMonitor _gfx_platform_get_monitor(
 
 		unsigned int num);
 
 /**
- * Returns the default screen.
+ * Returns the default monitor.
  *
  */
-GFX_PlatformScreen _gfx_platform_get_default_screen(void);
+GFX_PlatformMonitor _gfx_platform_get_default_monitor(void);
 
 /**
- * Gets the resolution of a screen in pixels.
+ * Gets the resolution of a monitor in pixels.
  *
  */
-void _gfx_platform_screen_get_size(
+void _gfx_platform_monitor_get_size(
 
-		GFX_PlatformScreen  handle,
-		unsigned int*       width,
-		unsigned int*       height);
+		GFX_PlatformMonitor  handle,
+		unsigned int*        width,
+		unsigned int*        height);
 
 /**
- * Returns the number of display modes associated with a screen.
+ * Returns the number of display modes associated with a monitor.
  *
  */
-unsigned int _gfx_platform_screen_get_num_modes(
+unsigned int _gfx_platform_monitor_get_num_modes(
 
-		GFX_PlatformScreen handle);
+		GFX_PlatformMonitor handle);
 
 /**
  * Returns a display mode.
@@ -180,11 +180,11 @@ unsigned int _gfx_platform_screen_get_num_modes(
  * @return Zero if the mode could not be retrieved.
  *
  */
-int _gfx_platform_screen_get_mode(
+int _gfx_platform_monitor_get_mode(
 
-		GFX_PlatformScreen  handle,
-		unsigned int        num,
-		GFXDisplayMode*     mode);
+		GFX_PlatformMonitor  handle,
+		unsigned int         num,
+		GFXDisplayMode*      mode);
 
 
 /********************************************************
@@ -216,12 +216,12 @@ void _gfx_platform_window_free(
 		GFX_PlatformWindow handle);
 
 /**
- * Returns the screen assigned to a window.
+ * Returns the monitor assigned to a window.
  *
  * @return NULL if the handle was not a previously created window.
  *
  */
-GFX_PlatformScreen _gfx_platform_window_get_screen(
+GFX_PlatformMonitor _gfx_platform_window_get_monitor(
 
 		GFX_PlatformWindow handle);
 

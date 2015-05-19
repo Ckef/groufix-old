@@ -21,7 +21,7 @@
 /******************************************************/
 static int _gfx_win32_enter_fullscreen(
 
-		GFX_Win32_Screen*      screen,
+		GFX_Win32_Monitor*     monitor,
 		const GFXDisplayMode*  mode)
 {
 	/* Minimum of 32 bits */
@@ -37,16 +37,16 @@ static int _gfx_win32_enter_fullscreen(
 
 	/* Actual call */
 	return
-		(ChangeDisplaySettingsEx(screen->name, &dev, NULL, CDS_FULLSCREEN, NULL)
+		(ChangeDisplaySettingsEx(monitor->name, &dev, NULL, CDS_FULLSCREEN, NULL)
 		== DISP_CHANGE_SUCCESSFUL);
 }
 
 /******************************************************/
 static void _gfx_win32_leave_fullscreen(
 
-		GFX_Win32_Screen* screen)
+		GFX_Win32_Monitor* monitor)
 {
-	ChangeDisplaySettingsEx(screen->name, NULL, NULL, CDS_FULLSCREEN, NULL);
+	ChangeDisplaySettingsEx(monitor->name, NULL, NULL, CDS_FULLSCREEN, NULL);
 }
 
 /******************************************************/
@@ -132,13 +132,13 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			int xS = 0;
 			int yS = 0;
 
-			GFX_Win32_Screen* screen =
-				_gfx_platform_window_get_screen(window);
+			GFX_Win32_Monitor* monitor =
+				_gfx_platform_window_get_monitor(window);
 
-			if(screen)
+			if(monitor)
 			{
-				xS = screen->x;
-				yS = screen->y;
+				xS = monitor->x;
+				yS = monitor->y;
 			}
 
 			int x = (int)(short)LOWORD(lParam);
@@ -178,7 +178,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 
 			if(internal->flags & GFX_WIN32_FULLSCREEN)
 				_gfx_win32_enter_fullscreen(
-					internal->screen,
+					internal->monitor,
 					&internal->mode
 				);
 
@@ -198,7 +198,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 
 			if(internal->flags & GFX_WIN32_FULLSCREEN)
 			{
-				_gfx_win32_leave_fullscreen(internal->screen);
+				_gfx_win32_leave_fullscreen(internal->monitor);
 				if(!(internal->flags & GFX_WIN32_HIDDEN))
 					ShowWindow(handle, SW_MINIMIZE);
 			}
@@ -430,7 +430,7 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 
 	/* Create a dummy window */
 	GFX_Win32_Window window;
-	window.screen  = NULL;
+	window.monitor = NULL;
 	window.context = NULL;
 	window.flags   = GFX_WIN32_HIDDEN;
 
@@ -516,7 +516,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	/* Setup the win32 window */
 	GFX_Win32_Window window;
-	window.screen  = attributes->screen;
+	window.monitor = attributes->monitor;
 	window.context = NULL;
 	window.mode    = attributes->mode;
 	window.flags   = 0;
@@ -528,7 +528,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		attributes->flags & GFX_WINDOW_HIDDEN ?
 		GFX_WIN32_HIDDEN : 0;
 
-	GFX_Win32_Screen* screen = attributes->screen;
+	GFX_Win32_Monitor* monitor = attributes->monitor;
 
 	/* Style and window rectangle */
 	DWORD styleEx =
@@ -547,7 +547,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		if(!(attributes->flags & GFX_WINDOW_HIDDEN))
 		{
 			if(!_gfx_win32_enter_fullscreen(
-				attributes->screen,
+				attributes->monitor,
 				&attributes->mode)) return NULL;
 		}
 
@@ -557,8 +557,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		styleEx |= WS_EX_TOPMOST;
 		style |= WS_POPUP | WS_MAXIMIZE;
 
-		rect.left = screen->x;
-		rect.top = screen->y;
+		rect.left = monitor->x;
+		rect.top = monitor->y;
 	}
 	else
 	{
@@ -589,8 +589,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		/* Style and rectangle */
 		style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 
-		rect.left = screen->x + attributes->x;
-		rect.top = screen->y + attributes->y;
+		rect.left = monitor->x + attributes->x;
+		rect.top = monitor->y + attributes->y;
 	}
 
 	rect.right += rect.left;
@@ -655,7 +655,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	/* Undo fullscreen */
 	if(window.flags & GFX_WIN32_FULLSCREEN)
-		_gfx_win32_leave_fullscreen(window.screen);
+		_gfx_win32_leave_fullscreen(window.monitor);
 
 	return NULL;
 }
@@ -670,7 +670,7 @@ void _gfx_platform_window_free(
 		/* Make sure to undo fullscreen */
 		GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
 		if(it->flags & GFX_WIN32_FULLSCREEN)
-			_gfx_win32_leave_fullscreen(it->screen);
+			_gfx_win32_leave_fullscreen(it->monitor);
 
 		/* Destroy the context and window */
 		_gfx_platform_context_clear(handle);
@@ -682,12 +682,12 @@ void _gfx_platform_window_free(
 }
 
 /******************************************************/
-GFX_PlatformScreen _gfx_platform_window_get_screen(
+GFX_PlatformMonitor _gfx_platform_window_get_monitor(
 
 		GFX_PlatformWindow handle)
 {
 	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
-	if(it) return it->screen;
+	if(it) return it->monitor;
 
 	return NULL;
 }
@@ -745,14 +745,14 @@ void _gfx_platform_window_get_position(
 		int*                x,
 		int*                y)
 {
-	/* Get window's screen position */
-	GFX_Win32_Screen* screen =
-		_gfx_platform_window_get_screen(handle);
+	/* Get window's monitor position */
+	GFX_Win32_Monitor* monitor =
+		_gfx_platform_window_get_monitor(handle);
 
-	if(screen)
+	if(monitor)
 	{
-		*x = screen->x;
-		*y = screen->y;
+		*x = monitor->x;
+		*y = monitor->y;
 	}
 
 	POINT point;
@@ -827,10 +827,10 @@ void _gfx_platform_window_set_position(
 		int xM = 0;
 		int yM = 0;
 
-		if(it->screen)
+		if(it->monitor)
 		{
-			xM = it->screen->x;
-			yM = it->screen->y;
+			xM = it->monitor->x;
+			yM = it->monitor->y;
 		}
 
 		RECT rect;

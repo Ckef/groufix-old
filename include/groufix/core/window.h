@@ -26,7 +26,7 @@ extern "C" {
 
 
 /********************************************************
- * Top level screen
+ * Top level monitor
  *******************************************************/
 
 /** Color depth */
@@ -50,66 +50,66 @@ typedef struct GFXDisplayMode
 } GFXDisplayMode;
 
 
-/** A top level screen */
-typedef void* GFXScreen;
+/** A top level monitor */
+typedef void* GFXMonitor;
 
 
 /**
- * Returns the number of visible screens.
+ * Returns the number of visible monitors.
  *
  */
-GFX_API unsigned int gfx_get_num_screens(void);
+GFX_API unsigned int gfx_get_num_monitors(void);
 
 /**
- * Returns a screen.
+ * Returns a monitor.
  *
- * @param num The number of the screens (num < gfx_get_num_screens()).
+ * @param num The number of the monitors (num < gfx_get_num_monitors()).
  *
  */
-GFX_API GFXScreen gfx_get_screen(
+GFX_API GFXMonitor gfx_get_monitor(
 
 		unsigned int num);
 
 /**
- * Returns the default screen.
+ * Returns the default monitor.
  *
  */
-GFX_API GFXScreen gfx_get_default_screen(void);
+GFX_API GFXMonitor gfx_get_default_monitor(void);
 
 /**
- * Gets the resolution of a screen in pixels.
+ * Gets the resolution of a monitor in pixels.
  *
- * @param screen Screen to retrieve resolution of, NULL for default screen.
+ * @param monitor Monitor to retrieve resolution of, NULL for default monitor.
  *
  */
-GFX_API void gfx_screen_get_size(
+GFX_API void gfx_monitor_get_size(
 
-		GFXScreen      screen,
+		GFXMonitor     monitor,
 		unsigned int*  width,
 		unsigned int*  height);
 
 /**
- * Returns the number of display modes associated with a screen.
+ * Returns the number of display modes associated with a monitor.
  *
- * @param screen Screen to retrieve number of modes of, NULL for default screen.
+ * @param monitor Monitor to retrieve number of modes of, NULL for default monitor.
  *
  */
-GFX_API unsigned int gfx_screen_get_num_modes(
+GFX_API unsigned int gfx_monitor_get_num_modes(
 
-		GFXScreen screen);
+		GFXMonitor monitor);
 
 /**
  * Returns a display mode.
  *
- * @param screen Screen to retrieve the mode of, NULL for default screen.
- * @param num    The number of the mode (num < gfx_screen_get_num_modes()).
- * @param mode   Returns the mode, not written to on failure.
+ * @param monitor Monitor to retrieve the mode of, NULL for default monitor.
+ * @param num     The number of the mode (num < gfx_monitor_get_num_modes()).
+ * @param mode    Returns the mode, not written to on failure.
  * @return Zero if the mode could not be retrieved.
  *
  */
-GFX_API int gfx_screen_get_mode(
+GFX_API int gfx_monitor_get_mode(
 
-		GFXScreen        screen,
+		GFXMonitor       monitor,
 		unsigned int     num,
 		GFXDisplayMode*  mode);
 
@@ -199,20 +199,20 @@ GFX_API GFXWindow* gfx_get_window(
 /**
  * Creates a new window.
  *
- * @param screen Screen to use, NULL for default screen.
+ * @param monitor Monitor to use, NULL for default monitor.
  * @param mode   Display mode to use.
  * @param x      X position of the window.
  * @param y      Y position of the window.
  * @param flags  Flags to apply to this window.
  * @return NULL on failure.
  *
- * Note: the display mode must be one fetched through gfx_screen_get_mode() if the fullscreen
+ * Note: the display mode must be one fetched through gfx_monitor_get_mode() if the fullscreen
  * flag was given, otherwise, all but the width and height of the mode are hints.
  *
  */
 GFX_API GFXWindow* gfx_window_create(
 
-		GFXScreen       screen,
+		GFXMonitor      monitor,
 		GFXDisplayMode  mode,
 		const char*     name,
 		int             x,
@@ -220,7 +220,7 @@ GFX_API GFXWindow* gfx_window_create(
 		GFXWindowFlags  flags);
 
 /**
- * Recreates a window using a new screen, depth and flags.
+ * Recreates a window using a new monitor, mode and flags.
  *
  * @return The new window on success, NULL on failure (old window is still functional).
  *
@@ -230,7 +230,7 @@ GFX_API GFXWindow* gfx_window_create(
 GFX_API GFXWindow* gfx_window_recreate(
 
 		GFXWindow*      window,
-		GFXScreen       screen,
+		GFXMonitor      monitor,
 		GFXDisplayMode  mode,
 		GFXWindowFlags  flags);
 
@@ -257,10 +257,10 @@ GFX_API int gfx_window_is_open(
 		const GFXWindow* window);
 
 /**
- * Returns the screen associated with a window.
+ * Returns the monitor associated with a window.
  *
  */
-GFX_API GFXScreen gfx_window_get_screen(
+GFX_API GFXMonitor gfx_window_get_monitor(
 
 		const GFXWindow* window);
 

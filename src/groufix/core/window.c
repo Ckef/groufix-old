@@ -150,9 +150,9 @@ static GFX_Window* _gfx_window_create_internal(
 			attr->flags & ~GFX_WINDOW_RESIZABLE :
 			attr->flags;
 
-		attr->screen = attr->screen ?
-			attr->screen :
-			_gfx_platform_get_default_screen();
+		attr->monitor = attr->monitor ?
+			attr->monitor :
+			_gfx_platform_get_default_monitor();
 
 		window->handle =
 			_gfx_platform_window_create(attr);
@@ -527,7 +527,7 @@ GFXWindow* gfx_get_window(
 /******************************************************/
 GFXWindow* gfx_window_create(
 
-		GFXScreen       screen,
+		GFXMonitor      monitor,
 		GFXDisplayMode  mode,
 		const char*     name,
 		int             x,
@@ -537,12 +537,12 @@ GFXWindow* gfx_window_create(
 	/* Create the window */
 	GFX_PlatformAttributes attr =
 	{
-		.screen = (GFX_PlatformScreen)screen,
-		.name   = name,
-		.mode   = mode,
-		.flags  = flags,
-		.x      = x,
-		.y      = y
+		.monitor = (GFX_PlatformMonitor)monitor,
+		.name    = name,
+		.mode    = mode,
+		.flags   = flags,
+		.x       = x,
+		.y       = y
 	};
 
 	GFX_Window* window = _gfx_window_create_internal(&attr);
@@ -579,7 +579,7 @@ GFXWindow* gfx_window_create(
 GFXWindow* gfx_window_recreate(
 
 		GFXWindow*      window,
-		GFXScreen       screen,
+		GFXMonitor      monitor,
 		GFXDisplayMode  mode,
 		GFXWindowFlags  flags)
 {
@@ -606,7 +606,7 @@ GFXWindow* gfx_window_recreate(
 
 	/* Create our new window */
 	GFXWindow* new = gfx_window_create(
-		screen,
+		monitor,
 		mode,
 		name,
 		x,
@@ -656,7 +656,7 @@ int gfx_window_is_open(
 }
 
 /******************************************************/
-GFXScreen gfx_window_get_screen(
+GFXMonitor gfx_window_get_monitor(
 
 		const GFXWindow* window)
 {
@@ -665,7 +665,7 @@ GFXScreen gfx_window_get_screen(
 	if(_gfx_window_is_zombie(internal) || internal->offscreen)
 		return NULL;
 
-	return (GFXScreen)_gfx_platform_window_get_screen(internal->handle);
+	return (GFXMonitor)_gfx_platform_window_get_monitor(internal->handle);
 }
 
 /******************************************************/

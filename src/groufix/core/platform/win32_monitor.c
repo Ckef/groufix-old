@@ -15,57 +15,57 @@
 #include "groufix/core/platform/win32.h"
 
 /******************************************************/
-unsigned int _gfx_platform_get_num_screens(void)
+unsigned int _gfx_platform_get_num_monitors(void)
 {
 	if(!_gfx_win32) return 0;
-	return gfx_vector_get_size(&_gfx_win32->screens);
+	return gfx_vector_get_size(&_gfx_win32->monitors);
 }
 
 /******************************************************/
-GFX_PlatformScreen _gfx_platform_get_screen(
+GFX_PlatformMonitor _gfx_platform_get_monitor(
 
 		unsigned int num)
 {
 	if(!_gfx_win32) return NULL;
 
 	/* Validate the number first */
-	if(num >= gfx_vector_get_size(&_gfx_win32->screens)) return NULL;
-	return gfx_vector_at(&_gfx_win32->screens, num);
+	if(num >= gfx_vector_get_size(&_gfx_win32->monitors)) return NULL;
+	return gfx_vector_at(&_gfx_win32->monitors, num);
 }
 
 /******************************************************/
-GFX_PlatformScreen _gfx_platform_get_default_screen(void)
+GFX_PlatformMonitor _gfx_platform_get_default_monitor(void)
 {
 	if(!_gfx_win32) return NULL;
-	return _gfx_win32->screens.begin;
+	return _gfx_win32->monitors.begin;
 }
 
 /******************************************************/
-void _gfx_platform_screen_get_size(
+void _gfx_platform_monitor_get_size(
 
-		GFX_PlatformScreen  handle,
-		unsigned int*       width,
-		unsigned int*       height)
+		GFX_PlatformMonitor  handle,
+		unsigned int*        width,
+		unsigned int*        height)
 {
-	GFX_Win32_Screen* screen = (GFX_Win32_Screen*)handle;
-	*width = screen->width;
-	*height = screen->height;
+	GFX_Win32_Monitor* monitor = (GFX_Win32_Monitor*)handle;
+	*width = monitor->width;
+	*height = monitor->height;
 }
 
 /******************************************************/
-unsigned int _gfx_platform_screen_get_num_modes(
+unsigned int _gfx_platform_monitor_get_num_modes(
 
-		GFX_PlatformScreen handle)
+		GFX_PlatformMonitor handle)
 {
 	return 0;
 }
 
 /******************************************************/
-int _gfx_platform_screen_get_mode(
+int _gfx_platform_monitor_get_mode(
 
-		GFX_PlatformScreen  handle,
-		unsigned int        num,
-		GFXDisplayMode*     mode)
+		GFX_PlatformMonitor  handle,
+		unsigned int         num,
+		GFXDisplayMode*      mode)
 {
 	return 0;
 }

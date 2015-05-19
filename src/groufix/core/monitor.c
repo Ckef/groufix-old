@@ -15,65 +15,65 @@
 #include "groufix/core/platform.h"
 
 /******************************************************/
-unsigned int gfx_get_num_screens(void)
+unsigned int gfx_get_num_monitors(void)
 {
-	return _gfx_platform_get_num_screens();
+	return _gfx_platform_get_num_monitors();
 }
 
 /******************************************************/
-GFXScreen gfx_get_screen(
+GFXMonitor gfx_get_monitor(
 
 		unsigned int num)
 {
-	return (GFXScreen)_gfx_platform_get_screen(num);
+	return (GFXMonitor)_gfx_platform_get_monitor(num);
 }
 
 /******************************************************/
-GFXScreen gfx_get_default_screen(void)
+GFXMonitor gfx_get_default_monitor(void)
 {
-	return (GFXScreen)_gfx_platform_get_default_screen();
+	return (GFXMonitor)_gfx_platform_get_default_monitor();
 }
 
 /******************************************************/
-void gfx_screen_get_size(
+void gfx_monitor_get_size(
 
-		GFXScreen      screen,
+		GFXMonitor     monitor,
 		unsigned int*  width,
 		unsigned int*  height)
 {
-	screen = screen ? screen :
-		(GFXScreen)_gfx_platform_get_default_screen();
+	monitor = monitor ? monitor :
+		(GFXMonitor)_gfx_platform_get_default_monitor();
 
-	_gfx_platform_screen_get_size(
-		(GFX_PlatformScreen)screen,
+	_gfx_platform_monitor_get_size(
+		(GFX_PlatformMonitor)monitor,
 		width,
 		height);
 }
 
 /******************************************************/
-unsigned int gfx_screen_get_num_modes(
+unsigned int gfx_monitor_get_num_modes(
 
-		GFXScreen screen)
+		GFXMonitor monitor)
 {
-	screen = screen ? screen :
-		(GFXScreen)_gfx_platform_get_default_screen();
+	monitor = monitor ? monitor :
+		(GFXMonitor)_gfx_platform_get_default_monitor();
 
-	return _gfx_platform_screen_get_num_modes(
-		(GFX_PlatformScreen)screen);
+	return _gfx_platform_monitor_get_num_modes(
+		(GFX_PlatformMonitor)monitor);
 }
 
 /******************************************************/
-int gfx_screen_get_mode(
+int gfx_monitor_get_mode(
 
-		GFXScreen        screen,
+		GFXMonitor       monitor,
 		unsigned int     num,
 		GFXDisplayMode*  mode)
 {
-	screen = screen ? screen :
-		(GFXScreen)_gfx_platform_get_default_screen();
+	monitor = monitor ? monitor :
+		(GFXMonitor)_gfx_platform_get_default_monitor();
 
-	return _gfx_platform_screen_get_mode(
-		(GFX_PlatformScreen)screen,
+	return _gfx_platform_monitor_get_mode(
+		(GFX_PlatformMonitor)monitor,
 		num,
 		mode);
 }

@@ -90,7 +90,7 @@ static void _gfx_x11_enter_fullscreen(
 		&event
 	);
 
-	/* Create event to add full screen atom */
+	/* Create event to add fullscreen atom */
 	event.xclient.message_type = _gfx_x11->NET_WM_STATE;
 	event.xclient.data.l[0]    = 1;
 	event.xclient.data.l[1]    = _gfx_x11->NET_WM_STATE_FULLSCREEN;
@@ -135,7 +135,7 @@ static void _gfx_x11_leave_fullscreen(
 		1
 	);
 
-	/* Create event to remove full screen atom */
+	/* Create event to remove fullscreen atom */
 	XEvent event;
 	event.type                 = ClientMessage;
 	event.xclient.window       = handle;
@@ -412,7 +412,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 {
 	/* Get FB Config */
 	GLXFBConfig* config = _gfx_x11_get_config(
-		attributes->screen,
+		attributes->monitor,
 		&attributes->mode.depth,
 		attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 	);
@@ -463,7 +463,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	attr.colormap = XCreateColormap(
 		_gfx_x11->display,
-		RootWindowOfScreen((Screen*)attributes->screen),
+		RootWindowOfScreen((Screen*)attributes->monitor),
 		visual->visual,
 		AllocNone
 	);
@@ -471,7 +471,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	/* Create the actual window */
 	window.handle = XCreateWindow(
 		_gfx_x11->display,
-		RootWindowOfScreen((Screen*)attributes->screen),
+		RootWindowOfScreen((Screen*)attributes->monitor),
 		attributes->x,
 		attributes->y,
 		attributes->mode.width,
@@ -617,7 +617,7 @@ void _gfx_platform_window_free(
 }
 
 /******************************************************/
-GFX_PlatformScreen _gfx_platform_window_get_screen(
+GFX_PlatformMonitor _gfx_platform_window_get_monitor(
 
 		GFX_PlatformWindow handle)
 {
