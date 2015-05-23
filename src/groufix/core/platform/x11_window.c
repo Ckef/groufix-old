@@ -410,10 +410,27 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 		const GFX_PlatformAttributes* attributes)
 {
+	/* Get display mode */
+	GFXDisplayMode mode;
+	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
+	{
+		_gfx_platform_monitor_get_mode(
+			attributes->monitor,
+			attributes->mode,
+			&mode
+		);
+	}
+	else
+	{
+		mode.width  = attributes->w;
+		mode.height = attributes->h;
+		mode.depth  = *attributes->depth;
+	}
+
 	/* Get FB Config */
 	GLXFBConfig* config = _gfx_x11_get_config(
 		attributes->monitor,
-		&attributes->mode.depth,
+		&mode.depth,
 		attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 	);
 
@@ -474,8 +491,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		RootWindowOfScreen((Screen*)attributes->monitor),
 		attributes->x,
 		attributes->y,
-		attributes->mode.width,
-		attributes->mode.height,
+		mode.width,
+		mode.height,
 		0,
 		visual->depth,
 		InputOutput,
@@ -550,10 +567,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			XSizeHints* hints = XAllocSizeHints();
 			hints->flags = PMinSize | PMaxSize;
 
-			hints->min_width = attributes->mode.width;
-			hints->max_width = attributes->mode.width;
-			hints->min_height = attributes->mode.height;
-			hints->max_height = attributes->mode.height;
+			hints->min_width = mode.width;
+			hints->max_width = mode.width;
+			hints->min_height = mode.height;
+			hints->max_height = mode.height;
 
 			XSetWMNormalHints(_gfx_x11->display, window.handle, hints);
 

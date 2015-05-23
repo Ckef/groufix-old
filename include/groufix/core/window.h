@@ -200,24 +200,27 @@ GFX_API GFXWindow* gfx_get_window(
  * Creates a new window.
  *
  * @param monitor Monitor to use, NULL for default monitor.
- * @param mode   Display mode to use.
- * @param x      X position of the window.
- * @param y      Y position of the window.
- * @param flags  Flags to apply to this window.
+ * @param mode    Index of the display mode to use (only used if fullscreen).
+ * @param depth   Color depth to use (ignored if fullscreen).
+ * @param x       X position of the window.
+ * @param y       Y position of the window.
+ * @param w       Width of the window (ignored if fullscreen).
+ * @param h       Height of the window (ignored if fullscreen).
+ * @param flags   Flags to apply to this window.
  * @return NULL on failure.
- *
- * Note: the display mode must be one fetched through gfx_monitor_get_mode() if the fullscreen
- * flag was given, otherwise, all but the width and height of the mode are hints.
  *
  */
 GFX_API GFXWindow* gfx_window_create(
 
-		GFXMonitor      monitor,
-		GFXDisplayMode  mode,
-		const char*     name,
-		int             x,
-		int             y,
-		GFXWindowFlags  flags);
+		GFXMonitor            monitor,
+		unsigned int          mode,
+		const GFXColorDepth*  depth,
+		const char*           name,
+		int                   x,
+		int                   y,
+		unsigned int          w,
+		unsigned int          h,
+		GFXWindowFlags        flags);
 
 /**
  * Recreates a window using a new monitor, mode and flags.
@@ -229,10 +232,11 @@ GFX_API GFXWindow* gfx_window_create(
  */
 GFX_API GFXWindow* gfx_window_recreate(
 
-		GFXWindow*      window,
-		GFXMonitor      monitor,
-		GFXDisplayMode  mode,
-		GFXWindowFlags  flags);
+		GFXWindow*            window,
+		GFXMonitor            monitor,
+		unsigned int          mode,
+		const GFXColorDepth*  depth,
+		GFXWindowFlags        flags);
 
 /**
  * Destroys and frees the window.

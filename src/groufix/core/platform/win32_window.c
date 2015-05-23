@@ -518,7 +518,6 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	GFX_Win32_Window window;
 	window.monitor = attributes->monitor;
 	window.context = NULL;
-	window.mode    = attributes->mode;
 	window.flags   = 0;
 
 	window.flags |=
@@ -528,7 +527,21 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		attributes->flags & GFX_WINDOW_HIDDEN ?
 		GFX_WIN32_HIDDEN : 0;
 
-	GFX_Win32_Monitor* monitor = attributes->monitor;
+	/* Get display mode and window size */
+	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
+	{
+		_gfx_platform_monitor_get_mode(
+			window.monitor,
+			attributes->mode,
+			&window.mode
+		);
+	}
+	else
+	{
+		window.mode.width  = attributes->w;
+		window.mode.height = attributes->h;
+		window.mode.depth  = *attributes->depth;
+	}
 
 	/* Style and window rectangle */
 	DWORD styleEx =
@@ -538,17 +551,16 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		WS_VISIBLE : 0);
 
 	RECT rect;
-	rect.right = attributes->mode.width;
-	rect.bottom = attributes->mode.height;
+	rect.right = window.mode.width;
+	rect.bottom = window.mode.height;
 
 	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
 	{
 		/* Change to fullscreen */
 		if(!(attributes->flags & GFX_WINDOW_HIDDEN))
 		{
-			if(!_gfx_win32_enter_fullscreen(
-				attributes->monitor,
-				&attributes->mode)) return NULL;
+			if(!_gfx_win32_enter_fullscreen(window.monitor, &window.mode))
+				return NULL;
 		}
 
 		window.flags |= GFX_WIN32_FULLSCREEN;
@@ -557,8 +569,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		styleEx |= WS_EX_TOPMOST;
 		style |= WS_POPUP | WS_MAXIMIZE;
 
-		rect.left = monitor->x;
-		rect.top = monitor->y;
+		rect.left = window.monitor->x;
+		rect.top = window.monitor->y;
 	}
 	else
 	{
@@ -589,8 +601,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		/* Style and rectangle */
 		style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 
-		rect.left = monitor->x + attributes->x;
-		rect.top = monitor->y + attributes->y;
+		rect.left = window.monitor->x + window.mode.x;
+		rect.top = window.monitor->y + window.mode.y;
 	}
 
 	rect.right += rect.left;

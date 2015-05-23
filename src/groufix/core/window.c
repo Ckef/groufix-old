@@ -130,7 +130,33 @@ static GFX_Window* _gfx_window_create_internal(
 		return NULL;
 	}
 
-	window->offscreen = attr ? 0 : 1;
+	/* Validate fullscreen monitor or depth */
+	/* Also determine whether it's offscreen while we're at it */
+	if(attr)
+	{
+		window->offscreen = 0;
+
+		if(attr->flags & GFX_WINDOW_FULLSCREEN)
+		{
+			if(
+				attr->mode >=
+				_gfx_platform_monitor_get_num_modes(attr->monitor))
+			{
+				free(window);
+				return NULL;
+			}
+		}
+		else
+		{
+			if(!attr->depth)
+			{
+				free(window);
+				return NULL;
+			}
+		}
+	}
+
+	else window->offscreen = 1;
 
 	/* Create data key */
 	if(!_gfx_alive_windows)
@@ -527,22 +553,28 @@ GFXWindow* gfx_get_window(
 /******************************************************/
 GFXWindow* gfx_window_create(
 
-		GFXMonitor      monitor,
-		GFXDisplayMode  mode,
-		const char*     name,
-		int             x,
-		int             y,
-		GFXWindowFlags  flags)
+		GFXMonitor            monitor,
+		unsigned int          mode,
+		const GFXColorDepth*  depth,
+		const char*           name,
+		int                   x,
+		int                   y,
+		unsigned int          w,
+		unsigned int          h,
+		GFXWindowFlags        flags)
 {
 	/* Create the window */
 	GFX_PlatformAttributes attr =
 	{
 		.monitor = (GFX_PlatformMonitor)monitor,
-		.name    = name,
 		.mode    = mode,
+		.depth   = depth,
+		.name    = name,
 		.flags   = flags,
 		.x       = x,
-		.y       = y
+		.y       = y,
+		.w       = w,
+		.h       = h
 	};
 
 	GFX_Window* window = _gfx_window_create_internal(&attr);
@@ -578,10 +610,11 @@ GFXWindow* gfx_window_create(
 /******************************************************/
 GFXWindow* gfx_window_recreate(
 
-		GFXWindow*      window,
-		GFXMonitor      monitor,
-		GFXDisplayMode  mode,
-		GFXWindowFlags  flags)
+		GFXWindow*            window,
+		GFXMonitor            monitor,
+		unsigned int          mode,
+		const GFXColorDepth*  depth,
+		GFXWindowFlags        flags)
 {
 	/* Check if zombie window */
 	GFX_Window* internal = (GFX_Window*)window;
@@ -591,6 +624,8 @@ GFXWindow* gfx_window_recreate(
 	/* Get window properties */
 	int x;
 	int y;
+	unsigned int w;
+	unsigned int h;
 
 	char* name = _gfx_platform_window_get_name(
 		internal->handle);
@@ -600,6 +635,11 @@ GFXWindow* gfx_window_recreate(
 		&x,
 		&y);
 
+	_gfx_platform_window_get_size(
+		internal->handle,
+		&w,
+		&h);
+
 	/* Hide original window first */
 	/* This to undo any window manager effects it may have */
 	_gfx_platform_window_hide(internal->handle);
@@ -608,9 +648,12 @@ GFXWindow* gfx_window_recreate(
 	GFXWindow* new = gfx_window_create(
 		monitor,
 		mode,
+		depth,
 		name,
 		x,
 		y,
+		w,
+		h,
 		flags
 	);
 
