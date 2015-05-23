@@ -601,8 +601,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		/* Style and rectangle */
 		style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 
-		rect.left = window.monitor->x + window.mode.x;
-		rect.top = window.monitor->y + window.mode.y;
+		rect.left = window.monitor->x + attributes->x;
+		rect.top = window.monitor->y + attributes->y;
 	}
 
 	rect.right += rect.left;
