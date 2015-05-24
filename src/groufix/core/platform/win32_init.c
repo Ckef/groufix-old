@@ -163,7 +163,7 @@ static int _gfx_win32_init_monitors(void)
 			mode.dmSize = sizeof(DEVMODE);
 
 			EnumDisplaySettingsEx(
-				monitor.DeviceName,
+				adapter.DeviceName,
 				ENUM_CURRENT_SETTINGS,
 				&mode,
 				EDS_ROTATEMODE
