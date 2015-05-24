@@ -327,7 +327,7 @@ int _gfx_platform_init(void)
 		/* Setup memory */
 		gfx_vector_init(&_gfx_win32->monitors, sizeof(GFX_Win32_Monitor));
 		gfx_vector_init(&_gfx_win32->windows, sizeof(GFX_Win32_Window));
-		
+
 		/* Load extensions and init monitors */
 		if(!_gfx_win32_load_extensions() || !_gfx_win32_init_monitors())
 		{
