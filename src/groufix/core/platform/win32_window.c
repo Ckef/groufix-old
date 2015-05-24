@@ -152,6 +152,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			GFX_Win32_Window* internal =
 				_gfx_win32_get_window_from_handle(handle);
 
+			if(!internal) return 0;
+
 			internal->mode.width = LOWORD(lParam);
 			internal->mode.height = HIWORD(lParam);
 
@@ -396,28 +398,38 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 }
 
 /******************************************************/
-static int _gfx_win32_register_window_class(void)
+int _gfx_win32_register_classes(void)
 {
-	/* Check if it is already registered */
-	if(!_gfx_win32) return 0;
-	if(_gfx_win32->classRegistered) return 1;
+	HMODULE handle = GetModuleHandle(NULL);
 
+	/* Register dummy class */
+	WNDCLASS dc;
+	ZeroMemory(&dc, sizeof(WNDCLASS));
+
+	dc.lpfnWndProc   = DefWindowProc;
+	dc.hInstance     = handle;
+	dc.lpszClassName = GFX_WIN32_WINDOW_CLASS_DUMMY;
+
+	if(!RegisterClass(&dc))
+		return 0;
+
+	/* Register regular class */
 	WNDCLASSEX wc;
-	wc.cbSize        = sizeof(WNDCLASSEX);
-	wc.style         = 0;
-	wc.lpfnWndProc   = _gfx_win32_window_proc;
-	wc.cbClsExtra    = 0;
-	wc.cbWndExtra    = 0;
-	wc.hInstance     = GetModuleHandle(NULL);
-	wc.hIcon         = NULL;
-	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = NULL;
-	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = GFX_WIN32_WINDOW_CLASS;
-	wc.hIconSm       = NULL;
+	ZeroMemory(&wc, sizeof(WNDCLASSEX));
 
-	_gfx_win32->classRegistered = RegisterClassEx(&wc);
-	return _gfx_win32->classRegistered;
+	wc.cbSize        = sizeof(WNDCLASSEX);
+	wc.lpfnWndProc   = _gfx_win32_window_proc;
+	wc.hInstance     = handle;
+	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wc.lpszClassName = GFX_WIN32_WINDOW_CLASS;
+
+	if(!RegisterClassEx(&wc))
+	{
+		UnregisterClass(GFX_WIN32_WINDOW_CLASS_DUMMY, handle);
+		return 0;
+	}
+
+	return 1;
 }
 
 /******************************************************/
@@ -508,8 +520,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 		const GFX_PlatformAttributes* attributes)
 {
-	/* Make sure to register the window class */
-	if(!_gfx_win32_register_window_class()) return NULL;
+	if(!_gfx_win32) return NULL;
 
 	/* Setup the win32 window */
 	GFX_Win32_Window window;

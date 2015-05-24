@@ -317,36 +317,19 @@ int _gfx_platform_init(void)
 		_gfx_win32 = calloc(1, sizeof(GFX_Win32_Instance));
 		if(!_gfx_win32) return 0;
 
-		/* Register the dummy window class */
-		WNDCLASS wc;
-		ZeroMemory(&wc, sizeof(WNDCLASS));
-		wc.lpfnWndProc   = DefWindowProc;
-		wc.hInstance     = GetModuleHandle(NULL);
-		wc.lpszClassName = GFX_WIN32_WINDOW_CLASS_DUMMY;
-
-		if(!RegisterClass(&wc))
+		/* Register the window classes */
+		if(!_gfx_win32_register_classes())
 		{
 			free(_gfx_win32);
 			return 0;
 		}
 
-		/* Load extensions and setup memory */
-		if(!_gfx_win32_load_extensions())
-		{
-			UnregisterClass(
-				GFX_WIN32_WINDOW_CLASS_DUMMY,
-				GetModuleHandle(NULL)
-			);
-			free(_gfx_win32);
-
-			return 0;
-		}
-
+		/* Setup memory */
 		gfx_vector_init(&_gfx_win32->monitors, sizeof(GFX_Win32_Monitor));
 		gfx_vector_init(&_gfx_win32->windows, sizeof(GFX_Win32_Window));
-
-		/* Init monitors */
-		if(!_gfx_win32_init_monitors())
+		
+		/* Load extensions and init monitors */
+		if(!_gfx_win32_load_extensions() || !_gfx_win32_init_monitors())
 		{
 			_gfx_platform_terminate();
 			return 0;

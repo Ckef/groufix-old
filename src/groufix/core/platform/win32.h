@@ -119,9 +119,8 @@ typedef struct GFX_Win32_Window
 typedef struct GFX_Win32_Instance
 {
 	/* Monitors and Windows */
-	GFXVector  monitors;        /* Stores GFX_Win32_Monitor */
-	GFXVector  windows;         /* Stores GFX_Win32_Window */
-	char       classRegistered; /* Whether or not the window class is registered */
+	GFXVector  monitors; /* Stores GFX_Win32_Monitor */
+	GFXVector  windows;  /* Stores GFX_Win32_Window */
 
 	/* Key table */
 	GFXKey     keys[GFX_WIN32_NUM_KEYCODES];
@@ -173,6 +172,14 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 GFX_Win32_Window* _gfx_win32_get_window_from_context(
 
 		HGLRC context);
+		
+/**
+ * Registers the dummy and regular window classes.
+ *
+ * @return Zero on failure.
+ *
+ */
+int _gfx_win32_register_classes(void);
 
 /**
  * Sets the pixel format for a window.
