@@ -57,15 +57,22 @@ unsigned int _gfx_platform_monitor_get_num_modes(
 
 		GFX_PlatformMonitor handle)
 {
-	return 0;
+	return ((GFX_X11_Monitor*)handle)->numModes;
 }
 
 /******************************************************/
 int _gfx_platform_monitor_get_mode(
 
 		GFX_PlatformMonitor  handle,
-		unsigned int        num,
-		GFXDisplayMode*     mode)
+		unsigned int         num,
+		GFXDisplayMode*      mode)
 {
-	return 0;
+	GFX_X11_Monitor* monitor = (GFX_X11_Monitor*)handle;
+	if(num >= monitor->numModes) return 0;
+
+	GFX_X11_Mode* it =
+		gfx_vector_at(&_gfx_x11->modes, monitor->modes[num]);
+
+	*mode = it->mode;
+	return 1;
 }

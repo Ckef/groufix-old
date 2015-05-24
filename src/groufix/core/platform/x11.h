@@ -91,6 +91,10 @@ typedef struct GFX_X11_Monitor
 {
 	Screen*       screen;
 	RRCrtc        crtc;
+	RRMode        mode;    /* Original mode */
+	unsigned int  numModes;
+	size_t*       modes;   /* Indices into _gfx_x11->modes */
+
 	int           x;
 	int           y;
 	unsigned int  width;
@@ -99,11 +103,21 @@ typedef struct GFX_X11_Monitor
 } GFX_X11_Monitor;
 
 
+/** X11 Mode */
+typedef struct GFX_X11_Mode
+{
+	RRMode          id;
+	GFXDisplayMode  mode;
+
+} GFX_X11_Mode;
+
+
 /** X11 Window */
 typedef struct GFX_X11_Window
 {
 	Window            handle;  /* Given to the outside world */
 	GFX_X11_Monitor*  monitor;
+	RRMode            mode;    /* Fullscreen mode */
 	GLXFBConfig       config;
 	GLXContext        context;
 	GFX_X11_Flags     flags;
@@ -126,6 +140,7 @@ typedef struct GFX_X11_Connection
 	/* X Display and Windows */
 	Display*      display;
 	GFXVector     monitors;                 /* Stores GFX_X11_Monitor */
+	GFXVector     modes;                    /* Stores GFX_X11_Mode */
 	GFXVector     windows;                  /* Stores GFX_X11_Window */
 	char          errors;                   /* Zero to ignore errors */
 

@@ -136,6 +136,15 @@ static GFX_Window* _gfx_window_create_internal(
 	{
 		window->offscreen = 0;
 
+		/* Adjust attributes */
+		attr->flags = attr->flags & GFX_WINDOW_FULLSCREEN ?
+			attr->flags & ~GFX_WINDOW_RESIZABLE :
+			attr->flags;
+
+		attr->monitor = attr->monitor ?
+			attr->monitor :
+			_gfx_platform_get_default_monitor();
+
 		if(attr->flags & GFX_WINDOW_FULLSCREEN)
 		{
 			if(
@@ -171,15 +180,6 @@ static GFX_Window* _gfx_window_create_internal(
 	/* Create platform window */
 	if(!window->offscreen)
 	{
-		/* Adjust attributes */
-		attr->flags = attr->flags & GFX_WINDOW_FULLSCREEN ?
-			attr->flags & ~GFX_WINDOW_RESIZABLE :
-			attr->flags;
-
-		attr->monitor = attr->monitor ?
-			attr->monitor :
-			_gfx_platform_get_default_monitor();
-
 		window->handle =
 			_gfx_platform_window_create(attr);
 

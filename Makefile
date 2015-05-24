@@ -70,7 +70,7 @@ OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32) -DWINVER=0x0600 -D_WIN32_WINNT=0
 
 # Linker flags
 LFLAGS          = -shared
-LFLAGS_UNIX_X11 = $(LFLAGS) -pthread -lX11 -lXrandr -lGL
+LFLAGS_UNIX_X11 = $(LFLAGS) -pthread -lm -lX11 -lXrandr -lGL
 LFLAGS_WIN32    = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
 
 

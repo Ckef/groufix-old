@@ -22,15 +22,46 @@
 static void _gfx_x11_enter_fullscreen(
 
 		GFX_X11_Monitor*  monitor,
-		unsigned int      mode)
+		Window            handle,
+		RRMode            mode)
 {
+	Window root =
+		XRootWindowOfScreen(monitor->screen);
+	XRRScreenResources* res =
+		XRRGetScreenResources(_gfx_x11->display, root);
+	XRRCrtcInfo* crtc =
+		XRRGetCrtcInfo(_gfx_x11->display, res, monitor->crtc);
+
+	/* Set mode and move window */
+	XRRSetCrtcConfig(
+		_gfx_x11->display,
+		res,
+		monitor->crtc,
+		crtc->timestamp,
+		crtc->x,
+		crtc->y,
+		mode,
+		crtc->rotation,
+		crtc->outputs,
+		crtc->noutput);
+
+	XMoveWindow(
+		_gfx_x11->display,
+		handle,
+		crtc->x,
+		crtc->y);
+
+	XRRFreeCrtcInfo(crtc);
+	XRRFreeScreenResources(res);
 }
 
 /******************************************************/
-static void _gfx_x11_leave_fullscreen(
+static inline void _gfx_x11_leave_fullscreen(
 
-		GFX_X11_Monitor* monitor)
+		GFX_X11_Monitor*  monitor,
+		Window            handle)
 {
+	_gfx_x11_enter_fullscreen(monitor, handle, monitor->mode);
 }
 
 /******************************************************/
@@ -322,11 +353,13 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	{
 		window.flags |= GFX_X11_FULLSCREEN;
 
-		_gfx_platform_monitor_get_mode(
-			attributes->monitor,
-			attributes->mode,
-			&mode
+		GFX_X11_Mode* it = gfx_vector_at(
+			&_gfx_x11->modes,
+			window.monitor->modes[attributes->mode]
 		);
+
+		window.mode = it->id;
+		mode = it->mode;
 	}
 	else
 	{
@@ -519,7 +552,11 @@ GFX_PlatformWindow _gfx_platform_window_create(
 				(attributes->flags & GFX_WINDOW_FULLSCREEN) &&
 				!(attributes->flags & GFX_WINDOW_HIDDEN))
 			{
-				_gfx_x11_enter_fullscreen(window.monitor, 0);
+				_gfx_x11_enter_fullscreen(
+					window.monitor,
+					window.handle,
+					window.mode
+				);
 			}
 
 			return GFX_UINT_TO_VOID(window.handle);
@@ -549,7 +586,7 @@ void _gfx_platform_window_free(
 
 		/* Make sure to undo fullscreen */
 		if(it->flags & GFX_X11_FULLSCREEN)
-			_gfx_x11_leave_fullscreen(it->monitor);
+			_gfx_x11_leave_fullscreen(it->monitor, GFX_VOID_TO_UINT(handle));
 
 		/* Destroy context, the window and its colormap */
 		_gfx_platform_context_clear(handle);
@@ -723,7 +760,11 @@ void _gfx_platform_window_show(
 
 		/* Also enter fullscreen */
 		if(internal->flags & GFX_X11_FULLSCREEN)
-			_gfx_x11_enter_fullscreen(internal->monitor, 0);
+			_gfx_x11_enter_fullscreen(
+				internal->monitor,
+				GFX_VOID_TO_UINT(handle),
+				internal->mode
+			);
 	}
 }
 
@@ -744,7 +785,10 @@ void _gfx_platform_window_hide(
 
 		/* Also leave fullscreen */
 		if(internal->flags & GFX_X11_FULLSCREEN)
-			_gfx_x11_leave_fullscreen(internal->monitor);
+			_gfx_x11_leave_fullscreen(
+				internal->monitor,
+				GFX_VOID_TO_UINT(handle)
+			);
 	}
 }
 

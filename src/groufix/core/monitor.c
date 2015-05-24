@@ -44,7 +44,7 @@ void gfx_monitor_get_size(
 	monitor = monitor ? monitor :
 		(GFXMonitor)_gfx_platform_get_default_monitor();
 
-	_gfx_platform_monitor_get_size(
+	if(monitor) _gfx_platform_monitor_get_size(
 		(GFX_PlatformMonitor)monitor,
 		width,
 		height);
@@ -57,6 +57,9 @@ unsigned int gfx_monitor_get_num_modes(
 {
 	monitor = monitor ? monitor :
 		(GFXMonitor)_gfx_platform_get_default_monitor();
+
+	if(!monitor)
+		return 0;
 
 	return _gfx_platform_monitor_get_num_modes(
 		(GFX_PlatformMonitor)monitor);
@@ -71,6 +74,9 @@ int gfx_monitor_get_mode(
 {
 	monitor = monitor ? monitor :
 		(GFXMonitor)_gfx_platform_get_default_monitor();
+
+	if(!monitor)
+		return 0;
 
 	return _gfx_platform_monitor_get_mode(
 		(GFX_PlatformMonitor)monitor,

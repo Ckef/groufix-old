@@ -15,6 +15,7 @@
 #include "groufix/core/platform/x11.h"
 #include "groufix/core/errors.h"
 
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -124,6 +125,59 @@ static int _gfx_x11_load_extensions(
 }
 
 /******************************************************/
+static size_t _gfx_x11_init_modes(
+
+		Screen*              scr,
+		XRRScreenResources*  res)
+{
+	/* Split depth */
+	GFXColorDepth depth;
+
+	int scrDepth = XDefaultDepthOfScreen(scr);
+	int delta = scrDepth / 3;
+
+	depth.redBits   = delta;
+	depth.greenBits = delta;
+	depth.blueBits  = delta;
+	delta           = scrDepth - (3 * delta);
+
+	if(delta > 0) ++depth.greenBits;
+	if(delta > 1) ++depth.redBits;
+
+	/* Reserve space for all modes */
+	size_t first = gfx_vector_get_size(&_gfx_x11->modes);
+	gfx_vector_reserve(&_gfx_x11->modes, first + res->nmode);
+
+	unsigned int i;
+	for(i = 0; i < res->nmode; ++i)
+	{
+		/* Skip refresh rate of zero */
+		unsigned int refresh = 0;
+		if(res->modes[i].hTotal && res->modes[i].vTotal)
+		{
+			refresh =
+				(unsigned int)lround((double)res->modes[i].dotClock /
+				((double)res->modes[i].hTotal * (double)res->modes[i].vTotal));
+		}
+
+		if(refresh)
+		{
+			/* Create new mode */
+			GFX_X11_Mode mode;
+			mode.id           = res->modes[i].id;
+			mode.mode.width   = res->modes[i].width;
+			mode.mode.height  = res->modes[i].height;
+			mode.mode.depth   = depth;
+			mode.mode.refresh = refresh;
+
+			gfx_vector_insert(&_gfx_x11->modes, &mode, _gfx_x11->modes.end);
+		}
+	}
+
+	return first;
+}
+
+/******************************************************/
 static int _gfx_x11_init_monitors(
 
 		int  major,
@@ -149,6 +203,9 @@ static int _gfx_x11_init_monitors(
 		if(major > 1 || (major == 1 && minor > 2))
 			prim = XRRGetOutputPrimary(_gfx_x11->display, root);
 
+		/* Insert the screen's display modes */
+		size_t first = _gfx_x11_init_modes(scr, res);
+
 		/* Iterate through outputs */
 		unsigned int i;
 		for(i = 0; i < res->noutput; ++i)
@@ -171,20 +228,60 @@ static int _gfx_x11_init_monitors(
 
 			GFX_X11_Monitor mon =
 			{
-				.screen = scr,
-				.crtc   = out->crtc,
-				.x      = crtc->x,
-				.y      = crtc->y,
-				.width  = rot ? crtc->height : crtc->width,
-				.height = rot ? crtc->width : crtc->height
+				.screen   = scr,
+				.crtc     = out->crtc,
+				.mode     = crtc->mode,
+				.numModes = 0,
+				.modes    = malloc(sizeof(size_t) * out->nmode),
+				.x        = crtc->x,
+				.y        = crtc->y,
+				.width    = rot ? crtc->height : crtc->width,
+				.height   = rot ? crtc->width : crtc->height
 			};
+
+			/* Retrieve output modes */
+			unsigned int j;
+			if(mon.modes) for(j = 0; j < out->nmode; ++j)
+			{
+				GFX_X11_Mode* mode;
+				for(
+					mode = gfx_vector_at(&_gfx_x11->modes, first);
+					mode != _gfx_x11->modes.end;
+					mode = gfx_vector_next(&_gfx_x11->modes, mode))
+				{
+					if(mode->id == out->modes[j])
+					{
+						/* Swap width/height */
+						if(rot)
+						{
+							unsigned int temp = mode->mode.width;
+							mode->mode.width = mode->mode.height;
+							mode->mode.height = temp;
+						}
+
+						/* Also check if resolution isn't too big */
+						if(
+							mode->mode.width <= mon.width &&
+							mode->mode.height <= mon.height)
+						{
+							mon.modes[mon.numModes++] = gfx_vector_get_index(
+								&_gfx_x11->modes,
+								mode
+							);
+						}
+
+						break;
+					}
+				}
+			}
 
 			/* Insert at beginning if primary */
 			GFXVectorIterator monPos =
 				scr == def && res->outputs[i] == prim ?
 				_gfx_x11->monitors.begin : _gfx_x11->monitors.end;
 
-			gfx_vector_insert(&_gfx_x11->monitors, &mon, monPos);
+			monPos = gfx_vector_insert(&_gfx_x11->monitors, &mon, monPos);
+			if(monPos == _gfx_x11->monitors.end) free(mon.modes);
 
 			XRRFreeCrtcInfo(crtc);
 			XRRFreeOutputInfo(out);
@@ -374,6 +471,7 @@ int _gfx_platform_init(void)
 
 		/* Setup memory */
 		gfx_vector_init(&_gfx_x11->monitors, sizeof(GFX_X11_Monitor));
+		gfx_vector_init(&_gfx_x11->modes, sizeof(GFX_X11_Mode));
 		gfx_vector_init(&_gfx_x11->windows, sizeof(GFX_X11_Window));
 
 		/* Load extensions and init monitors */
@@ -412,10 +510,21 @@ void _gfx_platform_terminate(void)
 {
 	if(_gfx_x11)
 	{
+		/* Free all mode references */
+		GFX_X11_Monitor* mon;
+		for(
+			mon = _gfx_x11->monitors.begin;
+			mon != _gfx_x11->monitors.end;
+			mon = gfx_vector_next(&_gfx_x11->monitors, mon))
+		{
+			free(mon->modes);
+		}
+
 		/* Close connection (destroys all resources) */
 		if(_gfx_x11->display) XCloseDisplay(_gfx_x11->display);
 
 		gfx_vector_clear(&_gfx_x11->monitors);
+		gfx_vector_clear(&_gfx_x11->modes);
 		gfx_vector_clear(&_gfx_x11->windows);
 
 		/* Deallocate */
