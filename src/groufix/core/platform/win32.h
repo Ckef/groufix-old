@@ -91,6 +91,9 @@ typedef enum GFX_Win32_Flags
 typedef struct GFX_Win32_Monitor
 {
 	TCHAR         name[32]; /* Name of the adapter */
+	DWORD         numModes;
+	size_t        modes;    /* First index into _gfx_win32->modes */
+
 	int           x;
 	int           y;
 	unsigned int  width;
@@ -104,8 +107,8 @@ typedef struct GFX_Win32_Window
 {
 	HWND                handle; /* Given to the outside world */
 	GFX_Win32_Monitor*  monitor;
+	DEVMODE*            mode;   /* Fullscreen mode */
 	HGLRC               context;
-	GFXDisplayMode      mode;
 	GFX_Win32_Flags     flags;
 
 } GFX_Win32_Window;
@@ -120,6 +123,7 @@ typedef struct GFX_Win32_Instance
 {
 	/* Monitors and Windows */
 	GFXVector  monitors; /* Stores GFX_Win32_Monitor */
+	GFXVector  modes;    /* Stores DEVMODE */
 	GFXVector  windows;  /* Stores GFX_Win32_Window */
 
 	/* Key table */
@@ -172,7 +176,7 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 GFX_Win32_Window* _gfx_win32_get_window_from_context(
 
 		HGLRC context);
-		
+
 /**
  * Registers the dummy and regular window classes.
  *

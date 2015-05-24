@@ -57,7 +57,7 @@ unsigned int _gfx_platform_monitor_get_num_modes(
 
 		GFX_PlatformMonitor handle)
 {
-	return 0;
+	return ((GFX_Win32_Monitor*)handle)->numModes;
 }
 
 /******************************************************/
@@ -67,5 +67,25 @@ int _gfx_platform_monitor_get_mode(
 		unsigned int         num,
 		GFXDisplayMode*      mode)
 {
-	return 0;
+	GFX_Win32_Monitor* monitor = (GFX_Win32_Monitor*)handle;
+	if(num >= monitor->numModes) return 0;
+
+	DEVMODE* dev =
+		gfx_vector_at(&_gfx_win32->modes, monitor->modes + num);
+
+	mode->width   = dev->dmPelsWidth;
+	mode->height  = dev->dmPelsHeight;
+	mode->refresh = dev->dmDisplayFrequency;
+
+	/* Split depth */
+	DWORD delta           = dev->dmBitsPerPel / 3;
+	mode->depth.redBits   = delta;
+	mode->depth.greenBits = delta;
+	mode->depth.blueBits  = delta;
+	delta                 = dev->dmBitsPerPel - (3 * delta);
+
+	if(delta > 0) ++mode->depth.greenBits;
+	if(delta > 1) ++mode->depth.redBits;
+
+	return 1;
 }

@@ -122,6 +122,63 @@ static int _gfx_win32_load_extensions(void)
 }
 
 /******************************************************/
+static void _gfx_win32_init_modes(
+
+		LPCTSTR  deviceName,
+		DWORD*   num,
+		size_t*  first)
+{
+	/* Iterate over modes */
+	*first = gfx_vector_get_size(&_gfx_win32->modes);
+	*num = 0;
+
+	DEVMODE mode;
+	ZeroMemory(&mode, sizeof(DEVMODE));
+	mode.dmSize = sizeof(DEVMODE);
+
+	DWORD modeIndex = 0;
+	while(EnumDisplaySettingsEx(deviceName, modeIndex++, &mode, 0))
+	{
+		/* Skip if unwanted properties or bit depth or frequency of zero */
+		if(
+			(mode.dmDisplayFixedOutput != DMDFO_STRETCH &&
+			(mode.dmFields & DM_DISPLAYFIXEDOUTPUT)) ||
+			!mode.dmBitsPerPel ||
+			!mode.dmDisplayFrequency)
+		{
+			continue;
+		}
+
+		/* Compare against all already found modes */
+		DEVMODE* comp;
+		for(
+			comp = gfx_vector_at(&_gfx_win32->modes, *first);
+			comp != _gfx_win32->modes.end;
+			comp = gfx_vector_next(&_gfx_win32->modes, comp))
+		{
+			if(
+				comp->dmPelsWidth == mode.dmPelsWidth &&
+				comp->dmPelsHeight == mode.dmPelsHeight &&
+				comp->dmDisplayFrequency == mode.dmDisplayFrequency &&
+				comp->dmBitsPerPel == mode.dmBitsPerPel)
+			{
+				break;
+			}
+		}
+
+		if(comp == _gfx_win32->modes.end)
+		{
+			/* Insert it */
+			GFXVectorIterator it =
+				gfx_vector_insert(&_gfx_win32->modes, &mode, _gfx_win32->modes.end);
+
+			if(it != _gfx_win32->modes.end)
+				++(*num);
+		}
+	}
+}
+
+/******************************************************/
 static int _gfx_win32_init_monitors(void)
 {
 	/* Enumerate all display adapters */
@@ -164,7 +221,7 @@ static int _gfx_win32_init_monitors(void)
 
 			EnumDisplaySettingsEx(
 				adapter.DeviceName,
-				ENUM_CURRENT_SETTINGS,
+				ENUM_REGISTRY_SETTINGS,
 				&mode,
 				EDS_ROTATEMODE
 			);
@@ -173,6 +230,9 @@ static int _gfx_win32_init_monitors(void)
 			mon.y      = mode.dmPosition.y;
 			mon.width  = mode.dmPelsWidth;
 			mon.height = mode.dmPelsHeight;
+
+			/* Get all display modes */
+			_gfx_win32_init_modes(adapter.DeviceName, &mon.numModes, &mon.modes);
 
 			/* Insert at beginning if primary */
 			GFXVectorIterator monPos =
@@ -326,6 +386,7 @@ int _gfx_platform_init(void)
 
 		/* Setup memory */
 		gfx_vector_init(&_gfx_win32->monitors, sizeof(GFX_Win32_Monitor));
+		gfx_vector_init(&_gfx_win32->modes, sizeof(DEVMODE));
 		gfx_vector_init(&_gfx_win32->windows, sizeof(GFX_Win32_Window));
 
 		/* Load extensions and init monitors */
@@ -358,13 +419,15 @@ void _gfx_platform_terminate(void)
 
 			_gfx_platform_window_free(((GFX_Win32_Window*)it)->handle);
 		}
-		gfx_vector_clear(&_gfx_win32->monitors);
-		gfx_vector_clear(&_gfx_win32->windows);
 
 		/* Unregister window classes */
 		HMODULE handle = GetModuleHandle(NULL);
 		UnregisterClass(GFX_WIN32_WINDOW_CLASS, handle);
 		UnregisterClass(GFX_WIN32_WINDOW_CLASS_DUMMY, handle);
+
+		gfx_vector_clear(&_gfx_win32->monitors);
+		gfx_vector_clear(&_gfx_win32->modes);
+		gfx_vector_clear(&_gfx_win32->windows);
 
 		/* Deallocate instance */
 		free(_gfx_win32);
