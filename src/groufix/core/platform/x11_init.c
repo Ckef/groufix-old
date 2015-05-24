@@ -363,30 +363,26 @@ int _gfx_platform_init(void)
 
 		/* Connect to X Server */
 		_gfx_x11->display = XOpenDisplay(NULL);
-
-		_gfx_x11->errors = 1;
-		XSetErrorHandler(_gfx_x11_error_handler);
-
-		/* Load extensions */
-		int major;
-		int minor;
-
-		if(!_gfx_x11->display || !_gfx_x11_load_extensions(&major, &minor))
+		if(!_gfx_x11->display)
 		{
-			if(_gfx_x11->display) XCloseDisplay(_gfx_x11->display);
-
 			free(_gfx_x11);
-			_gfx_x11 = NULL;
-
 			return 0;
 		}
+
+		XSetErrorHandler(_gfx_x11_error_handler);
+		_gfx_x11->errors = 1;
 
 		/* Setup memory */
 		gfx_vector_init(&_gfx_x11->monitors, sizeof(GFX_X11_Monitor));
 		gfx_vector_init(&_gfx_x11->windows, sizeof(GFX_X11_Window));
 
-		/* Init monitors */
-		if(!_gfx_x11_init_monitors(major, minor))
+		/* Load extensions and init monitors */
+		int major;
+		int minor;
+
+		if(
+			!_gfx_x11_load_extensions(&major, &minor) ||
+			!_gfx_x11_init_monitors(major, minor))
 		{
 			_gfx_platform_terminate();
 			return 0;

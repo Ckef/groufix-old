@@ -275,8 +275,6 @@ static GLXFBConfig* _gfx_x11_get_config(
 		const GFXColorDepth*  depth,
 		int                   backBuffer)
 {
-	if(!_gfx_x11) return NULL;
-
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
 		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
@@ -303,6 +301,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 		const GFX_PlatformAttributes* attributes)
 {
+	if(!_gfx_x11) return NULL;
+
 	/* Setup the x11 window */
 	GFX_X11_Window window;
 	window.monitor = attributes->monitor;
