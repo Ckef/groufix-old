@@ -25,6 +25,7 @@ static GLXContext _gfx_x11_create_context(
 		GLXContext   share)
 {
 	/* Temporarily disable errors */
+	/* This so we can attempt to create contexts with various versions */
 	_gfx_x11->errors = 0;
 
 	/* Create buffer attribute array */
@@ -151,7 +152,8 @@ int _gfx_platform_context_set_swap_interval(
 
 	_gfx_x11->extensions.SwapIntervalEXT(
 		_gfx_x11->display,
-		(Window)GFX_VOID_TO_UINT(handle), num
+		(Window)GFX_VOID_TO_UINT(handle),
+		num
 	);
 
 	return num;

@@ -59,10 +59,7 @@ static int _gfx_x11_is_extension_supported(
 /******************************************************/
 static int _gfx_x11_load_extensions(void)
 {
-	Screen* screen = _gfx_platform_get_default_monitor();
-	if(!screen) return 0;
-
-	int num = XScreenNumberOfScreen(screen);
+	int num = XDefaultScreen(_gfx_x11->display);
 
 	/* Check all vital extensions */
 	if(
@@ -111,6 +108,79 @@ static int _gfx_x11_error_handler(
 	}
 
 	return 0;
+}
+
+/******************************************************/
+static int _gfx_x11_init_monitors(
+
+		unsigned int  major,
+		unsigned int  minor)
+{
+	/* Iterate over all screens */
+	Screen* def = XDefaultScreenOfDisplay(_gfx_x11->display);
+	unsigned int count = XScreenCount(_gfx_x11->display);
+
+	while(count--)
+	{
+		/* Get screen resources */
+		Screen* scr =
+			XScreenOfDisplay(_gfx_x11->display, count);
+		Window root =
+			XRootWindowOfScreen(scr);
+		XRRScreenResources* res =
+			XRRGetScreenResources(_gfx_x11->display, root);
+		RROutput prim =
+			res->outputs[0];
+
+		if(major > 1 || (major == 1 && minor > 2))
+			prim = XRRGetOutputPrimary(_gfx_x11->display, root);
+
+		/* Iterate through outputs */
+		unsigned int i;
+		for(i = 0; i < res->noutput; ++i)
+		{
+			/* Validate output */
+			XRROutputInfo* out =
+				XRRGetOutputInfo(_gfx_x11->display, res, res->outputs[i]);
+
+			if(out->connection != RR_Connected)
+			{
+				XRRFreeOutputInfo(out);
+				continue;
+			}
+
+			/* Create new monitor */
+			XRRCrtcInfo* crtc =
+				XRRGetCrtcInfo(_gfx_x11->display, res, out->crtc);
+			int rot =
+				crtc->rotation & (RR_Rotate_90 | RR_Rotate_270);
+
+			GFX_X11_Monitor mon =
+			{
+				.screen = scr,
+				.crtc   = out->crtc,
+				.x      = crtc->x,
+				.y      = crtc->y,
+				.width  = rot ? crtc->height : crtc->width,
+				.height = rot ? crtc->width : crtc->height
+			};
+
+			/* Insert at beginning if primary */
+			GFXVectorIterator monPos =
+				scr == def && res->outputs[i] == prim ?
+				_gfx_x11->monitors.begin : _gfx_x11->monitors.end;
+
+			gfx_vector_insert(&_gfx_x11->monitors, &mon, monPos);
+
+			XRRFreeCrtcInfo(crtc);
+			XRRFreeOutputInfo(out);
+		}
+
+		XRRFreeScreenResources(res);
+	}
+
+	/* Need at least one monitor */
+	return _gfx_x11->monitors.begin != _gfx_x11->monitors.end;
 }
 
 /******************************************************/
@@ -283,28 +353,51 @@ int _gfx_platform_init(void)
 		_gfx_x11->errors = 1;
 		XSetErrorHandler(_gfx_x11_error_handler);
 
-		/* Setup memory and load extensions */
+		/* Load extensions */
+		/* RandR 1.2 is required */
+		int major;
+		int minor;
+
+		if(
+			!_gfx_x11->display ||
+			!_gfx_x11_load_extensions() ||
+			!XRRQueryVersion(_gfx_x11->display, &major, &minor) ||
+			major < 1 ||
+			(major == 1 && minor < 2))
+		{
+			if(_gfx_x11->display) XCloseDisplay(_gfx_x11->display);
+
+			free(_gfx_x11);
+			_gfx_x11 = NULL;
+
+			return 0;
+		}
+
+		/* Setup memory */
+		gfx_vector_init(&_gfx_x11->monitors, sizeof(GFX_X11_Monitor));
 		gfx_vector_init(&_gfx_x11->windows, sizeof(GFX_X11_Window));
-		if(!_gfx_x11->display || !_gfx_x11_load_extensions())
+
+		/* Init monitors */
+		if(!_gfx_x11_init_monitors(major, minor))
 		{
 			_gfx_platform_terminate();
 			return 0;
 		}
-		_gfx_x11_create_key_table();
 
 		/* Load atoms */
 		_gfx_x11->MOTIF_WM_HINTS =
 			XInternAtom(_gfx_x11->display, "_MOTIF_WM_HINTS", False);
-		_gfx_x11->NET_ACTIVE_WINDOW =
-			XInternAtom(_gfx_x11->display, "_NET_ACTIVE_WINDOW", False);
 		_gfx_x11->NET_WM_BYPASS_COMPOSITOR =
 			XInternAtom(_gfx_x11->display, "_NET_WM_BYPASS_COMPOSITOR", False);
 		_gfx_x11->NET_WM_STATE =
 			XInternAtom(_gfx_x11->display, "_NET_WM_STATE", False);
-		_gfx_x11->NET_WM_STATE_FULLSCREEN =
-			XInternAtom(_gfx_x11->display, "_NET_WM_STATE_FULLSCREEN", False);
+		_gfx_x11->NET_WM_STATE_ABOVE =
+			XInternAtom(_gfx_x11->display, "_NET_WM_STATE_ABOVE", False);
 		_gfx_x11->WM_DELETE_WINDOW =
 			XInternAtom(_gfx_x11->display, "WM_DELETE_WINDOW", False);
+
+		/* Construct a keycode lookup */
+		_gfx_x11_create_key_table();
 	}
 
 	return 1;
@@ -315,17 +408,10 @@ void _gfx_platform_terminate(void)
 {
 	if(_gfx_x11)
 	{
-		/* Restore screen saver */
-		if(_gfx_x11->saverCount) XSetScreenSaver(
-			_gfx_x11->display,
-			_gfx_x11->saverTimeout,
-			_gfx_x11->saverInterval,
-			_gfx_x11->saverBlank,
-			_gfx_x11->saverExposure
-		);
-
 		/* Close connection (destroys all resources) */
 		if(_gfx_x11->display) XCloseDisplay(_gfx_x11->display);
+
+		gfx_vector_clear(&_gfx_x11->monitors);
 		gfx_vector_clear(&_gfx_x11->windows);
 
 		/* Deallocate */

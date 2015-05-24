@@ -18,7 +18,7 @@
 unsigned int _gfx_platform_get_num_monitors(void)
 {
 	if(!_gfx_x11) return 0;
-	return ScreenCount(_gfx_x11->display);
+	return gfx_vector_get_size(&_gfx_x11->monitors);
 }
 
 /******************************************************/
@@ -29,15 +29,15 @@ GFX_PlatformMonitor _gfx_platform_get_monitor(
 	if(!_gfx_x11) return NULL;
 
 	/* Validate the number first */
-	if(num >= ScreenCount(_gfx_x11->display)) return NULL;
-	return ScreenOfDisplay(_gfx_x11->display, num);
+	if(num >= gfx_vector_get_size(&_gfx_x11->monitors)) return NULL;
+	return gfx_vector_at(&_gfx_x11->monitors, num);
 }
 
 /******************************************************/
 GFX_PlatformMonitor _gfx_platform_get_default_monitor(void)
 {
 	if(!_gfx_x11) return NULL;
-	return DefaultScreenOfDisplay(_gfx_x11->display);
+	return _gfx_x11->monitors.begin;
 }
 
 /******************************************************/
@@ -47,8 +47,9 @@ void _gfx_platform_monitor_get_size(
 		unsigned int*        width,
 		unsigned int*        height)
 {
-	*width = WidthOfScreen((Screen*)handle);
-	*height = HeightOfScreen((Screen*)handle);
+	GFX_X11_Monitor* monitor = (GFX_X11_Monitor*)handle;
+	*width = monitor->width;
+	*height = monitor->height;
 }
 
 /******************************************************/

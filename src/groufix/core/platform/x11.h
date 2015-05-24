@@ -31,6 +31,7 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+#include <X11/extensions/Xrandr.h>
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
@@ -73,7 +74,7 @@ typedef struct GFX_X11_Extensions
 
 
 /********************************************************
- * X11 Window
+ * X11 Window & Monitor
  *******************************************************/
 
 /** X11 Window Flags */
@@ -85,18 +86,32 @@ typedef enum GFX_X11_Flags
 } GFX_X11_Flags;
 
 
+/** X11 Monitor */
+typedef struct GFX_X11_Monitor
+{
+	Screen*       screen;
+	RRCrtc        crtc;
+	int           x;
+	int           y;
+	unsigned int  width;
+	unsigned int  height;
+
+} GFX_X11_Monitor;
+
+
 /** X11 Window */
 typedef struct GFX_X11_Window
 {
-	Window         handle;  /* Given to the outside world */
-	GLXFBConfig    config;
-	GLXContext     context;
-	GFX_X11_Flags  flags;
+	Window            handle;  /* Given to the outside world */
+	GFX_X11_Monitor*  monitor;
+	GLXFBConfig       config;
+	GLXContext        context;
+	GFX_X11_Flags     flags;
 
-	int            x;
-	int            y;
-	unsigned int   width;
-	unsigned int   height;
+	int               x;       /* Relative to screen */
+	int               y;       /* Relative to screen */
+	unsigned int      width;
+	unsigned int      height;
 
 } GFX_X11_Window;
 
@@ -110,22 +125,15 @@ typedef struct GFX_X11_Connection
 {
 	/* X Display and Windows */
 	Display*      display;
+	GFXVector     monitors;                 /* Stores GFX_X11_Monitor */
 	GFXVector     windows;                  /* Stores GFX_X11_Window */
 	char          errors;                   /* Zero to ignore errors */
 
-	/* Screensaver */
-	unsigned int  saverCount;
-	int           saverTimeout;
-	int           saverInterval;
-	int           saverBlank;
-	int           saverExposure;
-
 	/* Atoms */
 	Atom          MOTIF_WM_HINTS;           /* _MOTIF_WM_HINTS */
-	Atom          NET_ACTIVE_WINDOW;        /* _NET_ACTIVE_WINDOW */
 	Atom          NET_WM_BYPASS_COMPOSITOR; /* _NET_WM_BYPASS_COMPOSITOR */
 	Atom          NET_WM_STATE;             /* _NET_WM_STATE */
-	Atom          NET_WM_STATE_FULLSCREEN;  /* _NET_WM_STATE_FULLSCREEN */
+	Atom          NET_WM_STATE_ABOVE;       /* _NET_WM_STATE_ABOVE */
 	Atom          WM_DELETE_WINDOW;         /* WM_DELETE_WINDOW */
 
 	/* Key table */

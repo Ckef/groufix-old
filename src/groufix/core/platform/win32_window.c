@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-static int _gfx_win32_enter_fullscreen(
+static void _gfx_win32_enter_fullscreen(
 
 		GFX_Win32_Monitor*     monitor,
 		const GFXDisplayMode*  mode)
@@ -35,10 +35,7 @@ static int _gfx_win32_enter_fullscreen(
 	dev.dmPelsHeight = mode->height;
 	dev.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-	/* Actual call */
-	return
-		(ChangeDisplaySettingsEx(monitor->name, &dev, NULL, CDS_FULLSCREEN, NULL)
-		== DISP_CHANGE_SUCCESSFUL);
+	ChangeDisplaySettingsEx(monitor->name, &dev, NULL, CDS_FULLSCREEN, NULL);
 }
 
 /******************************************************/
@@ -424,6 +421,31 @@ static int _gfx_win32_register_window_class(void)
 }
 
 /******************************************************/
+void _gfx_win32_set_pixel_format(
+
+		HWND                  handle,
+		const GFXColorDepth*  depth,
+		int                   backBuffer)
+{
+	PIXELFORMATDESCRIPTOR format;
+	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
+
+	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
+	format.nVersion   = 1;
+	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+	format.iPixelType = PFD_TYPE_RGBA;
+	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
+	format.iLayerType = PFD_MAIN_PLANE;
+
+	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
+	HDC context = GetDC(handle);
+
+	/* Get format compatible with the window */
+	int index = ChoosePixelFormat(context, &format);
+	SetPixelFormat(context, index, &format);
+}
+
+/******************************************************/
 GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 {
 	if(!_gfx_win32) return NULL;
@@ -482,31 +504,6 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 }
 
 /******************************************************/
-void _gfx_win32_set_pixel_format(
-
-		HWND                  handle,
-		const GFXColorDepth*  depth,
-		int                   backBuffer)
-{
-	PIXELFORMATDESCRIPTOR format;
-	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
-
-	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
-	format.nVersion   = 1;
-	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
-	format.iPixelType = PFD_TYPE_RGBA;
-	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
-	format.iLayerType = PFD_MAIN_PLANE;
-
-	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
-	HDC context = GetDC(handle);
-
-	/* Get format compatible with the window */
-	int index = ChoosePixelFormat(context, &format);
-	SetPixelFormat(context, index, &format);
-}
-
-/******************************************************/
 GFX_PlatformWindow _gfx_platform_window_create(
 
 		const GFX_PlatformAttributes* attributes)
@@ -530,6 +527,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	/* Get display mode and window size */
 	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
 	{
+		window.flags |= GFX_WIN32_FULLSCREEN;
+
 		_gfx_platform_monitor_get_mode(
 			window.monitor,
 			attributes->mode,
@@ -551,29 +550,23 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		WS_VISIBLE : 0);
 
 	RECT rect;
-	rect.right = window.mode.width;
+	rect.left   = window.monitor->x;
+	rect.top    = window.monitor->y;
+	rect.right  = window.mode.width;
 	rect.bottom = window.mode.height;
 
 	if(attributes->flags & GFX_WINDOW_FULLSCREEN)
 	{
-		/* Change to fullscreen */
-		if(!(attributes->flags & GFX_WINDOW_HIDDEN))
-		{
-			if(!_gfx_win32_enter_fullscreen(window.monitor, &window.mode))
-				return NULL;
-		}
-
-		window.flags |= GFX_WIN32_FULLSCREEN;
-
-		/* Style and rectangle */
 		styleEx |= WS_EX_TOPMOST;
 		style |= WS_POPUP | WS_MAXIMIZE;
-
-		rect.left = window.monitor->x;
-		rect.top = window.monitor->y;
 	}
 	else
 	{
+		style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+
+		rect.left += attributes->x;
+		rect.top += attributes->y;
+
 		if(!(attributes->flags & GFX_WINDOW_BORDERLESS))
 		{
 			/* With a border */
@@ -597,12 +590,6 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			styleEx |= WS_EX_TOPMOST;
 			style |= WS_POPUP;
 		}
-
-		/* Style and rectangle */
-		style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-
-		rect.left = window.monitor->x + attributes->x;
-		rect.top = window.monitor->y + attributes->y;
 	}
 
 	rect.right += rect.left;
@@ -659,15 +646,19 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			/* Start tracking the mouse */
 			_gfx_win32_track_mouse(window.handle);
 
+			/* Enter fullscreen */
+			if(
+				(attributes->flags & GFX_WINDOW_FULLSCREEN) &&
+				!(attributes->flags & GFX_WINDOW_HIDDEN))
+			{
+				_gfx_win32_enter_fullscreen(window.monitor, &window.mode);
+			}
+
 			return window.handle;
 		}
 
 		DestroyWindow(window.handle);
 	}
-
-	/* Undo fullscreen */
-	if(window.flags & GFX_WIN32_FULLSCREEN)
-		_gfx_win32_leave_fullscreen(window.monitor);
 
 	return NULL;
 }

@@ -149,8 +149,7 @@ static int _gfx_win32_init_monitors(void)
 			/* Validate monitor */
 			if(
 				!(monitor.StateFlags & DISPLAY_DEVICE_ACTIVE) ||
-				monitor.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER
-			)
+				monitor.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)
 			{
 				continue;
 			}
@@ -176,12 +175,12 @@ static int _gfx_win32_init_monitors(void)
 			mon.height = mode.dmPelsHeight;
 
 			/* Insert at beginning if primary */
-			GFXVectorIterator scrPos =
+			GFXVectorIterator monPos =
 				(adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) &&
 				monitorIndex == 0 ?
 				_gfx_win32->monitors.begin : _gfx_win32->monitors.end;
 
-			gfx_vector_insert(&_gfx_win32->monitors, &mon, scrPos);
+			gfx_vector_insert(&_gfx_win32->monitors, &mon, monPos);
 		}
 	}
 

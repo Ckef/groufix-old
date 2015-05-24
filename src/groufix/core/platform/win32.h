@@ -175,16 +175,6 @@ GFX_Win32_Window* _gfx_win32_get_window_from_context(
 		HGLRC context);
 
 /**
- * Creates a dummy window for offscreen contexts.
- *
- * @return The dummy window, NULL on failure.
- *
- * Note: the window can be freed by _gfx_platform_window_free.
- *
- */
-GFX_Win32_Window* _gfx_win32_window_dummy_create(void);
-
-/**
  * Sets the pixel format for a window.
  *
  * @param backBuffer Non-zero to enable double buffering.
@@ -195,6 +185,16 @@ void _gfx_win32_set_pixel_format(
 		HWND                  handle,
 		const GFXColorDepth*  depth,
 		int                   backBuffer);
+
+/**
+ * Creates a dummy window for offscreen contexts.
+ *
+ * @return The dummy window, NULL on failure.
+ *
+ * Note: the window can be freed by _gfx_platform_window_free.
+ *
+ */
+GFX_Win32_Window* _gfx_win32_window_dummy_create(void);
 
 
 #endif // GFX_CORE_PLATFORM_WIN32_H
