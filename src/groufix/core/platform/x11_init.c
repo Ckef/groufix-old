@@ -57,9 +57,46 @@ static int _gfx_x11_is_extension_supported(
 }
 
 /******************************************************/
-static int _gfx_x11_load_extensions(void)
+static int _gfx_x11_error_handler(
+
+		Display*      display,
+		XErrorEvent*  evt)
+{
+	if(_gfx_x11->errors)
+	{
+		size_t length = sizeof(char) * (GFX_X11_ERROR_LENGTH);
+		char* text = malloc(length);
+
+		XGetErrorText(display, evt->error_code, text, length);
+
+		/* Make sure it's null terminated */
+		text[GFX_X11_ERROR_LENGTH - 1] = 0;
+
+		gfx_errors_push(GFX_ERROR_PLATFORM_ERROR, text);
+
+		free(text);
+	}
+
+	return 0;
+}
+
+/******************************************************/
+static int _gfx_x11_load_extensions(
+
+		int*  major,
+		int*  minor)
 {
 	int num = XDefaultScreen(_gfx_x11->display);
+
+	/* Check XRandR version */
+	if(
+		!XRRQueryVersion(_gfx_x11->display, major, minor) ||
+		*major < 1 ||
+		(*major == 1 && *minor < 2))
+	{
+		gfx_errors_push(GFX_ERROR_INCOMPATIBLE_CONTEXT, "RandR 1.2 is not supported.");
+		return 0;
+	}
 
 	/* Check all vital extensions */
 	if(
@@ -87,34 +124,10 @@ static int _gfx_x11_load_extensions(void)
 }
 
 /******************************************************/
-static int _gfx_x11_error_handler(
-
-		Display*      display,
-		XErrorEvent*  evt)
-{
-	if(_gfx_x11->errors)
-	{
-		size_t length = sizeof(char) * (GFX_X11_ERROR_LENGTH);
-		char* text = malloc(length);
-
-		XGetErrorText(display, evt->error_code, text, length);
-
-		/* Make sure it's null terminated */
-		text[GFX_X11_ERROR_LENGTH - 1] = 0;
-
-		gfx_errors_push(GFX_ERROR_PLATFORM_ERROR, text);
-
-		free(text);
-	}
-
-	return 0;
-}
-
-/******************************************************/
 static int _gfx_x11_init_monitors(
 
-		unsigned int  major,
-		unsigned int  minor)
+		int  major,
+		int  minor)
 {
 	/* Iterate over all screens */
 	Screen* def = XDefaultScreenOfDisplay(_gfx_x11->display);
@@ -132,6 +145,7 @@ static int _gfx_x11_init_monitors(
 		RROutput prim =
 			res->outputs[0];
 
+		/* Get primary if RandR 1.3 is supported */
 		if(major > 1 || (major == 1 && minor > 2))
 			prim = XRRGetOutputPrimary(_gfx_x11->display, root);
 
@@ -354,16 +368,10 @@ int _gfx_platform_init(void)
 		XSetErrorHandler(_gfx_x11_error_handler);
 
 		/* Load extensions */
-		/* RandR 1.2 is required */
 		int major;
 		int minor;
 
-		if(
-			!_gfx_x11->display ||
-			!_gfx_x11_load_extensions() ||
-			!XRRQueryVersion(_gfx_x11->display, &major, &minor) ||
-			major < 1 ||
-			(major == 1 && minor < 2))
+		if(!_gfx_x11->display || !_gfx_x11_load_extensions(&major, &minor))
 		{
 			if(_gfx_x11->display) XCloseDisplay(_gfx_x11->display);
 
