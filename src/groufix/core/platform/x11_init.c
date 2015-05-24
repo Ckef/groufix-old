@@ -249,27 +249,16 @@ static int _gfx_x11_init_monitors(
 					mode != _gfx_x11->modes.end;
 					mode = gfx_vector_next(&_gfx_x11->modes, mode))
 				{
-					if(mode->id == out->modes[j])
+					/* Also check if resolution isn't too big */
+					if(
+						mode->id == out->modes[j] &&
+						mode->mode.width <= crtc->width &&
+						mode->mode.height <= crtc->height)
 					{
-						/* Swap width/height */
-						if(rot)
-						{
-							unsigned int temp = mode->mode.width;
-							mode->mode.width = mode->mode.height;
-							mode->mode.height = temp;
-						}
-
-						/* Also check if resolution isn't too big */
-						if(
-							mode->mode.width <= mon.width &&
-							mode->mode.height <= mon.height)
-						{
-							mon.modes[mon.numModes++] = gfx_vector_get_index(
-								&_gfx_x11->modes,
-								mode
-							);
-						}
-
+						mon.modes[mon.numModes++] = gfx_vector_get_index(
+							&_gfx_x11->modes,
+							mode
+						);
 						break;
 					}
 				}
