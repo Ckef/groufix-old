@@ -532,7 +532,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			window.monitor->modes + attributes->mode);
 
 		_gfx_split_depth(
-			window.mode->dmBitPerPel,
+			window.mode->dmBitsPerPel,
 			&depth.redBits,
 			&depth.greenBits,
 			&depth.blueBits);
