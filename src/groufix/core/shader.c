@@ -206,29 +206,12 @@ static char* _gfx_shader_parse(
 		total += lengths[i];
 	}
 
-	/* Check whether outputs need to be redefined */
-	unsigned char hasOut =
-		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] &&
-		stage == GFX_VERTEX_SHADER;
-
-	/* Attempt to find version and/or per vertex built-ins */
+	/* Attempt to find version */
+	const char* verStr =NULL;
 	size_t ver = 0;
-	size_t out = 0;
-
-	const char* verStr = NULL;
-	const char* outStr =
-		"out gl_PerVertex{"
-		"vec4 gl_Position;"
-		"float gl_PointSize;"
-		"float gl_ClipDistance[];"
-		"};";
 
 	for(ver = 0; ver < num; ++ver)
 		if((verStr = _gfx_shader_find(src[ver], "#version", lengths[ver])))
-			break;
-
-	if(hasOut) for(out = 0; out < num; ++out)
-		if(_gfx_shader_find(src[out], "gl_PerVertex", lengths[out]))
 			break;
 
 	/* Get version string */
@@ -244,8 +227,18 @@ static char* _gfx_shader_parse(
 
 	/* Reconstruct the source */
 	/* Firstly recalculate total length though */
+	/* Also check whether outputs need to be redefined */
+	unsigned char hasOut =
+		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] &&
+		stage == GFX_VERTEX_SHADER;
+
+	const char* outStr =
+		"out vec4 gl_Position;"
+		"out float gl_PointSize;"
+		"out float gl_ClipDistance[];";
+
 	if(ver >= num) total += strlen(verStr);
-	if(out >= num) total += strlen(outStr);
+	if(hasOut) total += strlen(outStr);
 
 	char* shader = malloc(sizeof(char) * (total + 1));
 	if(!shader) return NULL;
@@ -284,7 +277,7 @@ static char* _gfx_shader_parse(
 		total += offset;
 	}
 
-	if(out >= num)
+	if(hasOut)
 	{
 		/* Copy new vertex output built-ins */
 		size_t l = strlen(outStr);
