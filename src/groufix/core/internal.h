@@ -230,6 +230,17 @@ void _gfx_event_mouse_wheel(
  *******************************************************/
 
 /**
+ * Splits depth into 3 channels.
+ *
+ */
+void _gfx_split_depth(
+
+		unsigned short   depth,
+		unsigned short*  red,
+		unsigned short*  green,
+		unsigned short*  blue);
+
+/**
  * Returns 1 if packed data, 0 if unpacked.
  *
  */

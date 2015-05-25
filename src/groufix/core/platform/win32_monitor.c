@@ -13,6 +13,7 @@
  */
 
 #include "groufix/core/platform/win32.h"
+#include "groufix/core/internal.h"
 
 /******************************************************/
 unsigned int _gfx_platform_get_num_monitors(void)
@@ -78,14 +79,12 @@ int _gfx_platform_monitor_get_mode(
 	mode->refresh = dev->dmDisplayFrequency;
 
 	/* Split depth */
-	DWORD delta           = dev->dmBitsPerPel / 3;
-	mode->depth.redBits   = delta;
-	mode->depth.greenBits = delta;
-	mode->depth.blueBits  = delta;
-	delta                 = dev->dmBitsPerPel - (3 * delta);
-
-	if(delta > 0) ++mode->depth.greenBits;
-	if(delta > 1) ++mode->depth.redBits;
+	_gfx_split_depth(
+		dev->dmBitsPerPel,
+		&mode->depth.redBits,
+		&mode->depth.greenBits,
+		&mode->depth.blueBits
+	);
 
 	return 1;
 }

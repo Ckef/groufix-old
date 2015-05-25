@@ -15,6 +15,25 @@
 #include "groufix/core/memory.h"
 
 /******************************************************/
+void _gfx_split_depth(
+
+		unsigned short   depth,
+		unsigned short*  red,
+		unsigned short*  green,
+		unsigned short*  blue)
+{
+	unsigned short delta = depth / 3;
+
+	*red   = delta;
+	*green = delta;
+	*blue  = delta;
+	delta  = depth - (delta * 3);
+
+	if(delta > 0) ++(*green);
+	if(delta > 1) ++(*red);
+}
+
+/******************************************************/
 int _gfx_is_data_type_packed(
 
 		GFXDataType type)

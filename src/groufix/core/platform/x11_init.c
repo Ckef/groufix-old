@@ -14,6 +14,7 @@
 
 #include "groufix/core/platform/x11.h"
 #include "groufix/core/errors.h"
+#include "groufix/core/internal.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -132,17 +133,12 @@ static size_t _gfx_x11_init_modes(
 {
 	/* Split depth */
 	GFXColorDepth depth;
-
-	int scrDepth = XDefaultDepthOfScreen(scr);
-	int delta = scrDepth / 3;
-
-	depth.redBits   = delta;
-	depth.greenBits = delta;
-	depth.blueBits  = delta;
-	delta           = scrDepth - (3 * delta);
-
-	if(delta > 0) ++depth.greenBits;
-	if(delta > 1) ++depth.redBits;
+	_gfx_split_depth(
+		XDefaultDepthOfScreen(scr),
+		&depth.redBits,
+		&depth.greenBits,
+		&depth.blueBits
+	);
 
 	/* Reserve space for all modes */
 	size_t first = gfx_vector_get_size(&_gfx_x11->modes);
