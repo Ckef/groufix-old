@@ -22,7 +22,7 @@
 static inline void _gfx_win32_enter_fullscreen(
 
 		GFX_Win32_Monitor*  monitor,
-		const DEVMODE*      mode)
+		DEVMODE*            mode)
 {
 	ChangeDisplaySettingsEx(monitor->name, mode, NULL, CDS_FULLSCREEN, NULL);
 }

@@ -103,13 +103,12 @@ static int _gfx_win32_load_extensions(void)
 /******************************************************/
 static void _gfx_win32_init_modes(
 
-		LPCTSTR  deviceName,
-		DWORD*   num,
-		size_t*  first)
+		LPCTSTR             deviceName,
+		GFX_Win32_Monitor*  monitor)
 {
 	/* Iterate over modes */
-	*first = gfx_vector_get_size(&_gfx_win32->modes);
-	*num = 0;
+	monitor->modes = gfx_vector_get_size(&_gfx_win32->modes);
+	monitor->numModes = 0;
 
 	DEVMODE mode;
 	ZeroMemory(&mode, sizeof(DEVMODE));
@@ -119,11 +118,16 @@ static void _gfx_win32_init_modes(
 	while(EnumDisplaySettingsEx(deviceName, modeIndex++, &mode, 0))
 	{
 		/* Skip if unwanted properties or bit depth or frequency of zero */
+		/* Also check if resolution isn't too big */
 		if(
 			(mode.dmDisplayFixedOutput != DMDFO_STRETCH &&
 			(mode.dmFields & DM_DISPLAYFIXEDOUTPUT)) ||
+
 			!mode.dmBitsPerPel ||
-			!mode.dmDisplayFrequency)
+			!mode.dmDisplayFrequency ||
+
+			mode.dmPelsWidth > monitor->width ||
+			mode.dmPelsHeight > monitor->height)
 		{
 			continue;
 		}
@@ -131,15 +135,15 @@ static void _gfx_win32_init_modes(
 		/* Compare against all already found modes */
 		DEVMODE* comp;
 		for(
-			comp = gfx_vector_at(&_gfx_win32->modes, *first);
+			comp = gfx_vector_at(&_gfx_win32->modes, monitor->modes);
 			comp != _gfx_win32->modes.end;
 			comp = gfx_vector_next(&_gfx_win32->modes, comp))
 		{
 			if(
-				comp->dmPelsWidth == mode.dmPelsWidth &&
-				comp->dmPelsHeight == mode.dmPelsHeight &&
+				comp->dmBitsPerPel == mode.dmBitsPerPel &&
 				comp->dmDisplayFrequency == mode.dmDisplayFrequency &&
-				comp->dmBitsPerPel == mode.dmBitsPerPel)
+				comp->dmPelsWidth == mode.dmPelsWidth &&
+				comp->dmPelsHeight == mode.dmPelsHeight)
 			{
 				break;
 			}
@@ -152,7 +156,7 @@ static void _gfx_win32_init_modes(
 				gfx_vector_insert(&_gfx_win32->modes, &mode, _gfx_win32->modes.end);
 
 			if(it != _gfx_win32->modes.end)
-				++(*num);
+				++monitor->numModes;
 		}
 	}
 }
@@ -211,7 +215,7 @@ static int _gfx_win32_init_monitors(void)
 			mon.height = mode.dmPelsHeight;
 
 			/* Get all display modes */
-			_gfx_win32_init_modes(adapter.DeviceName, &mon.numModes, &mon.modes);
+			_gfx_win32_init_modes(adapter.DeviceName, &mon);
 
 			/* Insert at beginning if primary */
 			GFXVectorIterator monPos =
