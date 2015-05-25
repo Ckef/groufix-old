@@ -14,6 +14,8 @@
 
 #include "groufix/core/internal.h"
 
+#include <string.h>
+
 /******************************************************/
 static GFX_Pipe* _gfx_pipe_create(
 
