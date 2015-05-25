@@ -155,11 +155,15 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 
 			if(!internal) return 0;
 
-			if(internal->flags & GFX_WIN32_FULLSCREEN)
+			if(
+				(internal->flags & GFX_WIN32_FULLSCREEN) &&
+				!(internal->flags & GFX_WIN32_HIDDEN))
+			{
 				_gfx_win32_enter_fullscreen(
 					internal->monitor,
 					internal->mode
 				);
+			}
 
 			_gfx_event_window_focus(window);
 

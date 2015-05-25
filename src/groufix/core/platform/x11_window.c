@@ -32,7 +32,25 @@ static void _gfx_x11_enter_fullscreen(
 	XRRCrtcInfo* crtc =
 		XRRGetCrtcInfo(_gfx_x11->display, res, monitor->crtc);
 
-	/* Set mode and move window */
+	/* Above state */
+	XEvent event;
+	memset(&event, 0, sizeof(XEvent));
+
+	event.type                 = ClientMessage;
+	event.xclient.window       = handle;
+	event.xclient.message_type = _gfx_x11->NET_WM_STATE;
+	event.xclient.format       = 32;
+	event.xclient.data.l[0]    = 1;
+	event.xclient.data.l[1]    = _gfx_x11->NET_WM_STATE_ABOVE;
+
+	/* Send event, set mode and move window */
+	XSendEvent(
+		_gfx_x11->display,
+		root,
+		False,
+		SubstructureRedirectMask | SubstructureNotifyMask,
+		&event);
+
 	XRRSetCrtcConfig(
 		_gfx_x11->display,
 		res,
@@ -58,10 +76,31 @@ static void _gfx_x11_enter_fullscreen(
 /******************************************************/
 static inline void _gfx_x11_leave_fullscreen(
 
-		GFX_X11_Monitor*  monitor,
-		Window            handle)
+		GFX_X11_Monitor* monitor)
 {
-	_gfx_x11_enter_fullscreen(monitor, handle, monitor->mode);
+	Window root =
+		XRootWindowOfScreen(monitor->screen);
+	XRRScreenResources* res =
+		XRRGetScreenResources(_gfx_x11->display, root);
+	XRRCrtcInfo* crtc =
+		XRRGetCrtcInfo(_gfx_x11->display, res, monitor->crtc);
+
+	/* Set mode */
+	XRRSetCrtcConfig(
+		_gfx_x11->display,
+		res,
+		monitor->crtc,
+		crtc->timestamp,
+		crtc->x,
+		crtc->y,
+		monitor->mode,
+		crtc->rotation,
+		crtc->outputs,
+		crtc->noutput
+	);
+
+	XRRFreeCrtcInfo(crtc);
+	XRRFreeScreenResources(res);
 }
 
 /******************************************************/
@@ -160,14 +199,51 @@ static void _gfx_x11_event_proc(
 		/* Focus */
 		case FocusIn :
 		{
+			/* Enter fullscreen */
+			GFX_X11_Window* internal =
+				_gfx_x11_get_window_from_handle(event->xany.window);
+
+			if(!internal) break;
+
+			if(
+				(internal->flags & GFX_X11_FULLSCREEN) &&
+				!(internal->flags & GFX_X11_HIDDEN))
+			{
+				_gfx_x11_enter_fullscreen(
+					internal->monitor,
+					event->xany.window,
+					internal->mode
+				);
+			}
+
 			_gfx_event_window_focus(window);
+
 			break;
 		}
 
 		/* Blur */
 		case FocusOut :
 		{
+			/* Leave fullscreen */
+			GFX_X11_Window* internal =
+				_gfx_x11_get_window_from_handle(event->xany.window);
+
+			if(!internal) break;
+
+			if(internal->flags & GFX_X11_FULLSCREEN)
+			{
+				_gfx_x11_leave_fullscreen(internal->monitor);
+
+				if(!(internal->flags & GFX_X11_HIDDEN))
+					XIconifyWindow(
+						_gfx_x11->display,
+						event->xany.window,
+						XScreenNumberOfScreen(internal->monitor->screen)
+					);
+			}
+
 			_gfx_event_window_blur(window);
+
 			break;
 		}
 
@@ -343,6 +419,9 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	window.flags |=
 		attributes->flags & GFX_WINDOW_RESIZABLE ?
 		GFX_X11_RESIZABLE : 0;
+	window.flags |=
+		attributes->flags & GFX_WINDOW_HIDDEN ?
+		GFX_X11_HIDDEN : 0;
 
 	/* Get display mode & position */
 	GFXDisplayMode mode;
@@ -457,7 +536,19 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		window.width  = get.width;
 		window.height = get.height;
 
-		/* Disable decorations & set protocols */
+		/* Delete protocol & name */
+		XSetWMProtocols(
+			_gfx_x11->display,
+			window.handle,
+			&_gfx_x11->WM_DELETE_WINDOW,
+			1);
+
+		XStoreName(
+			_gfx_x11->display,
+			window.handle,
+			attributes->name);
+
+		/* Disable decorations */
 		if(mask & CWBorderPixel)
 		{
 			unsigned long hints[5];
@@ -475,34 +566,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 				5);
 		}
 
-		XSetWMProtocols(
-			_gfx_x11->display,
-			window.handle,
-			&_gfx_x11->WM_DELETE_WINDOW,
-			1);
-
-		XStoreName(
-			_gfx_x11->display,
-			window.handle,
-			attributes->name);
-
-		/* Make it visible */
-		if(!(attributes->flags & GFX_WINDOW_HIDDEN))
-			XMapWindow(_gfx_x11->display, window.handle);
-
-		/* Bypass compositor & set above state */
+		/* Bypass compositor */
 		if(attributes->flags & GFX_WINDOW_FULLSCREEN)
 		{
-			XEvent event;
-			memset(&event, 0, sizeof(XEvent));
 			unsigned long bypass = 1;
-
-			event.type                 = ClientMessage;
-			event.xclient.window       = window.handle;
-			event.xclient.message_type = _gfx_x11->NET_WM_STATE;
-			event.xclient.format       = 32;
-			event.xclient.data.l[0]    = 1;
-			event.xclient.data.l[1]    = _gfx_x11->NET_WM_STATE_ABOVE;
 
 			XChangeProperty(
 				_gfx_x11->display,
@@ -512,14 +579,8 @@ GFX_PlatformWindow _gfx_platform_window_create(
 				32,
 				PropModeReplace,
 				(unsigned char*)&bypass,
-				1);
-
-			XSendEvent(
-				_gfx_x11->display,
-				get.root,
-				False,
-				SubstructureRedirectMask | SubstructureNotifyMask,
-				&event);
+				1
+			);
 		}
 
 		/* Set size hints */
@@ -547,17 +608,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 		if(it != _gfx_x11->windows.end)
 		{
-			/* Enter fullscreen */
-			if(
-				(attributes->flags & GFX_WINDOW_FULLSCREEN) &&
-				!(attributes->flags & GFX_WINDOW_HIDDEN))
-			{
-				_gfx_x11_enter_fullscreen(
-					window.monitor,
-					window.handle,
-					window.mode
-				);
-			}
+			/* Make it visible */
+			/* Triggers FocusIn event for fullscreen */
+			if(!(attributes->flags & GFX_WINDOW_HIDDEN))
+				XMapWindow(_gfx_x11->display, window.handle);
 
 			return GFX_UINT_TO_VOID(window.handle);
 		}
@@ -586,7 +640,7 @@ void _gfx_platform_window_free(
 
 		/* Make sure to undo fullscreen */
 		if(it->flags & GFX_X11_FULLSCREEN)
-			_gfx_x11_leave_fullscreen(it->monitor, GFX_VOID_TO_UINT(handle));
+			_gfx_x11_leave_fullscreen(it->monitor);
 
 		/* Destroy context, the window and its colormap */
 		_gfx_platform_context_clear(handle);
@@ -753,18 +807,12 @@ void _gfx_platform_window_show(
 
 	if(internal)
 	{
+		internal->flags &= ~GFX_X11_HIDDEN;
+
 		XMapWindow(
 			_gfx_x11->display,
 			GFX_VOID_TO_UINT(handle)
 		);
-
-		/* Also enter fullscreen */
-		if(internal->flags & GFX_X11_FULLSCREEN)
-			_gfx_x11_enter_fullscreen(
-				internal->monitor,
-				GFX_VOID_TO_UINT(handle),
-				internal->mode
-			);
 	}
 }
 
@@ -778,17 +826,12 @@ void _gfx_platform_window_hide(
 
 	if(internal)
 	{
+		internal->flags |= GFX_X11_HIDDEN;
+
 		XUnmapWindow(
 			_gfx_x11->display,
 			GFX_VOID_TO_UINT(handle)
 		);
-
-		/* Also leave fullscreen */
-		if(internal->flags & GFX_X11_FULLSCREEN)
-			_gfx_x11_leave_fullscreen(
-				internal->monitor,
-				GFX_VOID_TO_UINT(handle)
-			);
 	}
 }
 

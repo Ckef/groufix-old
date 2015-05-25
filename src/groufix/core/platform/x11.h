@@ -81,7 +81,8 @@ typedef struct GFX_X11_Extensions
 typedef enum GFX_X11_Flags
 {
 	GFX_X11_FULLSCREEN  = 0x01,
-	GFX_X11_RESIZABLE   = 0x02
+	GFX_X11_RESIZABLE   = 0x02,
+	GFX_X11_HIDDEN      = 0x04
 
 } GFX_X11_Flags;
 
