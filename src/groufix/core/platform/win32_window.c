@@ -527,18 +527,19 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		/* Display mode */
 		window.flags |= GFX_WIN32_FULLSCREEN;
 
-		GFXDisplayMode mode;
-
-		_gfx_platform_monitor_get_mode(
-			window.monitor, attributes->mode, &mode);
 		window.mode = gfx_vector_at(
-			&_gfx_win32->modes, window.monitor->modes + attributes->mode);
+			&_gfx_win32->modes,
+			window.monitor->modes + attributes->mode);
 
-		depth = mode.depth;
+		_gfx_split_depth(
+			window.mode->dmBitPerPel,
+			&depth.redBits,
+			&depth.greenBits,
+			&depth.blueBits);
 
 		/* Style and rectangle */
-		rect.right = mode.width;
-		rect.bottom = mode.height;
+		rect.right = window.mode->dmPelsWidth;
+		rect.bottom = window.mode->dmPelsHeight;
 
 		styleEx |= WS_EX_TOPMOST;
 		style |= WS_POPUP;

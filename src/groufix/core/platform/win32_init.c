@@ -215,11 +215,12 @@ static int _gfx_win32_init_monitors(void)
 
 			/* Insert at beginning if primary */
 			GFXVectorIterator monPos =
-				(adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) &&
-				monitorIndex == 0 ?
+				(adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) ?
 				_gfx_win32->monitors.begin : _gfx_win32->monitors.end;
 
 			gfx_vector_insert(&_gfx_win32->monitors, &mon, monPos);
+
+			break;
 		}
 	}
 
