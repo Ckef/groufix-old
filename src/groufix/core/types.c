@@ -14,6 +14,35 @@
 
 #include "groufix/core/memory.h"
 
+#include <string.h>
+
+/******************************************************/
+int _gfx_contains_string(
+
+		const char*  haystack,
+		const char*  needle)
+{
+	/* Get needle length */
+	size_t len = strlen(needle);
+	if(!haystack || !len) return 0;
+
+	/* Try to find a complete match */
+	char* found = strstr(haystack, needle);
+	while(found)
+	{
+		char* end = found + len;
+		if(
+			(*end == ' ' || *end == '\0') &&
+			(found == haystack || *(found - 1) == ' '))
+		{
+			return 1;
+		}
+		found = strstr(end, needle);
+	}
+
+	return 0;
+}
+
 /******************************************************/
 void _gfx_split_depth(
 

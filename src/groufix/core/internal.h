@@ -226,8 +226,21 @@ void _gfx_event_mouse_wheel(
 
 
 /********************************************************
- * Datatype helpers
+ * Data & type helpers
  *******************************************************/
+
+/**
+ * Finds a string in a longer, null-terminated, space-separated string.
+ *
+ * @param haystack Null-terminated, space-separated string to search in (can be NULL).
+ * @param needle   String to find (cannot be NULL).
+ * @return Non-zero if it was found.
+ *
+ */
+int _gfx_contains_string(
+
+		const char*  haystack,
+		const char*  needle);
 
 /**
  * Splits depth into 3 channels.

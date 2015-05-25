@@ -14,9 +14,9 @@
 
 #include "groufix/core/platform/win32.h"
 #include "groufix/core/errors.h"
+#include "groufix/core/internal.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 /******************************************************/
 /* Instance */
@@ -24,33 +24,12 @@ GFX_Win32_Instance* _gfx_win32 = NULL;
 
 
 /******************************************************/
-static int _gfx_win32_is_extension_supported(
+static inline int _gfx_win32_is_extension_supported(
 
 		const char*  ext)
 {
-	/* Get extensions */
-	const char* extensions =
-		_gfx_win32->extensions.GetExtensionsStringARB(GetDC(NULL));
-
-	/* Get extension length */
-	size_t len = strlen(ext);
-	if(!extensions || !len) return 0;
-
-	/* Try to find a complete match */
-	char* found = strstr(extensions, ext);
-	while(found)
-	{
-		char* end = found + len;
-		if(*end == ' ' || *end == '\0')
-		{
-			/* To avoid segfault */
-			if(found == extensions) return 1;
-			if(*(found - 1) == ' ') return 1;
-		}
-		found = strstr(end, ext);
-	}
-
-	return 0;
+	return _gfx_contains_string(
+		_gfx_win32->extensions.GetExtensionsStringARB(GetDC(NULL)), ext);
 }
 
 /******************************************************/
