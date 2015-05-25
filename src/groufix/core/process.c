@@ -227,7 +227,16 @@ GFXPipeProcess _gfx_pipe_process_create(
 		return NULL;
 	}
 
-	proc->target = (GFX_Window*)target;
+	/* Create vector if it doesn't exist yet */
+	if(!_gfx_pipes)
+	{
+		_gfx_pipes = gfx_vector_create(sizeof(GFXPipeProcess));
+		if(!_gfx_pipes)
+		{
+			free(proc);
+			return NULL;
+		}
+	}
 
 	/* Create context-bound objects */
 	if(target)
@@ -238,44 +247,41 @@ GFXPipeProcess _gfx_pipe_process_create(
 			&proc->viewport.height
 		);
 
+		proc->target = (GFX_Window*)target;
 		proc->swap = swap ? 1 : 0;
+
 		_gfx_window_make_current(proc->target);
 	}
 
 	proc->progs = gfx_program_map_create();
 
-	/* Create vector if it doesn't exist yet */
-	if(!_gfx_pipes)
+	if(proc->progs)
 	{
-		_gfx_pipes = gfx_vector_create(sizeof(GFXPipeProcess));
-		if(!_gfx_pipes)
+		/* Try to insert */
+		GFXVectorIterator it = gfx_vector_insert(
+			_gfx_pipes,
+			&proc,
+			_gfx_pipes->end
+		);
+
+		if(it == _gfx_pipes->end)
 		{
+			if(_gfx_pipes->begin == _gfx_pipes->end)
+			{
+				gfx_vector_free(_gfx_pipes);
+				_gfx_pipes = NULL;
+			}
+
 			gfx_program_map_free(proc->progs);
 			free(proc);
 
-			return NULL;
+			proc = NULL;
 		}
 	}
-
-	/* Try to insert */
-	GFXVectorIterator it = gfx_vector_insert(
-		_gfx_pipes,
-		&proc,
-		_gfx_pipes->end
-	);
-
-	if(it == _gfx_pipes->end)
+	else
 	{
-		if(_gfx_pipes->begin == _gfx_pipes->end)
-		{
-			gfx_vector_free(_gfx_pipes);
-			_gfx_pipes = NULL;
-		}
-
-		gfx_program_map_free(proc->progs);
 		free(proc);
-
-		return NULL;
+		proc = NULL;
 	}
 
 	/* Back to previous context */
@@ -414,7 +420,8 @@ GFXPropertyMap* gfx_pipe_process_get_map(
 		GFX_WIND_INIT(NULL);
 
 		/* Make the target current so the program map will block properly */
-		_gfx_window_make_current(internal->target);
+		if(internal->target)
+			_gfx_window_make_current(internal->target);
 
 		/* And create the property map */
 		internal->map = gfx_property_map_create(

@@ -453,7 +453,7 @@ GFXPipe* gfx_pipeline_push_bucket(
 {
 	/* Create the pipe and push it */
 	GFX_Pipe* pipe = _gfx_pipe_create_bucket(pipeline, bits);
-	if(!pipe) return 0;
+	if(!pipe) return NULL;
 
 	_gfx_pipeline_push_pipe(pipe);
 
@@ -469,7 +469,7 @@ GFXPipe* gfx_pipeline_push_process(
 {
 	/* Create the pipe and push it */
 	GFX_Pipe* pipe = _gfx_pipe_create_process(pipeline, target, swap);
-	if(!pipe) return 0;
+	if(!pipe) return NULL;
 
 	_gfx_pipeline_push_pipe(pipe);
 

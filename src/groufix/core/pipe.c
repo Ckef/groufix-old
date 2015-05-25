@@ -22,9 +22,9 @@ static GFX_Pipe* _gfx_pipe_create(
 {
 	/* Create the pipe */
 	GFX_Pipe* pipe = (GFX_Pipe*)gfx_list_create(sizeof(GFX_Pipe));
-
 	if(!pipe) return NULL;
 
+	memset(pipe, 0, sizeof(GFX_Pipe));
 	pipe->type = type;
 	pipe->pipeline = pipeline;
 
@@ -48,7 +48,7 @@ GFX_Pipe* _gfx_pipe_create_bucket(
 	if(!bucket)
 	{
 		_gfx_pipe_free((GFX_Pipe*)pipe);
-		return 0;
+		return NULL;
 	}
 	pipe->ptr.bucket = bucket;
 
@@ -70,7 +70,7 @@ GFX_Pipe* _gfx_pipe_create_process(
 	if(!process)
 	{
 		_gfx_pipe_free((GFX_Pipe*)pipe);
-		return 0;
+		return NULL;
 	}
 	pipe->ptr.process = process;
 
