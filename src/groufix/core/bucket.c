@@ -48,6 +48,7 @@ typedef void (*GFX_DrawFunc)(
 		size_t,
 		unsigned int,
 		unsigned int,
+		unsigned int,
 		GFX_WIND_ARG);
 
 
@@ -84,6 +85,7 @@ typedef struct GFX_Ref
 	size_t                 instances;
 	unsigned int           instanceBase;
 	unsigned int           vertexBase;
+	unsigned int           indexBase;
 
 } GFX_Ref;
 
@@ -116,6 +118,7 @@ static void _gfx_draw(
 		size_t                  inst,
 		unsigned int            instBase,
 		unsigned int            vertBase,
+		unsigned int            indBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawArrays(
@@ -132,6 +135,7 @@ static void _gfx_draw_instanced(
 		size_t                  inst,
 		unsigned int            instBase,
 		unsigned int            vertBase,
+		unsigned int            indBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawArraysInstanced(
@@ -149,6 +153,7 @@ static void _gfx_draw_instanced_base(
 		size_t                  inst,
 		unsigned int            instBase,
 		unsigned int            vertBase,
+		unsigned int            indBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawArraysInstancedBaseInstance(
@@ -167,13 +172,14 @@ static void _gfx_draw_indexed(
 		size_t                  inst,
 		unsigned int            instBase,
 		unsigned int            vertBase,
+		unsigned int            indBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElements(
 		src->primitive,
 		src->count,
 		src->indexType,
-		(GLvoid*)src->first
+		(GLvoid*)(src->first + indBase)
 	);
 }
 
@@ -184,13 +190,14 @@ static void _gfx_draw_indexed_instanced(
 		size_t                  inst,
 		unsigned int            instBase,
 		unsigned int            vertBase,
+		unsigned int            indBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstanced(
 		src->primitive,
 		src->count,
 		src->indexType,
-		(GLvoid*)src->first,
+		(GLvoid*)(src->first + indBase),
 		inst
 	);
 }
@@ -202,13 +209,14 @@ static void _gfx_draw_indexed_instanced_base(
 		size_t                  inst,
 		unsigned int            instBase,
 		unsigned int            vertBase,
+		unsigned int            indBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseInstance(
 		src->primitive,
 		src->count,
 		src->indexType,
-		(GLvoid*)src->first,
+		(GLvoid*)(src->first + indBase),
 		inst,
 		instBase
 	);
@@ -221,13 +229,14 @@ static void _gfx_draw_indexed_vertex_base(
 		size_t                  inst,
 		unsigned int            instBase,
 		unsigned int            vertBase,
+		unsigned int            indBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsBaseVertex(
 		src->primitive,
 		src->count,
 		src->indexType,
-		(GLvoid*)src->first,
+		(GLvoid*)(src->first + indBase),
 		vertBase
 	);
 }
@@ -239,13 +248,14 @@ static void _gfx_draw_indexed_instanced_vertex_base(
 		size_t                  inst,
 		unsigned int            instBase,
 		unsigned int            vertBase,
+		unsigned int            indBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseVertex(
 		src->primitive,
 		src->count,
 		src->indexType,
-		(GLvoid*)src->first,
+		(GLvoid*)(src->first + indBase),
 		inst,
 		vertBase
 	);
@@ -258,13 +268,14 @@ static void _gfx_draw_indexed_instanced_base_vertex_base(
 		size_t                  inst,
 		unsigned int            instBase,
 		unsigned int            vertBase,
+		unsigned int            indBase,
 		GFX_WIND_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseVertexBaseInstance(
 		src->primitive,
 		src->count,
 		src->indexType,
-		(GLvoid*)src->first,
+		(GLvoid*)(src->first + indBase),
 		inst,
 		vertBase,
 		instBase
@@ -317,6 +328,7 @@ static void _gfx_bucket_invoke(
 		ref->instances,
 		ref->instanceBase,
 		ref->vertexBase,
+		ref->indexBase,
 		GFX_WIND_AS_ARG
 	);
 }
@@ -1017,6 +1029,24 @@ unsigned int gfx_bucket_get_vertex_base(
 }
 
 /******************************************************/
+unsigned int gfx_bucket_get_index_base(
+
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit)
+{
+	const GFX_Ref* ref =
+		gfx_vector_at(&((const GFX_Bucket*)bucket)->refs, unit - 1);
+	const GFX_Source* src =
+		gfx_vector_at(&((const GFX_Bucket*)bucket)->sources, ref->src);
+
+	GFXDataType type;
+	type.unpacked = src->source.indexType;
+	unsigned char size = _gfx_sizeof_data_type(type);
+
+	return ref->indexBase / size;
+}
+
+/******************************************************/
 GFXUnitState gfx_bucket_get_state(
 
 		const GFXBucket*  bucket,
@@ -1097,6 +1127,25 @@ void gfx_bucket_set_vertex_base(
 
 	ref->vertexBase = base;
 	_gfx_bucket_set_draw_type(ref);
+}
+
+/******************************************************/
+void gfx_bucket_set_index_base(
+
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		unsigned int   base)
+{
+	GFX_Ref* ref =
+		gfx_vector_at(&((GFX_Bucket*)bucket)->refs, unit - 1);
+	GFX_Source* src =
+		gfx_vector_at(&((GFX_Bucket*)bucket)->sources, ref->src);
+
+	GFXDataType type;
+	type.unpacked = src->source.indexType;
+	unsigned char size = _gfx_sizeof_data_type(type);
+
+	ref->indexBase = base * size;
 }
 
 /******************************************************/

@@ -160,6 +160,15 @@ GFX_API unsigned int gfx_bucket_get_vertex_base(
 		GFXBucketUnit     unit);
 
 /**
+ * Returns the starting index offset.
+ *
+ */
+GFX_API unsigned int gfx_bucket_get_index_base(
+
+		const GFXBucket*  bucket,
+		GFXBucketUnit     unit);
+
+/**
  * Returns the bits to sort on of the state associated with a unit.
  *
  */
@@ -220,6 +229,16 @@ GFX_API void gfx_bucket_set_instance_base(
  *
  */
 GFX_API void gfx_bucket_set_vertex_base(
+
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit,
+		unsigned int   base);
+
+/**
+ * Sets the starting index offset.
+ *
+ */
+GFX_API void gfx_bucket_set_index_base(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
