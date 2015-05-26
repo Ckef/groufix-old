@@ -188,6 +188,7 @@ static char* _gfx_shader_parse(
 		size_t          num,
 		const char**    src,
 		const int*      lens,
+		GLint*          len,
 		GFX_WIND_ARG)
 {
 	/* Say what now? */
@@ -239,10 +240,10 @@ static char* _gfx_shader_parse(
 	if(ver >= num) total += strlen(verStr);
 	if(hasOut) total += strlen(outStr);
 
-	char* shader = malloc(sizeof(char) * (total + 1));
+	char* shader = malloc(sizeof(char) * total);
 	if(!shader) return NULL;
 
-	shader[total] = '\0';
+	*len = total;
 
 	/* Keep track of where we're copying */
 	i = 0;
@@ -418,11 +419,13 @@ int gfx_shader_set_source(
 	GFX_WIND_INIT(0);
 
 	/* Parse source */
+	GLint len;
 	char* source = _gfx_shader_parse(
 		shader->stage,
 		num,
 		src,
 		lens,
+		&len,
 		GFX_WIND_AS_ARG
 	);
 
@@ -433,7 +436,7 @@ int gfx_shader_set_source(
 		((GFX_Shader*)shader)->handle,
 		1,
 		(const char**)&source,
-		NULL
+		(const GLint*)&len
 	);
 
 	shader->compiled = 0;
