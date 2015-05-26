@@ -207,7 +207,7 @@ static char* _gfx_shader_parse(
 	}
 
 	/* Attempt to find version */
-	const char* verStr =NULL;
+	const char* verStr = NULL;
 	size_t ver = 0;
 
 	for(ver = 0; ver < num; ++ver)
@@ -226,17 +226,16 @@ static char* _gfx_shader_parse(
 	}
 
 	/* Reconstruct the source */
-	/* Firstly recalculate total length though */
+	/* We do this by simply copying the right sources in the right order */
 	/* Also check whether outputs need to be redefined */
 	unsigned char hasOut =
 		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] &&
 		stage == GFX_VERTEX_SHADER;
 
 	const char* outStr =
-		"out vec4 gl_Position;"
-		"out float gl_PointSize;"
-		"out float gl_ClipDistance[];";
+		"out vec4 gl_Position;";
 
+	/* Firstly recalculate total length */
 	if(ver >= num) total += strlen(verStr);
 	if(hasOut) total += strlen(outStr);
 
@@ -279,7 +278,7 @@ static char* _gfx_shader_parse(
 
 	if(hasOut)
 	{
-		/* Copy new vertex output built-ins */
+		/* Copy outputs */
 		size_t l = strlen(outStr);
 		memcpy(shader + total, outStr, sizeof(char) * l);
 		total += l;
