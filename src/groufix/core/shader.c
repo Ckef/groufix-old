@@ -29,7 +29,8 @@ static const char* _gfx_glsl_versions[] =
 	"#version 410\n",
 	"#version 420\n",
 	"#version 430\n",
-	"#version 440\n"
+	"#version 440\n",
+	"#version 450\n"
 };
 
 
@@ -128,6 +129,7 @@ static inline const char* _gfx_shader_get_glsl(
 			case 2 : return _gfx_glsl_versions[6];
 			case 3 : return _gfx_glsl_versions[7];
 			case 4 : return _gfx_glsl_versions[8];
+			case 5 : return _gfx_glsl_versions[9];
 			default : return NULL;
 		}
 
