@@ -115,6 +115,15 @@ GFX_API GFXBucketUnit gfx_bucket_insert(
 		int                    visible);
 
 /**
+ * Erases and frees a unit from its bucket.
+ *
+ */
+GFX_API void gfx_bucket_erase(
+
+		GFXBucket*     bucket,
+		GFXBucketUnit  unit);
+
+/**
  * Returns the index of the copy of the property map in use.
  *
  */
@@ -145,7 +154,7 @@ GFX_API unsigned int gfx_bucket_get_instance_base(
  * Returns the starting vertex offset.
  *
  */
-GFX_API int gfx_bucket_get_vertex_base(
+GFX_API unsigned int gfx_bucket_get_vertex_base(
 
 		const GFXBucket*  bucket,
 		GFXBucketUnit     unit);
@@ -214,12 +223,12 @@ GFX_API void gfx_bucket_set_vertex_base(
 
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
-		int            base);
+		unsigned int   base);
 
 /**
  * Sets the bits to sort on of the state to associate a unit with.
  *
- * Note: 2 MSB bits are ignored as they're used internally.
+ * Note: some MSB bits are ignored as they're used internally.
  *
  */
 GFX_API void gfx_bucket_set_state(
@@ -239,15 +248,6 @@ GFX_API void gfx_bucket_set_visible(
 		GFXBucket*     bucket,
 		GFXBucketUnit  unit,
 		int            visible);
-
-/**
- * Erases and frees a unit from its bucket.
- *
- */
-GFX_API void gfx_bucket_erase(
-
-		GFXBucket*     bucket,
-		GFXBucketUnit  unit);
 
 
 /********************************************************
