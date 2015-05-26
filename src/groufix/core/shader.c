@@ -182,45 +182,54 @@ static const char* _gfx_shader_find(
 }
 
 /******************************************************/
-static int _gfx_shader_parse(
+static char* _gfx_shader_parse(
 
 		GFXShaderStage  stage,
-		size_t*         count,
-		char***         strings,
-		GLint**         lengths,
+		size_t          num,
+		const char**    src,
+		const int*      lens,
 		GFX_WIND_ARG)
 {
-	/* Eeeeh? */
-	if(!*count) return 0;
+	/* Say what now? */
+	if(!num) return NULL;
+
+	/* Get all lengths and total length */
+	size_t lengths[num];
+	size_t total = 0;
+
+	size_t i;
+	for(i = 0; i < num; ++i)
+	{
+		if(lens && lens[i] >= 0) lengths[i] = lens[i];
+		else lengths[i] = strlen(src[i]);
+
+		total += lengths[i];
+	}
 
 	/* Check whether outputs need to be redefined */
 	unsigned char hasOut =
 		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] &&
 		stage == GFX_VERTEX_SHADER;
 
-	/* First attempt to find version and/or per vertex built-ins */
-	/* Note this function assumes all lengths are >= 0 */
-	size_t ver;
+	/* Attempt to find version and/or per vertex built-ins */
+	size_t ver = 0;
 	size_t out = 0;
+
 	const char* verStr = NULL;
+	const char* outStr =
+		"out gl_PerVertex{"
+		"vec4 gl_Position;"
+		"float gl_PointSize;"
+		"float gl_ClipDistance[];"
+		"};";
 
-	for(ver = 0; ver < *count; ++ver)
-		if((verStr = _gfx_shader_find(
-			(*strings)[ver],
-			"#version",
-			(*lengths)[ver]))) break;
+	for(ver = 0; ver < num; ++ver)
+		if((verStr = _gfx_shader_find(src[ver], "#version", lengths[ver])))
+			break;
 
-	if(hasOut) for(out = 0; out < *count; ++out)
-		if(_gfx_shader_find(
-			(*strings)[out],
-			"gl_PerVertex",
-			(*lengths)[out])) break;
-
-	/* Calculate number of strings to insert */
-	size_t strs = (out >= *count) ? 2 : (!verStr ? 1 : 0);
-
-	/* Done. */
-	if(!strs) return 1;
+	if(hasOut) for(out = 0; out < num; ++out)
+		if(_gfx_shader_find(src[out], "gl_PerVertex", lengths[out]))
+			break;
 
 	/* Get version string */
 	if(!verStr)
@@ -233,88 +242,74 @@ static int _gfx_shader_parse(
 		if(!verStr) return 0;
 	}
 
-	/* Allocate more space */
-	size_t newCount = *count + strs;
-	char** newStrings = malloc(sizeof(char*) * newCount);
-	GLint* newLengths = malloc(sizeof(GLint) * newCount);
+	/* Reconstruct the source */
+	/* Firstly recalculate total length though */
+	if(ver >= num) total += strlen(verStr);
+	if(out >= num) total += strlen(outStr);
 
-	if(!newStrings || !newLengths)
+	char* shader = malloc(sizeof(char) * (total + 1));
+	if(!shader) return NULL;
+
+	shader[total] = '\0';
+
+	/* Keep track of where we're copying */
+	i = 0;
+	size_t offset = 0;
+	total = 0;
+
+	if(ver >= num)
 	{
-		free(newStrings);
-		free(newLengths);
-
-		return 0;
+		/* Copy new version */
+		size_t l = strlen(verStr);
+		memcpy(shader + total, verStr, sizeof(char) * l);
+		total += l;
 	}
-
-	/* Copy all data */
-	memcpy(newStrings + strs, *strings, sizeof(char*) * (*count));
-	memcpy(newLengths + strs, *lengths, sizeof(GLint) * (*count));
-
-	if(ver >= *count)
+	else
 	{
-		/* Insert new version string */
-		newLengths[0] = -1;
-		newStrings[0] = (char*)verStr;
-	}
-	if(out >= *count)
-	{
-		/* Extract the version string */
-		if(ver < *count)
+		/* Copy up until existing version */
+		while(i < ver)
 		{
-			/* Move everything up to version back to start */
-			memmove(
-				newStrings,
-				newStrings + strs,
-				sizeof(char*) * (ver + 1));
+			offset = lengths[i];
+			memcpy(shader + total, src[i], sizeof(char) * offset);
+			total += offset;
 
-			memmove(
-				newLengths,
-				newLengths + strs,
-				sizeof(GLint) * (ver + 1));
-
-			/* Get the index of everything after the version directive */
-			size_t len =
-				GFX_PTR_DIFF(newStrings[ver], verStr) / sizeof(char);
-
-			size_t spn;
-			for(spn = 0; len < newLengths[ver]; ++len)
-				if(verStr[spn++] == '\n')
-				{
-					++len;
-					break;
-				}
-
-			/* And now move everything after it to a new position */
-			newStrings[ver + 2] = newStrings[ver] + len;
-			newLengths[ver + 2] = newLengths[ver] - len;
-			newLengths[ver] = len;
-
-			out = ver + 1;
+			++i;
 		}
-		else out = 1;
 
-		/* Insert per vertex output */
-		newLengths[out] = -1;
-		newStrings[out] =
-			"out gl_PerVertex{"
-			"vec4 gl_Position;"
-			"float gl_PointSize;"
-			"float gl_ClipDistance[];"
-			"};"
-			"\n";
+		/* Copy existing version */
+		offset = GFX_PTR_DIFF(src[i], verStr) / sizeof(char);
+		while(offset < lengths[i]) if(src[i][offset++] == '\n') break;
+
+		memcpy(shader + total, src[i], sizeof(char) * offset);
+		total += offset;
 	}
 
-	/* Copy new data */
-	free(*strings);
-	free(*lengths);
+	if(out >= num)
+	{
+		/* Copy new vertex output built-ins */
+		size_t l = strlen(outStr);
+		memcpy(shader + total, outStr, sizeof(char) * l);
+		total += l;
+	}
 
-	*count = newCount;
-	*strings = newStrings;
-	*lengths = newLengths;
+	if(offset < lengths[i])
+	{
+		/* Copy remaining parts after existing version */
+		size_t l = lengths[i] - offset;
+		memcpy(shader + total, src[i] + offset, sizeof(char) * l);
+		total += l;
+	}
 
-	return 1;
+	/* Copy remaining sources */
+	while(++i < num)
+	{
+		offset = lengths[i];
+		memcpy(shader + total, src[i], sizeof(char) * offset);
+		total += offset;
+	}
+
+	return shader;
 }
-
 
 /******************************************************/
 static void _gfx_shader_obj_free(
@@ -430,56 +425,29 @@ int gfx_shader_set_source(
 {
 	GFX_WIND_INIT(0);
 
-	/* Allocate new arrays */
-	char** strings = malloc(sizeof(char*) * num);
-	GLint* lengths = malloc(sizeof(GLint) * num);
+	/* Parse source */
+	char* source = _gfx_shader_parse(
+		shader->stage,
+		num,
+		src,
+		lens,
+		GFX_WIND_AS_ARG
+	);
 
-	if(strings && lengths)
-	{
-		/* Fill with data */
-		/* Find out length of all strings as parse assumes them to be >= 0 */
-		memcpy(strings, src, sizeof(char*) * num);
+	if(!source) return 0;
 
-		size_t n;
-		if(lens) for(n = 0; n < num; ++n)
-			lengths[n] = lens[n];
+	/* Set source */
+	GFX_REND_GET.ShaderSource(
+		((GFX_Shader*)shader)->handle,
+		1,
+		(const char**)&source,
+		NULL
+	);
 
-		else for(n = 0; n < num; ++n)
-			lengths[n] = -1;
+	shader->compiled = 0;
+	free(source);
 
-		for(n = 0; n < num; ++n)
-			if(lengths[n] < 0) lengths[n] = strlen(src[n]);
-
-		/* Parse source */
-		if(_gfx_shader_parse(
-			shader->stage,
-			&num,
-			&strings,
-			&lengths,
-			GFX_WIND_AS_ARG))
-		{
-			/* Set source */
-			GFX_REND_GET.ShaderSource(
-				((GFX_Shader*)shader)->handle,
-				num,
-				(const GLchar**)strings,
-				(const GLint*)lengths
-			);
-
-			shader->compiled = 0;
-
-			free(strings);
-			free(lengths);
-
-			return 1;
-		}
-	}
-
-	/* Failed */
-	free(strings);
-	free(lengths);
-
-	return 0;
+	return 1;
 }
 
 /******************************************************/
@@ -507,7 +475,7 @@ char* gfx_shader_get_source(
 	}
 
 	/* Get actual source */
-	char* buff = malloc(len);
+	char* buff = malloc(sizeof(char) * len);
 	GFX_REND_GET.GetShaderSource(
 		internal->handle,
 		len,
