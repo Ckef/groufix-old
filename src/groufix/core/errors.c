@@ -13,7 +13,7 @@
  */
 
 #include "groufix/core/errors.h"
-#include "groufix/containers/deque.h"
+#include "groufix/core/renderer.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -41,8 +41,34 @@ static GFXDeque* _gfx_errors = NULL;
 
 
 /******************************************************/
+static void _gfx_errors_poll(void)
+{
+	GFX_WIND_INIT();
+
+	/* Ignore error mode if debugging */
+#ifdef NDEBUG
+	if(_gfx_error_mode == GFX_ERROR_MODE_DEBUG)
+	{
+#endif
+
+		/* Loop over all errors */
+		GLenum err = GFX_REND_GET.GetError();
+		while(err != GL_NO_ERROR)
+		{
+			gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
+			err = GFX_REND_GET.GetError();
+		}
+
+#ifdef NDEBUG
+	}
+#endif
+}
+
+/******************************************************/
 static GFX_Error* _gfx_errors_last(void)
 {
+	_gfx_errors_poll();
+
 	if(!_gfx_errors) return NULL;
 
 	if(_gfx_errors->begin == _gfx_errors->end) return NULL;
@@ -58,14 +84,10 @@ void gfx_set_error_mode(
 }
 
 /******************************************************/
-GFXErrorMode gfx_get_error_mode(void)
-{
-	return _gfx_error_mode;
-}
-
-/******************************************************/
 unsigned int gfx_get_num_errors(void)
 {
+	_gfx_errors_poll();
+
 	if(!_gfx_errors) return 0;
 	return gfx_deque_get_size(_gfx_errors);
 }
@@ -89,6 +111,8 @@ int gfx_errors_find(
 
 		GFXErrorCode code)
 {
+	_gfx_errors_poll();
+
 	if(!_gfx_errors) return 0;
 
 	GFXDequeIterator it;

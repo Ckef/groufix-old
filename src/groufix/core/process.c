@@ -248,7 +248,7 @@ GFXPipeProcess _gfx_pipe_process_create(
 		);
 
 		proc->target = (GFX_Window*)target;
-		proc->swap = swap ? 1 : 0;
+		proc->swap = swap ? proc->target->swap : 0;
 
 		_gfx_window_make_current(proc->target);
 	}

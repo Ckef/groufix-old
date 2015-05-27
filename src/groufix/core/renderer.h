@@ -210,6 +210,7 @@ typedef struct GFX_Window
 	GFXContext           version;  /* Context version */
 	GFXPipeState         state;
 	char                 offscreen;
+	char                 swap;     /* Non-zero if it makes sense to swap buffers */
 
 	GFX_PlatformWindow   handle;
 	GFX_PlatformContext  context;

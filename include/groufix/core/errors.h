@@ -89,12 +89,6 @@ GFX_API void gfx_set_error_mode(
 		GFXErrorMode mode);
 
 /**
- * Returns the current error mode.
- *
- */
-GFX_API GFXErrorMode gfx_get_error_mode(void);
-
-/**
  * Returns the number of errors in the queue.
  *
  */

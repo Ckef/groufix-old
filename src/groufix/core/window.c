@@ -134,7 +134,7 @@ static GFX_Window* _gfx_window_create_internal(
 	/* Also determine whether it's offscreen while we're at it */
 	if(attr)
 	{
-		window->offscreen = 0;
+		window->swap = attr->flags & GFX_WINDOW_DOUBLE_BUFFER;
 
 		/* Adjust attributes */
 		attr->flags = attr->flags & GFX_WINDOW_FULLSCREEN ?
@@ -504,35 +504,11 @@ GFX_Window* _gfx_window_get_current(void)
 /******************************************************/
 void _gfx_window_swap_buffers(void)
 {
-	/* Swap buffers */
-	GFX_Window* window = _gfx_platform_key_get(_gfx_current_window);
+	GFX_Window* window =
+		_gfx_platform_key_get(_gfx_current_window);
 
 	if(window)
-	{
-		if(!window->offscreen)
-			_gfx_platform_context_swap_buffers(window->handle);
-
-		/* Poll errors while it's current */
-		/* Ignore error mode if debugging */
-
-#ifdef NDEBUG
-		if(gfx_get_error_mode() == GFX_ERROR_MODE_DEBUG)
-		{
-#endif
-
-			/* Loop over all errors */
-			GLenum err = window->renderer.GetError();
-			while(err != GL_NO_ERROR)
-			{
-				gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
-				err = window->renderer.GetError();
-			}
-
-#ifdef NDEBUG
-		}
-#endif
-
-	}
+		_gfx_platform_context_swap_buffers(window->handle);
 }
 
 /******************************************************/
