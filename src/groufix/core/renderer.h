@@ -57,10 +57,10 @@ typedef struct GFX_Renderer GFX_Renderer;
 
 
 /**
- * Loads the renderer of the current window and sets flags and limits.
+ * Loads the renderer of the current window and sets extension flags and limits.
  *
  * Note: this method may assume the context version of the window is set and
- * the current renderer is initialized to all 0s.
+ * the current renderer and relevant window fields are initialized to all 0s.
  *
  */
 void _gfx_renderer_load(void);

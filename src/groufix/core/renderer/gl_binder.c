@@ -366,7 +366,7 @@ size_t _gfx_binder_bind_texture(
 	);
 
 	/* Bind the texture */
-	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
 		if(!old) GFX_REND_GET.BindTextureUnit(bind, texture);
 	}
@@ -406,7 +406,7 @@ size_t _gfx_binder_bind_sampler(
 	);
 
 	/* Activate texture unit */
-	if(!GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(!GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 		GFX_REND_GET.ActiveTexture(GL_TEXTURE0 + bind);
 
 	if(!old)
@@ -415,7 +415,7 @@ size_t _gfx_binder_bind_sampler(
 		GFX_REND_GET.BindSampler(bind, sampler);
 
 		/* Bind texture */
-		if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+		if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 			GFX_REND_GET.BindTextureUnit(bind, texture);
 		else
 			GFX_REND_GET.BindTexture(target, texture);

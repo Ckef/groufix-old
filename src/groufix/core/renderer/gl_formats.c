@@ -251,7 +251,7 @@ void _gfx_texture_set_sampler(
 		const GFXSampler*  sampler,
 		GFX_WIND_ARG)
 {
-	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
 		GFX_REND_GET.TextureParameteri(
 			texture,

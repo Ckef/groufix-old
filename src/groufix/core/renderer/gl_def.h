@@ -387,10 +387,28 @@ void APIENTRY _gfx_gl_vertex_attrib_divisor                             (GLuint,
  * OpenGL renderer & context
  *******************************************************/
 
+/* Internal Extensions */
+typedef enum GFX_Extension
+{
+	GFX_INT_EXT_DIRECT_STATE_ACCESS,
+	GFX_INT_EXT_MULTI_BIND,
+	GFX_INT_EXT_SAMPLER_OBJECTS,
+	GFX_INT_EXT_TEXTURE_STORAGE,
+	GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE,
+	GFX_INT_EXT_VERTEX_ATTRIB_BINDING,
+
+	GFX_INT_EXT_COUNT
+
+} GFX_Extension;
+
+
 /** OpenGL renderer & context */
 struct GFX_Renderer
 {
-	/* State & bound objects */
+	/* Internal Extensions */
+	unsigned char  intExt[GFX_INT_EXT_COUNT];
+
+	/* Bound objects */
 	GLuint         fbos[2];  /* Currently bound FBOs (0 = draw, 1 = read) */
 	GLuint         program;  /* Currently used program or program pipeline */
 	GLuint         vao;      /* Currently bound VAO */
@@ -418,11 +436,11 @@ struct GFX_Renderer
 	GFX_BINDBUFFERSRANGEPROC                            BindBuffersRange;
 	GFX_BINDFRAMEBUFFERPROC                             BindFramebuffer;
 	GFX_BINDPROGRAMPIPELINEPROC                         BindProgramPipeline;                         /* GFX_EXT_PROGRAM_MAP, fallback to UseProgram */
-	GFX_BINDSAMPLERPROC                                 BindSampler;                                 /* GFX_EXT_SAMPLER_OBJECTS, fallback to no-op */
+	GFX_BINDSAMPLERPROC                                 BindSampler;                                 /* GFX_INT_EXT_SAMPLER_OBJECTS, fallback to no-op */
 	GFX_BINDTEXTUREPROC                                 BindTexture;
-	GFX_BINDTEXTUREUNITPROC                             BindTextureUnit;                             /* GFX_EXT_DIRECT_STATE_ACCESS */
+	GFX_BINDTEXTUREUNITPROC                             BindTextureUnit;                             /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
 	GFX_BINDVERTEXARRAYPROC                             BindVertexArray;
-	GFX_BINDVERTEXBUFFERPROC                            BindVertexBuffer;                            /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_BINDVERTEXBUFFERPROC                            BindVertexBuffer;                            /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
 	GFX_BLENDEQUATIONSEPARATEPROC                       BlendEquationSeparate;
 	GFX_BLENDFUNCSEPARATEPROC                           BlendFuncSeparate;
 	GFX_BUFFERDATAPROC                                  BufferData;
@@ -435,7 +453,7 @@ struct GFX_Renderer
 	GFX_CREATEFRAMEBUFFERSPROC                          CreateFramebuffers;
 	GFX_CREATEPROGRAMPROC                               CreateProgram;
 	GFX_CREATEPROGRAMPIPELINESPROC                      CreateProgramPipelines;                      /* GFX_EXT_PROGRAM_MAP */
-	GFX_CREATESAMPLERSPROC                              CreateSamplers;                              /* GFX_EXT_SAMPLER_OBJECTS */
+	GFX_CREATESAMPLERSPROC                              CreateSamplers;                              /* GFX_INT_EXT_SAMPLER_OBJECTS */
 	GFX_CREATESHADERPROC                                CreateShader;
 	GFX_CREATETEXTURESPROC                              CreateTextures;
 	GFX_CREATEVERTEXARRAYSPROC                          CreateVertexArrays;
@@ -444,7 +462,7 @@ struct GFX_Renderer
 	GFX_DELETEFRAMEBUFFERSPROC                          DeleteFramebuffers;
 	GFX_DELETEPROGRAMPROC                               DeleteProgram;
 	GFX_DELETEPROGRAMPIPELINESPROC                      DeleteProgramPipelines;                      /* GFX_EXT_PROGRAM_MAP */
-	GFX_DELETESAMPLERSPROC                              DeleteSamplers;                              /* GFX_EXT_SAMPLER_OBJECTS */
+	GFX_DELETESAMPLERSPROC                              DeleteSamplers;                              /* GFX_INT_EXT_SAMPLER_OBJECTS */
 	GFX_DELETESHADERPROC                                DeleteShader;
 	GFX_DELETETEXTURESPROC                              DeleteTextures;
 	GFX_DELETEVERTEXARRAYSPROC                          DeleteVertexArrays;
@@ -474,10 +492,10 @@ struct GFX_Renderer
 	GFX_FRAMEBUFFERTEXTURELAYERPROC                     FramebufferTextureLayer;
 	GFX_GENBUFFERSPROC                                  GenBuffers;
 	GFX_GENERATEMIPMAPPROC                              GenerateMipmap;
-	GFX_GENERATETEXTUREMIPMAPPROC                       GenerateTextureMipmap;                       /* GFX_EXT_DIRECT_STATE_ACCESS */
+	GFX_GENERATETEXTUREMIPMAPPROC                       GenerateTextureMipmap;                       /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
 	GFX_GENFRAMEBUFFERSPROC                             GenFramebuffers;
 	GFX_GENPROGRAMPIPELINESPROC                         GenProgramPipelines;                         /* GFX_EXT_PROGRAM_MAP */
-	GFX_GENSAMPLERSPROC                                 GenSamplers;                                 /* GFX_EXT_SAMPLER_OBJECTS */
+	GFX_GENSAMPLERSPROC                                 GenSamplers;                                 /* GFX_INT_EXT_SAMPLER_OBJECTS */
 	GFX_GENTEXTURESPROC                                 GenTextures;
 	GFX_GENVERTEXARRAYSPROC                             GenVertexArrays;
 	GFX_GETACTIVEUNIFORMPROC                            GetActiveUniform;
@@ -525,8 +543,8 @@ struct GFX_Renderer
 	GFX_PROGRAMUNIFORMMATRIX2FVPROC                     ProgramUniformMatrix2fv;                     /* GFX_EXT_PROGRAM_MAP, fallback to UniformMatrix2fv */
 	GFX_PROGRAMUNIFORMMATRIX3FVPROC                     ProgramUniformMatrix3fv;                     /* GFX_EXT_PROGRAM_MAP, fallback to UniformMatrix3fv */
 	GFX_PROGRAMUNIFORMMATRIX4FVPROC                     ProgramUniformMatrix4fv;                     /* GFX_EXT_PROGRAM_MAP, fallback to UniformMatrix4fv */
-	GFX_SAMPLERPARAMETERFPROC                           SamplerParameterf;                           /* GFX_EXT_SAMPLER_OBJECTS */
-	GFX_SAMPLERPARAMETERIPROC                           SamplerParameteri;                           /* GFX_EXT_SAMPLER_OBJECTS */
+	GFX_SAMPLERPARAMETERFPROC                           SamplerParameterf;                           /* GFX_INT_EXT_SAMPLER_OBJECTS */
+	GFX_SAMPLERPARAMETERIPROC                           SamplerParameteri;                           /* GFX_INT_EXT_SAMPLER_OBJECTS */
 	GFX_SHADERSOURCEPROC                                ShaderSource;
 	GFX_STENCILFUNCSEPARATEPROC                         StencilFuncSeparate;
 	GFX_STENCILOPSEPARATEPROC                           StencilOpSeparate;
@@ -543,15 +561,15 @@ struct GFX_Renderer
 	GFX_TEXSTORAGE3DMULTISAMPLEPROC                     TexStorage3DMultisample;                     /* GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE */
 	GFX_TEXSUBIMAGE2DPROC                               TexSubImage2D;
 	GFX_TEXSUBIMAGE3DPROC                               TexSubImage3D;
-	GFX_TEXTUREBUFFERPROC                               TextureBuffer;                               /* GFX_EXT_DIRECT_STATE_ACCESS */
-	GFX_TEXTUREPARAMETERFPROC                           TextureParameterf;                           /* GFX_EXT_DIRECT_STATE_ACCESS */
-	GFX_TEXTUREPARAMETERIPROC                           TextureParameteri;                           /* GFX_EXT_DIRECT_STATE_ACCESS */
-	GFX_TEXTURESTORAGE2DPROC                            TextureStorage2D;                            /* GFX_EXT_DIRECT_STATE_ACCESS */
-	GFX_TEXTURESTORAGE2DMULTISAMPLEPROC                 TextureStorage2DMultisample;                 /* GFX_EXT_DIRECT_STATE_ACCESS */
-	GFX_TEXTURESTORAGE3DPROC                            TextureStorage3D;                            /* GFX_EXT_DIRECT_STATE_ACCESS */
-	GFX_TEXTURESTORAGE3DMULTISAMPLEPROC                 TextureStorage3DMultisample;                 /* GFX_EXT_DIRECT_STATE_ACCESS */
-	GFX_TEXTURESUBIMAGE2DPROC                           TextureSubImage2D;                           /* GFX_EXT_DIRECT_STATE_ACCESS */
-	GFX_TEXTURESUBIMAGE3DPROC                           TextureSubImage3D;                           /* GFX_EXT_DIRECT_STATE_ACCESS */
+	GFX_TEXTUREBUFFERPROC                               TextureBuffer;                               /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	GFX_TEXTUREPARAMETERFPROC                           TextureParameterf;                           /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	GFX_TEXTUREPARAMETERIPROC                           TextureParameteri;                           /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	GFX_TEXTURESTORAGE2DPROC                            TextureStorage2D;                            /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	GFX_TEXTURESTORAGE2DMULTISAMPLEPROC                 TextureStorage2DMultisample;                 /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	GFX_TEXTURESTORAGE3DPROC                            TextureStorage3D;                            /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	GFX_TEXTURESTORAGE3DMULTISAMPLEPROC                 TextureStorage3DMultisample;                 /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	GFX_TEXTURESUBIMAGE2DPROC                           TextureSubImage2D;                           /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	GFX_TEXTURESUBIMAGE3DPROC                           TextureSubImage3D;                           /* GFX_INT_EXT_DIRECT_STATE_ACCESS */
 	GFX_TRANSFORMFEEDBACKVARYINGSPROC                   TransformFeedbackVaryings;
 	GFX_UNIFORM1FVPROC                                  Uniform1fv;
 	GFX_UNIFORM1IVPROC                                  Uniform1iv;
@@ -573,19 +591,19 @@ struct GFX_Renderer
 	GFX_UNMAPNAMEDBUFFERPROC                            UnmapNamedBuffer;
 	GFX_USEPROGRAMPROC                                  UseProgram;
 	GFX_USEPROGRAMSTAGESPROC                            UseProgramStages;                            /* GFX_EXT_PROGRAM_MAP */
-	GFX_VERTEXARRAYATTRIBBINDINGPROC                    VertexArrayAttribBinding;                    /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
-	GFX_VERTEXARRAYATTRIBFORMATPROC                     VertexArrayAttribFormat;                     /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
-	GFX_VERTEXARRAYATTRIBIFORMATPROC                    VertexArrayAttribIFormat;                    /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
-	GFX_VERTEXARRAYBINDINGDIVISORPROC                   VertexArrayBindingDivisor;                   /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_VERTEXARRAYATTRIBBINDINGPROC                    VertexArrayAttribBinding;                    /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
+	GFX_VERTEXARRAYATTRIBFORMATPROC                     VertexArrayAttribFormat;                     /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
+	GFX_VERTEXARRAYATTRIBIFORMATPROC                    VertexArrayAttribIFormat;                    /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
+	GFX_VERTEXARRAYBINDINGDIVISORPROC                   VertexArrayBindingDivisor;                   /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
 	GFX_VERTEXARRAYELEMENTBUFFERPROC                    VertexArrayElementBuffer;
-	GFX_VERTEXARRAYVERTEXBUFFERPROC                     VertexArrayVertexBuffer;                     /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
-	GFX_VERTEXATTRIBBINDINGPROC                         VertexAttribBinding;                         /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_VERTEXARRAYVERTEXBUFFERPROC                     VertexArrayVertexBuffer;                     /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
+	GFX_VERTEXATTRIBBINDINGPROC                         VertexAttribBinding;                         /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
 	GFX_VERTEXATTRIBDIVISORPROC                         VertexAttribDivisor;                         /* GFX_EXT_INSTANCED_ATTRIBUTES */
-	GFX_VERTEXATTRIBFORMATPROC                          VertexAttribFormat;                          /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
-	GFX_VERTEXATTRIBIFORMATPROC                         VertexAttribIFormat;                         /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_VERTEXATTRIBFORMATPROC                          VertexAttribFormat;                          /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
+	GFX_VERTEXATTRIBIFORMATPROC                         VertexAttribIFormat;                         /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
 	GFX_VERTEXATTRIBIPOINTERPROC                        VertexAttribIPointer;
 	GFX_VERTEXATTRIBPOINTERPROC                         VertexAttribPointer;
-	GFX_VERTEXBINDINGDIVISORPROC                        VertexBindingDivisor;                        /* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	GFX_VERTEXBINDINGDIVISORPROC                        VertexBindingDivisor;                        /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
 	GFX_VIEWPORTPROC                                    Viewport;
 };
 

@@ -79,7 +79,7 @@ static void _gfx_layout_init_attrib(
 		const GFX_Attribute*  attr,
 		GFX_WIND_ARG)
 {
-	if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING])
 	{
 		/* Check if enabled */
 		if(attr->size)
@@ -289,7 +289,7 @@ static int _gfx_layout_set_vertex_buffer(
 	set->stride = stride;
 
 	/* Initialize the buffer */
-	if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING])
 	{
 		GFX_REND_GET.VertexArrayVertexBuffer(
 			internal->vao,
@@ -411,7 +411,7 @@ static void _gfx_layout_obj_restore(
 		GFX_Buffer* buff = gfx_vector_at(
 			&layout->buffers, index);
 
-		if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
+		if(GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING])
 		{
 			GFX_REND_GET.VertexArrayVertexBuffer(
 				layout->vao,
@@ -693,7 +693,7 @@ int gfx_vertex_layout_set_attribute_buffer(
 	set->buffer = buffer;
 
 	/* Skip the entire routine if separate buffers are available */
-	if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING])
 		GFX_REND_GET.VertexArrayAttribBinding(
 			internal->vao,
 			index,
@@ -834,7 +834,7 @@ int gfx_vertex_layout_set_vertex_divisor(
 	set->divisor = divisor;
 
 	/* Initialize the buffer divisor */
-	if(GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING])
 		GFX_REND_GET.VertexArrayBindingDivisor(
 			internal->vao,
 			index,

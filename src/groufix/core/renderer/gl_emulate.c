@@ -22,14 +22,6 @@
  * GL core & GL ES emulators
  *******************************************************/
 
-static void _gfx_gl_error_direct_state_access(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_DIRECT_STATE_ACCESS is incompatible with this context."
-	);
-}
-
 static void _gfx_gl_error_instanced_base_attributes(void)
 {
 	gfx_errors_push(
@@ -43,14 +35,6 @@ static void _gfx_gl_error_program_map(void)
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
 		"GFX_EXT_PROGRAM_MAP is incompatible with this context."
-	);
-}
-
-static void _gfx_gl_error_separate_vertex_buffers(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_SEPARATE_VERTEX_BUFFERS is incompatible with this context."
 	);
 }
 
@@ -93,7 +77,7 @@ void APIENTRY _gfx_gl_bind_texture_unit(
 		GLuint  unit,
 		GLuint  texture)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_bind_vertex_buffer(
@@ -103,7 +87,7 @@ void APIENTRY _gfx_gl_bind_vertex_buffer(
 		GLintptr  offset,
 		GLsizei   stride)
 {
-	_gfx_gl_error_separate_vertex_buffers();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_copy_named_buffer_sub_data(
@@ -263,7 +247,7 @@ void APIENTRY _gfx_gl_generate_texture_mipmap(
 
 		GLuint texture)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_gen_program_pipelines(
@@ -576,7 +560,7 @@ void APIENTRY _gfx_gl_texture_buffer(
 		GLenum  format,
 		GLuint  buffer)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_texture_parameter_f(
@@ -585,7 +569,7 @@ void APIENTRY _gfx_gl_texture_parameter_f(
 		GLenum   pname,
 		GLfloat  param)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_texture_parameter_i(
@@ -594,7 +578,7 @@ void APIENTRY _gfx_gl_texture_parameter_i(
 		GLenum  pname,
 		GLint   param)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_texture_storage_2d(
@@ -605,7 +589,7 @@ void APIENTRY _gfx_gl_texture_storage_2d(
 		GLsizei  w,
 		GLsizei  h)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_texture_storage_2d_multisample(
@@ -617,7 +601,7 @@ void APIENTRY _gfx_gl_texture_storage_2d_multisample(
 		GLsizei    h,
 		GLboolean  f)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_texture_storage_3d(
@@ -629,7 +613,7 @@ void APIENTRY _gfx_gl_texture_storage_3d(
 		GLsizei  h,
 		GLsizei  d)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_texture_storage_3d_multisample(
@@ -642,7 +626,7 @@ void APIENTRY _gfx_gl_texture_storage_3d_multisample(
 		GLsizei    d,
 		GLboolean  f)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_texture_sub_image_2d(
@@ -657,7 +641,7 @@ void APIENTRY _gfx_gl_texture_sub_image_2d(
 		GLenum       type,
 		const void*  pixels)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_texture_sub_image_3d(
@@ -674,7 +658,7 @@ void APIENTRY _gfx_gl_texture_sub_image_3d(
 		GLenum       type,
 		const void*  pixels)
 {
-	_gfx_gl_error_direct_state_access();
+	/* No-op */
 }
 
 GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
@@ -809,7 +793,7 @@ void APIENTRY _gfx_gl_vertex_attrib_binding(
 		GLuint  attrib,
 		GLuint  binding)
 {
-	_gfx_gl_error_separate_vertex_buffers();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_vertex_attrib_format(
@@ -820,7 +804,7 @@ void APIENTRY _gfx_gl_vertex_attrib_format(
 		GLboolean  normalized,
 		GLuint     offset)
 {
-	_gfx_gl_error_separate_vertex_buffers();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_vertex_attrib_i_format(
@@ -830,7 +814,7 @@ void APIENTRY _gfx_gl_vertex_attrib_i_format(
 		GLenum  type,
 		GLuint  offset)
 {
-	_gfx_gl_error_separate_vertex_buffers();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_vertex_binding_divisor(
@@ -838,7 +822,7 @@ void APIENTRY _gfx_gl_vertex_binding_divisor(
 		GLuint  index,
 		GLuint  divisor)
 {
-	_gfx_gl_error_separate_vertex_buffers();
+	/* No-op */
 }
 
 
@@ -1045,20 +1029,12 @@ static void _gfx_gl_error_program_binary(void)
 	);
 }
 
-static void _gfx_gl_error_sampler_objects(void)
-{
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_SAMPLER_OBJECTS is incompatible with this context."
-	);
-}
-
 void APIENTRY _gfx_gl_bind_sampler(
 
 		GLuint  unit,
 		GLuint  sampler)
 {
-	/* Ignore it */
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_delete_samplers(
@@ -1066,7 +1042,7 @@ void APIENTRY _gfx_gl_delete_samplers(
 		GLsizei        n,
 		const GLuint*  samplers)
 {
-	_gfx_gl_error_sampler_objects();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_gen_samplers(
@@ -1074,7 +1050,7 @@ void APIENTRY _gfx_gl_gen_samplers(
 		GLsizei  n,
 		GLuint*  samplers)
 {
-	_gfx_gl_error_sampler_objects();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_get_program_binary(
@@ -1130,7 +1106,7 @@ void APIENTRY _gfx_gl_sampler_parameter_f(
 		GLenum   pname,
 		GLfloat  param)
 {
-	_gfx_gl_error_sampler_objects();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_sampler_parameter_i(
@@ -1139,7 +1115,7 @@ void APIENTRY _gfx_gl_sampler_parameter_i(
 		GLenum  pname,
 		GLint   param)
 {
-	_gfx_gl_error_sampler_objects();
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_tex_storage_2d(

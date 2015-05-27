@@ -89,7 +89,7 @@ GFXSampler* _gfx_sampler_create(
 		return NULL;
 	}
 
-	if(GFX_WIND_GET.ext[GFX_EXT_SAMPLER_OBJECTS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS])
 	{
 		/* Register as object */
 		samp->id = _gfx_render_object_register(
@@ -161,7 +161,7 @@ void _gfx_sampler_free(
 					GFX_WIND_AS_ARG
 				);
 
-				if(GFX_WIND_GET.ext[GFX_EXT_SAMPLER_OBJECTS])
+				if(GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS])
 					GFX_REND_GET.DeleteSamplers(
 						1,
 						&internal->handle
@@ -195,7 +195,7 @@ int _gfx_sampler_set(
 		GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] :
 		sampler->maxAnisotropy;
 
-	if(GFX_WIND_GET.ext[GFX_EXT_SAMPLER_OBJECTS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS])
 	{
 		/* Send values to GL */
 		GFX_Sampler* internal = (GFX_Sampler*)sampler;

@@ -222,7 +222,7 @@ static GFX_Texture* _gfx_texture_alloc(
 	tex->format = form;
 	tex->texture.samples = 1;
 
-	if(!GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(!GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
 		/* Bind it to a unit if no direct state access */
 		_gfx_binder_bind_texture(
@@ -243,7 +243,7 @@ static void _gfx_texture_set_mipmaps(
 		unsigned char       mips,
 		GFX_WIND_ARG)
 {
-	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
 		GFX_REND_GET.TextureParameteri(
 			tex->handle, GL_TEXTURE_BASE_LEVEL, 0);
@@ -274,7 +274,7 @@ static void _gfx_texture_set_storage(
 	tex->texture.depth  = depth;
 
 	/* Allocate storage */
-	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
 		switch(tex->target)
 		{
@@ -586,7 +586,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 	);
 
 	/* Link buffer */
-	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
 		GFX_REND_GET.TextureBuffer(
 			tex->handle, tex->format, tex->buffer);
@@ -675,7 +675,7 @@ void gfx_texture_write(
 		/* Say wut? */
 		if(pixForm < 0) return;
 
-		if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+		if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 		{
 			switch(tex->target)
 			{
@@ -905,7 +905,7 @@ void gfx_texture_generate_mipmaps(
 
 	const GFX_Texture* internal = (const GFX_Texture*)texture;
 
-	if(GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS])
+	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
 		GFX_REND_GET.GenerateTextureMipmap(internal->handle);
 	}

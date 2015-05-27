@@ -54,7 +54,7 @@
 	#define GFX_ALWAYS_INLINE inline __attribute__((always_inline))
 
 #else
-	#define GFX_ALWAYS_INLINE
+	#define GFX_ALWAYS_INLINE inline
 #endif
 
 

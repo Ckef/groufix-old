@@ -58,7 +58,7 @@ void _gfx_renderer_load(void)
 	GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE] =
 		GFX_GL_DEF_MAX_VERTEX_STRIDE;
 
-	/* Get OpenGL constants (a.k.a hardware limits) */
+	/* Get OpenGL constants */
 	GLint limit;
 
 	glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &limit),
@@ -87,10 +87,10 @@ void _gfx_renderer_load(void)
 #if defined(GFX_GLES)
 
 	/* Default Extensions */
-	GFX_WIND_GET.ext[GFX_EXT_IMMUTABLE_TEXTURE]    = 1;
-	GFX_WIND_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-	GFX_WIND_GET.ext[GFX_EXT_PROGRAM_BINARY]       = 1;
-	GFX_WIND_GET.ext[GFX_EXT_SAMPLER_OBJECTS]      = 1;
+	GFX_WIND_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES]   = 1;
+	GFX_WIND_GET.ext[GFX_EXT_PROGRAM_BINARY]         = 1;
+	GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS] = 1;
+	GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_STORAGE] = 1;
 
 	/* GLES, assumes 3.0+ */
 	GFX_REND_GET.ActiveTexture                               = glActiveTexture;
@@ -290,14 +290,14 @@ void _gfx_renderer_load(void)
 		GFX_WIND_GET.ext[GFX_EXT_GEOMETRY_SHADER] = 1;
 	}
 
-	/* GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE */
 	/* GFX_EXT_MULTISAMPLE_TEXTURE */
+	/* GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE */
 	if(
 		GFX_WIND_GET.version.major > 3 ||
 		(GFX_WIND_GET.version.major == 3 && GFX_WIND_GET.version.minor > 0))
 	{
-		GFX_WIND_GET.ext[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
 		GFX_WIND_GET.ext[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
+		GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE] = 1;
 
 		GFX_REND_GET.TexStorage2DMultisample = glTexStorage2DMultisample;
 	}
@@ -387,25 +387,6 @@ void _gfx_renderer_load(void)
 			(GFX_USEPROGRAMSTAGESPROC)_gfx_platform_get_proc_address("UseProgramStagesEXT");
 	}
 
-	/* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
-	if(
-		GFX_WIND_GET.version.major > 3 ||
-		(GFX_WIND_GET.version.major == 3 && GFX_WIND_GET.version.minor > 0))
-	{
-		GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS] = 1;
-
-		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &limit),
-			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] = limit;
-		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_BINDINGS, &limit),
-			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] = limit;
-
-		GFX_REND_GET.BindVertexBuffer     = glBindVertexBuffer;
-		GFX_REND_GET.VertexAttribBinding  = glVertexAttribBinding;
-		GFX_REND_GET.VertexAttribFormat   = glVertexAttribFormat;
-		GFX_REND_GET.VertexAttribIFormat  = glVertexAttribIFormat;
-		GFX_REND_GET.VertexBindingDivisor = glVertexBindingDivisor;
-	}
-
 	/* GFX_EXT_TESSELLATION_SHADER */
 	if(_gfx_is_extension_supported("GL_OES_tessellation_shader", GFX_WIND_AS_ARG))
 	{
@@ -448,6 +429,25 @@ void _gfx_renderer_load(void)
 			(GFX_DRAWELEMENTSBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsBaseVertexEXT");
 		GFX_REND_GET.DrawElementsInstancedBaseVertex =
 			(GFX_DRAWELEMENTSINSTANCEDBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseVertexEXT");
+	}
+
+	/* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
+	if(
+		GFX_WIND_GET.version.major > 3 ||
+		(GFX_WIND_GET.version.major == 3 && GFX_WIND_GET.version.minor > 0))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] = 1;
+
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] = limit;
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_BINDINGS, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] = limit;
+
+		GFX_REND_GET.BindVertexBuffer     = glBindVertexBuffer;
+		GFX_REND_GET.VertexAttribBinding  = glVertexAttribBinding;
+		GFX_REND_GET.VertexAttribFormat   = glVertexAttribFormat;
+		GFX_REND_GET.VertexAttribIFormat  = glVertexAttribIFormat;
+		GFX_REND_GET.VertexBindingDivisor = glVertexBindingDivisor;
 	}
 
 #elif defined(GFX_GL)
@@ -836,13 +836,13 @@ void _gfx_renderer_load(void)
 			GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] = limit;
 	}
 
-	/* GFX_EXT_DIRECT_STATE_ACCESS */
+	/* GFX_INT_EXT_DIRECT_STATE_ACCESS */
 	if(
 		GFX_WIND_GET.version.major > 4 ||
 		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 4) ||
 		_gfx_is_extension_supported("GL_ARB_direct_state_access", GFX_WIND_AS_ARG))
 	{
-		GFX_WIND_GET.ext[GFX_EXT_DIRECT_STATE_ACCESS] = 1;
+		GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS] = 1;
 
 		GFX_REND_GET.BindTextureUnit =
 			(PFNGLBINDTEXTUREUNITPROC)_gfx_platform_get_proc_address("glBindTextureUnit");
@@ -914,34 +914,6 @@ void _gfx_renderer_load(void)
 			(PFNGLVERTEXARRAYVERTEXBUFFERPROC)_gfx_platform_get_proc_address("glVertexArrayVertexBuffer");
 	}
 
-	/* GFX_EXT_IMMUTABLE_TEXTURE */
-	if(
-		GFX_WIND_GET.version.major > 4 ||
-		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 1) ||
-		_gfx_is_extension_supported("GL_ARB_texture_storage", GFX_WIND_AS_ARG))
-	{
-		GFX_WIND_GET.ext[GFX_EXT_IMMUTABLE_TEXTURE] = 1;
-
-		GFX_REND_GET.TexStorage2D =
-			(PFNGLTEXSTORAGE2DPROC)_gfx_platform_get_proc_address("glTexStorage2D");
-		GFX_REND_GET.TexStorage3D =
-			(PFNGLTEXSTORAGE3DPROC)_gfx_platform_get_proc_address("glTexStorage3D");
-	}
-
-	/* GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE */
-	if(
-		GFX_WIND_GET.version.major > 4 ||
-		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 2) ||
-		_gfx_is_extension_supported("GL_ARB_texture_storage_multisample", GFX_WIND_AS_ARG))
-	{
-		GFX_WIND_GET.ext[GFX_EXT_IMMUTABLE_MULTISAMPLE_TEXTURE] = 1;
-
-		GFX_REND_GET.TexStorage2DMultisample =
-			(PFNGLTEXSTORAGE2DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexStorage2DMultisample");
-		GFX_REND_GET.TexStorage3DMultisample =
-			(PFNGLTEXSTORAGE3DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexStorage3DMultisample");
-	}
-
 	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(
 		GFX_WIND_GET.version.major > 3 ||
@@ -985,13 +957,13 @@ void _gfx_renderer_load(void)
 		GFX_WIND_GET.ext[GFX_EXT_LAYERED_CUBEMAP] = 1;
 	}
 
-	/* GFX_EXT_MULTI_BIND */
+	/* GFX_INT_EXT_MULTI_BIND */
 	if(
 		GFX_WIND_GET.version.major > 4 ||
 		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 3) ||
 		_gfx_is_extension_supported("GL_ARB_multi_bind", GFX_WIND_AS_ARG))
 	{
-		GFX_WIND_GET.ext[GFX_EXT_MULTI_BIND] = 1;
+		GFX_REND_GET.intExt[GFX_INT_EXT_MULTI_BIND] = 1;
 
 		GFX_REND_GET.BindBuffersRange =
 			(PFNGLBINDBUFFERSRANGEPROC)_gfx_platform_get_proc_address("glBindBuffersRange");
@@ -1063,13 +1035,13 @@ void _gfx_renderer_load(void)
 			(PFNGLUSEPROGRAMSTAGESPROC)_gfx_platform_get_proc_address("glUseProgramStages");
 	}
 
-	/* GFX_EXT_SAMPLER_OBJECTS */
+	/* GFX_INT_EXT_SAMPLER_OBJECTS */
 	if(
 		GFX_WIND_GET.version.major > 3 ||
 		(GFX_WIND_GET.version.major == 3 && GFX_WIND_GET.version.minor > 2) ||
 		_gfx_is_extension_supported("GL_ARB_sampler_objects", GFX_WIND_AS_ARG))
 	{
-		GFX_WIND_GET.ext[GFX_EXT_SAMPLER_OBJECTS] = 1;
+		GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS] = 1;
 
 		GFX_REND_GET.BindSampler =
 			(PFNGLBINDSAMPLERPROC)_gfx_platform_get_proc_address("glBindSampler");
@@ -1083,13 +1055,55 @@ void _gfx_renderer_load(void)
 			(PFNGLSAMPLERPARAMETERIPROC)_gfx_platform_get_proc_address("glSamplerParameteri");
 	}
 
-	/* GFX_EXT_SEPARATE_VERTEX_BUFFERS */
+	/* GFX_EXT_TESSELLATION_SHADER */
+	if(
+		GFX_WIND_GET.version.major > 3 ||
+		_gfx_is_extension_supported("GL_ARB_tessellation_shader", GFX_WIND_AS_ARG))
+	{
+		GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
+
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, &limit),
+			GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
+
+		GFX_REND_GET.PatchParameteri =
+			(PFNGLPATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteri");
+	}
+
+	/* GFX_INT_EXT_TEXTURE_STORAGE */
+	if(
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 1) ||
+		_gfx_is_extension_supported("GL_ARB_texture_storage", GFX_WIND_AS_ARG))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_STORAGE] = 1;
+
+		GFX_REND_GET.TexStorage2D =
+			(PFNGLTEXSTORAGE2DPROC)_gfx_platform_get_proc_address("glTexStorage2D");
+		GFX_REND_GET.TexStorage3D =
+			(PFNGLTEXSTORAGE3DPROC)_gfx_platform_get_proc_address("glTexStorage3D");
+	}
+
+	/* GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE */
+	if(
+		GFX_WIND_GET.version.major > 4 ||
+		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 2) ||
+		_gfx_is_extension_supported("GL_ARB_texture_storage_multisample", GFX_WIND_AS_ARG))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE] = 1;
+
+		GFX_REND_GET.TexStorage2DMultisample =
+			(PFNGLTEXSTORAGE2DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexStorage2DMultisample");
+		GFX_REND_GET.TexStorage3DMultisample =
+			(PFNGLTEXSTORAGE3DMULTISAMPLEPROC)_gfx_platform_get_proc_address("glTexStorage3DMultisample");
+	}
+
+	/* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
 	if(
 		GFX_WIND_GET.version.major > 4 ||
 		(GFX_WIND_GET.version.major == 4 && GFX_WIND_GET.version.minor > 2) ||
 		_gfx_is_extension_supported("GL_ARB_vertex_attrib_binding", GFX_WIND_AS_ARG))
 	{
-		GFX_WIND_GET.ext[GFX_EXT_SEPARATE_VERTEX_BUFFERS] = 1;
+		GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] = 1;
 
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &limit),
 			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] = limit;
@@ -1108,20 +1122,6 @@ void _gfx_renderer_load(void)
 			(PFNGLVERTEXATTRIBIFORMATPROC)_gfx_platform_get_proc_address("glVertexAttribIFormat");
 		GFX_REND_GET.VertexBindingDivisor =
 			(PFNGLVERTEXBINDINGDIVISORPROC)_gfx_platform_get_proc_address("glVertexBindingDivisor");
-	}
-
-	/* GFX_EXT_TESSELLATION_SHADER */
-	if(
-		GFX_WIND_GET.version.major > 3 ||
-		_gfx_is_extension_supported("GL_ARB_tessellation_shader", GFX_WIND_AS_ARG))
-	{
-		GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
-
-		glGetIntegerv(GL_MAX_PATCH_VERTICES, &limit),
-			GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
-
-		GFX_REND_GET.PatchParameteri =
-			(PFNGLPATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteri");
 	}
 
 #endif
