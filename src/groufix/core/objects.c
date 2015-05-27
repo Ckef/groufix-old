@@ -134,9 +134,18 @@ void _gfx_render_object_unregister(
 		/* Save ID */
 		gfx_deque_push_end(&id.objects->empties, &id.id);
 	}
+	else
+	{
+		/* Remove last element */
+		gfx_vector_erase_at(&id.objects->objects, --size);
+	}
 
-	/* Remove last element */
-	else gfx_vector_erase_at(&id.objects->objects, size - 1);
+	/* Clear both deque and vector */
+	if(!size || size == gfx_deque_get_size(&id.objects->empties))
+	{
+		gfx_vector_clear(&id.objects->objects);
+		gfx_deque_clear(&id.objects->empties);
+	}
 }
 
 /******************************************************/

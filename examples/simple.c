@@ -246,10 +246,10 @@ int main()
 		gfx_pipeline_execute(pipeline, 0);
 
 		/* Print time */
-		double time = gfx_get_time();
-		gfx_set_time(0.0);
+		//double time = gfx_get_time();
+		//gfx_set_time(0.0);
 
-		printf("%f\n", 1.0 / time);
+		//printf("%f\n", 1.0 / time);
 
 		/* Print all the errors! */
 		GFXError error;

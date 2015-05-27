@@ -209,10 +209,10 @@ typedef struct GFX_Window
 	/* Hidden data */
 	GFXContext           version;  /* Context version */
 	GFXPipeState         state;
+	char                 offscreen;
+
 	GFX_PlatformWindow   handle;
 	GFX_PlatformContext  context;
-
-	char                 offscreen;
 	GFX_Renderer         renderer; /* Renderer data */
 	GFX_RenderObjects    objects;  /* Per window render objects */
 
