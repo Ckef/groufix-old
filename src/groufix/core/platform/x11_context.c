@@ -25,7 +25,7 @@ static GLXContext _gfx_x11_create_context(
 {
 	/* Temporarily disable errors */
 	/* This so we can attempt to create contexts with various versions */
-	_gfx_x11->errors = 0;
+	_gfx_x11.errors = 0;
 
 	/* Create buffer attribute array */
 	int flags =
@@ -42,15 +42,15 @@ static GLXContext _gfx_x11_create_context(
 	};
 
 	/* Create the context */
-	GLXContext context = _gfx_x11->extensions.CreateContextAttribsARB(
-		_gfx_x11->display,
+	GLXContext context = _gfx_x11.extensions.CreateContextAttribsARB(
+		_gfx_x11.display,
 		config,
 		share,
 		True,
 		bufferAttr
 	);
 
-	_gfx_x11->errors = 1;
+	_gfx_x11.errors = 1;
 	return context;
 }
 
@@ -63,15 +63,13 @@ GFX_PlatformContext _gfx_platform_context_create(
 		GFX_PlatformContext  share,
 		int                  debug)
 {
-	if(!_gfx_x11) return NULL;
-
 	/* Get config from default screen */
 	int buffElements;
 	int attr = None;
 
 	GLXFBConfig* config = glXChooseFBConfig(
-		_gfx_x11->display,
-		XDefaultScreen(_gfx_x11->display),
+		_gfx_x11.display,
+		XDefaultScreen(_gfx_x11.display),
 		&attr,
 		&buffElements
 	);
@@ -98,8 +96,8 @@ void _gfx_platform_context_free(
 
 		GFX_PlatformContext context)
 {
-	glXMakeContextCurrent(_gfx_x11->display, None, None, NULL);
-	glXDestroyContext(_gfx_x11->display, context);
+	glXMakeContextCurrent(_gfx_x11.display, None, None, NULL);
+	glXDestroyContext(_gfx_x11.display, context);
 }
 
 /******************************************************/
@@ -151,15 +149,15 @@ int _gfx_platform_context_set_swap_interval(
 		GFX_PlatformWindow  handle,
 		int                 num)
 {
-	if(!_gfx_x11->extensions.SwapIntervalEXT)
+	if(!_gfx_x11.extensions.SwapIntervalEXT)
 		return 0;
 
 	/* Correct if adaptive vsync is not supported */
-	if(!_gfx_x11->extensions.EXT_swap_control_tear && num < 0)
+	if(!_gfx_x11.extensions.EXT_swap_control_tear && num < 0)
 		num = -num;
 
-	_gfx_x11->extensions.SwapIntervalEXT(
-		_gfx_x11->display,
+	_gfx_x11.extensions.SwapIntervalEXT(
+		_gfx_x11.display,
 		(Window)GFX_VOID_TO_UINT(handle),
 		num
 	);
@@ -172,10 +170,7 @@ void _gfx_platform_context_swap_buffers(
 
 		GFX_PlatformWindow handle)
 {
-	if(_gfx_x11) glXSwapBuffers(
-		_gfx_x11->display,
-		(Window)GFX_VOID_TO_UINT(handle)
-	);
+	glXSwapBuffers(_gfx_x11.display, (Window)GFX_VOID_TO_UINT(handle));
 }
 
 /******************************************************/
@@ -185,18 +180,18 @@ void _gfx_platform_context_make_current(
 		GFX_PlatformContext  context)
 {
 	if(!context) glXMakeCurrent(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		None,
 		NULL);
 
 	else if(handle) glXMakeCurrent(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		(Window)GFX_VOID_TO_UINT(handle),
 		context);
 
 	else glXMakeCurrent(
-		_gfx_x11->display,
-		XDefaultRootWindow(_gfx_x11->display),
+		_gfx_x11.display,
+		XDefaultRootWindow(_gfx_x11.display),
 		context);
 }
 

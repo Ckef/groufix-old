@@ -17,8 +17,7 @@
 /******************************************************/
 unsigned int _gfx_platform_get_num_monitors(void)
 {
-	if(!_gfx_x11) return 0;
-	return gfx_vector_get_size(&_gfx_x11->monitors);
+	return gfx_vector_get_size(&_gfx_x11.monitors);
 }
 
 /******************************************************/
@@ -26,18 +25,15 @@ GFX_PlatformMonitor _gfx_platform_get_monitor(
 
 		unsigned int num)
 {
-	if(!_gfx_x11) return NULL;
-
 	/* Validate the number first */
-	if(num >= gfx_vector_get_size(&_gfx_x11->monitors)) return NULL;
-	return gfx_vector_at(&_gfx_x11->monitors, num);
+	if(num >= gfx_vector_get_size(&_gfx_x11.monitors)) return NULL;
+	return gfx_vector_at(&_gfx_x11.monitors, num);
 }
 
 /******************************************************/
 GFX_PlatformMonitor _gfx_platform_get_default_monitor(void)
 {
-	if(!_gfx_x11) return NULL;
-	return _gfx_x11->monitors.begin;
+	return _gfx_x11.monitors.begin;
 }
 
 /******************************************************/
@@ -71,7 +67,7 @@ int _gfx_platform_monitor_get_mode(
 	if(num >= monitor->numModes) return 0;
 
 	GFX_X11_Mode* it =
-		gfx_vector_at(&_gfx_x11->modes, monitor->modes[num]);
+		gfx_vector_at(&_gfx_x11.modes, monitor->modes[num]);
 
 	*mode = it->mode;
 	return 1;

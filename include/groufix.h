@@ -125,6 +125,8 @@ typedef struct GFXContext
  * Note: if groufix is compiled with DEBUG=YES, the error mode will be ignored
  * and assumed to be GFX_ERROR_MODE_DEBUG instead.
  *
+ * Calling any function before this one is considered undefined behaviour.
+ *
  */
 GFX_API int gfx_init(
 

@@ -21,7 +21,7 @@
 
 /******************************************************/
 /* Instance */
-GFX_X11_Connection* _gfx_x11 = NULL;
+GFX_X11_Connection _gfx_x11;
 
 
 /******************************************************/
@@ -31,7 +31,7 @@ static inline int _gfx_x11_is_extension_supported(
 		const char*  ext)
 {
 	return _gfx_contains_string(
-		glXQueryExtensionsString(_gfx_x11->display, screenNumber), ext);
+		glXQueryExtensionsString(_gfx_x11.display, screenNumber), ext);
 }
 
 /******************************************************/
@@ -40,7 +40,7 @@ static int _gfx_x11_error_handler(
 		Display*      display,
 		XErrorEvent*  evt)
 {
-	if(_gfx_x11->errors)
+	if(_gfx_x11.errors)
 	{
 		char* text = malloc(GFX_X11_ERROR_LENGTH);
 		XGetErrorText(display, evt->error_code, text, GFX_X11_ERROR_LENGTH);
@@ -61,11 +61,11 @@ static int _gfx_x11_load_extensions(
 		int*  major,
 		int*  minor)
 {
-	int num = XDefaultScreen(_gfx_x11->display);
+	int num = XDefaultScreen(_gfx_x11.display);
 
 	/* Check XRandR version */
 	if(
-		!XRRQueryVersion(_gfx_x11->display, major, minor) ||
+		!XRRQueryVersion(_gfx_x11.display, major, minor) ||
 		*major < 1 ||
 		(*major == 1 && *minor < 2))
 	{
@@ -84,16 +84,16 @@ static int _gfx_x11_load_extensions(
 	}
 
 	/* Load all functions */
-	_gfx_x11->extensions.CreateContextAttribsARB =
+	_gfx_x11.extensions.CreateContextAttribsARB =
 		(PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
-	_gfx_x11->extensions.SwapIntervalEXT =
+	_gfx_x11.extensions.SwapIntervalEXT =
 		(PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalEXT");
-	_gfx_x11->extensions.EXT_swap_control_tear =
+	_gfx_x11.extensions.EXT_swap_control_tear =
 		_gfx_x11_is_extension_supported(num, "GLX_EXT_swap_control_tear") ? 1 : 0;
 
 	/* Check non-vital extensions */
 	if(!_gfx_x11_is_extension_supported(num, "GLX_EXT_swap_control"))
-		_gfx_x11->extensions.SwapIntervalEXT = NULL;
+		_gfx_x11.extensions.SwapIntervalEXT = NULL;
 
 	return 1;
 }
@@ -114,8 +114,8 @@ static size_t _gfx_x11_init_modes(
 	);
 
 	/* Reserve space for all modes */
-	size_t first = gfx_vector_get_size(&_gfx_x11->modes);
-	gfx_vector_reserve(&_gfx_x11->modes, first + res->nmode);
+	size_t first = gfx_vector_get_size(&_gfx_x11.modes);
+	gfx_vector_reserve(&_gfx_x11.modes, first + res->nmode);
 
 	unsigned int i;
 	for(i = 0; i < res->nmode; ++i)
@@ -139,7 +139,7 @@ static size_t _gfx_x11_init_modes(
 			mode.mode.depth   = depth;
 			mode.mode.refresh = refresh;
 
-			gfx_vector_insert(&_gfx_x11->modes, &mode, _gfx_x11->modes.end);
+			gfx_vector_insert(&_gfx_x11.modes, &mode, _gfx_x11.modes.end);
 		}
 	}
 
@@ -153,24 +153,24 @@ static int _gfx_x11_init_monitors(
 		int  minor)
 {
 	/* Iterate over all screens */
-	Screen* def = XDefaultScreenOfDisplay(_gfx_x11->display);
-	unsigned int count = XScreenCount(_gfx_x11->display);
+	Screen* def = XDefaultScreenOfDisplay(_gfx_x11.display);
+	unsigned int count = XScreenCount(_gfx_x11.display);
 
 	while(count--)
 	{
 		/* Get screen resources */
 		Screen* scr =
-			XScreenOfDisplay(_gfx_x11->display, count);
+			XScreenOfDisplay(_gfx_x11.display, count);
 		Window root =
 			XRootWindowOfScreen(scr);
 		XRRScreenResources* res =
-			XRRGetScreenResources(_gfx_x11->display, root);
+			XRRGetScreenResources(_gfx_x11.display, root);
 		RROutput prim =
 			res->outputs[0];
 
 		/* Get primary if RandR 1.3 is supported */
 		if(major > 1 || (major == 1 && minor > 2))
-			prim = XRRGetOutputPrimary(_gfx_x11->display, root);
+			prim = XRRGetOutputPrimary(_gfx_x11.display, root);
 
 		/* Insert the screen's display modes */
 		size_t first = _gfx_x11_init_modes(scr, res);
@@ -181,7 +181,7 @@ static int _gfx_x11_init_monitors(
 		{
 			/* Validate output */
 			XRROutputInfo* out =
-				XRRGetOutputInfo(_gfx_x11->display, res, res->outputs[i]);
+				XRRGetOutputInfo(_gfx_x11.display, res, res->outputs[i]);
 
 			if(out->connection != RR_Connected)
 			{
@@ -191,7 +191,7 @@ static int _gfx_x11_init_monitors(
 
 			/* Create new monitor */
 			XRRCrtcInfo* crtc =
-				XRRGetCrtcInfo(_gfx_x11->display, res, out->crtc);
+				XRRGetCrtcInfo(_gfx_x11.display, res, out->crtc);
 			int rot =
 				crtc->rotation & (RR_Rotate_90 | RR_Rotate_270);
 
@@ -214,9 +214,9 @@ static int _gfx_x11_init_monitors(
 			{
 				GFX_X11_Mode* mode;
 				for(
-					mode = gfx_vector_at(&_gfx_x11->modes, first);
-					mode != _gfx_x11->modes.end;
-					mode = gfx_vector_next(&_gfx_x11->modes, mode))
+					mode = gfx_vector_at(&_gfx_x11.modes, first);
+					mode != _gfx_x11.modes.end;
+					mode = gfx_vector_next(&_gfx_x11.modes, mode))
 				{
 					/* Also check if resolution isn't too big */
 					if(
@@ -225,7 +225,7 @@ static int _gfx_x11_init_monitors(
 						mode->mode.height <= crtc->height)
 					{
 						mon.modes[mon.numModes++] = gfx_vector_get_index(
-							&_gfx_x11->modes,
+							&_gfx_x11.modes,
 							mode
 						);
 						break;
@@ -236,10 +236,10 @@ static int _gfx_x11_init_monitors(
 			/* Insert at beginning if primary */
 			GFXVectorIterator monPos =
 				scr == def && res->outputs[i] == prim ?
-				_gfx_x11->monitors.begin : _gfx_x11->monitors.end;
+				_gfx_x11.monitors.begin : _gfx_x11.monitors.end;
 
-			monPos = gfx_vector_insert(&_gfx_x11->monitors, &mon, monPos);
-			if(monPos == _gfx_x11->monitors.end) free(mon.modes);
+			monPos = gfx_vector_insert(&_gfx_x11.monitors, &mon, monPos);
+			if(monPos == _gfx_x11.monitors.end) free(mon.modes);
 
 			XRRFreeCrtcInfo(crtc);
 			XRRFreeOutputInfo(out);
@@ -249,7 +249,7 @@ static int _gfx_x11_init_monitors(
 	}
 
 	/* Need at least one monitor */
-	return _gfx_x11->monitors.begin != _gfx_x11->monitors.end;
+	return _gfx_x11.monitors.begin != _gfx_x11.monitors.end;
 }
 
 /******************************************************/
@@ -348,14 +348,14 @@ static void _gfx_x11_create_key_table(void)
 {
 	/* Get permitted keycodes and their symbols */
 	int minKey, maxKey;
-	XDisplayKeycodes(_gfx_x11->display, &minKey, &maxKey);
+	XDisplayKeycodes(_gfx_x11.display, &minKey, &maxKey);
 	maxKey = maxKey > GFX_X11_MAX_KEYCODE ? GFX_X11_MAX_KEYCODE : maxKey;
 
 	int numKeys = maxKey - minKey + 1;
 
 	int symbolsPerKey;
 	KeySym* symbols = XGetKeyboardMapping(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		minKey,
 		numKeys,
 		&symbolsPerKey
@@ -363,7 +363,7 @@ static void _gfx_x11_create_key_table(void)
 
 	/* Use the first symbol of all keycodes */
 	size_t i;
-	for(i = minKey; i <= maxKey; ++i) _gfx_x11->keys[i] = _gfx_x11_get_key(
+	for(i = minKey; i <= maxKey; ++i) _gfx_x11.keys[i] = _gfx_x11_get_key(
 		symbols[(i - minKey) * symbolsPerKey]);
 
 	XFree(symbols);
@@ -374,18 +374,16 @@ GFX_X11_Window* _gfx_x11_get_window_from_handle(
 
 		Window handle)
 {
-	if(!_gfx_x11) return NULL;
-
 	GFX_X11_Window* it;
 	for(
-		it = _gfx_x11->windows.begin;
-		it != _gfx_x11->windows.end;
-		it = gfx_vector_next(&_gfx_x11->windows, it))
+		it = _gfx_x11.windows.begin;
+		it != _gfx_x11.windows.end;
+		it = gfx_vector_next(&_gfx_x11.windows, it))
 	{
 		if(it->handle == handle) break;
 	}
 
-	return it != _gfx_x11->windows.end ? it : NULL;
+	return it != _gfx_x11.windows.end ? it : NULL;
 }
 
 /******************************************************/
@@ -393,72 +391,59 @@ GFX_X11_Window* _gfx_x11_get_window_from_context(
 
 		GLXContext context)
 {
-	if(!_gfx_x11) return NULL;
-
 	GFX_X11_Window* it;
 	for(
-		it = _gfx_x11->windows.begin;
-		it != _gfx_x11->windows.end;
-		it = gfx_vector_next(&_gfx_x11->windows, it))
+		it = _gfx_x11.windows.begin;
+		it != _gfx_x11.windows.end;
+		it = gfx_vector_next(&_gfx_x11.windows, it))
 	{
 		if(it->context == context) break;
 	}
 
-	return it != _gfx_x11->windows.end ? it : NULL;
+	return it != _gfx_x11.windows.end ? it : NULL;
 }
 
 /******************************************************/
 int _gfx_platform_init(void)
 {
-	if(!_gfx_x11)
+	/* Connect to X Server */
+	_gfx_x11.display = XOpenDisplay(NULL);
+	if(!_gfx_x11.display) return 0;
+
+	XSetErrorHandler(_gfx_x11_error_handler);
+	_gfx_x11.errors = 1;
+
+	/* Setup memory */
+	gfx_vector_init(&_gfx_x11.monitors, sizeof(GFX_X11_Monitor));
+	gfx_vector_init(&_gfx_x11.modes, sizeof(GFX_X11_Mode));
+	gfx_vector_init(&_gfx_x11.windows, sizeof(GFX_X11_Window));
+
+	/* Load extensions and init monitors */
+	int major;
+	int minor;
+
+	if(
+		!_gfx_x11_load_extensions(&major, &minor) ||
+		!_gfx_x11_init_monitors(major, minor))
 	{
-		/* Allocate */
-		_gfx_x11 = calloc(1, sizeof(GFX_X11_Connection));
-		if(!_gfx_x11) return 0;
-
-		/* Connect to X Server */
-		_gfx_x11->display = XOpenDisplay(NULL);
-		if(!_gfx_x11->display)
-		{
-			free(_gfx_x11);
-			return 0;
-		}
-
-		XSetErrorHandler(_gfx_x11_error_handler);
-		_gfx_x11->errors = 1;
-
-		/* Setup memory */
-		gfx_vector_init(&_gfx_x11->monitors, sizeof(GFX_X11_Monitor));
-		gfx_vector_init(&_gfx_x11->modes, sizeof(GFX_X11_Mode));
-		gfx_vector_init(&_gfx_x11->windows, sizeof(GFX_X11_Window));
-
-		/* Load extensions and init monitors */
-		int major;
-		int minor;
-
-		if(
-			!_gfx_x11_load_extensions(&major, &minor) ||
-			!_gfx_x11_init_monitors(major, minor))
-		{
-			_gfx_platform_terminate();
-			return 0;
-		}
-
-		/* Load atoms */
-		_gfx_x11->MOTIF_WM_HINTS =
-			XInternAtom(_gfx_x11->display, "_MOTIF_WM_HINTS", False);
-		_gfx_x11->NET_WM_BYPASS_COMPOSITOR =
-			XInternAtom(_gfx_x11->display, "_NET_WM_BYPASS_COMPOSITOR", False);
-		_gfx_x11->NET_WM_STATE =
-			XInternAtom(_gfx_x11->display, "_NET_WM_STATE", False);
-		_gfx_x11->NET_WM_STATE_ABOVE =
-			XInternAtom(_gfx_x11->display, "_NET_WM_STATE_ABOVE", False);
-		_gfx_x11->WM_DELETE_WINDOW =
-			XInternAtom(_gfx_x11->display, "WM_DELETE_WINDOW", False);
-
-		/* Construct a keycode lookup */
-		_gfx_x11_create_key_table();
+		_gfx_platform_terminate();
+		return 0;
 	}
+
+	/* Load atoms */
+	_gfx_x11.MOTIF_WM_HINTS =
+		XInternAtom(_gfx_x11.display, "_MOTIF_WM_HINTS", False);
+	_gfx_x11.NET_WM_BYPASS_COMPOSITOR =
+		XInternAtom(_gfx_x11.display, "_NET_WM_BYPASS_COMPOSITOR", False);
+	_gfx_x11.NET_WM_STATE =
+		XInternAtom(_gfx_x11.display, "_NET_WM_STATE", False);
+	_gfx_x11.NET_WM_STATE_ABOVE =
+		XInternAtom(_gfx_x11.display, "_NET_WM_STATE_ABOVE", False);
+	_gfx_x11.WM_DELETE_WINDOW =
+		XInternAtom(_gfx_x11.display, "WM_DELETE_WINDOW", False);
+
+	/* Construct a keycode lookup */
+	_gfx_x11_create_key_table();
 
 	return 1;
 }
@@ -466,27 +451,20 @@ int _gfx_platform_init(void)
 /******************************************************/
 void _gfx_platform_terminate(void)
 {
-	if(_gfx_x11)
+	/* Free all mode references */
+	GFX_X11_Monitor* mon;
+	for(
+		mon = _gfx_x11.monitors.begin;
+		mon != _gfx_x11.monitors.end;
+		mon = gfx_vector_next(&_gfx_x11.monitors, mon))
 	{
-		/* Free all mode references */
-		GFX_X11_Monitor* mon;
-		for(
-			mon = _gfx_x11->monitors.begin;
-			mon != _gfx_x11->monitors.end;
-			mon = gfx_vector_next(&_gfx_x11->monitors, mon))
-		{
-			free(mon->modes);
-		}
-
-		/* Close connection (destroys all resources) */
-		if(_gfx_x11->display) XCloseDisplay(_gfx_x11->display);
-
-		gfx_vector_clear(&_gfx_x11->monitors);
-		gfx_vector_clear(&_gfx_x11->modes);
-		gfx_vector_clear(&_gfx_x11->windows);
-
-		/* Deallocate */
-		free(_gfx_x11);
-		_gfx_x11 = NULL;
+		free(mon->modes);
 	}
+
+	/* Close connection (destroys all resources) */
+	if(_gfx_x11.display) XCloseDisplay(_gfx_x11.display);
+
+	gfx_vector_clear(&_gfx_x11.monitors);
+	gfx_vector_clear(&_gfx_x11.modes);
+	gfx_vector_clear(&_gfx_x11.windows);
 }

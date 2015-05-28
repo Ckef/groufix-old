@@ -28,9 +28,9 @@ static void _gfx_x11_enter_fullscreen(
 	Window root =
 		XRootWindowOfScreen(monitor->screen);
 	XRRScreenResources* res =
-		XRRGetScreenResources(_gfx_x11->display, root);
+		XRRGetScreenResources(_gfx_x11.display, root);
 	XRRCrtcInfo* crtc =
-		XRRGetCrtcInfo(_gfx_x11->display, res, monitor->crtc);
+		XRRGetCrtcInfo(_gfx_x11.display, res, monitor->crtc);
 
 	/* Above state */
 	XEvent event;
@@ -38,21 +38,21 @@ static void _gfx_x11_enter_fullscreen(
 
 	event.type                 = ClientMessage;
 	event.xclient.window       = handle;
-	event.xclient.message_type = _gfx_x11->NET_WM_STATE;
+	event.xclient.message_type = _gfx_x11.NET_WM_STATE;
 	event.xclient.format       = 32;
 	event.xclient.data.l[0]    = 1;
-	event.xclient.data.l[1]    = _gfx_x11->NET_WM_STATE_ABOVE;
+	event.xclient.data.l[1]    = _gfx_x11.NET_WM_STATE_ABOVE;
 
 	/* Send event, set mode and move window */
 	XSendEvent(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		root,
 		False,
 		SubstructureRedirectMask | SubstructureNotifyMask,
 		&event);
 
 	XRRSetCrtcConfig(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		res,
 		monitor->crtc,
 		crtc->timestamp,
@@ -64,7 +64,7 @@ static void _gfx_x11_enter_fullscreen(
 		crtc->noutput);
 
 	XMoveWindow(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		handle,
 		crtc->x,
 		crtc->y);
@@ -81,13 +81,13 @@ static inline void _gfx_x11_leave_fullscreen(
 	Window root =
 		XRootWindowOfScreen(monitor->screen);
 	XRRScreenResources* res =
-		XRRGetScreenResources(_gfx_x11->display, root);
+		XRRGetScreenResources(_gfx_x11.display, root);
 	XRRCrtcInfo* crtc =
-		XRRGetCrtcInfo(_gfx_x11->display, res, monitor->crtc);
+		XRRGetCrtcInfo(_gfx_x11.display, res, monitor->crtc);
 
 	/* Set mode */
 	XRRSetCrtcConfig(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		res,
 		monitor->crtc,
 		crtc->timestamp,
@@ -139,7 +139,7 @@ static void _gfx_x11_event_proc(
 		/* Protocol messages */
 		case ClientMessage :
 		{
-			if(event->xclient.data.l[0] == _gfx_x11->WM_DELETE_WINDOW)
+			if(event->xclient.data.l[0] == _gfx_x11.WM_DELETE_WINDOW)
 				_gfx_event_window_close(window);
 
 			break;
@@ -236,7 +236,7 @@ static void _gfx_x11_event_proc(
 
 				if(!(internal->flags & GFX_X11_HIDDEN))
 					XIconifyWindow(
-						_gfx_x11->display,
+						_gfx_x11.display,
 						event->xany.window,
 						XScreenNumberOfScreen(internal->monitor->screen)
 					);
@@ -252,7 +252,7 @@ static void _gfx_x11_event_proc(
 		{
 			GFXKey key;
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
-			else key = _gfx_x11->keys[event->xkey.keycode];
+			else key = _gfx_x11.keys[event->xkey.keycode];
 
 			_gfx_event_key_press(
 				window,
@@ -268,7 +268,7 @@ static void _gfx_x11_event_proc(
 		{
 			GFXKey key;
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
-			else key = _gfx_x11->keys[event->xkey.keycode];
+			else key = _gfx_x11.keys[event->xkey.keycode];
 
 			_gfx_event_key_release(
 				window,
@@ -396,7 +396,7 @@ static GLXFBConfig* _gfx_x11_get_config(
 	/* Get config from screen */
 	int buffElements;
 	return glXChooseFBConfig(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		XScreenNumberOfScreen(screen),
 		bufferAttr,
 		&buffElements
@@ -408,8 +408,6 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 		const GFX_PlatformAttributes* attributes)
 {
-	if(!_gfx_x11) return NULL;
-
 	/* Setup the x11 window */
 	GFX_X11_Window window;
 	window.monitor = attributes->monitor;
@@ -433,7 +431,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		window.flags |= GFX_X11_FULLSCREEN;
 
 		GFX_X11_Mode* it = gfx_vector_at(
-			&_gfx_x11->modes,
+			&_gfx_x11.modes,
 			window.monitor->modes[attributes->mode]
 		);
 
@@ -461,7 +459,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	/* Get visual from config */
 	XVisualInfo* visual = glXGetVisualFromFBConfig(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		*config
 	);
 
@@ -497,7 +495,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		FocusChangeMask;
 
 	attr.colormap = XCreateColormap(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		root,
 		visual->visual,
 		AllocNone
@@ -505,7 +503,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	/* Create the actual window */
 	window.handle = XCreateWindow(
-		_gfx_x11->display,
+		_gfx_x11.display,
 		root,
 		x,
 		y,
@@ -529,7 +527,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		get.y      = 0;
 		get.width  = 0;
 		get.height = 0;
-		XGetWindowAttributes(_gfx_x11->display, window.handle, &get);
+		XGetWindowAttributes(_gfx_x11.display, window.handle, &get);
 
 		window.x      = get.x;
 		window.y      = get.y;
@@ -538,13 +536,13 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 		/* Delete protocol & name */
 		XSetWMProtocols(
-			_gfx_x11->display,
+			_gfx_x11.display,
 			window.handle,
-			&_gfx_x11->WM_DELETE_WINDOW,
+			&_gfx_x11.WM_DELETE_WINDOW,
 			1);
 
 		XStoreName(
-			_gfx_x11->display,
+			_gfx_x11.display,
 			window.handle,
 			attributes->name);
 
@@ -556,10 +554,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			hints[2] = 0;
 
 			XChangeProperty(
-				_gfx_x11->display,
+				_gfx_x11.display,
 				window.handle,
-				_gfx_x11->MOTIF_WM_HINTS,
-				_gfx_x11->MOTIF_WM_HINTS,
+				_gfx_x11.MOTIF_WM_HINTS,
+				_gfx_x11.MOTIF_WM_HINTS,
 				32,
 				PropModeReplace,
 				(unsigned char*)hints,
@@ -572,9 +570,9 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			unsigned long bypass = 1;
 
 			XChangeProperty(
-				_gfx_x11->display,
+				_gfx_x11.display,
 				window.handle,
-				_gfx_x11->NET_WM_BYPASS_COMPOSITOR,
+				_gfx_x11.NET_WM_BYPASS_COMPOSITOR,
 				XA_CARDINAL,
 				32,
 				PropModeReplace,
@@ -594,32 +592,32 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			hints->min_height = mode.height;
 			hints->max_height = mode.height;
 
-			XSetWMNormalHints(_gfx_x11->display, window.handle, hints);
+			XSetWMNormalHints(_gfx_x11.display, window.handle, hints);
 
 			XFree(hints);
 		}
 
 		/* Add window to vector */
 		GFXVectorIterator it = gfx_vector_insert(
-			&_gfx_x11->windows,
+			&_gfx_x11.windows,
 			&window,
-			_gfx_x11->windows.end
+			_gfx_x11.windows.end
 		);
 
-		if(it != _gfx_x11->windows.end)
+		if(it != _gfx_x11.windows.end)
 		{
 			/* Make it visible */
 			/* Triggers FocusIn event for fullscreen */
 			if(!(attributes->flags & GFX_WINDOW_HIDDEN))
-				XMapWindow(_gfx_x11->display, window.handle);
+				XMapWindow(_gfx_x11.display, window.handle);
 
 			return GFX_UINT_TO_VOID(window.handle);
 		}
 
-		XDestroyWindow(_gfx_x11->display, window.handle);
+		XDestroyWindow(_gfx_x11.display, window.handle);
 	}
 
-	XFreeColormap(_gfx_x11->display, attr.colormap);
+	XFreeColormap(_gfx_x11.display, attr.colormap);
 
 	return NULL;
 }
@@ -629,27 +627,24 @@ void _gfx_platform_window_free(
 
 		GFX_PlatformWindow handle)
 {
-	if(_gfx_x11)
-	{
-		GFX_X11_Window* it =
-			_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+	GFX_X11_Window* it =
+		_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
 
-		/* Get attributes */
-		XWindowAttributes attr;
-		XGetWindowAttributes(_gfx_x11->display, GFX_VOID_TO_UINT(handle), &attr);
+	/* Get attributes */
+	XWindowAttributes attr;
+	XGetWindowAttributes(_gfx_x11.display, GFX_VOID_TO_UINT(handle), &attr);
 
-		/* Make sure to undo fullscreen */
-		if(it->flags & GFX_X11_FULLSCREEN)
-			_gfx_x11_leave_fullscreen(it->monitor);
+	/* Make sure to undo fullscreen */
+	if(it->flags & GFX_X11_FULLSCREEN)
+		_gfx_x11_leave_fullscreen(it->monitor);
 
-		/* Destroy context, the window and its colormap */
-		_gfx_platform_context_clear(handle);
-		XDestroyWindow(_gfx_x11->display, GFX_VOID_TO_UINT(handle));
-		XFreeColormap(_gfx_x11->display, attr.colormap);
+	/* Destroy context, the window and its colormap */
+	_gfx_platform_context_clear(handle);
+	XDestroyWindow(_gfx_x11.display, GFX_VOID_TO_UINT(handle));
+	XFreeColormap(_gfx_x11.display, attr.colormap);
 
-		/* Remove from vector */
-		gfx_vector_erase(&_gfx_x11->windows, it);
-	}
+	/* Remove from vector */
+	gfx_vector_erase(&_gfx_x11.windows, it);
 }
 
 /******************************************************/
@@ -668,11 +663,9 @@ char* _gfx_platform_window_get_name(
 
 		GFX_PlatformWindow handle)
 {
-	if(!_gfx_x11) return NULL;
-
 	/* Check if it has a name */
 	char* buff;
-	XFetchName(_gfx_x11->display, GFX_VOID_TO_UINT(handle), &buff);
+	XFetchName(_gfx_x11.display, GFX_VOID_TO_UINT(handle), &buff);
 	if(!buff) return NULL;
 
 	/* Copy to client side memory */
@@ -741,11 +734,7 @@ void _gfx_platform_window_set_name(
 		GFX_PlatformWindow  handle,
 		const char*         name)
 {
-	if(_gfx_x11) XStoreName(
-		_gfx_x11->display,
-		GFX_VOID_TO_UINT(handle),
-		name
-	);
+	XStoreName(_gfx_x11.display, GFX_VOID_TO_UINT(handle), name);
 }
 
 /******************************************************/
@@ -760,7 +749,7 @@ void _gfx_platform_window_set_size(
 
 	if(internal && (internal->flags & GFX_X11_RESIZABLE))
 		XResizeWindow(
-			_gfx_x11->display,
+			_gfx_x11.display,
 			GFX_VOID_TO_UINT(handle),
 			width,
 			height
@@ -789,7 +778,7 @@ void _gfx_platform_window_set_position(
 		}
 
 		XMoveWindow(
-			_gfx_x11->display,
+			_gfx_x11.display,
 			GFX_VOID_TO_UINT(handle),
 			x + xM,
 			y + yM
@@ -808,11 +797,7 @@ void _gfx_platform_window_show(
 	if(internal)
 	{
 		internal->flags &= ~GFX_X11_HIDDEN;
-
-		XMapWindow(
-			_gfx_x11->display,
-			GFX_VOID_TO_UINT(handle)
-		);
+		XMapWindow(_gfx_x11.display, GFX_VOID_TO_UINT(handle));
 	}
 }
 
@@ -827,25 +812,19 @@ void _gfx_platform_window_hide(
 	if(internal)
 	{
 		internal->flags |= GFX_X11_HIDDEN;
-
-		XUnmapWindow(
-			_gfx_x11->display,
-			GFX_VOID_TO_UINT(handle)
-		);
+		XUnmapWindow(_gfx_x11.display, GFX_VOID_TO_UINT(handle));
 	}
 }
 
 /******************************************************/
 int _gfx_platform_poll_events(void)
 {
-	if(!_gfx_x11) return 0;
-
 	XEvent event;
-	int cnt = XPending(_gfx_x11->display);
+	int cnt = XPending(_gfx_x11.display);
 
 	while(cnt--)
 	{
-		XNextEvent(_gfx_x11->display, &event);
+		XNextEvent(_gfx_x11.display, &event);
 		_gfx_x11_event_proc(&event);
 	}
 

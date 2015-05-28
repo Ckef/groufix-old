@@ -164,7 +164,7 @@ typedef struct GFX_X11_Connection
 /**
  * Connection pointer
  */
-extern GFX_X11_Connection* _gfx_x11;
+extern GFX_X11_Connection _gfx_x11;
 
 
 /**
