@@ -1109,8 +1109,6 @@ void _gfx_renderer_load(void)
 			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] = limit;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_BINDINGS, &limit),
 			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] = limit;
-		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_STRIDE, &limit),
-			GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE] = limit;
 
 		GFX_REND_GET.BindVertexBuffer =
 			(PFNGLBINDVERTEXBUFFERPROC)_gfx_platform_get_proc_address("glBindVertexBuffer");
