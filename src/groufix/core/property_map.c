@@ -39,7 +39,7 @@ typedef void (*GFX_PropertyFunc)(
 		void*,
 		unsigned int,
 		unsigned int,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 
 /* Internal property map */
@@ -116,14 +116,14 @@ static int _gfx_property_map_eval_limits(
 
 		GFX_Map*       map,
 		unsigned char  type,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	switch(type)
 	{
 		/* Sampler property */
 		case GFX_INT_PROPERTY_SAMPLER :
 
-			if(++map->samplers > GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES])
+			if(++map->samplers > GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES])
 			{
 				--map->samplers;
 				gfx_errors_push(
@@ -137,7 +137,7 @@ static int _gfx_property_map_eval_limits(
 		/* Buffer property */
 		case GFX_INT_PROPERTY_BLOCK :
 
-			if(++map->blocks > GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES])
+			if(++map->blocks > GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES])
 			{
 				--map->blocks;
 				gfx_errors_push(
@@ -228,7 +228,7 @@ static void _gfx_property_set_empty(
 		void*          data,
 		unsigned int   copy,
 		unsigned int   base,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Some unknown property type, ignore :D */
 }
@@ -241,7 +241,7 @@ static inline void _gfx_property_set_vector_val(
 		const GFX_Value*  val,
 		const void*       data,
 		size_t            elements,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	switch(val->type)
 	{
@@ -301,7 +301,7 @@ static void _gfx_property_set_vector(
 		void*          data,
 		unsigned int   copy,
 		unsigned int   base,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	void* val = _gfx_property_get_copy(
 		flags,
@@ -315,7 +315,7 @@ static void _gfx_property_set_vector(
 		(GFX_Value*)data,
 		val,
 		((GFX_Value*)data)->count,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 }
 
 /******************************************************/
@@ -327,7 +327,7 @@ static void _gfx_property_set_vector_ptr(
 		void*          data,
 		unsigned int   copy,
 		unsigned int   base,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_ValuePtr* ptr = _gfx_property_get_copy(
 		flags,
@@ -348,7 +348,7 @@ static void _gfx_property_set_vector_ptr(
 		val,
 		GFX_PTR_ADD_BYTES(ptr->ptr, base * ptr->bytes),
 		(elements > val->count) ? val->count : elements,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 }
 
@@ -360,7 +360,7 @@ static inline void _gfx_property_set_matrix_val(
 		GFX_Value*   val,
 		const void*  data,
 		size_t       elements,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	switch(val->type)
 	{
@@ -390,7 +390,7 @@ static void _gfx_property_set_matrix(
 		void*          data,
 		unsigned int   copy,
 		unsigned int   base,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	void* val = _gfx_property_get_copy(
 		flags,
@@ -404,7 +404,7 @@ static void _gfx_property_set_matrix(
 		(GFX_Value*)data,
 		val,
 		((GFX_Value*)data)->count,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 }
 
 /******************************************************/
@@ -416,7 +416,7 @@ static void _gfx_property_set_matrix_ptr(
 		void*          data,
 		unsigned int   copy,
 		unsigned int   base,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_ValuePtr* ptr = _gfx_property_get_copy(
 		flags,
@@ -437,7 +437,7 @@ static void _gfx_property_set_matrix_ptr(
 		val,
 		GFX_PTR_ADD_BYTES(ptr->ptr, base * ptr->bytes),
 		(elements > val->count) ? val->count : elements,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 }
 
@@ -450,7 +450,7 @@ static void _gfx_property_set_sampler(
 		void*          data,
 		unsigned int   copy,
 		unsigned int   base,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_Sampler* val = _gfx_property_get_copy(
 		flags,
@@ -465,7 +465,7 @@ static void _gfx_property_set_sampler(
 		val->texture,
 		val->target,
 		1,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 
 	GFX_REND_GET.ProgramUniform1iv(
 		program,
@@ -478,7 +478,7 @@ static void _gfx_property_set_sampler(
 		val->texture,
 		val->target,
 		val->sampler,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 }
 
 /******************************************************/
@@ -490,7 +490,7 @@ static void _gfx_property_set_block(
 		void*          data,
 		unsigned int   copy,
 		unsigned int   base,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_Block* val = _gfx_property_get_copy(
 		flags,
@@ -505,7 +505,7 @@ static void _gfx_property_set_block(
 		val->offset,
 		val->size,
 		1,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 
 	GFX_REND_GET.UniformBlockBinding(
 		program,
@@ -519,14 +519,14 @@ void _gfx_property_map_use(
 		const GFXPropertyMap*  map,
 		unsigned int           copy,
 		unsigned int           base,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	const GFX_Map* internal = (const GFX_Map*)map;
 
 	/* Use program map */
 	_gfx_program_map_bind(
 		internal->handle,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	/* Set all values of the program */
@@ -556,7 +556,7 @@ void _gfx_property_map_use(
 			_gfx_property_get_data(internal, prop),
 			copy,
 			base,
-			GFX_WIND_AS_ARG
+			GFX_CONT_AS_ARG
 		);
 	}
 }
@@ -638,7 +638,7 @@ static int _gfx_property_map_forward(
 		const void*    headData,
 		size_t         headSize,
 		size_t         copySize,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Attempt to allocate */
 	size_t size = headSize + copySize *
@@ -668,7 +668,7 @@ static int _gfx_property_map_forward(
 			}
 
 		/* Check limits */
-		if(_gfx_property_map_eval_limits(map, type, GFX_WIND_AS_ARG))
+		if(_gfx_property_map_eval_limits(map, type, GFX_CONT_AS_ARG))
 		{
 			/* Initialize memory and set index */
 			memset(GFX_PTR_ADD_BYTES(it, headSize), 0, size - headSize);
@@ -938,7 +938,7 @@ int gfx_property_map_forward(
 		GFXShaderStage   stage,
 		unsigned short   property)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	/* Get program */
 	GFXProgram* prog = gfx_program_map_get(map->programMap, stage);
@@ -1018,7 +1018,7 @@ int gfx_property_map_forward(
 		&head,
 		headSize,
 		copySize,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 }
 
@@ -1052,7 +1052,7 @@ int gfx_property_map_forward_block(
 		GFXShaderStage   stage,
 		unsigned short   block)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	/* Get program */
 	GFXProgram* prog = gfx_program_map_get(map->programMap, stage);
@@ -1091,7 +1091,7 @@ int gfx_property_map_forward_block(
 		NULL,
 		0,
 		sizeof(GFX_Block),
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 }
 

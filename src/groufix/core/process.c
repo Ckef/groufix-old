@@ -24,8 +24,8 @@ typedef struct GFX_Process
 	GFXPropertyMap*  map;
 	unsigned int     copy;    /* Copy of the property map to use */
 
-	GFX_Window*      target;
-	unsigned char    swap;    /* Whether to swap window buffers or not */
+	GFX_Context*     target;
+	unsigned char    swap;    /* Whether to swap buffers or not */
 	GFXViewport      viewport;
 
 } GFX_Process;
@@ -45,14 +45,14 @@ static inline void _gfx_pipe_process_draw(
 		const GFXPipeState*    state,
 		const GFXPropertyMap*  map,
 		unsigned int           copy,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	_gfx_states_set(
-		state, GFX_WIND_AS_ARG);
+		state, GFX_CONT_AS_ARG);
 	_gfx_property_map_use(
-		map, copy, 0, GFX_WIND_AS_ARG);
+		map, copy, 0, GFX_CONT_AS_ARG);
 	_gfx_vertex_layout_bind(
-		GFX_REND_GET.post, GFX_WIND_AS_ARG);
+		GFX_REND_GET.post, GFX_CONT_AS_ARG);
 
 	GFX_REND_GET.DrawArrays(
 		GL_TRIANGLE_FAN, 0, 4);
@@ -61,7 +61,7 @@ static inline void _gfx_pipe_process_draw(
 /******************************************************/
 int _gfx_pipe_process_prepare(void)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	/* First make sure the buffer exists */
 	if(!_gfx_process_buffer)
@@ -90,7 +90,7 @@ int _gfx_pipe_process_prepare(void)
 			GFX_REND_GET.post, 0);
 
 		_gfx_vertex_layout_bind(
-			GFX_REND_GET.post, GFX_WIND_AS_ARG);
+			GFX_REND_GET.post, GFX_CONT_AS_ARG);
 		GFX_REND_GET.BindBuffer(
 			GL_ARRAY_BUFFER, _gfx_process_buffer);
 		GFX_REND_GET.VertexAttribIPointer(
@@ -107,7 +107,7 @@ void _gfx_pipe_process_unprepare(
 
 		int last)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	/* Reset pipes if not retargeting */
 	GFXVectorIterator it;
@@ -118,7 +118,7 @@ void _gfx_pipe_process_unprepare(
 	{
 		/* Check for equal target, if equal, reset post processing */
 		GFX_Process* proc = *(GFX_Process**)it;
-		if(GFX_WIND_EQ(proc->target))
+		if(GFX_CONT_EQ(proc->target))
 		{
 			gfx_property_map_free(proc->map);
 			gfx_program_map_free(proc->progs);
@@ -144,13 +144,13 @@ void _gfx_pipe_process_unprepare(
 /******************************************************/
 void _gfx_pipe_process_retarget(
 
-		GFX_Window* target)
+		GFX_Context* target)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
-	if(!GFX_WIND_EQ(target) && _gfx_pipes)
+	if(!GFX_CONT_EQ(target) && _gfx_pipes)
 	{
-		/* First remove resources from current window */
+		/* First remove resources from current context */
 		GFXVectorIterator it;
 		for(
 			it = _gfx_pipes->begin;
@@ -158,12 +158,12 @@ void _gfx_pipe_process_retarget(
 			it = gfx_vector_next(_gfx_pipes, it))
 		{
 			GFX_Process* proc = *(GFX_Process**)it;
-			if(GFX_WIND_EQ(proc->target))
+			if(GFX_CONT_EQ(proc->target))
 				_gfx_program_map_save(proc->progs);
 		}
 
 		/* Then restore them to the new target */
-		_gfx_window_make_current(target);
+		_gfx_context_make_current(target);
 
 		for(
 			it = _gfx_pipes->begin;
@@ -171,7 +171,7 @@ void _gfx_pipe_process_retarget(
 			it = gfx_vector_next(_gfx_pipes, it))
 		{
 			GFX_Process* proc = *(GFX_Process**)it;
-			if(GFX_WIND_EQ(proc->target))
+			if(GFX_CONT_EQ(proc->target))
 			{
 				/* Also make sure to set the target */
 				proc->target = target;
@@ -180,16 +180,16 @@ void _gfx_pipe_process_retarget(
 		}
 
 		/* And back to the old context */
-		_gfx_window_make_current(&GFX_WIND_GET);
+		_gfx_context_make_current(&GFX_CONT_GET);
 	}
 }
 
 /******************************************************/
 void _gfx_pipe_process_resize(
 
-		const GFX_Window*  target,
-		unsigned int       width,
-		unsigned int       height)
+		const GFX_Context*  target,
+		unsigned int        width,
+		unsigned int        height)
 {
 	GFXVectorIterator it;
 	if(_gfx_pipes) for(
@@ -213,7 +213,7 @@ GFXPipeProcess _gfx_pipe_process_create(
 		GFXWindow*  target,
 		int         swap)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	/* Allocate */
 	GFX_Process* proc = calloc(1, sizeof(GFX_Process));
@@ -247,10 +247,10 @@ GFXPipeProcess _gfx_pipe_process_create(
 			&proc->viewport.height
 		);
 
-		proc->target = (GFX_Window*)target;
+		proc->target = (GFX_Context*)target;
 		proc->swap = swap ? proc->target->swap : 0;
 
-		_gfx_window_make_current(proc->target);
+		_gfx_context_make_current(proc->target);
 	}
 
 	proc->progs = gfx_program_map_create();
@@ -285,7 +285,7 @@ GFXPipeProcess _gfx_pipe_process_create(
 	}
 
 	/* Back to previous context */
-	_gfx_window_make_current(&GFX_WIND_GET);
+	_gfx_context_make_current(&GFX_CONT_GET);
 
 	return proc;
 }
@@ -297,21 +297,21 @@ void _gfx_pipe_process_free(
 {
 	if(process)
 	{
-		GFX_WIND_INIT_UNSAFE;
+		GFX_CONT_INIT_UNSAFE;
 
 		GFX_Process* internal = (GFX_Process*)process;
 
 		/* Free context-bound objects */
 		if(internal->target)
-			_gfx_window_make_current(internal->target);
+			_gfx_context_make_current(internal->target);
 
 		gfx_property_map_free(internal->map);
 		gfx_program_map_free(internal->progs);
 
-		if(GFX_WIND_EQ(NULL))
-			_gfx_window_make_current(NULL);
+		if(GFX_CONT_EQ(NULL))
+			_gfx_context_make_current(NULL);
 		else
-			_gfx_window_make_current(&GFX_WIND_GET);
+			_gfx_context_make_current(&GFX_CONT_GET);
 
 		/* Erase self from vector */
 		GFXVectorIterator it;
@@ -343,7 +343,7 @@ void _gfx_pipe_process_execute(
 
 		GFXPipeProcess       process,
 		const GFXPipeState*  state,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_Process* internal = (GFX_Process*)process;
 
@@ -355,47 +355,47 @@ void _gfx_pipe_process_execute(
 		GLuint fbo = GFX_REND_GET.fbos[0];
 		GFXViewport vp = GFX_REND_GET.viewport;
 
-		_gfx_window_make_current(internal->target);
+		_gfx_context_make_current(internal->target);
 
 		/* Set to new state of window to draw to */
 		_gfx_pipeline_bind(
 			GL_DRAW_FRAMEBUFFER,
 			0,
-			GFX_WIND_INT_AS_ARG(internal->target));
+			GFX_CONT_INT_AS_ARG(internal->target));
 
 		_gfx_states_set_viewport(
 			internal->viewport,
-			GFX_WIND_INT_AS_ARG(internal->target));
+			GFX_CONT_INT_AS_ARG(internal->target));
 
 		/* Draw to the window */
 		_gfx_pipe_process_draw(
 			state,
 			internal->map,
 			internal->copy,
-			GFX_WIND_INT_AS_ARG(internal->target));
+			GFX_CONT_INT_AS_ARG(internal->target));
 
 		/* Swap buffers */
 		/* If not swapping, at least flush all commands */
 		if(internal->swap)
-			_gfx_window_swap_buffers();
+			_gfx_context_swap_buffers();
 		else
 			GFX_REND_GET.Flush();
 
 		/* Restore previous state if main context */
-		if(GFX_WIND_EQ(internal->target))
+		if(GFX_CONT_EQ(internal->target))
 		{
 			_gfx_pipeline_bind(
 				GL_DRAW_FRAMEBUFFER,
 				fbo,
-				GFX_WIND_AS_ARG);
+				GFX_CONT_AS_ARG);
 
 			_gfx_states_set_viewport(
 				vp,
-				GFX_WIND_AS_ARG);
+				GFX_CONT_AS_ARG);
 		}
 
 		/* Restore context if not main context */
-		else _gfx_window_make_current(&GFX_WIND_GET);
+		else _gfx_context_make_current(&GFX_CONT_GET);
 	}
 
 	/* If no windowed rendering, just draw */
@@ -403,7 +403,7 @@ void _gfx_pipe_process_execute(
 		state,
 		internal->map,
 		internal->copy,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 }
 
@@ -417,11 +417,11 @@ GFXPropertyMap* gfx_pipe_process_get_map(
 
 	if(!internal->map)
 	{
-		GFX_WIND_INIT(NULL);
+		GFX_CONT_INIT(NULL);
 
 		/* Make the target current so the program map will block properly */
 		if(internal->target)
-			_gfx_window_make_current(internal->target);
+			_gfx_context_make_current(internal->target);
 
 		/* And create the property map */
 		internal->map = gfx_property_map_create(
@@ -430,7 +430,7 @@ GFXPropertyMap* gfx_pipe_process_get_map(
 		);
 
 		/* Back to old context */
-		_gfx_window_make_current(&GFX_WIND_GET);
+		_gfx_context_make_current(&GFX_CONT_GET);
 	}
 
 	return internal->map;

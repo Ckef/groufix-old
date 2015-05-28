@@ -249,7 +249,7 @@ void _gfx_texture_set_sampler(
 		GLuint             texture,
 		GLuint             target,
 		const GFXSampler*  sampler,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
@@ -288,7 +288,7 @@ void _gfx_texture_set_sampler(
 			GL_TEXTURE_WRAP_R,
 			sampler->wrapR);
 
-		if(GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
+		if(GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
 			GFX_REND_GET.TextureParameterf(
 				texture,
 				GL_TEXTURE_MAX_ANISOTROPY_EXT,
@@ -332,7 +332,7 @@ void _gfx_texture_set_sampler(
 			GL_TEXTURE_WRAP_R,
 			sampler->wrapR);
 
-		if(GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
+		if(GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
 			GFX_REND_GET.TexParameterf(
 				target,
 				GL_TEXTURE_MAX_ANISOTROPY_EXT,

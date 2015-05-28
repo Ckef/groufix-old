@@ -25,10 +25,10 @@ int gfx_is_extension_supported(
 
 		GFXExtension extension)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window || extension >= GFX_EXT_COUNT) return 0;
+	GFX_Context* context = _gfx_context_get_current();
+	if(!context || extension >= GFX_EXT_COUNT) return 0;
 
-	return window->ext[extension];
+	return context->ext[extension];
 }
 
 /******************************************************/
@@ -36,10 +36,10 @@ int gfx_get_limit(
 
 		GFXLimit limit)
 {
-	GFX_Window* window = _gfx_window_get_current();
-	if(!window || limit >= GFX_LIM_COUNT) return -1;
+	GFX_Context* context = _gfx_context_get_current();
+	if(!context || limit >= GFX_LIM_COUNT) return -1;
 
-	return window->lim[limit];
+	return context->lim[limit];
 }
 
 /******************************************************/
@@ -53,10 +53,10 @@ int gfx_init(
 	errors = GFX_ERROR_MODE_DEBUG;
 #endif
 
-	/* Initialize platform, window manager and errors */
+	/* Initialize platform, context manager and errors */
 	if(_gfx_platform_init())
 	{
-		if(_gfx_window_manager_init(context))
+		if(_gfx_context_manager_init(context))
 		{
 			if(_gfx_errors_init(errors))
 			{
@@ -67,7 +67,7 @@ int gfx_init(
 				return 1;
 			}
 
-			_gfx_window_manager_terminate();
+			_gfx_context_manager_terminate();
 		}
 
 		_gfx_platform_terminate();
@@ -106,6 +106,6 @@ void gfx_terminate(void)
 
 	/* Terminate */
 	_gfx_errors_terminate();
-	_gfx_window_manager_terminate();
+	_gfx_context_manager_terminate();
 	_gfx_platform_terminate();
 }

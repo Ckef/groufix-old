@@ -75,7 +75,7 @@ GFXSampler* _gfx_sampler_create(
 
 		const GFXSampler* values)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	/* Allocate new sampler */
 	GFX_Sampler* samp = calloc(1, sizeof(GFX_Sampler));
@@ -93,7 +93,7 @@ GFXSampler* _gfx_sampler_create(
 	{
 		/* Register as object */
 		samp->id = _gfx_render_object_register(
-			&GFX_WIND_GET.objects,
+			&GFX_CONT_GET.objects,
 			samp,
 			&_gfx_sampler_obj_funcs
 		);
@@ -148,17 +148,17 @@ void _gfx_sampler_free(
 		/* Check references */
 		if(!(--internal->references))
 		{
-			GFX_WIND_INIT_UNSAFE;
+			GFX_CONT_INIT_UNSAFE;
 
 			/* Unregister as object */
 			_gfx_render_object_unregister(internal->id);
 
-			if(!GFX_WIND_EQ(NULL))
+			if(!GFX_CONT_EQ(NULL))
 			{
 				/* Delete sampler object */
 				_gfx_binder_unbind_sampler(
 					internal->handle,
-					GFX_WIND_AS_ARG
+					GFX_CONT_AS_ARG
 				);
 
 				if(GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS])
@@ -179,7 +179,7 @@ int _gfx_sampler_set(
 		GFXSampler*        sampler,
 		const GFXSampler*  values)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	/* Copy values */
 	*sampler = *values;
@@ -191,8 +191,8 @@ int _gfx_sampler_set(
 
 	sampler->maxAnisotropy =
 		sampler->maxAnisotropy >
-		GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] ?
-		GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] :
+		GFX_CONT_GET.lim[GFX_LIM_MAX_ANISOTROPY] ?
+		GFX_CONT_GET.lim[GFX_LIM_MAX_ANISOTROPY] :
 		sampler->maxAnisotropy;
 
 	if(GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS])
@@ -235,7 +235,7 @@ int _gfx_sampler_set(
 			GL_TEXTURE_WRAP_R,
 			sampler->wrapR);
 
-		if(GFX_WIND_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
+		if(GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
 			GFX_REND_GET.SamplerParameterf(
 				internal->handle,
 				GL_TEXTURE_MAX_ANISOTROPY_EXT,

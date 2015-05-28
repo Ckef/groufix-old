@@ -59,14 +59,14 @@ static inline unsigned char _gfx_texture_get_num_mipmaps(
 static int _gfx_texture_eval_target(
 
 		GLenum target,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	switch(target)
 	{
 		/* GFX_EXT_BUFFER_TEXTURE */
 		case GL_TEXTURE_BUFFER :
 
-			if(!GFX_WIND_GET.ext[GFX_EXT_BUFFER_TEXTURE])
+			if(!GFX_CONT_GET.ext[GFX_EXT_BUFFER_TEXTURE])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -79,7 +79,7 @@ static int _gfx_texture_eval_target(
 		/* GFX_EXT_MULTISAMPLE_TEXTURE */
 		case GL_TEXTURE_2D_MULTISAMPLE :
 
-			if(!GFX_WIND_GET.ext[GFX_EXT_MULTISAMPLE_TEXTURE])
+			if(!GFX_CONT_GET.ext[GFX_EXT_MULTISAMPLE_TEXTURE])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -92,7 +92,7 @@ static int _gfx_texture_eval_target(
 		/* GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE */
 		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY :
 
-			if(!GFX_WIND_GET.ext[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE])
+			if(!GFX_CONT_GET.ext[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -105,7 +105,7 @@ static int _gfx_texture_eval_target(
 		/* GFX_EXT_LAYERED_CUBEMAP */
 		case GL_TEXTURE_CUBE_MAP_ARRAY :
 
-			if(!GFX_WIND_GET.ext[GFX_EXT_LAYERED_CUBEMAP])
+			if(!GFX_CONT_GET.ext[GFX_EXT_LAYERED_CUBEMAP])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -183,11 +183,11 @@ static GFX_Texture* _gfx_texture_alloc(
 
 		GLenum            target,
 		GFXTextureFormat  format,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Validate type & format */
 	GLint form = _gfx_texture_eval_internal_format(format);
-	if(form < 0 || !_gfx_texture_eval_target(target, GFX_WIND_AS_ARG))
+	if(form < 0 || !_gfx_texture_eval_target(target, GFX_CONT_AS_ARG))
 		return NULL;
 
 	/* Create new texture */
@@ -204,7 +204,7 @@ static GFX_Texture* _gfx_texture_alloc(
 
 	/* Register as object */
 	tex->id = _gfx_render_object_register(
-		&GFX_WIND_GET.objects,
+		&GFX_CONT_GET.objects,
 		tex,
 		&_gfx_texture_obj_funcs
 	);
@@ -229,7 +229,7 @@ static GFX_Texture* _gfx_texture_alloc(
 			tex->handle,
 			tex->target,
 			0,
-			GFX_WIND_AS_ARG
+			GFX_CONT_AS_ARG
 		);
 	}
 
@@ -241,7 +241,7 @@ static void _gfx_texture_set_mipmaps(
 
 		const GFX_Texture*  tex,
 		unsigned char       mips,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
@@ -267,7 +267,7 @@ static void _gfx_texture_set_storage(
 		size_t        width,
 		size_t        height,
 		size_t        depth,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	tex->texture.width  = width;
 	tex->texture.height = height;
@@ -427,7 +427,7 @@ GFXTexture* gfx_texture_create(
 		size_t            height,
 		size_t            depth)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	/* Get target */
 	GLenum target;
@@ -455,7 +455,7 @@ GFXTexture* gfx_texture_create(
 	GFX_Texture* tex = _gfx_texture_alloc(
 		target,
 		format,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	if(!tex) return NULL;
@@ -473,7 +473,7 @@ GFXTexture* gfx_texture_create(
 	_gfx_texture_set_mipmaps(
 		tex,
 		mipmaps,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	/* Allocate data */
@@ -482,7 +482,7 @@ GFXTexture* gfx_texture_create(
 		width,
 		height,
 		depth,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	return (GFXTexture*)tex;
@@ -497,7 +497,7 @@ GFXTexture* gfx_texture_create_multisample(
 		size_t            height,
 		size_t            depth)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	GLenum target = (depth > 1) ?
 		GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
@@ -506,13 +506,13 @@ GFXTexture* gfx_texture_create_multisample(
 	GFX_Texture* tex = _gfx_texture_alloc(
 		target,
 		format,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	if(!tex) return NULL;
 
 	/* Limit samples */
-	int maxSamples = GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLES];
+	int maxSamples = GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLES];
 
 	tex->texture.type =
 		GFX_TEXTURE_2D;
@@ -524,7 +524,7 @@ GFXTexture* gfx_texture_create_multisample(
 	_gfx_texture_set_mipmaps(
 		tex,
 		0,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	/* Allocate data */
@@ -533,7 +533,7 @@ GFXTexture* gfx_texture_create_multisample(
 		width,
 		height,
 		depth,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	return (GFXTexture*)tex;
@@ -545,7 +545,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 		GFXTextureFormat  format,
 		const GFXBuffer*  buffer)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	if(
 		_gfx_is_data_type_packed(format.type) ||
@@ -558,7 +558,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 	GFX_Texture* tex = _gfx_texture_alloc(
 		GL_TEXTURE_BUFFER,
 		format,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	if(!tex) return NULL;
@@ -572,7 +572,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 	if(tex->texture.width)
 		tex->texture.width = buffer->size / tex->texture.width;
 
-	int max = GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE];
+	int max = GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE];
 	tex->texture.width = tex->texture.width > max ? max : tex->texture.width;
 
 	tex->texture.height = 1;
@@ -582,7 +582,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 	_gfx_texture_set_mipmaps(
 		tex,
 		0,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	/* Link buffer */
@@ -608,17 +608,17 @@ void gfx_texture_free(
 {
 	if(texture)
 	{
-		GFX_WIND_INIT_UNSAFE;
+		GFX_CONT_INIT_UNSAFE;
 
 		GFX_Texture* internal = (GFX_Texture*)texture;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
 
-		if(!GFX_WIND_EQ(NULL))
+		if(!GFX_CONT_EQ(NULL))
 		{
 			/* Delete texture */
-			_gfx_binder_unbind_texture(internal->handle, GFX_WIND_AS_ARG);
+			_gfx_binder_unbind_texture(internal->handle, GFX_CONT_AS_ARG);
 			GFX_REND_GET.DeleteTextures(1, &internal->handle);
 		}
 
@@ -642,7 +642,7 @@ void gfx_texture_write(
 		const GFXPixelTransfer*  transfer,
 		const void*              data)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	const GFX_Texture* tex = (const GFX_Texture*)image.texture;
 
@@ -663,7 +663,7 @@ void gfx_texture_write(
 		/* Upload texture data */
 		_gfx_states_set_pixel_unpack_alignment(
 			transfer->alignment,
-			GFX_WIND_AS_ARG);
+			GFX_CONT_AS_ARG);
 
 		GLint pixForm =
 			_gfx_texture_eval_pixel_format(transfer->format);
@@ -765,7 +765,7 @@ void gfx_texture_write(
 				tex->handle,
 				tex->target,
 				0,
-				GFX_WIND_AS_ARG
+				GFX_CONT_AS_ARG
 			);
 
 			switch(tex->target)
@@ -860,7 +860,7 @@ void gfx_texture_write_from_buffer(
 		const GFXBuffer*         buffer,
 		size_t                   offset)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	const GFX_Texture* tex = (const GFX_Texture*)image.texture;
 
@@ -901,7 +901,7 @@ void gfx_texture_generate_mipmaps(
 
 		const GFXTexture* texture)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	const GFX_Texture* internal = (const GFX_Texture*)texture;
 
@@ -916,7 +916,7 @@ void gfx_texture_generate_mipmaps(
 			internal->handle,
 			internal->target,
 			0,
-			GFX_WIND_AS_ARG
+			GFX_CONT_AS_ARG
 		);
 
 		GFX_REND_GET.GenerateMipmap(internal->target);

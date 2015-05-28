@@ -49,7 +49,7 @@ typedef void (*GFX_DrawFunc)(
 		unsigned int,
 		unsigned int,
 		unsigned int,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 
 /* Internal bucket */
@@ -119,7 +119,7 @@ static void _gfx_draw(
 		unsigned int            instBase,
 		unsigned int            vertBase,
 		unsigned int            indBase,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_REND_GET.DrawArrays(
 		src->primitive,
@@ -136,7 +136,7 @@ static void _gfx_draw_instanced(
 		unsigned int            instBase,
 		unsigned int            vertBase,
 		unsigned int            indBase,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_REND_GET.DrawArraysInstanced(
 		src->primitive,
@@ -154,7 +154,7 @@ static void _gfx_draw_instanced_base(
 		unsigned int            instBase,
 		unsigned int            vertBase,
 		unsigned int            indBase,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_REND_GET.DrawArraysInstancedBaseInstance(
 		src->primitive,
@@ -173,7 +173,7 @@ static void _gfx_draw_indexed(
 		unsigned int            instBase,
 		unsigned int            vertBase,
 		unsigned int            indBase,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_REND_GET.DrawElements(
 		src->primitive,
@@ -191,7 +191,7 @@ static void _gfx_draw_indexed_instanced(
 		unsigned int            instBase,
 		unsigned int            vertBase,
 		unsigned int            indBase,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_REND_GET.DrawElementsInstanced(
 		src->primitive,
@@ -210,7 +210,7 @@ static void _gfx_draw_indexed_instanced_base(
 		unsigned int            instBase,
 		unsigned int            vertBase,
 		unsigned int            indBase,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseInstance(
 		src->primitive,
@@ -230,7 +230,7 @@ static void _gfx_draw_indexed_vertex_base(
 		unsigned int            instBase,
 		unsigned int            vertBase,
 		unsigned int            indBase,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_REND_GET.DrawElementsBaseVertex(
 		src->primitive,
@@ -249,7 +249,7 @@ static void _gfx_draw_indexed_instanced_vertex_base(
 		unsigned int            instBase,
 		unsigned int            vertBase,
 		unsigned int            indBase,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseVertex(
 		src->primitive,
@@ -269,7 +269,7 @@ static void _gfx_draw_indexed_instanced_base_vertex_base(
 		unsigned int            instBase,
 		unsigned int            vertBase,
 		unsigned int            indBase,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_REND_GET.DrawElementsInstancedBaseVertexBaseInstance(
 		src->primitive,
@@ -288,23 +288,23 @@ static void _gfx_bucket_invoke(
 		const GFX_Ref*     ref,
 		const GFX_Source*  source,
 		const GFX_Unit*    unit,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Bind VAO & Tessellation vertices */
 	_gfx_vertex_layout_bind(
 		unit->vao,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 
 	_gfx_states_set_patch_vertices(
 		source->source.patchSize,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 
 	/* Bind shader program */
 	_gfx_property_map_use(
 		ref->map,
 		ref->copy,
 		ref->instanceBase,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 
 	/* Jump table & invoke draw call */
 	static const GFX_DrawFunc jump[] =
@@ -329,7 +329,7 @@ static void _gfx_bucket_invoke(
 		ref->instanceBase,
 		ref->vertexBase,
 		ref->indexBase,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 }
 
@@ -338,18 +338,18 @@ static void _gfx_bucket_set_draw_type(
 
 		GFX_Ref* ref)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	unsigned int inst = 0;
 	unsigned int vert = 0;
 
 	/* Check the extension for bases */
-	if(!GFX_WIND_EQ(NULL))
+	if(!GFX_CONT_EQ(NULL))
 	{
 		inst = ref->instanceBase &&
-			GFX_WIND_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
+			GFX_CONT_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES];
 		vert = ref->vertexBase &&
-			GFX_WIND_GET.ext[GFX_EXT_VERTEX_BASE_INDICES];
+			GFX_CONT_GET.ext[GFX_EXT_VERTEX_BASE_INDICES];
 	}
 
 	ref->type = inst ?
@@ -703,13 +703,13 @@ void _gfx_bucket_process(
 
 		GFXBucket*           bucket,
 		const GFXPipeState*  state,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	GFX_Bucket* internal = (GFX_Bucket*)bucket;
 
 	/* Preprocess, set states and invoke units */
 	_gfx_bucket_preprocess(internal);
-	_gfx_states_set(state, GFX_WIND_AS_ARG);
+	_gfx_states_set(state, GFX_CONT_AS_ARG);
 
 	GFX_Unit* unit;
 	for(
@@ -729,7 +729,7 @@ void _gfx_bucket_process(
 			ref,
 			src,
 			unit,
-			GFX_WIND_AS_ARG);
+			GFX_CONT_AS_ARG);
 	}
 }
 

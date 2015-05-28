@@ -287,7 +287,7 @@ static unsigned short _gfx_program_prepare_properties(
 
 		GFX_Program*    program,
 		unsigned short  properties,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Reserve memory */
 	gfx_vector_clear(&program->properties);
@@ -352,7 +352,7 @@ static unsigned short _gfx_program_prepare_blocks(
 
 		GFX_Program*    program,
 		unsigned short  blocks,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Reserve memory */
 	gfx_vector_clear(&program->blocks);
@@ -468,7 +468,7 @@ static void _gfx_program_unprepare(
 static void _gfx_program_prepare(
 
 		GFX_Program* program,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	_gfx_program_unprepare(program);
 
@@ -484,9 +484,9 @@ static void _gfx_program_prepare(
 
 	/* Prepare properties and blocks */
 	program->program.properties =
-		_gfx_program_prepare_properties(program, properties, GFX_WIND_AS_ARG);
+		_gfx_program_prepare_properties(program, properties, GFX_CONT_AS_ARG);
 	program->program.blocks =
-		_gfx_program_prepare_blocks(program, blocks, GFX_WIND_AS_ARG);
+		_gfx_program_prepare_blocks(program, blocks, GFX_CONT_AS_ARG);
 }
 
 /******************************************************/
@@ -556,7 +556,7 @@ GFXProgram* gfx_program_create(
 
 		size_t instances)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	/* Create new program */
 	GFX_Program* prog = calloc(1, sizeof(GFX_Program));
@@ -572,7 +572,7 @@ GFXProgram* gfx_program_create(
 
 	/* Register as object */
 	prog->id = _gfx_render_object_register(
-		&GFX_WIND_GET.objects,
+		&GFX_CONT_GET.objects,
 		prog,
 		&_gfx_program_obj_funcs
 	);
@@ -606,12 +606,12 @@ void gfx_program_free(
 		/* Check references */
 		if(!(--internal->references))
 		{
-			GFX_WIND_INIT_UNSAFE;
+			GFX_CONT_INIT_UNSAFE;
 
 			/* Unregister as object */
 			_gfx_render_object_unregister(internal->id);
 
-			if(!GFX_WIND_EQ(NULL))
+			if(!GFX_CONT_EQ(NULL))
 			{
 				/* Delete program */
 				if(GFX_REND_GET.program == internal->handle)
@@ -651,9 +651,9 @@ int gfx_program_set_attribute(
 		unsigned int  index,
 		const char*   name)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
-	if(index >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIBS])
+	if(index >= GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIBS])
 		return 0;
 
 	GFX_Program* internal = (GFX_Program*)program;
@@ -678,9 +678,9 @@ int gfx_program_set_feedback(
 		const char**     names,
 		GFXFeedbackMode  mode)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
-	if(num > GFX_WIND_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS] &&
+	if(num > GFX_CONT_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS] &&
 		mode == GFX_FEEDBACK_SEPARATE) return 0;
 
 	GFX_Program* internal = (GFX_Program*)program;
@@ -709,12 +709,12 @@ int gfx_program_link(
 	/* Already linked */
 	if(!program->linked)
 	{
-		GFX_WIND_INIT(0);
+		GFX_CONT_INIT(0);
 
 		GFX_Program* internal = (GFX_Program*)program;
 
 		/* Set binary parameter */
-		if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_BINARY])
+		if(GFX_CONT_GET.ext[GFX_EXT_PROGRAM_BINARY])
 			GFX_REND_GET.ProgramParameteri(
 				internal->handle,
 				GL_PROGRAM_BINARY_RETRIEVABLE_HINT,
@@ -722,7 +722,7 @@ int gfx_program_link(
 			);
 
 		/* Set separable parameter */
-		if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+		if(GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP])
 			GFX_REND_GET.ProgramParameteri(
 				internal->handle,
 				GL_PROGRAM_SEPARABLE,
@@ -788,7 +788,7 @@ int gfx_program_link(
 		}
 
 		/* Prepare program */
-		_gfx_program_prepare(internal, GFX_WIND_AS_ARG);
+		_gfx_program_prepare(internal, GFX_CONT_AS_ARG);
 	}
 
 	/* Woop woop! */
@@ -802,7 +802,7 @@ void* gfx_program_get_binary(
 		GFXProgramFormat*  format,
 		size_t*            size)
 {
-	GFX_WIND_INIT((*size = 0, NULL));
+	GFX_CONT_INIT((*size = 0, NULL));
 
 	const GFX_Program* internal = (const GFX_Program*)program;
 
@@ -838,7 +838,7 @@ int gfx_program_set_binary(
 		size_t            size,
 		const void*       data)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	GFX_Program* internal = (GFX_Program*)program;
 
@@ -858,7 +858,7 @@ int gfx_program_set_binary(
 	/* Prepare program */
 	if(status)
 	{
-		_gfx_program_prepare(internal, GFX_WIND_AS_ARG);
+		_gfx_program_prepare(internal, GFX_CONT_AS_ARG);
 		program->linked = 1;
 	}
 
@@ -884,7 +884,7 @@ unsigned short gfx_program_get_named_property(
 		const GFXProgram*  program,
 		const char*        name)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	const GFX_Program* internal = (const GFX_Program*)program;
 
@@ -919,7 +919,7 @@ unsigned short gfx_program_get_named_property_block(
 		const GFXProgram*  program,
 		const char*        name)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	const GFX_Program* internal = (const GFX_Program*)program;
 

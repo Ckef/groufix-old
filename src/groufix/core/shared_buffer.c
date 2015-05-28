@@ -86,7 +86,7 @@ static GFX_RenderObjectFuncs _gfx_shared_buffer_obj_funcs =
 static GFXVectorIterator _gfx_shared_buffer_create(
 
 		size_t minSize,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Create a new shared buffer */
 	GFX_SharedBuffer* buff = malloc(sizeof(GFX_SharedBuffer));
@@ -115,7 +115,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 
 	/* Register as object */
 	buff->id = _gfx_render_object_register(
-		&GFX_WIND_GET.objects,
+		&GFX_CONT_GET.objects,
 		buff,
 		&_gfx_shared_buffer_obj_funcs
 	);
@@ -144,7 +144,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 static void _gfx_shared_buffer_free(
 
 		GFXVectorIterator it,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	if(it)
 	{
@@ -154,7 +154,7 @@ static void _gfx_shared_buffer_free(
 		_gfx_render_object_unregister(buff->id);
 
 		/* Delete buffer */
-		if(!GFX_WIND_EQ(NULL))
+		if(!GFX_CONT_EQ(NULL))
 			GFX_REND_GET.DeleteBuffers(1, &buff->handle);
 
 		/* Remove from le vector */
@@ -295,7 +295,7 @@ void gfx_shared_buffer_cleanup(void)
 {
 	if(_gfx_shared_buffers)
 	{
-		GFX_WIND_INIT_UNSAFE;
+		GFX_CONT_INIT_UNSAFE;
 
 		/* Find any empty buffers and free them */
 		/* Iterate from back to front again, because erasal efficiency */
@@ -309,7 +309,7 @@ void gfx_shared_buffer_cleanup(void)
 			if(buff->segments.begin == buff->segments.end)
 			{
 				/* Also bail if all buffers are freed */
-				_gfx_shared_buffer_free(it, GFX_WIND_AS_ARG);
+				_gfx_shared_buffer_free(it, GFX_CONT_AS_ARG);
 				if(!_gfx_shared_buffers) break;
 			}
 		}
@@ -324,7 +324,7 @@ int gfx_shared_buffer_init(
 		const void*       data,
 		unsigned char     align)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	/* Validate alignment */
 	align = align ? align : 1;
@@ -365,7 +365,7 @@ int gfx_shared_buffer_init(
 	}
 
 	/* Create new shared buffer */
-	it = _gfx_shared_buffer_create(size, GFX_WIND_AS_ARG);
+	it = _gfx_shared_buffer_create(size, GFX_CONT_AS_ARG);
 
 	if(it)
 	{
@@ -388,7 +388,7 @@ int gfx_shared_buffer_init(
 	}
 
 	/* Nope, destroy again */
-	_gfx_shared_buffer_free(it, GFX_WIND_AS_ARG);
+	_gfx_shared_buffer_free(it, GFX_CONT_AS_ARG);
 
 	return 0;
 }
@@ -415,13 +415,13 @@ void gfx_shared_buffer_clear(
 		GFXSharedBuffer*  buffer,
 		int               keep)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_SharedBuffer* buff = buffer->reference;
 	_gfx_shared_buffer_erase_segment(buff, buffer->offset);
 
 	/* If already terminated, ignore keep */
-	if(GFX_WIND_EQ(NULL)) keep = 0;
+	if(GFX_CONT_EQ(NULL)) keep = 0;
 
 	/* If empty and no keep flag, free it */
 	if(!keep && buff->segments.begin == buff->segments.end)
@@ -435,7 +435,7 @@ void gfx_shared_buffer_clear(
 		{
 			if(*(GFX_SharedBuffer**)it == buff)
 			{
-				_gfx_shared_buffer_free(it, GFX_WIND_AS_ARG);
+				_gfx_shared_buffer_free(it, GFX_CONT_AS_ARG);
 				break;
 			}
 		}

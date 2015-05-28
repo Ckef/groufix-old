@@ -32,20 +32,20 @@
 
 
 /* Macros for safe current window/renderer fetching */
-#define GFX_WIND_INIT_UNSAFE        GFX_Window* _gfx_w__ = _gfx_window_get_current();
-#define GFX_WIND_INIT_BAD(r)        GFX_WIND_INIT_UNSAFE if(!_gfx_w__) return r;
-#define GFX_WIND_INIT(r)            GFX_WIND_INIT_BAD(r)
+#define GFX_CONT_INIT_UNSAFE        GFX_Context* _gfx_c__ = _gfx_context_get_current();
+#define GFX_CONT_INIT_BAD(r)        GFX_CONT_INIT_UNSAFE if(!_gfx_c__) return r;
+#define GFX_CONT_INIT(r)            GFX_CONT_INIT_BAD(r)
 
-#define GFX_WIND_EQ_BAD(x)          (_gfx_w__ == (x))
-#define GFX_WIND_EQ(x)              GFX_WIND_EQ_BAD(x)
+#define GFX_CONT_EQ_BAD(x)          (_gfx_c__ == (x))
+#define GFX_CONT_EQ(x)              GFX_CONT_EQ_BAD(x)
 
-#define GFX_WIND_ARG                GFX_Window* _gfx_w__
-#define GFX_WIND_AS_ARG             _gfx_w__
-#define GFX_WIND_INT_AS_ARG_BAD(w)  (w)
-#define GFX_WIND_INT_AS_ARG(w)      GFX_WIND_INT_AS_ARG_BAD(w)
+#define GFX_CONT_ARG                GFX_Context* _gfx_c__
+#define GFX_CONT_AS_ARG             _gfx_c__
+#define GFX_CONT_INT_AS_ARG_BAD(c)  (c)
+#define GFX_CONT_INT_AS_ARG(c)      GFX_CONT_INT_AS_ARG_BAD(c)
 
-#define GFX_WIND_GET                (*_gfx_w__)
-#define GFX_REND_GET                (_gfx_w__->renderer)
+#define GFX_CONT_GET                (*_gfx_c__)
+#define GFX_REND_GET                (_gfx_c__->renderer)
 
 
 /********************************************************
@@ -57,16 +57,16 @@ typedef struct GFX_Renderer GFX_Renderer;
 
 
 /**
- * Loads the renderer of the current window and sets extension flags and limits.
+ * Loads the renderer of the current context and sets extension flags and limits.
  *
- * Note: this method may assume the context version of the window is set and
- * the current renderer and relevant window fields are initialized to all 0s.
+ * Note: this method may assume the context version is set and
+ * the current renderer and relevant context fields are initialized to all 0s.
  *
  */
 void _gfx_renderer_load(void);
 
 /**
- * Unloads and frees the renderer of the current window.
+ * Unloads and frees the renderer of the current context.
  *
  */
 void _gfx_renderer_unload(void);
@@ -182,7 +182,7 @@ void _gfx_render_objects_save(
  *
  * @param src Source container on which a save request was previously issued.
  *
- * During this operation, a new window and context must be current.
+ * During this operation, a new context must be current.
  * An new ID for this new context is given.
  *
  */
@@ -193,11 +193,11 @@ void _gfx_render_objects_restore(
 
 
 /********************************************************
- * Internal window data & methods
+ * Internal context data & methods
  *******************************************************/
 
-/** Internal window */
-typedef struct GFX_Window
+/** Internal generic context */
+typedef struct GFX_Context
 {
 	/* Super class */
 	GFXWindow window;
@@ -215,95 +215,93 @@ typedef struct GFX_Window
 	GFX_PlatformWindow   handle;
 	GFX_PlatformContext  context;
 	GFX_Renderer         renderer; /* Renderer data */
-	GFX_RenderObjects    objects;  /* Per window render objects */
+	GFX_RenderObjects    objects;  /* Per context render objects */
 
-} GFX_Window;
+} GFX_Context;
 
 
 /**
- * Initializes the window manager.
+ * Initializes the context manager.
  *
- * @param context Minimum context version to use.
+ * @param version Minimum context version to use.
  * @return Zero on failure.
  *
  */
-int _gfx_window_manager_init(
+int _gfx_context_manager_init(
 
-		GFXContext context);
+		GFXContext version);
 
 /**
- * Terminates the window manager.
+ * Terminates the context manager.
  *
  * If it was not yet initialized before, this method has no effect.
  *
  */
-void _gfx_window_manager_terminate(void);
+void _gfx_context_manager_terminate(void);
 
 /**
- * Returns the top level window associated with a platform window.
+ * Creates a new off-screen context.
  *
- * Note: does not return off-screen windows of dummy windows returned by
- * _gfx_platform_context_create.
+ * Note: events have no effect on an off-screen context.
  *
- */
-GFX_Window* _gfx_window_get_from_handle(
-
-		GFX_PlatformWindow handle);
-
-/**
- * Creates a new off-screen window.
- *
- * Note: events have no effect on an off-screen window.
- *
- * The returned window does not behave as a regular window,
+ * The returned context does not behave as a regular context,
  * the only valid operations, besides destroying and freeing,
  * are making it current and using it as active renderer context.
  *
  */
-GFX_Window* _gfx_window_create(void);
+GFX_Context* _gfx_context_create(void);
 
 /**
- * Destroys the server side window.
+ * Destroys the server side context.
  *
- * Creates a zombie window, the window struct still exists, but is not registered.
+ * Creates a zombie context, the context struct still exists, but is not registered.
  * Thus, it must still be freed.
  *
  * Note: all objects are automatically saved and restored to the main context.
  *
  */
-void _gfx_window_destroy(
+void _gfx_context_destroy(
 
-		GFX_Window* window);
+		GFX_Context* context);
 
 /**
- * Sets the window as the current context of the calling thread.
+ * Sets the context as the current context of the calling thread.
  *
- * @param window The window to make current, NULL to unmake any window current.
+ * @param context The context to make current, NULL to unmake any context current.
  *
  * This function is thread safe.
  *
  */
-void _gfx_window_make_current(
+void _gfx_context_make_current(
 
-		GFX_Window* window);
+		GFX_Context* context);
 
 /**
- * Returns the window as current context of the calling thread.
+ * Returns the current context of the calling thread.
  *
- * @return The current window, can be NULL.
+ * @return The current context, can be NULL.
  *
  * This function is thread safe.
  *
  */
-GFX_Window* _gfx_window_get_current(void);
+GFX_Context* _gfx_context_get_current(void);
 
 /**
- * Swaps the internal buffers of the current window.
- *
- * Also polls errors of the context if error mode is debug.
+ * Swaps the internal buffers of the current context.
  *
  */
-void _gfx_window_swap_buffers(void);
+void _gfx_context_swap_buffers(void);
+
+/**
+ * Returns the context associated with a platform window.
+ *
+ * Note: does not return off-screen contexts of dummy windows returned by
+ * _gfx_platform_context_create.
+ *
+ */
+GFX_Context* _gfx_context_get_from_handle(
+
+		GFX_PlatformWindow handle);
 
 
 #endif // GFX_CORE_RENDERER_H

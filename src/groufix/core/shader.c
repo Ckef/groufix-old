@@ -51,7 +51,7 @@ typedef struct GFX_Shader
 static int _gfx_shader_eval_stage(
 
 		GFXShaderStage stage,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	switch(stage)
 	{
@@ -59,7 +59,7 @@ static int _gfx_shader_eval_stage(
 		case GFX_TESS_CONTROL_SHADER :
 		case GFX_TESS_EVAL_SHADER :
 
-			if(!GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER])
+			if(!GFX_CONT_GET.ext[GFX_EXT_TESSELLATION_SHADER])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -72,7 +72,7 @@ static int _gfx_shader_eval_stage(
 		/* GFX_EXT_GEOMETRY_SHADER */
 		case GFX_GEOMETRY_SHADER :
 
-			if(!GFX_WIND_GET.ext[GFX_EXT_GEOMETRY_SHADER])
+			if(!GFX_CONT_GET.ext[GFX_EXT_GEOMETRY_SHADER])
 			{
 				gfx_errors_push(
 					GFX_ERROR_INCOMPATIBLE_CONTEXT,
@@ -191,7 +191,7 @@ static char* _gfx_shader_parse(
 		const char**    src,
 		const int*      lens,
 		GLint*          len,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Say what now? */
 	if(!num) return NULL;
@@ -221,8 +221,8 @@ static char* _gfx_shader_parse(
 	if(!verStr)
 	{
 		verStr = _gfx_shader_eval_glsl(
-			GFX_WIND_GET.version.major,
-			GFX_WIND_GET.version.minor
+			GFX_CONT_GET.version.major,
+			GFX_CONT_GET.version.minor
 		);
 
 		if(!verStr) return 0;
@@ -232,7 +232,7 @@ static char* _gfx_shader_parse(
 	/* We do this by simply copying the right sources in the right order */
 	/* Also check whether outputs need to be redefined */
 	unsigned char hasOut =
-		GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] &&
+		GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP] &&
 		stage == GFX_VERTEX_SHADER;
 
 	const char* outStr =
@@ -351,9 +351,9 @@ GFXShader* gfx_shader_create(
 
 		GFXShaderStage stage)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
-	if(!_gfx_shader_eval_stage(stage, GFX_WIND_AS_ARG))
+	if(!_gfx_shader_eval_stage(stage, GFX_CONT_AS_ARG))
 		return NULL;
 
 	/* Create new shader */
@@ -370,7 +370,7 @@ GFXShader* gfx_shader_create(
 
 	/* Register as object */
 	shader->id = _gfx_render_object_register(
-		&GFX_WIND_GET.objects,
+		&GFX_CONT_GET.objects,
 		shader,
 		&_gfx_shader_obj_funcs
 	);
@@ -395,7 +395,7 @@ void gfx_shader_free(
 {
 	if(shader)
 	{
-		GFX_WIND_INIT_UNSAFE;
+		GFX_CONT_INIT_UNSAFE;
 
 		GFX_Shader* internal = (GFX_Shader*)shader;
 
@@ -403,7 +403,7 @@ void gfx_shader_free(
 		_gfx_render_object_unregister(internal->id);
 
 		/* Delete shader */
-		if(!GFX_WIND_EQ(NULL))
+		if(!GFX_CONT_EQ(NULL))
 			GFX_REND_GET.DeleteShader(internal->handle);
 
 		free(shader);
@@ -418,7 +418,7 @@ int gfx_shader_set_source(
 		const char**  src,
 		const int*    lens)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	/* Parse source */
 	GLint len;
@@ -428,7 +428,7 @@ int gfx_shader_set_source(
 		src,
 		lens,
 		&len,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	if(!source) return 0;
@@ -453,7 +453,7 @@ char* gfx_shader_get_source(
 		const GFXShader*  shader,
 		size_t*           length)
 {
-	GFX_WIND_INIT((*length = 0, NULL));
+	GFX_CONT_INIT((*length = 0, NULL));
 
 	const GFX_Shader* internal = (const GFX_Shader*)shader;
 
@@ -493,7 +493,7 @@ int gfx_shader_compile(
 	/* Already compiled */
 	if(!shader->compiled)
 	{
-		GFX_WIND_INIT(0);
+		GFX_CONT_INIT(0);
 
 		GFX_Shader* internal = (GFX_Shader*)shader;
 

@@ -164,7 +164,7 @@ GFX_API void gfx_set_time(
 /**
  * Terminates the Groufix engine.
  *
- * This has no effect when groufix is not initialized.
+ * Calling this function while the engine is not initialized is undefined behaviour.
  * Note: this must be called on the same thread gfx_init was called on.
  *
  */

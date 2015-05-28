@@ -63,7 +63,7 @@ static void _gfx_buffer_alloc_buffers(
 		GFXVectorIterator  it,
 		unsigned char      num,
 		const void*        data,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Allocate buffers */
 	GFX_REND_GET.CreateBuffers(num, it);
@@ -90,7 +90,7 @@ static void _gfx_buffer_delete_buffers(
 		const GFX_Buffer*        buffer,
 		const GFXVectorIterator  it,
 		unsigned char            num,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Iterate over buffers */
 	unsigned char i;
@@ -98,7 +98,7 @@ static void _gfx_buffer_delete_buffers(
 	{
 		/* Make sure it is not currently bound */
 		GLuint* handle = gfx_vector_advance(&buffer->handles, it, i);
-		_gfx_binder_unbind_uniform_buffer(*handle, GFX_WIND_AS_ARG);
+		_gfx_binder_unbind_uniform_buffer(*handle, GFX_CONT_AS_ARG);
 	}
 
 	/* And deallocate all buffers */
@@ -153,7 +153,7 @@ GFXBuffer* gfx_buffer_create(
 		const void*     data,
 		unsigned char   multi)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	/* Create new buffer */
 	GFX_Buffer* buffer = calloc(1, sizeof(GFX_Buffer));
@@ -169,7 +169,7 @@ GFXBuffer* gfx_buffer_create(
 
 	/* Register as object */
 	buffer->id = _gfx_render_object_register(
-		&GFX_WIND_GET.objects,
+		&GFX_CONT_GET.objects,
 		buffer,
 		&_gfx_buffer_obj_funcs
 	);
@@ -209,7 +209,7 @@ GFXBuffer* gfx_buffer_create(
 		buffer->handles.begin,
 		multi,
 		data,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	return (GFXBuffer*)buffer;
@@ -244,7 +244,7 @@ void gfx_buffer_free(
 {
 	if(buffer)
 	{
-		GFX_WIND_INIT_UNSAFE;
+		GFX_CONT_INIT_UNSAFE;
 
 		GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
@@ -252,12 +252,12 @@ void gfx_buffer_free(
 		_gfx_render_object_unregister(internal->id);
 
 		/* Delete all buffers */
-		if(!GFX_WIND_EQ(NULL))
+		if(!GFX_CONT_EQ(NULL))
 			_gfx_buffer_delete_buffers(
 				internal,
 				internal->handles.begin,
 				buffer->multi + 1,
-				GFX_WIND_AS_ARG
+				GFX_CONT_AS_ARG
 			);
 
 		gfx_vector_clear(&internal->handles);
@@ -271,7 +271,7 @@ int gfx_buffer_expand(
 		GFXBuffer*     buffer,
 		unsigned char  num)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	if(!num) return 0;
 	GFX_Buffer* internal = (GFX_Buffer*)buffer;
@@ -291,7 +291,7 @@ int gfx_buffer_expand(
 		it,
 		num,
 		NULL,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	buffer->multi += num;
@@ -305,7 +305,7 @@ int gfx_buffer_shrink(
 		GFXBuffer*     buffer,
 		unsigned char  num)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	GFX_Buffer* internal = (GFX_Buffer*)buffer;
 
@@ -327,7 +327,7 @@ int gfx_buffer_shrink(
 			internal,
 			it,
 			aft,
-			GFX_WIND_AS_ARG);
+			GFX_CONT_AS_ARG);
 
 		gfx_vector_erase_range(&internal->handles, aft, it);
 	}
@@ -338,7 +338,7 @@ int gfx_buffer_shrink(
 			internal,
 			internal->handles.begin,
 			bef,
-			GFX_WIND_AS_ARG);
+			GFX_CONT_AS_ARG);
 
 		gfx_vector_erase_range(
 			&internal->handles,
@@ -373,7 +373,7 @@ void gfx_buffer_read(
 		void*             data,
 		size_t            offset)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
 
@@ -393,7 +393,7 @@ void gfx_buffer_write(
 		const void*       data,
 		size_t            offset)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
 
@@ -414,7 +414,7 @@ GFX_API void gfx_buffer_copy(
 		size_t            destOffset,
 		size_t            size)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	const GFX_Buffer* intDest = (const GFX_Buffer*)dest;
 	const GFX_Buffer* intSrc = (const GFX_Buffer*)src;
@@ -443,7 +443,7 @@ void* gfx_buffer_map(
 		size_t            offset,
 		GFXBufferUsage    access)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
 
@@ -464,7 +464,7 @@ void gfx_buffer_unmap(
 
 		const GFXBuffer* buffer)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
 

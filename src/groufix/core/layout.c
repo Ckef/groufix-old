@@ -77,7 +77,7 @@ static void _gfx_layout_init_attrib(
 		const GFX_Layout*     layout,
 		unsigned int          index,
 		const GFX_Attribute*  attr,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	if(GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING])
 	{
@@ -129,7 +129,7 @@ static void _gfx_layout_init_attrib(
 		if(attr->size && buff->buffer)
 		{
 			/* Set the attribute */
-			_gfx_vertex_layout_bind(layout->vao, GFX_WIND_AS_ARG);
+			_gfx_vertex_layout_bind(layout->vao, GFX_CONT_AS_ARG);
 			GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buff->buffer);
 			GFX_REND_GET.EnableVertexAttribArray(index);
 
@@ -173,7 +173,7 @@ static void _gfx_layout_init_buff_divisor(
 
 		const GFX_Layout*  layout,
 		const GFX_Buffer*  buff,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	size_t index = gfx_vector_get_index(
 			&layout->buffers, (const GFXVectorIterator)buff);
@@ -190,7 +190,7 @@ static void _gfx_layout_init_buff_divisor(
 		{
 			_gfx_vertex_layout_bind(
 				layout->vao,
-				GFX_WIND_AS_ARG);
+				GFX_CONT_AS_ARG);
 
 			GFX_REND_GET.VertexAttribDivisor(
 				ind,
@@ -204,10 +204,10 @@ static int _gfx_layout_alloc_attribute(
 
 		GFX_Layout*   layout,
 		unsigned int  index,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Check index */
-	if(index >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
+	if(index >= GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIBS]) return 0;
 	size_t size = gfx_vector_get_size(&layout->attributes);
 
 	if(index >= size)
@@ -236,10 +236,10 @@ static int _gfx_layout_alloc_buffer(
 
 		GFX_Layout*   layout,
 		unsigned int  index,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Check index */
-	if(index >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS]) return 0;
+	if(index >= GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS]) return 0;
 	size_t size = gfx_vector_get_size(&layout->buffers);
 
 	if(index >= size)
@@ -271,13 +271,13 @@ static int _gfx_layout_set_vertex_buffer(
 		GLuint            buffer,
 		size_t            offset,
 		size_t            stride,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
-	if(stride > GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE])
+	if(stride > GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE])
 		return 0;
 
 	GFX_Layout* internal = (GFX_Layout*)layout;
-	if(!_gfx_layout_alloc_buffer(internal, index, GFX_WIND_AS_ARG))
+	if(!_gfx_layout_alloc_buffer(internal, index, GFX_CONT_AS_ARG))
 		return 0;
 
 	/* Set buffer */
@@ -312,7 +312,7 @@ static int _gfx_layout_set_vertex_buffer(
 				internal,
 				ind,
 				attr,
-				GFX_WIND_AS_ARG
+				GFX_CONT_AS_ARG
 			);
 		}
 	}
@@ -327,7 +327,7 @@ static int _gfx_layout_set_index_buffer(
 		GLuint            buffer,
 		size_t            offset)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	GFX_Layout* internal = (GFX_Layout*)layout;
 
@@ -365,7 +365,7 @@ static void _gfx_layout_obj_save(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_Layout* layout = (GFX_Layout*)object;
 
@@ -381,7 +381,7 @@ static void _gfx_layout_obj_restore(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_Layout* layout = (GFX_Layout*)object;
 
@@ -401,7 +401,7 @@ static void _gfx_layout_obj_restore(
 		layout,
 		index,
 		gfx_vector_at(&layout->attributes, index),
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	/* Restore buffers */
@@ -430,7 +430,7 @@ static void _gfx_layout_obj_restore(
 		{
 			/* Not needed to restore buffers as attributes are already restored */
 			_gfx_layout_init_buff_divisor(
-				layout, buff, GFX_WIND_AS_ARG);
+				layout, buff, GFX_CONT_AS_ARG);
 		}
 	}
 }
@@ -518,7 +518,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 
 		unsigned char sources)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	if(!sources) return NULL;
 
@@ -538,7 +538,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 
 	/* Register as object */
 	layout->id = _gfx_render_object_register(
-		&GFX_WIND_GET.objects,
+		&GFX_CONT_GET.objects,
 		layout,
 		&_gfx_layout_obj_funcs
 	);
@@ -593,12 +593,12 @@ void gfx_vertex_layout_free(
 		/* Check references */
 		if(!(--internal->references))
 		{
-			GFX_WIND_INIT_UNSAFE;
+			GFX_CONT_INIT_UNSAFE;
 
 			/* Unregister as object */
 			_gfx_render_object_unregister(internal->id);
 
-			if(!GFX_WIND_EQ(NULL))
+			if(!GFX_CONT_EQ(NULL))
 			{
 				/* Delete VAO */
 				if(GFX_REND_GET.vao == internal->vao)
@@ -624,20 +624,20 @@ int gfx_vertex_layout_set_attribute(
 		const GFXVertexAttribute*  attr,
 		unsigned int               buffer)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	if(
 		!attr->size ||
 		attr->type.unpacked == GFX_BIT ||
 		attr->type.unpacked == GFX_NIBBLE ||
-		attr->offset > GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] ||
-		buffer >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
+		attr->offset > GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] ||
+		buffer >= GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
 	{
 		return 0;
 	}
 
 	GFX_Layout* internal = (GFX_Layout*)layout;
-	if(!_gfx_layout_alloc_attribute(internal, index, GFX_WIND_AS_ARG))
+	if(!_gfx_layout_alloc_attribute(internal, index, GFX_CONT_AS_ARG))
 		return 0;
 
 	/* Set attribute */
@@ -662,7 +662,7 @@ int gfx_vertex_layout_set_attribute(
 		GFX_INTERPRET_FLOAT : set->interpret;
 
 	/* Initialize attribute */
-	_gfx_layout_init_attrib(internal, index, set, GFX_WIND_AS_ARG);
+	_gfx_layout_init_attrib(internal, index, set, GFX_CONT_AS_ARG);
 
 	return 1;
 }
@@ -674,12 +674,12 @@ int gfx_vertex_layout_set_attribute_buffer(
 		unsigned int      index,
 		unsigned int      buffer)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	GFX_Layout* internal = (GFX_Layout*)layout;
 	if(
 		index >= gfx_vector_get_size(&internal->attributes) ||
-		buffer >= GFX_WIND_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
+		buffer >= GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
 	{
 		return 0;
 	}
@@ -704,7 +704,7 @@ int gfx_vertex_layout_set_attribute_buffer(
 		internal,
 		index,
 		set,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	return 1;
@@ -717,7 +717,7 @@ int gfx_vertex_layout_set_source(
 		unsigned char           index,
 		const GFXVertexSource*  source)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	/* Check index */
 	if(index >= layout->sources) return 0;
@@ -726,8 +726,8 @@ int gfx_vertex_layout_set_source(
 	/* Check extensions and bounds */
 	if(
 		source->primitive == GFX_PATCHES && (
-		!GFX_WIND_GET.ext[GFX_EXT_TESSELLATION_SHADER] ||
-		source->patchSize > GFX_WIND_GET.lim[GFX_LIM_MAX_PATCH_VERTICES]))
+		!GFX_CONT_GET.ext[GFX_EXT_TESSELLATION_SHADER] ||
+		source->patchSize > GFX_CONT_GET.lim[GFX_LIM_MAX_PATCH_VERTICES]))
 	{
 		return 0;
 	}
@@ -770,7 +770,7 @@ int gfx_vertex_layout_set_vertex_buffer(
 		size_t            offset,
 		size_t            stride)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	GLuint buff = 0;
 	if(buffer) buff = _gfx_buffer_get_handle(buffer);
@@ -781,7 +781,7 @@ int gfx_vertex_layout_set_vertex_buffer(
 		buff,
 		offset,
 		stride,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 }
 
@@ -794,7 +794,7 @@ int gfx_vertex_layout_set_shared_vertex_buffer(
 		size_t                  offset,
 		size_t                  stride)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	GLuint buff = 0;
 	if(buffer)
@@ -809,7 +809,7 @@ int gfx_vertex_layout_set_shared_vertex_buffer(
 		buff,
 		offset,
 		stride,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 }
 
@@ -820,13 +820,13 @@ int gfx_vertex_layout_set_vertex_divisor(
 		unsigned int      index,
 		unsigned int      divisor)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
-	if(!GFX_WIND_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES])
+	if(!GFX_CONT_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES])
 		return 0;
 
 	GFX_Layout* internal = (GFX_Layout*)layout;
-	if(!_gfx_layout_alloc_buffer(internal, index, GFX_WIND_AS_ARG))
+	if(!_gfx_layout_alloc_buffer(internal, index, GFX_CONT_AS_ARG))
 		return 0;
 
 	/* Set divisor */
@@ -844,7 +844,7 @@ int gfx_vertex_layout_set_vertex_divisor(
 	else _gfx_layout_init_buff_divisor(
 		internal,
 		set,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	return 1;

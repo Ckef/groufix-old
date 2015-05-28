@@ -84,9 +84,9 @@ static int _gfx_program_map_set_stages(
 		GFXShaderStage  stage,
 		GFXProgram*     program)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
-	unsigned char ext = GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP];
+	unsigned char ext = GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP];
 
 	/* Get program handle */
 	GLuint handle = 0;
@@ -168,7 +168,7 @@ static void _gfx_program_map_obj_save(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_Map* map = (GFX_Map*)object;
 
@@ -183,7 +183,7 @@ static void _gfx_program_map_obj_restore(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_Map* map = (GFX_Map*)object;
 
@@ -226,7 +226,7 @@ int _gfx_program_map_block(
 
 		GFXProgramMap* map)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	GFX_Map* internal = (GFX_Map*)map;
 
@@ -251,7 +251,7 @@ int _gfx_program_map_block(
 	}
 
 	/* Use all programs */
-	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP] && !internal->blocks)
+	if(GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP] && !internal->blocks)
 	{
 		for(stage = 0; stage < GFX_INT_NUM_STAGES; ++stage)
 			if(internal->stages[stage]) GFX_REND_GET.UseProgramStages(
@@ -280,11 +280,11 @@ void _gfx_program_map_save(
 
 		GFXProgramMap* map)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	GFX_Map* internal = (GFX_Map*)map;
 
-	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+	if(GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP])
 	{
 		GFX_RenderObjectID id =
 		{
@@ -304,9 +304,9 @@ void _gfx_program_map_restore(
 		GFXProgramMap*      map,
 		GFX_RenderObjects*  cont)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
-	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+	if(GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP])
 	{
 		/* Register as object */
 		GFX_RenderObjectID id = _gfx_render_object_register(
@@ -322,7 +322,7 @@ void _gfx_program_map_restore(
 /******************************************************/
 GFXProgramMap* gfx_program_map_create(void)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	/* Create new program map */
 	GFX_Map* map = calloc(1, sizeof(GFX_Map));
@@ -336,11 +336,11 @@ GFXProgramMap* gfx_program_map_create(void)
 		return NULL;
 	}
 
-	if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+	if(GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP])
 	{
 		/* Register as object */
 		map->id = _gfx_render_object_register(
-			&GFX_WIND_GET.objects,
+			&GFX_CONT_GET.objects,
 			map,
 			&_gfx_program_map_obj_funcs
 		);
@@ -365,17 +365,17 @@ void gfx_program_map_free(
 {
 	if(map)
 	{
-		GFX_WIND_INIT_UNSAFE;
+		GFX_CONT_INIT_UNSAFE;
 
 		GFX_Map* internal = (GFX_Map*)map;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
 
-		if(!GFX_WIND_EQ(NULL))
+		if(!GFX_CONT_EQ(NULL))
 		{
 			/* Delete program pipeline */
-			if(GFX_WIND_GET.ext[GFX_EXT_PROGRAM_MAP])
+			if(GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP])
 				GFX_REND_GET.DeleteProgramPipelines(
 					1,
 					&internal->handle

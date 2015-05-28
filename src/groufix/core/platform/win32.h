@@ -178,14 +178,6 @@ GFX_Win32_Window* _gfx_win32_get_window_from_context(
 		HGLRC context);
 
 /**
- * Registers the dummy and regular window classes.
- *
- * @return Zero on failure.
- *
- */
-int _gfx_win32_register_classes(void);
-
-/**
  * Sets the pixel format for a window.
  *
  * @param backBuffer Non-zero to enable double buffering.
@@ -196,6 +188,14 @@ void _gfx_win32_set_pixel_format(
 		HWND                  handle,
 		const GFXColorDepth*  depth,
 		int                   backBuffer);
+
+/**
+ * Registers the dummy and regular window classes.
+ *
+ * @return Zero on failure.
+ *
+ */
+int _gfx_win32_register_classes(void);
 
 /**
  * Creates a dummy window for offscreen contexts.

@@ -86,7 +86,7 @@ static void _gfx_pipeline_init_attachment(
 
 		GLuint                 fbo,
 		const GFX_Attachment*  attach,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Check texture handle */
 	switch(attach->target)
@@ -188,7 +188,7 @@ static void _gfx_pipeline_obj_save(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_Pipeline* pipeline = (GFX_Pipeline*)object;
 
@@ -204,7 +204,7 @@ static void _gfx_pipeline_obj_restore(
 		void*               object,
 		GFX_RenderObjectID  id)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_Pipeline* pipeline = (GFX_Pipeline*)object;
 
@@ -219,7 +219,7 @@ static void _gfx_pipeline_obj_restore(
 		_gfx_pipeline_init_attachment(
 			pipeline->fbo,
 			(GFX_Attachment*)it,
-			GFX_WIND_AS_ARG
+			GFX_CONT_AS_ARG
 		);
 
 		it = gfx_vector_next(&pipeline->attachments, it);
@@ -254,7 +254,7 @@ GLuint _gfx_pipeline_get_handle(
 /******************************************************/
 GFXPipeline* gfx_pipeline_create(void)
 {
-	GFX_WIND_INIT(NULL);
+	GFX_CONT_INIT(NULL);
 
 	/* Create new pipeline */
 	GFX_Pipeline* pl = calloc(1, sizeof(GFX_Pipeline));
@@ -270,7 +270,7 @@ GFXPipeline* gfx_pipeline_create(void)
 
 	/* Register as object */
 	pl->id = _gfx_render_object_register(
-		&GFX_WIND_GET.objects,
+		&GFX_CONT_GET.objects,
 		pl,
 		&_gfx_pipeline_obj_funcs
 	);
@@ -296,14 +296,14 @@ void gfx_pipeline_free(
 {
 	if(pipeline)
 	{
-		GFX_WIND_INIT_UNSAFE;
+		GFX_CONT_INIT_UNSAFE;
 
 		GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
 
-		if(!GFX_WIND_EQ(NULL))
+		if(!GFX_CONT_EQ(NULL))
 		{
 			/* Delete framebuffer */
 			if(GFX_REND_GET.fbos[0] == internal->fbo)
@@ -334,14 +334,14 @@ unsigned int gfx_pipeline_target(
 		unsigned int  num,
 		const char*   indices)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	if(!num) return 0;
 	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
 	/* Limit number of targets */
-	num = (num > GFX_WIND_GET.lim[GFX_LIM_MAX_COLOR_TARGETS]) ?
-		GFX_WIND_GET.lim[GFX_LIM_MAX_COLOR_TARGETS] : num;
+	num = (num > GFX_CONT_GET.lim[GFX_LIM_MAX_COLOR_TARGETS]) ?
+		GFX_CONT_GET.lim[GFX_LIM_MAX_COLOR_TARGETS] : num;
 
 	/* Construct attachment buffer */
 	GLenum* targets = malloc(sizeof(GLenum) * num);
@@ -360,7 +360,7 @@ unsigned int gfx_pipeline_target(
 	internal->numTargets = num;
 
 	unsigned int i;
-	int max = GFX_WIND_GET.lim[GFX_LIM_MAX_COLOR_ATTACHMENTS];
+	int max = GFX_CONT_GET.lim[GFX_LIM_MAX_COLOR_ATTACHMENTS];
 
 	for(i = 0; i < num; ++i)
 	{
@@ -386,13 +386,13 @@ int gfx_pipeline_attach(
 		GFXPipelineAttachment  attach,
 		unsigned char          index)
 {
-	GFX_WIND_INIT(0);
+	GFX_CONT_INIT(0);
 
 	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
 	/* Check attachment limit */
 	if(attach != GFX_COLOR_ATTACHMENT) index = 0;
-	else if(index >= GFX_WIND_GET.lim[GFX_LIM_MAX_COLOR_ATTACHMENTS])
+	else if(index >= GFX_CONT_GET.lim[GFX_LIM_MAX_COLOR_ATTACHMENTS])
 		return 0;
 
 	/* Init attachment */
@@ -439,7 +439,7 @@ int gfx_pipeline_attach(
 	_gfx_pipeline_init_attachment(
 		internal->fbo,
 		&att,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	return 1;
@@ -714,7 +714,7 @@ void gfx_pipeline_execute(
 		GFXPipeline*  pipeline,
 		size_t        num)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
@@ -722,11 +722,11 @@ void gfx_pipeline_execute(
 	_gfx_pipeline_bind(
 		GL_DRAW_FRAMEBUFFER,
 		internal->fbo,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 
 	_gfx_states_set_viewport(
 		pipeline->viewport,
-		GFX_WIND_AS_ARG);
+		GFX_CONT_AS_ARG);
 
 	/* Iterate over all pipes */
 	int nolimit = !num;
@@ -741,7 +741,7 @@ void gfx_pipeline_execute(
 				_gfx_bucket_process(
 					pipe->ptr.bucket,
 					&pipe->state,
-					GFX_WIND_AS_ARG
+					GFX_CONT_AS_ARG
 				);
 				break;
 
@@ -749,7 +749,7 @@ void gfx_pipeline_execute(
 				_gfx_pipe_process_execute(
 					pipe->ptr.process,
 					&pipe->state,
-					GFX_WIND_AS_ARG
+					GFX_CONT_AS_ARG
 				);
 				break;
 		}

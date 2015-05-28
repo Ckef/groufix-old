@@ -321,7 +321,7 @@ void _gfx_states_set_default(
 void _gfx_states_set(
 
 		const GFXPipeState* state,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Forces all state fields of the current context.
@@ -332,7 +332,7 @@ void _gfx_states_set(
 void _gfx_states_force_set(
 
 		const GFXPipeState* state,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Sets the viewport size of the current context.
@@ -341,7 +341,7 @@ void _gfx_states_force_set(
 void _gfx_states_set_viewport(
 
 		GFXViewport viewport,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Sets the pixel pack alignment of the current context.
@@ -350,7 +350,7 @@ void _gfx_states_set_viewport(
 void _gfx_states_set_pixel_pack_alignment(
 
 		unsigned char align,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Sets the pixel unpack alignment of the current context.
@@ -359,7 +359,7 @@ void _gfx_states_set_pixel_pack_alignment(
 void _gfx_states_set_pixel_unpack_alignment(
 
 		unsigned char align,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Sets the number of vertices per patch.
@@ -368,7 +368,7 @@ void _gfx_states_set_pixel_unpack_alignment(
 void _gfx_states_set_patch_vertices(
 
 		unsigned int vertices,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 
 /********************************************************
@@ -522,7 +522,7 @@ void _gfx_property_map_use(
 		const GFXPropertyMap*  map,
 		unsigned int           copy,
 		unsigned int           base,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 
 /********************************************************
@@ -599,7 +599,7 @@ void _gfx_bucket_process(
 
 		GFXBucket*           bucket,
 		const GFXPipeState*  state,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 
 /********************************************************
@@ -628,19 +628,17 @@ void _gfx_pipe_process_free(
 		GFXPipeProcess process);
 
 /**
- * Prepares the current window for render to texture.
+ * Prepares the current context for render to texture.
  *
  * @return Non-zero on success.
- *
- * If a window was never prepared, it would mean it cannot be used in post processing in any way.
  *
  */
 int _gfx_pipe_process_prepare(void);
 
 /**
- * Makes sure no pipe process targets the current window anymore, ever.
+ * Makes sure no pipe process targets the current context anymore, ever.
  *
- * @param last Non-zero if this is the last window to be unprepared.
+ * @param last Non-zero if this is the last context to be unprepared.
  *
  */
 void _gfx_pipe_process_unprepare(
@@ -648,26 +646,26 @@ void _gfx_pipe_process_unprepare(
 		int last);
 
 /**
- * Makes sure all the pipes that target the current window target a new one.
+ * Makes sure all the pipes that target the current context target a new one.
  *
  * @param target New target for all pipes.
  *
  */
 void _gfx_pipe_process_retarget(
 
-		GFX_Window* target);
+		GFX_Context* target);
 
 /**
  * Forwards a new size of a window to all processes.
  *
- * @target Window which was resized.
- * @width  New width.
- * @height New height.
+ * @param target Context of which its window was resized.
+ * @param width  New width.
+ * @param height New height.
  *
  */
 void _gfx_pipe_process_resize(
 
-		const GFX_Window*  target,
+		const GFX_Context*  target,
 		unsigned int       width,
 		unsigned int       height);
 
@@ -681,7 +679,7 @@ void _gfx_pipe_process_execute(
 
 		GFXPipeProcess       process,
 		const GFXPipeState*  state,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 
 #endif // GFX_CORE_INTERNAL_H

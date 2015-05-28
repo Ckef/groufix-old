@@ -206,6 +206,7 @@ OBJS = \
  $(OUT)$(SUB)/groufix/containers/vector.o \
  $(OUT)$(SUB)/groufix/core/bucket.o \
  $(OUT)$(SUB)/groufix/core/buffer.o \
+ $(OUT)$(SUB)/groufix/core/context.o \
  $(OUT)$(SUB)/groufix/core/errors.o \
  $(OUT)$(SUB)/groufix/core/events.o \
  $(OUT)$(SUB)/groufix/core/layout.o \
@@ -223,7 +224,6 @@ OBJS = \
  $(OUT)$(SUB)/groufix/core/states.o \
  $(OUT)$(SUB)/groufix/core/texture.o \
  $(OUT)$(SUB)/groufix/core/types.o \
- $(OUT)$(SUB)/groufix/core/window.o \
  $(OUT)$(SUB)/groufix/scene/batch.o \
  $(OUT)$(SUB)/groufix/scene/lod_map.o \
  $(OUT)$(SUB)/groufix/scene/material.o \

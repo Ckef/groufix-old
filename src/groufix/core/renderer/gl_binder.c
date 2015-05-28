@@ -236,7 +236,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 		GLintptr    offset,
 		GLsizeiptr  size,
 		int         prioritize,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	size_t bind = 0;
 	int old = 0;
@@ -244,7 +244,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 	/* Allocate binding points */
 	if(!GFX_REND_GET.uniformBuffers)
 		GFX_REND_GET.uniformBuffers = _gfx_binder_init(
-			GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
+			GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(GFX_UniformBuffer)
 		);
 
@@ -260,7 +260,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 
 		bind = _gfx_binder_request(
 			GFX_REND_GET.uniformBuffers,
-			GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
+			GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(GFX_UniformBuffer),
 			0,
 			sizeof(GFX_UniformBuffer),
@@ -286,7 +286,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 void _gfx_binder_unbind_uniform_buffer(
 
 		GLuint buffer,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	if(GFX_REND_GET.uniformBuffers)
 	{
@@ -295,7 +295,7 @@ void _gfx_binder_unbind_uniform_buffer(
 
 		_gfx_binder_unbind(
 			GFX_REND_GET.uniformBuffers,
-			GFX_WIND_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
+			GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(GFX_UniformBuffer),
 			offsetof(GFX_UniformBuffer, buffer),
 			sizeof(GLuint),
@@ -312,7 +312,7 @@ static size_t _gfx_binder_bind_texture_unit(
 		size_t           size,
 		int              prioritize,
 		int*             old,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	size_t bind = 0;
 	*old = 0;
@@ -321,7 +321,7 @@ static size_t _gfx_binder_bind_texture_unit(
 	if(!GFX_REND_GET.textureUnits)
 	{
 		GFX_REND_GET.textureUnits = _gfx_binder_init(
-			GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+			GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(GFX_TextureUnit)
 		);
 
@@ -331,7 +331,7 @@ static size_t _gfx_binder_bind_texture_unit(
 	/* Get unit to bind it to */
 	bind = _gfx_binder_request(
 		GFX_REND_GET.textureUnits,
-		GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+		GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 		sizeof(GFX_TextureUnit),
 		offset,
 		size,
@@ -349,7 +349,7 @@ size_t _gfx_binder_bind_texture(
 		GLuint  texture,
 		GLenum  target,
 		int     prioritize,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Get unit to bind it to */
 	GFX_TextureUnit unit;
@@ -362,7 +362,7 @@ size_t _gfx_binder_bind_texture(
 		sizeof(GLuint),
 		prioritize,
 		&old,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	/* Bind the texture */
@@ -386,7 +386,7 @@ size_t _gfx_binder_bind_sampler(
 		GLuint  texture,
 		GLenum  target,
 		int     prioritize,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Get unit to bind it to */
 	GFX_TextureUnit unit =
@@ -402,7 +402,7 @@ size_t _gfx_binder_bind_sampler(
 		sizeof(GFX_TextureUnit),
 		prioritize,
 		&old,
-		GFX_WIND_AS_ARG
+		GFX_CONT_AS_ARG
 	);
 
 	/* Activate texture unit */
@@ -428,7 +428,7 @@ size_t _gfx_binder_bind_sampler(
 void _gfx_binder_unbind_texture(
 
 		GLuint texture,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	if(GFX_REND_GET.textureUnits)
 	{
@@ -437,7 +437,7 @@ void _gfx_binder_unbind_texture(
 
 		_gfx_binder_unbind(
 			GFX_REND_GET.textureUnits,
-			GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+			GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(GFX_TextureUnit),
 			offsetof(GFX_TextureUnit, texture),
 			sizeof(GLuint),
@@ -450,7 +450,7 @@ void _gfx_binder_unbind_texture(
 void _gfx_binder_unbind_sampler(
 
 		GLuint sampler,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	if(GFX_REND_GET.textureUnits)
 	{
@@ -459,7 +459,7 @@ void _gfx_binder_unbind_sampler(
 
 		_gfx_binder_unbind(
 			GFX_REND_GET.textureUnits,
-			GFX_WIND_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
+			GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(GFX_TextureUnit),
 			offsetof(GFX_TextureUnit, sampler),
 			sizeof(GLuint),
@@ -473,7 +473,7 @@ void _gfx_pipeline_bind(
 
 		GLenum  target,
 		GLuint  framebuffer,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	switch(target)
 	{
@@ -519,7 +519,7 @@ void _gfx_pipeline_bind(
 void _gfx_program_map_bind(
 
 		GLuint id,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Prevent binding it twice */
 	if(GFX_REND_GET.program != id)
@@ -533,7 +533,7 @@ void _gfx_program_map_bind(
 void _gfx_vertex_layout_bind(
 
 		GLuint vao,
-		GFX_WIND_ARG)
+		GFX_CONT_ARG)
 {
 	/* Prevent binding it twice */
 	if(GFX_REND_GET.vao != vao)

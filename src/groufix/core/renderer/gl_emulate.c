@@ -47,7 +47,7 @@ void APIENTRY _gfx_gl_bind_buffers_range(
 		const GLintptr*    offsets,
 		const GLsizeiptr*  sizes)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GLsizei i;
 	for(i = 0; i < count; ++i)
@@ -68,7 +68,7 @@ void APIENTRY _gfx_gl_bind_program_pipeline(
 
 		GLuint pipeline)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.UseProgram(pipeline);
 }
 
@@ -98,7 +98,7 @@ void APIENTRY _gfx_gl_copy_named_buffer_sub_data(
 		GLintptr  writeOffset,
 		GLsizei   size)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_REND_GET.BindBuffer(GL_COPY_READ_BUFFER, readBuffer);
 	GFX_REND_GET.BindBuffer(GL_COPY_WRITE_BUFFER, writeBuffer);
@@ -117,7 +117,7 @@ void APIENTRY _gfx_gl_create_buffers(
 		GLsizei  n,
 		GLuint*  buffers)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenBuffers(n, buffers);
 }
 
@@ -126,7 +126,7 @@ void APIENTRY _gfx_gl_create_framebuffers(
 		GLsizei  n,
 		GLuint*  ids)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenFramebuffers(n, ids);
 }
 
@@ -135,7 +135,7 @@ void APIENTRY _gfx_gl_create_program_pipelines(
 		GLsizei  n,
 		GLuint*  pipelines)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenProgramPipelines(n, pipelines);
 }
 
@@ -144,7 +144,7 @@ void APIENTRY _gfx_gl_create_samplers(
 		GLsizei  n,
 		GLuint*  samplers)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenSamplers(n, samplers);
 }
 
@@ -154,7 +154,7 @@ void APIENTRY _gfx_gl_create_textures(
 		GLsizei  n,
 		GLuint*  textures)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenTextures(n, textures);
 }
 
@@ -163,7 +163,7 @@ void APIENTRY _gfx_gl_create_vertex_arrays(
 		GLsizei  n,
 		GLuint*  arrays)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenVertexArrays(n, arrays);
 }
 
@@ -180,7 +180,7 @@ void APIENTRY _gfx_gl_disable_vertex_array_attrib(
 		GLuint  vao,
 		GLuint  index)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.vao != vao)
 	{
@@ -232,7 +232,7 @@ void APIENTRY _gfx_gl_enable_vertex_array_attrib(
 		GLuint  vao,
 		GLuint  index)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.vao != vao)
 	{
@@ -265,7 +265,7 @@ void APIENTRY _gfx_gl_get_named_buffer_sub_data(
 		GLsizei   size,
 		void*     data)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
 	GFX_REND_GET.GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
@@ -278,7 +278,7 @@ void* APIENTRY _gfx_gl_map_named_buffer_range(
 		GLsizei     length,
 		GLbitfield  access)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
 	return GFX_REND_GET.MapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
@@ -291,7 +291,7 @@ void APIENTRY _gfx_gl_named_buffer_data(
 		const void*  data,
 		GLenum       usage)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
 	GFX_REND_GET.BufferData(GL_ARRAY_BUFFER, size, data, usage);
@@ -304,7 +304,7 @@ void APIENTRY _gfx_gl_named_buffer_sub_data(
 		GLsizei      size,
 		const void*  data)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
 	GFX_REND_GET.BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
@@ -316,7 +316,7 @@ void APIENTRY _gfx_gl_named_framebuffer_draw_buffers(
 		GLsizei        n,
 		const GLenum*  bufs)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.fbos[0] != framebuffer)
 	{
@@ -334,7 +334,7 @@ void APIENTRY _gfx_gl_named_framebuffer_texture(
 		GLuint  texture,
 		GLint   level)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.fbos[0] != framebuffer)
 	{
@@ -358,7 +358,7 @@ void APIENTRY _gfx_gl_named_framebuffer_texture_layer(
 		GLint   level,
 		GLint   layer)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.fbos[0] != framebuffer)
 	{
@@ -393,7 +393,7 @@ void APIENTRY _gfx_gl_program_uniform_1fv(
 		GLsizei         count,
 		const GLfloat*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform1fv(location, count, value);
 }
 
@@ -404,7 +404,7 @@ void APIENTRY _gfx_gl_program_uniform_1iv(
 		GLsizei       count,
 		const GLint*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform1iv(location, count, value);
 }
 
@@ -415,7 +415,7 @@ void APIENTRY _gfx_gl_program_uniform_1uiv(
 		GLsizei        count,
 		const GLuint*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform1uiv(location, count, value);
 }
 
@@ -426,7 +426,7 @@ void APIENTRY _gfx_gl_program_uniform_2fv(
 		GLsizei         count,
 		const GLfloat*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform2fv(location, count, value);
 }
 
@@ -437,7 +437,7 @@ void APIENTRY _gfx_gl_program_uniform_2iv(
 		GLsizei       count,
 		const GLint*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform2iv(location, count, value);
 }
 
@@ -448,7 +448,7 @@ void APIENTRY _gfx_gl_program_uniform_2uiv(
 		GLsizei        count,
 		const GLuint*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform2uiv(location, count, value);
 }
 
@@ -459,7 +459,7 @@ void APIENTRY _gfx_gl_program_uniform_3fv(
 		GLsizei         count,
 		const GLfloat*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform3fv(location, count, value);
 }
 
@@ -470,7 +470,7 @@ void APIENTRY _gfx_gl_program_uniform_3iv(
 		GLsizei       count,
 		const GLint*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform3iv(location, count, value);
 }
 
@@ -481,7 +481,7 @@ void APIENTRY _gfx_gl_program_uniform_3uiv(
 		GLsizei        count,
 		const GLuint*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform3uiv(location, count, value);
 }
 
@@ -492,7 +492,7 @@ void APIENTRY _gfx_gl_program_uniform_4fv(
 		GLsizei         count,
 		const GLfloat*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform4fv(location, count, value);
 }
 
@@ -503,7 +503,7 @@ void APIENTRY _gfx_gl_program_uniform_4iv(
 		GLsizei       count,
 		const GLint*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform4iv(location, count, value);
 }
 
@@ -514,7 +514,7 @@ void APIENTRY _gfx_gl_program_uniform_4uiv(
 		GLsizei        count,
 		const GLuint*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform4uiv(location, count, value);
 }
 
@@ -526,7 +526,7 @@ void APIENTRY _gfx_gl_program_uniform_matrix_2fv(
 		GLboolean       transpose,
 		const GLfloat*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.UniformMatrix2fv(location, count, transpose, value);
 }
 
@@ -538,7 +538,7 @@ void APIENTRY _gfx_gl_program_uniform_matrix_3fv(
 		GLboolean       transpose,
 		const GLfloat*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.UniformMatrix3fv(location, count, transpose, value);
 }
 
@@ -550,7 +550,7 @@ void APIENTRY _gfx_gl_program_uniform_matrix_4fv(
 		GLboolean       transpose,
 		const GLfloat*  value)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.UniformMatrix4fv(location, count, transpose, value);
 }
 
@@ -665,7 +665,7 @@ GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
 
 		GLuint buffer)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
 	return GFX_REND_GET.UnmapBuffer(GL_ARRAY_BUFFER);
@@ -686,7 +686,7 @@ void APIENTRY _gfx_gl_vertex_array_attrib_binding(
 		GLuint  attrib,
 		GLuint  binding)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.vao != vao)
 	{
@@ -706,7 +706,7 @@ void APIENTRY _gfx_gl_vertex_array_attrib_format(
 		GLboolean  normalized,
 		GLuint     offset)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.vao != vao)
 	{
@@ -725,7 +725,7 @@ void APIENTRY _gfx_gl_vertex_array_attrib_i_format(
 		GLenum  type,
 		GLuint  offset)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.vao != vao)
 	{
@@ -742,7 +742,7 @@ void APIENTRY _gfx_gl_vertex_array_binding_divisor(
 		GLuint  index,
 		GLuint  divisor)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.vao != vao)
 	{
@@ -758,7 +758,7 @@ void APIENTRY _gfx_gl_vertex_array_element_buffer(
 		GLuint  vao,
 		GLuint  buffer)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.vao != vao)
 	{
@@ -777,7 +777,7 @@ void APIENTRY _gfx_gl_vertex_array_vertex_buffer(
 		GLintptr  offset,
 		GLsizei   stride)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.vao != vao)
 	{
@@ -930,7 +930,7 @@ void APIENTRY _gfx_gles_named_framebuffer_texture_2d(
 		GLuint  texture,
 		GLint   level)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	if(GFX_REND_GET.fbos[0] != framebuffer)
 	{
@@ -1074,7 +1074,7 @@ void APIENTRY _gfx_gl_named_framebuffer_texture_2d(
 		GLuint  texture,
 		GLint   level)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.NamedFramebufferTexture(framebuffer, attach, texture, level);
 }
 
@@ -1126,7 +1126,7 @@ void APIENTRY _gfx_gl_tex_storage_2d(
 		GLsizei  w,
 		GLsizei  h)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GLenum first =
 		(target == GL_TEXTURE_CUBE_MAP) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : target;
@@ -1154,7 +1154,7 @@ void APIENTRY _gfx_gl_tex_storage_2d_multisample(
 		GLsizei    h,
 		GLboolean  f)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.TexImage2DMultisample(target, samples, internalFormat, w, h, f);
 }
 
@@ -1167,7 +1167,7 @@ void APIENTRY _gfx_gl_tex_storage_3d(
 		GLsizei  h,
 		GLsizei  d)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 
 	GLsizei df =
 		(target == GL_TEXTURE_3D || target == GL_PROXY_TEXTURE_3D) ? 1 : 0;
@@ -1192,7 +1192,7 @@ void APIENTRY _gfx_gl_tex_storage_3d_multisample(
 		GLsizei    d,
 		GLboolean  f)
 {
-	GFX_WIND_INIT_UNSAFE;
+	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.TexImage3DMultisample(target, samples, internalFormat, w, h, d, f);
 }
 

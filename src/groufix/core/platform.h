@@ -97,8 +97,6 @@ int _gfx_platform_init(void);
 /**
  * Terminates the platform.
  *
- * If the platform was not yet initialized, this method should do nothing.
- *
  */
 void _gfx_platform_terminate(void);
 

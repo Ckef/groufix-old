@@ -48,7 +48,7 @@ static GFX_PlatformMutex  _gfx_error_mutex;
 /******************************************************/
 static void _gfx_errors_poll(void)
 {
-	GFX_WIND_INIT();
+	GFX_CONT_INIT();
 
 	if(_gfx_error_mode == GFX_ERROR_MODE_DEBUG)
 	{

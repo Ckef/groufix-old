@@ -148,7 +148,7 @@ void _gfx_texture_set_sampler(
 		GLuint             texture,
 		GLuint             target,
 		const GFXSampler*  values,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Returns the internal target of a texture (a.k.a type).
@@ -204,7 +204,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 		GLintptr    offset,
 		GLsizeiptr  size,
 		int         prioritize,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Makes sure a buffer is unbound from any uniform buffer index.
@@ -213,7 +213,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 void _gfx_binder_unbind_uniform_buffer(
 
 		GLuint buffer,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Binds a texture to the appropriate unit.
@@ -228,7 +228,7 @@ size_t _gfx_binder_bind_texture(
 		GLuint  texture,
 		GLenum  target,
 		int     prioritize,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Binds a texture and sampler to the appropriate unit.
@@ -243,7 +243,7 @@ size_t _gfx_binder_bind_sampler(
 		GLuint  texture,
 		GLenum  target,
 		int     prioritize,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Makes sure a texture is unbound from any unit.
@@ -252,7 +252,7 @@ size_t _gfx_binder_bind_sampler(
 void _gfx_binder_unbind_texture(
 
 		GLuint texture,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Makes sure a sampler is unbound from any unit.
@@ -261,7 +261,7 @@ void _gfx_binder_unbind_texture(
 void _gfx_binder_unbind_sampler(
 
 		GLuint sampler,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Sets the framebuffer handle associated with a pipeline as current for the current context.
@@ -271,7 +271,7 @@ void _gfx_pipeline_bind(
 
 		GLenum  target,
 		GLuint  framebuffer,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Sets the program pipeline or program handle as currently bound to the current context.
@@ -280,7 +280,7 @@ void _gfx_pipeline_bind(
 void _gfx_program_map_bind(
 
 		GLuint id,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 /**
  * Sets the layout handle as currently bound to the current context.
@@ -289,7 +289,7 @@ void _gfx_program_map_bind(
 void _gfx_vertex_layout_bind(
 
 		GLuint vao,
-		GFX_WIND_ARG);
+		GFX_CONT_ARG);
 
 
 #endif // GFX_CORE_RENDERER_GL_H

@@ -383,6 +383,31 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 }
 
 /******************************************************/
+void _gfx_win32_set_pixel_format(
+
+		HWND                  handle,
+		const GFXColorDepth*  depth,
+		int                   backBuffer)
+{
+	PIXELFORMATDESCRIPTOR format;
+	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
+
+	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
+	format.nVersion   = 1;
+	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+	format.iPixelType = PFD_TYPE_RGBA;
+	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
+	format.iLayerType = PFD_MAIN_PLANE;
+
+	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
+	HDC context = GetDC(handle);
+
+	/* Get format compatible with the window */
+	int index = ChoosePixelFormat(context, &format);
+	SetPixelFormat(context, index, &format);
+}
+
+/******************************************************/
 int _gfx_win32_register_classes(void)
 {
 	HMODULE handle = GetModuleHandle(NULL);
@@ -415,31 +440,6 @@ int _gfx_win32_register_classes(void)
 	}
 
 	return 1;
-}
-
-/******************************************************/
-void _gfx_win32_set_pixel_format(
-
-		HWND                  handle,
-		const GFXColorDepth*  depth,
-		int                   backBuffer)
-{
-	PIXELFORMATDESCRIPTOR format;
-	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
-
-	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
-	format.nVersion   = 1;
-	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
-	format.iPixelType = PFD_TYPE_RGBA;
-	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
-	format.iLayerType = PFD_MAIN_PLANE;
-
-	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
-	HDC context = GetDC(handle);
-
-	/* Get format compatible with the window */
-	int index = ChoosePixelFormat(context, &format);
-	SetPixelFormat(context, index, &format);
 }
 
 /******************************************************/
