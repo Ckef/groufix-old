@@ -14,6 +14,7 @@
 
 #include "groufix/core/errors.h"
 #include "groufix/core/renderer.h"
+#include "groufix/core/threading.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -32,8 +33,16 @@ typedef struct GFX_Error
 static size_t _gfx_errors_maximum = GFX_MAX_ERRORS_DEFAULT;
 
 
+/* Error mode */
+static GFXErrorMode _gfx_error_mode;
+
+
 /* Stored Errors */
-static GFXDeque* _gfx_errors = NULL;
+static GFXDeque _gfx_errors;
+
+
+/* Synchronize any access */
+static GFX_PlatformMutex  _gfx_error_mutex;
 
 
 /******************************************************/
@@ -41,12 +50,8 @@ static void _gfx_errors_poll(void)
 {
 	GFX_WIND_INIT();
 
-	/* Ignore error mode if debugging */
-#ifdef NDEBUG
-	if(_gfx_window_manager_get_error_mode() == GFX_ERROR_MODE_DEBUG)
+	if(_gfx_error_mode == GFX_ERROR_MODE_DEBUG)
 	{
-#endif
-
 		/* Loop over all errors */
 		GLenum err = GFX_REND_GET.GetError();
 		while(err != GL_NO_ERROR)
@@ -54,10 +59,7 @@ static void _gfx_errors_poll(void)
 			gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
 			err = GFX_REND_GET.GetError();
 		}
-
-#ifdef NDEBUG
 	}
-#endif
 }
 
 /******************************************************/
@@ -65,10 +67,42 @@ static GFX_Error* _gfx_errors_last(void)
 {
 	_gfx_errors_poll();
 
-	if(!_gfx_errors) return NULL;
+	/* Lock but don't unlock as to not have to lock again */
+	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
-	if(_gfx_errors->begin == _gfx_errors->end) return NULL;
-	return (GFX_Error*)_gfx_errors->begin;
+	if(_gfx_errors.begin == _gfx_errors.end) return NULL;
+	return (GFX_Error*)_gfx_errors.begin;
+}
+
+/******************************************************/
+int _gfx_errors_init(
+
+		GFXErrorMode mode)
+{
+	/* Initialize mutex */
+	if(!_gfx_platform_mutex_init(&_gfx_error_mutex))
+		return 0;
+
+	_gfx_error_mode = mode;
+	gfx_deque_init(&_gfx_errors, sizeof(GFX_Error));
+
+	/* Reserve right away */
+	gfx_deque_reserve(&_gfx_errors, _gfx_errors_maximum);
+
+	return 1;
+}
+
+/******************************************************/
+GFXErrorMode _gfx_errors_get_mode(void)
+{
+	return _gfx_error_mode;
+}
+
+/******************************************************/
+void _gfx_errors_terminate(void)
+{
+	gfx_deque_clear(&_gfx_errors);
+	_gfx_platform_mutex_clear(&_gfx_error_mutex);
 }
 
 /******************************************************/
@@ -76,8 +110,13 @@ unsigned int gfx_get_num_errors(void)
 {
 	_gfx_errors_poll();
 
-	if(!_gfx_errors) return 0;
-	return gfx_deque_get_size(_gfx_errors);
+	_gfx_platform_mutex_lock(&_gfx_error_mutex);
+
+	size_t size = gfx_deque_get_size(&_gfx_errors);
+
+	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
+
+	return size;
 }
 
 /******************************************************/
@@ -86,12 +125,15 @@ int gfx_errors_peek(
 		GFXError* error)
 {
 	GFX_Error* err = _gfx_errors_last();
-	if(!err) return 0;
+	if(err)
+	{
+		error->code = err->code;
+		error->description = err->description;
+	}
 
-	error->code = err->code;
-	error->description = err->description;
+	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
 
-	return 1;
+	return err != NULL;
 }
 
 /******************************************************/
@@ -101,18 +143,22 @@ int gfx_errors_find(
 {
 	_gfx_errors_poll();
 
-	if(!_gfx_errors) return 0;
+	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
-	GFXDequeIterator it;
+	GFX_Error* it;
 	for(
-		it = _gfx_errors->begin;
-		it != _gfx_errors->end;
-		it = gfx_deque_next(_gfx_errors, it))
+		it = _gfx_errors.begin;
+		it != _gfx_errors.end;
+		it = gfx_deque_next(&_gfx_errors, it))
 	{
-		if(((GFX_Error*)it)->code == code) break;
+		if(it->code == code) break;
 	}
 
-	return it != _gfx_errors->end;
+	int ret = it != _gfx_errors.end;
+
+	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
+
+	return ret;
 }
 
 /******************************************************/
@@ -123,8 +169,10 @@ void gfx_errors_pop(void)
 	{
 		/* Make sure to free it properly */
 		free(err->description);
-		gfx_deque_pop_begin(_gfx_errors);
+		gfx_deque_pop_begin(&_gfx_errors);
 	}
+
+	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
 }
 
 /******************************************************/
@@ -133,19 +181,10 @@ void gfx_errors_push(
 		GFXErrorCode  code,
 		const char*   description)
 {
-	/* Allocate */
-	if(!_gfx_errors)
-	{
-		_gfx_errors = gfx_deque_create(sizeof(GFX_Error));
-		if(!_gfx_errors) return;
+	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
-		/* Reserve right away */
-		gfx_deque_reserve(_gfx_errors, _gfx_errors_maximum);
-	}
-	else if(gfx_deque_get_size(_gfx_errors) == _gfx_errors_maximum)
-	{
-		gfx_deque_pop_end(_gfx_errors);
-	}
+	if(gfx_deque_get_size(&_gfx_errors) == _gfx_errors_maximum)
+		gfx_deque_pop_end(&_gfx_errors);
 
 	/* Construct an error */
 	GFX_Error error;
@@ -161,27 +200,29 @@ void gfx_errors_push(
 		error.description = des;
 	}
 
-	gfx_deque_push_begin(_gfx_errors, &error);
+	gfx_deque_push_begin(&_gfx_errors, &error);
+
+	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
 }
 
 /******************************************************/
 void gfx_errors_empty(void)
 {
-	if(_gfx_errors)
-	{
-		/* Free all descriptions */
-		GFXDequeIterator it;
-		for(
-			it = _gfx_errors->begin;
-			it != _gfx_errors->end;
-			it = gfx_deque_next(_gfx_errors, it))
-		{
-			free(((GFX_Error*)it)->description);
-		}
+	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
-		gfx_deque_free(_gfx_errors);
-		_gfx_errors = NULL;
+	/* Free all descriptions */
+	GFX_Error* it;
+	for(
+		it = _gfx_errors.begin;
+		it != _gfx_errors.end;
+		it = gfx_deque_next(&_gfx_errors, it))
+	{
+		free(it->description);
 	}
+
+	gfx_deque_clear(&_gfx_errors);
+
+	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
 }
 
 /******************************************************/
@@ -189,25 +230,27 @@ void gfx_errors_set_maximum(
 
 		size_t max)
 {
+	_gfx_platform_mutex_lock(&_gfx_error_mutex);
+
 	_gfx_errors_maximum = max;
 
 	/* Either deallocate or reserve */
-	if(!max) gfx_errors_empty();
-	else if(_gfx_errors)
+	if(max)
 	{
 		/* Remove errors */
-		while(gfx_deque_get_size(_gfx_errors) > max)
+		while(gfx_deque_get_size(&_gfx_errors) > max)
 		{
-			GFXDequeIterator it = gfx_deque_previous(
-				_gfx_errors,
-				_gfx_errors->end
-			);
+			GFX_Error* it = gfx_deque_previous(&_gfx_errors, _gfx_errors.end);
+			free(it->description);
 
-			free(((GFX_Error*)it)->description);
-			gfx_deque_pop_end(_gfx_errors);
+			gfx_deque_pop_end(&_gfx_errors);
 		}
 
 		/* Reserve the memory */
-		gfx_deque_reserve(_gfx_errors, max);
+		gfx_deque_reserve(&_gfx_errors, max);
 	}
+
+	else gfx_errors_empty();
+
+	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
 }

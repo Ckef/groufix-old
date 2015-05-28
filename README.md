@@ -56,14 +56,16 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 #### Threading
 
-_The library is thread affine_. All functonality should be executed from the same thread at all times. The engine itself might or might not thread its internal workings, but the external interface can be viewed as if it is executed on the calling thread. It is the calling application's responsibility to execute the engine in a dedicated thread if this is necessary.
+_The library is thread affine_. All functonality should be executed from the same thread at all times, unless explicitly specified otherwise. The engine itself might or might not thread its internal workings, but the external interface can be viewed as if it is executed on the calling thread. It is the calling application's responsibility to execute the engine in a dedicated thread if this is necessary.
 
 
 #### Termination
 
-As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all renderer and window manager related resources. This means the connection to both the renderer and the windowing manager is lost. It will also clean up shared buffer memory and clear the error queue, as it will be irrelevant.
+As said before, when done with the engine, it should be terminated with a call to `gfx_terminate`. It is important to make this call after the engine is initialized and used. This call will free all renderer and window manager related resources. This means the connection to both the renderer and the windowing manager is lost. It will also clean up shared buffer memory.
 
-_It will not free any other resources_. All user allocated resources must be freed by the user. To make sure everything is freed properly, every `*_create` method must be followed up by the appropriate `*_free` method and every `*_init` method must be followed up by the appropriate `*_clear` method. On a side note, any free method can take NULL as parameter and it will do nothing.
+_It will not free any other resources_. All user allocated resources must be freed by the user before terminating. To make sure everything is freed properly, every `*_create` method must be followed up by the appropriate `*_free` method and every `*_init` method must be followed up by the appropriate `*_clear` method. On a side note, any free method can take NULL as parameter and it will do nothing.
+
+After the engine is terminated, any call to Groufix is considered undefined behavior.
 
 
 ## Acknowledgements

@@ -296,23 +296,20 @@ static GFX_ALWAYS_INLINE void _gfx_platform_mutex_clear(
 /**
  * Blocks until the calling thread is granted ownership of the mutex.
  *
- * @return Zero on failure (no blocking occurred).
- *
  * Note: locking a mutex you already own results in undefined behaviour.
  *
  */
-static GFX_ALWAYS_INLINE int _gfx_platform_mutex_lock(
+static GFX_ALWAYS_INLINE void _gfx_platform_mutex_lock(
 
 		GFX_PlatformMutex* mutex)
 {
 #if defined(GFX_WIN32)
 
 	EnterCriticalSection(mutex);
-	return 1;
 
 #elif defined(GFX_UNIX)
 
-	return !pthread_mutex_lock(mutex);
+	pthread_mutex_lock(mutex);
 
 #endif
 }

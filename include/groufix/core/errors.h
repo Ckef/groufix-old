@@ -46,7 +46,11 @@ typedef enum GFXErrorCode
 	GFX_ERROR_OVERFLOW                 = 0x0503,
 	GFX_ERROR_UNDERFLOW                = 0x0504,
 	GFX_ERROR_OUT_OF_MEMORY            = 0x0505,
-	GFX_ERROR_INVALID_FRAME_OPERATION  = 0x0506
+	GFX_ERROR_INVALID_FRAME_OPERATION  = 0x0506,
+	GFX_ERROR_DEPRECATED_BEHAVIOR      = 0x824d,
+	GFX_ERROR_UNDEFINED_BEHAVIOR       = 0x824e,
+	GFX_ERROR_PEFORMANCE_WARNING       = 0x8250,
+	GFX_ERROR_PORTABILITY_WARNING      = 0x824f
 
 } GFXErrorCode;
 
@@ -76,6 +80,8 @@ typedef struct GFXError
 /**
  * Returns the number of errors in the queue.
  *
+ * This function is thread safe.
+ *
  */
 GFX_API unsigned int gfx_get_num_errors(void);
 
@@ -84,6 +90,8 @@ GFX_API unsigned int gfx_get_num_errors(void);
  *
  * @param error Error structure to copy to.
  * @return Whether or not an error was present.
+ *
+ * This function is thread safe.
  *
  */
 GFX_API int gfx_errors_peek(
@@ -95,6 +103,8 @@ GFX_API int gfx_errors_peek(
  *
  * @param code The error code to search for.
  * @return non-zero if any error with the given code was found.
+ *
+ * This function is thread safe.
  *
  */
 GFX_API int gfx_errors_find(
@@ -114,6 +124,7 @@ GFX_API void gfx_errors_pop(void);
  * @param description Optional null terminated message to describe the error (can be NULL).
  *
  * The description will be copied.
+ * This function is thread safe.
  *
  */
 GFX_API void gfx_errors_push(
@@ -125,12 +136,15 @@ GFX_API void gfx_errors_push(
  * Empty the internal error queue.
  *
  * Should NOT be called frequently for efficiency.
+ * This function is thread safe.
  *
  */
 GFX_API void gfx_errors_empty(void);
 
 /**
  * Sets the maximum number of errors stored.
+ *
+ * This function is thread safe.
  *
  */
 GFX_API void gfx_errors_set_maximum(

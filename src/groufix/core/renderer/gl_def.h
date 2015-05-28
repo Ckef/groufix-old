@@ -390,6 +390,7 @@ void APIENTRY _gfx_gl_vertex_attrib_divisor                             (GLuint,
 /* Internal Extensions */
 enum GFX_Extension
 {
+	GFX_INT_EXT_DEBUG_OUTPUT,
 	GFX_INT_EXT_DIRECT_STATE_ACCESS,
 	GFX_INT_EXT_MULTI_BIND,
 	GFX_INT_EXT_SAMPLER_OBJECTS,

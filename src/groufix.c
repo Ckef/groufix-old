@@ -12,8 +12,8 @@
  *
  */
 
-#include "groufix/core/renderer.h"
 #include "groufix.h"
+#include "groufix/core/internal.h"
 
 /******************************************************/
 /* Starting point of time */
@@ -53,21 +53,27 @@ int gfx_init(
 	errors = GFX_ERROR_MODE_DEBUG;
 #endif
 
-	/* Initialize platform */
-	if(!_gfx_platform_init()) return 0;
-
-	/* Initialize window manager */
-	if(!_gfx_window_manager_init(context, errors))
+	/* Initialize platform, window manager and errors */
+	if(_gfx_platform_init())
 	{
+		if(_gfx_window_manager_init(context))
+		{
+			if(_gfx_errors_init(errors))
+			{
+				/* Get starting point of time */
+				_gfx_platform_init_timer();
+				_gfx_time_start = _gfx_platform_get_time();
+
+				return 1;
+			}
+
+			_gfx_window_manager_terminate();
+		}
+
 		_gfx_platform_terminate();
-		return 0;
 	}
 
-	/* Get starting point of time */
-	_gfx_platform_init_timer();
-	_gfx_time_start = _gfx_platform_get_time();
-
-	return 1;
+	return 0;
 }
 
 /******************************************************/
@@ -99,9 +105,7 @@ void gfx_terminate(void)
 	gfx_shared_buffer_cleanup();
 
 	/* Terminate */
+	_gfx_errors_terminate();
 	_gfx_window_manager_terminate();
 	_gfx_platform_terminate();
-
-	/* Empty error queue */
-	gfx_errors_empty();
 }

@@ -282,6 +282,12 @@ void _gfx_renderer_load(void)
 			GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] = limit;
 	}
 
+	/* GFX_INT_EXT_DEBUG_OUTPUT */
+	if(_gfx_is_extension_supported("GL_KHR_debug", GFX_WIND_AS_ARG))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
+	}
+
 	/* GFX_EXT_GEOMETRY_SHADER */
 	if(
 		_gfx_is_extension_supported("GL_OES_geometry_shader", GFX_WIND_AS_ARG) ||
@@ -834,6 +840,22 @@ void _gfx_renderer_load(void)
 
 		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &limit),
 			GFX_WIND_GET.lim[GFX_LIM_MAX_ANISOTROPY] = limit;
+	}
+
+	/* GFX_INT_EXT_DEBUG_OUTPUT */
+	if(_gfx_is_extension_supported("GL_KHR_debug", GFX_WIND_AS_ARG))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
+	}
+
+	else if(_gfx_is_extension_supported("GL_ARB_debug_output", GFX_WIND_AS_ARG))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
+	}
+
+	else if(_gfx_is_extension_supported("GL_AMD_debug_output", GFX_WIND_AS_ARG))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
 	}
 
 	/* GFX_INT_EXT_DIRECT_STATE_ACCESS */

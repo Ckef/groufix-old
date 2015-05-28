@@ -45,6 +45,36 @@ typedef struct GFX_Pipe
 
 
 /********************************************************
+ * Error initialization and termination
+ *******************************************************/
+
+/**
+ * Initializes the error queue.
+ *
+ * @param mode Error mode to use for the renderer.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_errors_init(
+
+		GFXErrorMode mode);
+
+/**
+ * Returns the error mode the error queue was initialized with.
+ *
+ */
+GFXErrorMode _gfx_errors_get_mode(void);
+
+/**
+ * Terminates the error queue.
+ *
+ * This method has no effect if the error queue was not yet initialized.
+ *
+ */
+void _gfx_errors_terminate(void);
+
+
+/********************************************************
  * Event triggers (must be called manually by platform)
  *******************************************************/
 

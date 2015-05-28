@@ -224,20 +224,12 @@ typedef struct GFX_Window
  * Initializes the window manager.
  *
  * @param context Minimum context version to use.
- * @param errors  Error mode to use for the renderer.
  * @return Zero on failure.
  *
  */
 int _gfx_window_manager_init(
 
-		GFXContext    context,
-		GFXErrorMode  errors);
-
-/**
- * Returns the error mode used to initialize the window manager with.
- *
- */
-GFXErrorMode _gfx_window_manager_get_error_mode(void);
+		GFXContext context);
 
 /**
  * Terminates the window manager.
