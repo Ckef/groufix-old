@@ -167,7 +167,7 @@ void gfx_errors_push(
 	/* Copy the description */
 	if(description)
 	{
-		char* des = malloc(sizeof(char) * (strlen(description) + 1));
+		char* des = malloc(strlen(description) + 1);
 		if(des) strcpy(des, description);
 
 		error.description = des;

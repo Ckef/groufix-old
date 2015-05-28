@@ -398,7 +398,6 @@ enum GFX_Extension
 	GFX_INT_EXT_VERTEX_ATTRIB_BINDING,
 
 	GFX_INT_EXT_COUNT
-
 };
 
 

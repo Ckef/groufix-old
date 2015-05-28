@@ -676,7 +676,7 @@ char* _gfx_platform_window_get_name(
 	if(!buff) return NULL;
 
 	/* Copy to client side memory */
-	char* name = malloc(sizeof(char) * (strlen(buff) + 1));
+	char* name = malloc(strlen(buff) + 1);
 	strcpy(name, buff);
 
 	XFree(buff);

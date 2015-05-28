@@ -18,7 +18,7 @@
 #include "groufix/core/platform.h"
 #include "groufix/resources.h"
 
-/* Required threading headers */
+/* Required headers */
 #if defined(GFX_UNIX)
 	#include <unistd.h>
 #endif

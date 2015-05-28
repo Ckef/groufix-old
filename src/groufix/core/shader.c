@@ -242,7 +242,7 @@ static char* _gfx_shader_parse(
 	if(ver >= num) total += strlen(verStr);
 	if(hasOut) total += strlen(outStr);
 
-	char* shader = malloc(sizeof(char) * total);
+	char* shader = malloc(total);
 	if(!shader) return NULL;
 
 	*len = total;
@@ -256,7 +256,7 @@ static char* _gfx_shader_parse(
 	{
 		/* Copy new version */
 		size_t l = strlen(verStr);
-		memcpy(shader + total, verStr, sizeof(char) * l);
+		memcpy(shader + total, verStr, l);
 		total += l;
 	}
 	else
@@ -265,17 +265,17 @@ static char* _gfx_shader_parse(
 		while(i < ver)
 		{
 			offset = lengths[i];
-			memcpy(shader + total, src[i], sizeof(char) * offset);
+			memcpy(shader + total, src[i], offset);
 			total += offset;
 
 			++i;
 		}
 
 		/* Copy existing version */
-		offset = GFX_PTR_DIFF(src[i], verStr) / sizeof(char);
+		offset = GFX_PTR_DIFF(src[i], verStr);
 		while(offset < lengths[i]) if(src[i][offset++] == '\n') break;
 
-		memcpy(shader + total, src[i], sizeof(char) * offset);
+		memcpy(shader + total, src[i], offset);
 		total += offset;
 	}
 
@@ -283,7 +283,7 @@ static char* _gfx_shader_parse(
 	{
 		/* Copy outputs */
 		size_t l = strlen(outStr);
-		memcpy(shader + total, outStr, sizeof(char) * l);
+		memcpy(shader + total, outStr, l);
 		total += l;
 	}
 
@@ -291,7 +291,7 @@ static char* _gfx_shader_parse(
 	{
 		/* Copy remaining parts after existing version */
 		size_t l = lengths[i] - offset;
-		memcpy(shader + total, src[i] + offset, sizeof(char) * l);
+		memcpy(shader + total, src[i] + offset, l);
 		total += l;
 	}
 
@@ -299,7 +299,7 @@ static char* _gfx_shader_parse(
 	while(++i < num)
 	{
 		offset = lengths[i];
-		memcpy(shader + total, src[i], sizeof(char) * offset);
+		memcpy(shader + total, src[i], offset);
 		total += offset;
 	}
 
@@ -472,7 +472,7 @@ char* gfx_shader_get_source(
 	}
 
 	/* Get actual source */
-	char* buff = malloc(sizeof(char) * len);
+	char* buff = malloc(len);
 	GFX_REND_GET.GetShaderSource(
 		internal->handle,
 		len,

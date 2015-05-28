@@ -12,8 +12,6 @@
  *
  */
 
-#define GL_GLEXT_PROTOTYPES
-#include "groufix/core/renderer.h"
 #include "groufix/core/platform/x11.h"
 
 /******************************************************/
@@ -190,20 +188,6 @@ void _gfx_platform_context_make_current(
 		_gfx_x11->display,
 		XDefaultRootWindow(_gfx_x11->display),
 		context);
-}
-
-/******************************************************/
-void _gfx_platform_context_get(
-
-		int*  major,
-		int*  minor)
-{
-	GLint ma, mi;
-	glGetIntegerv(GL_MAJOR_VERSION, &ma);
-	glGetIntegerv(GL_MINOR_VERSION, &mi);
-
-	*major = ma;
-	*minor = mi;
 }
 
 /******************************************************/

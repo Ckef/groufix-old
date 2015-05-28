@@ -26,7 +26,7 @@ static WCHAR* _gfx_win32_get_path(
 	/* Replace '/' with '\' */
 	size_t len = strlen(path) + 1;
 
-	char* repl = malloc(len * sizeof(char));
+	char* repl = malloc(len);
 	if(!repl) return NULL;
 
 	while(len--) repl[len] = path[len] == '/' ? '\\' : path[len];

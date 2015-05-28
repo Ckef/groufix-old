@@ -61,7 +61,9 @@ static inline int _gfx_window_is_zombie(
 /******************************************************/
 static GFX_PlatformContext _gfx_window_context_create(
 
-		GFX_PlatformWindow* window)
+		GFX_PlatformWindow*  window,
+		int*                 major,
+		int*                 minor)
 {
 	/* Get the main window to share with (as all windows will share everything) */
 	GFX_PlatformContext share = NULL;
@@ -92,6 +94,9 @@ static GFX_PlatformContext _gfx_window_context_create(
 		if(cont)
 		{
 			*window = *window ? *window : wind;
+			*major = max.major;
+			*minor = max.minor;
+
 			return cont;
 		}
 
@@ -200,8 +205,11 @@ static GFX_Window* _gfx_window_create_internal(
 	}
 
 	/* Create context */
-	window->context =
-		_gfx_window_context_create(&window->handle);
+	window->context = _gfx_window_context_create(
+		&window->handle,
+		&window->version.major,
+		&window->version.minor
+	);
 
 	if(window->context)
 	{
@@ -210,11 +218,6 @@ static GFX_Window* _gfx_window_create_internal(
 		_gfx_window_make_current(window);
 
 		/* Load renderer and initialize window */
-		_gfx_platform_context_get(
-			&window->version.major,
-			&window->version.minor
-		);
-
 		_gfx_renderer_load();
 		_gfx_states_set_default(&window->state);
 		_gfx_states_force_set(&window->state, window);

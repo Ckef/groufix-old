@@ -42,14 +42,11 @@ static int _gfx_x11_error_handler(
 {
 	if(_gfx_x11->errors)
 	{
-		size_t length = sizeof(char) * (GFX_X11_ERROR_LENGTH);
-		char* text = malloc(length);
-
-		XGetErrorText(display, evt->error_code, text, length);
+		char* text = malloc(GFX_X11_ERROR_LENGTH);
+		XGetErrorText(display, evt->error_code, text, GFX_X11_ERROR_LENGTH);
 
 		/* Make sure it's null terminated */
 		text[GFX_X11_ERROR_LENGTH - 1] = 0;
-
 		gfx_errors_push(GFX_ERROR_PLATFORM_ERROR, text);
 
 		free(text);

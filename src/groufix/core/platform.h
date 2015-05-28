@@ -408,18 +408,6 @@ void _gfx_platform_context_make_current(
 		GFX_PlatformContext  context);
 
 /**
- * Returns the context version of the current context.
- *
- * @param major Return parameter for the major version, 0 on failure.
- * @param minor Return parameter for the minor version, 0 on failure.
- *
- */
-void _gfx_platform_context_get(
-
-		int*  major,
-		int*  minor);
-
-/**
  * Returns the address to a process of the current context.
  *
  * @return NULL if the process does not exist.
