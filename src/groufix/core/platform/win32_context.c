@@ -20,13 +20,18 @@ static HGLRC _gfx_win32_create_context(
 		int    major,
 		int    minor,
 		HWND   window,
-		HGLRC  share)
+		HGLRC  share,
+		int    debug)
 {
 	/* Create buffer attribute array */
+	int flags =
+		WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB |
+		(debug ? WGL_CONTEXT_DEBUG_BIT_ARB : 0);
+
 	int bufferAttr[] = {
 		WGL_CONTEXT_MAJOR_VERSION_ARB, major,
 		WGL_CONTEXT_MINOR_VERSION_ARB, minor,
-		WGL_CONTEXT_FLAGS_ARB,         WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+		WGL_CONTEXT_FLAGS_ARB,         flags,
 		WGL_CONTEXT_PROFILE_MASK_ARB,  WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
 		0
 	};
@@ -45,7 +50,8 @@ GFX_PlatformContext _gfx_platform_context_create(
 		GFX_PlatformWindow*  handle,
 		int                  major,
 		int                  minor,
-		GFX_PlatformContext  share)
+		GFX_PlatformContext  share,
+		int                  debug)
 {
 	/* Create dummy window */
 	GFX_Win32_Window* window = _gfx_win32_window_dummy_create();
@@ -56,7 +62,8 @@ GFX_PlatformContext _gfx_platform_context_create(
 		major,
 		minor,
 		window->handle,
-		share
+		share,
+		debug
 	);
 
 	if(!window->context)
@@ -83,7 +90,8 @@ GFX_PlatformContext _gfx_platform_context_init(
 		GFX_PlatformWindow   handle,
 		int                  major,
 		int                  minor,
-		GFX_PlatformContext  share)
+		GFX_PlatformContext  share,
+		int                  debug)
 {
 	/* Get the window */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
@@ -94,7 +102,8 @@ GFX_PlatformContext _gfx_platform_context_init(
 		major,
 		minor,
 		handle,
-		share
+		share,
+		debug
 	);
 
 	return window->context;

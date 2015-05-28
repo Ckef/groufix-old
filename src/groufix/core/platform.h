@@ -323,6 +323,7 @@ int _gfx_platform_poll_events(void);
  * @param major  Major context version.
  * @param minor  Minor context version.
  * @param share  Context to share resources with (can be NULL to not share).
+ * @param debug  Non-zero to enable extensive debugging against a performance cost.
  * @return A handle to the context (NULL on failure).
  *
  * Note: the dummy window may only be used in _gfx_platform_context_make_current.
@@ -333,7 +334,8 @@ GFX_PlatformContext _gfx_platform_context_create(
 		GFX_PlatformWindow*  handle,
 		int                  major,
 		int                  minor,
-		GFX_PlatformContext  share);
+		GFX_PlatformContext  share,
+		int                  debug);
 
 /**
  * Destroys a windowless context.
@@ -357,7 +359,8 @@ GFX_PlatformContext _gfx_platform_context_init(
 		GFX_PlatformWindow   handle,
 		int                  major,
 		int                  minor,
-		GFX_PlatformContext  share);
+		GFX_PlatformContext  share,
+		int                  debug);
 
 /**
  * Destroys the context of a window.

@@ -45,13 +45,19 @@ int gfx_get_limit(
 /******************************************************/
 int gfx_init(
 
-		GFXContext context)
+		GFXContext    context,
+		GFXErrorMode  errors)
 {
+	/* Always debug */
+#ifndef NDEBUG
+	errors = GFX_ERROR_MODE_DEBUG;
+#endif
+
 	/* Initialize platform */
 	if(!_gfx_platform_init()) return 0;
 
 	/* Initialize window manager */
-	if(!_gfx_window_manager_init(context))
+	if(!_gfx_window_manager_init(context, errors))
 	{
 		_gfx_platform_terminate();
 		return 0;

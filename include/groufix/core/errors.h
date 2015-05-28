@@ -55,9 +55,7 @@ typedef enum GFXErrorCode
 typedef enum GFXErrorMode
 {
 	GFX_ERROR_MODE_NORMAL,
-	GFX_ERROR_MODE_DEBUG,
-
-	GFX_ERROR_MODE_DEFAULT = GFX_ERROR_MODE_NORMAL
+	GFX_ERROR_MODE_DEBUG
 
 } GFXErrorMode;
 
@@ -74,19 +72,6 @@ typedef struct GFXError
 
 } GFXError;
 
-
-/**
- * Sets the error mode.
- *
- * @param mode The error mode to use, debug reports renderer errors as well.
- *
- * Note: if groufix is compiled with DEBUG=YES, the error mode will be ignored
- * in some cases and assumed to be GFX_ERROR_MODE_DEBUG instead.
- *
- */
-GFX_API void gfx_set_error_mode(
-
-		GFXErrorMode mode);
 
 /**
  * Returns the number of errors in the queue.

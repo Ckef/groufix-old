@@ -20,17 +20,23 @@ static GLXContext _gfx_x11_create_context(
 		int          major,
 		int          minor,
 		GLXFBConfig  config,
-		GLXContext   share)
+		GLXContext   share,
+		int          debug)
 {
 	/* Temporarily disable errors */
 	/* This so we can attempt to create contexts with various versions */
 	_gfx_x11->errors = 0;
 
 	/* Create buffer attribute array */
-	int bufferAttr[] = {
+	int flags =
+		GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB |
+		(debug ? GLX_CONTEXT_DEBUG_BIT_ARB : 0);
+
+	int bufferAttr[] =
+	{
 		GLX_CONTEXT_MAJOR_VERSION_ARB, major,
 		GLX_CONTEXT_MINOR_VERSION_ARB, minor,
-		GLX_CONTEXT_FLAGS_ARB,         GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+		GLX_CONTEXT_FLAGS_ARB,         flags,
 		GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
 		None
 	};
@@ -54,7 +60,8 @@ GFX_PlatformContext _gfx_platform_context_create(
 		GFX_PlatformWindow*  handle,
 		int                  major,
 		int                  minor,
-		GFX_PlatformContext  share)
+		GFX_PlatformContext  share,
+		int                  debug)
 {
 	if(!_gfx_x11) return NULL;
 
@@ -76,7 +83,8 @@ GFX_PlatformContext _gfx_platform_context_create(
 		major,
 		minor,
 		*config,
-		share
+		share,
+		debug
 	);
 
 	XFree(config);
@@ -100,7 +108,8 @@ GFX_PlatformContext _gfx_platform_context_init(
 		GFX_PlatformWindow   handle,
 		int                  major,
 		int                  minor,
-		GFX_PlatformContext  share)
+		GFX_PlatformContext  share,
+		int                  debug)
 {
 	/* Get the window */
 	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
@@ -113,7 +122,8 @@ GFX_PlatformContext _gfx_platform_context_init(
 		major,
 		minor,
 		window->config,
-		share
+		share,
+		debug
 	);
 
 	return window->context;

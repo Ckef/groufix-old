@@ -28,10 +28,6 @@ typedef struct GFX_Error
 } GFX_Error;
 
 
-/* Error mode */
-static GFXErrorMode _gfx_error_mode = GFX_ERROR_MODE_DEFAULT;
-
-
 /* Maximum number of errors stored */
 static size_t _gfx_errors_maximum = GFX_MAX_ERRORS_DEFAULT;
 
@@ -47,7 +43,7 @@ static void _gfx_errors_poll(void)
 
 	/* Ignore error mode if debugging */
 #ifdef NDEBUG
-	if(_gfx_error_mode == GFX_ERROR_MODE_DEBUG)
+	if(_gfx_window_manager_get_error_mode() == GFX_ERROR_MODE_DEBUG)
 	{
 #endif
 
@@ -73,14 +69,6 @@ static GFX_Error* _gfx_errors_last(void)
 
 	if(_gfx_errors->begin == _gfx_errors->end) return NULL;
 	return (GFX_Error*)_gfx_errors->begin;
-}
-
-/******************************************************/
-void gfx_set_error_mode(
-
-		GFXErrorMode mode)
-{
-	_gfx_error_mode = mode;
 }
 
 /******************************************************/

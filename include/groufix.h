@@ -119,12 +119,17 @@ typedef struct GFXContext
  * Initializes the Groufix engine.
  *
  * @param context Minimal context version to use (can be left as zeros).
+ * @param errors  Error mode to use for the engine.
  * @return non-zero if initialization was successful.
+ *
+ * Note: if groufix is compiled with DEBUG=YES, the error mode will be ignored
+ * and assumed to be GFX_ERROR_MODE_DEBUG instead.
  *
  */
 GFX_API int gfx_init(
 
-		GFXContext context);
+		GFXContext    context,
+		GFXErrorMode  errors);
 
 /**
  * Polls events of all windows.

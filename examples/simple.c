@@ -103,14 +103,13 @@ int main()
 	context.major = 0;
 	context.minor = 0;
 
-	if(!gfx_init(context))
+	if(!gfx_init(context, GFX_ERROR_MODE_DEBUG))
 	{
 		GFXError error;
 		if(gfx_errors_peek(&error)) print_error(error);
 
 		return 0;
 	}
-	gfx_set_error_mode(GFX_ERROR_MODE_DEBUG);
 
 
 	/* Setup 2 windows */

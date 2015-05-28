@@ -18,6 +18,10 @@
 #include <stdlib.h>
 
 /******************************************************/
+/* Error mode */
+static GFXErrorMode _gfx_error_mode;
+
+
 /* Current window data key */
 static GFX_PlatformKey _gfx_current_window;
 
@@ -65,6 +69,8 @@ static GFX_PlatformContext _gfx_window_context_create(
 		int*                 major,
 		int*                 minor)
 {
+	int debug = _gfx_error_mode == GFX_ERROR_MODE_DEBUG;
+
 	/* Get the main window to share with (as all windows will share everything) */
 	GFX_PlatformContext share = NULL;
 	if(_gfx_main_window) share = _gfx_main_window->context;
@@ -86,10 +92,11 @@ static GFX_PlatformContext _gfx_window_context_create(
 		GFX_PlatformWindow wind;
 		GFX_PlatformContext cont;
 
-		if(*window) cont =
-			_gfx_platform_context_init(*window, max.major, max.minor, share);
-		else cont =
-			_gfx_platform_context_create(&wind, max.major, max.minor, share);
+		if(*window) cont = _gfx_platform_context_init(
+			*window, max.major, max.minor, share, debug);
+
+		else cont = _gfx_platform_context_create(
+			&wind, max.major, max.minor, share, debug);
 
 		if(cont)
 		{
@@ -330,7 +337,8 @@ static void _gfx_window_erase(
 /******************************************************/
 int _gfx_window_manager_init(
 
-		GFXContext context)
+		GFXContext    context,
+		GFXErrorMode  errors)
 {
 	if(!_gfx_main_window)
 	{
@@ -356,7 +364,14 @@ int _gfx_window_manager_init(
 		_gfx_main_window = _gfx_dummy_window;
 	}
 
+	_gfx_error_mode = errors;
 	return 1;
+}
+
+/******************************************************/
+GFXErrorMode _gfx_window_manager_get_error_mode(void)
+{
+	return _gfx_error_mode;
 }
 
 /******************************************************/
