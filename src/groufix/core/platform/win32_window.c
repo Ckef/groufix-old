@@ -200,7 +200,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			if(wParam > GFX_WIN32_MAX_KEYCODE)
 				key = GFX_KEY_UNKNOWN;
 			else key = _gfx_win32_get_extended_key(
-				_gfx_win32->keys[wParam],
+				_gfx_win32.keys[wParam],
 				lParam);
 
 			_gfx_event_key_press(window, key, _gfx_win32_get_key_state());
@@ -216,7 +216,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			if(wParam > GFX_WIN32_MAX_KEYCODE)
 				key = GFX_KEY_UNKNOWN;
 			else key = _gfx_win32_get_extended_key(
-				_gfx_win32->keys[wParam],
+				_gfx_win32.keys[wParam],
 				lParam);
 
 			_gfx_event_key_release(window, key, _gfx_win32_get_key_state());
@@ -445,8 +445,6 @@ int _gfx_win32_register_classes(void)
 /******************************************************/
 GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 {
-	if(!_gfx_win32) return NULL;
-
 	/* Create a dummy window */
 	GFX_Win32_Window window;
 	window.monitor = NULL;
@@ -468,12 +466,12 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 	{
 		/* Add window to vector */
 		GFXVectorIterator it = gfx_vector_insert(
-			&_gfx_win32->windows,
+			&_gfx_win32.windows,
 			&window,
-			_gfx_win32->windows.end
+			_gfx_win32.windows.end
 		);
 
-		if(it != _gfx_win32->windows.end)
+		if(it != _gfx_win32.windows.end)
 		{
 			/* Set pixel format */
 			GFXColorDepth depth;
@@ -498,8 +496,6 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 		const GFX_PlatformAttributes* attributes)
 {
-	if(!_gfx_win32) return NULL;
-
 	/* Setup the win32 window */
 	GFX_Win32_Window window;
 	window.monitor = attributes->monitor;
@@ -532,7 +528,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		window.flags |= GFX_WIN32_FULLSCREEN;
 
 		window.mode = gfx_vector_at(
-			&_gfx_win32->modes,
+			&_gfx_win32.modes,
 			window.monitor->modes + attributes->mode);
 
 		_gfx_split_depth(
@@ -617,12 +613,12 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	{
 		/* Add window to vector */
 		GFXVectorIterator it = gfx_vector_insert(
-			&_gfx_win32->windows,
+			&_gfx_win32.windows,
 			&window,
-			_gfx_win32->windows.end
+			_gfx_win32.windows.end
 		);
 
-		if(it != _gfx_win32->windows.end)
+		if(it != _gfx_win32.windows.end)
 		{
 			/* Set pixel format */
 			_gfx_win32_set_pixel_format(
@@ -656,20 +652,17 @@ void _gfx_platform_window_free(
 
 		GFX_PlatformWindow handle)
 {
-	if(_gfx_win32)
-	{
-		/* Make sure to undo fullscreen */
-		GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
-		if(it->flags & GFX_WIN32_FULLSCREEN)
-			_gfx_win32_leave_fullscreen(it->monitor);
+	/* Make sure to undo fullscreen */
+	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+	if(it->flags & GFX_WIN32_FULLSCREEN)
+		_gfx_win32_leave_fullscreen(it->monitor);
 
-		/* Destroy the context and window */
-		_gfx_platform_context_clear(handle);
-		DestroyWindow(handle);
+	/* Destroy the context and window */
+	_gfx_platform_context_clear(handle);
+	DestroyWindow(handle);
 
-		/* Remove from vector */
-		gfx_vector_erase(&_gfx_win32->windows, it);
-	}
+	/* Remove from vector */
+	gfx_vector_erase(&_gfx_win32.windows, it);
 }
 
 /******************************************************/
@@ -869,8 +862,6 @@ void _gfx_platform_window_hide(
 /******************************************************/
 int _gfx_platform_poll_events(void)
 {
-	if(!_gfx_win32) return 0;
-
 	MSG msg;
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{

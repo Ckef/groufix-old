@@ -37,7 +37,7 @@ static HGLRC _gfx_win32_create_context(
 	};
 
 	/* Create the context */
-	return _gfx_win32->extensions.CreateContextAttribsARB(
+	return _gfx_win32.extensions.CreateContextAttribsARB(
 		GetDC(window),
 		share,
 		bufferAttr
@@ -135,16 +135,16 @@ int _gfx_platform_context_set_swap_interval(
 	GFX_Win32_Window* window =
 		_gfx_win32_get_window_from_handle(handle);
 
-	if(!window || !_gfx_win32->extensions.SwapIntervalEXT)
+	if(!window || !_gfx_win32.extensions.SwapIntervalEXT)
 		return 0;
 
 	/* Correct if adaptive vsync is not supported */
-	if(!_gfx_win32->extensions.EXT_swap_control_tear && num < 0)
+	if(!_gfx_win32.extensions.EXT_swap_control_tear && num < 0)
 		num = -num;
 
 	/* Make current to set its interval */
 	_gfx_platform_context_make_current(handle, window->context);
-	_gfx_win32->extensions.SwapIntervalEXT(num);
+	_gfx_win32.extensions.SwapIntervalEXT(num);
 
 	return num;
 }
@@ -154,7 +154,7 @@ void _gfx_platform_context_swap_buffers(
 
 		GFX_PlatformWindow handle)
 {
-	if(_gfx_win32) SwapBuffers(GetDC(handle));
+	SwapBuffers(GetDC(handle));
 }
 
 /******************************************************/

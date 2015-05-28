@@ -20,7 +20,7 @@
 
 /******************************************************/
 /* Instance */
-GFX_Win32_Instance* _gfx_win32 = NULL;
+GFX_Win32_Instance _gfx_win32;
 
 
 /******************************************************/
@@ -29,7 +29,7 @@ static inline int _gfx_win32_is_extension_supported(
 		const char*  ext)
 {
 	return _gfx_contains_string(
-		_gfx_win32->extensions.GetExtensionsStringARB(GetDC(NULL)), ext);
+		_gfx_win32.extensions.GetExtensionsStringARB(GetDC(NULL)), ext);
 }
 
 /******************************************************/
@@ -65,10 +65,10 @@ static int _gfx_win32_load_extensions(void)
 	wglMakeCurrent(dc, context);
 
 	/* Get extension string extension.. */
-	_gfx_win32->extensions.GetExtensionsStringARB =
+	_gfx_win32.extensions.GetExtensionsStringARB =
 		(PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
 
-	if(_gfx_win32->extensions.GetExtensionsStringARB)
+	if(_gfx_win32.extensions.GetExtensionsStringARB)
 	{
 		/* Check all vital extensions */
 		if(
@@ -80,16 +80,16 @@ static int _gfx_win32_load_extensions(void)
 		}
 
 		/* Load all functions */
-		_gfx_win32->extensions.CreateContextAttribsARB =
+		_gfx_win32.extensions.CreateContextAttribsARB =
 			(PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-		_gfx_win32->extensions.SwapIntervalEXT =
+		_gfx_win32.extensions.SwapIntervalEXT =
 			(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
-		_gfx_win32->extensions.EXT_swap_control_tear =
+		_gfx_win32.extensions.EXT_swap_control_tear =
 			_gfx_win32_is_extension_supported("WGL_EXT_swap_control_tear") ? 1 : 0;
 
 		/* Check non-vital extensions */
 		if(!_gfx_win32_is_extension_supported("WGL_EXT_swap_control"))
-			_gfx_win32->extensions.SwapIntervalEXT = NULL;
+			_gfx_win32.extensions.SwapIntervalEXT = NULL;
 	}
 	else success = 0;
 
@@ -107,7 +107,7 @@ static void _gfx_win32_init_modes(
 		GFX_Win32_Monitor*  monitor)
 {
 	/* Iterate over modes */
-	monitor->modes = gfx_vector_get_size(&_gfx_win32->modes);
+	monitor->modes = gfx_vector_get_size(&_gfx_win32.modes);
 	monitor->numModes = 0;
 
 	DEVMODE mode;
@@ -135,9 +135,9 @@ static void _gfx_win32_init_modes(
 		/* Compare against all already found modes */
 		DEVMODE* comp;
 		for(
-			comp = gfx_vector_at(&_gfx_win32->modes, monitor->modes);
-			comp != _gfx_win32->modes.end;
-			comp = gfx_vector_next(&_gfx_win32->modes, comp))
+			comp = gfx_vector_at(&_gfx_win32.modes, monitor->modes);
+			comp != _gfx_win32.modes.end;
+			comp = gfx_vector_next(&_gfx_win32.modes, comp))
 		{
 			if(
 				comp->dmBitsPerPel == mode.dmBitsPerPel &&
@@ -149,13 +149,13 @@ static void _gfx_win32_init_modes(
 			}
 		}
 
-		if(comp == _gfx_win32->modes.end)
+		if(comp == _gfx_win32.modes.end)
 		{
 			/* Insert it */
 			GFXVectorIterator it =
-				gfx_vector_insert(&_gfx_win32->modes, &mode, _gfx_win32->modes.end);
+				gfx_vector_insert(&_gfx_win32.modes, &mode, _gfx_win32.modes.end);
 
-			if(it != _gfx_win32->modes.end)
+			if(it != _gfx_win32.modes.end)
 				++monitor->numModes;
 		}
 	}
@@ -220,16 +220,16 @@ static int _gfx_win32_init_monitors(void)
 			/* Insert at beginning if primary */
 			GFXVectorIterator monPos =
 				(adapter.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) ?
-				_gfx_win32->monitors.begin : _gfx_win32->monitors.end;
+				_gfx_win32.monitors.begin : _gfx_win32.monitors.end;
 
-			gfx_vector_insert(&_gfx_win32->monitors, &mon, monPos);
+			gfx_vector_insert(&_gfx_win32.monitors, &mon, monPos);
 
 			break;
 		}
 	}
 
 	/* Need at least one monitor */
-	return _gfx_win32->monitors.begin != _gfx_win32->monitors.end;
+	return _gfx_win32.monitors.begin != _gfx_win32.monitors.end;
 }
 
 /******************************************************/
@@ -311,7 +311,7 @@ static inline void _gfx_win32_create_key_table(void)
 {
 	size_t i;
 	for(i = 0; i <= GFX_WIN32_MAX_KEYCODE; ++i)
-		_gfx_win32->keys[i] = _gfx_win32_get_key(i);
+		_gfx_win32.keys[i] = _gfx_win32_get_key(i);
 }
 
 /******************************************************/
@@ -319,18 +319,16 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 
 		HWND handle)
 {
-	if(!_gfx_win32) return NULL;
-
 	GFX_Win32_Window* it;
 	for(
-		it = _gfx_win32->windows.begin;
-		it != _gfx_win32->windows.end;
-		it = gfx_vector_next(&_gfx_win32->windows, it))
+		it = _gfx_win32.windows.begin;
+		it != _gfx_win32.windows.end;
+		it = gfx_vector_next(&_gfx_win32.windows, it))
 	{
 		if(it->handle == handle) break;
 	}
 
-	return it != _gfx_win32->windows.end ? it : NULL;
+	return it != _gfx_win32.windows.end ? it : NULL;
 }
 
 /******************************************************/
@@ -338,51 +336,39 @@ GFX_Win32_Window* _gfx_win32_get_window_from_context(
 
 		HGLRC context)
 {
-	if(!_gfx_win32) return NULL;
-
 	GFX_Win32_Window* it;
 	for(
-		it = _gfx_win32->windows.begin;
-		it != _gfx_win32->windows.end;
-		it = gfx_vector_next(&_gfx_win32->windows, it))
+		it = _gfx_win32.windows.begin;
+		it != _gfx_win32.windows.end;
+		it = gfx_vector_next(&_gfx_win32.windows, it))
 	{
 		if(it->context == context) break;
 	}
 
-	return it != _gfx_win32->windows.end ? it : NULL;
+	return it != _gfx_win32.windows.end ? it : NULL;
 }
 
 /******************************************************/
 int _gfx_platform_init(void)
 {
-	if(!_gfx_win32)
+	/* Register the window classes */
+	if(!_gfx_win32_register_classes())
+		return 0;
+
+	/* Setup memory */
+	gfx_vector_init(&_gfx_win32.monitors, sizeof(GFX_Win32_Monitor));
+	gfx_vector_init(&_gfx_win32.modes, sizeof(DEVMODE));
+	gfx_vector_init(&_gfx_win32.windows, sizeof(GFX_Win32_Window));
+
+	/* Load extensions and init monitors */
+	if(!_gfx_win32_load_extensions() || !_gfx_win32_init_monitors())
 	{
-		/* Allocate */
-		_gfx_win32 = calloc(1, sizeof(GFX_Win32_Instance));
-		if(!_gfx_win32) return 0;
-
-		/* Register the window classes */
-		if(!_gfx_win32_register_classes())
-		{
-			free(_gfx_win32);
-			return 0;
-		}
-
-		/* Setup memory */
-		gfx_vector_init(&_gfx_win32->monitors, sizeof(GFX_Win32_Monitor));
-		gfx_vector_init(&_gfx_win32->modes, sizeof(DEVMODE));
-		gfx_vector_init(&_gfx_win32->windows, sizeof(GFX_Win32_Window));
-
-		/* Load extensions and init monitors */
-		if(!_gfx_win32_load_extensions() || !_gfx_win32_init_monitors())
-		{
-			_gfx_platform_terminate();
-			return 0;
-		}
-
-		/* Construct a keycode lookup */
-		_gfx_win32_create_key_table();
+		_gfx_platform_terminate();
+		return 0;
 	}
+
+	/* Construct a keycode lookup */
+	_gfx_win32_create_key_table();
 
 	return 1;
 }
@@ -390,31 +376,24 @@ int _gfx_platform_init(void)
 /******************************************************/
 void _gfx_platform_terminate(void)
 {
-	if(_gfx_win32)
+	/* Destroy all windows */
+	unsigned int i = gfx_vector_get_size(&_gfx_win32.windows);
+	while(i--)
 	{
-		/* Destroy all windows */
-		unsigned int i = gfx_vector_get_size(&_gfx_win32->windows);
-		while(i--)
-		{
-			GFXVectorIterator it = gfx_vector_previous(
-				&_gfx_win32->windows,
-				_gfx_win32->windows.end
-			);
+		GFX_Win32_Window* it = gfx_vector_previous(
+			&_gfx_win32.windows,
+			_gfx_win32.windows.end
+		);
 
-			_gfx_platform_window_free(((GFX_Win32_Window*)it)->handle);
-		}
-
-		/* Unregister window classes */
-		HMODULE handle = GetModuleHandle(NULL);
-		UnregisterClass(GFX_WIN32_WINDOW_CLASS, handle);
-		UnregisterClass(GFX_WIN32_WINDOW_CLASS_DUMMY, handle);
-
-		gfx_vector_clear(&_gfx_win32->monitors);
-		gfx_vector_clear(&_gfx_win32->modes);
-		gfx_vector_clear(&_gfx_win32->windows);
-
-		/* Deallocate instance */
-		free(_gfx_win32);
-		_gfx_win32 = NULL;
+		_gfx_platform_window_free(it->handle);
 	}
+
+	/* Unregister window classes */
+	HMODULE handle = GetModuleHandle(NULL);
+	UnregisterClass(GFX_WIN32_WINDOW_CLASS, handle);
+	UnregisterClass(GFX_WIN32_WINDOW_CLASS_DUMMY, handle);
+
+	gfx_vector_clear(&_gfx_win32.monitors);
+	gfx_vector_clear(&_gfx_win32.modes);
+	gfx_vector_clear(&_gfx_win32.windows);
 }

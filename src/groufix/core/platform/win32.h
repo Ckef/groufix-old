@@ -138,7 +138,7 @@ typedef struct GFX_Win32_Instance
 /**
  * Instance pointer
  */
-extern GFX_Win32_Instance* _gfx_win32;
+extern GFX_Win32_Instance _gfx_win32;
 
 
 /**

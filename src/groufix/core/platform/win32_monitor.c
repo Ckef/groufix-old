@@ -18,8 +18,7 @@
 /******************************************************/
 unsigned int _gfx_platform_get_num_monitors(void)
 {
-	if(!_gfx_win32) return 0;
-	return gfx_vector_get_size(&_gfx_win32->monitors);
+	return gfx_vector_get_size(&_gfx_win32.monitors);
 }
 
 /******************************************************/
@@ -27,18 +26,15 @@ GFX_PlatformMonitor _gfx_platform_get_monitor(
 
 		unsigned int num)
 {
-	if(!_gfx_win32) return NULL;
-
 	/* Validate the number first */
-	if(num >= gfx_vector_get_size(&_gfx_win32->monitors)) return NULL;
-	return gfx_vector_at(&_gfx_win32->monitors, num);
+	if(num >= gfx_vector_get_size(&_gfx_win32.monitors)) return NULL;
+	return gfx_vector_at(&_gfx_win32.monitors, num);
 }
 
 /******************************************************/
 GFX_PlatformMonitor _gfx_platform_get_default_monitor(void)
 {
-	if(!_gfx_win32) return NULL;
-	return _gfx_win32->monitors.begin;
+	return _gfx_win32.monitors.begin;
 }
 
 /******************************************************/
@@ -72,7 +68,7 @@ int _gfx_platform_monitor_get_mode(
 	if(num >= monitor->numModes) return 0;
 
 	DEVMODE* dev =
-		gfx_vector_at(&_gfx_win32->modes, monitor->modes + num);
+		gfx_vector_at(&_gfx_win32.modes, monitor->modes + num);
 
 	mode->width   = dev->dmPelsWidth;
 	mode->height  = dev->dmPelsHeight;
