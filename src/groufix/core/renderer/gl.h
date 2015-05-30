@@ -26,7 +26,7 @@
  * Returns the current handle of a buffer.
  *
  */
-GLuint _gfx_buffer_get_handle(
+GLuint _gfx_gl_buffer_get_handle(
 
 		const GFXBuffer* buffer);
 
@@ -34,7 +34,7 @@ GLuint _gfx_buffer_get_handle(
  * Returns the handle of the framebuffer associated with a pipeline.
  *
  */
-GLuint _gfx_pipeline_get_handle(
+GLuint _gfx_gl_pipeline_get_handle(
 
 		const GFXPipeline* pipeline);
 
@@ -42,7 +42,7 @@ GLuint _gfx_pipeline_get_handle(
  * Returns the handle of a program.
  *
  */
-GLuint _gfx_program_get_handle(
+GLuint _gfx_gl_program_get_handle(
 
 		const GFXProgram* program);
 
@@ -52,7 +52,7 @@ GLuint _gfx_program_get_handle(
  * @return Negative on failure, the location otherwise.
  *
  */
-GLint _gfx_program_get_location(
+GLint _gfx_gl_program_get_location(
 
 		const GFXProgram*  program,
 		unsigned short     index);
@@ -63,7 +63,7 @@ GLint _gfx_program_get_location(
  * Note: handle of a program if GFX_EXT_PROGRAM_MAP is unavailable.
  *
  */
-GLuint _gfx_program_map_get_handle(
+GLuint _gfx_gl_program_map_get_handle(
 
 		const GFXProgramMap* map);
 
@@ -73,7 +73,7 @@ GLuint _gfx_program_map_get_handle(
  * Note: 0 if GFX_EXT_SAMPLER_OBJECTS is unavailable.
  *
  */
-GLuint _gfx_sampler_get_handle(
+GLuint _gfx_gl_sampler_get_handle(
 
 		const GFXSampler* sampler);
 
@@ -81,7 +81,7 @@ GLuint _gfx_sampler_get_handle(
  * Returns the handle of a shader.
  *
  */
-GLuint _gfx_shader_get_handle(
+GLuint _gfx_gl_shader_get_handle(
 
 		const GFXShader* shader);
 
@@ -89,7 +89,7 @@ GLuint _gfx_shader_get_handle(
  * Returns the handle of a shared buffer.
  *
  */
-GLuint _gfx_shared_buffer_get_handle(
+GLuint _gfx_gl_shared_buffer_get_handle(
 
 		const GFXSharedBuffer* buffer);
 
@@ -97,7 +97,7 @@ GLuint _gfx_shared_buffer_get_handle(
  * Returns the handle of a texture.
  *
  */
-GLuint _gfx_texture_get_handle(
+GLuint _gfx_gl_texture_get_handle(
 
 		const GFXTexture* texture);
 
@@ -105,7 +105,7 @@ GLuint _gfx_texture_get_handle(
  * Returns the VAO of a layout.
  *
  */
-GLuint _gfx_vertex_layout_get_handle(
+GLuint _gfx_gl_vertex_layout_get_handle(
 
 		const GFXVertexLayout* layout);
 
@@ -115,7 +115,7 @@ GLuint _gfx_vertex_layout_get_handle(
  * @return 0 if no index buffer is used.
  *
  */
-GLuint _gfx_vertex_layout_get_index_buffer(
+GLuint _gfx_gl_vertex_layout_get_index_buffer(
 
 		const GFXVertexLayout*  layout,
 		size_t*                 offset);
@@ -129,7 +129,7 @@ GLuint _gfx_vertex_layout_get_index_buffer(
  * Returns a minification filter of a sampler.
  *
  */
-GLint _gfx_texture_min_filter_from_sampler(
+GLint _gfx_gl_texture_min_filter_from_sampler(
 
 		const GFXSampler* sampler);
 
@@ -143,7 +143,7 @@ GLint _gfx_texture_min_filter_from_sampler(
  * to a unit and active if GFX_EXT_DIRECT_STATE_ACCESS is unavailable.
  *
  */
-void _gfx_texture_set_sampler(
+void _gfx_gl_texture_set_sampler(
 
 		GLuint             texture,
 		GLuint             target,
@@ -154,7 +154,7 @@ void _gfx_texture_set_sampler(
  * Returns the internal target of a texture (a.k.a type).
  *
  */
-GLenum _gfx_texture_get_internal_target(
+GLenum _gfx_gl_texture_get_internal_target(
 
 		const GFXTexture* texture);
 
@@ -164,7 +164,7 @@ GLenum _gfx_texture_get_internal_target(
  * @return Negative on failure.
  *
  */
-GLint _gfx_texture_format_to_pixel_format(
+GLint _gfx_gl_texture_format_to_pixel_format(
 
 		GFXTextureFormat format);
 
@@ -174,7 +174,7 @@ GLint _gfx_texture_format_to_pixel_format(
  * @return Negative on failure.
  *
  */
-GLint _gfx_texture_format_to_internal(
+GLint _gfx_gl_texture_format_to_internal(
 
 		GFXTextureFormat format);
 
@@ -182,7 +182,7 @@ GLint _gfx_texture_format_to_internal(
  * Converts an internal format to a texture format.
  *
  */
-GFXTextureFormat _gfx_texture_format_from_internal(
+GFXTextureFormat _gfx_gl_texture_format_from_internal(
 
 		GLint format);
 
@@ -198,7 +198,7 @@ GFXTextureFormat _gfx_texture_format_from_internal(
  * @return the uniform buffer index it was bound to.
  *
  */
-size_t _gfx_binder_bind_uniform_buffer(
+size_t _gfx_gl_binder_bind_uniform_buffer(
 
 		GLuint      buffer,
 		GLintptr    offset,
@@ -210,7 +210,7 @@ size_t _gfx_binder_bind_uniform_buffer(
  * Makes sure a buffer is unbound from any uniform buffer index.
  *
  */
-void _gfx_binder_unbind_uniform_buffer(
+void _gfx_gl_binder_unbind_uniform_buffer(
 
 		GLuint buffer,
 		GFX_CONT_ARG);
@@ -223,7 +223,7 @@ void _gfx_binder_unbind_uniform_buffer(
  * @return the texture unit it was bound to.
  *
  */
-size_t _gfx_binder_bind_texture(
+size_t _gfx_gl_binder_bind_texture(
 
 		GLuint  texture,
 		GLenum  target,
@@ -237,7 +237,7 @@ size_t _gfx_binder_bind_texture(
  * @return the texture unit they were bound to.
  *
  */
-size_t _gfx_binder_bind_sampler(
+size_t _gfx_gl_binder_bind_sampler(
 
 		GLuint  sampler,
 		GLuint  texture,
@@ -249,7 +249,7 @@ size_t _gfx_binder_bind_sampler(
  * Makes sure a texture is unbound from any unit.
  *
  */
-void _gfx_binder_unbind_texture(
+void _gfx_gl_binder_unbind_texture(
 
 		GLuint texture,
 		GFX_CONT_ARG);
@@ -258,7 +258,7 @@ void _gfx_binder_unbind_texture(
  * Makes sure a sampler is unbound from any unit.
  *
  */
-void _gfx_binder_unbind_sampler(
+void _gfx_gl_binder_unbind_sampler(
 
 		GLuint sampler,
 		GFX_CONT_ARG);
@@ -267,7 +267,7 @@ void _gfx_binder_unbind_sampler(
  * Sets the framebuffer handle associated with a pipeline as current for the current context.
  *
  */
-void _gfx_pipeline_bind(
+void _gfx_gl_pipeline_bind(
 
 		GLenum  target,
 		GLuint  framebuffer,
@@ -277,7 +277,7 @@ void _gfx_pipeline_bind(
  * Sets the program pipeline or program handle as currently bound to the current context.
  *
  */
-void _gfx_program_map_bind(
+void _gfx_gl_program_map_bind(
 
 		GLuint id,
 		GFX_CONT_ARG);
@@ -286,7 +286,7 @@ void _gfx_program_map_bind(
  * Sets the layout handle as currently bound to the current context.
  *
  */
-void _gfx_vertex_layout_bind(
+void _gfx_gl_vertex_layout_bind(
 
 		GLuint vao,
 		GFX_CONT_ARG);

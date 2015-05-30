@@ -460,7 +460,7 @@ static void _gfx_property_set_sampler(
 	);
 
 	/* Bind texture and upload binding point */
-	GLint unit = _gfx_binder_bind_sampler(
+	GLint unit = _gfx_gl_binder_bind_sampler(
 		val->handle,
 		val->texture,
 		val->target,
@@ -474,7 +474,7 @@ static void _gfx_property_set_sampler(
 		&unit);
 
 	/* Set sampler values of texture if necessary */
-	if(!val->handle) _gfx_texture_set_sampler(
+	if(!val->handle) _gfx_gl_texture_set_sampler(
 		val->texture,
 		val->target,
 		val->sampler,
@@ -500,7 +500,7 @@ static void _gfx_property_set_block(
 	);
 
 	/* Bind buffer and upload binding point */
-	size_t index = _gfx_binder_bind_uniform_buffer(
+	size_t index = _gfx_gl_binder_bind_uniform_buffer(
 		val->buffer,
 		val->offset,
 		val->size,
@@ -524,7 +524,7 @@ void _gfx_property_map_use(
 	const GFX_Map* internal = (const GFX_Map*)map;
 
 	/* Use program map */
-	_gfx_program_map_bind(
+	_gfx_gl_program_map_bind(
 		internal->handle,
 		GFX_CONT_AS_ARG
 	);
@@ -717,7 +717,7 @@ GFXPropertyMap* gfx_property_map_create(
 		return NULL;
 	}
 
-	map->handle = _gfx_program_map_get_handle(programMap);
+	map->handle = _gfx_gl_program_map_get_handle(programMap);
 
 	map->map.programMap = programMap;
 	map->map.properties = properties;
@@ -951,7 +951,7 @@ int gfx_property_map_forward(
 
 	/* Get property and location */
 	GLint location =
-		_gfx_program_get_location(prog, property);
+		_gfx_gl_program_get_location(prog, property);
 	const GFXProperty* prop =
 		gfx_program_get_property(prog, property);
 
@@ -1007,7 +1007,7 @@ int gfx_property_map_forward(
 	}
 
 	/* Set handle, type and location */
-	forward->handle = _gfx_program_get_handle(prog);
+	forward->handle = _gfx_gl_program_get_handle(prog);
 	forward->type |= copies ? GFX_INT_PROPERTY_HAS_COPIES : 0;
 	forward->location = location;
 
@@ -1077,7 +1077,7 @@ int gfx_property_map_forward_block(
 
 	/* Set handle, type and location */
 	forward->handle =
-		_gfx_program_get_handle(prog);
+		_gfx_gl_program_get_handle(prog);
 
 	forward->type = GFX_INT_PROPERTY_BLOCK |
 		(copies ? GFX_INT_PROPERTY_HAS_COPIES : 0);
@@ -1300,7 +1300,7 @@ int gfx_property_map_set_sampler(
 		if(!(samp->sampler = _gfx_sampler_create(&values)))
 			return 0;
 
-		samp->handle = _gfx_sampler_get_handle(samp->sampler);
+		samp->handle = _gfx_gl_sampler_get_handle(samp->sampler);
 	}
 
 	return 1;
@@ -1393,8 +1393,8 @@ int gfx_property_map_set_texture(
 		prop->type, samp, sizeof(GFX_Sampler), copy);
 
 	/* Set data */
-	samp->texture = _gfx_texture_get_handle(texture);
-	samp->target = _gfx_texture_get_internal_target(texture);
+	samp->texture = _gfx_gl_texture_get_handle(texture);
+	samp->target = _gfx_gl_texture_get_internal_target(texture);
 
 	return 1;
 }
@@ -1448,7 +1448,7 @@ int gfx_property_map_set_buffer(
 		internal,
 		index,
 		copy,
-		_gfx_buffer_get_handle(buffer),
+		_gfx_gl_buffer_get_handle(buffer),
 		offset,
 		size
 	);
@@ -1470,7 +1470,7 @@ int gfx_property_map_set_shared_buffer(
 		internal,
 		index,
 		copy,
-		_gfx_shared_buffer_get_handle(buffer),
+		_gfx_gl_shared_buffer_get_handle(buffer),
 		offset + buffer->offset,
 		size
 	);

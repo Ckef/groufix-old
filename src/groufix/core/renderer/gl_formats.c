@@ -1,4 +1,3 @@
-
 /**
  * Groufix  :  Graphics Engine produced by Ckef Worx.
  * www      :  <http://www.ckef-worx.com>.
@@ -228,7 +227,7 @@
 
 
 /******************************************************/
-GLint _gfx_texture_min_filter_from_sampler(
+GLint _gfx_gl_texture_min_filter_from_sampler(
 
 		const GFXSampler* sampler)
 {
@@ -244,7 +243,7 @@ GLint _gfx_texture_min_filter_from_sampler(
 }
 
 /******************************************************/
-void _gfx_texture_set_sampler(
+void _gfx_gl_texture_set_sampler(
 
 		GLuint             texture,
 		GLuint             target,
@@ -256,7 +255,7 @@ void _gfx_texture_set_sampler(
 		GFX_REND_GET.TextureParameteri(
 			texture,
 			GL_TEXTURE_MIN_FILTER,
-			_gfx_texture_min_filter_from_sampler(sampler));
+			_gfx_gl_texture_min_filter_from_sampler(sampler));
 
 		GFX_REND_GET.TextureParameteri(
 			texture,
@@ -300,7 +299,7 @@ void _gfx_texture_set_sampler(
 		GFX_REND_GET.TexParameteri(
 			target,
 			GL_TEXTURE_MIN_FILTER,
-			_gfx_texture_min_filter_from_sampler(sampler));
+			_gfx_gl_texture_min_filter_from_sampler(sampler));
 
 		GFX_REND_GET.TexParameteri(
 			target,
@@ -341,7 +340,7 @@ void _gfx_texture_set_sampler(
 }
 
 /******************************************************/
-GLint _gfx_texture_format_to_pixel_format(
+GLint _gfx_gl_texture_format_to_pixel_format(
 
 		GFXTextureFormat format)
 {
@@ -399,7 +398,7 @@ GLint _gfx_texture_format_to_pixel_format(
 }
 
 /******************************************************/
-GLint _gfx_texture_format_to_internal(
+GLint _gfx_gl_texture_format_to_internal(
 
 		GFXTextureFormat format)
 {
@@ -571,7 +570,7 @@ GLint _gfx_texture_format_to_internal(
 }
 
 /******************************************************/
-GFXTextureFormat _gfx_texture_format_from_internal(
+GFXTextureFormat _gfx_gl_texture_format_from_internal(
 
 		GLint format)
 {

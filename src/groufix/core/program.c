@@ -522,11 +522,24 @@ static GFX_RenderObjectFuncs _gfx_program_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_program_get_handle(
+GLuint _gfx_gl_program_get_handle(
 
 		const GFXProgram* program)
 {
 	return ((const GFX_Program*)program)->handle;
+}
+
+/******************************************************/
+GLint _gfx_gl_program_get_location(
+
+		const GFXProgram*  program,
+		unsigned short     index)
+{
+	/* Validate index */
+	if(index >= program->properties) return -1;
+	const GFX_Program* internal = (const GFX_Program*)program;
+
+	return ((GFX_Property*)gfx_vector_at(&internal->properties, index))->location;
 }
 
 /******************************************************/
@@ -632,19 +645,6 @@ void gfx_program_free(
 }
 
 /******************************************************/
-GLint _gfx_program_get_location(
-
-		const GFXProgram*  program,
-		unsigned short     index)
-{
-	/* Validate index */
-	if(index >= program->properties) return -1;
-	const GFX_Program* internal = (const GFX_Program*)program;
-
-	return ((GFX_Property*)gfx_vector_at(&internal->properties, index))->location;
-}
-
-/******************************************************/
 int gfx_program_set_attribute(
 
 		GFXProgram*   program,
@@ -738,7 +738,7 @@ int gfx_program_link(
 			{
 				while(i) GFX_REND_GET.DetachShader(
 					internal->handle,
-					_gfx_shader_get_handle(shaders[--i])
+					_gfx_gl_shader_get_handle(shaders[--i])
 				);
 				return 0;
 			}
@@ -746,7 +746,7 @@ int gfx_program_link(
 			/* Attach shader */
 			GFX_REND_GET.AttachShader(
 				internal->handle,
-				_gfx_shader_get_handle(shaders[i])
+				_gfx_gl_shader_get_handle(shaders[i])
 			);
 		}
 
@@ -761,7 +761,7 @@ int gfx_program_link(
 		/* Detach all shaders */
 		for(i = 0; i < num; ++i) GFX_REND_GET.DetachShader(
 			internal->handle,
-			_gfx_shader_get_handle(shaders[i])
+			_gfx_gl_shader_get_handle(shaders[i])
 		);
 
 		if(!status)

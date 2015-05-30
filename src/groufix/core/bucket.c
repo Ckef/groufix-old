@@ -291,7 +291,7 @@ static void _gfx_bucket_invoke(
 		GFX_CONT_ARG)
 {
 	/* Bind VAO & Tessellation vertices */
-	_gfx_vertex_layout_bind(
+	_gfx_gl_vertex_layout_bind(
 		unit->vao,
 		GFX_CONT_AS_ARG);
 
@@ -783,7 +783,7 @@ GFXBucketSource gfx_bucket_add_source(
 	if(src.source.indexed)
 	{
 		/* Get index buffer offset */
-		if(!_gfx_vertex_layout_get_index_buffer(layout, &offset))
+		if(!_gfx_gl_vertex_layout_get_index_buffer(layout, &offset))
 			return 0;
 
 		GFXDataType type;
@@ -924,8 +924,8 @@ GFXBucketUnit gfx_bucket_insert(
 	/* Initialize the new unit */
 	GFX_Unit unit;
 	unit.state   = visible ? GFX_INT_UNIT_VISIBLE : 0;
-	unit.program = _gfx_program_map_get_handle(map->programMap);
-	unit.vao     = _gfx_vertex_layout_get_handle(source->layout);
+	unit.program = _gfx_gl_program_map_get_handle(map->programMap);
+	unit.vao     = _gfx_gl_vertex_layout_get_handle(source->layout);
 
 	/* Insert a reference for it */
 	GFX_Ref* ref = _gfx_bucket_insert_ref(

@@ -129,7 +129,7 @@ static void _gfx_layout_init_attrib(
 		if(attr->size && buff->buffer)
 		{
 			/* Set the attribute */
-			_gfx_vertex_layout_bind(layout->vao, GFX_CONT_AS_ARG);
+			_gfx_gl_vertex_layout_bind(layout->vao, GFX_CONT_AS_ARG);
 			GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buff->buffer);
 			GFX_REND_GET.EnableVertexAttribArray(index);
 
@@ -188,7 +188,7 @@ static void _gfx_layout_init_buff_divisor(
 
 		if(attr->buffer == index)
 		{
-			_gfx_vertex_layout_bind(
+			_gfx_gl_vertex_layout_bind(
 				layout->vao,
 				GFX_CONT_AS_ARG);
 
@@ -445,7 +445,7 @@ static GFX_RenderObjectFuncs _gfx_layout_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_vertex_layout_get_handle(
+GLuint _gfx_gl_vertex_layout_get_handle(
 
 		const GFXVertexLayout* layout)
 {
@@ -453,7 +453,7 @@ GLuint _gfx_vertex_layout_get_handle(
 }
 
 /******************************************************/
-GLuint _gfx_vertex_layout_get_index_buffer(
+GLuint _gfx_gl_vertex_layout_get_index_buffer(
 
 		const GFXVertexLayout*  layout,
 		size_t*                 offset)
@@ -773,7 +773,7 @@ int gfx_vertex_layout_set_vertex_buffer(
 	GFX_CONT_INIT(0);
 
 	GLuint buff = 0;
-	if(buffer) buff = _gfx_buffer_get_handle(buffer);
+	if(buffer) buff = _gfx_gl_buffer_get_handle(buffer);
 
 	return _gfx_layout_set_vertex_buffer(
 		layout,
@@ -799,7 +799,7 @@ int gfx_vertex_layout_set_shared_vertex_buffer(
 	GLuint buff = 0;
 	if(buffer)
 	{
-		buff = _gfx_shared_buffer_get_handle(buffer);
+		buff = _gfx_gl_shared_buffer_get_handle(buffer);
 		offset += buffer->offset;
 	}
 
@@ -858,7 +858,7 @@ int gfx_vertex_layout_set_index_buffer(
 		size_t            offset)
 {
 	GLuint buff = 0;
-	if(buffer) buff = _gfx_buffer_get_handle(buffer);
+	if(buffer) buff = _gfx_gl_buffer_get_handle(buffer);
 
 	return _gfx_layout_set_index_buffer(layout, buff, offset);
 }
@@ -873,7 +873,7 @@ int gfx_vertex_layout_set_shared_index_buffer(
 	GLuint buff = 0;
 	if(buffer)
 	{
-		buff = _gfx_shared_buffer_get_handle(buffer);
+		buff = _gfx_gl_shared_buffer_get_handle(buffer);
 		offset += buffer->offset;
 	}
 

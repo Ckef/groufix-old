@@ -51,7 +51,7 @@ static inline void _gfx_pipe_process_draw(
 		state, GFX_CONT_AS_ARG);
 	_gfx_property_map_use(
 		map, copy, 0, GFX_CONT_AS_ARG);
-	_gfx_vertex_layout_bind(
+	_gfx_gl_vertex_layout_bind(
 		GFX_REND_GET.post, GFX_CONT_AS_ARG);
 
 	GFX_REND_GET.DrawArrays(
@@ -89,7 +89,7 @@ int _gfx_pipe_process_prepare(void)
 		GFX_REND_GET.EnableVertexArrayAttrib(
 			GFX_REND_GET.post, 0);
 
-		_gfx_vertex_layout_bind(
+		_gfx_gl_vertex_layout_bind(
 			GFX_REND_GET.post, GFX_CONT_AS_ARG);
 		GFX_REND_GET.BindBuffer(
 			GL_ARRAY_BUFFER, _gfx_process_buffer);
@@ -358,7 +358,7 @@ void _gfx_pipe_process_execute(
 		_gfx_context_make_current(internal->target);
 
 		/* Set to new state of window to draw to */
-		_gfx_pipeline_bind(
+		_gfx_gl_pipeline_bind(
 			GL_DRAW_FRAMEBUFFER,
 			0,
 			GFX_CONT_INT_AS_ARG(internal->target));
@@ -384,7 +384,7 @@ void _gfx_pipe_process_execute(
 		/* Restore previous state if main context */
 		if(GFX_CONT_EQ(internal->target))
 		{
-			_gfx_pipeline_bind(
+			_gfx_gl_pipeline_bind(
 				GL_DRAW_FRAMEBUFFER,
 				fbo,
 				GFX_CONT_AS_ARG);

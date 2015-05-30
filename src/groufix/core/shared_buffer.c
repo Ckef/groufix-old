@@ -267,7 +267,7 @@ static void _gfx_shared_buffer_erase_segment(
 }
 
 /******************************************************/
-GLuint _gfx_shared_buffer_get_handle(
+GLuint _gfx_gl_shared_buffer_get_handle(
 
 		const GFXSharedBuffer* buffer)
 {

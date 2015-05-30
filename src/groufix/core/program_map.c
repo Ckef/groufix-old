@@ -90,7 +90,7 @@ static int _gfx_program_map_set_stages(
 
 	/* Get program handle */
 	GLuint handle = 0;
-	if(program) handle = _gfx_program_get_handle(program);
+	if(program) handle = _gfx_gl_program_get_handle(program);
 
 	if(!ext || stage == GFX_ALL_SHADERS)
 	{
@@ -199,7 +199,7 @@ static void _gfx_program_map_obj_restore(
 			if(map->stages[stage]) GFX_REND_GET.UseProgramStages(
 				map->handle,
 				_gfx_program_map_get_bitfield(stage),
-				_gfx_program_get_handle(map->stages[stage])
+				_gfx_gl_program_get_handle(map->stages[stage])
 			);
 	}
 }
@@ -214,7 +214,7 @@ static GFX_RenderObjectFuncs _gfx_program_map_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_program_map_get_handle(
+GLuint _gfx_gl_program_map_get_handle(
 
 		const GFXProgramMap* map)
 {
@@ -257,7 +257,7 @@ int _gfx_program_map_block(
 			if(internal->stages[stage]) GFX_REND_GET.UseProgramStages(
 				internal->handle,
 				_gfx_program_map_get_bitfield(stage),
-				_gfx_program_get_handle(internal->stages[stage])
+				_gfx_gl_program_get_handle(internal->stages[stage])
 			);
 	}
 

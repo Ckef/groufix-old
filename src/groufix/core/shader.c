@@ -339,7 +339,7 @@ static GFX_RenderObjectFuncs _gfx_shader_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_shader_get_handle(
+GLuint _gfx_gl_shader_get_handle(
 
 		const GFXShader* shader)
 {

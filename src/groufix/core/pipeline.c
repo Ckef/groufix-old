@@ -244,7 +244,7 @@ static GFX_RenderObjectFuncs _gfx_pipeline_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_pipeline_get_handle(
+GLuint _gfx_gl_pipeline_get_handle(
 
 		const GFXPipeline* pipeline)
 {
@@ -399,8 +399,8 @@ int gfx_pipeline_attach(
 	GFX_Attachment att =
 	{
 		.attachment = attach + index,
-		.texture    = _gfx_texture_get_handle(image.texture),
-		.target     = _gfx_texture_get_internal_target(image.texture),
+		.texture    = _gfx_gl_texture_get_handle(image.texture),
+		.target     = _gfx_gl_texture_get_internal_target(image.texture),
 		.mipmap     = image.mipmap
 	};
 
@@ -719,7 +719,7 @@ void gfx_pipeline_execute(
 	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
 
 	/* Bind as framebuffer and set viewport */
-	_gfx_pipeline_bind(
+	_gfx_gl_pipeline_bind(
 		GL_DRAW_FRAMEBUFFER,
 		internal->fbo,
 		GFX_CONT_AS_ARG);

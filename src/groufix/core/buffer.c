@@ -98,7 +98,7 @@ static void _gfx_buffer_delete_buffers(
 	{
 		/* Make sure it is not currently bound */
 		GLuint* handle = gfx_vector_advance(&buffer->handles, it, i);
-		_gfx_binder_unbind_uniform_buffer(*handle, GFX_CONT_AS_ARG);
+		_gfx_gl_binder_unbind_uniform_buffer(*handle, GFX_CONT_AS_ARG);
 	}
 
 	/* And deallocate all buffers */
@@ -137,7 +137,7 @@ static GFX_RenderObjectFuncs _gfx_buffer_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_buffer_get_handle(
+GLuint _gfx_gl_buffer_get_handle(
 
 		const GFXBuffer* buffer)
 {

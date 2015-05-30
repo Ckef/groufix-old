@@ -1,4 +1,3 @@
-
 /**
  * Groufix  :  Graphics Engine produced by Ckef Worx.
  * www      :  <http://www.ckef-worx.com>.
@@ -53,7 +52,7 @@ typedef struct GFX_TextureUnit
 
 
 /******************************************************/
-static void* _gfx_binder_init(
+static void* _gfx_gl_binder_init(
 
 		size_t  num,
 		size_t  size)
@@ -88,7 +87,7 @@ static void* _gfx_binder_init(
 }
 
 /******************************************************/
-static void _gfx_binder_increase(
+static void _gfx_gl_binder_increase(
 
 		void*          bindings,
 		size_t         num,
@@ -121,7 +120,7 @@ static void _gfx_binder_increase(
 }
 
 /******************************************************/
-static void _gfx_binder_unbind(
+static void _gfx_gl_binder_unbind(
 
 		void*   bindings,
 		size_t  num,
@@ -145,7 +144,7 @@ static void _gfx_binder_unbind(
 			cmp,
 			cmpSize))
 		{
-			_gfx_binder_increase(
+			_gfx_gl_binder_increase(
 				bindings,
 				num,
 				size,
@@ -163,7 +162,7 @@ static void _gfx_binder_unbind(
 }
 
 /******************************************************/
-static size_t _gfx_binder_request(
+static size_t _gfx_gl_binder_request(
 
 		void*   bindings,
 		size_t  num,
@@ -181,7 +180,7 @@ static size_t _gfx_binder_request(
 	*old = 0;
 
 	/* First increase all counters */
-	if(prioritize) _gfx_binder_increase(
+	if(prioritize) _gfx_gl_binder_increase(
 		bindings,
 		num,
 		size,
@@ -230,7 +229,7 @@ static size_t _gfx_binder_request(
 }
 
 /******************************************************/
-size_t _gfx_binder_bind_uniform_buffer(
+size_t _gfx_gl_binder_bind_uniform_buffer(
 
 		GLuint      buffer,
 		GLintptr    offset,
@@ -243,7 +242,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 
 	/* Allocate binding points */
 	if(!GFX_REND_GET.uniformBuffers)
-		GFX_REND_GET.uniformBuffers = _gfx_binder_init(
+		GFX_REND_GET.uniformBuffers = _gfx_gl_binder_init(
 			GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(GFX_UniformBuffer)
 		);
@@ -258,7 +257,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 			.size = size
 		};
 
-		bind = _gfx_binder_request(
+		bind = _gfx_gl_binder_request(
 			GFX_REND_GET.uniformBuffers,
 			GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(GFX_UniformBuffer),
@@ -283,7 +282,7 @@ size_t _gfx_binder_bind_uniform_buffer(
 }
 
 /******************************************************/
-void _gfx_binder_unbind_uniform_buffer(
+void _gfx_gl_binder_unbind_uniform_buffer(
 
 		GLuint buffer,
 		GFX_CONT_ARG)
@@ -293,7 +292,7 @@ void _gfx_binder_unbind_uniform_buffer(
 		GFX_UniformBuffer buff;
 		buff.buffer = buffer;
 
-		_gfx_binder_unbind(
+		_gfx_gl_binder_unbind(
 			GFX_REND_GET.uniformBuffers,
 			GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_PROPERTIES],
 			sizeof(GFX_UniformBuffer),
@@ -305,7 +304,7 @@ void _gfx_binder_unbind_uniform_buffer(
 }
 
 /******************************************************/
-static size_t _gfx_binder_bind_texture_unit(
+static size_t _gfx_gl_binder_bind_texture_unit(
 
 		GFX_TextureUnit  unit,
 		size_t           offset,
@@ -320,7 +319,7 @@ static size_t _gfx_binder_bind_texture_unit(
 	/* Allocate binding points */
 	if(!GFX_REND_GET.textureUnits)
 	{
-		GFX_REND_GET.textureUnits = _gfx_binder_init(
+		GFX_REND_GET.textureUnits = _gfx_gl_binder_init(
 			GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(GFX_TextureUnit)
 		);
@@ -329,7 +328,7 @@ static size_t _gfx_binder_bind_texture_unit(
 	}
 
 	/* Get unit to bind it to */
-	bind = _gfx_binder_request(
+	bind = _gfx_gl_binder_request(
 		GFX_REND_GET.textureUnits,
 		GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 		sizeof(GFX_TextureUnit),
@@ -344,7 +343,7 @@ static size_t _gfx_binder_bind_texture_unit(
 }
 
 /******************************************************/
-size_t _gfx_binder_bind_texture(
+size_t _gfx_gl_binder_bind_texture(
 
 		GLuint  texture,
 		GLenum  target,
@@ -356,7 +355,7 @@ size_t _gfx_binder_bind_texture(
 	unit.texture = texture;
 
 	int old;
-	size_t bind = _gfx_binder_bind_texture_unit(
+	size_t bind = _gfx_gl_binder_bind_texture_unit(
 		unit,
 		offsetof(GFX_TextureUnit, texture),
 		sizeof(GLuint),
@@ -380,7 +379,7 @@ size_t _gfx_binder_bind_texture(
 }
 
 /******************************************************/
-size_t _gfx_binder_bind_sampler(
+size_t _gfx_gl_binder_bind_sampler(
 
 		GLuint  sampler,
 		GLuint  texture,
@@ -396,7 +395,7 @@ size_t _gfx_binder_bind_sampler(
 	};
 
 	int old;
-	size_t bind = _gfx_binder_bind_texture_unit(
+	size_t bind = _gfx_gl_binder_bind_texture_unit(
 		unit,
 		0,
 		sizeof(GFX_TextureUnit),
@@ -425,7 +424,7 @@ size_t _gfx_binder_bind_sampler(
 }
 
 /******************************************************/
-void _gfx_binder_unbind_texture(
+void _gfx_gl_binder_unbind_texture(
 
 		GLuint texture,
 		GFX_CONT_ARG)
@@ -435,7 +434,7 @@ void _gfx_binder_unbind_texture(
 		GFX_TextureUnit unit;
 		unit.texture = texture;
 
-		_gfx_binder_unbind(
+		_gfx_gl_binder_unbind(
 			GFX_REND_GET.textureUnits,
 			GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(GFX_TextureUnit),
@@ -447,7 +446,7 @@ void _gfx_binder_unbind_texture(
 }
 
 /******************************************************/
-void _gfx_binder_unbind_sampler(
+void _gfx_gl_binder_unbind_sampler(
 
 		GLuint sampler,
 		GFX_CONT_ARG)
@@ -457,7 +456,7 @@ void _gfx_binder_unbind_sampler(
 		GFX_TextureUnit unit;
 		unit.sampler = sampler;
 
-		_gfx_binder_unbind(
+		_gfx_gl_binder_unbind(
 			GFX_REND_GET.textureUnits,
 			GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES],
 			sizeof(GFX_TextureUnit),
@@ -469,7 +468,7 @@ void _gfx_binder_unbind_sampler(
 }
 
 /******************************************************/
-void _gfx_pipeline_bind(
+void _gfx_gl_pipeline_bind(
 
 		GLenum  target,
 		GLuint  framebuffer,
@@ -516,7 +515,7 @@ void _gfx_pipeline_bind(
 }
 
 /******************************************************/
-void _gfx_program_map_bind(
+void _gfx_gl_program_map_bind(
 
 		GLuint id,
 		GFX_CONT_ARG)
@@ -530,7 +529,7 @@ void _gfx_program_map_bind(
 }
 
 /******************************************************/
-void _gfx_vertex_layout_bind(
+void _gfx_gl_vertex_layout_bind(
 
 		GLuint vao,
 		GFX_CONT_ARG)

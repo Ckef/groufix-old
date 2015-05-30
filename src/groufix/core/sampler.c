@@ -63,7 +63,7 @@ static GFX_RenderObjectFuncs _gfx_sampler_obj_funcs =
 };
 
 /******************************************************/
-GLuint _gfx_sampler_get_handle(
+GLuint _gfx_gl_sampler_get_handle(
 
 		const GFXSampler* sampler)
 {
@@ -156,7 +156,7 @@ void _gfx_sampler_free(
 			if(!GFX_CONT_EQ(NULL))
 			{
 				/* Delete sampler object */
-				_gfx_binder_unbind_sampler(
+				_gfx_gl_binder_unbind_sampler(
 					internal->handle,
 					GFX_CONT_AS_ARG
 				);
@@ -203,7 +203,7 @@ int _gfx_sampler_set(
 		GFX_REND_GET.SamplerParameteri(
 			internal->handle,
 			GL_TEXTURE_MIN_FILTER,
-			_gfx_texture_min_filter_from_sampler(sampler));
+			_gfx_gl_texture_min_filter_from_sampler(sampler));
 
 		GFX_REND_GET.SamplerParameteri(
 			internal->handle,

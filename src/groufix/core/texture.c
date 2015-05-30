@@ -125,7 +125,7 @@ static inline GLint _gfx_texture_eval_pixel_format(
 
 		GFXTextureFormat format)
 {
-	GLint form = _gfx_texture_format_to_pixel_format(format);
+	GLint form = _gfx_gl_texture_format_to_pixel_format(format);
 	if(form < 0) gfx_errors_push(
 		GFX_ERROR_INVALID_VALUE,
 		"A requested pixel transfer format is not supported."
@@ -138,7 +138,7 @@ static inline GLint _gfx_texture_eval_internal_format(
 
 		GFXTextureFormat format)
 {
-	GLint form = _gfx_texture_format_to_internal(format);
+	GLint form = _gfx_gl_texture_format_to_internal(format);
 	if(form < 0) gfx_errors_push(
 		GFX_ERROR_INVALID_VALUE,
 		"A requested texture format is not supported."
@@ -225,7 +225,7 @@ static GFX_Texture* _gfx_texture_alloc(
 	if(!GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
 		/* Bind it to a unit if no direct state access */
-		_gfx_binder_bind_texture(
+		_gfx_gl_binder_bind_texture(
 			tex->handle,
 			tex->target,
 			0,
@@ -402,7 +402,7 @@ static void _gfx_texture_set_storage(
 }
 
 /******************************************************/
-GLuint _gfx_texture_get_handle(
+GLuint _gfx_gl_texture_get_handle(
 
 		const GFXTexture* texture)
 {
@@ -410,7 +410,7 @@ GLuint _gfx_texture_get_handle(
 }
 
 /******************************************************/
-GLenum _gfx_texture_get_internal_target(
+GLenum _gfx_gl_texture_get_internal_target(
 
 		const GFXTexture* texture)
 {
@@ -563,7 +563,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 
 	if(!tex) return NULL;
 
-	tex->buffer = _gfx_buffer_get_handle(buffer);
+	tex->buffer = _gfx_gl_buffer_get_handle(buffer);
 	tex->texture.type = GFX_TEXTURE_2D;
 
 	/* Compute dimensions */
@@ -618,7 +618,7 @@ void gfx_texture_free(
 		if(!GFX_CONT_EQ(NULL))
 		{
 			/* Delete texture */
-			_gfx_binder_unbind_texture(internal->handle, GFX_CONT_AS_ARG);
+			_gfx_gl_binder_unbind_texture(internal->handle, GFX_CONT_AS_ARG);
 			GFX_REND_GET.DeleteTextures(1, &internal->handle);
 		}
 
@@ -632,7 +632,7 @@ GFXTextureFormat gfx_texture_get_format(
 		const GFXTexture* texture)
 {
 	const GFX_Texture* internal = (const GFX_Texture*)texture;
-	return _gfx_texture_format_from_internal(internal->format);
+	return _gfx_gl_texture_format_from_internal(internal->format);
 }
 
 /******************************************************/
@@ -761,7 +761,7 @@ void gfx_texture_write(
 		else
 		{
 			/* Bind it to a unit if no direct state access */
-			_gfx_binder_bind_texture(
+			_gfx_gl_binder_bind_texture(
 				tex->handle,
 				tex->target,
 				0,
@@ -871,7 +871,7 @@ void gfx_texture_write_from_buffer(
 			_gfx_sizeof_data_type(transfer->format.type);
 
 		GFX_REND_GET.CopyNamedBufferSubData(
-			_gfx_buffer_get_handle(buffer),
+			_gfx_gl_buffer_get_handle(buffer),
 			tex->buffer,
 			offset,
 			transfer->xOffset * size,
@@ -882,7 +882,7 @@ void gfx_texture_write_from_buffer(
 		/* Bind buffer as unpack pixel buffer before performing the copy */
 		GFX_REND_GET.BindBuffer(
 			GL_PIXEL_UNPACK_BUFFER,
-			_gfx_buffer_get_handle(buffer));
+			_gfx_gl_buffer_get_handle(buffer));
 
 		gfx_texture_write(
 			image,
@@ -912,7 +912,7 @@ void gfx_texture_generate_mipmaps(
 	else
 	{
 		/* Bind it to a unit if no direct state access */
-		_gfx_binder_bind_texture(
+		_gfx_gl_binder_bind_texture(
 			internal->handle,
 			internal->target,
 			0,
