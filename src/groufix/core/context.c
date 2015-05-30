@@ -208,6 +208,9 @@ static GFX_Context* _gfx_context_create_internal(
 		_gfx_states_set_default(&context->state);
 		_gfx_states_force_set(&context->state, GFX_CONT_INT_AS_ARG(context));
 
+		if(_gfx_errors_get_mode() == GFX_ERROR_MODE_DEBUG)
+			_gfx_renderer_init_errors();
+
 		/* Try to prepare the context for post processing */
 		if(_gfx_pipe_process_prepare())
 		{

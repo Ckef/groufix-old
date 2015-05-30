@@ -110,6 +110,18 @@
  * OpenGL extensions & emulators
  *******************************************************/
 
+/* Debug callback process */
+typedef void (APIENTRYP GFX_DEBUGPROC)(
+
+		GLenum,
+		GLenum,
+		GLuint,
+		GLenum,
+		GLsizei,
+		const GLchar*,
+		const void*);
+
+
 /* Extension function pointers */
 typedef void (APIENTRYP GFX_ACTIVETEXTUREPROC)                               (GLenum);
 typedef void (APIENTRYP GFX_ATTACHSHADERPROC)                                (GLuint, GLuint);
@@ -143,6 +155,8 @@ typedef GLuint (APIENTRYP GFX_CREATESHADERPROC)                              (GL
 typedef void (APIENTRYP GFX_CREATETEXTURESPROC)                              (GLenum, GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_CREATEVERTEXARRAYSPROC)                          (GLsizei, GLuint*);
 typedef void (APIENTRYP GFX_CULLFACEPROC)                                    (GLenum);
+typedef void (APIENTRYP GFX_DEBUGMESSAGECALLBACKPROC)                        (GFX_DEBUGPROC, const GLvoid*);
+typedef void (APIENTRYP GFX_DEBUGMESSAGECONTROLPROC)                         (GLenum, GLenum, GLenum, GLsizei, const GLuint*, GLboolean);
 typedef void (APIENTRYP GFX_DELETEBUFFERSPROC)                               (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEFRAMEBUFFERSPROC)                          (GLsizei, const GLuint*);
 typedef void (APIENTRYP GFX_DELETEPROGRAMPROC)                               (GLuint);
@@ -304,6 +318,8 @@ void APIENTRY _gfx_gl_create_program_pipelines                          (GLsizei
 void APIENTRY _gfx_gl_create_samplers                                   (GLsizei, GLuint*);
 void APIENTRY _gfx_gl_create_textures                                   (GLenum, GLsizei, GLuint*);
 void APIENTRY _gfx_gl_create_vertex_arrays                              (GLsizei, GLuint*);
+void APIENTRY _gfx_gl_debug_message_callback                            (GFX_DEBUGPROC, const void*);
+void APIENTRY _gfx_gl_debug_message_control                             (GLenum, GLenum, GLenum, GLsizei, const GLuint*, GLboolean);
 void APIENTRY _gfx_gl_delete_program_pipelines                          (GLsizei, const GLuint*);
 void APIENTRY _gfx_gl_disable_vertex_array_attrib                       (GLuint, GLuint);
 void APIENTRY _gfx_gl_draw_arrays_instanced_base_instance               (GLenum, GLint, GLsizei, GLsizei, GLuint);
@@ -458,6 +474,8 @@ struct GFX_Renderer
 	GFX_CREATETEXTURESPROC                              CreateTextures;
 	GFX_CREATEVERTEXARRAYSPROC                          CreateVertexArrays;
 	GFX_CULLFACEPROC                                    CullFace;
+	GFX_DEBUGMESSAGECALLBACKPROC                        DebugMessageCallback;                        /* GFX_INT_EXT_DEBUG_OUTPUT */
+	GFX_DEBUGMESSAGECONTROLPROC                         DebugMessageControl;                         /* GFX_INT_EXT_DEBUG_OUTPUT */
 	GFX_DELETEBUFFERSPROC                               DeleteBuffers;
 	GFX_DELETEFRAMEBUFFERSPROC                          DeleteFramebuffers;
 	GFX_DELETEPROGRAMPROC                               DeleteProgram;

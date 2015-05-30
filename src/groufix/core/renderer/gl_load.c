@@ -19,7 +19,7 @@
 #include <string.h>
 
 /******************************************************/
-static int _gfx_is_extension_supported(
+static int _gfx_gl_is_extension_supported(
 
 		const char* ext,
 		GFX_CONT_ARG)
@@ -125,6 +125,8 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.CreateTextures                              = _gfx_gl_create_textures;
 	GFX_REND_GET.CreateVertexArrays                          = _gfx_gl_create_vertex_arrays;
 	GFX_REND_GET.CullFace                                    = glCullFace;
+	GFX_REND_GET.DebugMessageCallback                        = _gfx_gl_debug_message_callback;
+	GFX_REND_GET.DebugMessageControl                         = _gfx_gl_debug_message_control;
 	GFX_REND_GET.DeleteBuffers                               = glDeleteBuffers;
 	GFX_REND_GET.DeleteFramebuffers                          = glDeleteFramebuffers;
 	GFX_REND_GET.DeleteProgram                               = glDeleteProgram;
@@ -274,7 +276,7 @@ void _gfx_renderer_load(void)
 	GFX_REND_GET.Viewport                                    = glViewport;
 
 	/* GFX_EXT_ANISOTROPIC_FILTER */
-	if(_gfx_is_extension_supported("GL_EXT_texture_filter_anisotropic", GFX_CONT_AS_ARG))
+	if(_gfx_gl_is_extension_supported("GL_EXT_texture_filter_anisotropic", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER] = 1;
 
@@ -283,15 +285,20 @@ void _gfx_renderer_load(void)
 	}
 
 	/* GFX_INT_EXT_DEBUG_OUTPUT */
-	if(_gfx_is_extension_supported("GL_KHR_debug", GFX_CONT_AS_ARG))
+	if(_gfx_gl_is_extension_supported("GL_KHR_debug", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
+
+		GFX_REND_GET.DebugMessageCallback =
+			(GFX_DEBUGMESSAGECALLBACKPROC)_gfx_platform_get_proc_address("glDebugMessageCallbackKHR");
+		GFX_REND_GET.DebugMessageControl =
+			(GFX_DEBUGMESSAGECONTROLPROC)_gfx_platform_get_proc_address("glDebugMessageControlKHR");
 	}
 
 	/* GFX_EXT_GEOMETRY_SHADER */
 	if(
-		_gfx_is_extension_supported("GL_OES_geometry_shader", GFX_CONT_AS_ARG) ||
-		_gfx_is_extension_supported("GL_EXT_geometry_shader", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_OES_geometry_shader", GFX_CONT_AS_ARG) ||
+		_gfx_gl_is_extension_supported("GL_EXT_geometry_shader", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_GEOMETRY_SHADER] = 1;
 	}
@@ -309,7 +316,7 @@ void _gfx_renderer_load(void)
 	}
 
 	/* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
-	if(_gfx_is_extension_supported("GL_EXT_base_instance", GFX_CONT_AS_ARG))
+	if(_gfx_gl_is_extension_supported("GL_EXT_base_instance", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
 
@@ -349,7 +356,7 @@ void _gfx_renderer_load(void)
 		GFX_REND_GET.UseProgramStages        = glUseProgramStages;
 	}
 
-	else if(_gfx_is_extension_supported("GL_EXT_separate_shader_objects", GFX_CONT_AS_ARG))
+	else if(_gfx_gl_is_extension_supported("GL_EXT_separate_shader_objects", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP] = 1;
 
@@ -394,7 +401,7 @@ void _gfx_renderer_load(void)
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
-	if(_gfx_is_extension_supported("GL_OES_tessellation_shader", GFX_CONT_AS_ARG))
+	if(_gfx_gl_is_extension_supported("GL_OES_tessellation_shader", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
 
@@ -405,7 +412,7 @@ void _gfx_renderer_load(void)
 			(GFX_PATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteriOES");
 	}
 
-	else if(_gfx_is_extension_supported("GL_EXT_tessellation_shader", GFX_CONT_AS_ARG))
+	else if(_gfx_gl_is_extension_supported("GL_EXT_tessellation_shader", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
 
@@ -417,7 +424,7 @@ void _gfx_renderer_load(void)
 	}
 
 	/* GFX_EXT_VERTEX_BASE */
-	if(_gfx_is_extension_supported("GL_OES_draw_elements_base_vertex", GFX_CONT_AS_ARG))
+	if(_gfx_gl_is_extension_supported("GL_OES_draw_elements_base_vertex", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_VERTEX_BASE_INDICES] = 1;
 
@@ -427,7 +434,7 @@ void _gfx_renderer_load(void)
 			(GFX_DRAWELEMENTSINSTANCEDBASEVERTEXPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseVertexOES");
 	}
 
-	else if(_gfx_is_extension_supported("GL_EXT_draw_elements_base_vertex", GFX_CONT_AS_ARG))
+	else if(_gfx_gl_is_extension_supported("GL_EXT_draw_elements_base_vertex", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_VERTEX_BASE_INDICES] = 1;
 
@@ -539,6 +546,10 @@ void _gfx_renderer_load(void)
 		(PFNGLCREATEVERTEXARRAYSPROC)_gfx_gl_create_vertex_arrays;
 	GFX_REND_GET.CullFace =
 		(PFNGLCULLFACEPROC)glCullFace;
+	GFX_REND_GET.DebugMessageCallback =
+		(PFNGLDEBUGMESSAGECALLBACKPROC)_gfx_gl_debug_message_callback;
+	GFX_REND_GET.DebugMessageControl =
+		(PFNGLDEBUGMESSAGECONTROLPROC)_gfx_gl_debug_message_control;
 	GFX_REND_GET.DeleteBuffers =
 		(PFNGLDELETEBUFFERSPROC)_gfx_platform_get_proc_address("glDeleteBuffers");
 	GFX_REND_GET.DeleteFramebuffers =
@@ -834,7 +845,7 @@ void _gfx_renderer_load(void)
 		(PFNGLVIEWPORTPROC)glViewport;
 
 	/* GFX_EXT_ANISOTROPIC_FILTER */
-	if(_gfx_is_extension_supported("GL_EXT_texture_filter_anisotropic", GFX_CONT_AS_ARG))
+	if(_gfx_gl_is_extension_supported("GL_EXT_texture_filter_anisotropic", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER] = 1;
 
@@ -843,26 +854,31 @@ void _gfx_renderer_load(void)
 	}
 
 	/* GFX_INT_EXT_DEBUG_OUTPUT */
-	if(_gfx_is_extension_supported("GL_KHR_debug", GFX_CONT_AS_ARG))
+	if(_gfx_gl_is_extension_supported("GL_KHR_debug", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
+
+		GFX_REND_GET.DebugMessageCallback =
+			(PFNGLDEBUGMESSAGECALLBACKPROC)_gfx_platform_get_proc_address("glDebugMessageCallback");
+		GFX_REND_GET.DebugMessageControl =
+			(PFNGLDEBUGMESSAGECONTROLPROC)_gfx_platform_get_proc_address("glDebugMessageControl");
 	}
 
-	else if(_gfx_is_extension_supported("GL_ARB_debug_output", GFX_CONT_AS_ARG))
+	else if(_gfx_gl_is_extension_supported("GL_ARB_debug_output", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
-	}
 
-	else if(_gfx_is_extension_supported("GL_AMD_debug_output", GFX_CONT_AS_ARG))
-	{
-		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
+		GFX_REND_GET.DebugMessageCallback =
+			(PFNGLDEBUGMESSAGECALLBACKPROC)_gfx_platform_get_proc_address("glDebugMessageCallbackARB");
+		GFX_REND_GET.DebugMessageControl =
+			(PFNGLDEBUGMESSAGECONTROLPROC)_gfx_platform_get_proc_address("glDebugMessageControlARB");
 	}
 
 	/* GFX_INT_EXT_DIRECT_STATE_ACCESS */
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 4) ||
-		_gfx_is_extension_supported("GL_ARB_direct_state_access", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_direct_state_access", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS] = 1;
 
@@ -947,7 +963,7 @@ void _gfx_renderer_load(void)
 			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisor");
 	}
 
-	else if(_gfx_is_extension_supported("GL_ARB_instanced_arrays", GFX_CONT_AS_ARG))
+	else if(_gfx_gl_is_extension_supported("GL_ARB_instanced_arrays", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 
@@ -959,7 +975,7 @@ void _gfx_renderer_load(void)
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 1) ||
-		_gfx_is_extension_supported("GL_ARB_base_instance", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_base_instance", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_INSTANCED_BASE_ATTRIBUTES] = 1;
 
@@ -974,7 +990,7 @@ void _gfx_renderer_load(void)
 	/* GFX_EXT_LAYERED_CUBEMAP */
 	if(
 		GFX_CONT_GET.version.major > 3 ||
-		_gfx_is_extension_supported("GL_ARB_texture_cube_map_array", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_texture_cube_map_array", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_LAYERED_CUBEMAP] = 1;
 	}
@@ -983,7 +999,7 @@ void _gfx_renderer_load(void)
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 3) ||
-		_gfx_is_extension_supported("GL_ARB_multi_bind", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_multi_bind", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_MULTI_BIND] = 1;
 
@@ -995,7 +1011,7 @@ void _gfx_renderer_load(void)
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 0) ||
-		_gfx_is_extension_supported("GL_ARB_get_program_binary", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_get_program_binary", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_PROGRAM_BINARY] = 1;
 
@@ -1011,7 +1027,7 @@ void _gfx_renderer_load(void)
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 0) ||
-		_gfx_is_extension_supported("GL_ARB_separate_shader_objects", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_separate_shader_objects", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP] = 1;
 
@@ -1061,7 +1077,7 @@ void _gfx_renderer_load(void)
 	if(
 		GFX_CONT_GET.version.major > 3 ||
 		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 2) ||
-		_gfx_is_extension_supported("GL_ARB_sampler_objects", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_sampler_objects", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS] = 1;
 
@@ -1080,7 +1096,7 @@ void _gfx_renderer_load(void)
 	/* GFX_EXT_TESSELLATION_SHADER */
 	if(
 		GFX_CONT_GET.version.major > 3 ||
-		_gfx_is_extension_supported("GL_ARB_tessellation_shader", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_tessellation_shader", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
 
@@ -1095,7 +1111,7 @@ void _gfx_renderer_load(void)
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 1) ||
-		_gfx_is_extension_supported("GL_ARB_texture_storage", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_texture_storage", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_STORAGE] = 1;
 
@@ -1109,7 +1125,7 @@ void _gfx_renderer_load(void)
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 2) ||
-		_gfx_is_extension_supported("GL_ARB_texture_storage_multisample", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_texture_storage_multisample", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE] = 1;
 
@@ -1123,7 +1139,7 @@ void _gfx_renderer_load(void)
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 2) ||
-		_gfx_is_extension_supported("GL_ARB_vertex_attrib_binding", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_vertex_attrib_binding", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] = 1;
 

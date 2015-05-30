@@ -167,6 +167,26 @@ void APIENTRY _gfx_gl_create_vertex_arrays(
 	GFX_REND_GET.GenVertexArrays(n, arrays);
 }
 
+void APIENTRY _gfx_gl_debug_message_callback(
+
+		GFX_DEBUGPROC  callback,
+		const void*    userParam)
+{
+	/* No-op */
+}
+
+void APIENTRY _gfx_gl_debug_message_control(
+
+		GLenum         source,
+		GLenum         type,
+		GLenum         severity,
+		GLsizei        count,
+		const GLuint*  ids,
+		GLboolean      enabled)
+{
+	/* No-op */
+}
+
 void APIENTRY _gfx_gl_delete_program_pipelines(
 
 		GLsizei        n,

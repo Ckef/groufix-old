@@ -53,12 +53,12 @@ int gfx_init(
 	errors = GFX_ERROR_MODE_DEBUG;
 #endif
 
-	/* Initialize platform, context manager and errors */
-	if(_gfx_platform_init())
+	/* Initialize errors, platform and context manager */
+	if(_gfx_errors_init(errors))
 	{
-		if(_gfx_context_manager_init(context))
+		if(_gfx_platform_init())
 		{
-			if(_gfx_errors_init(errors))
+			if(_gfx_context_manager_init(context))
 			{
 				/* Get starting point of time */
 				_gfx_platform_init_timer();
@@ -67,10 +67,10 @@ int gfx_init(
 				return 1;
 			}
 
-			_gfx_context_manager_terminate();
+			_gfx_platform_terminate();
 		}
 
-		_gfx_platform_terminate();
+		_gfx_errors_terminate();
 	}
 
 	return 0;

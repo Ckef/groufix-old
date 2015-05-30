@@ -12,7 +12,6 @@
  *
  */
 
-#include "groufix/core/errors.h"
 #include "groufix/core/renderer.h"
 #include "groufix/core/threading.h"
 
@@ -46,20 +45,10 @@ static GFX_PlatformMutex  _gfx_error_mutex;
 
 
 /******************************************************/
-static void _gfx_errors_poll(void)
+static inline void _gfx_errors_poll(void)
 {
-	GFX_CONT_INIT();
-
 	if(_gfx_error_mode == GFX_ERROR_MODE_DEBUG)
-	{
-		/* Loop over all errors */
-		GLenum err = GFX_REND_GET.GetError();
-		while(err != GL_NO_ERROR)
-		{
-			gfx_errors_push(err, "[DEBUG] An OpenGL error occurred.");
-			err = GFX_REND_GET.GetError();
-		}
-	}
+		_gfx_renderer_poll_errors();
 }
 
 /******************************************************/
