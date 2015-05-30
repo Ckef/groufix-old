@@ -854,7 +854,10 @@ void _gfx_renderer_load(void)
 	}
 
 	/* GFX_INT_EXT_DEBUG_OUTPUT */
-	if(_gfx_gl_is_extension_supported("GL_KHR_debug", GFX_CONT_AS_ARG))
+	if(
+		GFX_CONT_GET.version.major > 4 ||
+		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 2) ||
+		_gfx_gl_is_extension_supported("GL_KHR_debug", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
 
