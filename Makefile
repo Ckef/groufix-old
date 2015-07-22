@@ -4,7 +4,7 @@
 #
 # This file is part of Groufix.
 #
-# Copyright (C) Stef Velzel :: All Rights Reserved.
+# Copyright (C) Stef Velzel.
 #
 # Groufix is licensed under the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the license,
@@ -52,12 +52,12 @@ SSE      = YES
 ifeq ($(DEBUG),YES)
  DFLAGS = -g
 else
- DFLAGS = -DNDEBUG
+ DFLAGS = -DNDEBUG -O2 -Os
 endif
 
 
 # Flags for all binaries
-CFLAGS          = -Os -O2 -Wall -pedantic -Iinclude $(DFLAGS) -DGFX_COMPILER_$(COMPILER) -DGFX_SSE_$(SSE)
+CFLAGS          = -Wall -pedantic -Iinclude $(DFLAGS) -DGFX_COMPILER_$(COMPILER) -DGFX_SSE_$(SSE)
 CFLAGS_UNIX_X11 = $(CFLAGS) -std=gnu99
 CFLAGS_WIN32    = $(CFLAGS) -std=c99
 

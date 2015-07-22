@@ -27,7 +27,7 @@ GFXMesh* create_mesh()
 	GFXVertexSource src;
 	src.primitive = GFX_TRIANGLES;
 	src.indexed   = 1;
-	src.indexType = GFX_UNSIGNED_BYTE;
+	src.indexType = GFX_UNSIGNED_SHORT;
 	src.first     = 0;
 	src.count     = 3;
 
@@ -42,7 +42,7 @@ GFXMesh* create_mesh()
 		 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};
 
-	unsigned char indices[] = {
+	unsigned short indices[] = {
 		0, 1, 2
 	};
 

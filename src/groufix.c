@@ -4,7 +4,7 @@
  *
  * This file is part of Groufix.
  *
- * Copyright (C) Stef Velzel :: All Rights Reserved.
+ * Copyright (C) Stef Velzel.
  *
  * Groufix is licensed under the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the license,
@@ -25,10 +25,11 @@ int gfx_is_extension_supported(
 
 		GFXExtension extension)
 {
-	GFX_Context* context = _gfx_context_get_current();
-	if(!context || extension >= GFX_EXT_COUNT) return 0;
+	if(extension >= GFX_EXT_COUNT) return 0;
 
-	return context->ext[extension];
+	GFX_CONT_INIT(0);
+
+	return GFX_CONT_GET.ext[extension];
 }
 
 /******************************************************/
@@ -36,10 +37,11 @@ int gfx_get_limit(
 
 		GFXLimit limit)
 {
-	GFX_Context* context = _gfx_context_get_current();
-	if(!context || limit >= GFX_LIM_COUNT) return -1;
+	if(limit >= GFX_LIM_COUNT) return -1;
 
-	return context->lim[limit];
+	GFX_CONT_INIT(-1);
+
+	return GFX_CONT_GET.lim[limit];
 }
 
 /******************************************************/
@@ -105,7 +107,7 @@ void gfx_terminate(void)
 	gfx_shared_buffer_cleanup();
 
 	/* Terminate */
-	_gfx_errors_terminate();
 	_gfx_context_manager_terminate();
 	_gfx_platform_terminate();
+	_gfx_errors_terminate();
 }

@@ -4,7 +4,7 @@
  *
  * This file is part of Groufix.
  *
- * Copyright (C) Stef Velzel :: All Rights Reserved.
+ * Copyright (C) Stef Velzel.
  *
  * Groufix is licensed under the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the license,
@@ -40,7 +40,7 @@ typedef struct GFXList
 /**
  * Creates a new list.
  *
- * @param dataSize Size of the node, >= sizeof(List).
+ * @param dataSize Size of the node, >= sizeof(GFXList).
  * @return NULL on failure.
  *
  */

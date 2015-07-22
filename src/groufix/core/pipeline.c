@@ -4,7 +4,7 @@
  *
  * This file is part of Groufix.
  *
- * Copyright (C) Stef Velzel :: All Rights Reserved.
+ * Copyright (C) Stef Velzel.
  *
  * Groufix is licensed under the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the license,
@@ -17,18 +17,6 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Internal Attachment */
-typedef struct GFX_Attachment
-{
-	GLenum         attachment; /* Key to sort on */
-	GLuint         texture;
-	GLenum         target;
-	unsigned char  mipmap;
-	unsigned int   layer;
-
-} GFX_Attachment;
-
-
 /* Internal Pipeline */
 typedef struct GFX_Pipeline
 {
@@ -48,6 +36,18 @@ typedef struct GFX_Pipeline
 	GFX_Pipe*           unlinked;
 
 } GFX_Pipeline;
+
+
+/* Internal Attachment */
+typedef struct GFX_Attachment
+{
+	GLenum         attachment; /* Key to sort on */
+	GLuint         texture;
+	GLenum         target;
+	unsigned char  mipmap;
+	unsigned int   layer;
+
+} GFX_Attachment;
 
 
 /******************************************************/

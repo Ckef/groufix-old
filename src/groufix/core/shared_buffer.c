@@ -4,7 +4,7 @@
  *
  * This file is part of Groufix.
  *
- * Copyright (C) Stef Velzel :: All Rights Reserved.
+ * Copyright (C) Stef Velzel.
  *
  * Groufix is licensed under the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the license,
@@ -20,14 +20,6 @@
 #define GFX_SHARED_BUFFER_MSB (~(ULONG_MAX >> 1))
 
 /******************************************************/
-/* Size of a new shared buffer */
-static unsigned long _gfx_shared_buffer_size = GFX_SHARED_BUFFER_SIZE_DEFAULT;
-
-
-/* All shared buffers */
-static GFXVector* _gfx_shared_buffers = NULL;
-
-
 /* Internal Shared Buffer */
 typedef struct GFX_SharedBuffer
 {
@@ -46,6 +38,14 @@ typedef struct GFX_Segment
 	size_t size;
 
 } GFX_Segment;
+
+
+/* Size of a new shared buffer */
+static unsigned long _gfx_shared_buffer_size = GFX_SHARED_BUFFER_SIZE_DEFAULT;
+
+
+/* All shared buffers */
+static GFXVector* _gfx_shared_buffers = NULL;
 
 
 /******************************************************/
