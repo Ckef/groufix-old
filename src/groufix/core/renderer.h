@@ -31,7 +31,7 @@
 #endif
 
 
-/* Macros for safe current window/renderer fetching */
+/* Macros for safe current context fetching */
 #define GFX_CONT_INIT_UNSAFE        GFX_Context* _gfx_c__ = _gfx_context_get_current();
 #define GFX_CONT_INIT_BAD(r)        GFX_CONT_INIT_UNSAFE if(!_gfx_c__) return r;
 #define GFX_CONT_INIT(r)            GFX_CONT_INIT_BAD(r)

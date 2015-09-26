@@ -17,7 +17,7 @@
 #include <string.h>
 
 /******************************************************/
-void APIENTRY _gfx_gl_error_callback(
+static void APIENTRY _gfx_gl_error_callback(
 
 		GLenum         source,
 		GLenum         type,

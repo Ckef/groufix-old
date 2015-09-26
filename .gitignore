@@ -12,6 +12,7 @@
 *.supp
 *.swo
 *.swp
+*.temp
 *~
 
 # directories
