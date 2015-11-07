@@ -92,6 +92,7 @@ GFX_API unsigned int gfx_get_num_errors(void);
  * @return Whether or not an error was present.
  *
  * This function is thread safe.
+ * Note: once the error is popped, its description becomes undefined.
  *
  */
 GFX_API int gfx_errors_peek(
@@ -114,6 +115,9 @@ GFX_API int gfx_errors_find(
 /**
  * Removes the last error.
  *
+ * This function is thread safe.
+ * Note: if this error was retrieved using peek, its description will become undefined.
+ *
  */
 GFX_API void gfx_errors_pop(void);
 
@@ -123,19 +127,19 @@ GFX_API void gfx_errors_pop(void);
  * @param code        The error code to add.
  * @param description Optional null terminated message to describe the error (can be NULL).
  *
- * The description will be copied.
+ * The description will be formatted according to *printf format specification.
  * This function is thread safe.
  *
  */
 GFX_API void gfx_errors_push(
 
 		GFXErrorCode  code,
-		const char*   description);
+		const char*   description,
+		...);
 
 /**
  * Empty the internal error queue.
  *
- * Should NOT be called frequently for efficiency.
  * This function is thread safe.
  *
  */

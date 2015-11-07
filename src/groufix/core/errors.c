@@ -15,8 +15,9 @@
 #include "groufix/core/renderer.h"
 #include "groufix/core/threading.h"
 
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 /******************************************************/
 /* Internal error */
@@ -168,7 +169,8 @@ void gfx_errors_pop(void)
 void gfx_errors_push(
 
 		GFXErrorCode  code,
-		const char*   description)
+		const char*   description,
+		...)
 {
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
@@ -176,17 +178,34 @@ void gfx_errors_push(
 		gfx_deque_pop_end(&_gfx_errors);
 
 	/* Construct an error */
-	GFX_Error error;
-	error.code = code;
-	error.description = NULL;
+	GFX_Error error =
+	{
+		.code = code,
+		.description = NULL
+	};
 
-	/* Copy the description */
 	if(description)
 	{
-		char* des = malloc(strlen(description) + 1);
-		if(des) strcpy(des, description);
+		/* Format the description */
+		va_list vl;
+		va_start(vl, description);
 
-		error.description = des;
+		int size = vsnprintf(NULL, 0, description, vl);
+
+		va_end(vl);
+
+		/* And copy it */
+		if(size++)
+		{
+			va_start(vl, description);
+
+			error.description = malloc(size);
+
+			if(error.description)
+				vsnprintf(error.description, size, description, vl);
+
+			va_end(vl);
+		}
 	}
 
 	gfx_deque_push_begin(&_gfx_errors, &error);
