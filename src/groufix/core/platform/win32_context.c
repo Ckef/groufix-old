@@ -17,6 +17,23 @@
 #if defined(GFX_RENDERER_GL)
 
 /******************************************************/
+static GFX_Win32_Window* _gfx_win32_get_window_from_context(
+
+		HGLRC context)
+{
+	GFX_Win32_Window* it;
+	for(
+		it = _gfx_win32.windows.begin;
+		it != _gfx_win32.windows.end;
+		it = gfx_vector_next(&_gfx_win32.windows, it))
+	{
+		if(it->context == context) break;
+	}
+
+	return it != _gfx_win32.windows.end ? it : NULL;
+}
+
+/******************************************************/
 static HGLRC _gfx_win32_create_context(
 
 		int    major,

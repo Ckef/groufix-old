@@ -335,27 +335,6 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 	return it != _gfx_win32.windows.end ? it : NULL;
 }
 
-#if defined(GFX_RENDERER_GL)
-
-/******************************************************/
-GFX_Win32_Window* _gfx_win32_get_window_from_context(
-
-		HGLRC context)
-{
-	GFX_Win32_Window* it;
-	for(
-		it = _gfx_win32.windows.begin;
-		it != _gfx_win32.windows.end;
-		it = gfx_vector_next(&_gfx_win32.windows, it))
-	{
-		if(it->context == context) break;
-	}
-
-	return it != _gfx_win32.windows.end ? it : NULL;
-}
-
-#endif
-
 /******************************************************/
 int _gfx_platform_init(void)
 {

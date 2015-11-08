@@ -180,18 +180,6 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 
 		HWND handle);
 
-#if defined(GFX_RENDERER_GL)
-
-/**
- * Returns a Win32 window from its context.
- *
- */
-GFX_Win32_Window* _gfx_win32_get_window_from_context(
-
-		HGLRC context);
-
-#endif
-
 /**
  * Sets the pixel format for a window.
  *
