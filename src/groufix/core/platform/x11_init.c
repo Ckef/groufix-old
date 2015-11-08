@@ -47,13 +47,49 @@ static int _gfx_x11_error_handler(
 	if(_gfx_x11.errors)
 	{
 		char* text = malloc(GFX_X11_ERROR_LENGTH);
-		XGetErrorText(display, evt->error_code, text, GFX_X11_ERROR_LENGTH);
+		if(!text) return 0;
 
-		/* Make sure it's null terminated */
-		text[GFX_X11_ERROR_LENGTH - 1] = 0;
-		gfx_errors_push(GFX_ERROR_PLATFORM_ERROR, text);
+		/* Format the text */
+		XGetErrorText(display, evt->error_code, text, GFX_X11_ERROR_LENGTH);
+		char* form = malloc(GFX_X11_ERROR_LENGTH);
+
+		if(form)
+		{
+			size_t t;
+			size_t f = 0;
+
+			for(t = 0; f < GFX_X11_ERROR_LENGTH; ++t)
+			{
+				if(!text[t])
+				{
+					form[f] = 0;
+					break;
+				}
+
+				if(text[t] != '%')
+					form[f++] = text[t];
+				else
+				{
+					/* Replace a % with a double % */
+					if(GFX_X11_ERROR_LENGTH - 2 > f)
+						form[f++] = '%', form[f++] = '%';
+
+					/* If impossible, just end the string */
+					else
+					{
+						form[f] = 0;
+						break;
+					}
+				}
+			}
+
+			/* Make sure it's null terminated */
+			form[GFX_X11_ERROR_LENGTH - 1] = 0;
+			gfx_errors_push(GFX_ERROR_PLATFORM_ERROR, form);
+		}
 
 		free(text);
+		free(form);
 	}
 
 	return 0;
