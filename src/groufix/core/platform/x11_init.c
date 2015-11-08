@@ -24,6 +24,8 @@
 GFX_X11_Connection _gfx_x11;
 
 
+#if defined(GFX_RENDERER_GL)
+
 /******************************************************/
 static inline int _gfx_x11_is_extension_supported(
 
@@ -33,6 +35,8 @@ static inline int _gfx_x11_is_extension_supported(
 	return _gfx_contains_string(
 		glXQueryExtensionsString(_gfx_x11.display, screenNumber), ext);
 }
+
+#endif
 
 /******************************************************/
 static int _gfx_x11_error_handler(
@@ -61,8 +65,6 @@ static int _gfx_x11_load_extensions(
 		int*  major,
 		int*  minor)
 {
-	int num = XDefaultScreen(_gfx_x11.display);
-
 	/* Check XRandR version */
 	if(
 		!XRRQueryVersion(_gfx_x11.display, major, minor) ||
@@ -72,6 +74,9 @@ static int _gfx_x11_load_extensions(
 		gfx_errors_push(GFX_ERROR_INCOMPATIBLE_CONTEXT, "RandR 1.2 is not supported.");
 		return 0;
 	}
+
+#if defined(GFX_RENDERER_GL)
+	int num = XDefaultScreen(_gfx_x11.display);
 
 	/* Check all vital extensions */
 	if(
@@ -94,6 +99,7 @@ static int _gfx_x11_load_extensions(
 	/* Check non-vital extensions */
 	if(!_gfx_x11_is_extension_supported(num, "GLX_EXT_swap_control"))
 		_gfx_x11.extensions.SwapIntervalEXT = NULL;
+#endif
 
 	return 1;
 }
@@ -381,23 +387,6 @@ GFX_X11_Window* _gfx_x11_get_window_from_handle(
 		it = gfx_vector_next(&_gfx_x11.windows, it))
 	{
 		if(it->handle == handle) break;
-	}
-
-	return it != _gfx_x11.windows.end ? it : NULL;
-}
-
-/******************************************************/
-GFX_X11_Window* _gfx_x11_get_window_from_context(
-
-		GLXContext context)
-{
-	GFX_X11_Window* it;
-	for(
-		it = _gfx_x11.windows.begin;
-		it != _gfx_x11.windows.end;
-		it = gfx_vector_next(&_gfx_x11.windows, it))
-	{
-		if(it->context == context) break;
 	}
 
 	return it != _gfx_x11.windows.end ? it : NULL;

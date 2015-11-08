@@ -17,7 +17,7 @@
 
 
 /* Validate platform */
-#include "groufix/core/platform.h"
+#include "groufix/core/renderer.h"
 
 #if !defined(GFX_GL)
 	#error "Must compile X11 target using desktop GL"
@@ -32,9 +32,12 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <X11/extensions/Xrandr.h>
+
+#if defined(GFX_RENDERER_GL)
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
+#endif
 
 
 /* Missing things */
@@ -63,6 +66,8 @@
  * Vital X11 Extensions
  *******************************************************/
 
+#if defined(GFX_RENDERER_GL)
+
 /** X11 Extensions */
 typedef struct GFX_X11_Extensions
 {
@@ -71,6 +76,8 @@ typedef struct GFX_X11_Extensions
 	unsigned char                      EXT_swap_control_tear;
 
 } GFX_X11_Extensions;
+
+#endif
 
 
 /********************************************************
@@ -119,14 +126,17 @@ typedef struct GFX_X11_Window
 	Window            handle;  /* Given to the outside world */
 	GFX_X11_Monitor*  monitor;
 	RRMode            mode;    /* Fullscreen mode */
-	GLXFBConfig       config;
-	GLXContext        context;
 	GFX_X11_Flags     flags;
 
 	int               x;       /* Relative to screen */
 	int               y;       /* Relative to screen */
 	unsigned int      width;
 	unsigned int      height;
+
+#if defined(GFX_RENDERER_GL)
+	GLXFBConfig       config;
+	GLXContext        context;
+#endif
 
 } GFX_X11_Window;
 
@@ -155,8 +165,9 @@ typedef struct GFX_X11_Connection
 	/* Key table */
 	GFXKey        keys[GFX_X11_NUM_KEYCODES];
 
-	/* Extensions */
+#if defined(GFX_RENDERER_GL)
 	GFX_X11_Extensions extensions;
+#endif
 
 } GFX_X11_Connection;
 
@@ -174,14 +185,6 @@ extern GFX_X11_Connection _gfx_x11;
 GFX_X11_Window* _gfx_x11_get_window_from_handle(
 
 		Window handle);
-
-/**
- * Returns an X11 window from its context.
- *
- */
-GFX_X11_Window* _gfx_x11_get_window_from_context(
-
-		GLXContext context);
 
 
 #endif // GFX_CORE_PLATFORM_X11_H

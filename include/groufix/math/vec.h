@@ -266,6 +266,7 @@ static GFX_ALWAYS_INLINE GFX_VEC_DATA GFX_VEC_FUNC(dot)(
 }
 
 #if GFX_VEC_SIZE == 3
+
 /**
  * Take the cross product of two 3D vectors.
  *
@@ -287,6 +288,7 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_VEC_FUNC(cross)(
 
 	return dest;
 }
+
 #endif
 
 /**

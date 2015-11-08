@@ -316,6 +316,7 @@ static GFX_ALWAYS_INLINE int GFX_QUAT_FUNC(is_zero)(
 }
 
 #ifdef GFX_QUAT_USE_VEC
+
 /**
  * Computes a quaternion from an angle and an axis.
  *
@@ -401,9 +402,11 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_QUAT_FUNC(mult_vec)(
 
 	return dest;
 }
+
 #endif // GFX_QUAT_USE_VEC
 
 #ifdef GFX_QUAT_USE_MAT
+
 /**
  * Computes the 3x3 rotation matrix equivalent to a quaternion.
  *
@@ -437,6 +440,7 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_QUAT_FUNC(to_matrix)(
 
 	return dest;
 }
+
 #endif // GFX_QUAT_USE_MAT
 
 

@@ -18,6 +18,38 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(GFX_RENDERER_GL)
+
+/******************************************************/
+static GLXFBConfig* _gfx_x11_get_config(
+
+		Screen*               screen,
+		const GFXColorDepth*  depth,
+		int                   backBuffer)
+{
+	/* Create buffer attribute array */
+	int bufferAttr[] = {
+		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+		GLX_DOUBLEBUFFER,  backBuffer ? True : False,
+		GLX_RED_SIZE,      depth->redBits,
+		GLX_GREEN_SIZE,    depth->greenBits,
+		GLX_BLUE_SIZE,     depth->blueBits,
+		None
+	};
+
+	/* Get config from screen */
+	int buffElements;
+	return glXChooseFBConfig(
+		_gfx_x11.display,
+		XScreenNumberOfScreen(screen),
+		bufferAttr,
+		&buffElements
+	);
+}
+
+#endif
+
 /******************************************************/
 static void _gfx_x11_enter_fullscreen(
 
@@ -376,34 +408,6 @@ static void _gfx_x11_event_proc(
 }
 
 /******************************************************/
-static GLXFBConfig* _gfx_x11_get_config(
-
-		Screen*               screen,
-		const GFXColorDepth*  depth,
-		int                   backBuffer)
-{
-	/* Create buffer attribute array */
-	int bufferAttr[] = {
-		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
-		GLX_DOUBLEBUFFER,  backBuffer ? True : False,
-		GLX_RED_SIZE,      depth->redBits,
-		GLX_GREEN_SIZE,    depth->greenBits,
-		GLX_BLUE_SIZE,     depth->blueBits,
-		None
-	};
-
-	/* Get config from screen */
-	int buffElements;
-	return glXChooseFBConfig(
-		_gfx_x11.display,
-		XScreenNumberOfScreen(screen),
-		bufferAttr,
-		&buffElements
-	);
-}
-
-/******************************************************/
 GFX_PlatformWindow _gfx_platform_window_create(
 
 		const GFX_PlatformAttributes* attributes)
@@ -411,8 +415,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	/* Setup the x11 window */
 	GFX_X11_Window window;
 	window.monitor = attributes->monitor;
-	window.context = NULL;
-	window.flags   = 0;
+	window.flags = 0;
 
 	window.flags |=
 		attributes->flags & GFX_WINDOW_RESIZABLE ?
@@ -448,6 +451,10 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		y += attributes->y;
 	}
 
+	/* Get visual */
+	XVisualInfo* visual = NULL;
+
+#if defined(GFX_RENDERER_GL)
 	/* Get FB Config */
 	GLXFBConfig* config = _gfx_x11_get_config(
 		window.monitor->screen,
@@ -458,13 +465,14 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	if(!config) return NULL;
 
 	/* Get visual from config */
-	XVisualInfo* visual = glXGetVisualFromFBConfig(
+	visual = glXGetVisualFromFBConfig(
 		_gfx_x11.display,
 		*config
 	);
 
 	window.config = *config;
 	XFree(config);
+#endif
 
 	/* Create the window attributes */
 	unsigned long mask = CWColormap | CWEventMask;

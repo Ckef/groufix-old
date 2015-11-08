@@ -266,6 +266,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(is_zero)(
 }
 
 #if GFX_MAT_SIZE == 2
+
 /**
  * Computes the determinant of a matrix.
  *
@@ -305,6 +306,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 }
 
 #elif MAT_SIZE == 3
+
 /**
  * Computes the determinant of a matrix.
  *
@@ -365,6 +367,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 }
 
 #elif GFX_MAT_SIZE == 4
+
 /**
  * Computes the determinant of a matrix.
  *
@@ -445,9 +448,11 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
 	return 1;
 }
+
 #endif
 
 #ifdef GFX_MAT_USE_VEC
+
 /**
  * Returns a column of a matrix as vector.
  *
@@ -486,6 +491,7 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
 
 	return dest;
 }
+
 #endif // GFX_MAT_USE_VEC
 
 

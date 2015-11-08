@@ -14,6 +14,8 @@
 
 #include "groufix/core/platform/x11.h"
 
+#if defined(GFX_RENDERER_GL)
+
 /******************************************************/
 static GLXContext _gfx_x11_create_context(
 
@@ -54,6 +56,8 @@ static GLXContext _gfx_x11_create_context(
 	return context;
 }
 
+#endif
+
 /******************************************************/
 GFX_PlatformContext _gfx_platform_context_create(
 
@@ -63,6 +67,9 @@ GFX_PlatformContext _gfx_platform_context_create(
 		GFX_PlatformContext  share,
 		int                  debug)
 {
+	GFX_PlatformContext context = NULL;
+
+#if defined(GFX_RENDERER_GL)
 	/* Get config from default screen */
 	int buffElements;
 	int attr = None;
@@ -77,7 +84,7 @@ GFX_PlatformContext _gfx_platform_context_create(
 	if(!config) return NULL;
 
 	/* Create context */
-	GFX_PlatformContext context = _gfx_x11_create_context(
+	context = _gfx_x11_create_context(
 		major,
 		minor,
 		*config,
@@ -86,6 +93,7 @@ GFX_PlatformContext _gfx_platform_context_create(
 	);
 
 	XFree(config);
+#endif
 
 	*handle = NULL;
 	return context;
@@ -96,8 +104,10 @@ void _gfx_platform_context_free(
 
 		GFX_PlatformContext context)
 {
+#if defined(GFX_RENDERER_GL)
 	glXMakeContextCurrent(_gfx_x11.display, None, None, NULL);
 	glXDestroyContext(_gfx_x11.display, context);
+#endif
 }
 
 /******************************************************/
@@ -115,6 +125,9 @@ GFX_PlatformContext _gfx_platform_context_init(
 
 	if(!window) return NULL;
 
+	GFX_PlatformContext context = NULL;
+
+#if defined(GFX_RENDERER_GL)
 	/* Create context */
 	window->context = _gfx_x11_create_context(
 		major,
@@ -124,7 +137,10 @@ GFX_PlatformContext _gfx_platform_context_init(
 		debug
 	);
 
-	return window->context;
+	context = window->context;
+#endif
+
+	return context;
 }
 
 /******************************************************/
@@ -138,8 +154,10 @@ void _gfx_platform_context_clear(
 
 	if(window)
 	{
+#if defined(GFX_RENDERER_GL)
 		_gfx_platform_context_free(window->context);
 		window->context = NULL;
+#endif
 	}
 }
 
@@ -149,6 +167,7 @@ int _gfx_platform_context_set_swap_interval(
 		GFX_PlatformWindow  handle,
 		int                 num)
 {
+#if defined(GFX_RENDERER_GL)
 	if(!_gfx_x11.extensions.SwapIntervalEXT)
 		return 0;
 
@@ -161,6 +180,7 @@ int _gfx_platform_context_set_swap_interval(
 		(Window)GFX_VOID_TO_UINT(handle),
 		num
 	);
+#endif
 
 	return num;
 }
@@ -170,7 +190,9 @@ void _gfx_platform_context_swap_buffers(
 
 		GFX_PlatformWindow handle)
 {
+#if defined(GFX_RENDERER_GL)
 	glXSwapBuffers(_gfx_x11.display, (Window)GFX_VOID_TO_UINT(handle));
+#endif
 }
 
 /******************************************************/
@@ -179,6 +201,7 @@ void _gfx_platform_context_make_current(
 		GFX_PlatformWindow   handle,
 		GFX_PlatformContext  context)
 {
+#if defined(GFX_RENDERER_GL)
 	if(!context) glXMakeCurrent(
 		_gfx_x11.display,
 		None,
@@ -193,6 +216,7 @@ void _gfx_platform_context_make_current(
 		_gfx_x11.display,
 		XDefaultRootWindow(_gfx_x11.display),
 		context);
+#endif
 }
 
 /******************************************************/
@@ -200,5 +224,11 @@ GFX_ProcAddress _gfx_platform_get_proc_address(
 
 		const char* proc)
 {
-	return (GFX_ProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
+	GFX_ProcAddress addr = NULL;
+
+#if defined(GFX_RENDERER_GL)
+	addr = (GFX_ProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
+#endif
+
+	return addr;
 }
