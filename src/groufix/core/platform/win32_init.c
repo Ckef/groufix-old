@@ -23,6 +23,8 @@
 GFX_Win32_Instance _gfx_win32;
 
 
+#if defined(GFX_RENDERER_GL)
+
 /******************************************************/
 static inline int _gfx_win32_is_extension_supported(
 
@@ -99,6 +101,8 @@ static int _gfx_win32_load_extensions(void)
 
 	return success;
 }
+
+#endif
 
 /******************************************************/
 static void _gfx_win32_init_modes(
@@ -331,6 +335,8 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 	return it != _gfx_win32.windows.end ? it : NULL;
 }
 
+#if defined(GFX_RENDERER_GL)
+
 /******************************************************/
 GFX_Win32_Window* _gfx_win32_get_window_from_context(
 
@@ -348,6 +354,8 @@ GFX_Win32_Window* _gfx_win32_get_window_from_context(
 	return it != _gfx_win32.windows.end ? it : NULL;
 }
 
+#endif
+
 /******************************************************/
 int _gfx_platform_init(void)
 {
@@ -361,7 +369,15 @@ int _gfx_platform_init(void)
 	gfx_vector_init(&_gfx_win32.windows, sizeof(GFX_Win32_Window));
 
 	/* Load extensions and init monitors */
-	if(!_gfx_win32_load_extensions() || !_gfx_win32_init_monitors())
+#if defined(GFX_RENDERER_GL)
+	if(!_gfx_win32_load_extensions())
+	{
+		_gfx_platform_terminate();
+		return 0;
+	}
+#endif
+
+	if(!_gfx_win32_init_monitors())
 	{
 		_gfx_platform_terminate();
 		return 0;

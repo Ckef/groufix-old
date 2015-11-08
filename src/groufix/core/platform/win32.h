@@ -17,7 +17,7 @@
 
 
 /* Validate platform */
-#include "groufix/core/platform.h"
+#include "groufix/core/renderer.h"
 
 #if !defined(GFX_GL)
 	#error "Must compile Win32 target using desktop GL"
@@ -30,8 +30,11 @@
 
 #include <wchar.h>
 #include <windowsx.h>
+
+#if defined(GFX_RENDERER_GL)
 #include <GL/gl.h>
 #include <GL/wglext.h>
+#endif
 
 
 /* Yeah these are missing */
@@ -61,6 +64,8 @@
  * Vital Win32 Extensions
  *******************************************************/
 
+#if defined(GFX_RENDERER_GL)
+
 /** Win32 Extensions */
 typedef struct GFX_Win32_Extensions
 {
@@ -70,6 +75,8 @@ typedef struct GFX_Win32_Extensions
 	unsigned char                      EXT_swap_control_tear;
 
 } GFX_Win32_Extensions;
+
+#endif
 
 
 /********************************************************
@@ -108,8 +115,11 @@ typedef struct GFX_Win32_Window
 	HWND                handle; /* Given to the outside world */
 	GFX_Win32_Monitor*  monitor;
 	DEVMODE*            mode;   /* Fullscreen mode */
-	HGLRC               context;
 	GFX_Win32_Flags     flags;
+
+#if defined(GFX_RENDERER_GL)
+	HGLRC               context;
+#endif
 
 } GFX_Win32_Window;
 
@@ -129,8 +139,9 @@ typedef struct GFX_Win32_Instance
 	/* Key table */
 	GFXKey     keys[GFX_WIN32_NUM_KEYCODES];
 
-	/* Extensions */
+#if defined(GFX_RENDERER_GL)
 	GFX_Win32_Extensions extensions;
+#endif
 
 } GFX_Win32_Instance;
 
@@ -169,6 +180,8 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 
 		HWND handle);
 
+#if defined(GFX_RENDERER_GL)
+
 /**
  * Returns a Win32 window from its context.
  *
@@ -176,6 +189,8 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 GFX_Win32_Window* _gfx_win32_get_window_from_context(
 
 		HGLRC context);
+
+#endif
 
 /**
  * Sets the pixel format for a window.

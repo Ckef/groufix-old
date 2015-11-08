@@ -14,7 +14,6 @@
 
 #include "groufix/core/platform/win32.h"
 #include "groufix/core/internal.h"
-#include "groufix.h"
 
 #include <stdlib.h>
 
@@ -448,8 +447,7 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 	/* Create a dummy window */
 	GFX_Win32_Window window;
 	window.monitor = NULL;
-	window.context = NULL;
-	window.flags   = GFX_WIN32_HIDDEN;
+	window.flags = GFX_WIN32_HIDDEN;
 
 	window.handle = CreateWindow(
 		GFX_WIN32_WINDOW_CLASS_DUMMY,
@@ -499,8 +497,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	/* Setup the win32 window */
 	GFX_Win32_Window window;
 	window.monitor = attributes->monitor;
-	window.context = NULL;
-	window.flags   = 0;
+	window.flags = 0;
 
 	window.flags |=
 		attributes->flags & GFX_WINDOW_RESIZABLE ?
