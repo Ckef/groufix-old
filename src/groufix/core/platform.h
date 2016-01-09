@@ -31,13 +31,21 @@
 #endif
 
 
-/* Whether the platform is thread affine or not */
+/* Whether the platform is thread affine or safe */
 #if defined(GFX_WIN32)
 	#define GFX_PLATFORM_THREAD_AFFINE 1
 #elif defined(GFX_OSX)
 	#define GFX_PLATFORM_THREAD_AFFINE 1
 #elif defined(GFX_UNIX)
-	#define GFX_PLATFORM_THREAD_AFFINE 1
+	#define GFX_PLATFORM_THREAD_AFFINE 0
+#endif
+
+#if defined(GFX_WIN32)
+	#define GFX_PLATFORM_THREAD_SAFE 0
+#elif defined(GFX_OSX)
+	#define GFX_PLATFORM_THREAD_SAFE 0
+#elif defined(GFX_UNIX)
+	#define GFX_PLATFORM_THREAD_SAFE 0
 #endif
 
 

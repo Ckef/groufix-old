@@ -373,6 +373,7 @@ void _gfx_platform_terminate(void)
 {
 	/* Destroy all windows */
 	unsigned int i = gfx_vector_get_size(&_gfx_win32.windows);
+
 	while(i--)
 	{
 		GFX_Win32_Window* it = gfx_vector_previous(

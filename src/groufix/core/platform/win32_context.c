@@ -74,13 +74,14 @@ GFX_PlatformContext _gfx_platform_context_create(
 		GFX_PlatformContext  share,
 		int                  debug)
 {
+	GFX_PlatformContext context = NULL;
+	*handle = NULL;
+
+#if defined(GFX_RENDERER_GL)
 	/* Create dummy window */
 	GFX_Win32_Window* window = _gfx_win32_window_dummy_create();
 	if(!window) return NULL;
 
-	GFX_PlatformContext context = NULL;
-
-#if defined(GFX_RENDERER_GL)
 	/* Create context */
 	window->context = _gfx_win32_create_context(
 		major,
@@ -92,12 +93,12 @@ GFX_PlatformContext _gfx_platform_context_create(
 
 	if(!window->context)
 		_gfx_platform_window_free(window->handle);
+	else
+		*handle = window->handle;
 
 	context = window->context;
 #endif
 
-	/* Return dummy window and context */
-	*handle = window->handle;
 	return context;
 }
 

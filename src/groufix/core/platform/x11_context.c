@@ -68,6 +68,7 @@ GFX_PlatformContext _gfx_platform_context_create(
 		int                  debug)
 {
 	GFX_PlatformContext context = NULL;
+	*handle = NULL;
 
 #if defined(GFX_RENDERER_GL)
 	/* Get config from default screen */
@@ -95,7 +96,6 @@ GFX_PlatformContext _gfx_platform_context_create(
 	XFree(config);
 #endif
 
-	*handle = NULL;
 	return context;
 }
 
