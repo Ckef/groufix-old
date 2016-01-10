@@ -78,6 +78,7 @@ GFX_PlatformContext _gfx_platform_context_create(
 	*handle = NULL;
 
 #if defined(GFX_RENDERER_GL)
+
 	/* Create dummy window */
 	GFX_Win32_Window* window = _gfx_win32_window_dummy_create();
 	if(!window) return NULL;
@@ -97,6 +98,7 @@ GFX_PlatformContext _gfx_platform_context_create(
 		*handle = window->handle;
 
 	context = window->context;
+
 #endif
 
 	return context;
@@ -108,9 +110,11 @@ void _gfx_platform_context_free(
 		GFX_PlatformContext context)
 {
 #if defined(GFX_RENDERER_GL)
+
 	/* Get the window and free it */
 	GFX_Win32_Window* window = _gfx_win32_get_window_from_context(context);
 	if(window) _gfx_platform_window_free(window->handle);
+
 #endif
 }
 
@@ -130,6 +134,7 @@ GFX_PlatformContext _gfx_platform_context_init(
 	GFX_PlatformContext context = NULL;
 
 #if defined(GFX_RENDERER_GL)
+
 	/* Create context */
 	window->context = _gfx_win32_create_context(
 		major,
@@ -140,6 +145,7 @@ GFX_PlatformContext _gfx_platform_context_init(
 	);
 
 	context = window->context;
+
 #endif
 
 	return context;
@@ -157,8 +163,10 @@ void _gfx_platform_context_clear(
 	if(window)
 	{
 #if defined(GFX_RENDERER_GL)
+
 		wglDeleteContext(window->context);
 		window->context = NULL;
+
 #endif
 	}
 }
@@ -170,6 +178,7 @@ int _gfx_platform_context_set_swap_interval(
 		int                 num)
 {
 #if defined(GFX_RENDERER_GL)
+
 	/* First get window */
 	GFX_Win32_Window* window =
 		_gfx_win32_get_window_from_handle(handle);
@@ -184,6 +193,7 @@ int _gfx_platform_context_set_swap_interval(
 	/* Make current to set its interval */
 	_gfx_platform_context_make_current(handle, window->context);
 	_gfx_win32.extensions.SwapIntervalEXT(num);
+
 #endif
 
 	return num;
@@ -195,7 +205,9 @@ void _gfx_platform_context_swap_buffers(
 		GFX_PlatformWindow handle)
 {
 #if defined(GFX_RENDERER_GL)
+
 	SwapBuffers(GetDC(handle));
+
 #endif
 }
 
@@ -206,11 +218,13 @@ void _gfx_platform_context_make_current(
 		GFX_PlatformContext  context)
 {
 #if defined(GFX_RENDERER_GL)
+
 	if(!context)
 		wglMakeCurrent(NULL, NULL);
 
 	else if(handle)
 		wglMakeCurrent(GetDC(handle), context);
+
 #endif
 }
 
@@ -222,10 +236,12 @@ GFX_ProcAddress _gfx_platform_get_proc_address(
 	GFX_ProcAddress addr = NULL;
 
 #if defined(GFX_RENDERER_GL)
+
 	addr =
 		(GFX_ProcAddress)wglGetProcAddress(proc);
 	if(!addr) addr =
 		(GFX_ProcAddress)GetProcAddress(GetModuleHandle(NULL), proc);
+
 #endif
 
 	return addr;
