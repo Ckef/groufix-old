@@ -143,7 +143,8 @@ GFX_API void gfx_errors_push(
  * @param description Optional null terminated message to describe the error (can be NULL).
  *
  * The description will be formatted according to *printf format specification,
- * then it will be printed to the error stream.
+ * then it will be printed to the error stream, a newline will be appended and the
+ * stream will be flushed.
  *
  * This function is thread safe.
  *

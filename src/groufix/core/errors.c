@@ -222,6 +222,10 @@ void gfx_errors_output(
 	fprintf(stderr, description, vl);
 
 	va_end(vl);
+
+	/* Append newline and flush */
+	fputc('\n', stderr);
+	fflush(stderr);
 }
 
 /******************************************************/
