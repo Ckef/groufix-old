@@ -55,10 +55,10 @@ static inline void _gfx_errors_poll(void)
 /******************************************************/
 static GFX_Error* _gfx_errors_last(void)
 {
-	_gfx_errors_poll();
-
 	/* Lock but don't unlock as to not have to lock again */
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
+
+	_gfx_errors_poll();
 
 	if(_gfx_errors.begin == _gfx_errors.end) return NULL;
 	return (GFX_Error*)_gfx_errors.begin;
@@ -75,9 +75,6 @@ int _gfx_errors_init(
 
 	_gfx_error_mode = mode;
 	gfx_deque_init(&_gfx_errors, sizeof(GFX_Error));
-
-	/* Reserve right away */
-	gfx_deque_reserve(&_gfx_errors, _gfx_errors_maximum);
 
 	return 1;
 }
@@ -98,10 +95,9 @@ void _gfx_errors_terminate(void)
 /******************************************************/
 unsigned int gfx_get_num_errors(void)
 {
-	_gfx_errors_poll();
-
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
+	_gfx_errors_poll();
 	size_t size = gfx_deque_get_size(&_gfx_errors);
 
 	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
@@ -131,9 +127,9 @@ int gfx_errors_find(
 
 		GFXErrorCode code)
 {
-	_gfx_errors_poll();
-
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
+
+	_gfx_errors_poll();
 
 	GFX_Error* it;
 	for(
@@ -214,6 +210,21 @@ void gfx_errors_push(
 }
 
 /******************************************************/
+void gfx_errors_output(
+
+		const char* description,
+		...)
+{
+	/* Format the description */
+	va_list vl;
+	va_start(vl, description);
+
+	fprintf(stderr, description, vl);
+
+	va_end(vl);
+}
+
+/******************************************************/
 void gfx_errors_empty(void)
 {
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
@@ -242,23 +253,17 @@ void gfx_errors_set_maximum(
 
 	_gfx_errors_maximum = max;
 
-	/* Either deallocate or reserve */
-	if(max)
+	/* Remove errors */
+	while(gfx_deque_get_size(&_gfx_errors) > max)
 	{
-		/* Remove errors */
-		while(gfx_deque_get_size(&_gfx_errors) > max)
-		{
-			GFX_Error* it = gfx_deque_previous(&_gfx_errors, _gfx_errors.end);
-			free(it->description);
+		GFX_Error* it = gfx_deque_previous(&_gfx_errors, _gfx_errors.end);
+		free(it->description);
 
-			gfx_deque_pop_end(&_gfx_errors);
-		}
-
-		/* Reserve the memory */
-		gfx_deque_reserve(&_gfx_errors, max);
+		gfx_deque_pop_end(&_gfx_errors);
 	}
 
-	else gfx_errors_empty();
+	/* Empty errors if necessary */
+	if(!max) gfx_deque_clear(&_gfx_errors);
 
 	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
 }

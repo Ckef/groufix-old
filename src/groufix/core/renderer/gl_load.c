@@ -397,7 +397,7 @@ void _gfx_renderer_load(void)
 		GFX_REND_GET.ProgramUniformMatrix4fv =
 			(GFX_PROGRAMUNIFORMMATRIX4FVPROC)_gfx_platform_get_proc_address("glProgramUniformMatrix4fvEXT");
 		GFX_REND_GET.UseProgramStages =
-			(GFX_USEPROGRAMSTAGESPROC)_gfx_platform_get_proc_address("UseProgramStagesEXT");
+			(GFX_USEPROGRAMSTAGESPROC)_gfx_platform_get_proc_address("glUseProgramStagesEXT");
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */

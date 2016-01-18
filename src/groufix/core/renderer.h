@@ -31,6 +31,12 @@
 #endif
 
 
+/* Whether a context can be current in multiple threads */
+#if defined(GFX_GL) || defined(GFX_GLES)
+	#define GFX_CONTEXT_MULTI_THREAD 0
+#endif
+
+
 /* Macros for safe current context fetching */
 #define GFX_CONT_INIT_UNSAFE        GFX_Context* _gfx_c__ = _gfx_context_get_current();
 #define GFX_CONT_INIT_BAD(r)        GFX_CONT_INIT_UNSAFE if(!_gfx_c__) return r;

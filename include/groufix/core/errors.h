@@ -138,6 +138,22 @@ GFX_API void gfx_errors_push(
 		...);
 
 /**
+ * Outputs an error to the error stream.
+ *
+ * @param description Optional null terminated message to describe the error (can be NULL).
+ *
+ * The description will be formatted according to *printf format specification,
+ * then it will be printed to the error stream.
+ *
+ * This function is thread safe.
+ *
+ */
+GFX_API void gfx_errors_output(
+
+		const char* description,
+		...);
+
+/**
  * Empty the internal error queue.
  *
  * This function is thread safe.
