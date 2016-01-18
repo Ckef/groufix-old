@@ -107,7 +107,9 @@ static int _gfx_x11_load_extensions(
 		*major < 1 ||
 		(*major == 1 && *minor < 2))
 	{
-		gfx_errors_push(GFX_ERROR_INCOMPATIBLE_CONTEXT, "RandR 1.2 is not supported.");
+		gfx_errors_output(
+			"[GFX Init Error]: RandR 1.2 is not supported."
+		);
 		return 0;
 	}
 
@@ -120,7 +122,9 @@ static int _gfx_x11_load_extensions(
 		!_gfx_x11_is_extension_supported(num, "GLX_ARB_create_context") ||
 		!_gfx_x11_is_extension_supported(num, "GLX_ARB_create_context_profile"))
 	{
-		gfx_errors_push(GFX_ERROR_INCOMPATIBLE_CONTEXT, "Vital GLX extensions are missing.");
+		gfx_errors_output(
+			"[GFX Init Error]: Vital GLX extensions are missing."
+		);
 		return 0;
 	}
 
