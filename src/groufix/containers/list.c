@@ -26,9 +26,8 @@ GFXList* gfx_list_create(
 	GFXList* list = malloc(dataSize);
 
 	/* Out of memory error */
-	if(!list) gfx_errors_push(
-		GFX_ERROR_OUT_OF_MEMORY,
-		"List could not be allocated."
+	if(!list) gfx_errors_output(
+		"[GFX Out Of Memory]: List could not be allocated."
 	);
 
 	/* Initialize */

@@ -46,9 +46,8 @@ static int _gfx_vector_realloc(
 	if(!new)
 	{
 		/* Out of memory error */
-		gfx_errors_push(
-			GFX_ERROR_OUT_OF_MEMORY,
-			"Vector ran out of memory during reallocation."
+		gfx_errors_output(
+			"[GFX Out Of Memory]: Vector ran out of memory during reallocation."
 		);
 		return 0;
 	}
@@ -71,9 +70,8 @@ GFXVector* gfx_vector_create(
 	if(vector) vector->elementSize = elementSize;
 
 	/* Out of memory error */
-	else gfx_errors_push(
-		GFX_ERROR_OUT_OF_MEMORY,
-		"Vector could not be allocated."
+	else gfx_errors_output(
+		"[GFX Out Of Memory]: Vector could not be allocated."
 	);
 
 	return vector;

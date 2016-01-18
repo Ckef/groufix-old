@@ -86,9 +86,8 @@ static int _gfx_deque_realloc(
 		);
 
 		/* Out of memory error */
-		gfx_errors_push(
-			GFX_ERROR_OUT_OF_MEMORY,
-			"Deque ran out of memory during reallocation."
+		gfx_errors_output(
+			"[GFX Out Of Memory]: Deque ran out of memory during reallocation."
 		);
 
 		return 0;
@@ -121,9 +120,8 @@ GFXDeque* gfx_deque_create(
 	if(deque) deque->elementSize = elementSize;
 
 	/* Out of memory error */
-	else gfx_errors_push(
-		GFX_ERROR_OUT_OF_MEMORY,
-		"Deque could not be allocated."
+	else gfx_errors_output(
+		"[GFX Out Of Memory]: Deque could not be allocated."
 	);
 
 	return deque;

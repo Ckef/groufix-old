@@ -250,9 +250,8 @@ GFXThreadPool* gfx_thread_pool_create(
 	if(!pool)
 	{
 		/* Out of memory error */
-		gfx_errors_push(
-			GFX_ERROR_OUT_OF_MEMORY,
-			"Thread pool could not be allocated."
+		gfx_errors_output(
+			"[GFX Out Of Memory]: Thread pool could not be allocated."
 		);
 		return NULL;
 	}
