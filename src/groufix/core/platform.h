@@ -19,11 +19,11 @@
 
 
 /* Get build target */
-#if defined(_WIN32) || defined(__WIN32__)
+#if defined(_WIN32) || defined(__WIN32) || defined(__WIN32__)
 	#define GFX_WIN32
 #elif defined(__APPLE__) || defined(__MACH__)
 	#define GFX_OSX
-#elif defined(__unix) || defined(__unix__) || defined(__linux__) || defined(__gnu_linux__)
+#elif defined(__unix) || defined(__unix__)
 	#define GFX_UNIX
 
 #else

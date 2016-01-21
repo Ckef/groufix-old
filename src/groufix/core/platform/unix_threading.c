@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 /******************************************************/
 /* Internal thread arguments */
@@ -37,6 +38,13 @@ static void* _gfx_unix_thread_addr(
 	free(arg);
 
 	return GFX_UINT_TO_VOID(data.addr(data.args));
+}
+
+/******************************************************/
+unsigned long _gfx_platform_get_num_cores(void)
+{
+	long num = sysconf(_SC_NPROCESSORS_CONF);
+	return num < 0 ? 0 : num;
 }
 
 /******************************************************/

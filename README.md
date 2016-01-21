@@ -6,11 +6,19 @@ Supported targets and their APIs:
 
 * __Unix__, Xlib / OGL, (_working_ / _[GCC](https://gcc.gnu.org/)_)
 
-* __Windows__, Win32 (Vista+) / OGL, (_working_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)
+* __Windows__, Win32 (7+) / OGL, (_working_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)
 
-* __OS X__, Cocoa / OGL, (_planned_)
+* __Unix__, Xlib / Vulkan, (_planned_ / _[GCC](https://gcc.gnu.org/)_)
+
+* __Windows__, Win32 (7+) / Vulkan, (_planned_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)
 
 * __Android__, NDK / OGL ES, (_considered_)
+
+* __OS X__, Cocoa / OGL, (_considered_)
+
+* __OS X__, Cocoa / Vulkan, (_considered_)
+
+* __Windows__, Win32 (7+) / D3D, (_considered_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)
 
 The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 

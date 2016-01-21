@@ -90,6 +90,14 @@ typedef void* GFX_PlatformCond;
  *******************************************************/
 
 /**
+ * Retrieves the number of logical cores on the system.
+ *
+ * @return Zero if it could not be detected.
+ *
+ */
+unsigned long _gfx_platform_get_num_cores(void);
+
+/**
  * Initializes a new thread.
  *
  * @param thread   Returns the thread handle.

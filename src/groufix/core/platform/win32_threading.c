@@ -39,6 +39,12 @@ static unsigned int __stdcall _gfx_win32_thread_addr(
 }
 
 /******************************************************/
+unsigned long _gfx_platform_get_num_cores(void)
+{
+	return 0;
+}
+
+/******************************************************/
 int _gfx_platform_thread_init(
 
 		GFX_PlatformThread*  thread,
