@@ -15,7 +15,10 @@
 #include "groufix/core/platform/win32.h"
 #include "groufix/core/threading.h"
 
+#include <limits.h>
 #include <stdlib.h>
+
+#define GFX_WIN32_MASK_MSB ((ULONG_PTR)1 << (sizeof(ULONG_PTR) * CHAR_BIT - 1))
 
 /******************************************************/
 /* Internal thread arguments */
@@ -41,7 +44,34 @@ static unsigned int __stdcall _gfx_win32_thread_addr(
 /******************************************************/
 unsigned long _gfx_platform_get_num_cores(void)
 {
-	return 0;
+	/* Get buffer of data */
+	DWORD size = 0;
+	GetLogicalProcessorInformation(NULL, &size);
+
+	void* buff = malloc(size);
+	GetLogicalProcessorInformation(buff, &size);
+
+	/* Count logical cores */
+	unsigned long cnt = 0;
+
+	while(size > 0)
+	{
+		size -=
+			sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
+		SYSTEM_LOGICAL_PROCESSOR_INFORMATION* info =
+			GFX_PTR_ADD_BYTES(buff, size);
+
+		if(info->Relationship == RelationProcessorCore)
+		{
+			ULONG_PTR mask;
+			for(mask = GFX_WIN32_MASK_MSB; mask > 0; mask >>= 1)
+				cnt += info->ProcessorMask & mask ? 1 : 0;
+		}
+	}
+
+	free(buff);
+
+	return cnt;
 }
 
 /******************************************************/
