@@ -45,7 +45,8 @@ void gfx_list_free(
 	if(list)
 	{
 		/* If not root, fix it */
-		if(list->previous) list->previous->next = NULL;
+		if(list->previous)
+			list->previous->next = NULL;
 
 		while(list)
 		{
@@ -65,11 +66,34 @@ size_t gfx_list_get_size(
 	size_t cnt = 1;
 	while(list->next)
 	{
-		/* Get next, count */
 		list = list->next;
 		++cnt;
 	}
+
 	return cnt;
+}
+
+/******************************************************/
+GFXList* gfx_list_at(
+
+		GFXList*  node,
+		long      num)
+{
+	/* Move forwards */
+	if(num > 0) while(num--)
+	{
+		node = node->next;
+		if(!node) break;
+	}
+
+	/* Move backwards */
+	else while(num++)
+	{
+		node = node->previous;
+		if(!node) break;
+	}
+
+	return node;
 }
 
 /******************************************************/
@@ -85,10 +109,10 @@ GFXList* gfx_list_insert_after(
 	new->previous = node;
 	new->next = node->next;
 
-	/* Set the previous element */
+	/* Set the previous node */
 	if(node->next) node->next->previous = new;
 
-	/* Set the next element */
+	/* Set the next node */
 	node->next = new;
 
 	return new;
@@ -107,10 +131,10 @@ GFXList* gfx_list_insert_before(
 	new->previous = node->previous;
 	new->next = node;
 
-	/* Set the next element */
+	/* Set the next node */
 	if(node->previous) node->previous->next = new;
 
-	/* Set the previous element */
+	/* Set the previous node */
 	node->previous = new;
 
 	return new;
@@ -121,12 +145,22 @@ GFXList* gfx_list_insert_at(
 
 		GFXList*  list,
 		size_t    dataSize,
-		size_t    index)
+		long      index)
 {
 	/* Just insert where we already are */
-	if(!index) return gfx_list_insert_before(list, dataSize);
+	if(!index)
+		return gfx_list_insert_before(list, dataSize);
 
-	/* Get the node before the new node */
+	/* Go to the node after the new node */
+	if(index < 0)
+	{
+		list = gfx_list_at(list, index);
+		if(!list) return NULL;
+
+		return gfx_list_insert_before(list, dataSize);
+	}
+
+	/* Go to the node before the new node */
 	list = gfx_list_at(list, index - 1);
 	if(!list) return NULL;
 
@@ -140,14 +174,14 @@ GFXList* gfx_list_erase(
 {
 	GFXList* new = NULL;
 
-	/* Set next element */
+	/* Set next node */
 	if(node->previous)
 	{
 		node->previous->next = node->next;
 		new = node->previous;
 	}
 
-	/* Set previous element */
+	/* Set previous node */
 	if(node->next)
 	{
 		node->next->previous = node->previous;
@@ -164,7 +198,7 @@ GFXList* gfx_list_erase(
 GFXList* gfx_list_erase_at(
 
 		GFXList*  list,
-		size_t    index)
+		long      index)
 {
 	list = gfx_list_at(list, index);
 	if(!list) return NULL;
@@ -178,56 +212,10 @@ GFXList* gfx_list_erase_range(
 		GFXList*  first,
 		GFXList*  last)
 {
-	GFXList* new = gfx_list_unsplice(first, last);
+	GFXList* new = gfx_list_unsplice_range(first, last);
 	gfx_list_free(first);
 
 	return new;
-}
-
-/******************************************************/
-void gfx_list_splice_after(
-
-		GFXList*  node,
-		GFXList*  pos)
-{
-	if(node != pos)
-	{
-		/* Close the gap of its current position */
-		if(node->previous) node->previous->next = node->next;
-		if(node->next) node->next->previous = node->previous;
-
-		node->previous = pos;
-		node->next = pos->next;
-
-		/* Set the previous element */
-		if(pos->next) pos->next->previous = node;
-
-		/* Set the next element */
-		pos->next = node;
-	}
-}
-
-/******************************************************/
-void gfx_list_splice_before(
-
-		GFXList*  node,
-		GFXList*  pos)
-{
-	if(node != pos)
-	{
-		/* Close the gap of its current position */
-		if(node->previous) node->previous->next = node->next;
-		if(node->next) node->next->previous = node->previous;
-
-		node->previous = pos->previous;
-		node->next = pos;
-
-		/* Set the next element */
-		if(pos->previous) pos->previous->next = node;
-
-		/* Set the previous element */
-		pos->previous = node;
-	}
 }
 
 /******************************************************/
@@ -245,10 +233,10 @@ void gfx_list_splice_range_after(
 	first->previous = pos;
 	last->next = pos->next;
 
-	/* Set the previous element */
+	/* Set the previous node */
 	if(pos->next) pos->next->previous = last;
 
-	/* Set the next element */
+	/* Set the next node */
 	pos->next = first;
 }
 
@@ -267,15 +255,41 @@ void gfx_list_splice_range_before(
 	first->previous = pos->previous;
 	last->next = pos;
 
-	/* Set the next element */
+	/* Set the next node */
 	if(pos->previous) pos->previous->next = first;
 
-	/* Set the previous element */
+	/* Set the previous node */
 	pos->previous = last;
 }
 
 /******************************************************/
-GFXList* gfx_list_unsplice(
+void gfx_list_splice_range_at(
+
+		GFXList*  first,
+		GFXList*  last,
+		GFXList*  list,
+		long      index)
+{
+	/* Just insert where we already are */
+	if(!index)
+		gfx_list_splice_range_before(first, last, list);
+
+	else if(index < 0)
+	{
+		/* Go to the node after the new range */
+		list = gfx_list_at(list, index);
+		if(list) gfx_list_splice_range_before(first, last, list);
+	}
+	else
+	{
+		/* Go to the node before the new range */
+		list = gfx_list_at(list, index - 1);
+		if(list) gfx_list_splice_range_after(first, last, list);
+	}
+}
+
+/******************************************************/
+GFXList* gfx_list_unsplice_range(
 
 		GFXList*  first,
 		GFXList*  last)
@@ -338,23 +352,4 @@ void gfx_list_swap(
 	GFXList temp = *node1;
 	*node1 = *node2;
 	*node2 = temp;
-}
-
-/******************************************************/
-GFXList* gfx_list_advance(
-
-		GFXList*  node,
-		int       num)
-{
-	if(num > 0) while(num--)
-	{
-		node = node->next;
-		if(!node) break;
-	}
-	else while(num++)
-	{
-		node = node->previous;
-		if(!node) break;
-	}
-	return node;
 }

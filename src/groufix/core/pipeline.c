@@ -512,13 +512,10 @@ void gfx_pipeline_unlink(
 		(GFX_Pipeline*)internal->pipeline;
 
 	/* Fix current and unlink */
-	if(pipeline->current == internal)
-		pipeline->current = (GFX_Pipe*)internal->node.next;
-
-	GFX_Pipe* new = (GFX_Pipe*)gfx_list_unsplice(
-		(GFXList*)internal,
-		(GFXList*)internal
-	);
+	if(pipeline->current == internal) pipeline->current =
+		(GFX_Pipe*)internal->node.next;
+	GFX_Pipe* new =
+		(GFX_Pipe*)gfx_list_unsplice((GFXList*)internal);
 
 	/* Replace if necessary */
 	if(pipeline->first == internal)
@@ -560,7 +557,9 @@ void gfx_pipeline_move(
 		GFX_Pipeline* pl = (GFX_Pipeline*)int1->pipeline;
 
 		/* Reconstruct pointers */
-		if(pl->unlinked != int1)
+		if(pl->unlinked == int1)
+			pl->unlinked = (GFX_Pipe*)int1->node.next;
+		else
 		{
 			if(pl->first == int1)
 				pl->first = (GFX_Pipe*)int1->node.next;
@@ -569,7 +568,6 @@ void gfx_pipeline_move(
 			if(pl->current == int1)
 				pl->current = (GFX_Pipe*)int1->node.next;
 		}
-		else pl->unlinked = (GFX_Pipe*)int1->node.next;
 
 		/* Move it */
 		if(int2)
@@ -581,6 +579,7 @@ void gfx_pipeline_move(
 
 			if(pl->last == int2) pl->last = int1;
 		}
+
 		else if(pl->first)
 		{
 			gfx_list_splice_before(
@@ -590,10 +589,10 @@ void gfx_pipeline_move(
 
 			pl->first = int1;
 		}
+
 		else
 		{
 			gfx_list_unsplice(
-				(GFXList*)int1,
 				(GFXList*)int1
 			);
 

@@ -13,7 +13,6 @@
  */
 
 #include "groufix/containers/thread_pool.h"
-#include "groufix/containers/list.h"
 #include "groufix/containers/vector.h"
 #include "groufix/core/errors.h"
 #include "groufix/core/threading.h"
@@ -44,14 +43,13 @@ typedef struct GFX_Task
 /* Actual thread node */
 typedef struct GFX_ThreadList
 {
-	/* Super class */
-	GFXList node;
-
 	/* Hidden data */
-	unsigned char     alive; /* Whether or not these threads are still alive */
-	struct GFX_Pool*  pool;
-	unsigned char     size;  /* Number of threads of this particular node */
-	void*             arg;   /* Argument for initialization */
+	struct GFX_Pool*        pool;
+	struct GFX_ThreadList*  next;
+
+	unsigned char           size;  /* Number of threads of this particular node */
+	unsigned char           alive; /* Whether or not these threads are still alive */
+	void*                   arg;   /* Argument for initialization */
 
 } GFX_ThreadList;
 
@@ -311,35 +309,35 @@ void gfx_thread_pool_free(
 		_gfx_platform_mutex_unlock(&internal->mutex);
 
 		/* Join all dead threads */
-		GFX_ThreadList* node = internal->threads;
+		GFX_ThreadList* node = internal->deads;
 
-		for(
-			node = internal->deads;
-			node;
-			node = (GFX_ThreadList*)node->node.next)
+		while(node)
 		{
+			GFX_ThreadList* next = node->next;
 			_gfx_thread_list_join(node);
+
+			free(node);
+			node = next;
 		}
 
-		/* And join all alive threads */
-		for(
-			node = internal->threads;
-			node;
-			node = (GFX_ThreadList*)node->node.next)
+		/* Join all alive threads */
+		node = internal->threads;
+
+		while(node)
 		{
+			GFX_ThreadList* next = node->next;
 			_gfx_thread_list_join(node);
+
+			free(node);
+			node = next;
 		}
 
 		/* Clear all the things */
-		gfx_vector_clear(&internal->tasks);
-
-		gfx_list_free((GFXList*)internal->threads);
-		gfx_list_free((GFXList*)internal->deads);
-
 		_gfx_platform_mutex_clear(&internal->mutex);
 		_gfx_platform_cond_clear(&internal->assign);
 		_gfx_platform_cond_clear(&internal->flush);
 
+		gfx_vector_clear(&internal->tasks);
 		free(pool);
 	}
 }
@@ -366,16 +364,17 @@ unsigned char gfx_thread_pool_expand(
 	/* Allocate new node */
 	if(!size) return 0;
 
-	GFX_ThreadList* node = (GFX_ThreadList*)gfx_list_create(
+	GFX_ThreadList* node = malloc(
 		sizeof(GFX_ThreadList) +
 		sizeof(GFX_PlatformThread) * size
 	);
 
 	if(!node) return 0;
 
+	node->next  = internal->threads;
+	node->pool  = internal;
 	node->alive = 1;
-	node->pool = internal;
-	node->arg = arg;
+	node->arg   = arg;
 
 	/* Initialize all threads */
 	unsigned char s;
@@ -397,16 +396,11 @@ unsigned char gfx_thread_pool_expand(
 	/* Fail if none managed to initialize */
 	if(!s)
 	{
-		gfx_list_free((GFXList*)node);
+		free(node);
 		return 0;
 	}
 
 	/* Add thread list */
-	if(internal->threads) gfx_list_splice_before(
-		(GFXList*)node,
-		(GFXList*)internal->threads
-	);
-
 	internal->threads = node;
 
 	return s;
@@ -439,26 +433,19 @@ unsigned char gfx_thread_pool_shrink(
 		_gfx_platform_mutex_unlock(&internal->mutex);
 
 		/* Remove the node */
-		internal->threads = (GFX_ThreadList*)gfx_list_unsplice(
-			(GFXList*)node,
-			(GFXList*)node
-		);
+		internal->threads = node->next;
 
 		if(join)
 		{
 			/* If asked to join, join then free the node */
 			_gfx_thread_list_join(node);
-			gfx_list_free((GFXList*)node);
+			free(node);
 		}
 
 		else
 		{
 			/* Move node to dead nodes to join later */
-			if(internal->deads) gfx_list_splice_before(
-				(GFXList*)node,
-				(GFXList*)internal->deads
-			);
-
+			node->next = internal->deads;
 			internal->deads = node;
 		}
 	}
