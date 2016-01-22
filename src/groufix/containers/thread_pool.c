@@ -34,7 +34,7 @@ struct GFX_Pool;
 /* Actual task */
 typedef struct GFX_Task
 {
-	char               priority;
+	signed char        priority;
 	void*              data;
 	GFXThreadPoolTask  task;
 
@@ -472,7 +472,7 @@ int gfx_thread_pool_push(
 		GFXThreadPool*     pool,
 		GFXThreadPoolTask  task,
 		void*              data,
-		char               priority)
+		signed char        priority)
 {
 	GFX_Pool* internal = (GFX_Pool*)pool;
 

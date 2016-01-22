@@ -330,9 +330,9 @@ void gfx_pipeline_free(
 /******************************************************/
 unsigned int gfx_pipeline_target(
 
-		GFXPipeline*  pipeline,
-		unsigned int  num,
-		const char*   indices)
+		GFXPipeline*        pipeline,
+		unsigned int        num,
+		const signed char*  indices)
 {
 	GFX_CONT_INIT(0);
 

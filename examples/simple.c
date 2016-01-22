@@ -125,7 +125,7 @@ int main()
 	/* Pipeline */
 	GFXPipeline* pipeline = gfx_pipeline_create();
 
-	char targets[] = { 0 };
+	signed char targets[] = { 0 };
 	GFXViewport viewport = { 0, 0, 800, 600 };
 	pipeline->viewport = viewport;
 	gfx_pipeline_target(pipeline, 1, targets);

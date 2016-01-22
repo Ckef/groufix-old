@@ -588,9 +588,9 @@ GFX_API void gfx_pipeline_free(
  */
 GFX_API unsigned int gfx_pipeline_target(
 
-		GFXPipeline*  pipeline,
-		unsigned int  num,
-		const char*   indices);
+		GFXPipeline*        pipeline,
+		unsigned int        num,
+		const signed char*  indices);
 
 /**
  * Attaches a texture image to the pipeline as render target.

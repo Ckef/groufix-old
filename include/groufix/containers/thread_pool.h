@@ -118,7 +118,7 @@ GFX_API int gfx_thread_pool_push(
 		GFXThreadPool*     pool,
 		GFXThreadPoolTask  task,
 		void*              data,
-		char               priority);
+		signed char        priority);
 
 /**
  * Suspends the thread pool, blocking any thread from executing any new tasks.
