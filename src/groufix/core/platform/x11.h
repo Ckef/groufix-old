@@ -25,6 +25,7 @@
 	#error "Cannot compile X11 target on this platform"
 #endif
 
+
 /* Includes */
 #include "groufix/containers/vector.h"
 

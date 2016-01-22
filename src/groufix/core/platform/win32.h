@@ -25,6 +25,7 @@
 	#error "Cannot compile Win32 target on this platform"
 #endif
 
+
 /* Includes */
 #include "groufix/containers/vector.h"
 

@@ -34,53 +34,41 @@ typedef unsigned int (*GFX_ThreadAddress)(void*);
 
 
 /** A Thread */
-#if defined(GFX_WIN32)
-typedef HANDLE GFX_PlatformThread;
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 typedef pthread_t GFX_PlatformThread;
 
-#else
-typedef void* GFX_PlatformThread;
+#elif defined(GFX_WIN32)
+typedef HANDLE GFX_PlatformThread;
 
 #endif
 
 
 /** Thread local data key */
-#if defined(GFX_WIN32)
-typedef DWORD GFX_PlatformKey;
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 typedef pthread_key_t GFX_PlatformKey;
 
-#else
-typedef void* GFX_PlatformKey;
+#elif defined(GFX_WIN32)
+typedef DWORD GFX_PlatformKey;
 
 #endif
 
 
 /** A Mutex */
-#if defined(GFX_WIN32)
-typedef CRITICAL_SECTION GFX_PlatformMutex;
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 typedef pthread_mutex_t GFX_PlatformMutex;
 
-#else
-typedef void* GFX_PlatformMutex;
+#elif defined(GFX_WIN32)
+typedef CRITICAL_SECTION GFX_PlatformMutex;
 
 #endif
 
 
 /** A Condition Variable */
-#if defined(GFX_WIN32)
-typedef CONDITION_VARIABLE GFX_PlatformCond;
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 typedef pthread_cond_t GFX_PlatformCond;
 
-#else
-typedef void* GFX_PlatformCond;
+#elif defined(GFX_WIN32)
+typedef CONDITION_VARIABLE GFX_PlatformCond;
 
 #endif
 
@@ -136,13 +124,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_thread_detach(
 
 		GFX_PlatformThread thread)
 {
-#if defined(GFX_WIN32)
-
-	CloseHandle(thread);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	pthread_detach(thread);
+
+#elif defined(GFX_WIN32)
+
+	CloseHandle(thread);
 
 #endif
 }
@@ -157,13 +145,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_thread_exit(
 
 		unsigned int ret)
 {
-#if defined(GFX_WIN32)
-
-	_endthreadex(ret);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	pthread_exit(GFX_UINT_TO_VOID(ret));
+
+#elif defined(GFX_WIN32)
+
+	_endthreadex(ret);
 
 #endif
 }
@@ -179,14 +167,14 @@ static GFX_ALWAYS_INLINE int _gfx_platform_key_init(
 
 		GFX_PlatformKey* key)
 {
-#if defined(GFX_WIN32)
+#if defined(GFX_UNIX)
+
+	return !pthread_key_create(key, NULL);
+
+#elif defined(GFX_WIN32)
 
 	*key = TlsAlloc();
 	return *key != TLS_OUT_OF_INDEXES;
-
-#elif defined(GFX_UNIX)
-
-	return !pthread_key_create(key, NULL);
 
 #endif
 }
@@ -201,13 +189,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_key_clear(
 
 		GFX_PlatformKey key)
 {
-#if defined(GFX_WIN32)
-
-	TlsFree(key);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	pthread_key_delete(key);
+
+#elif defined(GFX_WIN32)
+
+	TlsFree(key);
 
 #endif
 }
@@ -223,13 +211,13 @@ static GFX_ALWAYS_INLINE int _gfx_platform_key_set(
 		GFX_PlatformKey  key,
 		void*            value)
 {
-#if defined(GFX_WIN32)
-
-	return TlsSetValue(key, value);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	return !pthread_setspecific(key, value);
+
+#elif defined(GFX_WIN32)
+
+	return TlsSetValue(key, value);
 
 #endif
 }
@@ -244,13 +232,13 @@ static GFX_ALWAYS_INLINE void* _gfx_platform_key_get(
 
 		GFX_PlatformKey key)
 {
-#if defined(GFX_WIN32)
-
-	return TlsGetValue(key);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	return pthread_getspecific(key);
+
+#elif defined(GFX_WIN32)
+
+	return TlsGetValue(key);
 
 #endif
 }
@@ -268,14 +256,14 @@ static GFX_ALWAYS_INLINE int _gfx_platform_mutex_init(
 
 		GFX_PlatformMutex* mutex)
 {
-#if defined(GFX_WIN32)
+#if defined(GFX_UNIX)
+
+	return !pthread_mutex_init(mutex, NULL);
+
+#elif defined(GFX_WIN32)
 
 	InitializeCriticalSection(mutex);
 	return 1;
-
-#elif defined(GFX_UNIX)
-
-	return !pthread_mutex_init(mutex, NULL);
 
 #endif
 }
@@ -290,13 +278,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_mutex_clear(
 
 		GFX_PlatformMutex* mutex)
 {
-#if defined(GFX_WIN32)
-
-	DeleteCriticalSection(mutex);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	pthread_mutex_destroy(mutex);
+
+#elif defined(GFX_WIN32)
+
+	DeleteCriticalSection(mutex);
 
 #endif
 }
@@ -311,13 +299,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_mutex_lock(
 
 		GFX_PlatformMutex* mutex)
 {
-#if defined(GFX_WIN32)
-
-	EnterCriticalSection(mutex);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	pthread_mutex_lock(mutex);
+
+#elif defined(GFX_WIN32)
+
+	EnterCriticalSection(mutex);
 
 #endif
 }
@@ -332,13 +320,13 @@ static GFX_ALWAYS_INLINE int _gfx_platform_mutex_try_lock(
 
 		GFX_PlatformMutex* mutex)
 {
-#if defined(GFX_WIN32)
-
-	return TryEnterCriticalSection(mutex);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	return !pthread_mutex_trylock(mutex);
+
+#elif defined(GFX_WIN32)
+
+	return TryEnterCriticalSection(mutex);
 
 #endif
 }
@@ -353,13 +341,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_mutex_unlock(
 
 		GFX_PlatformMutex* mutex)
 {
-#if defined(GFX_WIN32)
-
-	LeaveCriticalSection(mutex);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	pthread_mutex_unlock(mutex);
+
+#elif defined(GFX_WIN32)
+
+	LeaveCriticalSection(mutex);
 
 #endif
 }
@@ -377,14 +365,14 @@ static GFX_ALWAYS_INLINE int _gfx_platform_cond_init(
 
 		GFX_PlatformCond* cond)
 {
-#if defined(GFX_WIN32)
+#if defined(GFX_UNIX)
+
+	return !pthread_cond_init(cond, NULL);
+
+#elif defined(GFX_WIN32)
 
 	InitializeConditionVariable(cond);
 	return 1;
-
-#elif defined(GFX_UNIX)
-
-	return !pthread_cond_init(cond, NULL);
 
 #endif
 }
@@ -399,13 +387,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_cond_clear(
 
 		GFX_PlatformCond* cond)
 {
-#if defined(GFX_WIN32)
-
-	/* No-op on windows */
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	pthread_cond_destroy(cond);
+
+#elif defined(GFX_WIN32)
+
+	/* No-op on windows */
 
 #endif
 }
@@ -423,13 +411,13 @@ static GFX_ALWAYS_INLINE int _gfx_platform_cond_wait(
 		GFX_PlatformCond*   cond,
 		GFX_PlatformMutex*  mutex)
 {
-#if defined(GFX_WIN32)
-
-	return SleepConditionVariableCS(cond, mutex, INFINITE);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	return !pthread_cond_wait(cond, mutex);
+
+#elif defined(GFX_WIN32)
+
+	return SleepConditionVariableCS(cond, mutex, INFINITE);
 
 #endif
 }
@@ -458,13 +446,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_cond_signal(
 
 		GFX_PlatformCond* cond)
 {
-#if defined(GFX_WIN32)
-
-	WakeConditionVariable(cond);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	pthread_cond_signal(cond);
+
+#elif defined(GFX_WIN32)
+
+	WakeConditionVariable(cond);
 
 #endif
 }
@@ -479,13 +467,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_cond_broadcast(
 
 		GFX_PlatformCond* cond)
 {
-#if defined(GFX_WIN32)
-
-	WakeAllConditionVariable(cond);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	pthread_cond_broadcast(cond);
+
+#elif defined(GFX_WIN32)
+
+	WakeAllConditionVariable(cond);
 
 #endif
 }

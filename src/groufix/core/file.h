@@ -24,14 +24,14 @@
 #endif
 
 /* Relative seeking positions */
-#if defined(GFX_WIN32)
-	#define GFX_FILE_BEG  FILE_BEGIN
-	#define GFX_FILE_CUR  FILE_CURRENT
-	#define GFX_FILE_END  FILE_END
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 	#define GFX_FILE_BEG  SEEK_SET
 	#define GFX_FILE_CUR  SEEK_CUR
 	#define GFX_FILE_END  SEEK_END
+#elif defined(GFX_WIN32)
+	#define GFX_FILE_BEG  FILE_BEGIN
+	#define GFX_FILE_CUR  FILE_CURRENT
+	#define GFX_FILE_END  FILE_END
 #endif
 
 
@@ -40,14 +40,11 @@
  *******************************************************/
 
 /** A File */
-#if defined(GFX_WIN32)
-typedef HANDLE GFX_PlatformFile;
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 typedef int GFX_PlatformFile;
 
-#else
-typedef void* GFX_PlatformFile;
+#elif defined(GFX_WIN32)
+typedef HANDLE GFX_PlatformFile;
 
 #endif
 
@@ -112,13 +109,13 @@ static GFX_ALWAYS_INLINE void _gfx_platform_file_close(
 
 		GFX_PlatformFile file)
 {
-#if defined(GFX_WIN32)
-
-	CloseHandle(file);
-
-#elif defined(GFX_UNIX)
+#if defined(GFX_UNIX)
 
 	close(file);
+
+#elif defined(GFX_WIN32)
+
+	CloseHandle(file);
 
 #endif
 }
@@ -139,17 +136,17 @@ static GFX_ALWAYS_INLINE intptr_t _gfx_platform_file_seek(
 		intptr_t          offset,
 		int               rel)
 {
-#if defined(GFX_WIN32)
+#if defined(GFX_UNIX)
+
+	return lseek(file, offset, rel);
+
+#elif defined(GFX_WIN32)
 
 	LARGE_INTEGER val;
 	val.QuadPart = offset;
 
 	BOOL ret = SetFilePointerEx(file, val, &val, rel);
 	return ret ? val.QuadPart : -1;
-
-#elif defined(GFX_UNIX)
-
-	return lseek(file, offset, rel);
 
 #endif
 }
@@ -164,17 +161,17 @@ static GFX_ALWAYS_INLINE intptr_t _gfx_platform_file_tell(
 
 		GFX_PlatformFile file)
 {
-#if defined(GFX_WIN32)
+#if defined(GFX_UNIX)
+
+	return lseek(file, 0, SEEK_CUR);
+
+#elif defined(GFX_WIN32)
 
 	LARGE_INTEGER val;
 	val.QuadPart = 0;
 
 	BOOL ret = SetFilePointerEx(file, val, &val, FILE_CURRENT);
 	return ret ? val.QuadPart : -1;
-
-#elif defined(GFX_UNIX)
-
-	return lseek(file, 0, SEEK_CUR);
 
 #endif
 }
@@ -195,17 +192,17 @@ static GFX_ALWAYS_INLINE size_t _gfx_platform_file_read(
 		void*             data,
 		size_t            num)
 {
-#if defined(GFX_WIN32)
+#if defined(GFX_UNIX)
+
+	ssize_t ret = read(file, data, num);
+	return (ret > 0) ? ret : 0;
+
+#elif defined(GFX_WIN32)
 
 	DWORD ret;
 	ReadFile(file, data, num, &ret, NULL);
 
 	return ret;
-
-#elif defined(GFX_UNIX)
-
-	ssize_t ret = read(file, data, num);
-	return (ret > 0) ? ret : 0;
 
 #endif
 }
@@ -226,17 +223,17 @@ static GFX_ALWAYS_INLINE size_t _gfx_platform_file_write(
 		const void*       data,
 		size_t            num)
 {
-#if defined(GFX_WIN32)
+#if defined(GFX_UNIX)
+
+	ssize_t ret = write(file, data, num);
+	return (ret > 0) ? ret : 0;
+
+#elif defined(GFX_WIN32)
 
 	DWORD ret;
 	WriteFile(file, data, num, &ret, NULL);
 
 	return ret;
-
-#elif defined(GFX_UNIX)
-
-	ssize_t ret = write(file, data, num);
-	return (ret > 0) ? ret : 0;
 
 #endif
 }

@@ -37,7 +37,6 @@ help:
 #################################################################
 
 # Environment & Flags
-CC       = gcc
 BIN      = bin
 OUT      = obj
 SUB      = /.
@@ -267,10 +266,10 @@ $(BIN)/unix-x11/%: examples/%.c $(BIN)/unix-x11/libGroufix.so
 
 # Available user targets
 unix-x11:
-	@$(MAKE) $(BIN)/unix-x11/libGroufix.so SUB=/unix-x11
+	@$(MAKE) $(BIN)/unix-x11/libGroufix.so CC=gcc SUB=/unix-x11
 unix-x11-examples:
-	@$(MAKE) $(BIN)/unix-x11/minimal SUB=/unix-x11
-	@$(MAKE) $(BIN)/unix-x11/simple SUB=/unix-x11
+	@$(MAKE) $(BIN)/unix-x11/minimal CC=gcc SUB=/unix-x11
+	@$(MAKE) $(BIN)/unix-x11/simple CC=gcc SUB=/unix-x11
 
 
 #################################################################
@@ -307,7 +306,7 @@ $(BIN)/win32/%: examples/%.c $(BIN)/win32/libGroufix.dll
 
 # Available user targets
 win32:
-	@$(MAKE) $(BIN)/win32/libGroufix.dll SUB=/win32
+	@$(MAKE) $(BIN)/win32/libGroufix.dll CC=gcc SUB=/win32
 win32-examples:
-	@$(MAKE) $(BIN)/win32/minimal SUB=/win32
-	@$(MAKE) $(BIN)/win32/simple SUB=/win32
+	@$(MAKE) $(BIN)/win32/minimal CC=gcc SUB=/win32
+	@$(MAKE) $(BIN)/win32/simple CC=gcc SUB=/win32

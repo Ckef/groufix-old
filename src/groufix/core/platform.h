@@ -19,12 +19,13 @@
 
 
 /* Get build target */
-#if defined(_WIN32) || defined(__WIN32) || defined(__WIN32__)
-	#define GFX_WIN32
-#elif defined(__APPLE__) || defined(__MACH__)
+#if defined(__APPLE__) || defined(__MACH__)
 	#define GFX_OSX
+	#error "Platform not yet supported"
 #elif defined(__unix) || defined(__unix__)
 	#define GFX_UNIX
+#elif defined(_WIN32) || defined(__WIN32) || defined(__WIN32__)
+	#define GFX_WIN32
 
 #else
 	#error "Platform not supported"
@@ -32,19 +33,19 @@
 
 
 /* Whether the platform is thread affine or safe */
-#if defined(GFX_WIN32)
-	#define GFX_PLATFORM_THREAD_AFFINE 1
-#elif defined(GFX_OSX)
+#if defined(GFX_OSX)
 	#define GFX_PLATFORM_THREAD_AFFINE 1
 #elif defined(GFX_UNIX)
 	#define GFX_PLATFORM_THREAD_AFFINE 0
+#elif defined(GFX_WIN32)
+	#define GFX_PLATFORM_THREAD_AFFINE 1
 #endif
 
-#if defined(GFX_WIN32)
-	#define GFX_PLATFORM_THREAD_SAFE 0
-#elif defined(GFX_OSX)
+#if defined(GFX_OSX)
 	#define GFX_PLATFORM_THREAD_SAFE 0
 #elif defined(GFX_UNIX)
+	#define GFX_PLATFORM_THREAD_SAFE 0
+#elif defined(GFX_WIN32)
 	#define GFX_PLATFORM_THREAD_SAFE 0
 #endif
 
