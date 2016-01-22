@@ -25,6 +25,9 @@
 #if defined(GFX_GL) || defined(GFX_GLES)
 	#define GFX_RENDERER_GL
 	#include "groufix/core/renderer/gl_def.h"
+#elif defined(GFX_VULKAN)
+	#define GFX_RENDERER_VK
+	#error "Renderer not yet supported"
 
 #else
 	#error "Renderer not supported"
@@ -32,8 +35,10 @@
 
 
 /* Whether a context can be current in multiple threads */
-#if defined(GFX_GL) || defined(GFX_GLES)
+#if defined(GFX_RENDERER_GL)
 	#define GFX_CONTEXT_MULTI_THREAD 0
+#elif defined(GFX_RENDERER_VK)
+	#define GFX_CONTEXT_MULTI_THREAD 1
 #endif
 
 

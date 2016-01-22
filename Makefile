@@ -81,40 +81,40 @@ LFLAGS_WIN32    = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
 # Creation
 $(BIN):
 ifeq ($(OS),Windows_NT)
-	$(eval BINSUB = $(subst /,\,$(BIN)$(SUB)))
-	@if not exist $(BINSUB)\nul mkdir $(BINSUB)
+ $(eval BINSUB = $(subst /,\,$(BIN)$(SUB)))
+ @if not exist $(BINSUB)\nul mkdir $(BINSUB)
 else
-	@mkdir -p $(BIN)$(SUB)
+ @mkdir -p $(BIN)$(SUB)
 endif
 
 $(OUT):
 ifeq ($(OS),Windows_NT)
-	$(eval OUTSUB = $(subst /,\,$(OUT)$(SUB)))
-	@if not exist $(OUTSUB)\groufix\containers\nul mkdir $(OUTSUB)\groufix\containers
-	@if not exist $(OUTSUB)\groufix\core\platform\nul mkdir $(OUTSUB)\groufix\core\platform
-	@if not exist $(OUTSUB)\groufix\core\renderer\nul mkdir $(OUTSUB)\groufix\core\renderer
-	@if not exist $(OUTSUB)\groufix\scene\nul mkdir $(OUTSUB)\groufix\scene
+ $(eval OUTSUB = $(subst /,\,$(OUT)$(SUB)))
+ @if not exist $(OUTSUB)\groufix\containers\nul mkdir $(OUTSUB)\groufix\containers
+ @if not exist $(OUTSUB)\groufix\core\platform\nul mkdir $(OUTSUB)\groufix\core\platform
+ @if not exist $(OUTSUB)\groufix\core\renderer\nul mkdir $(OUTSUB)\groufix\core\renderer
+ @if not exist $(OUTSUB)\groufix\scene\nul mkdir $(OUTSUB)\groufix\scene
 else
-	@mkdir -p $(OUT)$(SUB)/groufix/containers
-	@mkdir -p $(OUT)$(SUB)/groufix/core/platform
-	@mkdir -p $(OUT)$(SUB)/groufix/core/renderer
-	@mkdir -p $(OUT)$(SUB)/groufix/scene
+ @mkdir -p $(OUT)$(SUB)/groufix/containers
+ @mkdir -p $(OUT)$(SUB)/groufix/core/platform
+ @mkdir -p $(OUT)$(SUB)/groufix/core/renderer
+ @mkdir -p $(OUT)$(SUB)/groufix/scene
 endif
 
 
 # Cleaning
 clean:
 ifeq ($(OS),Windows_NT)
-	@if exist $(subst /,\,$(OUT))\nul rmdir /s /q $(subst /,\,$(OUT))
+ @if exist $(subst /,\,$(OUT))\nul rmdir /s /q $(subst /,\,$(OUT))
 else
-	@rm -Rf $(OUT)
+ @rm -Rf $(OUT)
 endif
 
 clean-all: clean
 ifeq ($(OS),Windows_NT)
-	@if exist $(subst /,\,$(BIN))\nul rmdir /s /q $(subst /,\,$(BIN))
+ @if exist $(subst /,\,$(BIN))\nul rmdir /s /q $(subst /,\,$(BIN))
 else
-	@rm -Rf $(BIN)
+ @rm -Rf $(BIN)
 endif
 
 

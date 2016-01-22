@@ -33,6 +33,8 @@ Groufix can be compiled with different renderers. This must be given as a makefi
 
 * __GLES__, To compile using OpenGL ES.
 
+* __VULKAN__, To compile using Vulkan (_not yet supported_).
+
 Along with the renderer value Groufix accepts more flags which can be defined while both compiling Groufix itself and any program or library using Groufix. All makefile flags are:
 
 * __COMPILER=ANY__ Groufix will use compiler specific macros. If compiled with an unsupported compiler it will throw an error. Use this flag to turn the error off and force it to use compiler agnostic functionality. To disable it in a program or library using Groufix, `GFX_COMPILER_ANY` should be defined by the compiler.
