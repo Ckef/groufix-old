@@ -77,6 +77,12 @@ typedef struct GFX_Renderer GFX_Renderer;
 void _gfx_renderer_load(void);
 
 /**
+ * Unloads and frees the renderer of the current context.
+ *
+ */
+void _gfx_renderer_unload(void);
+
+/**
  * Allows the renderer to initialize errors for the current context.
  *
  */
@@ -87,12 +93,6 @@ void _gfx_renderer_init_errors(void);
  *
  */
 void _gfx_renderer_poll_errors(void);
-
-/**
- * Unloads and frees the renderer of the current context.
- *
- */
-void _gfx_renderer_unload(void);
 
 
 /********************************************************

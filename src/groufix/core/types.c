@@ -14,6 +14,7 @@
 
 #include "groufix/core/memory.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 /******************************************************/
@@ -41,6 +42,36 @@ int _gfx_contains_string(
 	}
 
 	return 0;
+}
+
+/******************************************************/
+char* _gfx_unformat_string(
+
+		const char* str)
+{
+	/* Get required size */
+	size_t size = 1;
+	size_t s;
+
+	for(s = 0; str[s]; ++s)
+		size += str[s] == '%' ? 2 : 1;
+
+	/* Format the string */
+	char* form = malloc(size);
+	if(!form) return NULL;
+
+	size_t f = 0;
+	for(s = 0; str[s]; ++s)
+	{
+		if(str[s] != '%')
+			form[f++] = str[s];
+		else
+			form[f++] = '%', form[f++] = '%';
+	}
+
+	form[size - 1] = 0;
+
+	return form;
 }
 
 /******************************************************/
@@ -81,6 +112,7 @@ int _gfx_is_data_type_packed(
 		case GFX_FLOAT_UNSIGNED_INT_24_8 :
 			return 1;
 	}
+
 	return 0;
 }
 

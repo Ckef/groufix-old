@@ -12,9 +12,9 @@
  *
  */
 
-#include "groufix/core/renderer.h"
+#include "groufix/core/internal.h"
 
-#include <string.h>
+#include <stdlib.h>
 
 /******************************************************/
 static void APIENTRY _gfx_gl_error_callback(
@@ -48,8 +48,11 @@ static void APIENTRY _gfx_gl_error_callback(
 			break;
 	}
 
-	/* Push the error */
-	gfx_errors_push(code, message);
+	/* Unformat the error */
+	char* form = _gfx_unformat_string(message);
+	if(form) gfx_errors_push(code, form);
+
+	free(form);
 }
 
 /******************************************************/

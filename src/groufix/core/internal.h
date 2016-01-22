@@ -273,6 +273,19 @@ int _gfx_contains_string(
 		const char*  needle);
 
 /**
+ * Unformats a string so it can be passed to any formatted string input without parameters.
+ *
+ * @param str The string to unformat, % will be replaced with %% (cannot be NULL).
+ * @return The unformatted string.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ */
+char* _gfx_unformat_string(
+
+		const char* str);
+
+/**
  * Splits depth into 3 channels.
  *
  */
