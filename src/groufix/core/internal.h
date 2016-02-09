@@ -78,6 +78,18 @@ void _gfx_errors_terminate(void);
  * Event triggers (must be called manually by platform)
  *******************************************************/
 
+/** Termination callback */
+extern GFXTerminateFunc _gfx_terminate_func;
+
+
+/**
+ * Called when the application is requested to terminate.
+ *
+ * Used to intercept an OS requested application termination.
+ *
+ */
+void _gfx_event_terminate(void);
+
 /**
  * Called when a window is requested to close.
  *

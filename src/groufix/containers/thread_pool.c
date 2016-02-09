@@ -26,11 +26,11 @@
 #define GFX_INT_POOL_RESUMED    0x02
 
 /******************************************************/
-/* Forward declarate */
+/** Forward declarate */
 struct GFX_Pool;
 
 
-/* Actual task */
+/** Actual task */
 typedef struct GFX_Task
 {
 	signed char        priority;
@@ -40,21 +40,21 @@ typedef struct GFX_Task
 } GFX_Task;
 
 
-/* Actual thread node */
+/** Actual thread node */
 typedef struct GFX_ThreadList
 {
 	/* Hidden data */
 	struct GFX_Pool*        pool;
 	struct GFX_ThreadList*  next;
 
-	unsigned char           size;  /* Number of threads of this particular node */
+	unsigned int            size;  /* Number of threads of this particular node */
 	unsigned char           alive; /* Whether or not these threads are still alive */
 	void*                   arg;   /* Argument for initialization */
 
 } GFX_ThreadList;
 
 
-/* Internal thread pool */
+/** Internal thread pool */
 typedef struct GFX_Pool
 {
 	/* Super class */
@@ -78,7 +78,7 @@ typedef struct GFX_Pool
 static inline GFX_PlatformThread* _gfx_thread_list_get(
 
 		GFX_ThreadList*  list,
-		unsigned char    index)
+		unsigned int     index)
 {
 	return ((GFX_PlatformThread*)(list + 1)) + index;
 }
@@ -88,7 +88,7 @@ static void _gfx_thread_list_join(
 
 		GFX_ThreadList* list)
 {
-	unsigned char s;
+	unsigned int s;
 	for(s = 0; s < list->size; ++s)
 		_gfx_platform_thread_join(*_gfx_thread_list_get(list, s), NULL);
 }
@@ -343,16 +343,16 @@ void gfx_thread_pool_free(
 }
 
 /******************************************************/
-unsigned char gfx_thread_pool_expand(
+unsigned int gfx_thread_pool_expand(
 
 		GFXThreadPool*  pool,
-		unsigned char   size,
+		unsigned int    size,
 		void*           arg)
 {
 	GFX_Pool* internal = (GFX_Pool*)pool;
 
 	/* Check for overflow */
-	if(USHRT_MAX - size < pool->size)
+	if(UINT_MAX - size < pool->size)
 	{
 		gfx_errors_push(
 			GFX_ERROR_OVERFLOW,
@@ -377,7 +377,7 @@ unsigned char gfx_thread_pool_expand(
 	node->arg   = arg;
 
 	/* Initialize all threads */
-	unsigned char s;
+	unsigned int s;
 	for(s = 0; s < size; ++s)
 	{
 		if(!_gfx_platform_thread_init(
@@ -407,12 +407,12 @@ unsigned char gfx_thread_pool_expand(
 }
 
 /******************************************************/
-unsigned char gfx_thread_pool_shrink(
+unsigned int gfx_thread_pool_shrink(
 
 		GFXThreadPool*  pool,
 		int             join)
 {
-	unsigned char threads = 0;
+	unsigned int threads = 0;
 
 	/* Get node to terminate */
 	GFX_Pool* internal = (GFX_Pool*)pool;

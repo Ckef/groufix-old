@@ -15,6 +15,18 @@
 #include "groufix/core/internal.h"
 
 /******************************************************/
+/** Termination callback */
+GFXTerminateFunc _gfx_terminate_func;
+
+
+/******************************************************/
+void _gfx_event_terminate(void)
+{
+	if(_gfx_terminate_func) _gfx_terminate_func();
+	else gfx_terminate();
+}
+
+/******************************************************/
 void _gfx_event_window_close(
 
 		GFX_PlatformWindow handle)

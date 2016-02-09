@@ -26,7 +26,7 @@
 #define GFX_INT_NUM_STAGES          0x05
 
 /******************************************************/
-/* Internal program map */
+/** Internal program map */
 typedef struct GFX_Map
 {
 	/* Super Class */

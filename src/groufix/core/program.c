@@ -68,7 +68,7 @@
 
 
 /******************************************************/
-/* Internal Program */
+/** Internal Program */
 typedef struct GFX_Program
 {
 	/* Super class */
@@ -84,7 +84,7 @@ typedef struct GFX_Program
 } GFX_Program;
 
 
-/* Internal Property */
+/** Internal Property */
 typedef struct GFX_Property
 {
 	GFXProperty  property; /* Super class */

@@ -24,7 +24,7 @@
  * Internal LOD map
  *******************************************************/
 
-/* Internal LOD map */
+/** Internal LOD map */
 typedef struct GFX_LodMap
 {
 	/* Super class */

@@ -30,7 +30,7 @@
 #define GFX_INT_PROPERTY_HAS_COPIES  0x08
 
 /******************************************************/
-/* Internal function to set a property */
+/** Internal function to set a property */
 typedef void (*GFX_PropertyFunc)(
 
 		unsigned char,
@@ -42,7 +42,7 @@ typedef void (*GFX_PropertyFunc)(
 		GFX_CONT_ARG);
 
 
-/* Internal property map */
+/** Internal property map */
 typedef struct GFX_Map
 {
 	/* Super Class */
@@ -57,7 +57,7 @@ typedef struct GFX_Map
 } GFX_Map;
 
 
-/* Internal property */
+/** Internal property */
 typedef struct GFX_Property
 {
 	GLuint         handle;   /* OpenGL program handle */
@@ -68,7 +68,7 @@ typedef struct GFX_Property
 } GFX_Property;
 
 
-/* Internal vector/matrix (a.k.a value) header */
+/** Internal vector/matrix (a.k.a value) header */
 typedef struct GFX_Value
 {
 	GFXUnpackedType  type;
@@ -79,7 +79,7 @@ typedef struct GFX_Value
 } GFX_Value;
 
 
-/* Internal vector/matrix pointer body */
+/** Internal vector/matrix pointer body */
 typedef struct GFX_ValuePtr
 {
 	const void*  ptr;
@@ -90,7 +90,7 @@ typedef struct GFX_ValuePtr
 } GFX_ValuePtr;
 
 
-/* Internal sampler body */
+/** Internal sampler body */
 typedef struct GFX_Sampler
 {
 	GFXSampler*  sampler;
@@ -101,7 +101,7 @@ typedef struct GFX_Sampler
 } GFX_Sampler;
 
 
-/* Internal block body */
+/** Internal block body */
 typedef struct GFX_Block
 {
 	GLuint      buffer;

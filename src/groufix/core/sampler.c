@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Internal sampler */
+/** Internal sampler */
 typedef struct GFX_Sampler
 {
 	/* Super class */

@@ -18,7 +18,7 @@
 #include <string.h>
 
 /******************************************************/
-/* Internal Buffer */
+/** Internal Buffer */
 typedef struct GFX_Buffer
 {
 	/* Super class */

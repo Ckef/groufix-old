@@ -41,7 +41,7 @@
 
 
 /******************************************************/
-/* Internal draw function */
+/** Internal draw function */
 typedef void (*GFX_DrawFunc)(
 
 		const GFXVertexSource*,
@@ -52,7 +52,7 @@ typedef void (*GFX_DrawFunc)(
 		GFX_CONT_ARG);
 
 
-/* Internal bucket */
+/** Internal bucket */
 typedef struct GFX_Bucket
 {
 	/* Super class */
@@ -72,7 +72,7 @@ typedef struct GFX_Bucket
 } GFX_Bucket;
 
 
-/* Internal reference of a unit */
+/** Internal reference of a unit */
 typedef struct GFX_Ref
 {
 	unsigned int           unit; /* units[unit - 1] = unit, 0 when empty */
@@ -90,7 +90,7 @@ typedef struct GFX_Ref
 } GFX_Ref;
 
 
-/* Internal source */
+/** Internal source */
 typedef struct GFX_Source
 {
 	GFXVertexLayout*  layout;  /* NULL when empty */
@@ -100,7 +100,7 @@ typedef struct GFX_Source
 } GFX_Source;
 
 
-/* Internal render unit (actually sorted on) */
+/** Internal render unit (actually sorted on) */
 typedef struct GFX_Unit
 {
 	GFXBucketUnit  ref;      /* Reference, units[refs[ref] - 1] = this (const, equal to ID - 1) */

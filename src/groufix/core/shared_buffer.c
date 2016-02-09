@@ -20,7 +20,7 @@
 #define GFX_SHARED_BUFFER_MSB (~(ULONG_MAX >> 1))
 
 /******************************************************/
-/* Internal Shared Buffer */
+/** Internal Shared Buffer */
 typedef struct GFX_SharedBuffer
 {
 	GFX_RenderObjectID  id;
@@ -31,7 +31,7 @@ typedef struct GFX_SharedBuffer
 } GFX_SharedBuffer;
 
 
-/* Internal Segment */
+/** Internal Segment */
 typedef struct GFX_Segment
 {
 	size_t offset; /* Sort key */
@@ -40,11 +40,11 @@ typedef struct GFX_Segment
 } GFX_Segment;
 
 
-/* Size of a new shared buffer */
+/** Size of a new shared buffer */
 static unsigned long _gfx_shared_buffer_size = GFX_SHARED_BUFFER_SIZE_DEFAULT;
 
 
-/* All shared buffers */
+/** All shared buffers */
 static GFXVector* _gfx_shared_buffers = NULL;
 
 

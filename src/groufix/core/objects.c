@@ -17,7 +17,7 @@
 #include <string.h>
 
 /******************************************************/
-/* Actual object storage */
+/** Actual object storage */
 typedef struct GFX_Object
 {
 	void*                         handle;

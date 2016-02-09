@@ -20,7 +20,7 @@
 #include <unistd.h>
 
 /******************************************************/
-/* Internal thread arguments */
+/** Internal thread arguments */
 typedef struct GFX_ThreadArgs
 {
 	GFX_ThreadAddress  addr;

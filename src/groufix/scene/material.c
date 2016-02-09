@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Internal Property Map data */
+/** Internal Property Map data */
 typedef struct GFX_MapData
 {
 	GFXPropertyMap*  map;      /* Super class */
@@ -30,7 +30,7 @@ typedef struct GFX_MapData
 } GFX_MapData;
 
 
-/* Internal segment */
+/** Internal segment */
 typedef struct GFX_Segment
 {
 	unsigned int ref;    /* Reference count */

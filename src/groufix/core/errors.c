@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Internal error */
+/** Internal error */
 typedef struct GFX_Error
 {
 	GFXErrorCode  code;
@@ -29,19 +29,19 @@ typedef struct GFX_Error
 } GFX_Error;
 
 
-/* Maximum number of errors stored */
+/** Maximum number of errors stored */
 static size_t _gfx_errors_maximum = GFX_MAX_ERRORS_DEFAULT;
 
 
-/* Error mode */
+/** Error mode */
 static GFXErrorMode _gfx_error_mode;
 
 
-/* Stored Errors */
+/** Stored Errors */
 static GFXDeque _gfx_errors;
 
 
-/* Synchronize any access */
+/** Synchronize any access */
 static GFX_PlatformMutex  _gfx_error_mutex;
 
 

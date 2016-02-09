@@ -106,7 +106,11 @@ GFX_API int gfx_get_limit(
  * Groufix initialization, timing and polling
  *******************************************************/
 
-/* Renderer Context */
+/** Termination callback */
+typedef void (*GFXTerminateFunc) (void);
+
+
+/** Renderer context version */
 typedef struct GFXContext
 {
 	int major;
@@ -120,6 +124,7 @@ typedef struct GFXContext
  *
  * @param context Minimal context version to use (can be left as zeros).
  * @param errors  Error mode to use for the engine.
+ * @param term    Termination callback (can be NULL).
  * @return non-zero if initialization was successful.
  *
  * Note: if groufix is compiled with DEBUG=YES, the error mode will be ignored
@@ -130,15 +135,14 @@ typedef struct GFXContext
  */
 GFX_API int gfx_init(
 
-		GFXContext    context,
-		GFXErrorMode  errors);
+		GFXContext        context,
+		GFXErrorMode      errors,
+		GFXTerminateFunc  term);
 
 /**
  * Polls events of all windows.
  *
  * @return Zero if groufix was not yet initialized or already terminated.
- *
- * Note: this must be called on the same thread gfx_init was called on.
  *
  */
 GFX_API int gfx_poll_events(void);
@@ -146,17 +150,16 @@ GFX_API int gfx_poll_events(void);
 /**
  * Returns time in seconds since groufix was initialized.
  *
- * @return Time in seconds, this might be unreliable across threads depending on the platform.
+ * @return Time in seconds.
  *
- * Note: when groufix is not initialized it is relative to some arbitrary point in time.
+ * Note: calling gfx_get_time across threads can be unreliable,
+ * one should not use the same measurement for multiple threads.
  *
  */
 GFX_API double gfx_get_time(void);
 
 /**
  * Sets the time in seconds, changing the perceived time of initialization.
- *
- * Note: this might be unreliable across threads depending on the platform.
  *
  */
 GFX_API void gfx_set_time(
@@ -167,7 +170,6 @@ GFX_API void gfx_set_time(
  * Terminates the Groufix engine.
  *
  * Calling this function while the engine is not initialized is undefined behaviour.
- * Note: this must be called on the same thread gfx_init was called on.
  *
  */
 GFX_API void gfx_terminate(void);

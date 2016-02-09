@@ -20,7 +20,7 @@
 #include <string.h>
 
 /******************************************************/
-/* Internal mesh */
+/** Internal mesh */
 typedef struct GFX_Mesh
 {
 	/* Super class */
@@ -34,7 +34,7 @@ typedef struct GFX_Mesh
 } GFX_Mesh;
 
 
-/* Internal source data */
+/** Internal source data */
 typedef struct GFX_SourceData
 {
 	unsigned int   layout; /* Index into layouts (layout ID - 1) */
@@ -45,7 +45,7 @@ typedef struct GFX_SourceData
 } GFX_SourceData;
 
 
-/* Internal bucket reference */
+/** Internal bucket reference */
 typedef struct GFX_Bucket
 {
 	GFXBucket*    bucket;

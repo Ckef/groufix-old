@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Instance */
+/** Instance */
 GFX_Win32_Instance _gfx_win32;
 
 

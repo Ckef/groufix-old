@@ -16,7 +16,7 @@
 #include <time.h>
 
 /******************************************************/
-/* The clock ID being used */
+/** The clock ID being used */
 static clockid_t _gfx_timer_clock_id = CLOCK_REALTIME;
 
 

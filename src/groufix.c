@@ -16,7 +16,7 @@
 #include "groufix/core/internal.h"
 
 /******************************************************/
-/* Starting point of time */
+/** Starting point of time */
 static uint64_t _gfx_time_start = 0;
 
 
@@ -47,13 +47,17 @@ int gfx_get_limit(
 /******************************************************/
 int gfx_init(
 
-		GFXContext    context,
-		GFXErrorMode  errors)
+		GFXContext        context,
+		GFXErrorMode      errors,
+		GFXTerminateFunc  term)
 {
 	/* Always debug */
 #ifndef NDEBUG
 	errors = GFX_ERROR_MODE_DEBUG;
 #endif
+
+	/* Set termination callback */
+	_gfx_terminate_func = term;
 
 	/* Initialize errors, platform and context manager */
 	if(_gfx_errors_init(errors))

@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Internal Texture */
+/** Internal Texture */
 typedef struct GFX_Texture
 {
 	/* Super class */

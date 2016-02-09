@@ -871,7 +871,7 @@ int _gfx_platform_poll_events(void)
 		else
 		{
 			/* Terminate properly on WM_QUIT */
-			gfx_terminate();
+			_gfx_event_terminate();
 			return 0;
 		}
 	}

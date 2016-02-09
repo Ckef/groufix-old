@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 
-/* Mathematical constants */
+/** Mathematical constants */
 extern GFX_API const long double GFX_MATH_PI;
 extern GFX_API const long double GFX_MATH_TWO_PI;
 extern GFX_API const long double GFX_MATH_HALF_PI;

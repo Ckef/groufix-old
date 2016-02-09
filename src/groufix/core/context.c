@@ -18,31 +18,31 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Current context data key */
+/** Current context data key */
 static GFX_PlatformKey _gfx_current_context;
 
 
-/* Dummy context (backup) */
+/** Dummy context (backup) */
 static GFX_Context* _gfx_dummy_context = NULL;
 
 
-/* Main context */
+/** Main context */
 static GFX_Context* _gfx_main_context = NULL;
 
 
-/* Created contexts */
+/** Created contexts */
 static GFXVector _gfx_contexts;
 
 
-/* Total number of living (non-zombie) contexts */
+/** Total number of living (non-zombie) contexts */
 static unsigned int _gfx_alive_contexts = 0;
 
 
-/* Number of on-screen contexts */
+/** Number of on-screen contexts */
 static unsigned int _gfx_public_contexts = 0;
 
 
-/* Requested context request */
+/** Requested context request */
 static GFXContext _gfx_version =
 {
 	.major = GFX_CONTEXT_MAJOR_MIN,

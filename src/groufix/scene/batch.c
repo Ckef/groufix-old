@@ -20,7 +20,7 @@
 #include <string.h>
 
 /******************************************************/
-/* Internal level pair */
+/** Internal level pair */
 typedef struct GFX_Level
 {
 	unsigned int material;  /* Material LOD */

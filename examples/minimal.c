@@ -7,14 +7,23 @@ int main()
 	context.major = 0;
 	context.minor = 0;
 
-	if(!gfx_init(context, GFX_ERROR_MODE_NORMAL)) return 0;
+	if(!gfx_init(context, GFX_ERROR_MODE_NORMAL, NULL))
+		return 0;
 
 	GFXColorDepth depth;
 	depth.redBits   = 8;
 	depth.greenBits = 8;
 	depth.blueBits  = 8;
 
-	GFXWindow* window = gfx_window_create(NULL, 0, &depth, "Groufix Window", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow* window = gfx_window_create(
+		NULL,
+		0,
+		&depth,
+		"Groufix Window",
+		100, 100,
+		800, 600,
+		GFX_WINDOW_RESIZABLE
+	);
 
 	while(gfx_poll_events() && gfx_window_is_open(window));
 

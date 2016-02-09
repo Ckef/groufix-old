@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Instance */
+/** Instance */
 GFX_X11_Connection _gfx_x11;
 
 

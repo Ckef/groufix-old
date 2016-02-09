@@ -130,7 +130,7 @@ typedef enum GFXWindowFlags
 } GFXWindowFlags;
 
 
-/* Forward declerate */
+/** Window callbacks */
 struct GFXWindow;
 
 typedef void (*GFXWindowCloseFunc)  (struct GFXWindow*);

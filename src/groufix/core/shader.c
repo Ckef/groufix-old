@@ -18,7 +18,7 @@
 #include <string.h>
 
 /******************************************************/
-/* GLSL version strings */
+/** GLSL version strings */
 static const char* _gfx_glsl_versions[] =
 {
 	"#version 150\n",
@@ -34,7 +34,7 @@ static const char* _gfx_glsl_versions[] =
 };
 
 
-/* Internal Shader */
+/** Internal Shader */
 typedef struct GFX_Shader
 {
 	/* Super class */

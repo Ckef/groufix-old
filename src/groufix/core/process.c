@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Internal Pipe Process */
+/** Internal Pipe Process */
 typedef struct GFX_Process
 {
 	GFXProgramMap*   progs;
@@ -31,11 +31,11 @@ typedef struct GFX_Process
 } GFX_Process;
 
 
-/* All pipe processes */
+/** All pipe processes */
 static GFXVector* _gfx_pipes = NULL;
 
 
-/* Shared vertex buffer */
+/** Shared vertex buffer */
 static GLuint _gfx_process_buffer = 0;
 
 

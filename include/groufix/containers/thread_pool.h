@@ -41,7 +41,7 @@ typedef void (*GFXThreadPoolTerminate) (void*);
 /** Thread pool */
 typedef struct GFXThreadPool
 {
-	unsigned short          size; /* Number of threads */
+	unsigned int            size; /* Number of threads */
 	GFXThreadPoolInit       init;
 	GFXThreadPoolTerminate  terminate;
 
@@ -84,10 +84,10 @@ GFX_API void gfx_thread_pool_free(
  * @return Actual number of threads created (<= size).
  *
  */
-GFX_API unsigned char gfx_thread_pool_expand(
+GFX_API unsigned int gfx_thread_pool_expand(
 
 		GFXThreadPool*  pool,
-		unsigned char   size,
+		unsigned int    size,
 		void*           arg);
 
 /**
@@ -99,7 +99,7 @@ GFX_API unsigned char gfx_thread_pool_expand(
  * This call undos the last yet to be undone call to gfx_thread_pool_expand.
  *
  */
-GFX_API unsigned char gfx_thread_pool_shrink(
+GFX_API unsigned int gfx_thread_pool_shrink(
 
 		GFXThreadPool*  pool,
 		int             join);
@@ -112,6 +112,8 @@ GFX_API unsigned char gfx_thread_pool_shrink(
  * @param priority Priority of the task, a lower value means higher priority.
  * @return Zero on failure.
  *
+ * This function is thread safe.
+ *
  */
 GFX_API int gfx_thread_pool_push(
 
@@ -123,6 +125,7 @@ GFX_API int gfx_thread_pool_push(
 /**
  * Suspends the thread pool, blocking any thread from executing any new tasks.
  *
+ * This function is thread safe.
  * Note: the threads will finish their current task before they are blocked.
  *
  */
@@ -132,6 +135,8 @@ GFX_API void gfx_thread_pool_suspend(
 
 /**
  * Resumes the thread from suspension, allowing all threads to execute tasks again.
+ *
+ * This function is thread safe.
  *
  */
 GFX_API void gfx_thread_pool_resume(
@@ -143,6 +148,8 @@ GFX_API void gfx_thread_pool_resume(
  *
  * Note: if the pool is suspended and never gets resumed, or if no threads
  * exist while there are tasks, this will block indefinitely.
+ *
+ * This function is thread safe.
  *
  */
 GFX_API void gfx_thread_pool_flush(

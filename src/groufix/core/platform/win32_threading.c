@@ -21,7 +21,7 @@
 #define GFX_WIN32_MASK_MSB ((ULONG_PTR)1 << (sizeof(ULONG_PTR) * CHAR_BIT - 1))
 
 /******************************************************/
-/* Internal thread arguments */
+/** Internal thread arguments */
 typedef struct GFX_ThreadArgs
 {
 	GFX_ThreadAddress  addr;

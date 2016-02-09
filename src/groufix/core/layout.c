@@ -18,7 +18,7 @@
 #include <string.h>
 
 /******************************************************/
-/* Internal Vertex layout */
+/** Internal Vertex layout */
 typedef struct GFX_Layout
 {
 	/* Super class */
@@ -38,7 +38,7 @@ typedef struct GFX_Layout
 } GFX_Layout;
 
 
-/* Internal vertex source */
+/** Internal vertex source */
 typedef struct GFX_Source
 {
 	GFXVertexSource  source;
@@ -47,7 +47,7 @@ typedef struct GFX_Source
 } GFX_Source;
 
 
-/* Internal vertex attribute */
+/** Internal vertex attribute */
 typedef struct GFX_Attribute
 {
 	unsigned char     size;
@@ -60,7 +60,7 @@ typedef struct GFX_Attribute
 } GFX_Attribute;
 
 
-/* Internal vertex buffer binding */
+/** Internal vertex buffer binding */
 typedef struct GFX_Buffer
 {
 	GLuint    buffer; /* 0 when empty */

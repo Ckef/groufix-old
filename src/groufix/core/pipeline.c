@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 /******************************************************/
-/* Internal Pipeline */
+/** Internal Pipeline */
 typedef struct GFX_Pipeline
 {
 	/* Super class */
@@ -38,7 +38,7 @@ typedef struct GFX_Pipeline
 } GFX_Pipeline;
 
 
-/* Internal Attachment */
+/** Internal Attachment */
 typedef struct GFX_Attachment
 {
 	GLenum         attachment; /* Key to sort on */
