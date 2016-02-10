@@ -18,15 +18,17 @@
 #include <stdint.h>
 
 /* Get compiler */
-#if defined(_MSC_VER)
-	#define GFX_VISUAL_C
-#elif defined(__MINGW32__)
-	#define GFX_MINGW
+#if defined(__clang__)
+	#define GFX_CLANG
 #elif defined(__GNUC__)
 	#define GFX_GCC
+#elif defined(__MINGW32__)
+	#define GFX_MINGW
+#elif defined(_MSC_VER)
+	#define GFX_VISUAL_C
 
 #elif !defined(GFX_COMPILER_ANY)
-	#error "Compiler not supported, define GFX_COMPILER_ANY to use compiler agnostic functionality"
+	#error "Compiler not recognized, define GFX_COMPILER_ANY to use compiler agnostic functionality"
 #endif
 
 
@@ -35,7 +37,7 @@
  *******************************************************/
 
 /* DLL import/export */
-#if defined(GFX_VISUAL_C) || defined(GFX_MINGW)
+#if defined(GFX_MINGW) || defined(GFX_VISUAL_C)
 	#ifdef GFX_BUILD_LIB
 		#define GFX_API __declspec(dllexport)
 	#else
@@ -48,30 +50,14 @@
 
 
 /* Always inline */
-#if defined(GFX_VISUAL_C)
-	#define GFX_ALWAYS_INLINE __forceinline
-#elif defined(GFX_MINGW) || defined(GFX_GCC)
+#if defined(GFX_CLANG) || defined(GFX_GCC) || defined(GFX_MINGW)
 	#define GFX_ALWAYS_INLINE inline __attribute__((always_inline))
+#elif defined(GFX_VISUAL_C)
+	#define GFX_ALWAYS_INLINE __forceinline
 
 #else
 	#define GFX_ALWAYS_INLINE inline
 #endif
-
-
-/* SSE alignment */
-#if defined(GFX_SSE_NO)
-	#define GFX_SSE_ALIGN struct
-#elif defined(GFX_VISUAL_C)
-	#define GFX_SSE_ALIGN __declspec(align(16)) struct
-#elif defined(GFX_MINGW) || defined(GFX_GCC)
-	#define GFX_SSE_ALIGN struct __attribute__((aligned(16)))
-
-#else
-	#define GFX_SSE_ALIGN struct
-	#define GFX_SSE_NO
-#endif
-
-#define GFX_SSE_NO_ALIGN struct
 
 
 /* Stringification */
