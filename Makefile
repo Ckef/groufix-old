@@ -181,7 +181,10 @@ HEADERS = \
 # Renderer objects
 ifeq ($(RENDERER),GL)
  OBJS_RENDERER = \
-  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
+#  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_formats.o \
@@ -189,7 +192,10 @@ ifeq ($(RENDERER),GL)
 
 else ifeq ($(RENDERER),GLES)
  OBJS_RENDERER = \
-  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
+#  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_formats.o \
@@ -202,6 +208,14 @@ endif
 OBJS = \
  $(OBJS_RENDERER) \
  $(OUT)$(SUB)/groufix/containers/deque.o \
+ $(OUT)$(SUB)/groufix/containers/list.o \
+ $(OUT)$(SUB)/groufix/containers/thread_pool.o \
+ $(OUT)$(SUB)/groufix/containers/vector.o \
+ $(OUT)$(SUB)/groufix/core/errors.o \
+ $(OUT)$(SUB)/groufix/core/events.o \
+ $(OUT)$(SUB)/groufix/math.o \
+ $(OUT)$(SUB)/groufix.o
+# $(OUT)$(SUB)/groufix/containers/deque.o \
  $(OUT)$(SUB)/groufix/containers/list.o \
  $(OUT)$(SUB)/groufix/containers/thread_pool.o \
  $(OUT)$(SUB)/groufix/containers/vector.o \

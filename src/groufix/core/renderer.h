@@ -99,41 +99,31 @@ void _gfx_renderer_poll_errors(void);
  * Generic render object definitions
  *******************************************************/
 
-/** Render object container */
-typedef struct GFX_RenderObjects
-{
-	GFXVector  objects;
-	GFXDeque   empties;
-	GFXVector  saved;
-
-} GFX_RenderObjects;
-
-
-/** Render object ID */
-typedef struct GFX_RenderObjectID
-{
-	GFX_RenderObjects*  objects;
-	unsigned int        id;
-
-} GFX_RenderObjectID;
-
-
-/********************************************************
- * Generic render object reconstruction
- *******************************************************/
-
 /** Generic render object operator */
-typedef void (*GFX_RenderObjectFunc) (void*, GFX_RenderObjectID);
+typedef void (*GFX_RenderObjectFunc) (GFX_RenderObjectID*, void**);
 
 
 /** Operator vtable */
 typedef struct GFX_RenderObjectFuncs
 {
-	GFX_RenderObjectFunc free;    /* Free all renderer data */
-	GFX_RenderObjectFunc save;    /* Save off-renderer to restore in a new context later */
-	GFX_RenderObjectFunc restore; /* Restore objects in a new context */
+	GFX_RenderObjectFunc  destruct;    /* When the last conatiner is being dereferenced (its context is current) */
+	GFX_RenderObjectFunc  prepare;     /* When the current set of shared contexts will be out of use (one is current) */
+	GFX_RenderObjectFunc  transfer;    /* When a new set of shared contexts is referenced (a new one is current) */
 
 } GFX_RenderObjectFuncs;
+
+
+/********************************************************
+ * Generic render object container
+ *******************************************************/
+
+/** Render object container */
+typedef struct GFX_RenderObjects
+{
+	GFXVector  objects;
+	GFXDeque   empties;
+
+} GFX_RenderObjects;
 
 
 /**
@@ -147,72 +137,112 @@ void _gfx_render_objects_init(
 /**
  * Clears the content of a render object container.
  *
+ * Also dereferences all IDs.
+ *
  */
 void _gfx_render_objects_clear(
 
 		GFX_RenderObjects* cont);
 
 /**
- * Registers a render object at a container.
+ * Issues the prepare and transfer callbacks for all IDs.
  *
- * @param cont   Container to register at.
- * @param object Arbitrary data to identify with the render object.
- * @param funcs  Functions to associate with the object.
- * @return Identifier of the object, all 0s on failure.
+ * @param src  The container all IDs are considered from.
+ * @param dest The container all IDs from src are moved to.
  *
- */
-GFX_RenderObjectID _gfx_render_object_register(
-
-		GFX_RenderObjects*            cont,
-		void*                         object,
-		const GFX_RenderObjectFuncs*  funcs);
-
-/**
- * Unregisters a render object at its container.
- *
- * @param id Identifier of the render object to unregister.
+ * The two callbacks send a pointer to allow for temporary storage.
+ * After this call the previous set of shared contexts can be considered
+ * destroyed for these IDs.
  *
  */
-void _gfx_render_object_unregister(
-
-		GFX_RenderObjectID id);
-
-/**
- * Issue free method of all unsaved render objects.
- *
- * This will issue the free request and unregister all unsaved objects, sending 0 as new ID,
- * thus this callback is NOT allowed to unregister the object.
- * After this call, the current context will be destroyed.
- *
- */
-void _gfx_render_objects_free(
-
-		GFX_RenderObjects* cont);
-
-/**
- * Issue save method of all unsaved render objects.
- *
- * This will issue a save request, sending 0 as new ID, as they should save on client side memory.
- * After this call, the current context may be destroyed.
- *
- */
-void _gfx_render_objects_save(
-
-		GFX_RenderObjects* cont);
-
-/**
- * Issue restore method of all saved render objects.
- *
- * @param src Source container on which a save request was previously issued.
- *
- * During this operation, a new context must be current.
- * An new ID for this new context is given.
- *
- */
-void _gfx_render_objects_restore(
+void _gfx_render_objects_transfer(
 
 		GFX_RenderObjects*  src,
-		GFX_RenderObjects*  cont);
+		GFX_RenderObjects*  dest);
+
+
+/********************************************************
+ * Generic render object identification
+ *******************************************************/
+
+/** Flags associated with an object ID */
+typedef enum GFX_RenderObjectFlags
+{
+	GFX_OBJECT_NEEDS_REFERENCE  = 0x01,
+	GFX_OBJECT_CAN_SHARE        = 0x02
+
+} GFX_RenderObjectFlags;
+
+
+/** Render object reference */
+typedef struct GFX_RenderObjectRef
+{
+	GFX_RenderObjects*           objects;
+	unsigned int                 id;
+	struct GFX_RenderObjectRef*  next;
+
+} GFX_RenderObjectRef;
+
+
+/** Render object ID */
+typedef struct GFX_RenderObjectID
+{
+	GFX_RenderObjectFlags         flags;
+	const GFX_RenderObjectFuncs*  funcs;
+	GFX_RenderObjectRef           refs;
+
+} GFX_RenderObjectID:
+
+
+/**
+ * Initializes a render object ID.
+ *
+ * @param flags Flags that will always be associated with this ID.
+ * @param funcs Function vtable to associate with this ID.
+ * @param cont  Render object container to first reference at (can be NULL).
+ * @return Zero on failure.
+ *
+ * cont cannot be NULL if flags contains GFX_OBJECT_NEEDS_REFERENCE.
+ * Note: NEVER copy the initialized ID, the same pointer must always be used!
+ *
+ */
+int _gfx_render_object_id_init(
+
+		GFX_RenderObjectID*           id,
+		GFX_RenderObjectFlags         flags,
+		const GFX_RenderObjectFuncs*  funcs,
+		GFX_RenderObjects*            cont);
+
+/**
+ * Clears a render object ID.
+ *
+ * Also dereferences it at all containers.
+ *
+ */
+void _gfx_render_object_id_clear(
+
+		GFX_RenderObjectID* id);
+
+/**
+ * References the ID at the container.
+ *
+ * @param cont Render object container to reference at.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_render_object_id_reference(
+
+		GFX_RenderObjectID*  id,
+		GFX_RenderObjects*   cont);
+
+/**
+ * Dereferences the ID at the container.
+ *
+ */
+void _gfx_render_object_id_dereference(
+
+		GFX_RenderObjectID*  id,
+		GFX_RenderObjects*   cont);
 
 
 /********************************************************
