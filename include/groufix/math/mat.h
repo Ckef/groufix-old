@@ -19,7 +19,6 @@
 
 #include <float.h>
 #include <math.h>
-#include <stdalign.h>
 #include <string.h>
 
 #define GFX_MAT_CREATE_NAME(size,type) GFX_NAME(gfx, GFX_CAT(GFX_CAT(type, mat), size))
@@ -81,12 +80,12 @@
 
 /* Alignment */
 #if GFX_MAT_SIZE == 4 && GFX_MAT_DATA == float
-	#define GFX_MAT_ALIGN alignas(16)
+	#define GFX_MAT_ALIGN GFX_SSE_ALIGN
 #elif GFX_MAT_SIZE == 2 && GFX_MAT_DATA == double
-	#define GFX_MAT_ALIGN alignas(16)
+	#define GFX_MAT_ALIGN GFX_SSE_ALIGN
 
 #else
-	#define GFX_MAT_ALIGN
+	#define GFX_MAT_ALIGN GFX_SSE_NO_ALIGN
 #endif
 
 /* Vector specific */
@@ -109,10 +108,10 @@ extern "C" {
  *******************************************************/
 
 /** N-dimensional matrix */
-typedef struct
+typedef GFX_MAT_ALIGN
 {
 	/* Components */
-	GFX_MAT_ALIGN GFX_MAT_DATA data[GFX_MAT_STORE];
+	GFX_MAT_DATA data[GFX_MAT_STORE];
 
 } GFX_MAT_NAME;
 

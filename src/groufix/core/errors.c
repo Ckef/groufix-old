@@ -182,6 +182,9 @@ void gfx_errors_push(
 
 	if(description)
 	{
+		/* Note the 'vsnprintf' call is not in std c99 */
+		/* However it is in the win32 and posix APIs */
+
 		/* Format the description */
 		va_list vl;
 		va_start(vl, description);

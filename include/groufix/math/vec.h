@@ -18,7 +18,6 @@
 #include "groufix/utils.h"
 
 #include <math.h>
-#include <stdalign.h>
 #include <string.h>
 
 #define GFX_VEC_CREATE_NAME(size,type) GFX_NAME(gfx, GFX_CAT(GFX_CAT(type, vec), size))
@@ -115,16 +114,16 @@
 
 /* Alignment */
 #if GFX_VEC_SIZE == 4 && GFX_VEC_DATA == int32_t
-	#define GFX_VEC_ALIGN alignas(16)
+	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
 #elif GFX_VEC_SIZE == 4 && GFX_VEC_DATA == uint32_t
-	#define GFX_VEC_ALIGN alignas(16)
+	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
 #elif GFX_VEC_SIZE == 4 && GFX_VEC_DATA == float
-	#define GFX_VEC_ALIGN alignas(16)
+	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
 #elif GFX_VEC_SIZE == 2 && GFX_VEC_DATA == double
-	#define GFX_VEC_ALIGN alignas(16)
+	#define GFX_VEC_ALIGN GFX_SSE_ALIGN
 
 #else
-	#define GFX_VEC_ALIGN
+	#define GFX_VEC_ALIGN GFX_SSE_NO_ALIGN
 #endif
 
 
@@ -138,10 +137,10 @@ extern "C" {
  *******************************************************/
 
 /** N-dimensional vector */
-typedef struct
+typedef GFX_VEC_ALIGN
 {
 	/* Components */
-	GFX_VEC_ALIGN GFX_VEC_DATA data[GFX_VEC_SIZE];
+	GFX_VEC_DATA data[GFX_VEC_SIZE];
 
 } GFX_VEC_NAME;
 

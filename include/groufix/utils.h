@@ -60,6 +60,22 @@
 #endif
 
 
+/* SSE alignment */
+#define GFX_SSE_NO_ALIGN struct
+
+#if defined(GFX_SSE_NO)
+	#define GFX_SSE_ALIGN struct
+#elif defined(GFX_CLANG) || defined(GFX_GCC) || defined(GFX_MINGW)
+	#define GFX_SSE_ALIGN struct __attribute__((aligned(16)))
+#elif defined(GFX_VISUAL_C)
+	#define GFX_SSE_ALIGN __declspec(align(16)) struct
+
+#else
+	#define GFX_SSE_ALIGN struct
+	#define GFX_SSE_NO
+#endif
+
+
 /* Stringification */
 #define GFX_STRIFY_BAD(x) #x
 #define GFX_STRIFY(x) GFX_STRIFY_BAD(x)

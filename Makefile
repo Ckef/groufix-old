@@ -57,8 +57,8 @@ endif
 
 # Flags for all binaries
 CFLAGS          = -Wall -pedantic -Iinclude $(DFLAGS) -DGFX_COMPILER_$(COMPILER) -DGFX_SSE_$(SSE)
-CFLAGS_UNIX_X11 = $(CFLAGS) -std=gnu11
-CFLAGS_WIN32    = $(CFLAGS) -std=c11
+CFLAGS_UNIX_X11 = $(CFLAGS) -std=gnu99
+CFLAGS_WIN32    = $(CFLAGS) -std=c99
 
 
 # Library object files only

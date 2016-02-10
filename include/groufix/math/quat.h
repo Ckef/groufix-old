@@ -18,7 +18,6 @@
 #include "groufix/utils.h"
 
 #include <math.h>
-#include <stdalign.h>
 #include <string.h>
 
 #define GFX_QUAT_CREATE_NAME(type) GFX_NAME(gfx, GFX_CAT(type, quat))
@@ -63,10 +62,10 @@
 
 /* Alignment */
 #if GFX_QUAT_DATA == float
-	#define GFX_QUAT_ALIGN alignas(16)
+	#define GFX_QUAT_ALIGN GFX_SSE_ALIGN
 
 #else
-	#define GFX_QUAT_ALIGN
+	#define GFX_QUAT_ALIGN GFX_SSE_NO_ALIGN
 #endif
 
 /* Matrix specific */
@@ -96,10 +95,10 @@ extern "C" {
  *******************************************************/
 
 /** Quaternion */
-typedef struct
+typedef GFX_QUAT_ALIGN
 {
 	/* Components */
-	GFX_QUAT_ALIGN GFX_QUAT_DATA data[4];
+	GFX_QUAT_DATA data[4];
 
 } GFX_QUAT_NAME;
 
