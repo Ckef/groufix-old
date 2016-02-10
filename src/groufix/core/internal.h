@@ -82,6 +82,10 @@ void _gfx_errors_terminate(void);
 extern GFXTerminateFunc _gfx_terminate_func;
 
 
+/** Request to terminate */
+extern char _gfx_terminate_request;
+
+
 /**
  * Called when the application is requested to terminate.
  *

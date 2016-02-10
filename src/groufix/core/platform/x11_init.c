@@ -17,6 +17,7 @@
 #include "groufix/core/internal.h"
 
 #include <math.h>
+#include <signal.h>
 #include <stdlib.h>
 
 /******************************************************/
@@ -383,6 +384,13 @@ static void _gfx_x11_create_key_table(void)
 }
 
 /******************************************************/
+static void _gfx_x11_sa_handler(int num)
+{
+	/* Terminate properly */
+	_gfx_event_terminate();
+}
+
+/******************************************************/
 GFX_X11_Window* _gfx_x11_get_window_from_handle(
 
 		Window handle)
@@ -440,6 +448,16 @@ int _gfx_platform_init(void)
 
 	/* Construct a keycode lookup */
 	_gfx_x11_create_key_table();
+
+	/* Setup termination callback */
+	struct sigaction act;
+
+	act.sa_handler = _gfx_x11_sa_handler;
+	act.sa_flags = 0;
+	sigemptyset(&act.sa_mask);
+
+	sigaction(SIGINT, &act, NULL);
+	sigaction(SIGTERM, &act, NULL);
 
 	return 1;
 }

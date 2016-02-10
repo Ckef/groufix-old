@@ -827,6 +827,10 @@ void _gfx_platform_window_hide(
 /******************************************************/
 int _gfx_platform_poll_events(void)
 {
+	/* Somebody requested to terminate */
+	if(_gfx_terminate_request)
+		return 0;
+
 	XEvent event;
 	int cnt = XPending(_gfx_x11.display);
 

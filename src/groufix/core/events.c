@@ -19,11 +19,15 @@
 GFXTerminateFunc _gfx_terminate_func;
 
 
+/** Termination request */
+char _gfx_terminate_request;
+
+
 /******************************************************/
 void _gfx_event_terminate(void)
 {
+	_gfx_terminate_request = 1;
 	if(_gfx_terminate_func) _gfx_terminate_func();
-	else gfx_terminate();
 }
 
 /******************************************************/

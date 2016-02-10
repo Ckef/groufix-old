@@ -127,6 +127,10 @@ typedef struct GFXContext
  * @param term    Termination callback (can be NULL).
  * @return non-zero if initialization was successful.
  *
+ * The termination callback is used when the application is requested to terminate
+ * by the OS or another application, in this callback no other groufix calls
+ * should be made.
+ *
  * Note: if groufix is compiled with DEBUG=YES, the error mode will be ignored
  * and assumed to be GFX_ERROR_MODE_DEBUG instead.
  *
@@ -142,7 +146,7 @@ GFX_API int gfx_init(
 /**
  * Polls events of all windows.
  *
- * @return Zero if groufix was not yet initialized or already terminated.
+ * @return Zero if groufix was requested to terminate.
  *
  */
 GFX_API int gfx_poll_events(void);

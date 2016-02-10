@@ -58,6 +58,7 @@ int gfx_init(
 
 	/* Set termination callback */
 	_gfx_terminate_func = term;
+	_gfx_terminate_request = 0;
 
 	/* Initialize errors, platform and context manager */
 	if(_gfx_errors_init(errors))
