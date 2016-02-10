@@ -7,7 +7,7 @@ int main()
 	context.major = 0;
 	context.minor = 0;
 
-	if(!gfx_init(context, GFX_ERROR_MODE_NORMAL, NULL))
+	if(!gfx_init(context, GFX_ERROR_MODE_NORMAL))
 		return 0;
 
 	GFXColorDepth depth;

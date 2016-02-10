@@ -106,10 +106,6 @@ GFX_API int gfx_get_limit(
  * Groufix initialization, timing and polling
  *******************************************************/
 
-/** Termination callback */
-typedef void (*GFXTerminateFunc) (void);
-
-
 /** Renderer context version */
 typedef struct GFXContext
 {
@@ -124,12 +120,7 @@ typedef struct GFXContext
  *
  * @param context Minimal context version to use (can be left as zeros).
  * @param errors  Error mode to use for the engine.
- * @param term    Termination callback (can be NULL).
  * @return non-zero if initialization was successful.
- *
- * The termination callback is used when the application is requested to terminate
- * by the OS or another application, in this callback no other groufix calls
- * should be made.
  *
  * Note: if groufix is compiled with DEBUG=YES, the error mode will be ignored
  * and assumed to be GFX_ERROR_MODE_DEBUG instead.
@@ -139,9 +130,8 @@ typedef struct GFXContext
  */
 GFX_API int gfx_init(
 
-		GFXContext        context,
-		GFXErrorMode      errors,
-		GFXTerminateFunc  term);
+		GFXContext    context,
+		GFXErrorMode  errors);
 
 /**
  * Polls events of all windows.

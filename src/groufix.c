@@ -47,18 +47,16 @@ int gfx_get_limit(
 /******************************************************/
 int gfx_init(
 
-		GFXContext        context,
-		GFXErrorMode      errors,
-		GFXTerminateFunc  term)
+		GFXContext    context,
+		GFXErrorMode  errors)
 {
 	/* Always debug */
 #ifndef NDEBUG
 	errors = GFX_ERROR_MODE_DEBUG;
 #endif
 
-	/* Set termination callback */
-	_gfx_terminate_func = term;
-	_gfx_terminate_request = 0;
+	/* Set termination request */
+	_gfx_event_terminate_request = 0;
 
 	/* Initialize errors, platform and context manager */
 	if(_gfx_errors_init(errors))
@@ -86,7 +84,10 @@ int gfx_init(
 /******************************************************/
 int gfx_poll_events(void)
 {
-	return _gfx_platform_poll_events();
+	if(!_gfx_event_terminate_request)
+		return _gfx_platform_poll_events();
+
+	return 0;
 }
 
 /******************************************************/

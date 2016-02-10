@@ -351,18 +351,9 @@ unsigned int gfx_thread_pool_expand(
 {
 	GFX_Pool* internal = (GFX_Pool*)pool;
 
-	/* Check for overflow */
-	if(UINT_MAX - size < pool->size)
-	{
-		gfx_errors_push(
-			GFX_ERROR_OVERFLOW,
-			"Overflow occurred during thread pool expansion."
-		);
-		return 0;
-	}
-
 	/* Allocate new node */
-	if(!size) return 0;
+	if(!size || UINT_MAX - size < pool->size)
+		return 0;
 
 	GFX_ThreadList* node = malloc(
 		sizeof(GFX_ThreadList) +

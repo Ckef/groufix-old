@@ -103,7 +103,7 @@ int main()
 	context.major = 0;
 	context.minor = 0;
 
-	if(!gfx_init(context, GFX_ERROR_MODE_DEBUG, NULL))
+	if(!gfx_init(context, GFX_ERROR_MODE_DEBUG))
 	{
 		GFXError error;
 		if(gfx_errors_peek(&error)) print_error(error);

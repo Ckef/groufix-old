@@ -387,7 +387,7 @@ static void _gfx_x11_create_key_table(void)
 static void _gfx_x11_sa_handler(int num)
 {
 	/* Terminate properly */
-	_gfx_event_terminate();
+	_gfx_event_terminate_request = 1;
 }
 
 /******************************************************/

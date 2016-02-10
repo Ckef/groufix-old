@@ -15,20 +15,9 @@
 #include "groufix/core/internal.h"
 
 /******************************************************/
-/** Termination callback */
-GFXTerminateFunc _gfx_terminate_func;
-
-
 /** Termination request */
-char _gfx_terminate_request;
+unsigned char _gfx_event_terminate_request = 0;
 
-
-/******************************************************/
-void _gfx_event_terminate(void)
-{
-	_gfx_terminate_request = 1;
-	if(_gfx_terminate_func) _gfx_terminate_func();
-}
 
 /******************************************************/
 void _gfx_event_window_close(
