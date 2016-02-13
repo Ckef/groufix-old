@@ -213,6 +213,7 @@ OBJS = \
  $(OUT)$(SUB)/groufix/containers/vector.o \
  $(OUT)$(SUB)/groufix/core/errors.o \
  $(OUT)$(SUB)/groufix/core/events.o \
+ $(OUT)$(SUB)/groufix/core/objects.o \
  $(OUT)$(SUB)/groufix/math.o \
  $(OUT)$(SUB)/groufix.o
 # $(OUT)$(SUB)/groufix/containers/deque.o \

@@ -96,17 +96,21 @@ void _gfx_renderer_poll_errors(void);
 
 
 /********************************************************
- * Generic render object definitions
+ * Generic render object functions
  *******************************************************/
 
+/** Just a typedef for the argument */
+typedef void* GFX_RenderObjectIDArg;
+
+
 /** Generic render object operator */
-typedef void (*GFX_RenderObjectFunc) (GFX_RenderObjectID*, void**);
+typedef void (*GFX_RenderObjectFunc) (GFX_RenderObjectIDArg*, void**);
 
 
 /** Operator vtable */
 typedef struct GFX_RenderObjectFuncs
 {
-	GFX_RenderObjectFunc  destruct;    /* When the last conatiner is being dereferenced (its context is current) */
+	GFX_RenderObjectFunc  destruct;    /* When the last container is being dereferenced (its context is current) */
 	GFX_RenderObjectFunc  prepare;     /* When the current set of shared contexts will be out of use (one is current) */
 	GFX_RenderObjectFunc  transfer;    /* When a new set of shared contexts is referenced (a new one is current) */
 
@@ -122,6 +126,7 @@ typedef struct GFX_RenderObjects
 {
 	GFXVector  objects;
 	GFXDeque   empties;
+	GFXVector  temp;
 
 } GFX_RenderObjects;
 
@@ -138,6 +143,7 @@ void _gfx_render_objects_init(
  * Clears the content of a render object container.
  *
  * Also dereferences all IDs.
+ * Note: will call the destruct callback if appropriate.
  *
  */
 void _gfx_render_objects_clear(
@@ -145,14 +151,37 @@ void _gfx_render_objects_clear(
 		GFX_RenderObjects* cont);
 
 /**
- * Issues the prepare and transfer callbacks for all IDs.
+ * Issues the prepare callback for all IDs.
  *
- * @param src  The container all IDs are considered from.
- * @param dest The container all IDs from src are moved to.
+ * @param src  The container to prepare all IDs from.
+ * @param dest The container all prepared IDs from src will be moved to.
+ * @return Non-zero on failure.
  *
- * The two callbacks send a pointer to allow for temporary storage.
+ * The callback offers a pointer to allow for temporary storage.
+ *
+ * Note: This call MUST be made before calling _gfx_render_objects_transfer
+ * with the same containers as src and dest.
+ *
+ */
+int _gfx_render_objects_prepare(
+
+		GFX_RenderObjects*  src,
+		GFX_RenderObjects*  dest);
+
+/**
+ * Subsequent call on _gfx_render_objects_prepare, issues the transfer callback for all IDs.
+ *
+ * @param src  The container all IDs were prepared from.
+ * @param dest The container all prepared IDs from src are moved to.
+ *
+ * The callback gives the same pointer as _gfx_render_objects_prepare so to
+ * restore the temporary memory.
+ *
  * After this call the previous set of shared contexts can be considered
  * destroyed for these IDs.
+ *
+ * Note: This call MUST be made after calling _gfx_render_objects_prepare
+ * with the same containers as src and dest.
  *
  */
 void _gfx_render_objects_transfer(
@@ -191,7 +220,7 @@ typedef struct GFX_RenderObjectID
 	const GFX_RenderObjectFuncs*  funcs;
 	GFX_RenderObjectRef           refs;
 
-} GFX_RenderObjectID:
+} GFX_RenderObjectID;
 
 
 /**
@@ -217,6 +246,7 @@ int _gfx_render_object_id_init(
  * Clears a render object ID.
  *
  * Also dereferences it at all containers.
+ * Note: will call the destruct callback if appropriate.
  *
  */
 void _gfx_render_object_id_clear(
@@ -238,8 +268,12 @@ int _gfx_render_object_id_reference(
 /**
  * Dereferences the ID at the container.
  *
+ * @return Zero on failure.
+ *
+ * Note: will call the destruct callback if appropriate.
+ *
  */
-void _gfx_render_object_id_dereference(
+int _gfx_render_object_id_dereference(
 
 		GFX_RenderObjectID*  id,
 		GFX_RenderObjects*   cont);
