@@ -18,7 +18,7 @@
 #include "groufix.h"
 #include "groufix/containers/deque.h"
 #include "groufix/containers/vector.h"
-#include "groufix/core/platform.h"
+#include "groufix/core/threading.h"
 
 
 /* Get renderer */
@@ -103,16 +103,20 @@ void _gfx_renderer_poll_errors(void);
 typedef void* GFX_RenderObjectIDArg;
 
 
-/** Generic render object operator */
-typedef void (*GFX_RenderObjectFunc) (GFX_RenderObjectIDArg*, void**);
+/** Render object destruct operator */
+typedef void (*GFX_RenderObjectDestructFunc) (GFX_RenderObjectIDArg*);
+
+
+/** Render object transfer operator */
+typedef void (*GFX_RenderObjectTransferFunc) (GFX_RenderObjectIDArg*, void**, int);
 
 
 /** Operator vtable */
 typedef struct GFX_RenderObjectFuncs
 {
-	GFX_RenderObjectFunc  destruct;    /* When the last container is being dereferenced (its context is current) */
-	GFX_RenderObjectFunc  prepare;     /* When the current set of shared contexts will be out of use (one is current) */
-	GFX_RenderObjectFunc  transfer;    /* When a new set of shared contexts is referenced (a new one is current) */
+	GFX_RenderObjectDestructFunc  destruct; /* When the last container is being dereferenced (its context is current) */
+	GFX_RenderObjectTransferFunc  prepare;  /* When the current set of shared contexts will be out of use (one is current) */
+	GFX_RenderObjectTransferFunc  transfer; /* When a new set of shared contexts is referenced (a new one is current) */
 
 } GFX_RenderObjectFuncs;
 
@@ -124,9 +128,10 @@ typedef struct GFX_RenderObjectFuncs
 /** Render object container */
 typedef struct GFX_RenderObjects
 {
-	GFXVector  objects;
-	GFXDeque   empties;
-	GFXVector  temp;
+	GFXVector          objects;
+	GFXDeque           empties;
+	GFXVector          temp;
+	GFX_PlatformMutex  mutex;
 
 } GFX_RenderObjects;
 
@@ -134,8 +139,12 @@ typedef struct GFX_RenderObjects
 /**
  * Initializes a render object container.
  *
+ * @return Zero on failure.
+ *
+ * Note: NEVER copy the initialized container, the same pointer must always be used!
+ *
  */
-void _gfx_render_objects_init(
+int _gfx_render_objects_init(
 
 		GFX_RenderObjects* cont);
 
@@ -153,41 +162,48 @@ void _gfx_render_objects_clear(
 /**
  * Issues the prepare callback for all IDs.
  *
- * @param src  The container to prepare all IDs from.
- * @param dest The container all prepared IDs from src will be moved to.
- * @return Non-zero on failure.
+ * @param src    The container to prepare all IDs from.
+ * @param shared Non-zero if the destination will be shared with src.
  *
- * The callback offers a pointer to allow for temporary storage.
+ * The callback offers a pointer to allow for temporary storage and
+ * whether the src and destination are shared.
+ *
+ * This function is thread safe.
  *
  * Note: This call MUST be made before calling _gfx_render_objects_transfer
- * with the same containers as src and dest.
+ * with the same containers as src. The function can be called multiple times
+ * before calling _gfx_render_objects_transfer, but it cannot overlap with it.
+ *
+ * Also, the IDs cannot be accessed or altered during this call and the transfer
+ * call.
  *
  */
-int _gfx_render_objects_prepare(
+void _gfx_render_objects_prepare(
 
 		GFX_RenderObjects*  src,
-		GFX_RenderObjects*  dest);
+		int                 shared);
 
 /**
  * Subsequent call on _gfx_render_objects_prepare, issues the transfer callback for all IDs.
  *
- * @param src  The container all IDs were prepared from.
- * @param dest The container all prepared IDs from src are moved to.
+ * @param src    The container all IDs were prepared from.
+ * @param dest   The container all prepared IDs from src are moved to.
+ * @param shared Non-zero if the destination is shared with src.
  *
  * The callback gives the same pointer as _gfx_render_objects_prepare so to
- * restore the temporary memory.
+ * restore the temporary memory and whether the src and destination are shared.
  *
- * After this call the previous set of shared contexts can be considered
- * destroyed for these IDs.
+ * This function is thread safe.
  *
  * Note: This call MUST be made after calling _gfx_render_objects_prepare
- * with the same containers as src and dest.
+ * with the same containers as src, but it cannot overlap with it.
  *
  */
 void _gfx_render_objects_transfer(
 
 		GFX_RenderObjects*  src,
-		GFX_RenderObjects*  dest);
+		GFX_RenderObjects*  dest,
+		int                 shared);
 
 
 /********************************************************
@@ -231,6 +247,8 @@ typedef struct GFX_RenderObjectID
  * @param cont  Render object container to first reference at (can be NULL).
  * @return Zero on failure.
  *
+ * This function is thread safe.
+ *
  * cont cannot be NULL if flags contains GFX_OBJECT_NEEDS_REFERENCE.
  * Note: NEVER copy the initialized ID, the same pointer must always be used!
  *
@@ -244,6 +262,8 @@ int _gfx_render_object_id_init(
 
 /**
  * Clears a render object ID.
+ *
+ * This function is thread safe.
  *
  * Also dereferences it at all containers.
  * Note: will call the destruct callback if appropriate.
@@ -259,6 +279,8 @@ void _gfx_render_object_id_clear(
  * @param cont Render object container to reference at.
  * @return Zero on failure.
  *
+ * This function is thread safe.
+ *
  */
 int _gfx_render_object_id_reference(
 
@@ -269,6 +291,8 @@ int _gfx_render_object_id_reference(
  * Dereferences the ID at the container.
  *
  * @return Zero on failure.
+ *
+ * This function is thread safe.
  *
  * Note: will call the destruct callback if appropriate.
  *
@@ -308,6 +332,17 @@ typedef struct GFX_Context
 
 
 /**
+ * Returns the context associated with a platform window.
+ *
+ * Note: does not return off-screen contexts of dummy windows returned by
+ * _gfx_platform_context_create.
+ *
+ */
+GFX_Context* _gfx_context_get_from_handle(
+
+		GFX_PlatformWindow handle);
+
+/**
  * Initializes the context manager.
  *
  * @param version Minimum context version to use.
@@ -342,7 +377,7 @@ GFX_Context* _gfx_context_create(void);
  * Destroys the server side context.
  *
  * Creates a zombie context, the context struct still exists, but is not registered.
- * Thus, it must still be freed.
+ * Thus, it must still be freed with gfx_window_free.
  *
  * Note: all objects are automatically saved and restored to the main context.
  *
@@ -378,17 +413,6 @@ GFX_Context* _gfx_context_get_current(void);
  *
  */
 void _gfx_context_swap_buffers(void);
-
-/**
- * Returns the context associated with a platform window.
- *
- * Note: does not return off-screen contexts of dummy windows returned by
- * _gfx_platform_context_create.
- *
- */
-GFX_Context* _gfx_context_get_from_handle(
-
-		GFX_PlatformWindow handle);
 
 
 #endif // GFX_CORE_RENDERER_H

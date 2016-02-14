@@ -408,6 +408,8 @@ int _gfx_platform_context_set_swap_interval(
 /**
  * Swaps the internal buffers of the window's context.
  *
+ * This function is required to NOT be thread affine.
+ *
  */
 void _gfx_platform_context_swap_buffers(
 
@@ -419,6 +421,7 @@ void _gfx_platform_context_swap_buffers(
  * @param handle  Associated window, in case of windowless, the returned dummy window.
  * @param context Context to make current, NULL to unmake any context current.
  *
+ * This function is required to NOT be thread affine.
  * This is the only function required to be thread safe.
  *
  */
@@ -431,6 +434,8 @@ void _gfx_platform_context_make_current(
  * Returns the address to a process of the current context.
  *
  * @return NULL if the process does not exist.
+ *
+ * This function exists in case a renderer needs it.
  *
  */
 GFX_ProcAddress _gfx_platform_get_proc_address(

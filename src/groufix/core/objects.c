@@ -182,19 +182,24 @@ static void _gfx_render_object_id_deref(
 			id->refs.id = 0;
 
 			/* This was the last, call the destruct callback */
-			id->funcs->destruct((GFX_RenderObjectIDArg*)id, NULL);
+			id->funcs->destruct((GFX_RenderObjectIDArg*)id);
 		}
 	}
 }
 
 /******************************************************/
-void _gfx_render_objects_init(
+int _gfx_render_objects_init(
 
 		GFX_RenderObjects* cont)
 {
+	if(!_gfx_platform_mutex_init(&cont->mutex))
+		return 0;
+
 	gfx_vector_init(&cont->objects, sizeof(GFX_RenderObjectID*));
 	gfx_deque_init(&cont->empties, sizeof(unsigned int));
 	gfx_vector_init(&cont->temp, sizeof(GFX_RenderObjectStorage));
+
+	return 1;
 }
 
 /******************************************************/
@@ -218,17 +223,17 @@ void _gfx_render_objects_clear(
 	gfx_vector_clear(&cont->objects);
 	gfx_deque_clear(&cont->empties);
 	gfx_vector_clear(&cont->temp);
+
+	_gfx_platform_mutex_clear(&cont->mutex);
 }
 
 /******************************************************/
-int _gfx_render_objects_prepare(
+void _gfx_render_objects_prepare(
 
 		GFX_RenderObjects*  src,
-		GFX_RenderObjects*  dest)
+		int                 shared)
 {
-	/* That's not going to work... */
-	if(gfx_vector_get_size(&src->temp) || gfx_vector_get_size(&dest->temp))
-		return 0;
+	_gfx_platform_mutex_lock(&src->mutex);
 
 	/* Loop over all IDs */
 	size_t index;
@@ -242,10 +247,6 @@ int _gfx_render_objects_prepare(
 
 		if(id)
 		{
-			/* Reference the ID at the new container */
-			_gfx_render_object_id_ref(id, dest);
-			_gfx_render_object_id_deref(id, src);
-
 			/* Assign it some temporary storage */
 			GFX_RenderObjectStorage storage =
 			{
@@ -261,57 +262,58 @@ int _gfx_render_objects_prepare(
 
 			if(temp == src->temp.end)
 			{
-				temp = gfx_vector_insert(
-					&dest->temp,
-					&storage,
-					dest->temp.end
+				/* Out of memory error */
+				gfx_errors_output(
+					"[GFX Out Of Memory]: Render object container ran out of memory during preparation."
 				);
-
-				if(temp == dest->temp.end)
-				{
-					/* Out of memory error */
-					gfx_errors_output(
-						"[GFX Out Of Memory]: Render object container ran out of memory during preparation."
-					);
-					continue;
-				}
+				continue;
 			}
 
-			/* Call the preparation callback */
-			id->funcs->prepare((GFX_RenderObjectIDArg*)id, &temp->storage);
+			/* Dereference it and call the preparation callback */
+			_gfx_render_object_id_deref(
+				id,
+				src);
+
+			id->funcs->prepare(
+				(GFX_RenderObjectIDArg*)id,
+				&temp->storage,
+				shared);
 		}
 	}
 
-	return 1;
+	_gfx_platform_mutex_unlock(&src->mutex);
 }
 
 /******************************************************/
 void _gfx_render_objects_transfer(
 
 		GFX_RenderObjects*  src,
-		GFX_RenderObjects*  dest)
+		GFX_RenderObjects*  dest,
+		int                 shared)
 {
-	/* Loop over both temp storage vectors and call the transfer callbacks */
-	GFX_RenderObjectStorage* it;
+	_gfx_platform_mutex_lock(&dest->mutex);
 
+	/* Loop over temporary storage */
+	GFX_RenderObjectStorage* it;
 	for(
 		it = src->temp.begin;
 		it != src->temp.end;
 		it = gfx_vector_next(&src->temp, it))
 	{
-		it->id->funcs->transfer((GFX_RenderObjectIDArg*)it->id, &it->storage);
+		/* Reference it at destination and call the transfer callback */
+		_gfx_render_object_id_ref(
+			it->id,
+			dest);
+
+		it->id->funcs->transfer(
+			(GFX_RenderObjectIDArg*)it->id,
+			&it->storage,
+			shared);
 	}
 
-	for(
-		it = dest->temp.begin;
-		it != dest->temp.end;
-		it = gfx_vector_next(&dest->temp, it))
-	{
-		it->id->funcs->transfer((GFX_RenderObjectIDArg*)it->id, &it->storage);
-	}
+	_gfx_platform_mutex_unlock(&dest->mutex);
 
 	gfx_vector_clear(&src->temp);
-	gfx_vector_clear(&dest->temp);
 }
 
 /******************************************************/
@@ -322,15 +324,28 @@ int _gfx_render_object_id_init(
 		const GFX_RenderObjectFuncs*  funcs,
 		GFX_RenderObjects*            cont)
 {
+	/* Need to have a container if it needs a reference */
+	if((flags & GFX_OBJECT_NEEDS_REFERENCE) && !cont)
+		return 0;
+
+	int success = 1;
+
 	id->flags        = flags;
 	id->funcs        = funcs;
 	id->refs.objects = NULL;
 	id->refs.id      = 0;
 	id->refs.next    = NULL;
 
-	if(cont) return _gfx_render_object_id_ref(id, cont);
+	if(cont)
+	{
+		_gfx_platform_mutex_lock(&cont->mutex);
 
-	return 1;
+		success = _gfx_render_object_id_ref(id, cont);
+
+		_gfx_platform_mutex_unlock(&cont->mutex);
+	}
+
+	return success;
 }
 
 /******************************************************/
@@ -340,7 +355,15 @@ void _gfx_render_object_id_clear(
 {
 	/* Dereference it at all referenced containers */
 	while(id->refs.objects)
-		_gfx_render_object_id_deref(id, id->refs.objects);
+	{
+		GFX_RenderObjects* cont = id->refs.objects;
+
+		_gfx_platform_mutex_lock(&cont->mutex);
+
+		_gfx_render_object_id_deref(id, cont);
+
+		_gfx_platform_mutex_unlock(&cont->mutex);
+	}
 }
 
 /******************************************************/
@@ -353,7 +376,15 @@ int _gfx_render_object_id_reference(
 	if(id->refs.objects && !(id->flags & GFX_OBJECT_CAN_SHARE))
 		return 0;
 
-	return _gfx_render_object_id_ref(id, cont);
+	int success;
+
+	_gfx_platform_mutex_lock(&cont->mutex);
+
+	success = _gfx_render_object_id_ref(id, cont);
+
+	_gfx_platform_mutex_unlock(&cont->mutex);
+
+	return success;
 }
 
 /******************************************************/
@@ -366,7 +397,11 @@ int _gfx_render_object_id_dereference(
 	if(!id->refs.next && (id->flags & GFX_OBJECT_NEEDS_REFERENCE))
 		return 0;
 
+	_gfx_platform_mutex_lock(&cont->mutex);
+
 	_gfx_render_object_id_deref(id, cont);
+
+	_gfx_platform_mutex_unlock(&cont->mutex);
 
 	return 1;
 }
