@@ -47,7 +47,7 @@ typedef struct GFX_LodMap
  */
 void _gfx_lod_map_init(
 
-		GFX_LodMap*  map,
+		GFX_LodMap  *map,
 		GFXLodFlags  flags,
 		size_t       dataSize,
 		size_t       compSize);
@@ -58,7 +58,7 @@ void _gfx_lod_map_init(
  */
 void _gfx_lod_map_clear(
 
-		GFX_LodMap* map);
+		GFX_LodMap *map);
 
 
 /********************************************************
@@ -80,7 +80,7 @@ int _gfx_property_map_list_insert_copies_at(
 		GFXPropertyMapList  list,
 		unsigned int        index,
 		unsigned int        copies,
-		unsigned int*       offset);
+		unsigned int       *offset);
 
 /**
  * References previously reserved copies to postpone erasing the reservation.
@@ -126,8 +126,8 @@ void _gfx_property_map_list_erase_copies_at(
  */
 int _gfx_mesh_add_bucket(
 
-		GFXMesh*    mesh,
-		GFXBucket*  bucket);
+		GFXMesh    *mesh,
+		GFXBucket  *bucket);
 
 /**
  * Fetches the source ID at a bucket of a source at a mesh.
@@ -138,8 +138,8 @@ int _gfx_mesh_add_bucket(
  */
 GFXBucketSource _gfx_mesh_get_bucket_source(
 
-		GFXMesh*      mesh,
-		GFXBucket*    bucket,
+		GFXMesh      *mesh,
+		GFXBucket    *bucket,
 		unsigned int  index);
 
 /**
@@ -150,8 +150,8 @@ GFXBucketSource _gfx_mesh_get_bucket_source(
  */
 int _gfx_mesh_remove_bucket(
 
-		GFXMesh*    mesh,
-		GFXBucket*  bucket);
+		GFXMesh    *mesh,
+		GFXBucket  *bucket);
 
 
 #endif // GFX_SCENE_INTERNAL_H

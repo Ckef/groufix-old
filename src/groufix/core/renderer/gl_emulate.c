@@ -43,9 +43,9 @@ void APIENTRY _gfx_gl_bind_buffers_range(
 		GLenum             target,
 		GLuint             first,
 		GLsizei            count,
-		const GLuint*      buffers,
-		const GLintptr*    offsets,
-		const GLsizeiptr*  sizes)
+		const GLuint      *buffers,
+		const GLintptr    *offsets,
+		const GLsizeiptr  *sizes)
 {
 	GFX_CONT_INIT_UNSAFE;
 
@@ -115,7 +115,7 @@ void APIENTRY _gfx_gl_copy_named_buffer_sub_data(
 void APIENTRY _gfx_gl_create_buffers(
 
 		GLsizei  n,
-		GLuint*  buffers)
+		GLuint  *buffers)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenBuffers(n, buffers);
@@ -124,7 +124,7 @@ void APIENTRY _gfx_gl_create_buffers(
 void APIENTRY _gfx_gl_create_framebuffers(
 
 		GLsizei  n,
-		GLuint*  ids)
+		GLuint  *ids)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenFramebuffers(n, ids);
@@ -133,7 +133,7 @@ void APIENTRY _gfx_gl_create_framebuffers(
 void APIENTRY _gfx_gl_create_program_pipelines(
 
 		GLsizei  n,
-		GLuint*  pipelines)
+		GLuint  *pipelines)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenProgramPipelines(n, pipelines);
@@ -142,7 +142,7 @@ void APIENTRY _gfx_gl_create_program_pipelines(
 void APIENTRY _gfx_gl_create_samplers(
 
 		GLsizei  n,
-		GLuint*  samplers)
+		GLuint  *samplers)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenSamplers(n, samplers);
@@ -152,7 +152,7 @@ void APIENTRY _gfx_gl_create_textures(
 
 		GLenum   target,
 		GLsizei  n,
-		GLuint*  textures)
+		GLuint  *textures)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenTextures(n, textures);
@@ -161,7 +161,7 @@ void APIENTRY _gfx_gl_create_textures(
 void APIENTRY _gfx_gl_create_vertex_arrays(
 
 		GLsizei  n,
-		GLuint*  arrays)
+		GLuint  *arrays)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.GenVertexArrays(n, arrays);
@@ -170,7 +170,7 @@ void APIENTRY _gfx_gl_create_vertex_arrays(
 void APIENTRY _gfx_gl_debug_message_callback(
 
 		GFX_DEBUGPROC  callback,
-		const void*    userParam)
+		const void    *userParam)
 {
 	/* No-op */
 }
@@ -181,7 +181,7 @@ void APIENTRY _gfx_gl_debug_message_control(
 		GLenum         type,
 		GLenum         severity,
 		GLsizei        count,
-		const GLuint*  ids,
+		const GLuint  *ids,
 		GLboolean      enabled)
 {
 	/* No-op */
@@ -190,7 +190,7 @@ void APIENTRY _gfx_gl_debug_message_control(
 void APIENTRY _gfx_gl_delete_program_pipelines(
 
 		GLsizei        n,
-		const GLuint*  pipelines)
+		const GLuint  *pipelines)
 {
 	_gfx_gl_error_program_map();
 }
@@ -227,7 +227,7 @@ void APIENTRY _gfx_gl_draw_elements_instanced_base_instance(
 		GLenum         mode,
 		GLsizei        count,
 		GLenum         type,
-		const GLvoid*  indices,
+		const GLvoid  *indices,
 		GLsizei        primcount,
 		GLuint         baseinstance)
 {
@@ -239,7 +239,7 @@ void APIENTRY _gfx_gl_draw_elements_instanced_base_vertex_base_instance(
 		GLenum         mode,
 		GLsizei        count,
 		GLenum         type,
-		const GLvoid*  indices,
+		const GLvoid  *indices,
 		GLsizei        primcount,
 		GLint          basevertex,
 		GLuint         baseinstance)
@@ -273,7 +273,7 @@ void APIENTRY _gfx_gl_generate_texture_mipmap(
 void APIENTRY _gfx_gl_gen_program_pipelines(
 
 		GLsizei  n,
-		GLuint*  pipelines)
+		GLuint  *pipelines)
 {
 	_gfx_gl_error_program_map();
 }
@@ -283,7 +283,7 @@ void APIENTRY _gfx_gl_get_named_buffer_sub_data(
 		GLuint    buffer,
 		GLintptr  offset,
 		GLsizei   size,
-		void*     data)
+		void     *data)
 {
 	GFX_CONT_INIT_UNSAFE;
 
@@ -291,7 +291,7 @@ void APIENTRY _gfx_gl_get_named_buffer_sub_data(
 	GFX_REND_GET.GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
-void* APIENTRY _gfx_gl_map_named_buffer_range(
+void *APIENTRY _gfx_gl_map_named_buffer_range(
 
 		GLuint      buffer,
 		GLintptr    offset,
@@ -308,7 +308,7 @@ void APIENTRY _gfx_gl_named_buffer_data(
 
 		GLuint       buffer,
 		GLsizei      size,
-		const void*  data,
+		const void  *data,
 		GLenum       usage)
 {
 	GFX_CONT_INIT_UNSAFE;
@@ -322,7 +322,7 @@ void APIENTRY _gfx_gl_named_buffer_sub_data(
 		GLuint       buffer,
 		GLintptr     offset,
 		GLsizei      size,
-		const void*  data)
+		const void  *data)
 {
 	GFX_CONT_INIT_UNSAFE;
 
@@ -334,7 +334,7 @@ void APIENTRY _gfx_gl_named_framebuffer_draw_buffers(
 
 		GLuint         framebuffer,
 		GLsizei        n,
-		const GLenum*  bufs)
+		const GLenum  *bufs)
 {
 	GFX_CONT_INIT_UNSAFE;
 
@@ -411,7 +411,7 @@ void APIENTRY _gfx_gl_program_uniform_1fv(
 		GLuint          program,
 		GLint           location,
 		GLsizei         count,
-		const GLfloat*  value)
+		const GLfloat  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform1fv(location, count, value);
@@ -422,7 +422,7 @@ void APIENTRY _gfx_gl_program_uniform_1iv(
 		GLuint        program,
 		GLint         location,
 		GLsizei       count,
-		const GLint*  value)
+		const GLint  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform1iv(location, count, value);
@@ -433,7 +433,7 @@ void APIENTRY _gfx_gl_program_uniform_1uiv(
 		GLuint         program,
 		GLint          location,
 		GLsizei        count,
-		const GLuint*  value)
+		const GLuint  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform1uiv(location, count, value);
@@ -444,7 +444,7 @@ void APIENTRY _gfx_gl_program_uniform_2fv(
 		GLuint          program,
 		GLint           location,
 		GLsizei         count,
-		const GLfloat*  value)
+		const GLfloat  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform2fv(location, count, value);
@@ -455,7 +455,7 @@ void APIENTRY _gfx_gl_program_uniform_2iv(
 		GLuint        program,
 		GLint         location,
 		GLsizei       count,
-		const GLint*  value)
+		const GLint  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform2iv(location, count, value);
@@ -466,7 +466,7 @@ void APIENTRY _gfx_gl_program_uniform_2uiv(
 		GLuint         program,
 		GLint          location,
 		GLsizei        count,
-		const GLuint*  value)
+		const GLuint  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform2uiv(location, count, value);
@@ -477,7 +477,7 @@ void APIENTRY _gfx_gl_program_uniform_3fv(
 		GLuint          program,
 		GLint           location,
 		GLsizei         count,
-		const GLfloat*  value)
+		const GLfloat  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform3fv(location, count, value);
@@ -488,7 +488,7 @@ void APIENTRY _gfx_gl_program_uniform_3iv(
 		GLuint        program,
 		GLint         location,
 		GLsizei       count,
-		const GLint*  value)
+		const GLint  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform3iv(location, count, value);
@@ -499,7 +499,7 @@ void APIENTRY _gfx_gl_program_uniform_3uiv(
 		GLuint         program,
 		GLint          location,
 		GLsizei        count,
-		const GLuint*  value)
+		const GLuint  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform3uiv(location, count, value);
@@ -510,7 +510,7 @@ void APIENTRY _gfx_gl_program_uniform_4fv(
 		GLuint          program,
 		GLint           location,
 		GLsizei         count,
-		const GLfloat*  value)
+		const GLfloat  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform4fv(location, count, value);
@@ -521,7 +521,7 @@ void APIENTRY _gfx_gl_program_uniform_4iv(
 		GLuint        program,
 		GLint         location,
 		GLsizei       count,
-		const GLint*  value)
+		const GLint  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform4iv(location, count, value);
@@ -532,7 +532,7 @@ void APIENTRY _gfx_gl_program_uniform_4uiv(
 		GLuint         program,
 		GLint          location,
 		GLsizei        count,
-		const GLuint*  value)
+		const GLuint  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.Uniform4uiv(location, count, value);
@@ -544,7 +544,7 @@ void APIENTRY _gfx_gl_program_uniform_matrix_2fv(
 		GLint           location,
 		GLsizei         count,
 		GLboolean       transpose,
-		const GLfloat*  value)
+		const GLfloat  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.UniformMatrix2fv(location, count, transpose, value);
@@ -556,7 +556,7 @@ void APIENTRY _gfx_gl_program_uniform_matrix_3fv(
 		GLint           location,
 		GLsizei         count,
 		GLboolean       transpose,
-		const GLfloat*  value)
+		const GLfloat  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.UniformMatrix3fv(location, count, transpose, value);
@@ -568,7 +568,7 @@ void APIENTRY _gfx_gl_program_uniform_matrix_4fv(
 		GLint           location,
 		GLsizei         count,
 		GLboolean       transpose,
-		const GLfloat*  value)
+		const GLfloat  *value)
 {
 	GFX_CONT_INIT_UNSAFE;
 	GFX_REND_GET.UniformMatrix4fv(location, count, transpose, value);
@@ -659,7 +659,7 @@ void APIENTRY _gfx_gl_texture_sub_image_2d(
 		GLsizei      h,
 		GLenum       format,
 		GLenum       type,
-		const void*  pixels)
+		const void  *pixels)
 {
 	/* No-op */
 }
@@ -676,7 +676,7 @@ void APIENTRY _gfx_gl_texture_sub_image_3d(
 		GLsizei      d,
 		GLenum       format,
 		GLenum       type,
-		const void*  pixels)
+		const void  *pixels)
 {
 	/* No-op */
 }
@@ -889,7 +889,7 @@ void APIENTRY _gfx_gles_draw_elements_base_vertex(
 		GLenum         mode,
 		GLsizei        count,
 		GLenum         type,
-		const GLvoid*  indices,
+		const GLvoid  *indices,
 		GLint          basevertex)
 {
 	_gfx_gles_error_vertex_base();
@@ -900,7 +900,7 @@ void APIENTRY _gfx_gles_draw_elements_instanced_base_vertex(
 		GLenum         mode,
 		GLsizei        count,
 		GLenum         type,
-		const GLvoid*  indices,
+		const GLvoid  *indices,
 		GLsizei        primcount,
 		GLint          basevertex)
 {
@@ -922,9 +922,9 @@ void APIENTRY _gfx_gles_get_buffer_sub_data(
 		GLenum      target,
 		GLintptr    offset,
 		GLsizeiptr  size,
-		GLvoid*     data)
+		GLvoid     *data)
 {
-	void* map = glMapBufferRange(
+	void *map = glMapBufferRange(
 		target,
 		offset,
 		size,
@@ -1060,7 +1060,7 @@ void APIENTRY _gfx_gl_bind_sampler(
 void APIENTRY _gfx_gl_delete_samplers(
 
 		GLsizei        n,
-		const GLuint*  samplers)
+		const GLuint  *samplers)
 {
 	/* No-op */
 }
@@ -1068,7 +1068,7 @@ void APIENTRY _gfx_gl_delete_samplers(
 void APIENTRY _gfx_gl_gen_samplers(
 
 		GLsizei  n,
-		GLuint*  samplers)
+		GLuint  *samplers)
 {
 	/* No-op */
 }
@@ -1077,9 +1077,9 @@ void APIENTRY _gfx_gl_get_program_binary(
 
 		GLuint    program,
 		GLsizei   bufsize,
-		GLsizei*  length,
-		GLenum*   binaryFormat,
-		void*     binary)
+		GLsizei  *length,
+		GLenum   *binaryFormat,
+		void     *binary)
 {
 	if(length) *length = 0;
 
@@ -1102,7 +1102,7 @@ void APIENTRY _gfx_gl_program_binary(
 
 		GLuint       program,
 		GLenum       binaryFormat,
-		const void*  binary,
+		const void  *binary,
 		GLsizei      length)
 {
 	_gfx_gl_error_program_binary();

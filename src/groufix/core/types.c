@@ -19,18 +19,18 @@
 /******************************************************/
 int _gfx_contains_string(
 
-		const char*  haystack,
-		const char*  needle)
+		const char  *haystack,
+		const char  *needle)
 {
 	/* Get needle length */
 	size_t len = strlen(needle);
 	if(!haystack || !len) return 0;
 
 	/* Try to find a complete match */
-	char* found = strstr(haystack, needle);
+	char *found = strstr(haystack, needle);
 	while(found)
 	{
-		char* end = found + len;
+		char *end = found + len;
 		if(
 			(*end == ' ' || *end == '\0') &&
 			(found == haystack || *(found - 1) == ' '))
@@ -47,9 +47,9 @@ int _gfx_contains_string(
 void _gfx_split_depth(
 
 		unsigned short   depth,
-		unsigned short*  red,
-		unsigned short*  green,
-		unsigned short*  blue)
+		unsigned short  *red,
+		unsigned short  *green,
+		unsigned short  *blue)
 {
 	unsigned short delta = depth / 3;
 

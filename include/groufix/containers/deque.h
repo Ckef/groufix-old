@@ -29,7 +29,7 @@ extern "C" {
  *******************************************************/
 
 /** Deque iterator */
-typedef void* GFXDequeIterator;
+typedef void *GFXDequeIterator;
 
 
 /** Deque */
@@ -38,7 +38,7 @@ typedef struct GFXDeque
 	size_t            elementSize;
 	size_t            capacity; /* in bytes */
 
-	void*             data;
+	void             *data;
 	GFXDequeIterator  begin;
 	GFXDequeIterator  end;
 
@@ -51,7 +51,7 @@ typedef struct GFXDeque
  * @return NULL on failure.
  *
  */
-GFX_API GFXDeque* gfx_deque_create(
+GFX_API GFXDeque *gfx_deque_create(
 
 		size_t elementSize);
 
@@ -63,11 +63,11 @@ GFX_API GFXDeque* gfx_deque_create(
  * @return NULL on failure.
  *
  */
-GFX_API GFXDeque* gfx_deque_create_from_buffer(
+GFX_API GFXDeque *gfx_deque_create_from_buffer(
 
 		size_t       elementSize,
 		size_t       numElements,
-		const void*  buff);
+		const void  *buff);
 
 /**
  * Creates a copy of a deque.
@@ -75,9 +75,9 @@ GFX_API GFXDeque* gfx_deque_create_from_buffer(
  * @return NULL on failure.
  *
  */
-GFX_API GFXDeque* gfx_deque_create_copy(
+GFX_API GFXDeque *gfx_deque_create_copy(
 
-		const GFXDeque* src);
+		const GFXDeque *src);
 
 /**
  * Makes sure the deque is freed properly.
@@ -85,7 +85,7 @@ GFX_API GFXDeque* gfx_deque_create_copy(
  */
 GFX_API void gfx_deque_free(
 
-		GFXDeque* deque);
+		GFXDeque *deque);
 
 /**
  * Initializes a deque.
@@ -93,7 +93,7 @@ GFX_API void gfx_deque_free(
  */
 GFX_API void gfx_deque_init(
 
-		GFXDeque*  deque,
+		GFXDeque  *deque,
 		size_t     elementSize);
 
 /**
@@ -107,10 +107,10 @@ GFX_API void gfx_deque_init(
  */
 GFX_API void gfx_deque_init_from_buffer(
 
-		GFXDeque*    deque,
+		GFXDeque    *deque,
 		size_t       elementSize,
 		size_t       numElements,
-		const void*  buff);
+		const void  *buff);
 
 /**
  * Initializes a copy of a deque.
@@ -120,8 +120,8 @@ GFX_API void gfx_deque_init_from_buffer(
  */
 GFX_API void gfx_deque_init_copy(
 
-		GFXDeque*        deque,
-		const GFXDeque*  src);
+		GFXDeque        *deque,
+		const GFXDeque  *src);
 
 /**
  * Clears the content of a deque.
@@ -129,7 +129,7 @@ GFX_API void gfx_deque_init_copy(
  */
 GFX_API void gfx_deque_clear(
 
-		GFXDeque* deque);
+		GFXDeque *deque);
 
 /**
  * Requests a minimum capacity, which will hold as long as nothing is erased.
@@ -139,7 +139,7 @@ GFX_API void gfx_deque_clear(
  */
 GFX_API int gfx_deque_reserve(
 
-		GFXDeque*  deque,
+		GFXDeque  *deque,
 		size_t     numElements);
 
 /**
@@ -151,8 +151,8 @@ GFX_API int gfx_deque_reserve(
  */
 GFX_API GFXDequeIterator gfx_deque_push_begin(
 
-		GFXDeque*    deque,
-		const void*  element);
+		GFXDeque    *deque,
+		const void  *element);
 
 /**
  * Adds an element to the end of the deque.
@@ -163,8 +163,8 @@ GFX_API GFXDequeIterator gfx_deque_push_begin(
  */
 GFX_API GFXDequeIterator gfx_deque_push_end(
 
-		GFXDeque*    deque,
-		const void*  element);
+		GFXDeque    *deque,
+		const void  *element);
 
 /**
  * Removes an element from the begin of the deque.
@@ -174,7 +174,7 @@ GFX_API GFXDequeIterator gfx_deque_push_end(
  */
 GFX_API GFXDequeIterator gfx_deque_pop_begin(
 
-		GFXDeque* deque);
+		GFXDeque *deque);
 
 /**
  * Removes an element from the end of the deque.
@@ -184,7 +184,7 @@ GFX_API GFXDequeIterator gfx_deque_pop_begin(
  */
 GFX_API GFXDequeIterator gfx_deque_pop_end(
 
-		GFXDeque* deque);
+		GFXDeque *deque);
 
 /**
  * Returns the size of the deque in bytes.
@@ -192,7 +192,7 @@ GFX_API GFXDequeIterator gfx_deque_pop_end(
  */
 GFX_API size_t gfx_deque_get_byte_size(
 
-		const GFXDeque* deque);
+		const GFXDeque *deque);
 
 /**
  * Returns the index of an iterator.
@@ -200,7 +200,7 @@ GFX_API size_t gfx_deque_get_byte_size(
  */
 GFX_API size_t gfx_deque_get_index(
 
-		const GFXDeque*         deque,
+		const GFXDeque         *deque,
 		const GFXDequeIterator  it);
 
 /**
@@ -209,7 +209,7 @@ GFX_API size_t gfx_deque_get_index(
  */
 GFX_API GFXDequeIterator gfx_deque_advance(
 
-		const GFXDeque*         deque,
+		const GFXDeque         *deque,
 		const GFXDequeIterator  it,
 		int                     num);
 
@@ -219,7 +219,7 @@ GFX_API GFXDequeIterator gfx_deque_advance(
  */
 static GFX_ALWAYS_INLINE size_t gfx_deque_get_size(
 
-		const GFXDeque* deque)
+		const GFXDeque *deque)
 {
 	return gfx_deque_get_byte_size(deque) / deque->elementSize;
 }
@@ -232,7 +232,7 @@ static GFX_ALWAYS_INLINE size_t gfx_deque_get_size(
  */
 static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_at(
 
-		const GFXDeque*  deque,
+		const GFXDeque  *deque,
 		size_t           index)
 {
 	return gfx_deque_advance(deque, deque->begin, index);
@@ -244,7 +244,7 @@ static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_at(
  */
 static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_next(
 
-		const GFXDeque*         deque,
+		const GFXDeque         *deque,
 		const GFXDequeIterator  it)
 {
 	return gfx_deque_advance(deque, it, 1);
@@ -256,7 +256,7 @@ static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_next(
  */
 static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_previous(
 
-		const GFXDeque*         deque,
+		const GFXDeque         *deque,
 		const GFXDequeIterator  it)
 {
 	return gfx_deque_advance(deque, it, -1);

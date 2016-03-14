@@ -21,8 +21,8 @@
 /******************************************************/
 int _gfx_platform_file_open(
 
-		GFX_PlatformFile*  file,
-		const char*        path,
+		GFX_PlatformFile  *file,
+		const char        *path,
 		GFXResourceFlags   flags)
 {
 	/* Validate access method */
@@ -62,8 +62,8 @@ int _gfx_platform_file_open(
 /******************************************************/
 int _gfx_platform_file_move(
 
-		const char*  oldPath,
-		const char*  newPath)
+		const char  *oldPath,
+		const char  *newPath)
 {
 	/* Check if it is in fact a file */
 	struct stat sb;
@@ -76,7 +76,7 @@ int _gfx_platform_file_move(
 /******************************************************/
 int _gfx_platform_file_remove(
 
-		const char* path)
+		const char *path)
 {
 	return unlink(path) != -1;
 }

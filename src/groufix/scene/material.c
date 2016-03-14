@@ -23,7 +23,7 @@
 /* Internal Property Map data */
 typedef struct GFX_MapData
 {
-	GFXPropertyMap*  map;      /* Super class */
+	GFXPropertyMap  *map;      /* Super class */
 	unsigned int     copies;   /* Number of copies used by units */
 	GFXVector        segments; /* Takes segments of the copy range */
 
@@ -43,8 +43,8 @@ typedef struct GFX_Segment
 /******************************************************/
 static int _gfx_material_segment_comp(
 
-		const void*  key,
-		const void*  elem)
+		const void  *key,
+		const void  *elem)
 {
 	unsigned int offset = GFX_VOID_TO_UINT(key);
 	unsigned int found = ((const GFX_Segment*)elem)->offset;
@@ -58,7 +58,7 @@ static int _gfx_material_segment_comp(
 /******************************************************/
 static inline GFX_Segment* _gfx_material_find_segment(
 
-		const GFX_MapData*  data,
+		const GFX_MapData  *data,
 		unsigned int        offset)
 {
 	return bsearch(
@@ -76,7 +76,7 @@ int _gfx_property_map_list_insert_copies_at(
 		GFXPropertyMapList  list,
 		unsigned int        index,
 		unsigned int        copies,
-		unsigned int*       offset)
+		unsigned int       *offset)
 {
 	GFX_Segment new =
 	{
@@ -85,7 +85,7 @@ int _gfx_property_map_list_insert_copies_at(
 		.num    = copies
 	};
 
-	GFX_MapData* data = ((GFX_MapData*)list) + index;
+	GFX_MapData *data = ((GFX_MapData*)list) + index;
 
 	/* Check for overflow */
 	if(UINT_MAX - copies < data->copies)
@@ -104,7 +104,7 @@ int _gfx_property_map_list_insert_copies_at(
 		it != data->segments.end;
 		it = gfx_vector_next(&data->segments, it))
 	{
-		GFX_Segment* seg = it;
+		GFX_Segment *seg = it;
 		if(copies > (seg->offset - new.offset))
 		{
 			new.offset = seg->offset + seg->num;
@@ -163,9 +163,9 @@ int _gfx_property_map_list_reference_copies_at(
 		unsigned int        offset)
 {
 	/* Retrieve segment */
-	GFX_MapData* data =
+	GFX_MapData *data =
 		((GFX_MapData*)list) + index;
-	GFX_Segment* it =
+	GFX_Segment *it =
 		_gfx_material_find_segment(data, offset);
 
 	if(!it) return 0;
@@ -193,9 +193,9 @@ void _gfx_property_map_list_erase_copies_at(
 		unsigned int        offset)
 {
 	/* Retrieve segment */
-	GFX_MapData* data =
+	GFX_MapData *data =
 		((GFX_MapData*)list) + index;
-	GFX_Segment* it =
+	GFX_Segment *it =
 		_gfx_material_find_segment(data, offset);
 
 	/* Check reference count */
@@ -208,7 +208,7 @@ void _gfx_property_map_list_erase_copies_at(
 }
 
 /******************************************************/
-GFXMaterial* gfx_material_create(void)
+GFXMaterial *gfx_material_create(void)
 {
 	/* Allocate */
 	return (GFXMaterial*)gfx_lod_map_create(
@@ -221,13 +221,13 @@ GFXMaterial* gfx_material_create(void)
 /******************************************************/
 void gfx_material_free(
 
-		GFXMaterial* material)
+		GFXMaterial *material)
 {
 	if(material)
 	{
 		/* Free all property maps */
 		unsigned int num;
-		GFX_MapData* maps = gfx_lod_map_get_all(
+		GFX_MapData *maps = gfx_lod_map_get_all(
 			(GFXLodMap*)material,
 			&num
 		);
@@ -244,11 +244,11 @@ void gfx_material_free(
 }
 
 /******************************************************/
-GFXPropertyMap* gfx_material_add(
+GFXPropertyMap *gfx_material_add(
 
-		GFXMaterial*    material,
+		GFXMaterial    *material,
 		unsigned int    level,
-		GFXProgramMap*  programMap,
+		GFXProgramMap  *programMap,
 		unsigned char   properties)
 {
 	/* Create new property map */
@@ -275,9 +275,9 @@ GFXPropertyMap* gfx_material_add(
 /******************************************************/
 GFXPropertyMapList gfx_material_get(
 
-		const GFXMaterial*  material,
+		const GFXMaterial  *material,
 		unsigned int        level,
-		unsigned int*       num)
+		unsigned int       *num)
 {
 	return gfx_lod_map_get((const GFXLodMap*)material, level, num);
 }
@@ -285,8 +285,8 @@ GFXPropertyMapList gfx_material_get(
 /******************************************************/
 GFXPropertyMapList gfx_material_get_all(
 
-		const GFXMaterial*  material,
-		unsigned int*       num)
+		const GFXMaterial  *material,
+		unsigned int       *num)
 {
 	return gfx_lod_map_get_all((const GFXLodMap*)material, num);
 }
@@ -301,7 +301,7 @@ unsigned int gfx_property_map_list_copies_at(
 }
 
 /******************************************************/
-GFXPropertyMap* gfx_property_map_list_at(
+GFXPropertyMap *gfx_property_map_list_at(
 
 		const GFXPropertyMapList  list,
 		unsigned int              index)

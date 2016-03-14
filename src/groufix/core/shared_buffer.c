@@ -51,10 +51,10 @@ static GFXVector* _gfx_shared_buffers = NULL;
 /******************************************************/
 static void _gfx_shared_buffer_obj_free(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_SharedBuffer* buff = (GFX_SharedBuffer*)object;
+	GFX_SharedBuffer *buff = (GFX_SharedBuffer*)object;
 
 	buff->id = id;
 	buff->handle = 0;
@@ -66,10 +66,10 @@ static void _gfx_shared_buffer_obj_free(
 /******************************************************/
 static void _gfx_shared_buffer_obj_save_restore(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_SharedBuffer* buff = (GFX_SharedBuffer*)object;
+	GFX_SharedBuffer *buff = (GFX_SharedBuffer*)object;
 	buff->id = id;
 }
 
@@ -89,7 +89,7 @@ static GFXVectorIterator _gfx_shared_buffer_create(
 		GFX_CONT_ARG)
 {
 	/* Create a new shared buffer */
-	GFX_SharedBuffer* buff = malloc(sizeof(GFX_SharedBuffer));
+	GFX_SharedBuffer *buff = malloc(sizeof(GFX_SharedBuffer));
 	if(!buff)
 	{
 		/* Out of memory error */
@@ -148,7 +148,7 @@ static void _gfx_shared_buffer_free(
 {
 	if(it)
 	{
-		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
+		GFX_SharedBuffer *buff = *(GFX_SharedBuffer**)it;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(buff->id);
@@ -175,10 +175,10 @@ static void _gfx_shared_buffer_free(
 /******************************************************/
 static int _gfx_shared_buffer_insert_segment(
 
-		GFX_SharedBuffer*  buffer,
+		GFX_SharedBuffer  *buffer,
 		size_t             size,
 		unsigned char      align,
-		size_t*            offset)
+		size_t            *offset)
 {
 	GFX_Segment new =
 	{
@@ -192,7 +192,7 @@ static int _gfx_shared_buffer_insert_segment(
 
 	while(it != buffer->segments.begin)
 	{
-		GFX_Segment* seg = gfx_vector_previous(&buffer->segments, it);
+		GFX_Segment *seg = gfx_vector_previous(&buffer->segments, it);
 
 		/* Continue if it does not fit */
 		size_t off = seg->offset + seg->size;
@@ -236,8 +236,8 @@ static int _gfx_shared_buffer_insert_segment(
 /******************************************************/
 static int _gfx_shared_buffer_segment_comp(
 
-		const void*  key,
-		const void*  elem)
+		const void  *key,
+		const void  *elem)
 {
 	size_t offset = GFX_VOID_TO_UINT(key);
 	size_t found = ((GFX_Segment*)elem)->offset;
@@ -251,7 +251,7 @@ static int _gfx_shared_buffer_segment_comp(
 /******************************************************/
 static void _gfx_shared_buffer_erase_segment(
 
-		GFX_SharedBuffer*  buffer,
+		GFX_SharedBuffer  *buffer,
 		size_t             offset)
 {
 	/* Retrieve segment */
@@ -269,7 +269,7 @@ static void _gfx_shared_buffer_erase_segment(
 /******************************************************/
 GLuint _gfx_gl_shared_buffer_get_handle(
 
-		const GFXSharedBuffer* buffer)
+		const GFXSharedBuffer *buffer)
 {
 	return ((const GFX_SharedBuffer*)buffer->reference)->handle;
 }
@@ -304,7 +304,7 @@ void gfx_shared_buffer_cleanup(void)
 		while(it != _gfx_shared_buffers->begin)
 		{
 			it = gfx_vector_previous(_gfx_shared_buffers, it);
-			GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
+			GFX_SharedBuffer *buff = *(GFX_SharedBuffer**)it;
 
 			if(buff->segments.begin == buff->segments.end)
 			{
@@ -319,9 +319,9 @@ void gfx_shared_buffer_cleanup(void)
 /******************************************************/
 int gfx_shared_buffer_init(
 
-		GFXSharedBuffer*  buffer,
+		GFXSharedBuffer  *buffer,
 		size_t            size,
-		const void*       data,
+		const void       *data,
 		unsigned char     align)
 {
 	GFX_CONT_INIT(0);
@@ -346,7 +346,7 @@ int gfx_shared_buffer_init(
 	{
 		/* Try to insert */
 		it = gfx_vector_previous(_gfx_shared_buffers, it);
-		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
+		GFX_SharedBuffer *buff = *(GFX_SharedBuffer**)it;
 
 		size_t offset;
 		if(_gfx_shared_buffer_insert_segment(buff, size, align, &offset))
@@ -369,7 +369,7 @@ int gfx_shared_buffer_init(
 
 	if(it)
 	{
-		GFX_SharedBuffer* buff = *(GFX_SharedBuffer**)it;
+		GFX_SharedBuffer *buff = *(GFX_SharedBuffer**)it;
 
 		size_t offset;
 		if(_gfx_shared_buffer_insert_segment(buff, size, align, &offset))
@@ -396,9 +396,9 @@ int gfx_shared_buffer_init(
 /******************************************************/
 int gfx_shared_buffer_init_align(
 
-		GFXSharedBuffer*  buffer,
+		GFXSharedBuffer  *buffer,
 		size_t            size,
-		const void*       data,
+		const void       *data,
 		GFXDataType       type)
 {
 	return gfx_shared_buffer_init(
@@ -412,12 +412,12 @@ int gfx_shared_buffer_init_align(
 /******************************************************/
 void gfx_shared_buffer_clear(
 
-		GFXSharedBuffer*  buffer,
+		GFXSharedBuffer  *buffer,
 		int               keep)
 {
 	GFX_CONT_INIT_UNSAFE;
 
-	GFX_SharedBuffer* buff = buffer->reference;
+	GFX_SharedBuffer *buff = buffer->reference;
 	_gfx_shared_buffer_erase_segment(buff, buffer->offset);
 
 	/* If already terminated, ignore keep */

@@ -60,7 +60,7 @@ static void* _gfx_gl_binder_init(
 	size_t unitSize = sizeof(GFX_Unit) + size;
 
 	/* Allocate */
-	void* data = calloc(num, unitSize);
+	void *data = calloc(num, unitSize);
 	if(!data)
 	{
 		/* Out of memory error */
@@ -71,12 +71,12 @@ static void* _gfx_gl_binder_init(
 		return NULL;
 	}
 
-	void* bindings = data;
+	void *bindings = data;
 
 	/* Iterate and set to empty */
 	while(num--)
 	{
-		GFX_Unit* unit = (GFX_Unit*)bindings;
+		GFX_Unit *unit = (GFX_Unit*)bindings;
 		unit->counter = GFX_BINDER_COUNTER_EMPTY;
 
 		/* Next unit */
@@ -89,7 +89,7 @@ static void* _gfx_gl_binder_init(
 /******************************************************/
 static void _gfx_gl_binder_increase(
 
-		void*          bindings,
+		void          *bindings,
 		size_t         num,
 		size_t         size,
 		int            sign,
@@ -100,7 +100,7 @@ static void _gfx_gl_binder_increase(
 	/* Iterate and increase */
 	while(num--)
 	{
-		GFX_Unit* unit = (GFX_Unit*)bindings;
+		GFX_Unit *unit = (GFX_Unit*)bindings;
 
 		/* Check against minimum and increase according to sign */
 		if(unit->counter != GFX_BINDER_COUNTER_EMPTY && unit->counter >= min)
@@ -122,14 +122,14 @@ static void _gfx_gl_binder_increase(
 /******************************************************/
 static void _gfx_gl_binder_unbind(
 
-		void*   bindings,
+		void   *bindings,
 		size_t  num,
 		size_t  size,
 		size_t  cmpOffset,
 		size_t  cmpSize,
-		void*   cmp)
+		void   *cmp)
 {
-	GFX_Unit* curr = bindings;
+	GFX_Unit *curr = bindings;
 	size_t unitSize = sizeof(GFX_Unit) + size;
 
 	cmp = GFX_PTR_ADD_BYTES(cmp, cmpOffset);
@@ -164,16 +164,16 @@ static void _gfx_gl_binder_unbind(
 /******************************************************/
 static size_t _gfx_gl_binder_request(
 
-		void*   bindings,
+		void   *bindings,
 		size_t  num,
 		size_t  size,
 		size_t  dataOffset,
 		size_t  dataSize,
-		void*   data,
+		void   *data,
 		int     prioritize,
-		int*    old)
+		int    *old)
 {
-	GFX_Unit* pos = NULL;
+	GFX_Unit *pos = NULL;
 	size_t unitSize = sizeof(GFX_Unit) + size;
 
 	data = GFX_PTR_ADD_BYTES(data, dataOffset);
@@ -189,8 +189,8 @@ static size_t _gfx_gl_binder_request(
 	);
 
 	/* Find highest or equal entry */
-	GFX_Unit* high = (GFX_Unit*)bindings;
-	GFX_Unit* curr = high;
+	GFX_Unit *high = (GFX_Unit*)bindings;
+	GFX_Unit *curr = high;
 
 	while(num--)
 	{
@@ -310,7 +310,7 @@ static size_t _gfx_gl_binder_bind_texture_unit(
 		size_t           offset,
 		size_t           size,
 		int              prioritize,
-		int*             old,
+		int             *old,
 		GFX_CONT_ARG)
 {
 	size_t bind = 0;

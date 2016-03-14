@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-static GFXProgramMap* programMap;
+static GFXProgramMap *programMap;
 
 
 void print_error(GFXError error)
@@ -12,11 +12,11 @@ void print_error(GFXError error)
 	printf("[Error #%x]: %s\n", error.code, error.description);
 }
 
-GFXMesh* create_mesh()
+GFXMesh *create_mesh()
 {
-	GFXMesh* mesh = gfx_mesh_create();
+	GFXMesh *mesh = gfx_mesh_create();
 	GFXMeshLayout id = gfx_mesh_add_layout(mesh, 1);
-	GFXVertexLayout* layout = gfx_mesh_get_layout(mesh, id);
+	GFXVertexLayout *layout = gfx_mesh_get_layout(mesh, id);
 
 	GFXVertexAttribute attr;
 	attr.size          = 3;
@@ -56,9 +56,9 @@ GFXMesh* create_mesh()
 	return mesh;
 }
 
-GFXMaterial* create_material()
+GFXMaterial *create_material()
 {
-	const char* vertSrc =
+	const char *vertSrc =
 		"in vec4 position;"
 		"in vec3 color;"
 		"out vec3 fragColor;"
@@ -66,27 +66,27 @@ GFXMaterial* create_material()
 		"gl_Position = position;"
 		"fragColor = color;"
 		"}";
-	const char* fragSrc =
+	const char *fragSrc =
 		"in vec3 fragColor;"
 		"out vec3 outColor;"
 		"void main() {"
 		"outColor = fragColor;"
 		"}";
 
-	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
-	GFXShader* frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
+	GFXShader *vert = gfx_shader_create(GFX_VERTEX_SHADER);
+	GFXShader *frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
 	gfx_shader_set_source(vert, 1, &vertSrc, NULL);
 	gfx_shader_set_source(frag, 1, &fragSrc, NULL);
 
-	GFXShader* shaders[] = { vert, frag };
+	GFXShader *shaders[] = { vert, frag };
 
 	programMap = gfx_program_map_create();
-	GFXProgram* program = gfx_program_map_add(programMap, GFX_ALL_SHADERS, 1);
+	GFXProgram *program = gfx_program_map_add(programMap, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(program, 0, "position");
 	gfx_program_set_attribute(program, 1, "color");
 	gfx_program_link(program, 2, shaders, 0);
 
-	GFXMaterial* mat = gfx_material_create();
+	GFXMaterial *mat = gfx_material_create();
 	gfx_material_add(mat, 0, programMap, 0);
 
 	gfx_shader_free(vert);
@@ -118,19 +118,19 @@ int main()
 	depth.greenBits = 8;
 	depth.blueBits  = 8;
 
-	GFXWindow* window1 = gfx_window_create(NULL, 0, &depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
-	GFXWindow* window2 = gfx_window_create(NULL, 0, &depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow *window1 = gfx_window_create(NULL, 0, &depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
+	GFXWindow *window2 = gfx_window_create(NULL, 0, &depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);
 
 
 	/* Pipeline */
-	GFXPipeline* pipeline = gfx_pipeline_create();
+	GFXPipeline *pipeline = gfx_pipeline_create();
 
 	char targets[] = { 0 };
 	GFXViewport viewport = { 0, 0, 800, 600 };
 	pipeline->viewport = viewport;
 	gfx_pipeline_target(pipeline, 1, targets);
 
-	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0);
+	GFXPipe *bucket = gfx_pipeline_push_bucket(pipeline, 0);
 	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;
 
 
@@ -140,7 +140,7 @@ int main()
 	format.type.unpacked = GFX_UNSIGNED_BYTE;
 	format.interpret     = GFX_INTERPRET_NORMALIZED;
 
-	GFXTexture* tex = gfx_texture_create(GFX_TEXTURE_2D, format, 0, 800, 600, 1);
+	GFXTexture *tex = gfx_texture_create(GFX_TEXTURE_2D, format, 0, 800, 600, 1);
 
 	GFXTextureImage image;
 	image.texture = tex;
@@ -151,7 +151,7 @@ int main()
 
 
 	/* Post processing */
-	const char* vertSrc =
+	const char *vertSrc =
 		"in ivec4 data;"
 		"out vec2 coord;"
 		"void main() {"
@@ -159,14 +159,14 @@ int main()
 		"coord = data.zw;"
 		"}";
 
-	const char* fragSrcA =
+	const char *fragSrcA =
 		"in vec2 coord;"
 		"out vec3 color;"
 		"uniform sampler2D tex;"
 		"void main() {"
 		"color = vec3(1.0f) - texture(tex, coord).rgb;"
 		"}";
-	const char* fragSrcB =
+	const char *fragSrcB =
 		"in vec2 coord;"
 		"out vec3 color;"
 		"uniform sampler2D tex;"
@@ -174,22 +174,22 @@ int main()
 		"color = texture(tex, coord).rgb;"
 		"}";
 
-	GFXShader* vert = gfx_shader_create(GFX_VERTEX_SHADER);
-	GFXShader* frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
+	GFXShader *vert = gfx_shader_create(GFX_VERTEX_SHADER);
+	GFXShader *frag = gfx_shader_create(GFX_FRAGMENT_SHADER);
 	gfx_shader_set_source(vert, 1, &vertSrc, NULL);
 	gfx_shader_set_source(frag, 1, &fragSrcA, NULL);
 
-	GFXShader* shaders[] = { vert, frag };
+	GFXShader *shaders[] = { vert, frag };
 
-	GFXPipe* pipeA = gfx_pipeline_push_process(pipeline, window1, 0);
-	GFXProgram* programA = gfx_pipe_process_add(pipeA->process, GFX_ALL_SHADERS, 1);
+	GFXPipe *pipeA = gfx_pipeline_push_process(pipeline, window1, 0);
+	GFXProgram *programA = gfx_pipe_process_add(pipeA->process, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(programA, 0, "data");
 	gfx_program_link(programA, 2, shaders, 0);
 
 	gfx_shader_set_source(frag, 1, &fragSrcB, NULL);
 
-	GFXPipe* pipeB = gfx_pipeline_push_process(pipeline, window2, 0);
-	GFXProgram* programB = gfx_pipe_process_add(pipeB->process, GFX_ALL_SHADERS, 1);
+	GFXPipe *pipeB = gfx_pipeline_push_process(pipeline, window2, 0);
+	GFXProgram *programB = gfx_pipe_process_add(pipeB->process, GFX_ALL_SHADERS, 1);
 	gfx_program_set_attribute(programB, 0, "data");
 	gfx_program_link(programB, 2, shaders, 0);
 
@@ -214,8 +214,8 @@ int main()
 		.wrapR = GFX_WRAP_REPEAT
 	};
 
-	GFXPropertyMap* mapA = gfx_pipe_process_get_map(pipeA->process, 1);
-	GFXPropertyMap* mapB = gfx_pipe_process_get_map(pipeB->process, 1);
+	GFXPropertyMap *mapA = gfx_pipe_process_get_map(pipeA->process, 1);
+	GFXPropertyMap *mapB = gfx_pipe_process_get_map(pipeB->process, 1);
 	gfx_property_map_forward_named(mapA, 0, 0, 0, GFX_FRAGMENT_SHADER, "tex");
 	gfx_property_map_set_sampler(mapA, 0, 0, sampler);
 	gfx_property_map_set_texture(mapA, 0, 0, tex);
@@ -225,12 +225,12 @@ int main()
 
 
 	/* Mesh and material */
-	GFXMaterial* material = create_material();
-	GFXMesh* mesh = create_mesh();
+	GFXMaterial *material = create_material();
+	GFXMesh *mesh = create_mesh();
 
 
 	/* Batch */
-	GFXBatch* batch = gfx_batch_create(
+	GFXBatch *batch = gfx_batch_create(
 		bucket->bucket, material, mesh, 0, 0, 1, 1);
 	gfx_batch_set_level(
 		batch, 0, 0, 0, 1);

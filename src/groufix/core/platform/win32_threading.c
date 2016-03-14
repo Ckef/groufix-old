@@ -22,7 +22,7 @@
 typedef struct GFX_ThreadArgs
 {
 	GFX_ThreadAddress  addr;
-	void*              args;
+	void              *args;
 
 } GFX_ThreadArgs;
 
@@ -30,7 +30,7 @@ typedef struct GFX_ThreadArgs
 /******************************************************/
 static unsigned int __stdcall _gfx_win32_thread_addr(
 
-		void* arg)
+		void *arg)
 {
 	GFX_ThreadArgs data = *(GFX_ThreadArgs*)arg;
 	free(arg);
@@ -41,13 +41,13 @@ static unsigned int __stdcall _gfx_win32_thread_addr(
 /******************************************************/
 int _gfx_platform_thread_init(
 
-		GFX_PlatformThread*  thread,
+		GFX_PlatformThread  *thread,
 		GFX_ThreadAddress    func,
-		void*                arg,
+		void                *arg,
 		int                  joinable)
 {
 	/* Create arguments */
-	GFX_ThreadArgs* data = malloc(sizeof(GFX_ThreadArgs));
+	GFX_ThreadArgs *data = malloc(sizeof(GFX_ThreadArgs));
 	if(!data) return 0;
 
 	data->addr = func;
@@ -76,7 +76,7 @@ int _gfx_platform_thread_init(
 int _gfx_platform_thread_join(
 
 		GFX_PlatformThread  thread,
-		unsigned int*       ret)
+		unsigned int       *ret)
 {
 	if(WaitForSingleObject(thread, INFINITE) == WAIT_FAILED)
 		return 0;
@@ -97,8 +97,8 @@ int _gfx_platform_thread_join(
 /******************************************************/
 int _gfx_platform_cond_wait_time(
 
-		GFX_PlatformCond*   cond,
-		GFX_PlatformMutex*  mutex,
+		GFX_PlatformCond   *cond,
+		GFX_PlatformMutex  *mutex,
 		uint64_t            nsec)
 {
 	/* Round up so nsec is a minimum */

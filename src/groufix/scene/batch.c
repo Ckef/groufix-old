@@ -37,7 +37,7 @@ typedef struct GFX_Level
 /******************************************************/
 static inline GFX_Level* _gfx_batch_get_level(
 
-		const GFXBatch*  batch,
+		const GFXBatch  *batch,
 		unsigned char    level)
 {
 	return ((GFX_Level*)(batch + 1)) + level;
@@ -46,7 +46,7 @@ static inline GFX_Level* _gfx_batch_get_level(
 /******************************************************/
 static inline GFXBucketUnit* _gfx_batch_get_unit(
 
-		const GFXBatch*  batch,
+		const GFXBatch  *batch,
 		unsigned char    level,
 		unsigned int     unit)
 {
@@ -57,8 +57,8 @@ static inline GFXBucketUnit* _gfx_batch_get_unit(
 /******************************************************/
 static void _gfx_batch_erase_copies(
 
-		GFXBatch*   batch,
-		GFX_Level*  level)
+		GFXBatch   *batch,
+		GFX_Level  *level)
 {
 	if(level->copies)
 	{
@@ -80,11 +80,11 @@ static void _gfx_batch_erase_copies(
 }
 
 /******************************************************/
-GFXBatch* gfx_batch_create(
+GFXBatch *gfx_batch_create(
 
-		GFXBucket*     bucket,
-		GFXMaterial*   material,
-		GFXMesh*       mesh,
+		GFXBucket     *bucket,
+		GFXMaterial   *material,
+		GFXMesh       *mesh,
 		unsigned int   matIndex,
 		unsigned int   meshIndex,
 		unsigned char  levels,
@@ -99,7 +99,7 @@ GFXBatch* gfx_batch_create(
 		sizeof(GFX_Level) * levels +
 		sizeof(GFXBucketUnit) * levels * units;
 
-	GFXBatch* batch = malloc(size);
+	GFXBatch *batch = malloc(size);
 	if(!batch)
 	{
 		/* Out of memory error */
@@ -135,7 +135,7 @@ GFXBatch* gfx_batch_create(
 /******************************************************/
 void gfx_batch_free(
 
-		GFXBatch* batch)
+		GFXBatch *batch)
 {
 	if(batch)
 	{
@@ -145,7 +145,7 @@ void gfx_batch_free(
 
 		for(level = 0; level < batch->levels; ++level)
 		{
-			GFX_Level* lev = _gfx_batch_get_level(
+			GFX_Level *lev = _gfx_batch_get_level(
 				batch, level);
 			_gfx_batch_erase_copies(
 				batch, lev);
@@ -166,14 +166,14 @@ void gfx_batch_free(
 /******************************************************/
 int gfx_batch_set_level(
 
-		GFXBatch*      batch,
+		GFXBatch      *batch,
 		unsigned char  level,
 		unsigned int   material,
 		unsigned int   mesh,
 		unsigned int   copies)
 {
 	/* Check units */
-	GFX_Level* lev = _gfx_batch_get_level(batch, level);
+	GFX_Level *lev = _gfx_batch_get_level(batch, level);
 	if(lev->num) return 0;
 
 	/* Validate material and mesh indices */
@@ -222,14 +222,14 @@ int gfx_batch_set_level(
 /******************************************************/
 int gfx_batch_set_level_share(
 
-		GFXBatch*      batch,
+		GFXBatch      *batch,
 		unsigned char  level,
-		GFXBatch*      src,
+		GFXBatch      *src,
 		unsigned char  srcLevel,
 		unsigned int   mesh)
 {
-	GFX_Level* lev = _gfx_batch_get_level(batch, level);
-	GFX_Level* srcLev = _gfx_batch_get_level(src, srcLevel);
+	GFX_Level *lev = _gfx_batch_get_level(batch, level);
+	GFX_Level *srcLev = _gfx_batch_get_level(src, srcLevel);
 
 	/* Herpderp */
 	if(
@@ -285,14 +285,14 @@ int gfx_batch_set_level_share(
 /******************************************************/
 int gfx_batch_get_level(
 
-		const GFXBatch*  batch,
+		const GFXBatch  *batch,
 		unsigned char    level,
-		unsigned int*    copies,
-		unsigned int*    instances,
-		unsigned int*    offset)
+		unsigned int    *copies,
+		unsigned int    *instances,
+		unsigned int    *offset)
 {
 	/* Check if properties are set */
-	GFX_Level* lev = _gfx_batch_get_level(batch, level);
+	GFX_Level *lev = _gfx_batch_get_level(batch, level);
 	if(!lev->copies) return 0;
 
 	*copies = lev->copies;
@@ -303,15 +303,15 @@ int gfx_batch_get_level(
 }
 
 /******************************************************/
-GFXBucketUnit* gfx_batch_set(
+GFXBucketUnit *gfx_batch_set(
 
-		GFXBatch*      batch,
+		GFXBatch      *batch,
 		unsigned char  level,
 		unsigned int   num,
 		int            visible)
 {
 	/* Check if properties are set */
-	GFX_Level* lev = _gfx_batch_get_level(batch, level);
+	GFX_Level *lev = _gfx_batch_get_level(batch, level);
 	if(!lev->copies) return NULL;
 
 	if(num > lev->num)
@@ -327,7 +327,7 @@ GFXBucketUnit* gfx_batch_set(
 			index);
 
 		/* Get property map */
-		GFXPropertyMap* map = gfx_property_map_list_at(
+		GFXPropertyMap *map = gfx_property_map_list_at(
 			gfx_material_get(batch->material, lev->material, &index),
 			batch->materialIndex);
 
@@ -368,11 +368,11 @@ GFXBucketUnit* gfx_batch_set(
 }
 
 /******************************************************/
-GFXBucketUnit* gfx_batch_get(
+GFXBucketUnit *gfx_batch_get(
 
-		const GFXBatch*  batch,
+		const GFXBatch  *batch,
 		unsigned char    level,
-		unsigned int*    num)
+		unsigned int    *num)
 {
 	*num = _gfx_batch_get_level(batch, level)->num;
 	return _gfx_batch_get_unit(batch, level, 0);

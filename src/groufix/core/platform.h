@@ -64,15 +64,15 @@ typedef void (*GFX_ProcAddress) (void);
 
 
 /** A Monitor */
-typedef void* GFX_PlatformMonitor;
+typedef void *GFX_PlatformMonitor;
 
 
 /** A Window */
-typedef void* GFX_PlatformWindow;
+typedef void *GFX_PlatformWindow;
 
 
 /** A Context */
-typedef void* GFX_PlatformContext;
+typedef void *GFX_PlatformContext;
 
 
 /** Window initialization attributes */
@@ -80,8 +80,8 @@ typedef struct GFX_PlatformAttributes
 {
 	GFX_PlatformMonitor   monitor;
 	unsigned int          mode;  /* Guaranteed to be a valid index if fullscreen */
-	const GFXColorDepth*  depth; /* Guaranteed to be non-NULL if not fullscreen */
-	const char*           name;
+	const GFXColorDepth  *depth; /* Guaranteed to be non-NULL if not fullscreen */
+	const char           *name;
 
 	GFXWindowFlags        flags;
 	int                   x;
@@ -172,8 +172,8 @@ GFX_PlatformMonitor _gfx_platform_get_default_monitor(void);
 void _gfx_platform_monitor_get_size(
 
 		GFX_PlatformMonitor  handle,
-		unsigned int*        width,
-		unsigned int*        height);
+		unsigned int        *width,
+		unsigned int        *height);
 
 /**
  * Returns the number of display modes associated with a monitor.
@@ -195,7 +195,7 @@ int _gfx_platform_monitor_get_mode(
 
 		GFX_PlatformMonitor  handle,
 		unsigned int         num,
-		GFXDisplayMode*      mode);
+		GFXDisplayMode      *mode);
 
 
 /********************************************************
@@ -213,7 +213,7 @@ int _gfx_platform_monitor_get_mode(
  */
 GFX_PlatformWindow _gfx_platform_window_create(
 
-		const GFX_PlatformAttributes* attributes);
+		const GFX_PlatformAttributes *attributes);
 
 /**
  * Destroys a window, freeing all its memory.
@@ -253,8 +253,8 @@ char* _gfx_platform_window_get_name(
 void _gfx_platform_window_get_size(
 
 		GFX_PlatformWindow  handle,
-		unsigned int*       width,
-		unsigned int*       height);
+		unsigned int       *width,
+		unsigned int       *height);
 
 /**
  * Gets the position of the window.
@@ -263,8 +263,8 @@ void _gfx_platform_window_get_size(
 void _gfx_platform_window_get_position(
 
 		GFX_PlatformWindow  handle,
-		int*                x,
-		int*                y);
+		int                *x,
+		int                *y);
 
 /**
  * Sets the name of the window.
@@ -273,7 +273,7 @@ void _gfx_platform_window_get_position(
 void _gfx_platform_window_set_name(
 
 		GFX_PlatformWindow  handle,
-		const char*         name);
+		const char         *name);
 
 /**
  * Sets the resolution of the window in pixels.
@@ -339,7 +339,7 @@ int _gfx_platform_poll_events(void);
  */
 GFX_PlatformContext _gfx_platform_context_create(
 
-		GFX_PlatformWindow*  handle,
+		GFX_PlatformWindow  *handle,
 		int                  major,
 		int                  minor,
 		GFX_PlatformContext  share,
@@ -426,7 +426,7 @@ void _gfx_platform_context_make_current(
  */
 GFX_ProcAddress _gfx_platform_get_proc_address(
 
-		const char* proc);
+		const char *proc);
 
 
 #endif // GFX_CORE_PLATFORM_H

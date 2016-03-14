@@ -47,14 +47,14 @@ static HGLRC _gfx_win32_create_context(
 /******************************************************/
 GFX_PlatformContext _gfx_platform_context_create(
 
-		GFX_PlatformWindow*  handle,
+		GFX_PlatformWindow  *handle,
 		int                  major,
 		int                  minor,
 		GFX_PlatformContext  share,
 		int                  debug)
 {
 	/* Create dummy window */
-	GFX_Win32_Window* window = _gfx_win32_window_dummy_create();
+	GFX_Win32_Window *window = _gfx_win32_window_dummy_create();
 	if(!window) return NULL;
 
 	/* Create context */
@@ -80,7 +80,7 @@ void _gfx_platform_context_free(
 		GFX_PlatformContext context)
 {
 	/* Get the window and free it */
-	GFX_Win32_Window* window = _gfx_win32_get_window_from_context(context);
+	GFX_Win32_Window *window = _gfx_win32_get_window_from_context(context);
 	if(window) _gfx_platform_window_free(window->handle);
 }
 
@@ -94,7 +94,7 @@ GFX_PlatformContext _gfx_platform_context_init(
 		int                  debug)
 {
 	/* Get the window */
-	GFX_Win32_Window* window = _gfx_win32_get_window_from_handle(handle);
+	GFX_Win32_Window *window = _gfx_win32_get_window_from_handle(handle);
 	if(!window) return NULL;
 
 	/* Create context */
@@ -115,7 +115,7 @@ void _gfx_platform_context_clear(
 		GFX_PlatformWindow handle)
 {
 	/* Get the window and destroy its context */
-	GFX_Win32_Window* window =
+	GFX_Win32_Window *window =
 		_gfx_win32_get_window_from_handle(handle);
 
 	if(window)
@@ -132,7 +132,7 @@ int _gfx_platform_context_set_swap_interval(
 		int                 num)
 {
 	/* First get window */
-	GFX_Win32_Window* window =
+	GFX_Win32_Window *window =
 		_gfx_win32_get_window_from_handle(handle);
 
 	if(!window || !_gfx_win32.extensions.SwapIntervalEXT)
@@ -173,7 +173,7 @@ void _gfx_platform_context_make_current(
 /******************************************************/
 GFX_ProcAddress _gfx_platform_get_proc_address(
 
-		const char* proc)
+		const char *proc)
 {
 	GFX_ProcAddress address =
 		(GFX_ProcAddress)wglGetProcAddress(proc);

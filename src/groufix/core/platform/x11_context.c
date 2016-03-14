@@ -57,7 +57,7 @@ static GLXContext _gfx_x11_create_context(
 /******************************************************/
 GFX_PlatformContext _gfx_platform_context_create(
 
-		GFX_PlatformWindow*  handle,
+		GFX_PlatformWindow  *handle,
 		int                  major,
 		int                  minor,
 		GFX_PlatformContext  share,
@@ -67,7 +67,7 @@ GFX_PlatformContext _gfx_platform_context_create(
 	int buffElements;
 	int attr = None;
 
-	GLXFBConfig* config = glXChooseFBConfig(
+	GLXFBConfig *config = glXChooseFBConfig(
 		_gfx_x11.display,
 		XDefaultScreen(_gfx_x11.display),
 		&attr,
@@ -110,7 +110,7 @@ GFX_PlatformContext _gfx_platform_context_init(
 		int                  debug)
 {
 	/* Get the window */
-	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
+	GFX_X11_Window *window = _gfx_x11_get_window_from_handle(
 		GFX_VOID_TO_UINT(handle));
 
 	if(!window) return NULL;
@@ -133,7 +133,7 @@ void _gfx_platform_context_clear(
 		GFX_PlatformWindow handle)
 {
 	/* Get the window and destroy its context */
-	GFX_X11_Window* window = _gfx_x11_get_window_from_handle(
+	GFX_X11_Window *window = _gfx_x11_get_window_from_handle(
 		GFX_VOID_TO_UINT(handle));
 
 	if(window)
@@ -198,7 +198,7 @@ void _gfx_platform_context_make_current(
 /******************************************************/
 GFX_ProcAddress _gfx_platform_get_proc_address(
 
-		const char* proc)
+		const char *proc)
 {
 	return (GFX_ProcAddress)glXGetProcAddressARB((const GLubyte*)proc);
 }

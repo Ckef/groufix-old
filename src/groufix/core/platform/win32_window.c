@@ -21,8 +21,8 @@
 /******************************************************/
 static inline void _gfx_win32_enter_fullscreen(
 
-		GFX_Win32_Monitor*  monitor,
-		DEVMODE*            mode)
+		GFX_Win32_Monitor  *monitor,
+		DEVMODE            *mode)
 {
 	ChangeDisplaySettingsEx(monitor->name, mode, NULL, CDS_FULLSCREEN, NULL);
 }
@@ -30,7 +30,7 @@ static inline void _gfx_win32_enter_fullscreen(
 /******************************************************/
 static inline void _gfx_win32_leave_fullscreen(
 
-		GFX_Win32_Monitor* monitor)
+		GFX_Win32_Monitor *monitor)
 {
 	ChangeDisplaySettingsEx(monitor->name, NULL, NULL, CDS_FULLSCREEN, NULL);
 }
@@ -118,7 +118,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			int xS = 0;
 			int yS = 0;
 
-			GFX_Win32_Monitor* monitor =
+			GFX_Win32_Monitor *monitor =
 				_gfx_platform_window_get_monitor(window);
 
 			if(monitor)
@@ -150,7 +150,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		case WM_SETFOCUS :
 		{
 			/* Enter fullscreen */
-			GFX_Win32_Window* internal =
+			GFX_Win32_Window *internal =
 				_gfx_win32_get_window_from_handle(handle);
 
 			if(!internal) return 0;
@@ -174,7 +174,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		case WM_KILLFOCUS :
 		{
 			/* Leave fullscreen */
-			GFX_Win32_Window* internal =
+			GFX_Win32_Window *internal =
 				_gfx_win32_get_window_from_handle(handle);
 
 			if(!internal) return 0;
@@ -232,7 +232,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			GFXKeyState state = _gfx_win32_get_key_state();
 
 			/* Check mouse enter event */
-			GFX_Win32_Window* internal =
+			GFX_Win32_Window *internal =
 				_gfx_win32_get_window_from_handle(handle);
 
 			if(!internal) return 0;
@@ -253,7 +253,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		/* Mouse leave */
 		case WM_MOUSELEAVE :
 		{
-			GFX_Win32_Window* internal =
+			GFX_Win32_Window *internal =
 				_gfx_win32_get_window_from_handle(handle);
 
 			if(!internal) return 0;
@@ -386,7 +386,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 void _gfx_win32_set_pixel_format(
 
 		HWND                  handle,
-		const GFXColorDepth*  depth,
+		const GFXColorDepth  *depth,
 		int                   backBuffer)
 {
 	PIXELFORMATDESCRIPTOR format;
@@ -494,7 +494,7 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 /******************************************************/
 GFX_PlatformWindow _gfx_platform_window_create(
 
-		const GFX_PlatformAttributes* attributes)
+		const GFX_PlatformAttributes *attributes)
 {
 	/* Setup the win32 window */
 	GFX_Win32_Window window;
@@ -589,7 +589,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	AdjustWindowRectEx(&rect, style, FALSE, styleEx);
 
 	/* Convert name to UTF-16 */
-	WCHAR* name = _gfx_win32_utf8_to_utf16(attributes->name);
+	WCHAR *name = _gfx_win32_utf8_to_utf16(attributes->name);
 
 	/* Create the actual window */
 	window.handle = CreateWindowEx(
@@ -653,7 +653,7 @@ void _gfx_platform_window_free(
 		GFX_PlatformWindow handle)
 {
 	/* Make sure to undo fullscreen */
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+	GFX_Win32_Window *it = _gfx_win32_get_window_from_handle(handle);
 	if(it->flags & GFX_WIN32_FULLSCREEN)
 		_gfx_win32_leave_fullscreen(it->monitor);
 
@@ -670,7 +670,7 @@ GFX_PlatformMonitor _gfx_platform_window_get_monitor(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+	GFX_Win32_Window *it = _gfx_win32_get_window_from_handle(handle);
 	if(it) return it->monitor;
 
 	return NULL;
@@ -685,7 +685,7 @@ char* _gfx_platform_window_get_name(
 	int len = GetWindowTextLength(handle);
 	if(!(len++)) return NULL;
 
-	WCHAR* buff = malloc(sizeof(WCHAR) * len);
+	WCHAR *buff = malloc(sizeof(WCHAR) * len);
 
 	if(!GetWindowText(handle, buff, len))
 	{
@@ -694,7 +694,7 @@ char* _gfx_platform_window_get_name(
 	}
 
 	/* Convert to UTF-8 */
-	char* str = _gfx_win32_utf16_to_utf8(buff);
+	char *str = _gfx_win32_utf16_to_utf8(buff);
 	free(buff);
 
 	return str;
@@ -704,8 +704,8 @@ char* _gfx_platform_window_get_name(
 void _gfx_platform_window_get_size(
 
 		GFX_PlatformWindow  handle,
-		unsigned int*       width,
-		unsigned int*       height)
+		unsigned int       *width,
+		unsigned int       *height)
 {
 	RECT rect;
 	ZeroMemory(&rect, sizeof(RECT));
@@ -719,11 +719,11 @@ void _gfx_platform_window_get_size(
 void _gfx_platform_window_get_position(
 
 		GFX_PlatformWindow  handle,
-		int*                x,
-		int*                y)
+		int                *x,
+		int                *y)
 {
 	/* Get window's monitor position */
-	GFX_Win32_Monitor* monitor =
+	GFX_Win32_Monitor *monitor =
 		_gfx_platform_window_get_monitor(handle);
 
 	if(monitor)
@@ -745,10 +745,10 @@ void _gfx_platform_window_get_position(
 void _gfx_platform_window_set_name(
 
 		GFX_PlatformWindow  handle,
-		const char*         name)
+		const char         *name)
 {
 	/* Convert to UTF-16 */
-	WCHAR* str = _gfx_win32_utf8_to_utf16(name);
+	WCHAR *str = _gfx_win32_utf8_to_utf16(name);
 	if(str)
 	{
 		SetWindowText(handle, str);
@@ -763,7 +763,7 @@ void _gfx_platform_window_set_size(
 		unsigned int        width,
 		unsigned int        height)
 {
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+	GFX_Win32_Window *it = _gfx_win32_get_window_from_handle(handle);
 	if(it && (it->flags & GFX_WIN32_RESIZABLE))
 	{
 		RECT rect;
@@ -797,7 +797,7 @@ void _gfx_platform_window_set_position(
 		int                 y)
 {
 	/* Check if fullscreen */
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
+	GFX_Win32_Window *it = _gfx_win32_get_window_from_handle(handle);
 	if(it && !(it->flags & GFX_WIN32_FULLSCREEN))
 	{
 		/* Get window's monitor position */
@@ -838,7 +838,7 @@ void _gfx_platform_window_show(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_Win32_Window* it =
+	GFX_Win32_Window *it =
 		_gfx_win32_get_window_from_handle(handle);
 	if(it) it->flags &=
 		~GFX_WIN32_HIDDEN;
@@ -851,7 +851,7 @@ void _gfx_platform_window_hide(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_Win32_Window* it =
+	GFX_Win32_Window *it =
 		_gfx_win32_get_window_from_handle(handle);
 	if(it) it->flags |=
 		GFX_WIN32_HIDDEN;

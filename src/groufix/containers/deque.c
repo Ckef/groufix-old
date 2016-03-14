@@ -37,7 +37,7 @@ static inline size_t _gfx_deque_get_max_capacity(
 /******************************************************/
 static int _gfx_deque_realloc(
 
-		GFXDeque*  deque,
+		GFXDeque  *deque,
 		size_t     capacity)
 {
 	size_t begin = GFX_PTR_DIFF(deque->data, deque->begin);
@@ -75,7 +75,7 @@ static int _gfx_deque_realloc(
 	}
 
 	/* Make sure to check if it worked */
-	void* new = realloc(deque->data, capacity);
+	void *new = realloc(deque->data, capacity);
 	if(!new)
 	{
 		/* Move memory back >.> */
@@ -112,12 +112,12 @@ static int _gfx_deque_realloc(
 }
 
 /******************************************************/
-GFXDeque* gfx_deque_create(
+GFXDeque *gfx_deque_create(
 
 		size_t elementSize)
 {
 	/* Create a new deque */
-	GFXDeque* deque = calloc(1, sizeof(GFXDeque));
+	GFXDeque *deque = calloc(1, sizeof(GFXDeque));
 	if(deque) deque->elementSize = elementSize;
 
 	/* Out of memory error */
@@ -130,14 +130,14 @@ GFXDeque* gfx_deque_create(
 }
 
 /******************************************************/
-GFXDeque* gfx_deque_create_from_buffer(
+GFXDeque *gfx_deque_create_from_buffer(
 
 		size_t       elementSize,
 		size_t       numElements,
-		const void*  buff)
+		const void  *buff)
 {
 	/* Create a new deque */
-	GFXDeque* deque = gfx_deque_create(elementSize);
+	GFXDeque *deque = gfx_deque_create(elementSize);
 	if(!deque) return NULL;
 
 	/* Allocate and copy */
@@ -156,12 +156,12 @@ GFXDeque* gfx_deque_create_from_buffer(
 }
 
 /******************************************************/
-GFXDeque* gfx_deque_create_copy(
+GFXDeque *gfx_deque_create_copy(
 
-		const GFXDeque* src)
+		const GFXDeque *src)
 {
 	/* Create a new deque */
-	GFXDeque* deque = gfx_deque_create(src->elementSize);
+	GFXDeque *deque = gfx_deque_create(src->elementSize);
 	if(!deque) return NULL;
 
 	/* Allocate and copy */
@@ -182,7 +182,7 @@ GFXDeque* gfx_deque_create_copy(
 /******************************************************/
 void gfx_deque_free(
 
-		GFXDeque* deque)
+		GFXDeque *deque)
 {
 	if(deque)
 	{
@@ -194,7 +194,7 @@ void gfx_deque_free(
 /******************************************************/
 void gfx_deque_init(
 
-		GFXDeque*  deque,
+		GFXDeque  *deque,
 		size_t     elementSize)
 {
 	memset(deque, 0, sizeof(GFXDeque));
@@ -204,10 +204,10 @@ void gfx_deque_init(
 /******************************************************/
 void gfx_deque_init_from_buffer(
 
-		GFXDeque*    deque,
+		GFXDeque    *deque,
 		size_t       elementSize,
 		size_t       numElements,
-		const void*  buff)
+		const void  *buff)
 {
 	/* Init the deque */
 	gfx_deque_init(deque, elementSize);
@@ -225,8 +225,8 @@ void gfx_deque_init_from_buffer(
 /******************************************************/
 void gfx_deque_init_copy(
 
-		GFXDeque*        deque,
-		const GFXDeque*  src)
+		GFXDeque        *deque,
+		const GFXDeque  *src)
 {
 	/* Init the deque */
 	gfx_deque_init(deque, src->elementSize);
@@ -246,7 +246,7 @@ void gfx_deque_init_copy(
 /******************************************************/
 void gfx_deque_clear(
 
-		GFXDeque* deque)
+		GFXDeque *deque)
 {
 	free(deque->data);
 	deque->data = NULL;
@@ -259,7 +259,7 @@ void gfx_deque_clear(
 /******************************************************/
 int gfx_deque_reserve(
 
-		GFXDeque*  deque,
+		GFXDeque  *deque,
 		size_t     numElements)
 {
 	size_t newSize = deque->elementSize * numElements;
@@ -277,8 +277,8 @@ int gfx_deque_reserve(
 /******************************************************/
 GFXDequeIterator gfx_deque_push_begin(
 
-		GFXDeque*    deque,
-		const void*  element)
+		GFXDeque    *deque,
+		const void  *element)
 {
 	size_t oldSize = gfx_deque_get_byte_size(deque);
 	size_t newSize = oldSize + deque->elementSize;
@@ -324,8 +324,8 @@ GFXDequeIterator gfx_deque_push_begin(
 /******************************************************/
 GFXDequeIterator gfx_deque_push_end(
 
-		GFXDeque*    deque,
-		const void*  element)
+		GFXDeque    *deque,
+		const void  *element)
 {
 	size_t oldSize = gfx_deque_get_byte_size(deque);
 	size_t newSize = oldSize + deque->elementSize;
@@ -379,7 +379,7 @@ GFXDequeIterator gfx_deque_push_end(
 /******************************************************/
 GFXDequeIterator gfx_deque_pop_begin(
 
-		GFXDeque* deque)
+		GFXDeque *deque)
 {
 	/* Nothing to pop */
 	if(deque->begin != deque->end)
@@ -410,7 +410,7 @@ GFXDequeIterator gfx_deque_pop_begin(
 /******************************************************/
 GFXDequeIterator gfx_deque_pop_end(
 
-		GFXDeque* deque)
+		GFXDeque *deque)
 {
 	/* Nothing to pop */
 	if(deque->begin != deque->end)
@@ -449,7 +449,7 @@ GFXDequeIterator gfx_deque_pop_end(
 /******************************************************/
 size_t gfx_deque_get_byte_size(
 
-		const GFXDeque* deque)
+		const GFXDeque *deque)
 {
 	/* Get pointer difference */
 	long int begToEnd = GFX_PTR_DIFF(deque->begin, deque->end);
@@ -464,7 +464,7 @@ size_t gfx_deque_get_byte_size(
 /******************************************************/
 size_t gfx_deque_get_index(
 
-		const GFXDeque*         deque,
+		const GFXDeque         *deque,
 		const GFXDequeIterator  it)
 {
 	/* Get pointer difference */
@@ -478,7 +478,7 @@ size_t gfx_deque_get_index(
 /******************************************************/
 GFXDequeIterator gfx_deque_advance(
 
-		const GFXDeque*         deque,
+		const GFXDeque         *deque,
 		const GFXDequeIterator  it,
 		int                     num)
 {

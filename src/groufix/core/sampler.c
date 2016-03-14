@@ -34,10 +34,10 @@ typedef struct GFX_Sampler
 /******************************************************/
 static void _gfx_sampler_obj_free(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Sampler* sampler = (GFX_Sampler*)object;
+	GFX_Sampler *sampler = (GFX_Sampler*)object;
 
 	sampler->id = id;
 	sampler->handle = 0;
@@ -46,10 +46,10 @@ static void _gfx_sampler_obj_free(
 /******************************************************/
 static void _gfx_sampler_obj_save_restore(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Sampler* sampler = (GFX_Sampler*)object;
+	GFX_Sampler *sampler = (GFX_Sampler*)object;
 	sampler->id = id;
 }
 
@@ -65,7 +65,7 @@ static GFX_RenderObjectFuncs _gfx_sampler_obj_funcs =
 /******************************************************/
 GLuint _gfx_gl_sampler_get_handle(
 
-		const GFXSampler* sampler)
+		const GFXSampler *sampler)
 {
 	return ((const GFX_Sampler*)sampler)->handle;
 }
@@ -73,12 +73,12 @@ GLuint _gfx_gl_sampler_get_handle(
 /******************************************************/
 GFXSampler* _gfx_sampler_create(
 
-		const GFXSampler* values)
+		const GFXSampler *values)
 {
 	GFX_CONT_INIT(NULL);
 
 	/* Allocate new sampler */
-	GFX_Sampler* samp = calloc(1, sizeof(GFX_Sampler));
+	GFX_Sampler *samp = calloc(1, sizeof(GFX_Sampler));
 	if(!samp)
 	{
 		/* Out of memory error */
@@ -118,9 +118,9 @@ GFXSampler* _gfx_sampler_create(
 /******************************************************/
 int _gfx_sampler_reference(
 
-		GFXSampler* sampler)
+		GFXSampler *sampler)
 {
-	GFX_Sampler* internal = (GFX_Sampler*)sampler;
+	GFX_Sampler *internal = (GFX_Sampler*)sampler;
 
 	if(!(internal->references + 1))
 	{
@@ -139,11 +139,11 @@ int _gfx_sampler_reference(
 /******************************************************/
 void _gfx_sampler_free(
 
-		GFXSampler* sampler)
+		GFXSampler *sampler)
 {
 	if(sampler)
 	{
-		GFX_Sampler* internal = (GFX_Sampler*)sampler;
+		GFX_Sampler *internal = (GFX_Sampler*)sampler;
 
 		/* Check references */
 		if(!(--internal->references))
@@ -176,8 +176,8 @@ void _gfx_sampler_free(
 /******************************************************/
 int _gfx_sampler_set(
 
-		GFXSampler*        sampler,
-		const GFXSampler*  values)
+		GFXSampler        *sampler,
+		const GFXSampler  *values)
 {
 	GFX_CONT_INIT(0);
 
@@ -198,7 +198,7 @@ int _gfx_sampler_set(
 	if(GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS])
 	{
 		/* Send values to GL */
-		GFX_Sampler* internal = (GFX_Sampler*)sampler;
+		GFX_Sampler *internal = (GFX_Sampler*)sampler;
 
 		GFX_REND_GET.SamplerParameteri(
 			internal->handle,

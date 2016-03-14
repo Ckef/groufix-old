@@ -20,10 +20,10 @@
 static GFX_Pipe* _gfx_pipe_create(
 
 		GFXPipeType   type,
-		GFXPipeline*  pipeline)
+		GFXPipeline  *pipeline)
 {
 	/* Create the pipe */
-	GFX_Pipe* pipe = (GFX_Pipe*)gfx_list_create(sizeof(GFX_Pipe));
+	GFX_Pipe *pipe = (GFX_Pipe*)gfx_list_create(sizeof(GFX_Pipe));
 	if(!pipe) return NULL;
 
 	memset(pipe, 0, sizeof(GFX_Pipe));
@@ -39,14 +39,14 @@ static GFX_Pipe* _gfx_pipe_create(
 /******************************************************/
 GFX_Pipe* _gfx_pipe_create_bucket(
 
-		GFXPipeline*    pipeline,
+		GFXPipeline    *pipeline,
 		unsigned char   bits)
 {
-	GFX_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_BUCKET, pipeline);
+	GFX_Pipe *pipe = _gfx_pipe_create(GFX_PIPE_BUCKET, pipeline);
 	if(!pipe) return NULL;
 
 	/* Create bucket */
-	GFXBucket* bucket = _gfx_bucket_create(bits);
+	GFXBucket *bucket = _gfx_bucket_create(bits);
 	if(!bucket)
 	{
 		_gfx_pipe_free((GFX_Pipe*)pipe);
@@ -60,11 +60,11 @@ GFX_Pipe* _gfx_pipe_create_bucket(
 /******************************************************/
 GFX_Pipe* _gfx_pipe_create_process(
 
-		GFXPipeline*  pipeline,
-		GFXWindow*    target,
+		GFXPipeline  *pipeline,
+		GFXWindow    *target,
 		int           swap)
 {
-	GFX_Pipe* pipe = _gfx_pipe_create(GFX_PIPE_PROCESS, pipeline);
+	GFX_Pipe *pipe = _gfx_pipe_create(GFX_PIPE_PROCESS, pipeline);
 	if(!pipe) return NULL;
 
 	/* Allocate process */
@@ -82,7 +82,7 @@ GFX_Pipe* _gfx_pipe_create_process(
 /******************************************************/
 GFX_Pipe* _gfx_pipe_free(
 
-		GFX_Pipe* pipe)
+		GFX_Pipe *pipe)
 {
 	/* Free the actual pipe */
 	switch(pipe->type)
@@ -102,7 +102,7 @@ GFX_Pipe* _gfx_pipe_free(
 /******************************************************/
 GFXPipeType gfx_pipe_get_type(
 
-		const GFXPipe* pipe)
+		const GFXPipe *pipe)
 {
 	return ((const GFX_Pipe*)GFX_PTR_SUB_BYTES(
 		pipe,
@@ -110,9 +110,9 @@ GFXPipeType gfx_pipe_get_type(
 }
 
 /******************************************************/
-GFXPipeState* gfx_pipe_get_state(
+GFXPipeState *gfx_pipe_get_state(
 
-		GFXPipe* pipe)
+		GFXPipe *pipe)
 {
 	return &((GFX_Pipe*)GFX_PTR_SUB_BYTES(
 		pipe,

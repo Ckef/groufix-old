@@ -21,7 +21,7 @@
 /******************************************************/
 static WCHAR* _gfx_win32_get_path(
 
-		const char* path)
+		const char *path)
 {
 	/* Replace '/' with '\' */
 	size_t len = strlen(path) + 1;
@@ -36,8 +36,8 @@ static WCHAR* _gfx_win32_get_path(
 /******************************************************/
 int _gfx_platform_file_open(
 
-		GFX_PlatformFile*  file,
-		const char*        path,
+		GFX_PlatformFile  *file,
+		const char        *path,
 		GFXResourceFlags   flags)
 {
 	/* Validate access method */
@@ -63,7 +63,7 @@ int _gfx_platform_file_open(
 	}
 
 	/* Get path string to use */
-	WCHAR* wpath = _gfx_win32_get_path(path);
+	WCHAR *wpath = _gfx_win32_get_path(path);
 	if(!wpath) return 0;
 
 	/* Create file */
@@ -89,12 +89,12 @@ int _gfx_platform_file_open(
 /******************************************************/
 int _gfx_platform_file_move(
 
-		const char*  oldPath,
-		const char*  newPath)
+		const char  *oldPath,
+		const char  *newPath)
 {
 	/* Get paths string to use */
-	WCHAR* wold = _gfx_win32_get_path(oldPath);
-	WCHAR* wnew = _gfx_win32_get_path(newPath);
+	WCHAR *wold = _gfx_win32_get_path(oldPath);
+	WCHAR *wnew = _gfx_win32_get_path(newPath);
 
 	if(!wold || !wnew)
 	{
@@ -114,10 +114,10 @@ int _gfx_platform_file_move(
 /******************************************************/
 int _gfx_platform_file_remove(
 
-		const char* path)
+		const char *path)
 {
 	/* Get path string to use */
-	WCHAR* wpath = _gfx_win32_get_path(path);
+	WCHAR *wpath = _gfx_win32_get_path(path);
 	if(!wpath) return 0;
 
 	BOOL ret = DeleteFile(wpath);

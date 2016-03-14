@@ -41,10 +41,10 @@ GFX_PlatformMonitor _gfx_platform_get_default_monitor(void)
 void _gfx_platform_monitor_get_size(
 
 		GFX_PlatformMonitor  handle,
-		unsigned int*        width,
-		unsigned int*        height)
+		unsigned int        *width,
+		unsigned int        *height)
 {
-	GFX_Win32_Monitor* monitor = (GFX_Win32_Monitor*)handle;
+	GFX_Win32_Monitor *monitor = (GFX_Win32_Monitor*)handle;
 	*width = monitor->width;
 	*height = monitor->height;
 }
@@ -62,12 +62,12 @@ int _gfx_platform_monitor_get_mode(
 
 		GFX_PlatformMonitor  handle,
 		unsigned int         num,
-		GFXDisplayMode*      mode)
+		GFXDisplayMode      *mode)
 {
-	GFX_Win32_Monitor* monitor = (GFX_Win32_Monitor*)handle;
+	GFX_Win32_Monitor *monitor = (GFX_Win32_Monitor*)handle;
 	if(num >= monitor->numModes) return 0;
 
-	DEVMODE* dev =
+	DEVMODE *dev =
 		gfx_vector_at(&_gfx_win32.modes, monitor->modes + num);
 
 	mode->width   = dev->dmPelsWidth;

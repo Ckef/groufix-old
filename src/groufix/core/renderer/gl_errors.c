@@ -24,8 +24,8 @@ static void APIENTRY _gfx_gl_error_callback(
 		GLuint         id,
 		GLenum         severity,
 		GLsizei        length,
-		const GLchar*  message,
-		const void*    userParam)
+		const GLchar  *message,
+		const void    *userParam)
 {
 	GFXErrorCode code;
 	switch(type)

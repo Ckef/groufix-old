@@ -19,14 +19,14 @@
 /******************************************************/
 WCHAR* _gfx_win32_utf8_to_utf16(
 
-		const char* str)
+		const char *str)
 {
 	/* Get length */
 	int len = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
 	if(!len) return NULL;
 
 	/* Create string */
-	WCHAR* out = malloc(sizeof(WCHAR) * len);
+	WCHAR *out = malloc(sizeof(WCHAR) * len);
 
 	if(!MultiByteToWideChar(CP_UTF8, 0, str, -1, out, len))
 	{
@@ -40,13 +40,13 @@ WCHAR* _gfx_win32_utf8_to_utf16(
 /******************************************************/
 char* _gfx_win32_utf16_to_utf8(
 
-		const WCHAR* str)
+		const WCHAR *str)
 {
 	/* Get length */
 	int len = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
 	if(!len) return NULL;
 
-	char* out = malloc(len);
+	char *out = malloc(len);
 
 	if(!WideCharToMultiByte(CP_UTF8, 0, str, -1, out, len, NULL, NULL))
 	{

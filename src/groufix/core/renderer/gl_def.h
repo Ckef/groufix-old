@@ -329,7 +329,7 @@ void APIENTRY _gfx_gl_enable_vertex_array_attrib                        (GLuint,
 void APIENTRY _gfx_gl_generate_texture_mipmap                           (GLuint);
 void APIENTRY _gfx_gl_gen_program_pipelines                             (GLsizei, GLuint*);
 void APIENTRY _gfx_gl_get_named_buffer_sub_data                         (GLuint, GLintptr, GLsizei, void*);
-void* APIENTRY _gfx_gl_map_named_buffer_range                           (GLuint, GLintptr, GLsizei, GLbitfield);
+void *APIENTRY _gfx_gl_map_named_buffer_range                           (GLuint, GLintptr, GLsizei, GLbitfield);
 void APIENTRY _gfx_gl_named_buffer_data                                 (GLuint, GLsizei, const void*, GLenum);
 void APIENTRY _gfx_gl_named_buffer_sub_data                             (GLuint, GLintptr, GLsizei, const void*);
 void APIENTRY _gfx_gl_named_framebuffer_draw_buffers                    (GLuint, GLsizei, const GLenum*);
@@ -437,8 +437,8 @@ struct GFX_Renderer
 	unsigned int   patchVertices;
 
 	/* Binding points */
-	void*          uniformBuffers;
-	void*          textureUnits;
+	void          *uniformBuffers;
+	void          *textureUnits;
 
 
 	/* OpenGL Extensions */

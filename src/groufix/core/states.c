@@ -123,7 +123,7 @@ static inline void _gfx_state_set_stencil_test(
 /******************************************************/
 void _gfx_states_set_default(
 
-		GFXPipeState* state)
+		GFXPipeState *state)
 {
 	state->render.state        = GFX_STATE_DEFAULT;
 
@@ -155,7 +155,7 @@ void _gfx_states_set_default(
 /******************************************************/
 void _gfx_states_set(
 
-		const GFXPipeState* state,
+		const GFXPipeState *state,
 		GFX_CONT_ARG)
 {
 	/* Clear buffers & check stripped render state */
@@ -264,7 +264,7 @@ void _gfx_states_set(
 /******************************************************/
 void _gfx_states_force_set(
 
-		const GFXPipeState* state,
+		const GFXPipeState *state,
 		GFX_CONT_ARG)
 {
 	/* Clear buffers & strip state */

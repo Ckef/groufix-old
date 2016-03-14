@@ -28,7 +28,7 @@ extern "C" {
  *******************************************************/
 
 /** Property map list */
-typedef void* GFXPropertyMapList;
+typedef void *GFXPropertyMapList;
 
 
 /** Material */
@@ -45,7 +45,7 @@ typedef struct GFXMaterial
  * @return NULL on failure.
  *
  */
-GFX_API GFXMaterial* gfx_material_create(void);
+GFX_API GFXMaterial *gfx_material_create(void);
 
 /**
  * Makes sure the material is freed properly.
@@ -53,7 +53,7 @@ GFX_API GFXMaterial* gfx_material_create(void);
  */
 GFX_API void gfx_material_free(
 
-		GFXMaterial* material);
+		GFXMaterial *material);
 
 /**
  * Creates a new property map and appends it to a given level of detail.
@@ -64,11 +64,11 @@ GFX_API void gfx_material_free(
  * @return The new property map on success, NULL on failure.
  *
  */
-GFX_API GFXPropertyMap* gfx_material_add(
+GFX_API GFXPropertyMap *gfx_material_add(
 
-		GFXMaterial*    material,
+		GFXMaterial    *material,
 		unsigned int    level,
-		GFXProgramMap*  programMap,
+		GFXProgramMap  *programMap,
 		unsigned char   properties);
 
 /**
@@ -82,9 +82,9 @@ GFX_API GFXPropertyMap* gfx_material_add(
  */
 GFX_API GFXPropertyMapList gfx_material_get(
 
-		const GFXMaterial*  material,
+		const GFXMaterial  *material,
 		unsigned int        level,
-		unsigned int*       num);
+		unsigned int       *num);
 
 /**
  * Returns an abstract list of property maps of all levels.
@@ -94,8 +94,8 @@ GFX_API GFXPropertyMapList gfx_material_get(
  */
 GFX_API GFXPropertyMapList gfx_material_get_all(
 
-		const GFXMaterial*  material,
-		unsigned int*       num);
+		const GFXMaterial  *material,
+		unsigned int       *num);
 
 /**
  * Index into a list of property maps, retrieving the number of used copies.
@@ -115,7 +115,7 @@ GFX_API unsigned int gfx_property_map_list_copies_at(
  * Index into a list of property maps, retrieving the property map.
  *
  */
-GFX_API GFXPropertyMap* gfx_property_map_list_at(
+GFX_API GFXPropertyMap *gfx_property_map_list_at(
 
 		const GFXPropertyMapList  list,
 		unsigned int              index);

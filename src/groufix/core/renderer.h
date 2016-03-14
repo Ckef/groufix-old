@@ -101,7 +101,7 @@ typedef struct GFX_RenderObjects
 /** Render object ID */
 typedef struct GFX_RenderObjectID
 {
-	GFX_RenderObjects*  objects;
+	GFX_RenderObjects  *objects;
 	unsigned int        id;
 
 } GFX_RenderObjectID;
@@ -131,7 +131,7 @@ typedef struct GFX_RenderObjectFuncs
  */
 void _gfx_render_objects_init(
 
-		GFX_RenderObjects* cont);
+		GFX_RenderObjects *cont);
 
 /**
  * Clears the content of a render object container.
@@ -139,7 +139,7 @@ void _gfx_render_objects_init(
  */
 void _gfx_render_objects_clear(
 
-		GFX_RenderObjects* cont);
+		GFX_RenderObjects *cont);
 
 /**
  * Registers a render object at a container.
@@ -152,9 +152,9 @@ void _gfx_render_objects_clear(
  */
 GFX_RenderObjectID _gfx_render_object_register(
 
-		GFX_RenderObjects*            cont,
-		void*                         object,
-		const GFX_RenderObjectFuncs*  funcs);
+		GFX_RenderObjects            *cont,
+		void                         *object,
+		const GFX_RenderObjectFuncs  *funcs);
 
 /**
  * Unregisters a render object at its container.
@@ -176,7 +176,7 @@ void _gfx_render_object_unregister(
  */
 void _gfx_render_objects_free(
 
-		GFX_RenderObjects* cont);
+		GFX_RenderObjects *cont);
 
 /**
  * Issue save method of all unsaved render objects.
@@ -187,7 +187,7 @@ void _gfx_render_objects_free(
  */
 void _gfx_render_objects_save(
 
-		GFX_RenderObjects* cont);
+		GFX_RenderObjects *cont);
 
 /**
  * Issue restore method of all saved render objects.
@@ -200,8 +200,8 @@ void _gfx_render_objects_save(
  */
 void _gfx_render_objects_restore(
 
-		GFX_RenderObjects*  src,
-		GFX_RenderObjects*  cont);
+		GFX_RenderObjects  *src,
+		GFX_RenderObjects  *cont);
 
 
 /********************************************************
@@ -274,7 +274,7 @@ GFX_Context* _gfx_context_create(void);
  */
 void _gfx_context_destroy(
 
-		GFX_Context* context);
+		GFX_Context *context);
 
 /**
  * Sets the context as the current context of the calling thread.
@@ -286,7 +286,7 @@ void _gfx_context_destroy(
  */
 void _gfx_context_make_current(
 
-		GFX_Context* context);
+		GFX_Context *context);
 
 /**
  * Returns the current context of the calling thread.

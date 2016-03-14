@@ -24,7 +24,7 @@
 typedef struct GFX_Error
 {
 	GFXErrorCode  code;
-	char*         description; /* Can be NULL */
+	char         *description; /* Can be NULL */
 
 } GFX_Error;
 
@@ -112,9 +112,9 @@ unsigned int gfx_get_num_errors(void)
 /******************************************************/
 int gfx_errors_peek(
 
-		GFXError* error)
+		GFXError *error)
 {
-	GFX_Error* err = _gfx_errors_last();
+	GFX_Error *err = _gfx_errors_last();
 	if(err)
 	{
 		error->code = err->code;
@@ -135,7 +135,7 @@ int gfx_errors_find(
 
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
-	GFX_Error* it;
+	GFX_Error *it;
 	for(
 		it = _gfx_errors.begin;
 		it != _gfx_errors.end;
@@ -154,7 +154,7 @@ int gfx_errors_find(
 /******************************************************/
 void gfx_errors_pop(void)
 {
-	GFX_Error* err = _gfx_errors_last();
+	GFX_Error *err = _gfx_errors_last();
 	if(err)
 	{
 		/* Make sure to free it properly */
@@ -169,7 +169,7 @@ void gfx_errors_pop(void)
 void gfx_errors_push(
 
 		GFXErrorCode  code,
-		const char*   description,
+		const char   *description,
 		...)
 {
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
@@ -219,7 +219,7 @@ void gfx_errors_empty(void)
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
 	/* Free all descriptions */
-	GFX_Error* it;
+	GFX_Error *it;
 	for(
 		it = _gfx_errors.begin;
 		it != _gfx_errors.end;
@@ -248,7 +248,7 @@ void gfx_errors_set_maximum(
 		/* Remove errors */
 		while(gfx_deque_get_size(&_gfx_errors) > max)
 		{
-			GFX_Error* it = gfx_deque_previous(&_gfx_errors, _gfx_errors.end);
+			GFX_Error *it = gfx_deque_previous(&_gfx_errors, _gfx_errors.end);
 			free(it->description);
 
 			gfx_deque_pop_end(&_gfx_errors);

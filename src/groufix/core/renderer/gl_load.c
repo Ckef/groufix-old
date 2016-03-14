@@ -21,7 +21,7 @@
 /******************************************************/
 static int _gfx_gl_is_extension_supported(
 
-		const char* ext,
+		const char *ext,
 		GFX_CONT_ARG)
 {
 	GLint num;

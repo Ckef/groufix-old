@@ -60,7 +60,7 @@ typedef struct GFXThreadPool
  * If no init function was given the argument's value will be NULL.
  *
  */
-GFX_API GFXThreadPool* gfx_thread_pool_create(
+GFX_API GFXThreadPool *gfx_thread_pool_create(
 
 		GFXThreadPoolInit       init,
 		GFXThreadPoolTerminate  terminate,
@@ -74,7 +74,7 @@ GFX_API GFXThreadPool* gfx_thread_pool_create(
  */
 GFX_API void gfx_thread_pool_free(
 
-		GFXThreadPool* pool);
+		GFXThreadPool *pool);
 
 /**
  * Expands a thread pool by a number of threads.
@@ -86,9 +86,9 @@ GFX_API void gfx_thread_pool_free(
  */
 GFX_API unsigned char gfx_thread_pool_expand(
 
-		GFXThreadPool*  pool,
+		GFXThreadPool  *pool,
 		unsigned char   size,
-		void*           arg);
+		void           *arg);
 
 /**
  * Shrinks a thread pool by a number of threads.
@@ -101,7 +101,7 @@ GFX_API unsigned char gfx_thread_pool_expand(
  */
 GFX_API unsigned char gfx_thread_pool_shrink(
 
-		GFXThreadPool*  pool,
+		GFXThreadPool  *pool,
 		int             join);
 
 /**
@@ -115,9 +115,9 @@ GFX_API unsigned char gfx_thread_pool_shrink(
  */
 GFX_API int gfx_thread_pool_push(
 
-		GFXThreadPool*     pool,
+		GFXThreadPool     *pool,
 		GFXThreadPoolTask  task,
-		void*              data,
+		void              *data,
 		char               priority);
 
 /**
@@ -128,7 +128,7 @@ GFX_API int gfx_thread_pool_push(
  */
 GFX_API void gfx_thread_pool_suspend(
 
-		GFXThreadPool* pool);
+		GFXThreadPool *pool);
 
 /**
  * Resumes the thread from suspension, allowing all threads to execute tasks again.
@@ -136,7 +136,7 @@ GFX_API void gfx_thread_pool_suspend(
  */
 GFX_API void gfx_thread_pool_resume(
 
-		GFXThreadPool* pool);
+		GFXThreadPool *pool);
 
 /**
  * Blocks the calling thread until all pushed tasks are assigned to a thread.
@@ -147,7 +147,7 @@ GFX_API void gfx_thread_pool_resume(
  */
 GFX_API void gfx_thread_pool_flush(
 
-		GFXThreadPool* pool);
+		GFXThreadPool *pool);
 
 
 #ifdef __cplusplus

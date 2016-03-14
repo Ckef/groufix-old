@@ -28,7 +28,7 @@ GFX_X11_Connection _gfx_x11;
 static inline int _gfx_x11_is_extension_supported(
 
 		int          screenNumber,
-		const char*  ext)
+		const char  *ext)
 {
 	return _gfx_contains_string(
 		glXQueryExtensionsString(_gfx_x11.display, screenNumber), ext);
@@ -37,12 +37,12 @@ static inline int _gfx_x11_is_extension_supported(
 /******************************************************/
 static int _gfx_x11_error_handler(
 
-		Display*      display,
-		XErrorEvent*  evt)
+		Display      *display,
+		XErrorEvent  *evt)
 {
 	if(_gfx_x11.errors)
 	{
-		char* text = malloc(GFX_X11_ERROR_LENGTH);
+		char *text = malloc(GFX_X11_ERROR_LENGTH);
 		XGetErrorText(display, evt->error_code, text, GFX_X11_ERROR_LENGTH);
 
 		/* Make sure it's null terminated */
@@ -58,8 +58,8 @@ static int _gfx_x11_error_handler(
 /******************************************************/
 static int _gfx_x11_load_extensions(
 
-		int*  major,
-		int*  minor)
+		int  *major,
+		int  *minor)
 {
 	int num = XDefaultScreen(_gfx_x11.display);
 
@@ -101,8 +101,8 @@ static int _gfx_x11_load_extensions(
 /******************************************************/
 static size_t _gfx_x11_init_modes(
 
-		Screen*              scr,
-		XRRScreenResources*  res)
+		Screen              *scr,
+		XRRScreenResources  *res)
 {
 	/* Split depth */
 	GFXColorDepth depth;
@@ -153,17 +153,17 @@ static int _gfx_x11_init_monitors(
 		int  minor)
 {
 	/* Iterate over all screens */
-	Screen* def = XDefaultScreenOfDisplay(_gfx_x11.display);
+	Screen *def = XDefaultScreenOfDisplay(_gfx_x11.display);
 	unsigned int count = XScreenCount(_gfx_x11.display);
 
 	while(count--)
 	{
 		/* Get screen resources */
-		Screen* scr =
+		Screen *scr =
 			XScreenOfDisplay(_gfx_x11.display, count);
 		Window root =
 			XRootWindowOfScreen(scr);
-		XRRScreenResources* res =
+		XRRScreenResources *res =
 			XRRGetScreenResources(_gfx_x11.display, root);
 		RROutput prim =
 			res->outputs[0];
@@ -180,7 +180,7 @@ static int _gfx_x11_init_monitors(
 		for(i = 0; i < res->noutput; ++i)
 		{
 			/* Validate output */
-			XRROutputInfo* out =
+			XRROutputInfo *out =
 				XRRGetOutputInfo(_gfx_x11.display, res, res->outputs[i]);
 
 			if(out->connection != RR_Connected)
@@ -190,7 +190,7 @@ static int _gfx_x11_init_monitors(
 			}
 
 			/* Create new monitor */
-			XRRCrtcInfo* crtc =
+			XRRCrtcInfo *crtc =
 				XRRGetCrtcInfo(_gfx_x11.display, res, out->crtc);
 			int rot =
 				crtc->rotation & (RR_Rotate_90 | RR_Rotate_270);
@@ -212,7 +212,7 @@ static int _gfx_x11_init_monitors(
 			unsigned int j;
 			if(mon.modes) for(j = 0; j < out->nmode; ++j)
 			{
-				GFX_X11_Mode* mode;
+				GFX_X11_Mode *mode;
 				for(
 					mode = gfx_vector_at(&_gfx_x11.modes, first);
 					mode != _gfx_x11.modes.end;
@@ -354,7 +354,7 @@ static void _gfx_x11_create_key_table(void)
 	int numKeys = maxKey - minKey + 1;
 
 	int symbolsPerKey;
-	KeySym* symbols = XGetKeyboardMapping(
+	KeySym *symbols = XGetKeyboardMapping(
 		_gfx_x11.display,
 		minKey,
 		numKeys,
@@ -374,7 +374,7 @@ GFX_X11_Window* _gfx_x11_get_window_from_handle(
 
 		Window handle)
 {
-	GFX_X11_Window* it;
+	GFX_X11_Window *it;
 	for(
 		it = _gfx_x11.windows.begin;
 		it != _gfx_x11.windows.end;
@@ -391,7 +391,7 @@ GFX_X11_Window* _gfx_x11_get_window_from_context(
 
 		GLXContext context)
 {
-	GFX_X11_Window* it;
+	GFX_X11_Window *it;
 	for(
 		it = _gfx_x11.windows.begin;
 		it != _gfx_x11.windows.end;
@@ -452,7 +452,7 @@ int _gfx_platform_init(void)
 void _gfx_platform_terminate(void)
 {
 	/* Free all mode references */
-	GFX_X11_Monitor* mon;
+	GFX_X11_Monitor *mon;
 	for(
 		mon = _gfx_x11.monitors.begin;
 		mon != _gfx_x11.monitors.end;

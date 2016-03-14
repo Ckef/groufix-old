@@ -30,10 +30,10 @@ extern "C" {
 /** Batch */
 typedef struct GFXBatch
 {
-	GFXBucket*     bucket;        /* Bucket all units are associated with */
+	GFXBucket     *bucket;        /* Bucket all units are associated with */
 
-	GFXMaterial*   material;
-	GFXMesh*       mesh;
+	GFXMaterial   *material;
+	GFXMesh       *mesh;
 	unsigned int   materialIndex; /* Index into all material levels */
 	unsigned int   meshIndex;     /* Index into all mesh levels */
 
@@ -54,11 +54,11 @@ typedef struct GFXBatch
  * @return NULL on failure.
  *
  */
-GFX_API GFXBatch* gfx_batch_create(
+GFX_API GFXBatch *gfx_batch_create(
 
-		GFXBucket*     bucket,
-		GFXMaterial*   material,
-		GFXMesh*       mesh,
+		GFXBucket     *bucket,
+		GFXMaterial   *material,
+		GFXMesh       *mesh,
 		unsigned int   matIndex,
 		unsigned int   meshIndex,
 		unsigned char  levels,
@@ -70,7 +70,7 @@ GFX_API GFXBatch* gfx_batch_create(
  */
 GFX_API void gfx_batch_free(
 
-		GFXBatch* batch);
+		GFXBatch *batch);
 
 /**
  * Sets the properties of a level at a batch.
@@ -90,7 +90,7 @@ GFX_API void gfx_batch_free(
  */
 GFX_API int gfx_batch_set_level(
 
-		GFXBatch*      batch,
+		GFXBatch      *batch,
 		unsigned char  level,
 		unsigned int   material,
 		unsigned int   mesh,
@@ -109,9 +109,9 @@ GFX_API int gfx_batch_set_level(
  */
 GFX_API int gfx_batch_set_level_share(
 
-		GFXBatch*      batch,
+		GFXBatch      *batch,
 		unsigned char  level,
-		GFXBatch*      src,
+		GFXBatch      *src,
 		unsigned char  srcLevel,
 		unsigned int   mesh);
 
@@ -126,11 +126,11 @@ GFX_API int gfx_batch_set_level_share(
  */
 GFX_API int gfx_batch_get_level(
 
-		const GFXBatch*  batch,
+		const GFXBatch  *batch,
 		unsigned char    level,
-		unsigned int*    copies,
-		unsigned int*    instances,
-		unsigned int*    offset);
+		unsigned int    *copies,
+		unsigned int    *instances,
+		unsigned int    *offset);
 
 /**
  * Sets the number of allocated units at a level at a batch.
@@ -142,9 +142,9 @@ GFX_API int gfx_batch_get_level(
  * If num is less than currently allocated units, units will be destroyed.
  *
  */
-GFX_API GFXBucketUnit* gfx_batch_set(
+GFX_API GFXBucketUnit *gfx_batch_set(
 
-		GFXBatch*      batch,
+		GFXBatch      *batch,
 		unsigned char  level,
 		unsigned int   num,
 		int            visible);
@@ -156,11 +156,11 @@ GFX_API GFXBucketUnit* gfx_batch_set(
  * @return Array of allocated bucket units.
  *
  */
-GFX_API GFXBucketUnit* gfx_batch_get(
+GFX_API GFXBucketUnit *gfx_batch_get(
 
-		const GFXBatch*  batch,
+		const GFXBatch  *batch,
 		unsigned char    level,
-		unsigned int*    num);
+		unsigned int    *num);
 
 
 #ifdef __cplusplus

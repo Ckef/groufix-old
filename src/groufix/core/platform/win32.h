@@ -106,8 +106,8 @@ typedef struct GFX_Win32_Monitor
 typedef struct GFX_Win32_Window
 {
 	HWND                handle; /* Given to the outside world */
-	GFX_Win32_Monitor*  monitor;
-	DEVMODE*            mode;   /* Fullscreen mode */
+	GFX_Win32_Monitor  *monitor;
+	DEVMODE            *mode;   /* Fullscreen mode */
 	HGLRC               context;
 	GFX_Win32_Flags     flags;
 
@@ -149,7 +149,7 @@ extern GFX_Win32_Instance _gfx_win32;
  */
 WCHAR* _gfx_win32_utf8_to_utf16(
 
-		const char* str);
+		const char *str);
 
 /**
  * Converts a UTF-16 string to a UTF-8 string.
@@ -159,7 +159,7 @@ WCHAR* _gfx_win32_utf8_to_utf16(
  */
 char* _gfx_win32_utf16_to_utf8(
 
-		const WCHAR* str);
+		const WCHAR *str);
 
 /**
  * Returns a Win32 window from its handle.
@@ -186,7 +186,7 @@ GFX_Win32_Window* _gfx_win32_get_window_from_context(
 void _gfx_win32_set_pixel_format(
 
 		HWND                  handle,
-		const GFXColorDepth*  depth,
+		const GFXColorDepth  *depth,
 		int                   backBuffer);
 
 /**

@@ -90,11 +90,11 @@ typedef enum GFX_X11_Flags
 /** X11 Monitor */
 typedef struct GFX_X11_Monitor
 {
-	Screen*       screen;
+	Screen       *screen;
 	RRCrtc        crtc;
 	RRMode        mode;    /* Original mode */
 	unsigned int  numModes;
-	size_t*       modes;   /* Indices into _gfx_x11->modes */
+	size_t       *modes;   /* Indices into _gfx_x11->modes */
 
 	int           x;
 	int           y;
@@ -117,7 +117,7 @@ typedef struct GFX_X11_Mode
 typedef struct GFX_X11_Window
 {
 	Window            handle;  /* Given to the outside world */
-	GFX_X11_Monitor*  monitor;
+	GFX_X11_Monitor  *monitor;
 	RRMode            mode;    /* Fullscreen mode */
 	GLXFBConfig       config;
 	GLXContext        context;
@@ -139,7 +139,7 @@ typedef struct GFX_X11_Window
 typedef struct GFX_X11_Connection
 {
 	/* X Display and Windows */
-	Display*      display;
+	Display      *display;
 	GFXVector     monitors;                 /* Stores GFX_X11_Monitor */
 	GFXVector     modes;                    /* Stores GFX_X11_Mode */
 	GFXVector     windows;                  /* Stores GFX_X11_Window */

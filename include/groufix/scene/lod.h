@@ -56,7 +56,7 @@ typedef struct GFXLodMap
  * @return NULL on failure.
  *
  */
-GFX_API GFXLodMap* gfx_lod_map_create(
+GFX_API GFXLodMap *gfx_lod_map_create(
 
 		GFXLodFlags   flags,
 		size_t        dataSize,
@@ -68,7 +68,7 @@ GFX_API GFXLodMap* gfx_lod_map_create(
  */
 GFX_API void gfx_lod_map_free(
 
-		GFXLodMap* map);
+		GFXLodMap *map);
 
 /**
  * Maps data to a given level of detail.
@@ -83,9 +83,9 @@ GFX_API void gfx_lod_map_free(
  */
 GFX_API int gfx_lod_map_add(
 
-		GFXLodMap*    map,
+		GFXLodMap    *map,
 		unsigned int  level,
-		void*         data);
+		void         *data);
 
 /**
  * Retrieves the number of times given data is mapped.
@@ -97,9 +97,9 @@ GFX_API int gfx_lod_map_add(
  */
 GFX_API unsigned int gfx_lod_map_has(
 
-		const GFXLodMap*  map,
+		const GFXLodMap  *map,
 		unsigned int      level,
-		const void*       data);
+		const void       *data);
 
 /**
  * Removes all instances mapped data from a given level of detail.
@@ -113,9 +113,9 @@ GFX_API unsigned int gfx_lod_map_has(
  */
 GFX_API unsigned int gfx_lod_map_remove(
 
-		GFXLodMap*    map,
+		GFXLodMap    *map,
 		unsigned int  level,
-		const void*   data);
+		const void   *data);
 
 /**
  * Removes mapped data from a given level of detail.
@@ -129,7 +129,7 @@ GFX_API unsigned int gfx_lod_map_remove(
  */
 GFX_API int gfx_lod_map_remove_at(
 
-		GFXLodMap*    map,
+		GFXLodMap    *map,
 		unsigned int  level,
 		unsigned int  index);
 
@@ -143,7 +143,7 @@ GFX_API int gfx_lod_map_remove_at(
  */
 GFX_API unsigned int gfx_lod_map_count(
 
-		const GFXLodMap*  map,
+		const GFXLodMap  *map,
 		unsigned int      levels);
 
 /**
@@ -155,20 +155,20 @@ GFX_API unsigned int gfx_lod_map_count(
  * Note: as soon as a data element is added/removed the array pointer is invalidated.
  *
  */
-GFX_API void* gfx_lod_map_get(
+GFX_API void *gfx_lod_map_get(
 
-		const GFXLodMap*  map,
+		const GFXLodMap  *map,
 		unsigned int      level,
-		unsigned int*     num);
+		unsigned int     *num);
 
 /**
  * Returns an array of data elements of dataSize bytes of all levels.
  *
  */
-GFX_API void* gfx_lod_map_get_all(
+GFX_API void *gfx_lod_map_get_all(
 
-		const GFXLodMap*  map,
-		unsigned int*     num);
+		const GFXLodMap  *map,
+		unsigned int     *num);
 
 
 #ifdef __cplusplus

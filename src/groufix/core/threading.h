@@ -41,7 +41,7 @@ typedef HANDLE GFX_PlatformThread;
 typedef pthread_t GFX_PlatformThread;
 
 #else
-typedef void* GFX_PlatformThread;
+typedef void *GFX_PlatformThread;
 
 #endif
 
@@ -54,7 +54,7 @@ typedef DWORD GFX_PlatformKey;
 typedef pthread_key_t GFX_PlatformKey;
 
 #else
-typedef void* GFX_PlatformKey;
+typedef void *GFX_PlatformKey;
 
 #endif
 
@@ -67,7 +67,7 @@ typedef CRITICAL_SECTION GFX_PlatformMutex;
 typedef pthread_mutex_t GFX_PlatformMutex;
 
 #else
-typedef void* GFX_PlatformMutex;
+typedef void *GFX_PlatformMutex;
 
 #endif
 
@@ -80,7 +80,7 @@ typedef CONDITION_VARIABLE GFX_PlatformCond;
 typedef pthread_cond_t GFX_PlatformCond;
 
 #else
-typedef void* GFX_PlatformCond;
+typedef void *GFX_PlatformCond;
 
 #endif
 
@@ -101,9 +101,9 @@ typedef void* GFX_PlatformCond;
  */
 int _gfx_platform_thread_init(
 
-		GFX_PlatformThread*  thread,
+		GFX_PlatformThread  *thread,
 		GFX_ThreadAddress    func,
-		void*                arg,
+		void                *arg,
 		int                  joinable);
 
 /**
@@ -118,7 +118,7 @@ int _gfx_platform_thread_init(
 int _gfx_platform_thread_join(
 
 		GFX_PlatformThread  thread,
-		unsigned int*       ret);
+		unsigned int       *ret);
 
 /**
  * Detaches a thread, making it unjoinable.
@@ -169,7 +169,7 @@ static GFX_ALWAYS_INLINE void _gfx_platform_thread_exit(
  */
 static GFX_ALWAYS_INLINE int _gfx_platform_key_init(
 
-		GFX_PlatformKey* key)
+		GFX_PlatformKey *key)
 {
 #if defined(GFX_WIN32)
 
@@ -213,7 +213,7 @@ static GFX_ALWAYS_INLINE void _gfx_platform_key_clear(
 static GFX_ALWAYS_INLINE int _gfx_platform_key_set(
 
 		GFX_PlatformKey  key,
-		void*            value)
+		void            *value)
 {
 #if defined(GFX_WIN32)
 
@@ -258,7 +258,7 @@ static GFX_ALWAYS_INLINE void* _gfx_platform_key_get(
  */
 static GFX_ALWAYS_INLINE int _gfx_platform_mutex_init(
 
-		GFX_PlatformMutex* mutex)
+		GFX_PlatformMutex *mutex)
 {
 #if defined(GFX_WIN32)
 
@@ -280,7 +280,7 @@ static GFX_ALWAYS_INLINE int _gfx_platform_mutex_init(
  */
 static GFX_ALWAYS_INLINE void _gfx_platform_mutex_clear(
 
-		GFX_PlatformMutex* mutex)
+		GFX_PlatformMutex *mutex)
 {
 #if defined(GFX_WIN32)
 
@@ -301,7 +301,7 @@ static GFX_ALWAYS_INLINE void _gfx_platform_mutex_clear(
  */
 static GFX_ALWAYS_INLINE void _gfx_platform_mutex_lock(
 
-		GFX_PlatformMutex* mutex)
+		GFX_PlatformMutex *mutex)
 {
 #if defined(GFX_WIN32)
 
@@ -322,7 +322,7 @@ static GFX_ALWAYS_INLINE void _gfx_platform_mutex_lock(
  */
 static GFX_ALWAYS_INLINE int _gfx_platform_mutex_try_lock(
 
-		GFX_PlatformMutex* mutex)
+		GFX_PlatformMutex *mutex)
 {
 #if defined(GFX_WIN32)
 
@@ -343,7 +343,7 @@ static GFX_ALWAYS_INLINE int _gfx_platform_mutex_try_lock(
  */
 static GFX_ALWAYS_INLINE void _gfx_platform_mutex_unlock(
 
-		GFX_PlatformMutex* mutex)
+		GFX_PlatformMutex *mutex)
 {
 #if defined(GFX_WIN32)
 
@@ -367,7 +367,7 @@ static GFX_ALWAYS_INLINE void _gfx_platform_mutex_unlock(
  */
 static GFX_ALWAYS_INLINE int _gfx_platform_cond_init(
 
-		GFX_PlatformCond* cond)
+		GFX_PlatformCond *cond)
 {
 #if defined(GFX_WIN32)
 
@@ -389,7 +389,7 @@ static GFX_ALWAYS_INLINE int _gfx_platform_cond_init(
  */
 static GFX_ALWAYS_INLINE void _gfx_platform_cond_clear(
 
-		GFX_PlatformCond* cond)
+		GFX_PlatformCond *cond)
 {
 #if defined(GFX_WIN32)
 
@@ -412,8 +412,8 @@ static GFX_ALWAYS_INLINE void _gfx_platform_cond_clear(
  */
 static GFX_ALWAYS_INLINE int _gfx_platform_cond_wait(
 
-		GFX_PlatformCond*   cond,
-		GFX_PlatformMutex*  mutex)
+		GFX_PlatformCond   *cond,
+		GFX_PlatformMutex  *mutex)
 {
 #if defined(GFX_WIN32)
 
@@ -436,8 +436,8 @@ static GFX_ALWAYS_INLINE int _gfx_platform_cond_wait(
  */
 int _gfx_platform_cond_wait_time(
 
-		GFX_PlatformCond*   cond,
-		GFX_PlatformMutex*  mutex,
+		GFX_PlatformCond   *cond,
+		GFX_PlatformMutex  *mutex,
 		uint64_t            nsec);
 
 /**
@@ -448,7 +448,7 @@ int _gfx_platform_cond_wait_time(
  */
 static GFX_ALWAYS_INLINE void _gfx_platform_cond_signal(
 
-		GFX_PlatformCond* cond)
+		GFX_PlatformCond *cond)
 {
 #if defined(GFX_WIN32)
 
@@ -469,7 +469,7 @@ static GFX_ALWAYS_INLINE void _gfx_platform_cond_signal(
  */
 static GFX_ALWAYS_INLINE void _gfx_platform_cond_broadcast(
 
-		GFX_PlatformCond* cond)
+		GFX_PlatformCond *cond)
 {
 #if defined(GFX_WIN32)
 
