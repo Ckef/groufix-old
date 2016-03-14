@@ -104,9 +104,9 @@ typedef GFX_QUAT_ALIGN
  * Returns a value of the quaternion.
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_DATA* GFX_QUAT_FUNC(get)(
+static GFX_ALWAYS_INLINE GFX_QUAT_DATA *GFX_QUAT_FUNC(get)(
 
-		GFX_QUAT_NAME*  a,
+		GFX_QUAT_NAME  *a,
 		size_t          component)
 {
 	return a->data + component;
@@ -118,9 +118,9 @@ static GFX_ALWAYS_INLINE GFX_QUAT_DATA* GFX_QUAT_FUNC(get)(
  * @return The given quaternion itself.
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(set_zero)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME *GFX_QUAT_FUNC(set_zero)(
 
-		GFX_QUAT_NAME* a)
+		GFX_QUAT_NAME *a)
 {
 	return (GFX_QUAT_NAME*)memset(a, 0, sizeof(GFX_QUAT_NAME));
 }
@@ -131,11 +131,11 @@ static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(set_zero)(
  * @param dest Destination quaternion.
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(add)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME *GFX_QUAT_FUNC(add)(
 
-		GFX_QUAT_NAME*        dest,
-		const GFX_QUAT_NAME*  a,
-		const GFX_QUAT_NAME*  b)
+		GFX_QUAT_NAME        *dest,
+		const GFX_QUAT_NAME  *a,
+		const GFX_QUAT_NAME  *b)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -150,11 +150,11 @@ static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(add)(
  * @param dest Destination quaternion.
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(sub)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME *GFX_QUAT_FUNC(sub)(
 
-		GFX_QUAT_NAME*        dest,
-		const GFX_QUAT_NAME*  a,
-		const GFX_QUAT_NAME*  b)
+		GFX_QUAT_NAME        *dest,
+		const GFX_QUAT_NAME  *a,
+		const GFX_QUAT_NAME  *b)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -169,11 +169,11 @@ static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(sub)(
  * @param dest Destination quaternion.
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(mult)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME *GFX_QUAT_FUNC(mult)(
 
-		GFX_QUAT_NAME*        dest,
-		const GFX_QUAT_NAME*  a,
-		const GFX_QUAT_NAME*  b)
+		GFX_QUAT_NAME        *dest,
+		const GFX_QUAT_NAME  *a,
+		const GFX_QUAT_NAME  *b)
 {
 	GFX_QUAT_NAME res;
 	res.data[0] = a->data[0] * b->data[0] - a->data[1] * b->data[1] - a->data[2] * b->data[2] - a->data[3] * b->data[3];
@@ -192,10 +192,10 @@ static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(mult)(
  * @param dest Destination quaternion.
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(scale)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME *GFX_QUAT_FUNC(scale)(
 
-		GFX_QUAT_NAME*        dest,
-		const GFX_QUAT_NAME*  a,
+		GFX_QUAT_NAME        *dest,
+		const GFX_QUAT_NAME  *a,
 		GFX_QUAT_DATA         scalar)
 {
 	size_t i;
@@ -211,10 +211,10 @@ static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(scale)(
  * @param dest Destination quaternion.
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(conjugate)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME *GFX_QUAT_FUNC(conjugate)(
 
-		GFX_QUAT_NAME*        dest,
-		const GFX_QUAT_NAME*  a)
+		GFX_QUAT_NAME        *dest,
+		const GFX_QUAT_NAME  *a)
 {
 	dest->data[0] = +a->data[0];
 	dest->data[1] = -a->data[1];
@@ -230,7 +230,7 @@ static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(conjugate)(
  */
 static GFX_ALWAYS_INLINE GFX_QUAT_DATA GFX_QUAT_FUNC(norm_squared)(
 
-		const GFX_QUAT_NAME* a)
+		const GFX_QUAT_NAME *a)
 {
 	GFX_QUAT_DATA norm = 0;
 
@@ -249,7 +249,7 @@ static GFX_ALWAYS_INLINE GFX_QUAT_DATA GFX_QUAT_FUNC(norm_squared)(
  */
 static GFX_ALWAYS_INLINE double GFX_QUAT_FUNC(norm)(
 
-		const GFX_QUAT_NAME* a)
+		const GFX_QUAT_NAME *a)
 {
 	return sqrt((double)GFX_QUAT_FUNC(norm_squared)(a));
 }
@@ -260,10 +260,10 @@ static GFX_ALWAYS_INLINE double GFX_QUAT_FUNC(norm)(
  * @param dest Destination quaternion.
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(normalize)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME *GFX_QUAT_FUNC(normalize)(
 
-		GFX_QUAT_NAME*        dest,
-		const GFX_QUAT_NAME*  a)
+		GFX_QUAT_NAME        *dest,
+		const GFX_QUAT_NAME  *a)
 {
 	double norm = GFX_QUAT_FUNC(norm)(a);
 	if(norm) norm = 1.0 / norm;
@@ -281,10 +281,10 @@ static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(normalize)(
  * @param dest Destination quaternion.
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(inverse)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME *GFX_QUAT_FUNC(inverse)(
 
-		GFX_QUAT_NAME*        dest,
-		const GFX_QUAT_NAME*  a)
+		GFX_QUAT_NAME        *dest,
+		const GFX_QUAT_NAME  *a)
 {
 	double normSq = GFX_QUAT_FUNC(norm_squared)(a);
 	if(normSq) normSq = 1.0 / normSq;
@@ -306,7 +306,7 @@ static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(inverse)(
  */
 static GFX_ALWAYS_INLINE int GFX_QUAT_FUNC(is_zero)(
 
-		const GFX_QUAT_NAME* a)
+		const GFX_QUAT_NAME *a)
 {
 	size_t i;
 	for(i = 0; i < 4; ++i)
@@ -326,11 +326,11 @@ static GFX_ALWAYS_INLINE int GFX_QUAT_FUNC(is_zero)(
  * This method assumes the axis is of unit length (magnitude or magnitude_squared = 1).
  *
  */
-static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(from_angle_axis)(
+static GFX_ALWAYS_INLINE GFX_QUAT_NAME *GFX_QUAT_FUNC(from_angle_axis)(
 
-		GFX_QUAT_NAME*        dest,
+		GFX_QUAT_NAME        *dest,
 		double                angle,
-		const GFX_VEC_NAME*   axis)
+		const GFX_VEC_NAME   *axis)
 {
 	double half = angle * 0.5;
 	double scale = sin(half);
@@ -355,9 +355,9 @@ static GFX_ALWAYS_INLINE GFX_QUAT_NAME* GFX_QUAT_FUNC(from_angle_axis)(
  */
 static GFX_ALWAYS_INLINE void GFX_QUAT_FUNC(to_angle_axis)(
 
-		const GFX_QUAT_NAME*  src,
-		double*               angle,
-		GFX_VEC_NAME*         axis)
+		const GFX_QUAT_NAME  *src,
+		double               *angle,
+		GFX_VEC_NAME         *axis)
 {
 	double half = acos(src->data[0]);
 	double scale = sin(half);
@@ -377,11 +377,11 @@ static GFX_ALWAYS_INLINE void GFX_QUAT_FUNC(to_angle_axis)(
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_QUAT_FUNC(mult_vec)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME *GFX_QUAT_FUNC(mult_vec)(
 
-		GFX_VEC_NAME*         dest,
-		const GFX_QUAT_NAME*  a,
-		const GFX_VEC_NAME*   b)
+		GFX_VEC_NAME         *dest,
+		const GFX_QUAT_NAME  *a,
+		const GFX_VEC_NAME   *b)
 {
 	/* want = q * v * q^-1 (sandwich product)
 	 * in which v = (0, bx, by, bz) and q^-1 = (aw, -ax, -ay, -az) (conjugate)
@@ -412,10 +412,10 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_QUAT_FUNC(mult_vec)(
  * This method assumes the quaternion is of unit length (norm or norm_squared = 1).
  *
  */
-static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_QUAT_FUNC(to_matrix)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME *GFX_QUAT_FUNC(to_matrix)(
 
-		GFX_MAT_NAME*         dest,
-		const GFX_QUAT_NAME*  a)
+		GFX_MAT_NAME         *dest,
+		const GFX_QUAT_NAME  *a)
 {
 	GFX_QUAT_DATA x2 = a->data[1] + a->data[1];
 	GFX_QUAT_DATA y2 = a->data[2] + a->data[2];

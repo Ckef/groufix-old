@@ -53,7 +53,7 @@ static GFXContext _gfx_version =
 /******************************************************/
 static inline int _gfx_context_is_zombie(
 
-		const GFX_Context* context)
+		const GFX_Context *context)
 {
 	return !context->handle && !context->context;
 }
@@ -61,9 +61,9 @@ static inline int _gfx_context_is_zombie(
 /******************************************************/
 static GFX_PlatformContext _gfx_context_create_platform(
 
-		GFX_PlatformWindow*  window,
-		int*                 major,
-		int*                 minor)
+		GFX_PlatformWindow  *window,
+		int                 *major,
+		int                 *minor)
 {
 	int debug = _gfx_errors_get_mode() == GFX_ERROR_MODE_DEBUG;
 
@@ -124,7 +124,7 @@ static GFX_PlatformContext _gfx_context_create_platform(
 /******************************************************/
 static GFX_Context* _gfx_context_create_internal(
 
-		GFX_PlatformAttributes* attr)
+		GFX_PlatformAttributes *attr)
 {
 	if(attr)
 	{
@@ -154,7 +154,7 @@ static GFX_Context* _gfx_context_create_internal(
 	}
 
 	/* Setup generic context */
-	GFX_Context* context = calloc(1, sizeof(GFX_Context));
+	GFX_Context *context = calloc(1, sizeof(GFX_Context));
 	if(!context)
 	{
 		/* Out of memory error */
@@ -239,7 +239,7 @@ static GFX_Context* _gfx_context_create_internal(
 /******************************************************/
 static int _gfx_context_insert(
 
-		const GFX_Context* context)
+		const GFX_Context *context)
 {
 	/* Try to insert, destroy on failure */
 	/* Insert all off-screen contexts at the end */
@@ -267,7 +267,7 @@ static int _gfx_context_insert(
 /******************************************************/
 static void _gfx_context_erase(
 
-		GFX_Context* context)
+		GFX_Context *context)
 {
 	/* Erase from vector */
 	GFX_Context** it;
@@ -351,7 +351,7 @@ void _gfx_context_manager_terminate(void)
 GFX_Context* _gfx_context_create(void)
 {
 	/* Create the context */
-	GFX_Context* context = _gfx_context_create_internal(NULL);
+	GFX_Context *context = _gfx_context_create_internal(NULL);
 
 	/* Make main context current again */
 	_gfx_context_make_current(_gfx_main_context);
@@ -370,7 +370,7 @@ GFX_Context* _gfx_context_create(void)
 /******************************************************/
 void _gfx_context_destroy(
 
-		GFX_Context* context)
+		GFX_Context *context)
 {
 	if(_gfx_context_is_zombie(context)) return;
 
@@ -431,9 +431,9 @@ void _gfx_context_destroy(
 /******************************************************/
 void _gfx_context_make_current(
 
-		GFX_Context* context)
+		GFX_Context *context)
 {
-	GFX_Context* current =
+	GFX_Context *current =
 		_gfx_platform_key_get(_gfx_current_context);
 
 	if(current != context)
@@ -459,7 +459,7 @@ GFX_Context* _gfx_context_get_current(void)
 /******************************************************/
 void _gfx_context_swap_buffers(void)
 {
-	GFX_Context* context =
+	GFX_Context *context =
 		_gfx_platform_key_get(_gfx_current_context);
 
 	if(context)
@@ -491,7 +491,7 @@ unsigned int gfx_get_num_windows(void)
 }
 
 /******************************************************/
-GFXWindow* gfx_get_window(
+GFXWindow *gfx_get_window(
 
 		unsigned int num)
 {
@@ -500,12 +500,12 @@ GFXWindow* gfx_get_window(
 }
 
 /******************************************************/
-GFXWindow* gfx_window_create(
+GFXWindow *gfx_window_create(
 
 		GFXMonitor            monitor,
 		unsigned int          mode,
-		const GFXColorDepth*  depth,
-		const char*           name,
+		const GFXColorDepth  *depth,
+		const char           *name,
 		int                   x,
 		int                   y,
 		unsigned int          w,
@@ -526,7 +526,7 @@ GFXWindow* gfx_window_create(
 		.h       = h
 	};
 
-	GFX_Context* context = _gfx_context_create_internal(&attr);
+	GFX_Context *context = _gfx_context_create_internal(&attr);
 
 	if(context)
 	{
@@ -557,16 +557,16 @@ GFXWindow* gfx_window_create(
 }
 
 /******************************************************/
-GFXWindow* gfx_window_recreate(
+GFXWindow *gfx_window_recreate(
 
-		GFXWindow*            window,
+		GFXWindow            *window,
 		GFXMonitor            monitor,
 		unsigned int          mode,
-		const GFXColorDepth*  depth,
+		const GFXColorDepth  *depth,
 		GFXWindowFlags        flags)
 {
 	/* Check if zombie context */
-	GFX_Context* context = (GFX_Context*)window;
+	GFX_Context *context = (GFX_Context*)window;
 	if(_gfx_context_is_zombie(context) || context->offscreen)
 		return NULL;
 
@@ -576,7 +576,7 @@ GFXWindow* gfx_window_recreate(
 	unsigned int w;
 	unsigned int h;
 
-	char* name = _gfx_platform_window_get_name(
+	char *name = _gfx_platform_window_get_name(
 		context->handle);
 
 	_gfx_platform_window_get_position(
@@ -594,7 +594,7 @@ GFXWindow* gfx_window_recreate(
 	_gfx_platform_window_hide(context->handle);
 
 	/* Create our new window */
-	GFXWindow* new = gfx_window_create(
+	GFXWindow *new = gfx_window_create(
 		monitor,
 		mode,
 		depth,
@@ -627,7 +627,7 @@ GFXWindow* gfx_window_recreate(
 /******************************************************/
 void gfx_window_free(
 
-		GFXWindow* window)
+		GFXWindow *window)
 {
 	if(window)
 	{
@@ -641,7 +641,7 @@ void gfx_window_free(
 /******************************************************/
 int gfx_window_is_open(
 
-		const GFXWindow* window)
+		const GFXWindow *window)
 {
 	if(!window) return 0;
 	return ((const GFX_Context*)window)->handle ? 1 : 0;
@@ -650,9 +650,9 @@ int gfx_window_is_open(
 /******************************************************/
 GFXMonitor gfx_window_get_monitor(
 
-		const GFXWindow* window)
+		const GFXWindow *window)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(_gfx_context_is_zombie(context) || context->offscreen)
 		return NULL;
 
@@ -660,11 +660,11 @@ GFXMonitor gfx_window_get_monitor(
 }
 
 /******************************************************/
-char* gfx_window_get_name(
+char *gfx_window_get_name(
 
-		const GFXWindow* window)
+		const GFXWindow *window)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(_gfx_context_is_zombie(context) || context->offscreen)
 		return NULL;
 
@@ -674,11 +674,11 @@ char* gfx_window_get_name(
 /******************************************************/
 void gfx_window_get_size(
 
-		const GFXWindow*  window,
-		unsigned int*     width,
-		unsigned int*     height)
+		const GFXWindow  *window,
+		unsigned int     *width,
+		unsigned int     *height)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(!_gfx_context_is_zombie(context) && !context->offscreen)
 		_gfx_platform_window_get_size(
 			context->handle,
@@ -690,11 +690,11 @@ void gfx_window_get_size(
 /******************************************************/
 void gfx_window_get_position(
 
-		const GFXWindow*  window,
-		int*              x,
-		int*              y)
+		const GFXWindow  *window,
+		int              *x,
+		int              *y)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(!_gfx_context_is_zombie(context) && !context->offscreen)
 		_gfx_platform_window_get_position(
 			context->handle,
@@ -706,10 +706,10 @@ void gfx_window_get_position(
 /******************************************************/
 void gfx_window_set_name(
 
-		const GFXWindow*  window,
-		const char*       name)
+		const GFXWindow  *window,
+		const char       *name)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(!_gfx_context_is_zombie(context) && !context->offscreen)
 		_gfx_platform_window_set_name(
 			context->handle,
@@ -720,11 +720,11 @@ void gfx_window_set_name(
 /******************************************************/
 void gfx_window_set_size(
 
-		const GFXWindow*  window,
+		const GFXWindow  *window,
 		unsigned int      width,
 		unsigned int      height)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(!_gfx_context_is_zombie(context) && !context->offscreen)
 		_gfx_platform_window_set_size(
 			context->handle,
@@ -736,11 +736,11 @@ void gfx_window_set_size(
 /******************************************************/
 void gfx_window_set_position(
 
-		const GFXWindow*  window,
+		const GFXWindow  *window,
 		int               x,
 		int               y)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(!_gfx_context_is_zombie(context) && !context->offscreen)
 		_gfx_platform_window_set_position(
 			context->handle,
@@ -752,9 +752,9 @@ void gfx_window_set_position(
 /******************************************************/
 void gfx_window_show(
 
-		const GFXWindow* window)
+		const GFXWindow *window)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(!_gfx_context_is_zombie(context) && !context->offscreen)
 		_gfx_platform_window_show(context->handle);
 }
@@ -762,9 +762,9 @@ void gfx_window_show(
 /******************************************************/
 void gfx_window_hide(
 
-		const GFXWindow* window)
+		const GFXWindow *window)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(!_gfx_context_is_zombie(context) && !context->offscreen)
 		_gfx_platform_window_hide(context->handle);
 }
@@ -772,10 +772,10 @@ void gfx_window_hide(
 /******************************************************/
 int gfx_window_set_swap_interval(
 
-		const GFXWindow*  window,
+		const GFXWindow  *window,
 		int               num)
 {
-	const GFX_Context* context = (GFX_Context*)window;
+	const GFX_Context *context = (GFX_Context*)window;
 	if(!_gfx_context_is_zombie(context) && !context->offscreen)
 	{
 		/* Make sure the main context is current afterwards */

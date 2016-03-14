@@ -51,7 +51,7 @@ typedef struct GFXDisplayMode
 
 
 /** A top level monitor */
-typedef void* GFXMonitor;
+typedef void *GFXMonitor;
 
 
 /**
@@ -85,8 +85,8 @@ GFX_API GFXMonitor gfx_get_default_monitor(void);
 GFX_API void gfx_monitor_get_size(
 
 		GFXMonitor     monitor,
-		unsigned int*  width,
-		unsigned int*  height);
+		unsigned int  *width,
+		unsigned int  *height);
 
 /**
  * Returns the number of display modes associated with a monitor.
@@ -111,7 +111,7 @@ GFX_API int gfx_monitor_get_mode(
 
 		GFXMonitor       monitor,
 		unsigned int     num,
-		GFXDisplayMode*  mode);
+		GFXDisplayMode  *mode);
 
 
 /********************************************************
@@ -192,7 +192,7 @@ GFX_API unsigned int gfx_get_num_windows(void);
  * The number of a window can change, this is meant purely for iteration.
  *
  */
-GFX_API GFXWindow* gfx_get_window(
+GFX_API GFXWindow *gfx_get_window(
 
 		unsigned int num);
 
@@ -210,12 +210,12 @@ GFX_API GFXWindow* gfx_get_window(
  * @return NULL on failure.
  *
  */
-GFX_API GFXWindow* gfx_window_create(
+GFX_API GFXWindow *gfx_window_create(
 
 		GFXMonitor            monitor,
 		unsigned int          mode,
-		const GFXColorDepth*  depth,
-		const char*           name,
+		const GFXColorDepth  *depth,
+		const char           *name,
 		int                   x,
 		int                   y,
 		unsigned int          w,
@@ -230,12 +230,12 @@ GFX_API GFXWindow* gfx_window_create(
  * Note: if NULL is returned, the original window is still functional, but hidden.
  *
  */
-GFX_API GFXWindow* gfx_window_recreate(
+GFX_API GFXWindow *gfx_window_recreate(
 
-		GFXWindow*            window,
+		GFXWindow            *window,
 		GFXMonitor            monitor,
 		unsigned int          mode,
-		const GFXColorDepth*  depth,
+		const GFXColorDepth  *depth,
 		GFXWindowFlags        flags);
 
 /**
@@ -247,7 +247,7 @@ GFX_API GFXWindow* gfx_window_recreate(
  */
 GFX_API void gfx_window_free(
 
-		GFXWindow* window);
+		GFXWindow *window);
 
 /**
  * Returns whether a window is still alive.
@@ -258,7 +258,7 @@ GFX_API void gfx_window_free(
  */
 GFX_API int gfx_window_is_open(
 
-		const GFXWindow* window);
+		const GFXWindow *window);
 
 /**
  * Returns the monitor associated with a window.
@@ -266,7 +266,7 @@ GFX_API int gfx_window_is_open(
  */
 GFX_API GFXMonitor gfx_window_get_monitor(
 
-		const GFXWindow* window);
+		const GFXWindow *window);
 
 /**
  * Gets the name of the window.
@@ -274,9 +274,9 @@ GFX_API GFXMonitor gfx_window_get_monitor(
  * If the returned pointer is not NULL, it should be freed manually.
  *
  */
-GFX_API char* gfx_window_get_name(
+GFX_API char *gfx_window_get_name(
 
-		const GFXWindow* window);
+		const GFXWindow *window);
 
 /**
  * Gets the size of the window.
@@ -284,9 +284,9 @@ GFX_API char* gfx_window_get_name(
  */
 GFX_API void gfx_window_get_size(
 
-		const GFXWindow*  window,
-		unsigned int*     width,
-		unsigned int*     height);
+		const GFXWindow  *window,
+		unsigned int     *width,
+		unsigned int     *height);
 
 /**
  * Gets the position of the window.
@@ -294,9 +294,9 @@ GFX_API void gfx_window_get_size(
  */
 GFX_API void gfx_window_get_position(
 
-		const GFXWindow*  window,
-		int*              x,
-		int*              y);
+		const GFXWindow  *window,
+		int              *x,
+		int              *y);
 
 /**
  * Sets the name of the window.
@@ -304,8 +304,8 @@ GFX_API void gfx_window_get_position(
  */
 GFX_API void gfx_window_set_name(
 
-		const GFXWindow*  window,
-		const char*       name);
+		const GFXWindow  *window,
+		const char       *name);
 
 /**
  * Sets the size of the window.
@@ -313,7 +313,7 @@ GFX_API void gfx_window_set_name(
  */
 GFX_API void gfx_window_set_size(
 
-		const GFXWindow*  window,
+		const GFXWindow  *window,
 		unsigned int      width,
 		unsigned int      height);
 
@@ -323,7 +323,7 @@ GFX_API void gfx_window_set_size(
  */
 GFX_API void gfx_window_set_position(
 
-		const GFXWindow*  window,
+		const GFXWindow  *window,
 		int               x,
 		int               y);
 
@@ -336,7 +336,7 @@ GFX_API void gfx_window_set_position(
  */
 GFX_API void gfx_window_show(
 
-		const GFXWindow* window);
+		const GFXWindow *window);
 
 /**
  * Makes a window invisible.
@@ -347,7 +347,7 @@ GFX_API void gfx_window_show(
  */
 GFX_API void gfx_window_hide(
 
-		const GFXWindow* window);
+		const GFXWindow *window);
 
 /**
  * Sets the minimum number of video frame periods per buffer swap.
@@ -360,7 +360,7 @@ GFX_API void gfx_window_hide(
  */
 GFX_API int gfx_window_set_swap_interval(
 
-		const GFXWindow*  window,
+		const GFXWindow  *window,
 		int               num);
 
 

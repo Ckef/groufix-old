@@ -20,11 +20,11 @@
 /* Internal Pipe Process */
 typedef struct GFX_Process
 {
-	GFXProgramMap*   progs;
-	GFXPropertyMap*  map;
+	GFXProgramMap   *progs;
+	GFXPropertyMap  *map;
 	unsigned int     copy;    /* Copy of the property map to use */
 
-	GFX_Context*     target;
+	GFX_Context     *target;
 	unsigned char    swap;    /* Whether to swap buffers or not */
 	GFXViewport      viewport;
 
@@ -42,8 +42,8 @@ static GLuint _gfx_process_buffer = 0;
 /******************************************************/
 static inline void _gfx_pipe_process_draw(
 
-		const GFXPipeState*    state,
-		const GFXPropertyMap*  map,
+		const GFXPipeState    *state,
+		const GFXPropertyMap  *map,
 		unsigned int           copy,
 		GFX_CONT_ARG)
 {
@@ -117,7 +117,7 @@ void _gfx_pipe_process_unprepare(
 		it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, reset post processing */
-		GFX_Process* proc = *(GFX_Process**)it;
+		GFX_Process *proc = *(GFX_Process**)it;
 		if(GFX_CONT_EQ(proc->target))
 		{
 			gfx_property_map_free(proc->map);
@@ -144,7 +144,7 @@ void _gfx_pipe_process_unprepare(
 /******************************************************/
 void _gfx_pipe_process_retarget(
 
-		GFX_Context* target)
+		GFX_Context *target)
 {
 	GFX_CONT_INIT();
 
@@ -157,7 +157,7 @@ void _gfx_pipe_process_retarget(
 			it != _gfx_pipes->end;
 			it = gfx_vector_next(_gfx_pipes, it))
 		{
-			GFX_Process* proc = *(GFX_Process**)it;
+			GFX_Process *proc = *(GFX_Process**)it;
 			if(GFX_CONT_EQ(proc->target))
 				_gfx_program_map_save(proc->progs);
 		}
@@ -170,7 +170,7 @@ void _gfx_pipe_process_retarget(
 			it != _gfx_pipes->end;
 			it = gfx_vector_next(_gfx_pipes, it))
 		{
-			GFX_Process* proc = *(GFX_Process**)it;
+			GFX_Process *proc = *(GFX_Process**)it;
 			if(GFX_CONT_EQ(proc->target))
 			{
 				/* Also make sure to set the target */
@@ -187,7 +187,7 @@ void _gfx_pipe_process_retarget(
 /******************************************************/
 void _gfx_pipe_process_resize(
 
-		const GFX_Context*  target,
+		const GFX_Context  *target,
 		unsigned int        width,
 		unsigned int        height)
 {
@@ -198,7 +198,7 @@ void _gfx_pipe_process_resize(
 		it = gfx_vector_next(_gfx_pipes, it))
 	{
 		/* Check for equal target, if equal, resize! */
-		GFX_Process* proc = *(GFX_Process**)it;
+		GFX_Process *proc = *(GFX_Process**)it;
 		if(target == proc->target)
 		{
 			proc->viewport.width = width;
@@ -210,13 +210,13 @@ void _gfx_pipe_process_resize(
 /******************************************************/
 GFXPipeProcess _gfx_pipe_process_create(
 
-		GFXWindow*  target,
+		GFXWindow  *target,
 		int         swap)
 {
 	GFX_CONT_INIT(NULL);
 
 	/* Allocate */
-	GFX_Process* proc = calloc(1, sizeof(GFX_Process));
+	GFX_Process *proc = calloc(1, sizeof(GFX_Process));
 	if(!proc)
 	{
 		/* Out of memory error */
@@ -299,7 +299,7 @@ void _gfx_pipe_process_free(
 	{
 		GFX_CONT_INIT_UNSAFE;
 
-		GFX_Process* internal = (GFX_Process*)process;
+		GFX_Process *internal = (GFX_Process*)process;
 
 		/* Free context-bound objects */
 		if(internal->target)
@@ -342,10 +342,10 @@ void _gfx_pipe_process_free(
 void _gfx_pipe_process_execute(
 
 		GFXPipeProcess       process,
-		const GFXPipeState*  state,
+		const GFXPipeState  *state,
 		GFX_CONT_ARG)
 {
-	GFX_Process* internal = (GFX_Process*)process;
+	GFX_Process *internal = (GFX_Process*)process;
 
 	if(!internal->map) return;
 
@@ -408,12 +408,12 @@ void _gfx_pipe_process_execute(
 }
 
 /******************************************************/
-GFXPropertyMap* gfx_pipe_process_get_map(
+GFXPropertyMap *gfx_pipe_process_get_map(
 
 		GFXPipeProcess  process,
 		unsigned char   properties)
 {
-	GFX_Process* internal = (GFX_Process*)process;
+	GFX_Process *internal = (GFX_Process*)process;
 
 	if(!internal->map)
 	{
@@ -446,7 +446,7 @@ void gfx_pipe_process_set_copy(
 }
 
 /******************************************************/
-GFXProgram* gfx_pipe_process_add(
+GFXProgram *gfx_pipe_process_add(
 
 		GFXPipeProcess  process,
 		GFXShaderStage  stage,
@@ -464,7 +464,7 @@ int gfx_pipe_process_add_share(
 
 		GFXPipeProcess  process,
 		GFXShaderStage  stage,
-		GFXProgram*     share)
+		GFXProgram     *share)
 {
 	return gfx_program_map_add_share(
 		((GFX_Process*)process)->progs,
@@ -474,7 +474,7 @@ int gfx_pipe_process_add_share(
 }
 
 /******************************************************/
-GFXProgram* gfx_pipe_process_get(
+GFXProgram *gfx_pipe_process_get(
 
 		const GFXPipeProcess  process,
 		GFXShaderStage        stage)

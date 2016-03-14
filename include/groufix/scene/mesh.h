@@ -28,7 +28,7 @@ extern "C" {
  *******************************************************/
 
 /** Vertex source list */
-typedef void* GFXVertexSourceList;
+typedef void *GFXVertexSourceList;
 
 
 /** Mesh layout */
@@ -53,7 +53,7 @@ typedef struct GFXMesh
  * @return NULL on failure.
  *
  */
-GFX_API GFXMesh* gfx_mesh_create(void);
+GFX_API GFXMesh *gfx_mesh_create(void);
 
 /**
  * Makes sure the mesh is freed properly.
@@ -61,7 +61,7 @@ GFX_API GFXMesh* gfx_mesh_create(void);
  */
 GFX_API void gfx_mesh_free(
 
-		GFXMesh* mesh);
+		GFXMesh *mesh);
 
 /**
  * Creates a new vertex layout associated with the mesh.
@@ -72,7 +72,7 @@ GFX_API void gfx_mesh_free(
  */
 GFX_API GFXMeshLayout gfx_mesh_add_layout(
 
-		GFXMesh*       mesh,
+		GFXMesh       *mesh,
 		unsigned char  sources);
 
 /**
@@ -84,8 +84,8 @@ GFX_API GFXMeshLayout gfx_mesh_add_layout(
  */
 GFX_API GFXMeshLayout gfx_mesh_share_layout(
 
-		GFXMesh*          mesh,
-		GFXVertexLayout*  layout);
+		GFXMesh          *mesh,
+		GFXVertexLayout  *layout);
 
 /**
  * Retrieves the vertex layout from a mesh.
@@ -94,9 +94,9 @@ GFX_API GFXMeshLayout gfx_mesh_share_layout(
  * @return Associated vertex layout.
  *
  */
-GFX_API GFXVertexLayout* gfx_mesh_get_layout(
+GFX_API GFXVertexLayout *gfx_mesh_get_layout(
 
-		const GFXMesh*  mesh,
+		const GFXMesh  *mesh,
 		GFXMeshLayout   layout);
 
 /**
@@ -110,9 +110,9 @@ GFX_API GFXVertexLayout* gfx_mesh_get_layout(
  */
 GFX_API GFXMeshBuffer gfx_mesh_add_buffer(
 
-		GFXMesh*     mesh,
+		GFXMesh     *mesh,
 		size_t       size,
-		const void*  data);
+		const void  *data);
 
 /**
  * Uses a vertex buffer for a given attribue of a layout.
@@ -127,7 +127,7 @@ GFX_API GFXMeshBuffer gfx_mesh_add_buffer(
  */
 GFX_API int gfx_mesh_set_vertex_buffer(
 
-		const GFXMesh*  mesh,
+		const GFXMesh  *mesh,
 		GFXMeshLayout   layout,
 		GFXMeshBuffer   buffer,
 		unsigned int    index,
@@ -147,7 +147,7 @@ GFX_API int gfx_mesh_set_vertex_buffer(
  */
 GFX_API void gfx_mesh_set_index_buffer(
 
-		const GFXMesh*  mesh,
+		const GFXMesh  *mesh,
 		GFXMeshLayout   layout,
 		GFXMeshBuffer   buffer,
 		size_t          offset);
@@ -165,7 +165,7 @@ GFX_API void gfx_mesh_set_index_buffer(
  */
 GFX_API int gfx_mesh_add(
 
-		GFXMesh*       mesh,
+		GFXMesh       *mesh,
 		unsigned int   level,
 		GFXMeshLayout  layout,
 		unsigned char  srcIndex,
@@ -183,9 +183,9 @@ GFX_API int gfx_mesh_add(
  */
 GFX_API GFXVertexSourceList gfx_mesh_get(
 
-		const GFXMesh*  mesh,
+		const GFXMesh  *mesh,
 		unsigned int    level,
-		unsigned int*   num);
+		unsigned int   *num);
 
 /**
  * Returns an abstract list of vertex sources of all levels.
@@ -195,8 +195,8 @@ GFX_API GFXVertexSourceList gfx_mesh_get(
  */
 GFX_API GFXVertexSourceList gfx_mesh_get_all(
 
-		const GFXMesh*  mesh,
-		unsigned int*   num);
+		const GFXMesh  *mesh,
+		unsigned int   *num);
 
 /**
  * Index into a list of vertex sources, retrieving the associated layout ID.

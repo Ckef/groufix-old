@@ -20,8 +20,8 @@
 /* Actual object storage */
 typedef struct GFX_Object
 {
-	void*                         handle;
-	const GFX_RenderObjectFuncs*  funcs; /* NULL when empty */
+	void                         *handle;
+	const GFX_RenderObjectFuncs  *funcs; /* NULL when empty */
 
 } GFX_Object;
 
@@ -29,7 +29,7 @@ typedef struct GFX_Object
 /******************************************************/
 void _gfx_render_objects_init(
 
-		GFX_RenderObjects* cont)
+		GFX_RenderObjects *cont)
 {
 	gfx_vector_init(&cont->objects, sizeof(GFX_Object));
 	gfx_deque_init(&cont->empties, sizeof(unsigned int));
@@ -39,7 +39,7 @@ void _gfx_render_objects_init(
 /******************************************************/
 void _gfx_render_objects_clear(
 
-		GFX_RenderObjects* cont)
+		GFX_RenderObjects *cont)
 {
 	gfx_vector_clear(&cont->objects);
 	gfx_deque_clear(&cont->empties);
@@ -49,9 +49,9 @@ void _gfx_render_objects_clear(
 /******************************************************/
 GFX_RenderObjectID _gfx_render_object_register(
 
-		GFX_RenderObjects*            cont,
-		void*                         object,
-		const GFX_RenderObjectFuncs*  funcs)
+		GFX_RenderObjects            *cont,
+		void                         *object,
+		const GFX_RenderObjectFuncs  *funcs)
 {
 	GFX_RenderObjectID id =
 	{
@@ -123,7 +123,7 @@ void _gfx_render_object_unregister(
 	if(id.id < size)
 	{
 		/* Check if it is already empty */
-		GFX_Object* obj = gfx_vector_at(
+		GFX_Object *obj = gfx_vector_at(
 			&id.objects->objects,
 			id.id - 1
 		);
@@ -151,7 +151,7 @@ void _gfx_render_object_unregister(
 /******************************************************/
 void _gfx_render_objects_free(
 
-		GFX_RenderObjects* cont)
+		GFX_RenderObjects *cont)
 {
 	GFX_RenderObjectID id =
 	{
@@ -160,7 +160,7 @@ void _gfx_render_objects_free(
 	};
 
 	/* Issue free request */
-	GFX_Object* it;
+	GFX_Object *it;
 	for(
 		it = cont->objects.begin;
 		it != cont->objects.end;
@@ -178,7 +178,7 @@ void _gfx_render_objects_free(
 /******************************************************/
 void _gfx_render_objects_save(
 
-		GFX_RenderObjects* cont)
+		GFX_RenderObjects *cont)
 {
 	GFX_RenderObjectID id =
 	{
@@ -187,7 +187,7 @@ void _gfx_render_objects_save(
 	};
 
 	/* Issue save request */
-	GFX_Object* it;
+	GFX_Object *it;
 	for(
 		it = cont->objects.begin;
 		it != cont->objects.end;
@@ -213,8 +213,8 @@ void _gfx_render_objects_save(
 /******************************************************/
 void _gfx_render_objects_restore(
 
-		GFX_RenderObjects*  src,
-		GFX_RenderObjects*  cont)
+		GFX_RenderObjects  *src,
+		GFX_RenderObjects  *cont)
 {
 	/* Reserve the needed space */
 	size_t size =
@@ -225,7 +225,7 @@ void _gfx_render_objects_restore(
 	gfx_vector_reserve(&cont->objects, size);
 
 	/* Iterate over all saved objects */
-	GFX_Object* it;
+	GFX_Object *it;
 	for(
 		it = src->saved.begin;
 		it != src->saved.end;

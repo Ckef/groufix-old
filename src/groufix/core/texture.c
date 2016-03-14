@@ -149,10 +149,10 @@ static inline GLint _gfx_texture_eval_internal_format(
 /******************************************************/
 static void _gfx_texture_obj_free(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Texture* texture = (GFX_Texture*)object;
+	GFX_Texture *texture = (GFX_Texture*)object;
 
 	texture->id = id;
 	texture->handle = 0;
@@ -162,10 +162,10 @@ static void _gfx_texture_obj_free(
 /******************************************************/
 static void _gfx_texture_obj_save_restore(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Texture* texture = (GFX_Texture*)object;
+	GFX_Texture *texture = (GFX_Texture*)object;
 	texture->id = id;
 }
 
@@ -191,7 +191,7 @@ static GFX_Texture* _gfx_texture_alloc(
 		return NULL;
 
 	/* Create new texture */
-	GFX_Texture* tex = calloc(1, sizeof(GFX_Texture));
+	GFX_Texture *tex = calloc(1, sizeof(GFX_Texture));
 	if(!tex)
 	{
 		/* Out of memory error */
@@ -239,7 +239,7 @@ static GFX_Texture* _gfx_texture_alloc(
 /******************************************************/
 static void _gfx_texture_set_mipmaps(
 
-		const GFX_Texture*  tex,
+		const GFX_Texture  *tex,
 		unsigned char       mips,
 		GFX_CONT_ARG)
 {
@@ -263,7 +263,7 @@ static void _gfx_texture_set_mipmaps(
 /******************************************************/
 static void _gfx_texture_set_storage(
 
-		GFX_Texture*  tex,
+		GFX_Texture  *tex,
 		size_t        width,
 		size_t        height,
 		size_t        depth,
@@ -404,7 +404,7 @@ static void _gfx_texture_set_storage(
 /******************************************************/
 GLuint _gfx_gl_texture_get_handle(
 
-		const GFXTexture* texture)
+		const GFXTexture *texture)
 {
 	return ((const GFX_Texture*)texture)->handle;
 }
@@ -412,13 +412,13 @@ GLuint _gfx_gl_texture_get_handle(
 /******************************************************/
 GLenum _gfx_gl_texture_get_internal_target(
 
-		const GFXTexture* texture)
+		const GFXTexture *texture)
 {
 	return ((const GFX_Texture*)texture)->target;
 }
 
 /******************************************************/
-GFXTexture* gfx_texture_create(
+GFXTexture *gfx_texture_create(
 
 		GFXTextureType    type,
 		GFXTextureFormat  format,
@@ -452,7 +452,7 @@ GFXTexture* gfx_texture_create(
 	}
 
 	/* Allocate texture */
-	GFX_Texture* tex = _gfx_texture_alloc(
+	GFX_Texture *tex = _gfx_texture_alloc(
 		target,
 		format,
 		GFX_CONT_AS_ARG
@@ -489,7 +489,7 @@ GFXTexture* gfx_texture_create(
 }
 
 /******************************************************/
-GFXTexture* gfx_texture_create_multisample(
+GFXTexture *gfx_texture_create_multisample(
 
 		GFXTextureFormat  format,
 		unsigned char     samples,
@@ -503,7 +503,7 @@ GFXTexture* gfx_texture_create_multisample(
 		GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
 
 	/* Allocate texture */
-	GFX_Texture* tex = _gfx_texture_alloc(
+	GFX_Texture *tex = _gfx_texture_alloc(
 		target,
 		format,
 		GFX_CONT_AS_ARG
@@ -540,10 +540,10 @@ GFXTexture* gfx_texture_create_multisample(
 }
 
 /******************************************************/
-GFXTexture* gfx_texture_create_buffer_link(
+GFXTexture *gfx_texture_create_buffer_link(
 
 		GFXTextureFormat  format,
-		const GFXBuffer*  buffer)
+		const GFXBuffer  *buffer)
 {
 	GFX_CONT_INIT(NULL);
 
@@ -555,7 +555,7 @@ GFXTexture* gfx_texture_create_buffer_link(
 	}
 
 	/* Allocate texture */
-	GFX_Texture* tex = _gfx_texture_alloc(
+	GFX_Texture *tex = _gfx_texture_alloc(
 		GL_TEXTURE_BUFFER,
 		format,
 		GFX_CONT_AS_ARG
@@ -604,13 +604,13 @@ GFXTexture* gfx_texture_create_buffer_link(
 /******************************************************/
 void gfx_texture_free(
 
-		GFXTexture* texture)
+		GFXTexture *texture)
 {
 	if(texture)
 	{
 		GFX_CONT_INIT_UNSAFE;
 
-		GFX_Texture* internal = (GFX_Texture*)texture;
+		GFX_Texture *internal = (GFX_Texture*)texture;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
@@ -629,9 +629,9 @@ void gfx_texture_free(
 /******************************************************/
 GFXTextureFormat gfx_texture_get_format(
 
-		const GFXTexture* texture)
+		const GFXTexture *texture)
 {
-	const GFX_Texture* internal = (const GFX_Texture*)texture;
+	const GFX_Texture *internal = (const GFX_Texture*)texture;
 	return _gfx_gl_texture_format_from_internal(internal->format);
 }
 
@@ -639,12 +639,12 @@ GFXTextureFormat gfx_texture_get_format(
 void gfx_texture_write(
 
 		GFXTextureImage          image,
-		const GFXPixelTransfer*  transfer,
-		const void*              data)
+		const GFXPixelTransfer  *transfer,
+		const void              *data)
 {
 	GFX_CONT_INIT();
 
-	const GFX_Texture* tex = (const GFX_Texture*)image.texture;
+	const GFX_Texture *tex = (const GFX_Texture*)image.texture;
 
 	if(tex->buffer)
 	{
@@ -856,13 +856,13 @@ void gfx_texture_write(
 void gfx_texture_write_from_buffer(
 
 		GFXTextureImage          image,
-		const GFXPixelTransfer*  transfer,
-		const GFXBuffer*         buffer,
+		const GFXPixelTransfer  *transfer,
+		const GFXBuffer         *buffer,
 		size_t                   offset)
 {
 	GFX_CONT_INIT();
 
-	const GFX_Texture* tex = (const GFX_Texture*)image.texture;
+	const GFX_Texture *tex = (const GFX_Texture*)image.texture;
 
 	if(tex->buffer)
 	{
@@ -899,11 +899,11 @@ void gfx_texture_write_from_buffer(
 /******************************************************/
 void gfx_texture_generate_mipmaps(
 
-		const GFXTexture* texture)
+		const GFXTexture *texture)
 {
 	GFX_CONT_INIT();
 
-	const GFX_Texture* internal = (const GFX_Texture*)texture;
+	const GFX_Texture *internal = (const GFX_Texture*)texture;
 
 	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{

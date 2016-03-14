@@ -26,7 +26,7 @@ GFX_Win32_Instance _gfx_win32;
 /******************************************************/
 static inline int _gfx_win32_is_extension_supported(
 
-		const char*  ext)
+		const char  *ext)
 {
 	return _gfx_contains_string(
 		_gfx_win32.extensions.GetExtensionsStringARB(GetDC(NULL)), ext);
@@ -104,7 +104,7 @@ static int _gfx_win32_load_extensions(void)
 static void _gfx_win32_init_modes(
 
 		LPCTSTR             deviceName,
-		GFX_Win32_Monitor*  monitor)
+		GFX_Win32_Monitor  *monitor)
 {
 	/* Iterate over modes */
 	monitor->modes = gfx_vector_get_size(&_gfx_win32.modes);
@@ -133,7 +133,7 @@ static void _gfx_win32_init_modes(
 		}
 
 		/* Compare against all already found modes */
-		DEVMODE* comp;
+		DEVMODE *comp;
 		for(
 			comp = gfx_vector_at(&_gfx_win32.modes, monitor->modes);
 			comp != _gfx_win32.modes.end;
@@ -319,7 +319,7 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 
 		HWND handle)
 {
-	GFX_Win32_Window* it;
+	GFX_Win32_Window *it;
 	for(
 		it = _gfx_win32.windows.begin;
 		it != _gfx_win32.windows.end;
@@ -336,7 +336,7 @@ GFX_Win32_Window* _gfx_win32_get_window_from_context(
 
 		HGLRC context)
 {
-	GFX_Win32_Window* it;
+	GFX_Win32_Window *it;
 	for(
 		it = _gfx_win32.windows.begin;
 		it != _gfx_win32.windows.end;
@@ -380,7 +380,7 @@ void _gfx_platform_terminate(void)
 	unsigned int i = gfx_vector_get_size(&_gfx_win32.windows);
 	while(i--)
 	{
-		GFX_Win32_Window* it = gfx_vector_previous(
+		GFX_Win32_Window *it = gfx_vector_previous(
 			&_gfx_win32.windows,
 			_gfx_win32.windows.end
 		);

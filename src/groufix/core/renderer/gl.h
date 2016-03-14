@@ -28,7 +28,7 @@
  */
 GLuint _gfx_gl_buffer_get_handle(
 
-		const GFXBuffer* buffer);
+		const GFXBuffer *buffer);
 
 /**
  * Returns the handle of the framebuffer associated with a pipeline.
@@ -36,7 +36,7 @@ GLuint _gfx_gl_buffer_get_handle(
  */
 GLuint _gfx_gl_pipeline_get_handle(
 
-		const GFXPipeline* pipeline);
+		const GFXPipeline *pipeline);
 
 /**
  * Returns the handle of a program.
@@ -44,7 +44,7 @@ GLuint _gfx_gl_pipeline_get_handle(
  */
 GLuint _gfx_gl_program_get_handle(
 
-		const GFXProgram* program);
+		const GFXProgram *program);
 
 /**
  * Get the location of a property (a.k.a uniform).
@@ -54,7 +54,7 @@ GLuint _gfx_gl_program_get_handle(
  */
 GLint _gfx_gl_program_get_location(
 
-		const GFXProgram*  program,
+		const GFXProgram  *program,
 		unsigned short     index);
 
 /**
@@ -65,7 +65,7 @@ GLint _gfx_gl_program_get_location(
  */
 GLuint _gfx_gl_program_map_get_handle(
 
-		const GFXProgramMap* map);
+		const GFXProgramMap *map);
 
 /**
  * Returns the handle of a sampler.
@@ -75,7 +75,7 @@ GLuint _gfx_gl_program_map_get_handle(
  */
 GLuint _gfx_gl_sampler_get_handle(
 
-		const GFXSampler* sampler);
+		const GFXSampler *sampler);
 
 /**
  * Returns the handle of a shader.
@@ -83,7 +83,7 @@ GLuint _gfx_gl_sampler_get_handle(
  */
 GLuint _gfx_gl_shader_get_handle(
 
-		const GFXShader* shader);
+		const GFXShader *shader);
 
 /**
  * Returns the handle of a shared buffer.
@@ -91,7 +91,7 @@ GLuint _gfx_gl_shader_get_handle(
  */
 GLuint _gfx_gl_shared_buffer_get_handle(
 
-		const GFXSharedBuffer* buffer);
+		const GFXSharedBuffer *buffer);
 
 /**
  * Returns the handle of a texture.
@@ -99,7 +99,7 @@ GLuint _gfx_gl_shared_buffer_get_handle(
  */
 GLuint _gfx_gl_texture_get_handle(
 
-		const GFXTexture* texture);
+		const GFXTexture *texture);
 
 /**
  * Returns the VAO of a layout.
@@ -107,7 +107,7 @@ GLuint _gfx_gl_texture_get_handle(
  */
 GLuint _gfx_gl_vertex_layout_get_handle(
 
-		const GFXVertexLayout* layout);
+		const GFXVertexLayout *layout);
 
 /**
  * Returns the index buffer and the byte offset within it of a layout.
@@ -117,8 +117,8 @@ GLuint _gfx_gl_vertex_layout_get_handle(
  */
 GLuint _gfx_gl_vertex_layout_get_index_buffer(
 
-		const GFXVertexLayout*  layout,
-		size_t*                 offset);
+		const GFXVertexLayout  *layout,
+		size_t                 *offset);
 
 
 /********************************************************
@@ -131,7 +131,7 @@ GLuint _gfx_gl_vertex_layout_get_index_buffer(
  */
 GLint _gfx_gl_texture_min_filter_from_sampler(
 
-		const GFXSampler* sampler);
+		const GFXSampler *sampler);
 
 /**
  * Sets the sampler properties of a texture itself.
@@ -147,7 +147,7 @@ void _gfx_gl_texture_set_sampler(
 
 		GLuint             texture,
 		GLuint             target,
-		const GFXSampler*  values,
+		const GFXSampler  *values,
 		GFX_CONT_ARG);
 
 /**
@@ -156,7 +156,7 @@ void _gfx_gl_texture_set_sampler(
  */
 GLenum _gfx_gl_texture_get_internal_target(
 
-		const GFXTexture* texture);
+		const GFXTexture *texture);
 
 /**
  * Converts a texture format to a client pixel format.

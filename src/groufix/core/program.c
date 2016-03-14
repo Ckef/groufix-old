@@ -96,7 +96,7 @@ typedef struct GFX_Property
 /******************************************************/
 static void _gfx_program_uniform_type_to_property(
 
-		GFXProperty*  property,
+		GFXProperty  *property,
 		GLenum        type)
 {
 	switch(type)
@@ -285,7 +285,7 @@ static void _gfx_program_uniform_type_to_property(
 /******************************************************/
 static unsigned short _gfx_program_prepare_properties(
 
-		GFX_Program*    program,
+		GFX_Program    *program,
 		unsigned short  properties,
 		GFX_CONT_ARG)
 {
@@ -350,7 +350,7 @@ static unsigned short _gfx_program_prepare_properties(
 /******************************************************/
 static unsigned short _gfx_program_prepare_blocks(
 
-		GFX_Program*    program,
+		GFX_Program    *program,
 		unsigned short  blocks,
 		GFX_CONT_ARG)
 {
@@ -447,7 +447,7 @@ static unsigned short _gfx_program_prepare_blocks(
 /******************************************************/
 static void _gfx_program_unprepare(
 
-		GFX_Program* program)
+		GFX_Program *program)
 {
 	/* Free all property block members */
 	GFXVectorIterator it;
@@ -456,7 +456,7 @@ static void _gfx_program_unprepare(
 		it != program->blocks.end;
 		it = gfx_vector_next(&program->blocks, it))
 	{
-		GFXPropertyBlock* bl = (GFXPropertyBlock*)it;
+		GFXPropertyBlock *bl = (GFXPropertyBlock*)it;
 
 		free(bl->properties);
 		bl->properties = NULL;
@@ -467,7 +467,7 @@ static void _gfx_program_unprepare(
 /******************************************************/
 static void _gfx_program_prepare(
 
-		GFX_Program* program,
+		GFX_Program *program,
 		GFX_CONT_ARG)
 {
 	_gfx_program_unprepare(program);
@@ -492,10 +492,10 @@ static void _gfx_program_prepare(
 /******************************************************/
 static void _gfx_program_obj_free(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Program* program = (GFX_Program*)object;
+	GFX_Program *program = (GFX_Program*)object;
 
 	program->id = id;
 	program->program.linked = 0;
@@ -505,10 +505,10 @@ static void _gfx_program_obj_free(
 /******************************************************/
 static void _gfx_program_obj_save_restore(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Program* program = (GFX_Program*)object;
+	GFX_Program *program = (GFX_Program*)object;
 	program->id = id;
 }
 
@@ -524,7 +524,7 @@ static GFX_RenderObjectFuncs _gfx_program_obj_funcs =
 /******************************************************/
 GLuint _gfx_gl_program_get_handle(
 
-		const GFXProgram* program)
+		const GFXProgram *program)
 {
 	return ((const GFX_Program*)program)->handle;
 }
@@ -532,12 +532,12 @@ GLuint _gfx_gl_program_get_handle(
 /******************************************************/
 GLint _gfx_gl_program_get_location(
 
-		const GFXProgram*  program,
+		const GFXProgram  *program,
 		unsigned short     index)
 {
 	/* Validate index */
 	if(index >= program->properties) return -1;
-	const GFX_Program* internal = (const GFX_Program*)program;
+	const GFX_Program *internal = (const GFX_Program*)program;
 
 	return ((GFX_Property*)gfx_vector_at(&internal->properties, index))->location;
 }
@@ -545,10 +545,10 @@ GLint _gfx_gl_program_get_location(
 /******************************************************/
 int _gfx_program_reference(
 
-		GFXProgram*   program,
+		GFXProgram   *program,
 		unsigned int  references)
 {
-	GFX_Program* internal = (GFX_Program*)program;
+	GFX_Program *internal = (GFX_Program*)program;
 
 	if(UINT_MAX - references < internal->references)
 	{
@@ -565,14 +565,14 @@ int _gfx_program_reference(
 }
 
 /******************************************************/
-GFXProgram* gfx_program_create(
+GFXProgram *gfx_program_create(
 
 		size_t instances)
 {
 	GFX_CONT_INIT(NULL);
 
 	/* Create new program */
-	GFX_Program* prog = calloc(1, sizeof(GFX_Program));
+	GFX_Program *prog = calloc(1, sizeof(GFX_Program));
 	if(!prog)
 	{
 		/* Out of memory error */
@@ -610,11 +610,11 @@ GFXProgram* gfx_program_create(
 /******************************************************/
 void gfx_program_free(
 
-		GFXProgram* program)
+		GFXProgram *program)
 {
 	if(program)
 	{
-		GFX_Program* internal = (GFX_Program*)program;
+		GFX_Program *internal = (GFX_Program*)program;
 
 		/* Check references */
 		if(!(--internal->references))
@@ -647,16 +647,16 @@ void gfx_program_free(
 /******************************************************/
 int gfx_program_set_attribute(
 
-		GFXProgram*   program,
+		GFXProgram   *program,
 		unsigned int  index,
-		const char*   name)
+		const char   *name)
 {
 	GFX_CONT_INIT(0);
 
 	if(index >= GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIBS])
 		return 0;
 
-	GFX_Program* internal = (GFX_Program*)program;
+	GFX_Program *internal = (GFX_Program*)program;
 
 	/* Set the attribute */
 	GFX_REND_GET.BindAttribLocation(
@@ -673,7 +673,7 @@ int gfx_program_set_attribute(
 /******************************************************/
 int gfx_program_set_feedback(
 
-		GFXProgram*      program,
+		GFXProgram      *program,
 		size_t           num,
 		const char**     names,
 		GFXFeedbackMode  mode)
@@ -683,7 +683,7 @@ int gfx_program_set_feedback(
 	if(num > GFX_CONT_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS] &&
 		mode == GFX_FEEDBACK_SEPARATE) return 0;
 
-	GFX_Program* internal = (GFX_Program*)program;
+	GFX_Program *internal = (GFX_Program*)program;
 
 	/* Specify transform feedback */
 	GFX_REND_GET.TransformFeedbackVaryings(
@@ -701,7 +701,7 @@ int gfx_program_set_feedback(
 /******************************************************/
 int gfx_program_link(
 
-		GFXProgram*  program,
+		GFXProgram  *program,
 		size_t       num,
 		GFXShader**  shaders,
 		int          binary)
@@ -711,7 +711,7 @@ int gfx_program_link(
 	{
 		GFX_CONT_INIT(0);
 
-		GFX_Program* internal = (GFX_Program*)program;
+		GFX_Program *internal = (GFX_Program*)program;
 
 		/* Set binary parameter */
 		if(GFX_CONT_GET.ext[GFX_EXT_PROGRAM_BINARY])
@@ -796,15 +796,15 @@ int gfx_program_link(
 }
 
 /******************************************************/
-void* gfx_program_get_binary(
+void *gfx_program_get_binary(
 
-		const GFXProgram*  program,
-		GFXProgramFormat*  format,
-		size_t*            size)
+		const GFXProgram  *program,
+		GFXProgramFormat  *format,
+		size_t            *size)
 {
 	GFX_CONT_INIT((*size = 0, NULL));
 
-	const GFX_Program* internal = (const GFX_Program*)program;
+	const GFX_Program *internal = (const GFX_Program*)program;
 
 	/* Get data byte size */
 	GLint bytes;
@@ -818,7 +818,7 @@ void* gfx_program_get_binary(
 	if(!bytes) return NULL;
 
 	/* Get the data */
-	void* data = malloc(bytes);
+	void *data = malloc(bytes);
 	GFX_REND_GET.GetProgramBinary(
 		internal->handle,
 		bytes,
@@ -833,14 +833,14 @@ void* gfx_program_get_binary(
 /******************************************************/
 int gfx_program_set_binary(
 
-		GFXProgram*       program,
+		GFXProgram       *program,
 		GFXProgramFormat  format,
 		size_t            size,
-		const void*       data)
+		const void       *data)
 {
 	GFX_CONT_INIT(0);
 
-	GFX_Program* internal = (GFX_Program*)program;
+	GFX_Program *internal = (GFX_Program*)program;
 
 	/* Set binary representation */
 	GLint status;
@@ -866,14 +866,14 @@ int gfx_program_set_binary(
 }
 
 /******************************************************/
-const GFXProperty* gfx_program_get_property(
+const GFXProperty *gfx_program_get_property(
 
-		const GFXProgram*  program,
+		const GFXProgram  *program,
 		unsigned short     index)
 {
 	/* Validate index */
 	if(index >= program->properties) return NULL;
-	const GFX_Program* internal = (const GFX_Program*)program;
+	const GFX_Program *internal = (const GFX_Program*)program;
 
 	return gfx_vector_at(&internal->properties, index);
 }
@@ -881,12 +881,12 @@ const GFXProperty* gfx_program_get_property(
 /******************************************************/
 unsigned short gfx_program_get_named_property(
 
-		const GFXProgram*  program,
-		const char*        name)
+		const GFXProgram  *program,
+		const char        *name)
 {
 	GFX_CONT_INIT(0);
 
-	const GFX_Program* internal = (const GFX_Program*)program;
+	const GFX_Program *internal = (const GFX_Program*)program;
 
 	/* Get index */
 	GLuint index;
@@ -901,14 +901,14 @@ unsigned short gfx_program_get_named_property(
 }
 
 /******************************************************/
-const GFXPropertyBlock* gfx_program_get_property_block(
+const GFXPropertyBlock *gfx_program_get_property_block(
 
-		const GFXProgram*  program,
+		const GFXProgram  *program,
 		unsigned short     index)
 {
 	/* Validate index */
 	if(index >= program->blocks) return NULL;
-	const GFX_Program* internal = (const GFX_Program*)program;
+	const GFX_Program *internal = (const GFX_Program*)program;
 
 	return gfx_vector_at(&internal->blocks, index);
 }
@@ -916,12 +916,12 @@ const GFXPropertyBlock* gfx_program_get_property_block(
 /******************************************************/
 unsigned short gfx_program_get_named_property_block(
 
-		const GFXProgram*  program,
-		const char*        name)
+		const GFXProgram  *program,
+		const char        *name)
 {
 	GFX_CONT_INIT(0);
 
-	const GFX_Program* internal = (const GFX_Program*)program;
+	const GFX_Program *internal = (const GFX_Program*)program;
 
 	/* Get index */
 	GLuint index = GFX_REND_GET.GetUniformBlockIndex(

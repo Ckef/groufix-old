@@ -119,9 +119,9 @@ typedef GFX_MAT_ALIGN
  * Returns a value of the matrix.
  *
  */
-static GFX_ALWAYS_INLINE GFX_MAT_DATA* GFX_MAT_FUNC(get)(
+static GFX_ALWAYS_INLINE GFX_MAT_DATA *GFX_MAT_FUNC(get)(
 
-		GFX_MAT_NAME*  a,
+		GFX_MAT_NAME  *a,
 		size_t         row,
 		size_t         column)
 {
@@ -134,9 +134,9 @@ static GFX_ALWAYS_INLINE GFX_MAT_DATA* GFX_MAT_FUNC(get)(
  * @return The given matrix itself.
  *
  */
-static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(set_zero)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME *GFX_MAT_FUNC(set_zero)(
 
-		GFX_MAT_NAME* a)
+		GFX_MAT_NAME *a)
 {
 	return (GFX_MAT_NAME*)memset(a, 0, sizeof(GFX_MAT_NAME));
 }
@@ -147,11 +147,11 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(set_zero)(
  * @param dest Destination matrix.
  *
  */
-static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(add)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME *GFX_MAT_FUNC(add)(
 
-		GFX_MAT_NAME*        dest,
-		const GFX_MAT_NAME*  a,
-		const GFX_MAT_NAME*  b)
+		GFX_MAT_NAME        *dest,
+		const GFX_MAT_NAME  *a,
+		const GFX_MAT_NAME  *b)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -166,11 +166,11 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(add)(
  * @param dest Destination matrix.
  *
  */
-static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(sub)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME *GFX_MAT_FUNC(sub)(
 
-		GFX_MAT_NAME*        dest,
-		const GFX_MAT_NAME*  a,
-		const GFX_MAT_NAME*  b)
+		GFX_MAT_NAME        *dest,
+		const GFX_MAT_NAME  *a,
+		const GFX_MAT_NAME  *b)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -185,11 +185,11 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(sub)(
  * @param dest Destination matrix.
  *
  */
-static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME *GFX_MAT_FUNC(mult)(
 
-		GFX_MAT_NAME*        dest,
-		const GFX_MAT_NAME*  a,
-		const GFX_MAT_NAME*  b)
+		GFX_MAT_NAME        *dest,
+		const GFX_MAT_NAME  *a,
+		const GFX_MAT_NAME  *b)
 {
 	GFX_MAT_NAME res;
 	GFX_MAT_FUNC(set_zero)(&res);
@@ -198,7 +198,7 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult)(
 	for(c = 0; c < GFX_MAT_STORE; c += GFX_MAT_SIZE)
 		for(r = 0; r < GFX_MAT_SIZE; ++r)
 		{
-			GFX_MAT_DATA* val = res.data + (r + c);
+			GFX_MAT_DATA *val = res.data + (r + c);
 			for(k = 0; k < GFX_MAT_SIZE; ++k)
 				*val += a->data[r + k * GFX_MAT_SIZE] * b->data[k + c];
 		}
@@ -213,10 +213,10 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult)(
  * @param dest Destination matrix.
  *
  */
-static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME *GFX_MAT_FUNC(mult_scalar)(
 
-		GFX_MAT_NAME*        dest,
-		const GFX_MAT_NAME*  a,
+		GFX_MAT_NAME        *dest,
+		const GFX_MAT_NAME  *a,
 		GFX_MAT_DATA         scalar)
 {
 	size_t i;
@@ -232,10 +232,10 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(mult_scalar)(
  * @param dest Destination matrix.
  *
  */
-static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(
+static GFX_ALWAYS_INLINE GFX_MAT_NAME *GFX_MAT_FUNC(transpose)(
 
-		GFX_MAT_NAME*        dest,
-		const GFX_MAT_NAME*  a)
+		GFX_MAT_NAME        *dest,
+		const GFX_MAT_NAME  *a)
 {
 	GFX_MAT_NAME res;
 
@@ -256,7 +256,7 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_MAT_FUNC(transpose)(
  */
 static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(is_zero)(
 
-		const GFX_MAT_NAME* a)
+		const GFX_MAT_NAME *a)
 {
 	size_t i;
 	for(i = 0; i < GFX_MAT_STORE; ++i)
@@ -272,7 +272,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(is_zero)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
 
-		const GFX_MAT_NAME* a)
+		const GFX_MAT_NAME *a)
 {
 	return a->data[0] * a->data[3] - a->data[2] * a->data[1];
 }
@@ -286,8 +286,8 @@ static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
  */
 static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
-		GFX_MAT_NAME*        dest,
-		const GFX_MAT_NAME*  a)
+		GFX_MAT_NAME        *dest,
+		const GFX_MAT_NAME  *a)
 {
 	/* Check if determinant is non-zero */
 	double det = GFX_MAT_FUNC(determinant)(a);
@@ -311,7 +311,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
 
-		const GFX_MAT_NAME* a)
+		const GFX_MAT_NAME *a)
 {
 	return
 		a->data[0] * a->data[4] * a->data[8] +
@@ -331,8 +331,8 @@ static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
  */
 static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
-		GFX_MAT_NAME*        dest,
-		const GFX_MAT_NAME*  a)
+		GFX_MAT_NAME        *dest,
+		const GFX_MAT_NAME  *a)
 {
 	/* Compute adjugate matrix */
 	GFX_MAT_NAME adj;
@@ -371,7 +371,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
  */
 static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
 
-		const GFX_MAT_NAME* a)
+		const GFX_MAT_NAME *a)
 {
 	/* Determinants of 2x2 submatrices */
 	GFX_MAT_DATA S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
@@ -400,8 +400,8 @@ static GFX_ALWAYS_INLINE GFX_MAT_DATA GFX_MAT_FUNC(determinant)(
  */
 static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
-		GFX_MAT_NAME*        dest,
-		const GFX_MAT_NAME*  a)
+		GFX_MAT_NAME        *dest,
+		const GFX_MAT_NAME  *a)
 {
 	/* Determinants of 2x2 submatrices */
 	GFX_MAT_DATA S0 = a->data[0] * a->data[5]  - a->data[4]  * a->data[1];
@@ -452,9 +452,9 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
  * Returns a column of a matrix as vector.
  *
  */
-static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(get_column)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME *GFX_MAT_FUNC(get_column)(
 
-		GFX_MAT_NAME*  a,
+		GFX_MAT_NAME  *a,
 		size_t         column)
 {
 	return (GFX_VEC_NAME*)(a->data + (column * GFX_MAT_SIZE));
@@ -466,11 +466,11 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(get_column)(
  * @param dest Destination vector.
  *
  */
-static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
+static GFX_ALWAYS_INLINE GFX_VEC_NAME *GFX_MAT_FUNC(mult_vec)(
 
-		GFX_VEC_NAME*        dest,
-		const GFX_MAT_NAME*  a,
-		const GFX_VEC_NAME*  b)
+		GFX_VEC_NAME        *dest,
+		const GFX_MAT_NAME  *a,
+		const GFX_VEC_NAME  *b)
 {
 	GFX_VEC_NAME res;
 	GFX_VEC_FUNC(set_zero)(&res);
@@ -478,7 +478,7 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
 	size_t r, c;
 	for(r = 0; r < GFX_MAT_SIZE; ++r)
 	{
-		GFX_MAT_DATA* val = res.data + r;
+		GFX_MAT_DATA *val = res.data + r;
 		for(c = 0; c < GFX_MAT_SIZE; ++c)
 			*val += a->data[r + c * GFX_MAT_SIZE] * b->data[c];
 	}

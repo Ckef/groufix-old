@@ -39,7 +39,7 @@ typedef struct GFX_Pipe
 	GFXPipeState   state;
 
 	/* Associated pipeline */
-	GFXPipeline*   pipeline;
+	GFXPipeline   *pipeline;
 
 } GFX_Pipe;
 
@@ -269,8 +269,8 @@ void _gfx_event_mouse_wheel(
  */
 int _gfx_contains_string(
 
-		const char*  haystack,
-		const char*  needle);
+		const char  *haystack,
+		const char  *needle);
 
 /**
  * Splits depth into 3 channels.
@@ -279,9 +279,9 @@ int _gfx_contains_string(
 void _gfx_split_depth(
 
 		unsigned short   depth,
-		unsigned short*  red,
-		unsigned short*  green,
-		unsigned short*  blue);
+		unsigned short  *red,
+		unsigned short  *green,
+		unsigned short  *blue);
 
 /**
  * Returns 1 if packed data, 0 if unpacked.
@@ -312,7 +312,7 @@ unsigned char _gfx_sizeof_data_type(
  */
 void _gfx_states_set_default(
 
-		GFXPipeState* state);
+		GFXPipeState *state);
 
 /**
  * Sets the state of the current context.
@@ -320,7 +320,7 @@ void _gfx_states_set_default(
  */
 void _gfx_states_set(
 
-		const GFXPipeState* state,
+		const GFXPipeState *state,
 		GFX_CONT_ARG);
 
 /**
@@ -331,7 +331,7 @@ void _gfx_states_set(
  */
 void _gfx_states_force_set(
 
-		const GFXPipeState* state,
+		const GFXPipeState *state,
 		GFX_CONT_ARG);
 
 /**
@@ -384,7 +384,7 @@ void _gfx_states_set_patch_vertices(
  */
 int _gfx_vertex_layout_block(
 
-		GFXVertexLayout*  layout,
+		GFXVertexLayout  *layout,
 		unsigned char     index);
 
 /**
@@ -395,7 +395,7 @@ int _gfx_vertex_layout_block(
  */
 void _gfx_vertex_layout_unblock(
 
-		GFXVertexLayout*  layout,
+		GFXVertexLayout  *layout,
 		unsigned char     index);
 
 
@@ -412,7 +412,7 @@ void _gfx_vertex_layout_unblock(
  */
 GFXSampler* _gfx_sampler_create(
 
-		const GFXSampler* values);
+		const GFXSampler *values);
 
 /**
  * References a sampler to postpone its destruction.
@@ -422,7 +422,7 @@ GFXSampler* _gfx_sampler_create(
  */
 int _gfx_sampler_reference(
 
-		GFXSampler* sampler);
+		GFXSampler *sampler);
 
 /**
  * Makes sure the sampler is freed properly.
@@ -433,7 +433,7 @@ int _gfx_sampler_reference(
  */
 void _gfx_sampler_free(
 
-		GFXSampler* sampler);
+		GFXSampler *sampler);
 
 /**
  * Sets the state values of a sampler.
@@ -444,8 +444,8 @@ void _gfx_sampler_free(
  */
 int _gfx_sampler_set(
 
-		GFXSampler*        sampler,
-		const GFXSampler*  values);
+		GFXSampler        *sampler,
+		const GFXSampler  *values);
 
 
 /********************************************************
@@ -464,7 +464,7 @@ int _gfx_sampler_set(
  */
 int _gfx_program_reference(
 
-		GFXProgram*   program,
+		GFXProgram   *program,
 		unsigned int  references);
 
 /**
@@ -477,7 +477,7 @@ int _gfx_program_reference(
  */
 int _gfx_program_map_block(
 
-		GFXProgramMap* map);
+		GFXProgramMap *map);
 
 /**
  * Unblocks the program map from adding anymore programs.
@@ -487,7 +487,7 @@ int _gfx_program_map_block(
  */
 void _gfx_program_map_unblock(
 
-		GFXProgramMap* map);
+		GFXProgramMap *map);
 
 /**
  * Acts as if _gfx_render_objects_save was called for only the program map.
@@ -495,7 +495,7 @@ void _gfx_program_map_unblock(
  */
 void _gfx_program_map_save(
 
-		GFXProgramMap* map);
+		GFXProgramMap *map);
 
 /**
  * Acts as if _gfx_render_objects_restore was called for only the program map.
@@ -505,8 +505,8 @@ void _gfx_program_map_save(
  */
 void _gfx_program_map_restore(
 
-		GFXProgramMap*      map,
-		GFX_RenderObjects*  cont);
+		GFXProgramMap      *map,
+		GFX_RenderObjects  *cont);
 
 /**
  * Calls _gfx_program_map_use and uploads appropriate data.
@@ -519,7 +519,7 @@ void _gfx_program_map_restore(
  */
 void _gfx_property_map_use(
 
-		const GFXPropertyMap*  map,
+		const GFXPropertyMap  *map,
 		unsigned int           copy,
 		unsigned int           base,
 		GFX_CONT_ARG);
@@ -538,7 +538,7 @@ void _gfx_property_map_use(
  */
 GFX_Pipe* _gfx_pipe_create_bucket(
 
-		GFXPipeline*    pipeline,
+		GFXPipeline    *pipeline,
 		unsigned char   bits);
 
 /**
@@ -551,8 +551,8 @@ GFX_Pipe* _gfx_pipe_create_bucket(
  */
 GFX_Pipe* _gfx_pipe_create_process(
 
-		GFXPipeline*  pipeline,
-		GFXWindow*    target,
+		GFXPipeline  *pipeline,
+		GFXWindow    *target,
 		int           swap);
 
 /**
@@ -565,7 +565,7 @@ GFX_Pipe* _gfx_pipe_create_process(
  */
 GFX_Pipe* _gfx_pipe_free(
 
-		GFX_Pipe* pipe);
+		GFX_Pipe *pipe);
 
 
 /********************************************************
@@ -589,7 +589,7 @@ GFXBucket* _gfx_bucket_create(
  */
 void _gfx_bucket_free(
 
-		GFXBucket* bucket);
+		GFXBucket *bucket);
 
 /**
  * Processes the bucket, drawing all units.
@@ -597,8 +597,8 @@ void _gfx_bucket_free(
  */
 void _gfx_bucket_process(
 
-		GFXBucket*           bucket,
-		const GFXPipeState*  state,
+		GFXBucket           *bucket,
+		const GFXPipeState  *state,
 		GFX_CONT_ARG);
 
 
@@ -616,7 +616,7 @@ void _gfx_bucket_process(
  */
 GFXPipeProcess _gfx_pipe_process_create(
 
-		GFXWindow*  target,
+		GFXWindow  *target,
 		int         swap);
 
 /**
@@ -653,7 +653,7 @@ void _gfx_pipe_process_unprepare(
  */
 void _gfx_pipe_process_retarget(
 
-		GFX_Context* target);
+		GFX_Context *target);
 
 /**
  * Forwards a new size of a window to all processes.
@@ -665,7 +665,7 @@ void _gfx_pipe_process_retarget(
  */
 void _gfx_pipe_process_resize(
 
-		const GFX_Context*  target,
+		const GFX_Context  *target,
 		unsigned int       width,
 		unsigned int       height);
 
@@ -678,7 +678,7 @@ void _gfx_pipe_process_resize(
 void _gfx_pipe_process_execute(
 
 		GFXPipeProcess       process,
-		const GFXPipeState*  state,
+		const GFXPipeState  *state,
 		GFX_CONT_ARG);
 
 

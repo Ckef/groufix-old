@@ -229,7 +229,7 @@
 /******************************************************/
 GLint _gfx_gl_texture_min_filter_from_sampler(
 
-		const GFXSampler* sampler)
+		const GFXSampler *sampler)
 {
 	return sampler->minFilter == GFX_FILTER_NEAREST ?
 
@@ -247,7 +247,7 @@ void _gfx_gl_texture_set_sampler(
 
 		GLuint             texture,
 		GLuint             target,
-		const GFXSampler*  sampler,
+		const GFXSampler  *sampler,
 		GFX_CONT_ARG)
 {
 	if(GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])

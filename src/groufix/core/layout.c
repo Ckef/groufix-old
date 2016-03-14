@@ -74,9 +74,9 @@ typedef struct GFX_Buffer
 /******************************************************/
 static void _gfx_layout_init_attrib(
 
-		const GFX_Layout*     layout,
+		const GFX_Layout     *layout,
 		unsigned int          index,
-		const GFX_Attribute*  attr,
+		const GFX_Attribute  *attr,
 		GFX_CONT_ARG)
 {
 	if(GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING])
@@ -122,7 +122,7 @@ static void _gfx_layout_init_attrib(
 	/* Fetch buffer if no separate buffers */
 	else if(attr->buffer < gfx_vector_get_size(&layout->buffers))
 	{
-		GFX_Buffer* buff =
+		GFX_Buffer *buff =
 			gfx_vector_at(&layout->buffers, attr->buffer);
 
 		/* Check if enabled */
@@ -133,7 +133,7 @@ static void _gfx_layout_init_attrib(
 			GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buff->buffer);
 			GFX_REND_GET.EnableVertexAttribArray(index);
 
-			GLvoid* ptr = (GLvoid*)(buff->offset + attr->offset);
+			GLvoid *ptr = (GLvoid*)(buff->offset + attr->offset);
 
 			/* Check integer value */
 			if(attr->interpret & GFX_INTERPRET_INTEGER)
@@ -171,8 +171,8 @@ static void _gfx_layout_init_attrib(
 /******************************************************/
 static void _gfx_layout_init_buff_divisor(
 
-		const GFX_Layout*  layout,
-		const GFX_Buffer*  buff,
+		const GFX_Layout  *layout,
+		const GFX_Buffer  *buff,
 		GFX_CONT_ARG)
 {
 	size_t index = gfx_vector_get_index(
@@ -183,7 +183,7 @@ static void _gfx_layout_init_buff_divisor(
 	/* Iterate over all attributes and set divisors */
 	while(ind--)
 	{
-		const GFX_Attribute* attr =
+		const GFX_Attribute *attr =
 			gfx_vector_at(&layout->attributes, ind);
 
 		if(attr->buffer == index)
@@ -202,7 +202,7 @@ static void _gfx_layout_init_buff_divisor(
 /******************************************************/
 static int _gfx_layout_alloc_attribute(
 
-		GFX_Layout*   layout,
+		GFX_Layout   *layout,
 		unsigned int  index,
 		GFX_CONT_ARG)
 {
@@ -234,7 +234,7 @@ static int _gfx_layout_alloc_attribute(
 /******************************************************/
 static int _gfx_layout_alloc_buffer(
 
-		GFX_Layout*   layout,
+		GFX_Layout   *layout,
 		unsigned int  index,
 		GFX_CONT_ARG)
 {
@@ -266,7 +266,7 @@ static int _gfx_layout_alloc_buffer(
 /******************************************************/
 static int _gfx_layout_set_vertex_buffer(
 
-		GFXVertexLayout*  layout,
+		GFXVertexLayout  *layout,
 		unsigned int      index,
 		GLuint            buffer,
 		size_t            offset,
@@ -276,12 +276,12 @@ static int _gfx_layout_set_vertex_buffer(
 	if(stride > GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE])
 		return 0;
 
-	GFX_Layout* internal = (GFX_Layout*)layout;
+	GFX_Layout *internal = (GFX_Layout*)layout;
 	if(!_gfx_layout_alloc_buffer(internal, index, GFX_CONT_AS_ARG))
 		return 0;
 
 	/* Set buffer */
-	GFX_Buffer* set =
+	GFX_Buffer *set =
 		gfx_vector_at(&internal->buffers, index);
 
 	set->buffer = buffer;
@@ -305,7 +305,7 @@ static int _gfx_layout_set_vertex_buffer(
 		size_t ind = gfx_vector_get_size(&internal->attributes);
 		while(ind--)
 		{
-			const GFX_Attribute* attr =
+			const GFX_Attribute *attr =
 				gfx_vector_at(&internal->attributes, ind);
 
 			if(attr->buffer == index) _gfx_layout_init_attrib(
@@ -323,13 +323,13 @@ static int _gfx_layout_set_vertex_buffer(
 /******************************************************/
 static int _gfx_layout_set_index_buffer(
 
-		GFXVertexLayout*  layout,
+		GFXVertexLayout  *layout,
 		GLuint            buffer,
 		size_t            offset)
 {
 	GFX_CONT_INIT(0);
 
-	GFX_Layout* internal = (GFX_Layout*)layout;
+	GFX_Layout *internal = (GFX_Layout*)layout;
 
 	/* Check blocks of any source */
 	if(internal->blocks) return 0;
@@ -350,10 +350,10 @@ static int _gfx_layout_set_index_buffer(
 /******************************************************/
 static void _gfx_layout_obj_free(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Layout* layout = (GFX_Layout*)object;
+	GFX_Layout *layout = (GFX_Layout*)object;
 
 	layout->id = id;
 	layout->vao = 0;
@@ -362,12 +362,12 @@ static void _gfx_layout_obj_free(
 /******************************************************/
 static void _gfx_layout_obj_save(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
 	GFX_CONT_INIT_UNSAFE;
 
-	GFX_Layout* layout = (GFX_Layout*)object;
+	GFX_Layout *layout = (GFX_Layout*)object;
 
 	/* Just don't clear the attribute or buffer vector */
 	layout->id = id;
@@ -378,12 +378,12 @@ static void _gfx_layout_obj_save(
 /******************************************************/
 static void _gfx_layout_obj_restore(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
 	GFX_CONT_INIT_UNSAFE;
 
-	GFX_Layout* layout = (GFX_Layout*)object;
+	GFX_Layout *layout = (GFX_Layout*)object;
 
 	/* Create VAO */
 	layout->id = id;
@@ -408,7 +408,7 @@ static void _gfx_layout_obj_restore(
 	index = gfx_vector_get_size(&layout->buffers);
 	while(index--)
 	{
-		GFX_Buffer* buff = gfx_vector_at(
+		GFX_Buffer *buff = gfx_vector_at(
 			&layout->buffers, index);
 
 		if(GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING])
@@ -447,7 +447,7 @@ static GFX_RenderObjectFuncs _gfx_layout_obj_funcs =
 /******************************************************/
 GLuint _gfx_gl_vertex_layout_get_handle(
 
-		const GFXVertexLayout* layout)
+		const GFXVertexLayout *layout)
 {
 	return ((const GFX_Layout*)layout)->vao;
 }
@@ -455,10 +455,10 @@ GLuint _gfx_gl_vertex_layout_get_handle(
 /******************************************************/
 GLuint _gfx_gl_vertex_layout_get_index_buffer(
 
-		const GFXVertexLayout*  layout,
-		size_t*                 offset)
+		const GFXVertexLayout  *layout,
+		size_t                 *offset)
 {
-	const GFX_Layout* lay = (const GFX_Layout*)layout;
+	const GFX_Layout *lay = (const GFX_Layout*)layout;
 	*offset = lay->indexOffset;
 
 	return lay->indexBuffer;
@@ -467,12 +467,12 @@ GLuint _gfx_gl_vertex_layout_get_index_buffer(
 /******************************************************/
 int _gfx_vertex_layout_block(
 
-		GFXVertexLayout*  layout,
+		GFXVertexLayout  *layout,
 		unsigned char     index)
 {
 	/* Check index */
 	if(index >= layout->sources) return 0;
-	GFX_Layout* internal = (GFX_Layout*)layout;
+	GFX_Layout *internal = (GFX_Layout*)layout;
 
 	/* Check for overflow */
 	if(!(internal->blocks + 1))
@@ -486,7 +486,7 @@ int _gfx_vertex_layout_block(
 	}
 
 	/* Get source and increase block count */
-	GFX_Source* source = ((GFX_Source*)(internal + 1)) + index;
+	GFX_Source *source = ((GFX_Source*)(internal + 1)) + index;
 
 	++internal->blocks;
 	++source->blocks;
@@ -497,14 +497,14 @@ int _gfx_vertex_layout_block(
 /******************************************************/
 void _gfx_vertex_layout_unblock(
 
-		GFXVertexLayout*  layout,
+		GFXVertexLayout  *layout,
 		unsigned char     index)
 {
 	/* Check index */
 	if(index < layout->sources)
 	{
-		GFX_Layout* internal = (GFX_Layout*)layout;
-		GFX_Source* source = ((GFX_Source*)(internal + 1)) + index;
+		GFX_Layout *internal = (GFX_Layout*)layout;
+		GFX_Source *source = ((GFX_Source*)(internal + 1)) + index;
 
 		internal->blocks =
 			internal->blocks ? internal->blocks - 1 : 0;
@@ -514,7 +514,7 @@ void _gfx_vertex_layout_unblock(
 }
 
 /******************************************************/
-GFXVertexLayout* gfx_vertex_layout_create(
+GFXVertexLayout *gfx_vertex_layout_create(
 
 		unsigned char sources)
 {
@@ -525,7 +525,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	/* Create new layout, append sources to end of struct */
 	size_t size = sizeof(GFX_Layout) + sources * sizeof(GFX_Source);
 
-	GFX_Layout* layout = calloc(1, size);
+	GFX_Layout *layout = calloc(1, size);
 	if(!layout)
 	{
 		/* Out of memory error */
@@ -563,9 +563,9 @@ GFXVertexLayout* gfx_vertex_layout_create(
 /******************************************************/
 int gfx_vertex_layout_share(
 
-		GFXVertexLayout* layout)
+		GFXVertexLayout *layout)
 {
-	GFX_Layout* internal = (GFX_Layout*)layout;
+	GFX_Layout *internal = (GFX_Layout*)layout;
 
 	if(!(internal->references + 1))
 	{
@@ -584,11 +584,11 @@ int gfx_vertex_layout_share(
 /******************************************************/
 void gfx_vertex_layout_free(
 
-		GFXVertexLayout* layout)
+		GFXVertexLayout *layout)
 {
 	if(layout)
 	{
-		GFX_Layout* internal = (GFX_Layout*)layout;
+		GFX_Layout *internal = (GFX_Layout*)layout;
 
 		/* Check references */
 		if(!(--internal->references))
@@ -619,9 +619,9 @@ void gfx_vertex_layout_free(
 /******************************************************/
 int gfx_vertex_layout_set_attribute(
 
-		GFXVertexLayout*           layout,
+		GFXVertexLayout           *layout,
 		unsigned int               index,
-		const GFXVertexAttribute*  attr,
+		const GFXVertexAttribute  *attr,
 		unsigned int               buffer)
 {
 	GFX_CONT_INIT(0);
@@ -636,12 +636,12 @@ int gfx_vertex_layout_set_attribute(
 		return 0;
 	}
 
-	GFX_Layout* internal = (GFX_Layout*)layout;
+	GFX_Layout *internal = (GFX_Layout*)layout;
 	if(!_gfx_layout_alloc_attribute(internal, index, GFX_CONT_AS_ARG))
 		return 0;
 
 	/* Set attribute */
-	GFX_Attribute* set =
+	GFX_Attribute *set =
 		gfx_vector_at(&internal->attributes, index);
 
 	int packed = _gfx_is_data_type_packed(attr->type);
@@ -670,13 +670,13 @@ int gfx_vertex_layout_set_attribute(
 /******************************************************/
 int gfx_vertex_layout_set_attribute_buffer(
 
-		GFXVertexLayout*  layout,
+		GFXVertexLayout  *layout,
 		unsigned int      index,
 		unsigned int      buffer)
 {
 	GFX_CONT_INIT(0);
 
-	GFX_Layout* internal = (GFX_Layout*)layout;
+	GFX_Layout *internal = (GFX_Layout*)layout;
 	if(
 		index >= gfx_vector_get_size(&internal->attributes) ||
 		buffer >= GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS])
@@ -685,7 +685,7 @@ int gfx_vertex_layout_set_attribute_buffer(
 	}
 
 	/* Set attribute buffer */
-	GFX_Attribute* set = gfx_vector_at(
+	GFX_Attribute *set = gfx_vector_at(
 		&internal->attributes,
 		index
 	);
@@ -713,15 +713,15 @@ int gfx_vertex_layout_set_attribute_buffer(
 /******************************************************/
 int gfx_vertex_layout_set_source(
 
-		GFXVertexLayout*        layout,
+		GFXVertexLayout        *layout,
 		unsigned char           index,
-		const GFXVertexSource*  source)
+		const GFXVertexSource  *source)
 {
 	GFX_CONT_INIT(0);
 
 	/* Check index */
 	if(index >= layout->sources) return 0;
-	GFX_Layout* internal = (GFX_Layout*)layout;
+	GFX_Layout *internal = (GFX_Layout*)layout;
 
 	/* Check extensions and bounds */
 	if(
@@ -733,7 +733,7 @@ int gfx_vertex_layout_set_source(
 	}
 
 	/* Check blocks at source */
-	GFX_Source* set = ((GFX_Source*)(internal + 1)) + index;
+	GFX_Source *set = ((GFX_Source*)(internal + 1)) + index;
 	if(set->blocks) return 0;
 
 	/* Set the source */
@@ -747,15 +747,15 @@ int gfx_vertex_layout_set_source(
 /******************************************************/
 int gfx_vertex_layout_get_source(
 
-		const GFXVertexLayout*  layout,
+		const GFXVertexLayout  *layout,
 		unsigned char           index,
-		GFXVertexSource*        source)
+		GFXVertexSource        *source)
 {
 	/* Validate index */
 	if(index >= layout->sources) return 0;
 
 	/* Retrieve data */
-	const GFX_Layout* internal = (const GFX_Layout*)layout;
+	const GFX_Layout *internal = (const GFX_Layout*)layout;
 	*source = ((const GFX_Source*)(internal + 1))[index].source;
 
 	return 1;
@@ -764,9 +764,9 @@ int gfx_vertex_layout_get_source(
 /******************************************************/
 int gfx_vertex_layout_set_vertex_buffer(
 
-		GFXVertexLayout*  layout,
+		GFXVertexLayout  *layout,
 		unsigned int      index,
-		const GFXBuffer*  buffer,
+		const GFXBuffer  *buffer,
 		size_t            offset,
 		size_t            stride)
 {
@@ -788,9 +788,9 @@ int gfx_vertex_layout_set_vertex_buffer(
 /******************************************************/
 int gfx_vertex_layout_set_shared_vertex_buffer(
 
-		GFXVertexLayout*        layout,
+		GFXVertexLayout        *layout,
 		unsigned int            index,
-		const GFXSharedBuffer*  buffer,
+		const GFXSharedBuffer  *buffer,
 		size_t                  offset,
 		size_t                  stride)
 {
@@ -816,7 +816,7 @@ int gfx_vertex_layout_set_shared_vertex_buffer(
 /******************************************************/
 int gfx_vertex_layout_set_vertex_divisor(
 
-		GFXVertexLayout*  layout,
+		GFXVertexLayout  *layout,
 		unsigned int      index,
 		unsigned int      divisor)
 {
@@ -825,12 +825,12 @@ int gfx_vertex_layout_set_vertex_divisor(
 	if(!GFX_CONT_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES])
 		return 0;
 
-	GFX_Layout* internal = (GFX_Layout*)layout;
+	GFX_Layout *internal = (GFX_Layout*)layout;
 	if(!_gfx_layout_alloc_buffer(internal, index, GFX_CONT_AS_ARG))
 		return 0;
 
 	/* Set divisor */
-	GFX_Buffer* set = gfx_vector_at(&internal->buffers, index);
+	GFX_Buffer *set = gfx_vector_at(&internal->buffers, index);
 	set->divisor = divisor;
 
 	/* Initialize the buffer divisor */
@@ -853,8 +853,8 @@ int gfx_vertex_layout_set_vertex_divisor(
 /******************************************************/
 int gfx_vertex_layout_set_index_buffer(
 
-		GFXVertexLayout*  layout,
-		const GFXBuffer*  buffer,
+		GFXVertexLayout  *layout,
+		const GFXBuffer  *buffer,
 		size_t            offset)
 {
 	GLuint buff = 0;
@@ -866,8 +866,8 @@ int gfx_vertex_layout_set_index_buffer(
 /******************************************************/
 int gfx_vertex_layout_set_shared_index_buffer(
 
-		GFXVertexLayout*        layout,
-		const GFXSharedBuffer*  buffer,
+		GFXVertexLayout        *layout,
+		const GFXSharedBuffer  *buffer,
 		size_t                  offset)
 {
 	GLuint buff = 0;

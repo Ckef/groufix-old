@@ -38,8 +38,8 @@ GFXMonitor gfx_get_default_monitor(void)
 void gfx_monitor_get_size(
 
 		GFXMonitor     monitor,
-		unsigned int*  width,
-		unsigned int*  height)
+		unsigned int  *width,
+		unsigned int  *height)
 {
 	monitor = monitor ? monitor :
 		(GFXMonitor)_gfx_platform_get_default_monitor();
@@ -70,7 +70,7 @@ int gfx_monitor_get_mode(
 
 		GFXMonitor       monitor,
 		unsigned int     num,
-		GFXDisplayMode*  mode)
+		GFXDisplayMode  *mode)
 {
 	monitor = monitor ? monitor :
 		(GFXMonitor)_gfx_platform_get_default_monitor();

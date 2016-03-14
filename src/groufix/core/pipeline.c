@@ -28,12 +28,12 @@ typedef struct GFX_Pipeline
 	GLuint              fbo;         /* OpenGL handle */
 	GFXVector           attachments; /* Stores GFX_Attachment */
 	unsigned int        numTargets;
-	GLenum*             targets;     /* OpenGL draw buffers */
+	GLenum             *targets;     /* OpenGL draw buffers */
 
-	GFX_Pipe*           first;
-	GFX_Pipe*           last;
-	GFX_Pipe*           current;
-	GFX_Pipe*           unlinked;
+	GFX_Pipe           *first;
+	GFX_Pipe           *last;
+	GFX_Pipe           *current;
+	GFX_Pipe           *unlinked;
 
 } GFX_Pipeline;
 
@@ -53,7 +53,7 @@ typedef struct GFX_Attachment
 /******************************************************/
 static GFXVectorIterator _gfx_pipeline_find_attachment(
 
-		const GFX_Pipeline*  pipeline,
+		const GFX_Pipeline  *pipeline,
 		GLenum               attach)
 {
 	/* Binary search for the attachment */
@@ -85,7 +85,7 @@ static GFXVectorIterator _gfx_pipeline_find_attachment(
 static void _gfx_pipeline_init_attachment(
 
 		GLuint                 fbo,
-		const GFX_Attachment*  attach,
+		const GFX_Attachment  *attach,
 		GFX_CONT_ARG)
 {
 	/* Check texture handle */
@@ -148,9 +148,9 @@ static void _gfx_pipeline_init_attachment(
 /******************************************************/
 static void _gfx_pipeline_push_pipe(
 
-		GFX_Pipe* pipe)
+		GFX_Pipe *pipe)
 {
-	GFX_Pipeline* pipeline = (GFX_Pipeline*)pipe->pipeline;
+	GFX_Pipeline *pipeline = (GFX_Pipeline*)pipe->pipeline;
 
 	if(pipeline->first)
 	{
@@ -173,10 +173,10 @@ static void _gfx_pipeline_push_pipe(
 /******************************************************/
 static void _gfx_pipeline_obj_free(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Pipeline* pipeline = (GFX_Pipeline*)object;
+	GFX_Pipeline *pipeline = (GFX_Pipeline*)object;
 
 	pipeline->id = id;
 	pipeline->fbo = 0;
@@ -185,12 +185,12 @@ static void _gfx_pipeline_obj_free(
 /******************************************************/
 static void _gfx_pipeline_obj_save(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
 	GFX_CONT_INIT_UNSAFE;
 
-	GFX_Pipeline* pipeline = (GFX_Pipeline*)object;
+	GFX_Pipeline *pipeline = (GFX_Pipeline*)object;
 
 	/* Don't clear the attachments vector or target array */
 	pipeline->id = id;
@@ -201,12 +201,12 @@ static void _gfx_pipeline_obj_save(
 /******************************************************/
 static void _gfx_pipeline_obj_restore(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
 	GFX_CONT_INIT_UNSAFE;
 
-	GFX_Pipeline* pipeline = (GFX_Pipeline*)object;
+	GFX_Pipeline *pipeline = (GFX_Pipeline*)object;
 
 	/* Create FBO */
 	pipeline->id = id;
@@ -246,18 +246,18 @@ static GFX_RenderObjectFuncs _gfx_pipeline_obj_funcs =
 /******************************************************/
 GLuint _gfx_gl_pipeline_get_handle(
 
-		const GFXPipeline* pipeline)
+		const GFXPipeline *pipeline)
 {
 	return ((const GFX_Pipeline*)pipeline)->fbo;
 }
 
 /******************************************************/
-GFXPipeline* gfx_pipeline_create(void)
+GFXPipeline *gfx_pipeline_create(void)
 {
 	GFX_CONT_INIT(NULL);
 
 	/* Create new pipeline */
-	GFX_Pipeline* pl = calloc(1, sizeof(GFX_Pipeline));
+	GFX_Pipeline *pl = calloc(1, sizeof(GFX_Pipeline));
 	if(!pl)
 	{
 		/* Out of memory error */
@@ -292,13 +292,13 @@ GFXPipeline* gfx_pipeline_create(void)
 /******************************************************/
 void gfx_pipeline_free(
 
-		GFXPipeline* pipeline)
+		GFXPipeline *pipeline)
 {
 	if(pipeline)
 	{
 		GFX_CONT_INIT_UNSAFE;
 
-		GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
+		GFX_Pipeline *internal = (GFX_Pipeline*)pipeline;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
@@ -330,21 +330,21 @@ void gfx_pipeline_free(
 /******************************************************/
 unsigned int gfx_pipeline_target(
 
-		GFXPipeline*  pipeline,
+		GFXPipeline  *pipeline,
 		unsigned int  num,
-		const char*   indices)
+		const char   *indices)
 {
 	GFX_CONT_INIT(0);
 
 	if(!num) return 0;
-	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
+	GFX_Pipeline *internal = (GFX_Pipeline*)pipeline;
 
 	/* Limit number of targets */
 	num = (num > GFX_CONT_GET.lim[GFX_LIM_MAX_COLOR_TARGETS]) ?
 		GFX_CONT_GET.lim[GFX_LIM_MAX_COLOR_TARGETS] : num;
 
 	/* Construct attachment buffer */
-	GLenum* targets = malloc(sizeof(GLenum) * num);
+	GLenum *targets = malloc(sizeof(GLenum) * num);
 	if(!targets)
 	{
 		/* Out of memory error */
@@ -381,14 +381,14 @@ unsigned int gfx_pipeline_target(
 /******************************************************/
 int gfx_pipeline_attach(
 
-		GFXPipeline*           pipeline,
+		GFXPipeline           *pipeline,
 		GFXTextureImage        image,
 		GFXPipelineAttachment  attach,
 		unsigned char          index)
 {
 	GFX_CONT_INIT(0);
 
-	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
+	GFX_Pipeline *internal = (GFX_Pipeline*)pipeline;
 
 	/* Check attachment limit */
 	if(attach != GFX_COLOR_ATTACHMENT) index = 0;
@@ -446,13 +446,13 @@ int gfx_pipeline_attach(
 }
 
 /******************************************************/
-GFXPipe* gfx_pipeline_push_bucket(
+GFXPipe *gfx_pipeline_push_bucket(
 
-		GFXPipeline*    pipeline,
+		GFXPipeline    *pipeline,
 		unsigned char   bits)
 {
 	/* Create the pipe and push it */
-	GFX_Pipe* pipe = _gfx_pipe_create_bucket(pipeline, bits);
+	GFX_Pipe *pipe = _gfx_pipe_create_bucket(pipeline, bits);
 	if(!pipe) return NULL;
 
 	_gfx_pipeline_push_pipe(pipe);
@@ -461,14 +461,14 @@ GFXPipe* gfx_pipeline_push_bucket(
 }
 
 /******************************************************/
-GFXPipe* gfx_pipeline_push_process(
+GFXPipe *gfx_pipeline_push_process(
 
-		GFXPipeline*  pipeline,
-		GFXWindow*    target,
+		GFXPipeline  *pipeline,
+		GFXWindow    *target,
 		int           swap)
 {
 	/* Create the pipe and push it */
-	GFX_Pipe* pipe = _gfx_pipe_create_process(pipeline, target, swap);
+	GFX_Pipe *pipe = _gfx_pipe_create_process(pipeline, target, swap);
 	if(!pipe) return NULL;
 
 	_gfx_pipeline_push_pipe(pipe);
@@ -479,9 +479,9 @@ GFXPipe* gfx_pipeline_push_process(
 /******************************************************/
 void gfx_pipeline_unlink_all(
 
-		GFXPipeline* pipeline)
+		GFXPipeline *pipeline)
 {
-	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
+	GFX_Pipeline *internal = (GFX_Pipeline*)pipeline;
 
 	/* Splice entire range into unlinked pipes */
 	if(internal->first)
@@ -504,18 +504,18 @@ void gfx_pipeline_unlink_all(
 /******************************************************/
 void gfx_pipeline_unlink(
 
-		GFXPipe* pipe)
+		GFXPipe *pipe)
 {
-	GFX_Pipe* internal =
+	GFX_Pipe *internal =
 		GFX_PTR_SUB_BYTES(pipe, offsetof(GFX_Pipe, ptr));
-	GFX_Pipeline* pipeline =
+	GFX_Pipeline *pipeline =
 		(GFX_Pipeline*)internal->pipeline;
 
 	/* Fix current and unlink */
 	if(pipeline->current == internal)
 		pipeline->current = (GFX_Pipe*)internal->node.next;
 
-	GFX_Pipe* new = (GFX_Pipe*)gfx_list_unsplice(
+	GFX_Pipe *new = (GFX_Pipe*)gfx_list_unsplice(
 		(GFXList*)internal,
 		(GFXList*)internal
 	);
@@ -541,14 +541,14 @@ void gfx_pipeline_unlink(
 /******************************************************/
 void gfx_pipeline_move(
 
-		GFXPipe*  pipe,
-		GFXPipe*  after)
+		GFXPipe  *pipe,
+		GFXPipe  *after)
 {
-	GFX_Pipe* int1 = GFX_PTR_SUB_BYTES(
+	GFX_Pipe *int1 = GFX_PTR_SUB_BYTES(
 		pipe,
 		offsetof(GFX_Pipe, ptr));
 
-	GFX_Pipe* int2 = after ? GFX_PTR_SUB_BYTES(
+	GFX_Pipe *int2 = after ? GFX_PTR_SUB_BYTES(
 		after,
 		offsetof(GFX_Pipe, ptr)) : NULL;
 
@@ -557,7 +557,7 @@ void gfx_pipeline_move(
 		/* Check if it can be moved */
 		if(int2) if(int1->pipeline != int2->pipeline) return;
 
-		GFX_Pipeline* pl = (GFX_Pipeline*)int1->pipeline;
+		GFX_Pipeline *pl = (GFX_Pipeline*)int1->pipeline;
 
 		/* Reconstruct pointers */
 		if(pl->unlinked != int1)
@@ -606,21 +606,21 @@ void gfx_pipeline_move(
 /******************************************************/
 void gfx_pipeline_swap(
 
-		GFXPipe*  pipe1,
-		GFXPipe*  pipe2)
+		GFXPipe  *pipe1,
+		GFXPipe  *pipe2)
 {
-	GFX_Pipe* int1 = GFX_PTR_SUB_BYTES(
+	GFX_Pipe *int1 = GFX_PTR_SUB_BYTES(
 		pipe1,
 		offsetof(GFX_Pipe, ptr));
 
-	GFX_Pipe* int2 = GFX_PTR_SUB_BYTES(
+	GFX_Pipe *int2 = GFX_PTR_SUB_BYTES(
 		pipe2,
 		offsetof(GFX_Pipe, ptr));
 
 	/* Check if they can be swapped */
 	if(int1->pipeline == int2->pipeline)
 	{
-		GFX_Pipeline* pl = (GFX_Pipeline*)int1->pipeline;
+		GFX_Pipeline *pl = (GFX_Pipeline*)int1->pipeline;
 
 		/* Reconstruct pointers */
 		if(pl->first == int1)
@@ -657,7 +657,7 @@ void gfx_pipeline_relink(
 	if(num)
 	{
 		/* Get pipeline and check if they all have the same */
-		GFXPipeline* pipeline = ((GFX_Pipe*)GFX_PTR_SUB_BYTES(
+		GFXPipeline *pipeline = ((GFX_Pipe*)GFX_PTR_SUB_BYTES(
 			pipes[0],
 			offsetof(GFX_Pipe, ptr)))->pipeline;
 
@@ -665,7 +665,7 @@ void gfx_pipeline_relink(
 
 		while(ch > 1)
 		{
-			GFXPipe* pipe = pipes[--ch];
+			GFXPipe *pipe = pipes[--ch];
 			if(((GFX_Pipe*)GFX_PTR_SUB_BYTES(
 				pipe,
 				offsetof(GFX_Pipe, ptr)))->pipeline != pipeline)
@@ -683,21 +683,21 @@ void gfx_pipeline_relink(
 /******************************************************/
 void gfx_pipeline_remove(
 
-		GFXPipe* pipe)
+		GFXPipe *pipe)
 {
-	GFX_Pipe* internal = GFX_PTR_SUB_BYTES(
+	GFX_Pipe *internal = GFX_PTR_SUB_BYTES(
 		pipe,
 		offsetof(GFX_Pipe, ptr)
 	);
 
-	GFX_Pipeline* pipeline =
+	GFX_Pipeline *pipeline =
 		(GFX_Pipeline*)internal->pipeline;
 
 	/* Fix current and erase */
 	if(pipeline->current == internal)
 		pipeline->current = (GFX_Pipe*)internal->node.next;
 
-	GFX_Pipe* new = _gfx_pipe_free(internal);
+	GFX_Pipe *new = _gfx_pipe_free(internal);
 
 	/* Replace if necessary */
 	if(pipeline->first == internal)
@@ -711,12 +711,12 @@ void gfx_pipeline_remove(
 /******************************************************/
 void gfx_pipeline_execute(
 
-		GFXPipeline*  pipeline,
+		GFXPipeline  *pipeline,
 		size_t        num)
 {
 	GFX_CONT_INIT();
 
-	GFX_Pipeline* internal = (GFX_Pipeline*)pipeline;
+	GFX_Pipeline *internal = (GFX_Pipeline*)pipeline;
 
 	/* Bind as framebuffer and set viewport */
 	_gfx_gl_pipeline_bind(
@@ -730,7 +730,7 @@ void gfx_pipeline_execute(
 
 	/* Iterate over all pipes */
 	int nolimit = !num;
-	GFX_Pipe* pipe = internal->current ?
+	GFX_Pipe *pipe = internal->current ?
 		internal->current : internal->first;
 
 	while(pipe && (nolimit | num--))

@@ -60,7 +60,7 @@ typedef struct GFXBucket
  */
 GFX_API void gfx_bucket_set_bits(
 
-		GFXBucket*     bucket,
+		GFXBucket     *bucket,
 		unsigned char  bits);
 
 /**
@@ -80,8 +80,8 @@ GFX_API void gfx_bucket_set_bits(
  */
 GFX_API GFXBucketSource gfx_bucket_add_source(
 
-		GFXBucket*        bucket,
-		GFXVertexLayout*  layout,
+		GFXBucket        *bucket,
+		GFXVertexLayout  *layout,
 		unsigned char     srcIndex,
 		size_t            offset,
 		size_t            count);
@@ -94,7 +94,7 @@ GFX_API GFXBucketSource gfx_bucket_add_source(
  */
 GFX_API void gfx_bucket_remove_source(
 
-		GFXBucket*       bucket,
+		GFXBucket       *bucket,
 		GFXBucketSource  src);
 
 /**
@@ -108,9 +108,9 @@ GFX_API void gfx_bucket_remove_source(
  */
 GFX_API GFXBucketUnit gfx_bucket_insert(
 
-		GFXBucket*             bucket,
+		GFXBucket             *bucket,
 		GFXBucketSource        src,
-		const GFXPropertyMap*  map,
+		const GFXPropertyMap  *map,
 		unsigned int           copy,
 		int                    visible);
 
@@ -120,7 +120,7 @@ GFX_API GFXBucketUnit gfx_bucket_insert(
  */
 GFX_API void gfx_bucket_erase(
 
-		GFXBucket*     bucket,
+		GFXBucket     *bucket,
 		GFXBucketUnit  unit);
 
 /**
@@ -129,7 +129,7 @@ GFX_API void gfx_bucket_erase(
  */
 GFX_API unsigned int gfx_bucket_get_copy(
 
-		const GFXBucket*  bucket,
+		const GFXBucket  *bucket,
 		GFXBucketUnit     unit);
 
 /**
@@ -138,7 +138,7 @@ GFX_API unsigned int gfx_bucket_get_copy(
  */
 GFX_API size_t gfx_bucket_get_instances(
 
-		const GFXBucket*  bucket,
+		const GFXBucket  *bucket,
 		GFXBucketUnit     unit);
 
 /**
@@ -147,7 +147,7 @@ GFX_API size_t gfx_bucket_get_instances(
  */
 GFX_API unsigned int gfx_bucket_get_instance_base(
 
-		const GFXBucket*  bucket,
+		const GFXBucket  *bucket,
 		GFXBucketUnit     unit);
 
 /**
@@ -156,7 +156,7 @@ GFX_API unsigned int gfx_bucket_get_instance_base(
  */
 GFX_API unsigned int gfx_bucket_get_vertex_base(
 
-		const GFXBucket*  bucket,
+		const GFXBucket  *bucket,
 		GFXBucketUnit     unit);
 
 /**
@@ -165,7 +165,7 @@ GFX_API unsigned int gfx_bucket_get_vertex_base(
  */
 GFX_API unsigned int gfx_bucket_get_index_base(
 
-		const GFXBucket*  bucket,
+		const GFXBucket  *bucket,
 		GFXBucketUnit     unit);
 
 /**
@@ -174,7 +174,7 @@ GFX_API unsigned int gfx_bucket_get_index_base(
  */
 GFX_API GFXUnitState gfx_bucket_get_state(
 
-		const GFXBucket*  bucket,
+		const GFXBucket  *bucket,
 		GFXBucketUnit     unit);
 
 /**
@@ -183,7 +183,7 @@ GFX_API GFXUnitState gfx_bucket_get_state(
  */
 GFX_API int gfx_bucket_is_visible(
 
-		const GFXBucket*  bucket,
+		const GFXBucket  *bucket,
 		GFXBucketUnit     unit);
 
 /**
@@ -195,7 +195,7 @@ GFX_API int gfx_bucket_is_visible(
  */
 GFX_API void gfx_bucket_set_copy(
 
-		GFXBucket*     bucket,
+		GFXBucket     *bucket,
 		GFXBucketUnit  unit,
 		unsigned int   copy);
 
@@ -205,7 +205,7 @@ GFX_API void gfx_bucket_set_copy(
  */
 GFX_API void gfx_bucket_set_instances(
 
-		GFXBucket*     bucket,
+		GFXBucket     *bucket,
 		GFXBucketUnit  unit,
 		size_t         instances);
 
@@ -218,7 +218,7 @@ GFX_API void gfx_bucket_set_instances(
  */
 GFX_API void gfx_bucket_set_instance_base(
 
-		GFXBucket*     bucket,
+		GFXBucket     *bucket,
 		GFXBucketUnit  unit,
 		unsigned int   base);
 
@@ -230,7 +230,7 @@ GFX_API void gfx_bucket_set_instance_base(
  */
 GFX_API void gfx_bucket_set_vertex_base(
 
-		GFXBucket*     bucket,
+		GFXBucket     *bucket,
 		GFXBucketUnit  unit,
 		unsigned int   base);
 
@@ -240,7 +240,7 @@ GFX_API void gfx_bucket_set_vertex_base(
  */
 GFX_API void gfx_bucket_set_index_base(
 
-		GFXBucket*     bucket,
+		GFXBucket     *bucket,
 		GFXBucketUnit  unit,
 		unsigned int   base);
 
@@ -252,7 +252,7 @@ GFX_API void gfx_bucket_set_index_base(
  */
 GFX_API void gfx_bucket_set_state(
 
-		GFXBucket*     bucket,
+		GFXBucket     *bucket,
 		GFXBucketUnit  unit,
 		GFXUnitState   state);
 
@@ -264,7 +264,7 @@ GFX_API void gfx_bucket_set_state(
  */
 GFX_API void gfx_bucket_set_visible(
 
-		GFXBucket*     bucket,
+		GFXBucket     *bucket,
 		GFXBucketUnit  unit,
 		int            visible);
 
@@ -274,7 +274,7 @@ GFX_API void gfx_bucket_set_visible(
  *******************************************************/
 
 /** Process to perform post-processing */
-typedef void* GFXPipeProcess;
+typedef void *GFXPipeProcess;
 
 
 /**
@@ -288,7 +288,7 @@ typedef void* GFXPipeProcess;
  * Also, any calls after the first call will ignore properties.
  *
  */
-GFX_API GFXPropertyMap* gfx_pipe_process_get_map(
+GFX_API GFXPropertyMap *gfx_pipe_process_get_map(
 
 		GFXPipeProcess  process,
 		unsigned char   properties);
@@ -310,7 +310,7 @@ GFX_API void gfx_pipe_process_set_copy(
  * Calls gfx_program_map_add for the internal program map of a process.
  *
  */
-GFX_API GFXProgram* gfx_pipe_process_add(
+GFX_API GFXProgram *gfx_pipe_process_add(
 
 		GFXPipeProcess  process,
 		GFXShaderStage  stage,
@@ -324,13 +324,13 @@ GFX_API int gfx_pipe_process_add_share(
 
 		GFXPipeProcess  process,
 		GFXShaderStage  stage,
-		GFXProgram*     share);
+		GFXProgram     *share);
 
 /**
  * Calls gfx_program_map_get for the internal program map of a process.
  *
  */
-GFX_API GFXProgram* gfx_pipe_process_get(
+GFX_API GFXProgram *gfx_pipe_process_get(
 
 		const GFXPipeProcess  process,
 		GFXShaderStage        stage);
@@ -499,7 +499,7 @@ typedef struct GFXPipeState
 /** Individual pipe */
 typedef union GFXPipe
 {
-	GFXBucket*      bucket;  /* Bucket to be processed */
+	GFXBucket      *bucket;  /* Bucket to be processed */
 	GFXPipeProcess  process; /* Process for post-processing */
 
 } GFXPipe;
@@ -511,7 +511,7 @@ typedef union GFXPipe
  */
 GFX_API GFXPipeType gfx_pipe_get_type(
 
-		const GFXPipe* pipe);
+		const GFXPipe *pipe);
 
 /**
  * Returns the state of a pipe.
@@ -521,9 +521,9 @@ GFX_API GFXPipeType gfx_pipe_get_type(
  * Note: as soon as the pipe is removed the pointer is invalidated.
  *
  */
-GFX_API GFXPipeState* gfx_pipe_get_state(
+GFX_API GFXPipeState *gfx_pipe_get_state(
 
-		GFXPipe* pipe);
+		GFXPipe *pipe);
 
 
 /********************************************************
@@ -566,7 +566,7 @@ typedef struct GFXPipeline
  * @return NULL on failure.
  *
  */
-GFX_API GFXPipeline* gfx_pipeline_create(void);
+GFX_API GFXPipeline *gfx_pipeline_create(void);
 
 /**
  * Makes sure the pipeline is freed properly.
@@ -574,7 +574,7 @@ GFX_API GFXPipeline* gfx_pipeline_create(void);
  */
 GFX_API void gfx_pipeline_free(
 
-		GFXPipeline* pipeline);
+		GFXPipeline *pipeline);
 
 /**
  * Specifies what color attachments to draw to.
@@ -588,9 +588,9 @@ GFX_API void gfx_pipeline_free(
  */
 GFX_API unsigned int gfx_pipeline_target(
 
-		GFXPipeline*  pipeline,
+		GFXPipeline  *pipeline,
 		unsigned int  num,
-		const char*   indices);
+		const char   *indices);
 
 /**
  * Attaches a texture image to the pipeline as render target.
@@ -604,7 +604,7 @@ GFX_API unsigned int gfx_pipeline_target(
  */
 GFX_API int gfx_pipeline_attach(
 
-		GFXPipeline*           pipeline,
+		GFXPipeline           *pipeline,
 		GFXTextureImage        image,
 		GFXPipelineAttachment  attach,
 		unsigned char          index);
@@ -618,9 +618,9 @@ GFX_API int gfx_pipeline_attach(
  * Note: all state and parameters will be copied from the previous pipe.
  *
  */
-GFX_API GFXPipe* gfx_pipeline_push_bucket(
+GFX_API GFXPipe *gfx_pipeline_push_bucket(
 
-		GFXPipeline*    pipeline,
+		GFXPipeline    *pipeline,
 		unsigned char   bits);
 
 /**
@@ -633,10 +633,10 @@ GFX_API GFXPipe* gfx_pipeline_push_bucket(
  * Note: all state and parameters will be copied from the previous pipe.
  *
  */
-GFX_API GFXPipe* gfx_pipeline_push_process(
+GFX_API GFXPipe *gfx_pipeline_push_process(
 
-		GFXPipeline*  pipeline,
-		GFXWindow*    target,
+		GFXPipeline  *pipeline,
+		GFXWindow    *target,
 		int           swap);
 
 /**
@@ -647,7 +647,7 @@ GFX_API GFXPipe* gfx_pipeline_push_process(
  */
 GFX_API void gfx_pipeline_unlink_all(
 
-		GFXPipeline* pipeline);
+		GFXPipeline *pipeline);
 
 /**
  * Removes a pipe from the execution list but does not destroy it.
@@ -657,7 +657,7 @@ GFX_API void gfx_pipeline_unlink_all(
  */
 GFX_API void gfx_pipeline_unlink(
 
-		GFXPipe* pipe);
+		GFXPipe *pipe);
 
 /**
  * Moves a pipe to be after a given pipe in execution order.
@@ -667,8 +667,8 @@ GFX_API void gfx_pipeline_unlink(
  */
 GFX_API void gfx_pipeline_move(
 
-		GFXPipe*  pipe,
-		GFXPipe*  after);
+		GFXPipe  *pipe,
+		GFXPipe  *after);
 
 /**
  * Swaps the position of two pipes in their execution order.
@@ -678,8 +678,8 @@ GFX_API void gfx_pipeline_move(
  */
 GFX_API void gfx_pipeline_swap(
 
-		GFXPipe*  pipe1,
-		GFXPipe*  pipe2);
+		GFXPipe  *pipe1,
+		GFXPipe  *pipe2);
 
 /**
  * Unlinks all current pipes and moves all given pipes to be executed (in order).
@@ -703,7 +703,7 @@ GFX_API void gfx_pipeline_relink(
  */
 GFX_API void gfx_pipeline_remove(
 
-		GFXPipe* pipe);
+		GFXPipe *pipe);
 
 /**
  * Executes all pipes in order.
@@ -713,7 +713,7 @@ GFX_API void gfx_pipeline_remove(
  */
 GFX_API void gfx_pipeline_execute(
 
-		GFXPipeline*  pipeline,
+		GFXPipeline  *pipeline,
 		size_t        num);
 
 

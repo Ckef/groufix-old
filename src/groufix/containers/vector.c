@@ -37,12 +37,12 @@ static inline size_t _gfx_vector_get_max_capacity(
 /******************************************************/
 static int _gfx_vector_realloc(
 
-		GFXVector*  vector,
+		GFXVector  *vector,
 		size_t      size,
 		size_t      capacity)
 {
 	/* Make sure to check if it worked */
-	void* new = realloc(vector->begin, capacity);
+	void *new = realloc(vector->begin, capacity);
 	if(!new)
 	{
 		/* Out of memory error */
@@ -62,12 +62,12 @@ static int _gfx_vector_realloc(
 }
 
 /******************************************************/
-GFXVector* gfx_vector_create(
+GFXVector *gfx_vector_create(
 
 		size_t elementSize)
 {
 	/* Create a new vector */
-	GFXVector* vector = calloc(1, sizeof(GFXVector));
+	GFXVector *vector = calloc(1, sizeof(GFXVector));
 	if(vector) vector->elementSize = elementSize;
 
 	/* Out of memory error */
@@ -80,14 +80,14 @@ GFXVector* gfx_vector_create(
 }
 
 /******************************************************/
-GFXVector* gfx_vector_create_from_buffer(
+GFXVector *gfx_vector_create_from_buffer(
 
 		size_t       elementSize,
 		size_t       numElements,
-		const void*  buff)
+		const void  *buff)
 {
 	/* Create a new vector */
-	GFXVector* vector = gfx_vector_create(elementSize);
+	GFXVector *vector = gfx_vector_create(elementSize);
 	if(!vector) return NULL;
 
 	/* Allocate and copy */
@@ -103,9 +103,9 @@ GFXVector* gfx_vector_create_from_buffer(
 }
 
 /******************************************************/
-GFXVector* gfx_vector_create_copy(
+GFXVector *gfx_vector_create_copy(
 
-		const GFXVector* src)
+		const GFXVector *src)
 {
 	return gfx_vector_create_from_buffer(
 		src->elementSize,
@@ -117,7 +117,7 @@ GFXVector* gfx_vector_create_copy(
 /******************************************************/
 void gfx_vector_free(
 
-		GFXVector* vector)
+		GFXVector *vector)
 {
 	if(vector)
 	{
@@ -129,7 +129,7 @@ void gfx_vector_free(
 /******************************************************/
 void gfx_vector_init(
 
-		GFXVector*  vector,
+		GFXVector  *vector,
 		size_t      elementSize)
 {
 	memset(vector, 0, sizeof(GFXVector));
@@ -139,10 +139,10 @@ void gfx_vector_init(
 /******************************************************/
 void gfx_vector_init_from_buffer(
 
-		GFXVector*   vector,
+		GFXVector   *vector,
 		size_t       elementSize,
 		size_t       numElements,
-		const void*  buff)
+		const void  *buff)
 {
 	/* Init the vector */
 	gfx_vector_init(vector, elementSize);
@@ -159,8 +159,8 @@ void gfx_vector_init_from_buffer(
 /******************************************************/
 void gfx_vector_init_copy(
 
-		GFXVector*        vector,
-		const GFXVector*  src)
+		GFXVector        *vector,
+		const GFXVector  *src)
 {
 	gfx_vector_init_from_buffer(
 		vector,
@@ -173,7 +173,7 @@ void gfx_vector_init_copy(
 /******************************************************/
 void gfx_vector_clear(
 
-		GFXVector* vector)
+		GFXVector *vector)
 {
 	free(vector->begin);
 	vector->begin = NULL;
@@ -185,7 +185,7 @@ void gfx_vector_clear(
 /******************************************************/
 int gfx_vector_reserve(
 
-		GFXVector*  vector,
+		GFXVector  *vector,
 		size_t      numElements)
 {
 	size_t oldSize = GFX_PTR_DIFF(vector->begin, vector->end);
@@ -202,8 +202,8 @@ int gfx_vector_reserve(
 /******************************************************/
 GFXVectorIterator gfx_vector_insert(
 
-		GFXVector*         vector,
-		const void*        element,
+		GFXVector         *vector,
+		const void        *element,
 		GFXVectorIterator  pos)
 {
 	/* Get properties */
@@ -235,7 +235,7 @@ GFXVectorIterator gfx_vector_insert(
 /******************************************************/
 GFXVectorIterator gfx_vector_insert_range(
 
-		GFXVector*               vector,
+		GFXVector               *vector,
 		size_t                   num,
 		const GFXVectorIterator  start,
 		GFXVectorIterator        pos)
@@ -247,7 +247,7 @@ GFXVectorIterator gfx_vector_insert_range(
 	size_t mov = GFX_PTR_DIFF(pos, vector->end);
 
 	/* Copy to a temporary buffer */
-	void* buff = NULL;
+	void *buff = NULL;
 
 	if(start)
 	{
@@ -284,7 +284,7 @@ GFXVectorIterator gfx_vector_insert_range(
 /******************************************************/
 GFXVectorIterator gfx_vector_erase_range(
 
-		GFXVector*         vector,
+		GFXVector         *vector,
 		size_t             num,
 		GFXVectorIterator  start)
 {

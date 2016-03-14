@@ -47,7 +47,7 @@ typedef HANDLE GFX_PlatformFile;
 typedef int GFX_PlatformFile;
 
 #else
-typedef void* GFX_PlatformFile;
+typedef void *GFX_PlatformFile;
 
 #endif
 
@@ -72,8 +72,8 @@ typedef void* GFX_PlatformFile;
  */
 int _gfx_platform_file_open(
 
-		GFX_PlatformFile*  file,
-		const char*        path,
+		GFX_PlatformFile  *file,
+		const char        *path,
 		GFXResourceFlags   flags);
 
 /**
@@ -89,8 +89,8 @@ int _gfx_platform_file_open(
  */
 int _gfx_platform_file_move(
 
-		const char*  oldPath,
-		const char*  newPath);
+		const char  *oldPath,
+		const char  *newPath);
 
 /**
  * Removes a file permanently.
@@ -102,7 +102,7 @@ int _gfx_platform_file_move(
  */
 int _gfx_platform_file_remove(
 
-		const char* path);
+		const char *path);
 
 /**
  * Closes a file, freeing associated resources.
@@ -192,7 +192,7 @@ static GFX_ALWAYS_INLINE intptr_t _gfx_platform_file_tell(
 static GFX_ALWAYS_INLINE size_t _gfx_platform_file_read(
 
 		GFX_PlatformFile  file,
-		void*             data,
+		void             *data,
 		size_t            num)
 {
 #if defined(GFX_WIN32)
@@ -223,7 +223,7 @@ static GFX_ALWAYS_INLINE size_t _gfx_platform_file_read(
 static GFX_ALWAYS_INLINE size_t _gfx_platform_file_write(
 
 		GFX_PlatformFile  file,
-		const void*       data,
+		const void       *data,
 		size_t            num)
 {
 #if defined(GFX_WIN32)

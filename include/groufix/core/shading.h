@@ -56,7 +56,7 @@ typedef struct GFXShader
  * @return NULL on failure.
  *
  */
-GFX_API GFXShader* gfx_shader_create(
+GFX_API GFXShader *gfx_shader_create(
 
 		GFXShaderStage stage);
 
@@ -66,7 +66,7 @@ GFX_API GFXShader* gfx_shader_create(
  */
 GFX_API void gfx_shader_free(
 
-		GFXShader* shader);
+		GFXShader *shader);
 
 /**
  * Sets the source of a shader.
@@ -84,10 +84,10 @@ GFX_API void gfx_shader_free(
  */
 GFX_API int gfx_shader_set_source(
 
-		GFXShader*    shader,
+		GFXShader    *shader,
 		size_t        num,
 		const char**  src,
-		const int*    lens);
+		const int    *lens);
 
 /**
  * Returns the source of a shader (null terminated string).
@@ -101,10 +101,10 @@ GFX_API int gfx_shader_set_source(
  * source via gfx_shader_set_source (in other words: pure GLSL).
  *
  */
-GFX_API char* gfx_shader_get_source(
+GFX_API char *gfx_shader_get_source(
 
-		const GFXShader*  shader,
-		size_t*           length);
+		const GFXShader  *shader,
+		size_t           *length);
 
 /**
  * Compiles the shader if necessary.
@@ -116,7 +116,7 @@ GFX_API char* gfx_shader_get_source(
  */
 GFX_API int gfx_shader_compile(
 
-		GFXShader* shader);
+		GFXShader *shader);
 
 
 /********************************************************
@@ -159,7 +159,7 @@ typedef struct GFXPropertyBlock
 {
 	size_t                   size;          /* Byte size to hold all uniforms within the block */
 	unsigned short           numProperties; /* Number of elements in properties */
-	GFXPropertyBlockMember*  properties;
+	GFXPropertyBlockMember  *properties;
 
 } GFXPropertyBlock;
 
@@ -199,7 +199,7 @@ typedef struct GFXProgram
  * @return NULL on failure.
  *
  */
-GFXProgram* gfx_program_create(
+GFXProgram *gfx_program_create(
 
 		size_t instances);
 
@@ -211,7 +211,7 @@ GFXProgram* gfx_program_create(
  */
 void gfx_program_free(
 
-		GFXProgram* program);
+		GFXProgram *program);
 
 /**
  * Forwards data send to the given index to a given name within the program.
@@ -226,9 +226,9 @@ void gfx_program_free(
  */
 GFX_API int gfx_program_set_attribute(
 
-		GFXProgram*   program,
+		GFXProgram   *program,
 		unsigned int  index,
-		const char*   name);
+		const char   *name);
 
 /**
  * Forwards data received from output attributes to a given index.
@@ -244,7 +244,7 @@ GFX_API int gfx_program_set_attribute(
  */
 GFX_API int gfx_program_set_feedback(
 
-		GFXProgram*      program,
+		GFXProgram      *program,
 		size_t           num,
 		const char**     names,
 		GFXFeedbackMode  mode);
@@ -264,7 +264,7 @@ GFX_API int gfx_program_set_feedback(
  */
 GFX_API int gfx_program_link(
 
-		GFXProgram*  program,
+		GFXProgram  *program,
 		size_t       num,
 		GFXShader**  shaders,
 		int          binary);
@@ -280,11 +280,11 @@ GFX_API int gfx_program_link(
  * Note: requires GFX_EXT_PROGRAM_BINARY.
  *
  */
-GFX_API void* gfx_program_get_binary(
+GFX_API void *gfx_program_get_binary(
 
-		const GFXProgram*  program,
-		GFXProgramFormat*  format,
-		size_t*            size);
+		const GFXProgram  *program,
+		GFXProgramFormat  *format,
+		size_t            *size);
 
 /**
  * Sets the binary representation of a program.
@@ -300,10 +300,10 @@ GFX_API void* gfx_program_get_binary(
  */
 GFX_API int gfx_program_set_binary(
 
-		GFXProgram*       program,
+		GFXProgram       *program,
 		GFXProgramFormat  format,
 		size_t            size,
-		const void*       data);
+		const void       *data);
 
 /**
  * Returns a property of the program.
@@ -314,9 +314,9 @@ GFX_API int gfx_program_set_binary(
  * Note: properties only exist after the program is linked successfully.
  *
  */
-GFX_API const GFXProperty* gfx_program_get_property(
+GFX_API const GFXProperty *gfx_program_get_property(
 
-		const GFXProgram*  program,
+		const GFXProgram  *program,
 		unsigned short     index);
 
 /**
@@ -328,8 +328,8 @@ GFX_API const GFXProperty* gfx_program_get_property(
  */
 GFX_API unsigned short gfx_program_get_named_property(
 
-		const GFXProgram*  program,
-		const char*        name);
+		const GFXProgram  *program,
+		const char        *name);
 
 /**
  * Returns a property block of the program.
@@ -340,9 +340,9 @@ GFX_API unsigned short gfx_program_get_named_property(
  * Note: blocks only exist after the program is linked successfully.
  *
  */
-GFX_API const GFXPropertyBlock* gfx_program_get_property_block(
+GFX_API const GFXPropertyBlock *gfx_program_get_property_block(
 
-		const GFXProgram*  program,
+		const GFXProgram  *program,
 		unsigned short     index);
 
 /**
@@ -354,8 +354,8 @@ GFX_API const GFXPropertyBlock* gfx_program_get_property_block(
  */
 GFX_API unsigned short gfx_program_get_named_property_block(
 
-		const GFXProgram*  program,
-		const char*        name);
+		const GFXProgram  *program,
+		const char        *name);
 
 
 /********************************************************
@@ -376,7 +376,7 @@ typedef struct GFXProgramMap
  * @return NULL on failure.
  *
  */
-GFX_API GFXProgramMap* gfx_program_map_create(void);
+GFX_API GFXProgramMap *gfx_program_map_create(void);
 
 /**
  * Makes sure the program map is freed properly.
@@ -384,7 +384,7 @@ GFX_API GFXProgramMap* gfx_program_map_create(void);
  */
 GFX_API void gfx_program_map_free(
 
-		GFXProgramMap* map);
+		GFXProgramMap *map);
 
 /**
  * Creates a new program and maps it to a given shader stage.
@@ -397,9 +397,9 @@ GFX_API void gfx_program_map_free(
  * function will act as if stage was set to GFX_ALL_SHADERS.
  *
  */
-GFX_API GFXProgram* gfx_program_map_add(
+GFX_API GFXProgram *gfx_program_map_add(
 
-		GFXProgramMap*  map,
+		GFXProgramMap  *map,
 		GFXShaderStage  stage,
 		size_t          instances);
 
@@ -416,9 +416,9 @@ GFX_API GFXProgram* gfx_program_map_add(
  */
 GFX_API int gfx_program_map_add_share(
 
-		GFXProgramMap*  map,
+		GFXProgramMap  *map,
 		GFXShaderStage  stage,
-		GFXProgram*     share);
+		GFXProgram     *share);
 
 /**
  * Returns the program mapped to a given stage.
@@ -427,9 +427,9 @@ GFX_API int gfx_program_map_add_share(
  * @return Mapped program, can be NULL.
  *
  */
-GFX_API GFXProgram* gfx_program_map_get(
+GFX_API GFXProgram *gfx_program_map_get(
 
-		const GFXProgramMap*  map,
+		const GFXProgramMap  *map,
 		GFXShaderStage        stage);
 
 
@@ -481,7 +481,7 @@ typedef struct GFXSampler
 /** Property map */
 typedef struct GFXPropertyMap
 {
-	GFXProgramMap*  programMap; /* Program map it references (cannot be changed or freed while the map is alive) */
+	GFXProgramMap  *programMap; /* Program map it references (cannot be changed or freed while the map is alive) */
 	unsigned char   properties; /* Number of properties */
 	unsigned int    copies;     /* Number of property copies present, the initial value is 1 */
 
@@ -500,9 +500,9 @@ typedef struct GFXPropertyMap
  * any property maps anymore.
  *
  */
-GFX_API GFXPropertyMap* gfx_property_map_create(
+GFX_API GFXPropertyMap *gfx_property_map_create(
 
-		GFXProgramMap*  programMap,
+		GFXProgramMap  *programMap,
 		unsigned char   properties);
 
 /**
@@ -511,7 +511,7 @@ GFX_API GFXPropertyMap* gfx_property_map_create(
  */
 GFX_API void gfx_property_map_free(
 
-		GFXPropertyMap* map);
+		GFXPropertyMap *map);
 
 /**
  * Appends more copies to the properties containing copies.
@@ -522,7 +522,7 @@ GFX_API void gfx_property_map_free(
  */
 GFX_API int gfx_property_map_expand(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned int     num);
 
 /**
@@ -534,7 +534,7 @@ GFX_API int gfx_property_map_expand(
  */
 GFX_API unsigned int gfx_property_map_shrink(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned int     num);
 
 /**
@@ -551,7 +551,7 @@ GFX_API unsigned int gfx_property_map_shrink(
  */
 GFX_API int gfx_property_map_move(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned int     dest,
 		unsigned int     src,
 		unsigned int     num);
@@ -571,7 +571,7 @@ GFX_API int gfx_property_map_move(
  */
 GFX_API int gfx_property_map_forward(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned char    index,
 		int              copies,
 		int              ptr,
@@ -587,12 +587,12 @@ GFX_API int gfx_property_map_forward(
  */
 GFX_API int gfx_property_map_forward_named(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned char    index,
 		int              copies,
 		int              ptr,
 		GFXShaderStage   stage,
-		const char*      name);
+		const char      *name);
 
 /**
  * Forwards data send to a given index to a property block within the program.
@@ -606,7 +606,7 @@ GFX_API int gfx_property_map_forward_named(
  */
 GFX_API int gfx_property_map_forward_block(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned char    index,
 		int              copies,
 		GFXShaderStage   stage,
@@ -621,11 +621,11 @@ GFX_API int gfx_property_map_forward_block(
  */
 GFX_API int gfx_property_map_forward_named_block(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned char    index,
 		int              copies,
 		GFXShaderStage   stage,
-		const char*      name);
+		const char      *name);
 
 /**
  * Sets the value of a vector/matrix property.
@@ -640,10 +640,10 @@ GFX_API int gfx_property_map_forward_named_block(
  */
 GFX_API int gfx_property_map_set_value(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned char    index,
 		unsigned int     copy,
-		const void*      value,
+		const void      *value,
 		size_t           offset,
 		size_t           size);
 
@@ -660,10 +660,10 @@ GFX_API int gfx_property_map_set_value(
  */
 GFX_API int gfx_property_map_set_value_pointer(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned char    index,
 		unsigned int     copy,
-		const void*      ptr,
+		const void      *ptr,
 		size_t           offset,
 		size_t           size);
 
@@ -678,7 +678,7 @@ GFX_API int gfx_property_map_set_value_pointer(
  */
 GFX_API int gfx_property_map_set_instance_offset(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned char    index,
 		unsigned int     copy,
 		unsigned int     offset);
@@ -693,7 +693,7 @@ GFX_API int gfx_property_map_set_instance_offset(
  */
 GFX_API int gfx_property_map_set_sampler(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned char    index,
 		unsigned int     copy,
 		GFXSampler       values);
@@ -709,10 +709,10 @@ GFX_API int gfx_property_map_set_sampler(
  */
 GFX_API int gfx_property_map_set_sampler_share(
 
-		GFXPropertyMap*  map,
+		GFXPropertyMap  *map,
 		unsigned char    index,
 		unsigned int     copy,
-		GFXPropertyMap*  src,
+		GFXPropertyMap  *src,
 		unsigned char    srcIndex,
 		unsigned int     srcCopy);
 
@@ -724,10 +724,10 @@ GFX_API int gfx_property_map_set_sampler_share(
  */
 GFX_API int gfx_property_map_set_texture(
 
-		GFXPropertyMap*    map,
+		GFXPropertyMap    *map,
 		unsigned char      index,
 		unsigned int       copy,
-		const GFXTexture*  texture);
+		const GFXTexture  *texture);
 
 /**
  * Sets the value of a property block.
@@ -741,10 +741,10 @@ GFX_API int gfx_property_map_set_texture(
  */
 GFX_API int gfx_property_map_set_buffer(
 
-		GFXPropertyMap*   map,
+		GFXPropertyMap   *map,
 		unsigned char     index,
 		unsigned int      copy,
-		const GFXBuffer*  buffer,
+		const GFXBuffer  *buffer,
 		size_t            offset,
 		size_t            size);
 
@@ -757,10 +757,10 @@ GFX_API int gfx_property_map_set_buffer(
  */
 GFX_API int gfx_property_map_set_shared_buffer(
 
-		GFXPropertyMap*         map,
+		GFXPropertyMap         *map,
 		unsigned char           index,
 		unsigned int            copy,
-		const GFXSharedBuffer*  buffer,
+		const GFXSharedBuffer  *buffer,
 		size_t                  offset,
 		size_t                  size);
 

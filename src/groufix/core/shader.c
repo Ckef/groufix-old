@@ -145,7 +145,7 @@ static const char* _gfx_shader_eval_glsl(
 		int  major,
 		int  minor)
 {
-	const char* glsl = _gfx_shader_get_glsl(major, minor);
+	const char *glsl = _gfx_shader_get_glsl(major, minor);
 	if(!glsl)
 	{
 		gfx_errors_push(
@@ -160,16 +160,16 @@ static const char* _gfx_shader_eval_glsl(
 /******************************************************/
 static const char* _gfx_shader_find(
 
-		const char*  haystack,
-		const char*  needle,
+		const char  *haystack,
+		const char  *needle,
 		size_t       len)
 {
 	size_t s;
 	for(s = len; len; s = --len)
 	{
 		/* Test current position */
-		const char* h = haystack;
-		const char* n = needle;
+		const char *h = haystack;
+		const char *n = needle;
 
 		while(s-- && *n)
 			if(*(n++) != *(h++)) break;
@@ -189,8 +189,8 @@ static char* _gfx_shader_parse(
 		GFXShaderStage  stage,
 		size_t          num,
 		const char**    src,
-		const int*      lens,
-		GLint*          len,
+		const int      *lens,
+		GLint          *len,
 		GFX_CONT_ARG)
 {
 	/* Say what now? */
@@ -210,7 +210,7 @@ static char* _gfx_shader_parse(
 	}
 
 	/* Attempt to find version */
-	const char* verStr = NULL;
+	const char *verStr = NULL;
 	size_t ver = 0;
 
 	for(ver = 0; ver < num; ++ver)
@@ -235,14 +235,14 @@ static char* _gfx_shader_parse(
 		GFX_CONT_GET.ext[GFX_EXT_PROGRAM_MAP] &&
 		stage == GFX_VERTEX_SHADER;
 
-	const char* outStr =
+	const char *outStr =
 		"out vec4 gl_Position;";
 
 	/* Firstly recalculate total length */
 	if(ver >= num) total += strlen(verStr);
 	if(hasOut) total += strlen(outStr);
 
-	char* shader = malloc(total);
+	char *shader = malloc(total);
 	if(!shader) return NULL;
 
 	*len = total;
@@ -309,10 +309,10 @@ static char* _gfx_shader_parse(
 /******************************************************/
 static void _gfx_shader_obj_free(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Shader* shader = (GFX_Shader*)object;
+	GFX_Shader *shader = (GFX_Shader*)object;
 
 	shader->id = id;
 	shader->shader.compiled = 0;
@@ -322,10 +322,10 @@ static void _gfx_shader_obj_free(
 /******************************************************/
 static void _gfx_shader_obj_save_restore(
 
-		void*               object,
+		void               *object,
 		GFX_RenderObjectID  id)
 {
-	GFX_Shader* shader = (GFX_Shader*)object;
+	GFX_Shader *shader = (GFX_Shader*)object;
 	shader->id = id;
 }
 
@@ -341,13 +341,13 @@ static GFX_RenderObjectFuncs _gfx_shader_obj_funcs =
 /******************************************************/
 GLuint _gfx_gl_shader_get_handle(
 
-		const GFXShader* shader)
+		const GFXShader *shader)
 {
 	return ((const GFX_Shader*)shader)->handle;
 }
 
 /******************************************************/
-GFXShader* gfx_shader_create(
+GFXShader *gfx_shader_create(
 
 		GFXShaderStage stage)
 {
@@ -357,7 +357,7 @@ GFXShader* gfx_shader_create(
 		return NULL;
 
 	/* Create new shader */
-	GFX_Shader* shader = calloc(1, sizeof(GFX_Shader));
+	GFX_Shader *shader = calloc(1, sizeof(GFX_Shader));
 	if(!shader)
 	{
 		/* Out of memory error */
@@ -391,13 +391,13 @@ GFXShader* gfx_shader_create(
 /******************************************************/
 void gfx_shader_free(
 
-		GFXShader* shader)
+		GFXShader *shader)
 {
 	if(shader)
 	{
 		GFX_CONT_INIT_UNSAFE;
 
-		GFX_Shader* internal = (GFX_Shader*)shader;
+		GFX_Shader *internal = (GFX_Shader*)shader;
 
 		/* Unregister as object */
 		_gfx_render_object_unregister(internal->id);
@@ -413,16 +413,16 @@ void gfx_shader_free(
 /******************************************************/
 int gfx_shader_set_source(
 
-		GFXShader*    shader,
+		GFXShader    *shader,
 		size_t        num,
 		const char**  src,
-		const int*    lens)
+		const int    *lens)
 {
 	GFX_CONT_INIT(0);
 
 	/* Parse source */
 	GLint len;
-	char* source = _gfx_shader_parse(
+	char *source = _gfx_shader_parse(
 		shader->stage,
 		num,
 		src,
@@ -448,14 +448,14 @@ int gfx_shader_set_source(
 }
 
 /******************************************************/
-char* gfx_shader_get_source(
+char *gfx_shader_get_source(
 
-		const GFXShader*  shader,
-		size_t*           length)
+		const GFXShader  *shader,
+		size_t           *length)
 {
 	GFX_CONT_INIT((*length = 0, NULL));
 
-	const GFX_Shader* internal = (const GFX_Shader*)shader;
+	const GFX_Shader *internal = (const GFX_Shader*)shader;
 
 	/* Get source length */
 	GLint len;
@@ -472,7 +472,7 @@ char* gfx_shader_get_source(
 	}
 
 	/* Get actual source */
-	char* buff = malloc(len);
+	char *buff = malloc(len);
 	GFX_REND_GET.GetShaderSource(
 		internal->handle,
 		len,
@@ -488,14 +488,14 @@ char* gfx_shader_get_source(
 /******************************************************/
 int gfx_shader_compile(
 
-		GFXShader* shader)
+		GFXShader *shader)
 {
 	/* Already compiled */
 	if(!shader->compiled)
 	{
 		GFX_CONT_INIT(0);
 
-		GFX_Shader* internal = (GFX_Shader*)shader;
+		GFX_Shader *internal = (GFX_Shader*)shader;
 
 		/* Try to compile */
 		GLint status;

@@ -29,7 +29,7 @@ extern "C" {
  *******************************************************/
 
 /** Vector iterator */
-typedef void* GFXVectorIterator;
+typedef void *GFXVectorIterator;
 
 
 /** Vector */
@@ -50,7 +50,7 @@ typedef struct GFXVector
  * @return NULL on failure.
  *
  */
-GFX_API GFXVector* gfx_vector_create(
+GFX_API GFXVector *gfx_vector_create(
 
 		size_t elementSize);
 
@@ -62,11 +62,11 @@ GFX_API GFXVector* gfx_vector_create(
  * @return NULL on failure.
  *
  */
-GFX_API GFXVector* gfx_vector_create_from_buffer(
+GFX_API GFXVector *gfx_vector_create_from_buffer(
 
 		size_t       elementSize,
 		size_t       numElements,
-		const void*  buff);
+		const void  *buff);
 
 /**
  * Creates a copy of a vector.
@@ -74,9 +74,9 @@ GFX_API GFXVector* gfx_vector_create_from_buffer(
  * @return NULL on failure.
  *
  */
-GFX_API GFXVector* gfx_vector_create_copy(
+GFX_API GFXVector *gfx_vector_create_copy(
 
-		const GFXVector* src);
+		const GFXVector *src);
 
 /**
  * Makes sure the vector is freed properly.
@@ -84,7 +84,7 @@ GFX_API GFXVector* gfx_vector_create_copy(
  */
 GFX_API void gfx_vector_free(
 
-		GFXVector* vector);
+		GFXVector *vector);
 
 /**
  * Initializes a vector.
@@ -92,7 +92,7 @@ GFX_API void gfx_vector_free(
  */
 GFX_API void gfx_vector_init(
 
-		GFXVector*  vector,
+		GFXVector  *vector,
 		size_t      elementSize);
 
 /**
@@ -104,10 +104,10 @@ GFX_API void gfx_vector_init(
  */
 GFX_API void gfx_vector_init_from_buffer(
 
-		GFXVector*   vector,
+		GFXVector   *vector,
 		size_t       elementSize,
 		size_t       numElements,
-		const void*  buff);
+		const void  *buff);
 
 /**
  * Initializes a copy of a vector.
@@ -115,8 +115,8 @@ GFX_API void gfx_vector_init_from_buffer(
  */
 GFX_API void gfx_vector_init_copy(
 
-		GFXVector*        vector,
-		const GFXVector*  src);
+		GFXVector        *vector,
+		const GFXVector  *src);
 
 /**
  * Clears the content of a vector.
@@ -124,7 +124,7 @@ GFX_API void gfx_vector_init_copy(
  */
 GFX_API void gfx_vector_clear(
 
-		GFXVector* vector);
+		GFXVector *vector);
 
 /**
  * Requests a minimum capacity, which will hold as long as nothing is erased.
@@ -134,7 +134,7 @@ GFX_API void gfx_vector_clear(
  */
 GFX_API int gfx_vector_reserve(
 
-		GFXVector*  vector,
+		GFXVector  *vector,
 		size_t      numElements);
 
 /**
@@ -146,8 +146,8 @@ GFX_API int gfx_vector_reserve(
  */
 GFX_API GFXVectorIterator gfx_vector_insert(
 
-		GFXVector*         vector,
-		const void*        element,
+		GFXVector         *vector,
+		const void        *element,
 		GFXVectorIterator  pos);
 
 /**
@@ -160,7 +160,7 @@ GFX_API GFXVectorIterator gfx_vector_insert(
  */
 GFX_API GFXVectorIterator gfx_vector_insert_range(
 
-		GFXVector*               vector,
+		GFXVector               *vector,
 		size_t                   num,
 		const GFXVectorIterator  start,
 		GFXVectorIterator        pos);
@@ -175,7 +175,7 @@ GFX_API GFXVectorIterator gfx_vector_insert_range(
  */
 GFX_API GFXVectorIterator gfx_vector_erase_range(
 
-		GFXVector*         vector,
+		GFXVector         *vector,
 		size_t             num,
 		GFXVectorIterator  start);
 
@@ -185,7 +185,7 @@ GFX_API GFXVectorIterator gfx_vector_erase_range(
  */
 static GFX_ALWAYS_INLINE size_t gfx_vector_get_byte_size(
 
-		const GFXVector* vector)
+		const GFXVector *vector)
 {
 	return GFX_PTR_DIFF(vector->begin, vector->end);
 }
@@ -196,7 +196,7 @@ static GFX_ALWAYS_INLINE size_t gfx_vector_get_byte_size(
  */
 static GFX_ALWAYS_INLINE size_t gfx_vector_get_size(
 
-		const GFXVector* vector)
+		const GFXVector *vector)
 {
 	return GFX_PTR_DIFF(vector->begin, vector->end) / vector->elementSize;
 }
@@ -207,7 +207,7 @@ static GFX_ALWAYS_INLINE size_t gfx_vector_get_size(
  */
 static GFX_ALWAYS_INLINE size_t gfx_vector_get_index(
 
-		const GFXVector*         vector,
+		const GFXVector         *vector,
 		const GFXVectorIterator  it)
 {
 	return GFX_PTR_DIFF(vector->begin, it) / vector->elementSize;
@@ -221,7 +221,7 @@ static GFX_ALWAYS_INLINE size_t gfx_vector_get_index(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_at(
 
-		const GFXVector*  vector,
+		const GFXVector  *vector,
 		size_t            index)
 {
 	return GFX_PTR_ADD_BYTES(vector->begin, index * vector->elementSize);
@@ -233,7 +233,7 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_at(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_next(
 
-		const GFXVector*         vector,
+		const GFXVector         *vector,
 		const GFXVectorIterator  it)
 {
 	return GFX_PTR_ADD_BYTES(it, vector->elementSize);
@@ -245,7 +245,7 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_next(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_previous(
 
-		const GFXVector*         vector,
+		const GFXVector         *vector,
 		const GFXVectorIterator  it)
 {
 	return GFX_PTR_SUB_BYTES(it, vector->elementSize);
@@ -257,7 +257,7 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_previous(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_advance(
 
-		const GFXVector*         vector,
+		const GFXVector         *vector,
 		const GFXVectorIterator  it,
 		int                      num)
 {
@@ -273,8 +273,8 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_advance(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_insert_at(
 
-		GFXVector*   vector,
-		const void*  element,
+		GFXVector   *vector,
+		const void  *element,
 		size_t       index)
 {
 	return gfx_vector_insert(vector, element, gfx_vector_at(vector, index));
@@ -290,7 +290,7 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_insert_at(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_insert_range_at(
 
-		GFXVector*               vector,
+		GFXVector               *vector,
 		size_t                   num,
 		const GFXVectorIterator  start,
 		size_t                   index)
@@ -306,7 +306,7 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_insert_range_at(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_erase(
 
-		GFXVector*         vector,
+		GFXVector         *vector,
 		GFXVectorIterator  pos)
 {
 	return gfx_vector_erase_range(vector, 1, pos);
@@ -320,7 +320,7 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_erase(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_erase_at(
 
-		GFXVector*  vector,
+		GFXVector  *vector,
 		size_t      index)
 {
 	return gfx_vector_erase_range(vector, 1, gfx_vector_at(vector, index));
@@ -335,7 +335,7 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_erase_at(
  */
 static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_erase_range_at(
 
-		GFXVector*  vector,
+		GFXVector  *vector,
 		size_t      num,
 		size_t      index)
 {

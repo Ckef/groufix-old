@@ -72,7 +72,7 @@ typedef enum GFXErrorMode
 typedef struct GFXError
 {
 	GFXErrorCode  code;
-	const char*   description; /* Can be NULL */
+	const char   *description; /* Can be NULL */
 
 } GFXError;
 
@@ -97,7 +97,7 @@ GFX_API unsigned int gfx_get_num_errors(void);
  */
 GFX_API int gfx_errors_peek(
 
-		GFXError* error);
+		GFXError *error);
 
 /**
  * Find a specific error code.
@@ -134,7 +134,7 @@ GFX_API void gfx_errors_pop(void);
 GFX_API void gfx_errors_push(
 
 		GFXErrorCode  code,
-		const char*   description,
+		const char   *description,
 		...);
 
 /**
