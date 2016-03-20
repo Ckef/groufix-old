@@ -104,11 +104,11 @@ typedef void* GFX_RenderObjectIDArg;
 
 
 /** Render object destruct operator */
-typedef void (*GFX_RenderObjectDestructFunc) (GFX_RenderObjectIDArg*);
+typedef void (*GFX_RenderObjectDestructFunc) (GFX_RenderObjectIDArg);
 
 
 /** Render object transfer operator */
-typedef void (*GFX_RenderObjectTransferFunc) (GFX_RenderObjectIDArg*, void**, int);
+typedef void (*GFX_RenderObjectTransferFunc) (GFX_RenderObjectIDArg, void**, int);
 
 
 /** Operator vtable */
@@ -407,12 +407,6 @@ void _gfx_context_make_current(
  *
  */
 GFX_Context* _gfx_context_get_current(void);
-
-/**
- * Swaps the internal buffers of the current context.
- *
- */
-void _gfx_context_swap_buffers(void);
 
 
 #endif // GFX_CORE_RENDERER_H

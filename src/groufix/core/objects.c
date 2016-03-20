@@ -182,7 +182,7 @@ static void _gfx_render_object_id_deref(
 			id->refs.id = 0;
 
 			/* This was the last, call the destruct callback */
-			id->funcs->destruct((GFX_RenderObjectIDArg*)id);
+			id->funcs->destruct((GFX_RenderObjectIDArg)id);
 		}
 	}
 }
@@ -275,7 +275,7 @@ void _gfx_render_objects_prepare(
 				src);
 
 			id->funcs->prepare(
-				(GFX_RenderObjectIDArg*)id,
+				(GFX_RenderObjectIDArg)id,
 				&temp->storage,
 				shared);
 		}
@@ -306,7 +306,7 @@ void _gfx_render_objects_transfer(
 			dest);
 
 		it->id->funcs->transfer(
-			(GFX_RenderObjectIDArg*)it->id,
+			(GFX_RenderObjectIDArg)it->id,
 			&it->storage,
 			shared);
 	}

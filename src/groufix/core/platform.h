@@ -32,21 +32,13 @@
 #endif
 
 
-/* Whether the platform is thread affine or safe */
+/* Whether the platform is thread affine */
 #if defined(GFX_OSX)
 	#define GFX_PLATFORM_THREAD_AFFINE 1
 #elif defined(GFX_UNIX)
 	#define GFX_PLATFORM_THREAD_AFFINE 0
 #elif defined(GFX_WIN32)
 	#define GFX_PLATFORM_THREAD_AFFINE 1
-#endif
-
-#if defined(GFX_OSX)
-	#define GFX_PLATFORM_THREAD_SAFE 0
-#elif defined(GFX_UNIX)
-	#define GFX_PLATFORM_THREAD_SAFE 0
-#elif defined(GFX_WIN32)
-	#define GFX_PLATFORM_THREAD_SAFE 0
 #endif
 
 
@@ -407,8 +399,6 @@ int _gfx_platform_context_set_swap_interval(
 
 /**
  * Swaps the internal buffers of the window's context.
- *
- * This function is required to NOT be thread affine.
  *
  */
 void _gfx_platform_context_swap_buffers(

@@ -4,13 +4,13 @@ Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in 
 
 Supported targets and their APIs:
 
-* __Unix__, Xlib / OGL, (_working_ / _[GCC](https://gcc.gnu.org/)_)
+* __Unix__, Xlib / OGL, (_working_ / [GCC](https://gcc.gnu.org/))
 
-* __Windows__, Win32 (7+) / OGL, (_working_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)
+* __Windows__, Win32 (7+) / OGL, (_working_ / [MinGW-w64](http://mingw-w64.sourceforge.net/))
 
-* __Unix__, Xlib / Vulkan, (_planned_ / _[GCC](https://gcc.gnu.org/)_)
+* __Unix__, Xlib / Vulkan, (_planned_ / [GCC](https://gcc.gnu.org/))
 
-* __Windows__, Win32 (7+) / Vulkan, (_planned_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)
+* __Windows__, Win32 (7+) / Vulkan, (_planned_ / [MinGW-w64](http://mingw-w64.sourceforge.net/))
 
 * __Android__, NDK / OGL ES, (_considered_)
 
@@ -18,7 +18,7 @@ Supported targets and their APIs:
 
 * __OS X__, Cocoa / Vulkan, (_considered_)
 
-* __Windows__, Win32 (7+) / D3D, (_considered_ / _[MinGW-w64](http://mingw-w64.sourceforge.net/)_)
+* __Windows__, Win32 (7+) / D3D, (_considered_ / [MinGW-w64](http://mingw-w64.sourceforge.net/))
 
 The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 
@@ -80,8 +80,8 @@ After the engine is terminated, any call to Groufix is considered undefined beha
 
 ## Acknowledgements
 
-* Francis Edward Wharf
-* Grace Fu
-* Martin Dørum Nygaard
-* Michael Andrews
-* Structinf
+* [Francis Edward Wharf](https://github.com/Xeom)
+* [Grace Fu](http://github.com/thomastanck)
+* [Martin Dørum Nygaard](https://github.com/mortie)
+* [Michael Andrews](https://github.com/andrewsmike)
+* [Structinf](https://github.com/xdot)

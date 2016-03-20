@@ -222,7 +222,7 @@ void gfx_errors_output(
 	va_list vl;
 	va_start(vl, description);
 
-	fprintf(stderr, description, vl);
+	vfprintf(stderr, description, vl);
 
 	va_end(vl);
 

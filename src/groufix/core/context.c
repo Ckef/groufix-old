@@ -13,7 +13,6 @@
  */
 
 #include "groufix/core/internal.h"
-#include "groufix/core/threading.h"
 
 #include <stdlib.h>
 
@@ -22,24 +21,16 @@
 static GFX_PlatformKey _gfx_current_context;
 
 
-/** Dummy context (backup) */
-static GFX_Context* _gfx_dummy_context = NULL;
-
-
-/** Main context */
-static GFX_Context* _gfx_main_context = NULL;
-
-
 /** Created contexts */
 static GFXVector _gfx_contexts;
 
 
-/** Total number of living (non-zombie) contexts */
-static unsigned int _gfx_alive_contexts = 0;
-
-
 /** Number of on-screen contexts */
 static unsigned int _gfx_public_contexts = 0;
+
+
+/** Dummy context for the main thread */
+static GFX_Context* _gfx_dummy_context = NULL;
 
 
 /** Requested context request */
@@ -51,14 +42,6 @@ static GFXContext _gfx_version =
 
 
 /******************************************************/
-static inline int _gfx_context_is_zombie(
-
-		const GFX_Context* context)
-{
-	return !context->handle && !context->context;
-}
-
-/******************************************************/
 static GFX_PlatformContext _gfx_context_create_platform(
 
 		GFX_PlatformWindow*  window,
@@ -67,11 +50,13 @@ static GFX_PlatformContext _gfx_context_create_platform(
 {
 	int debug = _gfx_errors_get_mode() == GFX_ERROR_MODE_DEBUG;
 
-	/* Get the main context to share with (as all contexts will share everything) */
+	/* Get current context to share with (as all sharable contexts will share) */
 	GFX_PlatformContext share = NULL;
-	if(_gfx_main_context) share = _gfx_main_context->context;
 
-	/* Get maximum context */
+	GFX_Context* shareCont = _gfx_platform_key_get(_gfx_current_context);
+	if(shareCont) share = shareCont->context;
+
+	/* Get maximum context version */
 	GFXContext max =
 	{
 		.major = GFX_CONTEXT_MAJOR_MAX,
@@ -89,10 +74,18 @@ static GFX_PlatformContext _gfx_context_create_platform(
 		GFX_PlatformContext cont;
 
 		if(*window) cont = _gfx_platform_context_init(
-			*window, max.major, max.minor, share, debug);
+			*window,
+			max.major,
+			max.minor,
+			share,
+			debug);
 
 		else cont = _gfx_platform_context_create(
-			&wind, max.major, max.minor, share, debug);
+			&wind,
+			max.major,
+			max.minor,
+			share,
+			debug);
 
 		if(cont)
 		{
@@ -112,10 +105,12 @@ static GFX_PlatformContext _gfx_context_create_platform(
 		else --max.minor;
 	}
 
-	/* Nope. */
+	/* Nope */
 	gfx_errors_push(
 		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"The requested OpenGL Context version could not be created."
+		"The requested minimal context version %i.%i could not be created.",
+		_gfx_version.major,
+		_gfx_version.minor
 	);
 
 	return NULL;
@@ -158,9 +153,8 @@ static GFX_Context* _gfx_context_create_internal(
 	if(!context)
 	{
 		/* Out of memory error */
-		gfx_errors_push(
-			GFX_ERROR_OUT_OF_MEMORY,
-			"Context could not be allocated."
+		gfx_errors_output(
+			"[GFX Out Of Memory]: Context could not be allocated."
 		);
 		return NULL;
 	}
@@ -199,11 +193,9 @@ static GFX_Context* _gfx_context_create_internal(
 
 	if(context->context)
 	{
-		/* Up alive contexts so the renderer can make use of it */
-		++_gfx_alive_contexts;
+		/* Load renderer and initialize state */
 		_gfx_context_make_current(context);
 
-		/* Load renderer and initialize state */
 		_gfx_renderer_load();
 		_gfx_states_set_default(&context->state);
 		_gfx_states_force_set(&context->state, GFX_CONT_INT_AS_ARG(context));
@@ -215,14 +207,13 @@ static GFX_Context* _gfx_context_create_internal(
 		if(_gfx_pipe_process_prepare())
 		{
 			/* And finally initialize the render object container */
-			_gfx_render_objects_init(&context->objects);
-
-			return context;
+			if(_gfx_render_objects_init(&context->objects))
+				return context;
 		}
 
 		/* Nevermind */
+		_gfx_pipe_process_unprepare(1);
 		_gfx_renderer_unload();
-		--_gfx_alive_contexts;
 	}
 
 	/* Destroy window or context */
@@ -290,6 +281,24 @@ static void _gfx_context_erase(
 }
 
 /******************************************************/
+GFX_Context* _gfx_context_get_from_handle(
+
+		GFX_PlatformWindow handle)
+{
+	GFX_Context** it;
+	for(
+		it = _gfx_contexts.begin;
+		it != _gfx_contexts.end;
+		it = gfx_vector_next(&_gfx_contexts, it))
+	{
+		if((*it)->handle == handle)
+			return (*it)->offscreen ? NULL : *it;
+	}
+
+	return NULL;
+}
+
+/******************************************************/
 int _gfx_context_manager_init(
 
 		GFXContext version)
@@ -298,36 +307,34 @@ int _gfx_context_manager_init(
 	if(!_gfx_platform_key_init(&_gfx_current_context))
 		return 0;
 
-	if(!_gfx_main_context)
+	/* Get minimal context */
+	if(version.major < GFX_CONTEXT_MAJOR_MIN)
 	{
-		/* Get minimal context */
-		if(version.major < GFX_CONTEXT_MAJOR_MIN)
-		{
-			version.major = GFX_CONTEXT_MAJOR_MIN;
-			version.minor = GFX_CONTEXT_MINOR_MIN;
-		}
-		else if(
-			version.minor < GFX_CONTEXT_MINOR_MIN &&
-			version.major == GFX_CONTEXT_MAJOR_MIN)
-		{
-			version.minor = GFX_CONTEXT_MINOR_MIN;
-		}
-
-		_gfx_version = version;
-
-		/* Create dummy context */
-		_gfx_dummy_context = _gfx_context_create_internal(NULL);
-		if(!_gfx_dummy_context)
-		{
-			_gfx_platform_key_clear(_gfx_current_context);
-			return 0;
-		}
-
-		_gfx_main_context = _gfx_dummy_context;
+		version.major = GFX_CONTEXT_MAJOR_MIN;
+		version.minor = GFX_CONTEXT_MINOR_MIN;
 	}
+	else if(
+		version.minor < GFX_CONTEXT_MINOR_MIN &&
+		version.major == GFX_CONTEXT_MAJOR_MIN)
+	{
+		version.minor = GFX_CONTEXT_MINOR_MIN;
+	}
+
+	_gfx_version = version;
 
 	/* Initialize context storage */
 	gfx_vector_init(&_gfx_contexts, sizeof(GFX_Context*));
+
+	/* Create dummy context */
+	_gfx_dummy_context = _gfx_context_create_internal(NULL);
+
+	if(!_gfx_dummy_context)
+	{
+		gfx_vector_clear(&_gfx_contexts);
+		_gfx_platform_key_clear(_gfx_current_context);
+
+		return 0;
+	}
 
 	return 1;
 }
@@ -336,25 +343,26 @@ int _gfx_context_manager_init(
 void _gfx_context_manager_terminate(void)
 {
 	/* Destroy all contexts */
-	while(_gfx_contexts.begin != _gfx_contexts.end)
-		_gfx_context_destroy(*(GFX_Context**)_gfx_contexts.begin);
+	while(_gfx_contexts.begin != _gfx_contexts.end) _gfx_context_destroy(
+		*(GFX_Context**)gfx_vector_previous(&_gfx_contexts, _gfx_contexts.end));
 
 	/* Free dummy context */
 	gfx_window_free((GFXWindow*)_gfx_dummy_context);
 	_gfx_dummy_context = NULL;
 
-	_gfx_platform_key_clear(_gfx_current_context);
 	gfx_vector_clear(&_gfx_contexts);
+	_gfx_platform_key_clear(_gfx_current_context);
 }
 
 /******************************************************/
 GFX_Context* _gfx_context_create(void)
 {
 	/* Create the context */
+	/* Make sure to keep the correct context current */
+	GFX_Context* curr = _gfx_platform_key_get(_gfx_current_context);
 	GFX_Context* context = _gfx_context_create_internal(NULL);
+	_gfx_context_make_current(curr);
 
-	/* Make main context current again */
-	_gfx_context_make_current(_gfx_main_context);
 	if(!context) return NULL;
 
 	/* Insert the context */
@@ -372,39 +380,38 @@ void _gfx_context_destroy(
 
 		GFX_Context* context)
 {
-	if(_gfx_context_is_zombie(context)) return;
+	if(!context->context) return;
 
-	/* Find a new main context */
+	/* Find a new context for the main thread */
 	_gfx_context_erase(context);
+	GFX_Context* curr = _gfx_platform_key_get(_gfx_current_context);
 
-	if(_gfx_main_context == context)
+	if(curr == context)
 	{
 		if(_gfx_public_contexts)
-			_gfx_main_context = *(GFX_Context**)_gfx_contexts.begin;
+			curr = *(GFX_Context**)_gfx_contexts.begin;
 
 		else if(context != _gfx_dummy_context)
 		{
-			/* Recreate the dummy context if necessary */
 			if(!_gfx_dummy_context)
 				_gfx_dummy_context = _gfx_context_create_internal(NULL);
 
-			_gfx_main_context = _gfx_dummy_context;
+			curr = _gfx_dummy_context;
 		}
 
-		else _gfx_main_context = NULL;
+		else curr = NULL;
 	}
 
+	/* Get if this is the last context */
+	int last = !curr && _gfx_contexts.begin == _gfx_contexts.end;
+
 	/* First unprepare */
-	/* let the processes free their resources */
+	/* Let the processes free their resources */
 	_gfx_context_make_current(context);
-	_gfx_pipe_process_unprepare(_gfx_main_context ? 0 : 1);
+	_gfx_pipe_process_unprepare(last);
 
-	/* Save or free objects & unload */
-	if(_gfx_main_context)
-		_gfx_render_objects_save(&context->objects);
-	else
-		_gfx_render_objects_free(&context->objects);
-
+	/* Prepare for transfer and unload */
+	if(curr) _gfx_render_objects_prepare(&context->objects, 1);
 	_gfx_renderer_unload();
 
 	/* Braaaaaaains! */
@@ -416,16 +423,12 @@ void _gfx_context_destroy(
 	context->handle = NULL;
 	context->context = NULL;
 
-	/* Make main active again and restore objects */
-	if(--_gfx_alive_contexts)
-	{
-		_gfx_context_make_current(_gfx_main_context);
+	/* Make corrext current again */
+	/* Also transfer all objects */
+	_gfx_context_make_current(curr);
 
-		if(_gfx_main_context) _gfx_render_objects_restore(
-			&context->objects,
-			&_gfx_main_context->objects
-		);
-	}
+	if(curr) _gfx_render_objects_transfer(&context->objects, &curr->objects, 1);
+	_gfx_render_objects_clear(&context->objects);
 }
 
 /******************************************************/
@@ -454,34 +457,6 @@ void _gfx_context_make_current(
 GFX_Context* _gfx_context_get_current(void)
 {
 	return _gfx_platform_key_get(_gfx_current_context);
-}
-
-/******************************************************/
-void _gfx_context_swap_buffers(void)
-{
-	GFX_Context* context =
-		_gfx_platform_key_get(_gfx_current_context);
-
-	if(context)
-		_gfx_platform_context_swap_buffers(context->handle);
-}
-
-/******************************************************/
-GFX_Context* _gfx_context_get_from_handle(
-
-		GFX_PlatformWindow handle)
-{
-	GFX_Context** it;
-	for(
-		it = _gfx_contexts.begin;
-		it != _gfx_contexts.end;
-		it = gfx_vector_next(&_gfx_contexts, it))
-	{
-		if((*it)->handle == handle)
-			return (*it)->offscreen ? NULL : *it;
-	}
-
-	return NULL;
 }
 
 /******************************************************/
@@ -526,6 +501,7 @@ GFXWindow* gfx_window_create(
 		.h       = h
 	};
 
+	GFX_Context* curr = _gfx_platform_key_get(_gfx_current_context);
 	GFX_Context* context = _gfx_context_create_internal(&attr);
 
 	if(context)
@@ -534,10 +510,7 @@ GFXWindow* gfx_window_create(
 		if(_gfx_context_insert(context))
 		{
 			/* Destroy dummy context */
-			if(!_gfx_dummy_context)
-				_gfx_context_make_current(_gfx_main_context);
-
-			else
+			if(_gfx_dummy_context)
 			{
 				gfx_window_free((GFXWindow*)_gfx_dummy_context);
 				_gfx_dummy_context = NULL;
@@ -550,8 +523,8 @@ GFXWindow* gfx_window_create(
 		gfx_window_free((GFXWindow*)context);
 	}
 
-	/* Make main context current again */
-	_gfx_context_make_current(_gfx_main_context);
+	/* Make correct context current again */
+	_gfx_context_make_current(curr);
 
 	return NULL;
 }
@@ -567,7 +540,7 @@ GFXWindow* gfx_window_recreate(
 {
 	/* Check if zombie context */
 	GFX_Context* context = (GFX_Context*)window;
-	if(_gfx_context_is_zombie(context) || context->offscreen)
+	if(!context->context || context->offscreen)
 		return NULL;
 
 	/* Get window properties */
@@ -632,8 +605,6 @@ void gfx_window_free(
 	if(window)
 	{
 		_gfx_context_destroy((GFX_Context*)window);
-		_gfx_render_objects_clear(&((GFX_Context*)window)->objects);
-
 		free(window);
 	}
 }
@@ -653,7 +624,7 @@ GFXMonitor gfx_window_get_monitor(
 		const GFXWindow* window)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(_gfx_context_is_zombie(context) || context->offscreen)
+	if(!context->context || context->offscreen)
 		return NULL;
 
 	return (GFXMonitor)_gfx_platform_window_get_monitor(context->handle);
@@ -665,7 +636,7 @@ char* gfx_window_get_name(
 		const GFXWindow* window)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(_gfx_context_is_zombie(context) || context->offscreen)
+	if(!context->context || context->offscreen)
 		return NULL;
 
 	return _gfx_platform_window_get_name(context->handle);
@@ -679,12 +650,20 @@ void gfx_window_get_size(
 		unsigned int*     height)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(!_gfx_context_is_zombie(context) && !context->offscreen)
+
+	if(context->context && !context->offscreen)
+	{
 		_gfx_platform_window_get_size(
 			context->handle,
 			width,
 			height
 		);
+	}
+	else
+	{
+		*width = 0;
+		*height = 0;
+	}
 }
 
 /******************************************************/
@@ -695,12 +674,20 @@ void gfx_window_get_position(
 		int*              y)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(!_gfx_context_is_zombie(context) && !context->offscreen)
+
+	if(context->context && !context->offscreen)
+	{
 		_gfx_platform_window_get_position(
 			context->handle,
 			x,
 			y
 		);
+	}
+	else
+	{
+		*x = 0;
+		*y = 0;
+	}
 }
 
 /******************************************************/
@@ -710,7 +697,7 @@ void gfx_window_set_name(
 		const char*       name)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(!_gfx_context_is_zombie(context) && !context->offscreen)
+	if(context->context && !context->offscreen)
 		_gfx_platform_window_set_name(
 			context->handle,
 			name
@@ -725,7 +712,7 @@ void gfx_window_set_size(
 		unsigned int      height)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(!_gfx_context_is_zombie(context) && !context->offscreen)
+	if(context->context && !context->offscreen)
 		_gfx_platform_window_set_size(
 			context->handle,
 			width,
@@ -741,7 +728,7 @@ void gfx_window_set_position(
 		int               y)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(!_gfx_context_is_zombie(context) && !context->offscreen)
+	if(context->context && !context->offscreen)
 		_gfx_platform_window_set_position(
 			context->handle,
 			x,
@@ -755,7 +742,7 @@ void gfx_window_show(
 		const GFXWindow* window)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(!_gfx_context_is_zombie(context) && !context->offscreen)
+	if(context->context && !context->offscreen)
 		_gfx_platform_window_show(context->handle);
 }
 
@@ -765,7 +752,7 @@ void gfx_window_hide(
 		const GFXWindow* window)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(!_gfx_context_is_zombie(context) && !context->offscreen)
+	if(context->context && !context->offscreen)
 		_gfx_platform_window_hide(context->handle);
 }
 
@@ -776,12 +763,8 @@ int gfx_window_set_swap_interval(
 		int               num)
 {
 	const GFX_Context* context = (GFX_Context*)window;
-	if(!_gfx_context_is_zombie(context) && !context->offscreen)
-	{
-		/* Make sure the main context is current afterwards */
+	if(context->context && !context->offscreen)
 		num = _gfx_platform_context_set_swap_interval(context->handle, num);
-		_gfx_context_make_current(_gfx_main_context);
-	}
 
 	return num;
 }

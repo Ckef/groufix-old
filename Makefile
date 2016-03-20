@@ -68,9 +68,15 @@ OBJFLAGS_WIN32    = $(OBJFLAGS) $(CFLAGS_WIN32) -DWINVER=0x0601 -D_WIN32_WINNT=0
 
 
 # Linker flags
-LFLAGS          = -shared
-LFLAGS_UNIX_X11 = $(LFLAGS) -pthread -lm -lX11 -lXrandr -lGL
-LFLAGS_WIN32    = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
+LFLAGS = -shared
+
+ifeq ($(RENDERER),GL)
+ LFLAGS_UNIX_X11 = $(LFLAGS) -pthread -lm -lX11 -lXrandr -lGL
+ LFLAGS_WIN32    = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
+else ifeq ($(RENDERER),GLES)
+ LFLAGS_UNIX_X11 = $(LFLAGS) -pthread -lm -lX11 -lXrandr -lGL
+ LFLAGS_WIN32    = $(LFLAGS) -lwinmm -lopengl32 -lgdi32 -static-libgcc
+endif
 
 
 #################################################################
@@ -211,6 +217,7 @@ OBJS = \
  $(OUT)$(SUB)/groufix/containers/list.o \
  $(OUT)$(SUB)/groufix/containers/thread_pool.o \
  $(OUT)$(SUB)/groufix/containers/vector.o \
+ $(OUT)$(SUB)/groufix/core/context.o \
  $(OUT)$(SUB)/groufix/core/errors.o \
  $(OUT)$(SUB)/groufix/core/events.o \
  $(OUT)$(SUB)/groufix/core/objects.o \
