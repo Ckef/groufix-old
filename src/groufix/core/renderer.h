@@ -60,42 +60,6 @@
 
 
 /********************************************************
- * Renderer interface definitions
- *******************************************************/
-
-/** Renderer data */
-typedef struct GFX_Renderer GFX_Renderer;
-
-
-/**
- * Loads the renderer of the current context and sets extension flags and limits.
- *
- * Note: this method may assume the context version is set and
- * the current renderer and relevant context fields are initialized to all 0s.
- *
- */
-void _gfx_renderer_load(void);
-
-/**
- * Unloads and frees the renderer of the current context.
- *
- */
-void _gfx_renderer_unload(void);
-
-/**
- * Allows the renderer to initialize errors for the current context.
- *
- */
-void _gfx_renderer_init_errors(void);
-
-/**
- * Allows the renderer to poll for errors of the current context.
- *
- */
-void _gfx_renderer_poll_errors(void);
-
-
-/********************************************************
  * Generic render object functions
  *******************************************************/
 
@@ -307,6 +271,10 @@ int _gfx_render_object_id_dereference(
  * Internal context data & methods
  *******************************************************/
 
+/** Renderer data */
+typedef struct GFX_Renderer GFX_Renderer;
+
+
 /** Internal generic context */
 typedef struct GFX_Context
 {
@@ -407,6 +375,66 @@ void _gfx_context_make_current(
  *
  */
 GFX_Context* _gfx_context_get_current(void);
+
+
+/********************************************************
+ * Renderer interface
+ *******************************************************/
+
+/**
+ * Loads the renderer of the current context and sets extension flags and limits.
+ *
+ * Note: this method may assume the context version is set and
+ * the current renderer and relevant context fields are initialized to all 0s.
+ *
+ */
+void _gfx_renderer_load(
+
+		GFX_CONT_ARG);
+
+/**
+ * Unloads and frees the renderer of the current context.
+ *
+ */
+void _gfx_renderer_unload(
+
+		GFX_CONT_ARG);
+
+/**
+ * Allows the renderer to initialize errors for the current context.
+ *
+ */
+void _gfx_renderer_init_errors(
+
+		GFX_CONT_ARG);
+
+/**
+ * Allows the renderer to poll for errors of the current context.
+ *
+ */
+void _gfx_renderer_poll_errors(
+
+		GFX_CONT_ARG);
+
+/**
+ * Sets the state of the current context.
+ *
+ */
+void _gfx_renderer_states_set(
+
+		const GFXPipeState* state,
+		GFX_CONT_ARG);
+
+/**
+ * Forces all state fields of the current context.
+ *
+ * This will reset all state fields, regardless of previous states.
+ *
+ */
+void _gfx_renderer_states_force_set(
+
+		const GFXPipeState* state,
+		GFX_CONT_ARG);
 
 
 #endif // GFX_CORE_RENDERER_H

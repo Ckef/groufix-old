@@ -56,10 +56,10 @@ static void APIENTRY _gfx_gl_error_callback(
 }
 
 /******************************************************/
-void _gfx_renderer_init_errors(void)
-{
-	GFX_CONT_INIT();
+void _gfx_renderer_init_errors(
 
+		GFX_CONT_ARG)
+{
 	if(GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT])
 	{
 		GFX_REND_GET.Enable(
@@ -72,10 +72,10 @@ void _gfx_renderer_init_errors(void)
 }
 
 /******************************************************/
-void _gfx_renderer_poll_errors(void)
-{
-	GFX_CONT_INIT();
+void _gfx_renderer_poll_errors(
 
+		GFX_CONT_ARG)
+{
 	/* Loop over all errors */
 	GLenum err = GFX_REND_GET.GetError();
 	while(err != GL_NO_ERROR)

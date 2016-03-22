@@ -37,10 +37,10 @@ static int _gfx_gl_is_extension_supported(
 }
 
 /******************************************************/
-void _gfx_renderer_load(void)
-{
-	GFX_CONT_INIT();
+void _gfx_renderer_load(
 
+		GFX_CONT_ARG)
+{
 	/* Get viewport size */
 	_gfx_platform_window_get_size(
 		GFX_CONT_GET.handle,
@@ -1167,10 +1167,10 @@ void _gfx_renderer_load(void)
 }
 
 /******************************************************/
-void _gfx_renderer_unload(void)
-{
-	GFX_CONT_INIT();
+void _gfx_renderer_unload(
 
+		GFX_CONT_ARG)
+{
 	/* Free binding points */
 	free(GFX_REND_GET.uniformBuffers);
 	free(GFX_REND_GET.textureUnits);

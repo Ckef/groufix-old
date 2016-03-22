@@ -190,6 +190,7 @@ ifeq ($(RENDERER),GL)
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_states.o \
 #  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
@@ -201,6 +202,7 @@ else ifeq ($(RENDERER),GLES)
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_states.o \
 #  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
@@ -221,6 +223,8 @@ OBJS = \
  $(OUT)$(SUB)/groufix/core/errors.o \
  $(OUT)$(SUB)/groufix/core/events.o \
  $(OUT)$(SUB)/groufix/core/objects.o \
+ $(OUT)$(SUB)/groufix/core/states.o \
+ $(OUT)$(SUB)/groufix/core/types.o \
  $(OUT)$(SUB)/groufix/math.o \
  $(OUT)$(SUB)/groufix.o
 # $(OUT)$(SUB)/groufix/containers/deque.o \
@@ -291,7 +295,7 @@ unix-x11:
 	@$(MAKE) $(BIN)/unix-x11/libGroufix.so CC=gcc SUB=/unix-x11
 unix-x11-examples:
 	@$(MAKE) $(BIN)/unix-x11/minimal CC=gcc SUB=/unix-x11
-	@$(MAKE) $(BIN)/unix-x11/simple CC=gcc SUB=/unix-x11
+#	@$(MAKE) $(BIN)/unix-x11/simple CC=gcc SUB=/unix-x11
 
 
 #################################################################
@@ -331,4 +335,4 @@ win32:
 	@$(MAKE) $(BIN)/win32/libGroufix.dll CC=gcc SUB=/win32
 win32-examples:
 	@$(MAKE) $(BIN)/win32/minimal CC=gcc SUB=/win32
-	@$(MAKE) $(BIN)/win32/simple CC=gcc SUB=/win32
+#	@$(MAKE) $(BIN)/win32/simple CC=gcc SUB=/win32

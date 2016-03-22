@@ -61,8 +61,8 @@ void _gfx_event_window_resize(
 	if(window)
 	{
 		/* Resize all processes */
-		_gfx_pipe_process_resize(
-			(GFX_Context*)window, width, height);
+		//_gfx_pipe_process_resize(
+			//(GFX_Context*)window, width, height);
 		if(window->callbacks.windowResize) window->callbacks.windowResize(
 			window, width, height);
 	}

@@ -48,8 +48,10 @@ static GFX_PlatformMutex  _gfx_error_mutex;
 /******************************************************/
 static inline void _gfx_errors_poll(void)
 {
+	GFX_CONT_INIT();
+
 	if(_gfx_error_mode == GFX_ERROR_MODE_DEBUG)
-		_gfx_renderer_poll_errors();
+		_gfx_renderer_poll_errors(GFX_CONT_AS_ARG);
 }
 
 /******************************************************/

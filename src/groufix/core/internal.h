@@ -25,23 +25,18 @@
 
 
 /********************************************************
- * Internal definitions
+ * State management
  *******************************************************/
 
-/** Internal Pipe */
-typedef struct GFX_Pipe
-{
-	/* Super class */
-	GFXList node;
+/**
+ * Sets all values of a state to their defaults.
+ *
+ * @param state Structure who's values will be set to their defaults.
+ *
+ */
+void _gfx_states_set_default(
 
-	GFXPipeType    type;
-	GFXPipe        ptr;  /* Public pointer */
-	GFXPipeState   state;
-
-	/* Associated pipeline */
-	GFXPipeline*   pipeline;
-
-} GFX_Pipe;
+		GFXPipeState* state);
 
 
 /********************************************************
@@ -72,6 +67,64 @@ GFXErrorMode _gfx_errors_get_mode(void);
  *
  */
 void _gfx_errors_terminate(void);
+
+
+/********************************************************
+ * Data & type helpers
+ *******************************************************/
+
+/**
+ * Finds a string in a longer, null-terminated, space-separated string.
+ *
+ * @param haystack Null-terminated, space-separated string to search in (can be NULL).
+ * @param needle   String to find (cannot be NULL).
+ * @return Non-zero if it was found.
+ *
+ */
+int _gfx_contains_string(
+
+		const char*  haystack,
+		const char*  needle);
+
+/**
+ * Unformats a string so it can be passed to any formatted string input without parameters.
+ *
+ * @param str The string to unformat, % will be replaced with %% (cannot be NULL).
+ * @return The unformatted string.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ */
+char* _gfx_unformat_string(
+
+		const char* str);
+
+/**
+ * Splits depth into 3 channels.
+ *
+ */
+void _gfx_split_depth(
+
+		unsigned short   depth,
+		unsigned short*  red,
+		unsigned short*  green,
+		unsigned short*  blue);
+
+/**
+ * Returns 1 if packed data, 0 if unpacked.
+ *
+ */
+int _gfx_is_data_type_packed(
+
+		GFXDataType type);
+
+/**
+ * Returns the size of a data type in bytes.
+ *
+ */
+unsigned char _gfx_sizeof_data_type(
+
+		GFXDataType type);
 
 
 /********************************************************
@@ -266,135 +319,6 @@ void _gfx_event_mouse_wheel(
 
 
 /********************************************************
- * Data & type helpers
- *******************************************************/
-
-/**
- * Finds a string in a longer, null-terminated, space-separated string.
- *
- * @param haystack Null-terminated, space-separated string to search in (can be NULL).
- * @param needle   String to find (cannot be NULL).
- * @return Non-zero if it was found.
- *
- */
-int _gfx_contains_string(
-
-		const char*  haystack,
-		const char*  needle);
-
-/**
- * Unformats a string so it can be passed to any formatted string input without parameters.
- *
- * @param str The string to unformat, % will be replaced with %% (cannot be NULL).
- * @return The unformatted string.
- *
- * If the returned pointer is not NULL, it should be freed manually.
- *
- */
-char* _gfx_unformat_string(
-
-		const char* str);
-
-/**
- * Splits depth into 3 channels.
- *
- */
-void _gfx_split_depth(
-
-		unsigned short   depth,
-		unsigned short*  red,
-		unsigned short*  green,
-		unsigned short*  blue);
-
-/**
- * Returns 1 if packed data, 0 if unpacked.
- *
- */
-int _gfx_is_data_type_packed(
-
-		GFXDataType type);
-
-/**
- * Returns the size of a data type in bytes.
- *
- */
-unsigned char _gfx_sizeof_data_type(
-
-		GFXDataType type);
-
-
-/********************************************************
- * State management
- *******************************************************/
-
-/**
- * Sets all values of a state to their defaults.
- *
- * @param state Structure who's values will be set to their defaults.
- *
- */
-void _gfx_states_set_default(
-
-		GFXPipeState* state);
-
-/**
- * Sets the state of the current context.
- *
- */
-void _gfx_states_set(
-
-		const GFXPipeState* state,
-		GFX_CONT_ARG);
-
-/**
- * Forces all state fields of the current context.
- *
- * This will reset all state fields, regardless of previous states.
- *
- */
-void _gfx_states_force_set(
-
-		const GFXPipeState* state,
-		GFX_CONT_ARG);
-
-/**
- * Sets the viewport size of the current context.
- *
- */
-void _gfx_states_set_viewport(
-
-		GFXViewport viewport,
-		GFX_CONT_ARG);
-
-/**
- * Sets the pixel pack alignment of the current context.
- *
- */
-void _gfx_states_set_pixel_pack_alignment(
-
-		unsigned char align,
-		GFX_CONT_ARG);
-
-/**
- * Sets the pixel unpack alignment of the current context.
- *
- */
-void _gfx_states_set_pixel_unpack_alignment(
-
-		unsigned char align,
-		GFX_CONT_ARG);
-
-/**
- * Sets the number of vertices per patch.
- *
- */
-void _gfx_states_set_patch_vertices(
-
-		unsigned int vertices,
-		GFX_CONT_ARG);
-
-
-/********************************************************
  * Internal vertex layout usage
  *******************************************************/
 
@@ -551,6 +475,22 @@ void _gfx_property_map_use(
 /********************************************************
  * Internal pipe
  *******************************************************/
+
+/** Internal Pipe */
+typedef struct GFX_Pipe
+{
+	/* Super class */
+	GFXList node;
+
+	GFXPipeType    type;
+	GFXPipe        ptr;  /* Public pointer */
+	GFXPipeState   state;
+
+	/* Associated pipeline */
+	GFXPipeline*   pipeline;
+
+} GFX_Pipe;
+
 
 /**
  * Creates a new bucket pipe.

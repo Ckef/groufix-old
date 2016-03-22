@@ -194,26 +194,30 @@ static GFX_Context* _gfx_context_create_internal(
 	if(context->context)
 	{
 		/* Load renderer and initialize state */
-		_gfx_context_make_current(context);
+		_gfx_states_set_default(
+			&context->state);
+		_gfx_context_make_current(
+			context);
 
-		_gfx_renderer_load();
-		_gfx_states_set_default(&context->state);
-		_gfx_states_force_set(&context->state, GFX_CONT_INT_AS_ARG(context));
+		_gfx_renderer_load(
+			GFX_CONT_INT_AS_ARG(context));
+		_gfx_renderer_states_force_set(
+			&context->state, GFX_CONT_INT_AS_ARG(context));
 
 		if(_gfx_errors_get_mode() == GFX_ERROR_MODE_DEBUG)
-			_gfx_renderer_init_errors();
+			_gfx_renderer_init_errors(GFX_CONT_INT_AS_ARG(context));
 
 		/* Try to prepare the context for post processing */
-		if(_gfx_pipe_process_prepare())
-		{
+		//if(_gfx_pipe_process_prepare())
+		//{
 			/* And finally initialize the render object container */
 			if(_gfx_render_objects_init(&context->objects))
 				return context;
-		}
+		//}
 
 		/* Nevermind */
-		_gfx_pipe_process_unprepare(1);
-		_gfx_renderer_unload();
+		//_gfx_pipe_process_unprepare(1);
+		_gfx_renderer_unload(GFX_CONT_INT_AS_ARG(context));
 	}
 
 	/* Destroy window or context */
@@ -403,16 +407,16 @@ void _gfx_context_destroy(
 	}
 
 	/* Get if this is the last context */
-	int last = !curr && _gfx_contexts.begin == _gfx_contexts.end;
+	//int last = !curr && _gfx_contexts.begin == _gfx_contexts.end;
 
 	/* First unprepare */
 	/* Let the processes free their resources */
 	_gfx_context_make_current(context);
-	_gfx_pipe_process_unprepare(last);
+	//_gfx_pipe_process_unprepare(last);
 
 	/* Prepare for transfer and unload */
 	if(curr) _gfx_render_objects_prepare(&context->objects, 1);
-	_gfx_renderer_unload();
+	_gfx_renderer_unload(GFX_CONT_INT_AS_ARG(context));
 
 	/* Braaaaaaains! */
 	if(context->offscreen)
@@ -588,7 +592,7 @@ GFXWindow* gfx_window_recreate(
 
 	/* Retarget the context at processes */
 	_gfx_context_make_current(context);
-	_gfx_pipe_process_retarget((GFX_Context*)new);
+	//_gfx_pipe_process_retarget((GFX_Context*)new);
 
 	/* Now free the old window */
 	/* Don't make something new current as the freeing should take care of that */

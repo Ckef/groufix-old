@@ -110,7 +110,7 @@ void gfx_set_time(
 void gfx_terminate(void)
 {
 	/* Cleanup shared buffers */
-	gfx_shared_buffer_cleanup();
+	//gfx_shared_buffer_cleanup();
 
 	/* Terminate */
 	_gfx_context_manager_terminate();
