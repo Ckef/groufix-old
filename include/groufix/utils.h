@@ -56,7 +56,7 @@
 	#define GFX_ALWAYS_INLINE __forceinline
 
 #else
-	#define GFX_ALWAYS_INLINE static inline
+	#define GFX_ALWAYS_INLINE inline
 #endif
 
 

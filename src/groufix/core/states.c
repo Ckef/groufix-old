@@ -18,7 +18,7 @@
 
 /******************************************************/
 /** Default state blueprint */
-static GFXPipeState _gfx_state_defaults =
+const GFXPipeState _gfx_state_default =
 {
 	.render =
 	{
@@ -57,13 +57,3 @@ static GFXPipeState _gfx_state_defaults =
 		.backMask   = UINT_MAX
 	}
 };
-
-
-/******************************************************/
-void _gfx_states_set_default(
-
-		GFXPipeState* state)
-{
-	/* Just copy over the state defaults */
-	*state = _gfx_state_defaults;
-}

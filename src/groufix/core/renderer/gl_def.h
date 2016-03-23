@@ -432,6 +432,7 @@ struct GFX_Renderer
 
 	/* Viewport & state values */
 	GFXViewport    viewport;
+	GFXPipeState   state;
 	unsigned char  packAlignment;
 	unsigned char  unpackAlignment;
 	unsigned int   patchVertices;

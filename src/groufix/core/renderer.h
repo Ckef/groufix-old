@@ -287,7 +287,6 @@ typedef struct GFX_Context
 
 	/* Hidden data */
 	GFXContext           version;  /* Context version */
-	GFXPipeState         state;
 	char                 offscreen;
 	char                 swap;     /* Non-zero if it makes sense to swap buffers */
 
@@ -428,7 +427,8 @@ void _gfx_renderer_states_set(
 /**
  * Forces all state fields of the current context.
  *
- * This will reset all state fields, regardless of previous states.
+ * This will be the first state call so the implementation does not have to initialize
+ * any state for any state change checks performed in _gfx_renderer_states_set.
  *
  */
 void _gfx_renderer_states_force_set(

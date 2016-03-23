@@ -250,14 +250,11 @@ void _gfx_event_mouse_wheel(
  *******************************************************/
 
 /**
- * Sets all values of a state to their defaults.
- *
- * @param state Structure who's values will be set to their defaults.
+ * The default state used by groufix.
  *
  */
-void _gfx_states_set_default(
+extern const GFXPipeState _gfx_state_default;
 
-		GFXPipeState* state);
 
 /**
  * Finds a string in a longer, null-terminated, space-separated string.
