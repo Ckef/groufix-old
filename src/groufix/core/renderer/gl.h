@@ -19,6 +19,47 @@
 
 
 /********************************************************
+ * State management
+ *******************************************************/
+
+/**
+ * Sets the number of vertices per patch.
+ *
+ */
+void _gfx_gl_states_set_patch_vertices(
+
+		unsigned int vertices,
+		GFX_CONT_ARG);
+
+/**
+ * Sets the pixel pack alignment of the current context.
+ *
+ */
+void _gfx_gl_states_set_pixel_pack_alignment(
+
+		unsigned char align,
+		GFX_CONT_ARG);
+
+/**
+ * Sets the pixel unpack alignment of the current context.
+ *
+ */
+void _gfx_gl_states_set_pixel_unpack_alignment(
+
+		unsigned char align,
+		GFX_CONT_ARG);
+
+/**
+ * Sets the viewport size of the current context.
+ *
+ */
+void _gfx_gl_states_set_viewport(
+
+		GFXViewport viewport,
+		GFX_CONT_ARG);
+
+
+/********************************************************
  * Internal GL object access
  *******************************************************/
 
@@ -119,47 +160,6 @@ GLuint _gfx_gl_vertex_layout_get_index_buffer(
 
 		const GFXVertexLayout*  layout,
 		size_t*                 offset);
-
-
-/********************************************************
- * State management
- *******************************************************/
-
-/**
- * Sets the number of vertices per patch.
- *
- */
-void _gfx_gl_states_set_patch_vertices(
-
-		unsigned int vertices,
-		GFX_CONT_ARG);
-
-/**
- * Sets the pixel pack alignment of the current context.
- *
- */
-void _gfx_gl_states_set_pixel_pack_alignment(
-
-		unsigned char align,
-		GFX_CONT_ARG);
-
-/**
- * Sets the pixel unpack alignment of the current context.
- *
- */
-void _gfx_gl_states_set_pixel_unpack_alignment(
-
-		unsigned char align,
-		GFX_CONT_ARG);
-
-/**
- * Sets the viewport size of the current context.
- *
- */
-void _gfx_gl_states_set_viewport(
-
-		GFXViewport viewport,
-		GFX_CONT_ARG);
 
 
 /********************************************************

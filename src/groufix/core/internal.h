@@ -25,21 +25,6 @@
 
 
 /********************************************************
- * State management
- *******************************************************/
-
-/**
- * Sets all values of a state to their defaults.
- *
- * @param state Structure who's values will be set to their defaults.
- *
- */
-void _gfx_states_set_default(
-
-		GFXPipeState* state);
-
-
-/********************************************************
  * Error initialization and termination
  *******************************************************/
 
@@ -67,64 +52,6 @@ GFXErrorMode _gfx_errors_get_mode(void);
  *
  */
 void _gfx_errors_terminate(void);
-
-
-/********************************************************
- * Data & type helpers
- *******************************************************/
-
-/**
- * Finds a string in a longer, null-terminated, space-separated string.
- *
- * @param haystack Null-terminated, space-separated string to search in (can be NULL).
- * @param needle   String to find (cannot be NULL).
- * @return Non-zero if it was found.
- *
- */
-int _gfx_contains_string(
-
-		const char*  haystack,
-		const char*  needle);
-
-/**
- * Unformats a string so it can be passed to any formatted string input without parameters.
- *
- * @param str The string to unformat, % will be replaced with %% (cannot be NULL).
- * @return The unformatted string.
- *
- * If the returned pointer is not NULL, it should be freed manually.
- *
- */
-char* _gfx_unformat_string(
-
-		const char* str);
-
-/**
- * Splits depth into 3 channels.
- *
- */
-void _gfx_split_depth(
-
-		unsigned short   depth,
-		unsigned short*  red,
-		unsigned short*  green,
-		unsigned short*  blue);
-
-/**
- * Returns 1 if packed data, 0 if unpacked.
- *
- */
-int _gfx_is_data_type_packed(
-
-		GFXDataType type);
-
-/**
- * Returns the size of a data type in bytes.
- *
- */
-unsigned char _gfx_sizeof_data_type(
-
-		GFXDataType type);
 
 
 /********************************************************
@@ -316,6 +243,74 @@ void _gfx_event_mouse_wheel(
 		int                 x,
 		int                 y,
 		GFXKeyState         state);
+
+
+/********************************************************
+ * State defaults & string manipulation & type helpers
+ *******************************************************/
+
+/**
+ * Sets all values of a state to their defaults.
+ *
+ * @param state Structure who's values will be set to their defaults.
+ *
+ */
+void _gfx_states_set_default(
+
+		GFXPipeState* state);
+
+/**
+ * Finds a string in a longer, null-terminated, space-separated string.
+ *
+ * @param haystack Null-terminated, space-separated string to search in (can be NULL).
+ * @param needle   String to find (cannot be NULL).
+ * @return Non-zero if it was found.
+ *
+ */
+int _gfx_contains_string(
+
+		const char*  haystack,
+		const char*  needle);
+
+/**
+ * Unformats a string so it can be passed to any formatted string input without parameters.
+ *
+ * @param str The string to unformat, % will be replaced with %% (cannot be NULL).
+ * @return The unformatted string.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ */
+char* _gfx_unformat_string(
+
+		const char* str);
+
+/**
+ * Splits depth into 3 channels.
+ *
+ */
+void _gfx_split_depth(
+
+		unsigned short   depth,
+		unsigned short*  red,
+		unsigned short*  green,
+		unsigned short*  blue);
+
+/**
+ * Returns 1 if packed data, 0 if unpacked.
+ *
+ */
+int _gfx_is_data_type_packed(
+
+		GFXDataType type);
+
+/**
+ * Returns the size of a data type in bytes.
+ *
+ */
+unsigned char _gfx_sizeof_data_type(
+
+		GFXDataType type);
 
 
 /********************************************************
