@@ -22,10 +22,6 @@
 /* Default maximum */
 #define GFX_MAX_ERRORS_DEFAULT 64
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Platform independent error metadata
@@ -172,9 +168,5 @@ GFX_API void gfx_errors_set_maximum(
 
 		size_t max);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_ERRORS_H

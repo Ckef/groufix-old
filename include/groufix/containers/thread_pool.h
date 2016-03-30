@@ -17,10 +17,6 @@
 
 #include "groufix/utils.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Thread pool pattern
@@ -156,9 +152,5 @@ GFX_API void gfx_thread_pool_flush(
 
 		GFXThreadPool* pool);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CONTAINERS_THREAD_POOL_H

@@ -23,21 +23,17 @@
 #include "groufix/math/mat.h"
 #include "groufix/math/quat.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
+/********************************************************
+ * Mathematical definitions
+ *******************************************************/
 
 /** Mathematical constants */
-extern GFX_API const long double GFX_MATH_PI;
-extern GFX_API const long double GFX_MATH_TWO_PI;
-extern GFX_API const long double GFX_MATH_HALF_PI;
-extern GFX_API const long double GFX_MATH_RAD_TO_DEG;
-extern GFX_API const long double GFX_MATH_DEG_TO_RAD;
+GFX_API const long double GFX_MATH_PI;
+GFX_API const long double GFX_MATH_TWO_PI;
+GFX_API const long double GFX_MATH_HALF_PI;
+GFX_API const long double GFX_MATH_RAD_TO_DEG;
+GFX_API const long double GFX_MATH_DEG_TO_RAD;
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_MATH_H

@@ -15,7 +15,6 @@
 #ifndef GFX_CORE_INTERNAL_H
 #define GFX_CORE_INTERNAL_H
 
-#include "groufix/containers/list.h"
 #include "groufix/core/renderer.h"
 
 /* Internal renderer headers */
@@ -52,6 +51,71 @@ GFXErrorMode _gfx_errors_get_mode(void);
  *
  */
 void _gfx_errors_terminate(void);
+
+
+/********************************************************
+ * State defaults & string manipulation & type helpers
+ *******************************************************/
+
+/**
+ * The default state used by groufix.
+ *
+ */
+extern const GFXPipeState _gfx_state_default;
+
+
+/**
+ * Finds a string in a longer, null-terminated, space-separated string.
+ *
+ * @param haystack Null-terminated, space-separated string to search in (can be NULL).
+ * @param needle   String to find (cannot be NULL).
+ * @return Non-zero if it was found.
+ *
+ */
+int _gfx_contains_string(
+
+		const char*  haystack,
+		const char*  needle);
+
+/**
+ * Unformats a string so it can be passed to any formatted string input without parameters.
+ *
+ * @param str The string to unformat, % will be replaced with %% (cannot be NULL).
+ * @return The unformatted string.
+ *
+ * If the returned pointer is not NULL, it should be freed manually.
+ *
+ */
+char* _gfx_unformat_string(
+
+		const char* str);
+
+/**
+ * Splits depth into 3 channels.
+ *
+ */
+void _gfx_split_depth(
+
+		unsigned short   depth,
+		unsigned short*  red,
+		unsigned short*  green,
+		unsigned short*  blue);
+
+/**
+ * Returns 1 if packed data, 0 if unpacked.
+ *
+ */
+int _gfx_is_data_type_packed(
+
+		GFXDataType type);
+
+/**
+ * Returns the size of a data type in bytes.
+ *
+ */
+unsigned char _gfx_sizeof_data_type(
+
+		GFXDataType type);
 
 
 /********************************************************
@@ -246,71 +310,6 @@ void _gfx_event_mouse_wheel(
 
 
 /********************************************************
- * State defaults & string manipulation & type helpers
- *******************************************************/
-
-/**
- * The default state used by groufix.
- *
- */
-extern const GFXPipeState _gfx_state_default;
-
-
-/**
- * Finds a string in a longer, null-terminated, space-separated string.
- *
- * @param haystack Null-terminated, space-separated string to search in (can be NULL).
- * @param needle   String to find (cannot be NULL).
- * @return Non-zero if it was found.
- *
- */
-int _gfx_contains_string(
-
-		const char*  haystack,
-		const char*  needle);
-
-/**
- * Unformats a string so it can be passed to any formatted string input without parameters.
- *
- * @param str The string to unformat, % will be replaced with %% (cannot be NULL).
- * @return The unformatted string.
- *
- * If the returned pointer is not NULL, it should be freed manually.
- *
- */
-char* _gfx_unformat_string(
-
-		const char* str);
-
-/**
- * Splits depth into 3 channels.
- *
- */
-void _gfx_split_depth(
-
-		unsigned short   depth,
-		unsigned short*  red,
-		unsigned short*  green,
-		unsigned short*  blue);
-
-/**
- * Returns 1 if packed data, 0 if unpacked.
- *
- */
-int _gfx_is_data_type_packed(
-
-		GFXDataType type);
-
-/**
- * Returns the size of a data type in bytes.
- *
- */
-unsigned char _gfx_sizeof_data_type(
-
-		GFXDataType type);
-
-
-/********************************************************
  * Internal vertex layout usage
  *******************************************************/
 
@@ -321,10 +320,10 @@ unsigned char _gfx_sizeof_data_type(
  * @return Zero on failure.
  *
  */
-int _gfx_vertex_layout_block(
+/*int _gfx_vertex_layout_block(
 
 		GFXVertexLayout*  layout,
-		unsigned char     index);
+		unsigned char     index);*/
 
 /**
  * Unblocks the source at the layout.
@@ -332,10 +331,10 @@ int _gfx_vertex_layout_block(
  * Must be called equally many times as _gfx_vertex_layout_block has been called.
  *
  */
-void _gfx_vertex_layout_unblock(
+/*void _gfx_vertex_layout_unblock(
 
 		GFXVertexLayout*  layout,
-		unsigned char     index);
+		unsigned char     index);*/
 
 
 /********************************************************
@@ -349,9 +348,9 @@ void _gfx_vertex_layout_unblock(
  * @return NULL on failure.
  *
  */
-GFXSampler* _gfx_sampler_create(
+/*GFXSampler* _gfx_sampler_create(
 
-		const GFXSampler* values);
+		const GFXSampler* values);*/
 
 /**
  * References a sampler to postpone its destruction.
@@ -359,9 +358,9 @@ GFXSampler* _gfx_sampler_create(
  * @return Zero on overflow.
  *
  */
-int _gfx_sampler_reference(
+/*int _gfx_sampler_reference(
 
-		GFXSampler* sampler);
+		GFXSampler* sampler);*/
 
 /**
  * Makes sure the sampler is freed properly.
@@ -370,9 +369,9 @@ int _gfx_sampler_reference(
  * only freeing if the counter hits 0.
  *
  */
-void _gfx_sampler_free(
+/*void _gfx_sampler_free(
 
-		GFXSampler* sampler);
+		GFXSampler* sampler);*/
 
 /**
  * Sets the state values of a sampler.
@@ -381,10 +380,10 @@ void _gfx_sampler_free(
  * @return Zero on failure.
  *
  */
-int _gfx_sampler_set(
+/*int _gfx_sampler_set(
 
 		GFXSampler*        sampler,
-		const GFXSampler*  values);
+		const GFXSampler*  values);*/
 
 
 /********************************************************
@@ -401,10 +400,10 @@ int _gfx_sampler_set(
  * to actually destroy the program.
  *
  */
-int _gfx_program_reference(
+/*int _gfx_program_reference(
 
 		GFXProgram*   program,
-		unsigned int  references);
+		unsigned int  references);*/
 
 /**
  * Blocks the program map from adding anymore programs.
@@ -414,9 +413,9 @@ int _gfx_program_reference(
  * This so it can link the programs.
  *
  */
-int _gfx_program_map_block(
+/*int _gfx_program_map_block(
 
-		GFXProgramMap* map);
+		GFXProgramMap* map);*/
 
 /**
  * Unblocks the program map from adding anymore programs.
@@ -424,17 +423,17 @@ int _gfx_program_map_block(
  * Must be called equally many times as _gfx_program_map_block has been called.
  *
  */
-void _gfx_program_map_unblock(
+/*void _gfx_program_map_unblock(
 
-		GFXProgramMap* map);
+		GFXProgramMap* map);*/
 
 /**
  * Acts as if _gfx_render_objects_save was called for only the program map.
  *
  */
-void _gfx_program_map_save(
+/*void _gfx_program_map_save(
 
-		GFXProgramMap* map);
+		GFXProgramMap* map);*/
 
 /**
  * Acts as if _gfx_render_objects_restore was called for only the program map.
@@ -442,10 +441,10 @@ void _gfx_program_map_save(
  * The source render object container is implied from _gfx_program_map_save.
  *
  */
-void _gfx_program_map_restore(
+/*void _gfx_program_map_restore(
 
 		GFXProgramMap*      map,
-		GFX_RenderObjects*  cont);
+		GFX_RenderObjects*  cont);*/
 
 /**
  * Calls _gfx_program_map_use and uploads appropriate data.
@@ -456,12 +455,12 @@ void _gfx_program_map_restore(
  * Note: undefined behaviour if copy is out of bounds!
  *
  */
-void _gfx_property_map_use(
+/*void _gfx_property_map_use(
 
 		const GFXPropertyMap*  map,
 		unsigned int           copy,
 		unsigned int           base,
-		GFX_CONT_ARG);
+		GFX_CONT_ARG);*/
 
 
 /********************************************************
@@ -469,19 +468,19 @@ void _gfx_property_map_use(
  *******************************************************/
 
 /** Internal Pipe */
-typedef struct GFX_Pipe
-{
+/*typedef struct GFX_Pipe
+{*/
 	/* Super class */
-	GFXList node;
+	/*GFXList node;
 
 	GFXPipeType    type;
-	GFXPipe        ptr;  /* Public pointer */
-	GFXPipeState   state;
+	GFXPipe        ptr;*/  /* Public pointer */
+	/*GFXPipeState   state;*/
 
 	/* Associated pipeline */
-	GFXPipeline*   pipeline;
+	/*GFXPipeline*   pipeline;
 
-} GFX_Pipe;
+} GFX_Pipe;*/
 
 
 /**
@@ -491,10 +490,10 @@ typedef struct GFX_Pipe
  * @return NULL on failure
  *
  */
-GFX_Pipe* _gfx_pipe_create_bucket(
+/*GFX_Pipe* _gfx_pipe_create_bucket(
 
 		GFXPipeline*    pipeline,
-		unsigned char   bits);
+		unsigned char   bits);*/
 
 /**
  * Creates a new process pipe.
@@ -504,11 +503,11 @@ GFX_Pipe* _gfx_pipe_create_bucket(
  * @return NULL on failure.
  *
  */
-GFX_Pipe* _gfx_pipe_create_process(
+/*GFX_Pipe* _gfx_pipe_create_process(
 
 		GFXPipeline*  pipeline,
 		GFXWindow*    target,
-		int           swap);
+		int           swap);*/
 
 /**
  * Makes sure the pipe is freed properly.
@@ -518,9 +517,9 @@ GFX_Pipe* _gfx_pipe_create_process(
  * If no pipe takes its place, it will try to return the previous pipe instead.
  *
  */
-GFX_Pipe* _gfx_pipe_free(
+/*GFX_Pipe* _gfx_pipe_free(
 
-		GFX_Pipe* pipe);
+		GFX_Pipe* pipe);*/
 
 
 /********************************************************
@@ -534,27 +533,27 @@ GFX_Pipe* _gfx_pipe_free(
  * @return NULL on failure.
  *
  */
-GFXBucket* _gfx_bucket_create(
+/*GFXBucket* _gfx_bucket_create(
 
-		unsigned char bits);
+		unsigned char bits);*/
 
 /**
  * Makes sure the bucket is freed properly.
  *
  */
-void _gfx_bucket_free(
+/*void _gfx_bucket_free(
 
-		GFXBucket* bucket);
+		GFXBucket* bucket);*/
 
 /**
  * Processes the bucket, drawing all units.
  *
  */
-void _gfx_bucket_process(
+/*void _gfx_bucket_process(
 
 		GFXBucket*           bucket,
 		const GFXPipeState*  state,
-		GFX_CONT_ARG);
+		GFX_CONT_ARG);*/
 
 
 /********************************************************
@@ -569,18 +568,18 @@ void _gfx_bucket_process(
  * @return NULL on failure.
  *
  */
-GFXPipeProcess _gfx_pipe_process_create(
+/*GFXPipeProcess _gfx_pipe_process_create(
 
 		GFXWindow*  target,
-		int         swap);
+		int         swap);*/
 
 /**
  * Makes sure the pipe process is freed properly.
  *
  */
-void _gfx_pipe_process_free(
+/*void _gfx_pipe_process_free(
 
-		GFXPipeProcess process);
+		GFXPipeProcess process);*/
 
 /**
  * Prepares the current context for render to texture.
@@ -588,7 +587,7 @@ void _gfx_pipe_process_free(
  * @return Non-zero on success.
  *
  */
-int _gfx_pipe_process_prepare(void);
+//int _gfx_pipe_process_prepare(void);
 
 /**
  * Makes sure no pipe process targets the current context anymore, ever.
@@ -596,9 +595,9 @@ int _gfx_pipe_process_prepare(void);
  * @param last Non-zero if this is the last context to be unprepared.
  *
  */
-void _gfx_pipe_process_unprepare(
+/*void _gfx_pipe_process_unprepare(
 
-		int last);
+		int last);*/
 
 /**
  * Makes sure all the pipes that target the current context target a new one.
@@ -606,9 +605,9 @@ void _gfx_pipe_process_unprepare(
  * @param target New target for all pipes.
  *
  */
-void _gfx_pipe_process_retarget(
+/*void _gfx_pipe_process_retarget(
 
-		GFX_Context* target);
+		GFX_Context* target);*/
 
 /**
  * Forwards a new size of a window to all processes.
@@ -618,11 +617,11 @@ void _gfx_pipe_process_retarget(
  * @param height New height.
  *
  */
-void _gfx_pipe_process_resize(
+/*void _gfx_pipe_process_resize(
 
 		const GFX_Context*  target,
 		unsigned int       width,
-		unsigned int       height);
+		unsigned int       height);*/
 
 /**
  * Executes the pipe process.
@@ -630,11 +629,11 @@ void _gfx_pipe_process_resize(
  * @param pipeline Calling pipeline.
  *
  */
-void _gfx_pipe_process_execute(
+/*void _gfx_pipe_process_execute(
 
 		GFXPipeProcess       process,
 		const GFXPipeState*  state,
-		GFX_CONT_ARG);
+		GFX_CONT_ARG);*/
 
 
 #endif // GFX_CORE_INTERNAL_H

@@ -38,14 +38,22 @@
 
 /* DLL import/export */
 #if defined(GFX_MINGW) || defined(GFX_VISUAL_C)
-	#ifdef GFX_BUILD_LIB
-		#define GFX_API __declspec(dllexport)
+	#if defined(GFX_BUILD_LIB)
+		#define GFX_LIB __declspec(dllexport)
 	#else
-		#define GFX_API __declspec(dllimport)
+		#define GFX_LIB __declspec(dllimport)
 	#endif
 
 #else
-	#define GFX_API
+	#define GFX_LIB
+#endif
+
+
+/* Groufix API linkage */
+#if defined(__cplusplus)
+	#define GFX_API extern "C" GFX_LIB
+#else
+	#define GFX_API extern GFX_LIB
 #endif
 
 
@@ -87,6 +95,7 @@
 /* Template naming */
 #define GFX_NAME_BAD(x,y) x ## _ ## y
 #define GFX_NAME(x,y) GFX_NAME_BAD(x,y)
+
 
 /* Pointer operations */
 #define GFX_PTR_ADD_BYTES(x,y) ((void*)((intptr_t)(x) + (y)))

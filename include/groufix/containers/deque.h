@@ -19,10 +19,6 @@
 
 #include <stddef.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Double ended queue container
@@ -262,9 +258,5 @@ static GFX_ALWAYS_INLINE GFXDequeIterator gfx_deque_previous(
 	return gfx_deque_advance(deque, it, -1);
 }
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CONTAINERS_DEQUE_H

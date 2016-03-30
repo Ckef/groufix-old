@@ -19,10 +19,6 @@
 
 #include <stddef.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * List container
@@ -288,9 +284,5 @@ static GFX_ALWAYS_INLINE GFXList* gfx_list_unsplice(
 	return gfx_list_unsplice_range(node, node);
 }
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CONTAINERS_LIST_H

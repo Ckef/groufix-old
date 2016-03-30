@@ -331,7 +331,7 @@ GFXDequeIterator gfx_deque_push_end(
 	size_t upper = deque->capacity - (deque->capacity % deque->elementSize);
 
 	/* Pad with an empty element */
-	if(GFX_PTR_DIFF(deque->data, deque->end) == upper && oldSize)
+	if((size_t)GFX_PTR_DIFF(deque->data, deque->end) == upper && oldSize)
 		newSize += deque->elementSize;
 
 	else if(GFX_PTR_DIFF(deque->begin, deque->end) < 0)
@@ -357,10 +357,10 @@ GFXDequeIterator gfx_deque_push_end(
 	if(oldSize)
 	{
 		/* Get new iterator after end or at begin of deque */
-		insert = (GFX_PTR_DIFF(deque->data, deque->end) == upper) ?
+		insert = ((size_t)GFX_PTR_DIFF(deque->data, deque->end) == upper) ?
 			deque->data : insert;
 
-		deque->end = (GFX_PTR_DIFF(deque->data, deque->end) == upper) ?
+		deque->end = ((size_t)GFX_PTR_DIFF(deque->data, deque->end) == upper) ?
 			GFX_PTR_ADD_BYTES(deque->data, deque->elementSize) :
 			GFX_PTR_ADD_BYTES(deque->end, deque->elementSize);
 	}
@@ -483,14 +483,14 @@ GFXDequeIterator gfx_deque_advance(
 	/* Get sequential iterator */
 	GFXDequeIterator new = GFX_PTR_ADD_BYTES(it, deque->elementSize * num);
 
-	long int diff = GFX_PTR_DIFF(deque->data, new);
+	intptr_t diff = GFX_PTR_DIFF(deque->data, new);
 	size_t upper = deque->capacity - (deque->capacity % deque->elementSize);
 
 	/* Get actual pointer */
 	if(diff < 0)
 		return GFX_PTR_ADD_BYTES(deque->data, upper + diff);
 
-	if(diff >= upper && new != deque->end)
+	if((size_t)diff >= upper && new != deque->end)
 		return GFX_PTR_ADD_BYTES(deque->data, diff - upper);
 
 	return new;

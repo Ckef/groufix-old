@@ -19,10 +19,6 @@
 
 #include <stddef.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * LOD Map (map given objects to a level of detail)
@@ -170,9 +166,5 @@ GFX_API void* gfx_lod_map_get_all(
 		const GFXLodMap*  map,
 		unsigned int*     num);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_SCENE_LOD_H

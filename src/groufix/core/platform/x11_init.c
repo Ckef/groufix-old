@@ -132,7 +132,7 @@ static size_t _gfx_x11_init_modes(
 	gfx_vector_reserve(&_gfx_x11.modes, first + res->nmode);
 
 	unsigned int i;
-	for(i = 0; i < res->nmode; ++i)
+	for(i = 0; i < (unsigned int)res->nmode; ++i)
 	{
 		/* Skip refresh rate of zero */
 		unsigned int refresh = 0;
@@ -191,7 +191,7 @@ static int _gfx_x11_init_monitors(
 
 		/* Iterate through outputs */
 		unsigned int i;
-		for(i = 0; i < res->noutput; ++i)
+		for(i = 0; i < (unsigned int)res->noutput; ++i)
 		{
 			/* Validate output */
 			XRROutputInfo* out =
@@ -224,7 +224,7 @@ static int _gfx_x11_init_monitors(
 
 			/* Retrieve output modes */
 			unsigned int j;
-			if(mon.modes) for(j = 0; j < out->nmode; ++j)
+			if(mon.modes) for(j = 0; j < (unsigned int)out->nmode; ++j)
 			{
 				GFX_X11_Mode* mode;
 				for(
@@ -376,7 +376,7 @@ static void _gfx_x11_create_key_table(void)
 	);
 
 	/* Use the first symbol of all keycodes */
-	size_t i;
+	int i;
 	for(i = minKey; i <= maxKey; ++i) _gfx_x11.keys[i] = _gfx_x11_get_key(
 		symbols[(i - minKey) * symbolsPerKey]);
 

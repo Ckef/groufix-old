@@ -18,10 +18,6 @@
 #include "groufix/scene/material.h"
 #include "groufix/scene/mesh.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Batch (collection of bucket units)
@@ -162,9 +158,5 @@ GFX_API GFXBucketUnit* gfx_batch_get(
 		unsigned char    level,
 		unsigned int*    num);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_SCENE_OBJECT_H

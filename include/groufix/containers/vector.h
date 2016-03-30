@@ -19,10 +19,6 @@
 
 #include <stddef.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Vector container
@@ -342,9 +338,5 @@ static GFX_ALWAYS_INLINE GFXVectorIterator gfx_vector_erase_range_at(
 	return gfx_vector_erase_range(vector, num, gfx_vector_at(vector, index));
 }
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CONTAINERS_VECTOR_H

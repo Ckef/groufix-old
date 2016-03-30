@@ -20,10 +20,6 @@
 
 #include <stddef.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Top level monitor
@@ -121,11 +117,11 @@ GFX_API int gfx_monitor_get_mode(
 /** Window flags */
 typedef enum GFXWindowFlags
 {
-	GFX_WINDOW_FULLSCREEN     = 0x0001,
-	GFX_WINDOW_BORDERLESS     = 0x0002,
-	GFX_WINDOW_RESIZABLE      = 0x0004, /* Removed if fullscreen */
-	GFX_WINDOW_HIDDEN         = 0x0008,
-	GFX_WINDOW_DOUBLE_BUFFER  = 0x0010
+	GFX_WINDOW_FULLSCREEN     = 0x001,
+	GFX_WINDOW_BORDERLESS     = 0x002,
+	GFX_WINDOW_RESIZABLE      = 0x004, /* Removed if fullscreen */
+	GFX_WINDOW_HIDDEN         = 0x008,
+	GFX_WINDOW_DOUBLE_BUFFER  = 0x010
 
 } GFXWindowFlags;
 
@@ -155,6 +151,9 @@ typedef void (*GFXMouseWheelFunc)   (struct GFXWindow*, int, int, int, int, GFXK
 /** A top level window */
 typedef struct GFXWindow
 {
+	/* Bound data */
+	void* data;
+
 	/* Callbacks */
 	struct
 	{
@@ -363,9 +362,5 @@ GFX_API int gfx_window_set_swap_interval(
 		const GFXWindow*  window,
 		int               num);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_WINDOW_H

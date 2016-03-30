@@ -15,10 +15,6 @@
 #ifndef GFX_CORE_KEYS_H
 #define GFX_CORE_KEYS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Platform independent key input
@@ -183,9 +179,5 @@ typedef enum GFXKeyState
 
 } GFXKeyState;
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_KEYS_H

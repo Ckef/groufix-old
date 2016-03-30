@@ -44,16 +44,12 @@
 
 /* Macros for safe current context fetching */
 #define GFX_CONT_INIT_UNSAFE        GFX_Context* _gfx_c__ = _gfx_context_get_current();
-#define GFX_CONT_INIT_BAD(r)        GFX_CONT_INIT_UNSAFE if(!_gfx_c__) return r;
-#define GFX_CONT_INIT(r)            GFX_CONT_INIT_BAD(r)
-
-#define GFX_CONT_EQ_BAD(x)          (_gfx_c__ == (x))
-#define GFX_CONT_EQ(x)              GFX_CONT_EQ_BAD(x)
+#define GFX_CONT_INIT(r)            GFX_CONT_INIT_UNSAFE if(!_gfx_c__) return r;
+#define GFX_CONT_EQ(x)              (_gfx_c__ == (x))
 
 #define GFX_CONT_ARG                GFX_Context* _gfx_c__
 #define GFX_CONT_AS_ARG             _gfx_c__
-#define GFX_CONT_INT_AS_ARG_BAD(c)  (c)
-#define GFX_CONT_INT_AS_ARG(c)      GFX_CONT_INT_AS_ARG_BAD(c)
+#define GFX_CONT_INT_AS_ARG(c)      (c)
 
 #define GFX_CONT_GET                (*_gfx_c__)
 #define GFX_REND_GET                (_gfx_c__->renderer)

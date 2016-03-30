@@ -17,10 +17,6 @@
 
 #include "groufix/core/memory.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Shader (compiled GLSL unit)
@@ -764,9 +760,5 @@ GFX_API int gfx_property_map_set_shared_buffer(
 		size_t                  offset,
 		size_t                  size);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_SHADING_H

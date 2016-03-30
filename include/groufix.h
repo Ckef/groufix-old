@@ -19,10 +19,6 @@
 #include "groufix/core/errors.h"
 #include "groufix/core/pipeline.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Renderer extensions & limits
@@ -168,9 +164,5 @@ GFX_API void gfx_set_time(
  */
 GFX_API void gfx_terminate(void);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GROUFIX_H

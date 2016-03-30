@@ -18,10 +18,6 @@
 #include "groufix/core/shading.h"
 #include "groufix/scene/lod.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Material (collection of property maps)
@@ -120,9 +116,5 @@ GFX_API GFXPropertyMap* gfx_property_map_list_at(
 		const GFXPropertyMapList  list,
 		unsigned int              index);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_SCENE_MATERIAL_H

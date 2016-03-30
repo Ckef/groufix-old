@@ -15,10 +15,6 @@
 #ifndef GFX_RESOURCES_H
 #define GFX_RESOURCES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Resource definitions
@@ -38,9 +34,5 @@ typedef enum GFXResourceFlags
 } GFXResourceFlags;
 
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_RESOURCES_H

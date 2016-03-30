@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-static GFXProgramMap* programMap;
+//static GFXProgramMap* programMap;
 
 
 void print_error(GFXError error)
@@ -12,7 +12,7 @@ void print_error(GFXError error)
 	printf("[Error #%x]: %s\n", error.code, error.description);
 }
 
-GFXMesh* create_mesh()
+/*GFXMesh* create_mesh()
 {
 	GFXMesh* mesh = gfx_mesh_create();
 	GFXMeshLayout id = gfx_mesh_add_layout(mesh, 1);
@@ -93,7 +93,7 @@ GFXMaterial* create_material()
 	gfx_shader_free(frag);
 
 	return mat;
-}
+}*/
 
 int main()
 {
@@ -104,12 +104,7 @@ int main()
 	context.minor = 0;
 
 	if(!gfx_init(context, GFX_ERROR_MODE_DEBUG))
-	{
-		GFXError error;
-		if(gfx_errors_peek(&error)) print_error(error);
-
 		return 0;
-	}
 
 
 	/* Setup 2 windows */
@@ -123,7 +118,7 @@ int main()
 
 
 	/* Pipeline */
-	GFXPipeline* pipeline = gfx_pipeline_create();
+	/*GFXPipeline* pipeline = gfx_pipeline_create();
 
 	signed char targets[] = { 0 };
 	GFXViewport viewport = { 0, 0, 800, 600 };
@@ -131,11 +126,11 @@ int main()
 	gfx_pipeline_target(pipeline, 1, targets);
 
 	GFXPipe* bucket = gfx_pipeline_push_bucket(pipeline, 0);
-	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;
+	gfx_pipe_get_state(bucket)->render.state = GFX_STATE_DEFAULT | GFX_CLEAR_COLOR;*/
 
 
 	/* Texture */
-	GFXTextureFormat format;
+	/*GFXTextureFormat format;
 	format.components    = 3;
 	format.type.unpacked = GFX_UNSIGNED_BYTE;
 	format.interpret     = GFX_INTERPRET_NORMALIZED;
@@ -147,11 +142,11 @@ int main()
 	image.mipmap  = 0;
 	image.layer   = 0;
 
-	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);
+	gfx_pipeline_attach(pipeline, image, GFX_COLOR_ATTACHMENT, 0);*/
 
 
 	/* Post processing */
-	const char* vertSrc =
+	/*const char* vertSrc =
 		"in ivec4 data;"
 		"out vec2 coord;"
 		"void main() {"
@@ -194,11 +189,11 @@ int main()
 	gfx_program_link(programB, 2, shaders, 0);
 
 	gfx_shader_free(vert);
-	gfx_shader_free(frag);
+	gfx_shader_free(frag);*/
 
 
 	/* Property map */
-	GFXSampler sampler =
+	/*GFXSampler sampler =
 	{
 		.minFilter = GFX_FILTER_LINEAR,
 		.mipFilter = GFX_FILTER_NEAREST,
@@ -221,28 +216,28 @@ int main()
 	gfx_property_map_set_texture(mapA, 0, 0, tex);
 	gfx_property_map_forward_named(mapB, 0, 0, 0, GFX_FRAGMENT_SHADER, "tex");
 	gfx_property_map_set_sampler_share(mapB, 0, 0, mapA, 0, 0);
-	gfx_property_map_set_texture(mapB, 0, 0, tex);
+	gfx_property_map_set_texture(mapB, 0, 0, tex);*/
 
 
 	/* Mesh and material */
-	GFXMaterial* material = create_material();
-	GFXMesh* mesh = create_mesh();
+	/*GFXMaterial* material = create_material();
+	GFXMesh* mesh = create_mesh();*/
 
 
 	/* Batch */
-	GFXBatch* batch = gfx_batch_create(
+	/*GFXBatch* batch = gfx_batch_create(
 		bucket->bucket, material, mesh, 0, 0, 1, 1);
 	gfx_batch_set_level(
 		batch, 0, 0, 0, 1);
 	gfx_batch_set(
-		batch, 0, 1, 1);
+		batch, 0, 1, 1);*/
 
 
 	/* Setup a loop */
 	while(gfx_poll_events() && gfx_get_num_windows())
 	{
 		/* Execute pipeline & swap buffers */
-		gfx_pipeline_execute(pipeline, 0);
+		//gfx_pipeline_execute(pipeline, 0);
 
 		/* Print time */
 		//double time = gfx_get_time();
@@ -261,12 +256,12 @@ int main()
 
 
 	/* Free all the things */
-	gfx_batch_free(batch);
+	/*gfx_batch_free(batch);
 	gfx_mesh_free(mesh);
 	gfx_material_free(material);
 	gfx_program_map_free(programMap);
 	gfx_texture_free(tex);
-	gfx_pipeline_free(pipeline);
+	gfx_pipeline_free(pipeline);*/
 
 	gfx_window_free(window1);
 	gfx_window_free(window2);

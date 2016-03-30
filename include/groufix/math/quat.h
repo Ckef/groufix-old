@@ -69,7 +69,7 @@
 #endif
 
 /* Matrix specific */
-#ifdef GFX_QUAT_USE_MAT
+#if defined(GFX_QUAT_USE_MAT)
 	#ifndef GFX_MATH_MAT_H
 		#error "Need to include groufix/math/mat.h to use GFX_QUAT_USE_MAT"
 	#endif
@@ -77,16 +77,11 @@
 #endif
 
 /* Vector specific */
-#ifdef GFX_QUAT_USE_VEC
+#if defined(GFX_QUAT_USE_VEC)
 	#ifndef GFX_MATH_VEC_H
 		#error "Need to include groufix/math/vec.h to use GFX_QUAT_USE_VEC"
 	#endif
 	#define GFX_VEC_NAME GFX_VEC_CREATE_NAME(3, GFX_QUAT_TYPE)
-#endif
-
-
-#ifdef __cplusplus
-extern "C" {
 #endif
 
 
@@ -318,7 +313,7 @@ static GFX_ALWAYS_INLINE int GFX_QUAT_FUNC(is_zero)(
 	return 1;
 }
 
-#ifdef GFX_QUAT_USE_VEC
+#if defined(GFX_QUAT_USE_VEC)
 
 /**
  * Computes a quaternion from an angle and an axis.
@@ -408,7 +403,7 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_QUAT_FUNC(mult_vec)(
 
 #endif // GFX_QUAT_USE_VEC
 
-#ifdef GFX_QUAT_USE_MAT
+#if defined(GFX_QUAT_USE_MAT)
 
 /**
  * Computes the 3x3 rotation matrix equivalent to a quaternion.
@@ -446,10 +441,6 @@ static GFX_ALWAYS_INLINE GFX_MAT_NAME* GFX_QUAT_FUNC(to_matrix)(
 
 #endif // GFX_QUAT_USE_MAT
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #undef GFX_QUAT_NAME
 #undef GFX_QUAT_FUNC

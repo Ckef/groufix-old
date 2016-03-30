@@ -22,10 +22,6 @@
 /* Default shared buffer pool size (1 MB) */
 #define GFX_SHARED_BUFFER_SIZE_DEFAULT  0x100000
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Data types associated with the GPU
@@ -595,7 +591,7 @@ typedef enum GFXTextureType
 {
 	GFX_TEXTURE_2D,
 	GFX_TEXTURE_3D,
-	GFX_CUBEMAP,
+	GFX_CUBEMAP
 
 } GFXTextureType;
 
@@ -780,9 +776,5 @@ GFX_API void gfx_texture_generate_mipmaps(
 
 		const GFXTexture* texture);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_MEMORY_H

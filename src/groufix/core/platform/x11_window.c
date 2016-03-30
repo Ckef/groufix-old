@@ -171,7 +171,7 @@ static void _gfx_x11_event_proc(
 		/* Protocol messages */
 		case ClientMessage :
 		{
-			if(event->xclient.data.l[0] == _gfx_x11.WM_DELETE_WINDOW)
+			if((Atom)event->xclient.data.l[0] == _gfx_x11.WM_DELETE_WINDOW)
 				_gfx_event_window_close(window);
 
 			break;
@@ -212,8 +212,8 @@ static void _gfx_x11_event_proc(
 			}
 
 			if(
-				internal->width != event->xconfigure.width ||
-				internal->height != event->xconfigure.height)
+				internal->width != (unsigned int)event->xconfigure.width ||
+				internal->height != (unsigned int)event->xconfigure.height)
 			{
 				internal->width = event->xconfigure.width;
 				internal->height = event->xconfigure.height;

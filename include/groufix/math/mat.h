@@ -89,17 +89,12 @@
 #endif
 
 /* Vector specific */
-#ifdef GFX_MAT_USE_VEC
+#if defined(GFX_MAT_USE_VEC)
 	#ifndef GFX_MATH_VEC_H
 		#error "Need to include groufix/math/vec.h to use GFX_MAT_USE_VEC"
 	#endif
 	#define GFX_VEC_NAME GFX_VEC_CREATE_NAME(GFX_MAT_SIZE, GFX_MAT_TYPE)
 	#define GFX_VEC_FUNC(postfix) GFX_VEC_CREATE_FUNC(GFX_MAT_SIZE, GFX_MAT_TYPE, postfix)
-#endif
-
-
-#ifdef __cplusplus
-extern "C" {
 #endif
 
 
@@ -452,7 +447,7 @@ static GFX_ALWAYS_INLINE int GFX_MAT_FUNC(inverse)(
 
 #endif
 
-#ifdef GFX_MAT_USE_VEC
+#if defined(GFX_MAT_USE_VEC)
 
 /**
  * Returns a column of a matrix as vector.
@@ -495,10 +490,6 @@ static GFX_ALWAYS_INLINE GFX_VEC_NAME* GFX_MAT_FUNC(mult_vec)(
 
 #endif // GFX_MAT_USE_VEC
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #undef GFX_MAT_NAME
 #undef GFX_MAT_FUNC

@@ -127,11 +127,6 @@
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 /********************************************************
  * Vector Template
  *******************************************************/
@@ -350,10 +345,6 @@ static GFX_ALWAYS_INLINE int GFX_VEC_FUNC(is_zero)(
 	return 1;
 }
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #undef GFX_VEC_NAME
 #undef GFX_VEC_FUNC

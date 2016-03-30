@@ -18,10 +18,6 @@
 #include "groufix/core/pipeline.h"
 #include "groufix/scene/lod.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Mesh (vertex layouts & buffer data abstraction)
@@ -236,9 +232,5 @@ GFX_API unsigned char gfx_vertex_source_list_at(
 		const GFXVertexSourceList  list,
 		unsigned int               index);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_SCENE_MESH_H

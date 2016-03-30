@@ -23,10 +23,6 @@
 /* Maximum bits used for unit states */
 #define GFX_UNIT_STATE_MAX_BITS  ((sizeof(GFXUnitState) * CHAR_BIT) - 2)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /********************************************************
  * Buckets to hold render units
@@ -716,9 +712,5 @@ GFX_API void gfx_pipeline_execute(
 		GFXPipeline*  pipeline,
 		size_t        num);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // GFX_CORE_PIPELINE_H
