@@ -15,6 +15,7 @@
 #ifndef GFX_CORE_MEMORY_H
 #define GFX_CORE_MEMORY_H
 
+#include "groufix/core/object.h"
 #include "groufix/utils.h"
 
 #include <stddef.h>
@@ -101,9 +102,9 @@ typedef enum GFXBufferUsage
 /** Buffer */
 typedef struct GFXBuffer
 {
-	GFXBufferUsage  usage;  /* Intended usage of the buffer */
-	size_t          size;   /* Size of the buffer in bytes */
-	unsigned char   multi;  /* Number of extra buffers (0 = regular buffering) */
+	GFXBufferUsage  usage; /* Intended usage of the buffer */
+	size_t          size;  /* Size of the buffer in bytes */
+	unsigned char   multi; /* Number of extra buffers (0 = regular buffering) */
 
 } GFXBuffer;
 

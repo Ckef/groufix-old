@@ -151,10 +151,10 @@ typedef void (*GFXMouseWheelFunc)   (struct GFXWindow*, int, int, int, int, GFXK
 /** A top level window */
 typedef struct GFXWindow
 {
-	/* Bound data */
+	/* Bound data, can be modified */
 	void* data;
 
-	/* Callbacks */
+	/* Callbacks, can be modified */
 	struct
 	{
 		GFXWindowCloseFunc   windowClose;

@@ -311,16 +311,16 @@ void _gfx_render_objects_transfer(
 			shared);
 	}
 
-	_gfx_platform_mutex_unlock(&dest->mutex);
-
 	gfx_vector_clear(&src->temp);
+
+	_gfx_platform_mutex_unlock(&dest->mutex);
 }
 
 /******************************************************/
 int _gfx_render_object_id_init(
 
 		GFX_RenderObjectID*           id,
-		GFX_RenderObjectFlags         flags,
+		GFXRenderObjectFlags          flags,
 		const GFX_RenderObjectFuncs*  funcs,
 		GFX_RenderObjects*            cont)
 {
@@ -330,7 +330,6 @@ int _gfx_render_object_id_init(
 
 	int success = 1;
 
-	id->flags        = flags;
 	id->funcs        = funcs;
 	id->refs.objects = NULL;
 	id->refs.id      = 0;
@@ -369,11 +368,12 @@ void _gfx_render_object_id_clear(
 /******************************************************/
 int _gfx_render_object_id_reference(
 
-		GFX_RenderObjectID*  id,
-		GFX_RenderObjects*   cont)
+		GFX_RenderObjectID*   id,
+		GFXRenderObjectFlags  flags,
+		GFX_RenderObjects*    cont)
 {
 	/* Check share flag */
-	if(id->refs.objects && !(id->flags & GFX_OBJECT_CAN_SHARE))
+	if(id->refs.objects && !(flags & GFX_OBJECT_CAN_SHARE))
 		return 0;
 
 	int success;
@@ -390,11 +390,12 @@ int _gfx_render_object_id_reference(
 /******************************************************/
 int _gfx_render_object_id_dereference(
 
-		GFX_RenderObjectID*  id,
-		GFX_RenderObjects*   cont)
+		GFX_RenderObjectID*   id,
+		GFXRenderObjectFlags  flags,
+		GFX_RenderObjects*    cont)
 {
 	/* Check needs reference flag */
-	if(!id->refs.next && (id->flags & GFX_OBJECT_NEEDS_REFERENCE))
+	if(!id->refs.next && (flags & GFX_OBJECT_NEEDS_REFERENCE))
 		return 0;
 
 	_gfx_platform_mutex_lock(&cont->mutex);

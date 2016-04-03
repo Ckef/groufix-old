@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef GFX_SCENE_OBJECT_H
-#define GFX_SCENE_OBJECT_H
+#ifndef GFX_SCENE_BATCH_H
+#define GFX_SCENE_BATCH_H
 
 #include "groufix/scene/material.h"
 #include "groufix/scene/mesh.h"
@@ -159,4 +159,4 @@ GFX_API GFXBucketUnit* gfx_batch_get(
 		unsigned int*    num);
 
 
-#endif // GFX_SCENE_OBJECT_H
+#endif // GFX_SCENE_BATCH_H

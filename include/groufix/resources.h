@@ -34,5 +34,4 @@ typedef enum GFXResourceFlags
 } GFXResourceFlags;
 
 
-
 #endif // GFX_RESOURCES_H

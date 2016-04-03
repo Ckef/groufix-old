@@ -158,16 +158,17 @@ HEADERS = \
  include/groufix/core/errors.h \
  include/groufix/core/keys.h \
  include/groufix/core/memory.h \
+ include/groufix/core/object.h \
  include/groufix/core/pipeline.h \
  include/groufix/core/shading.h \
  include/groufix/core/window.h \
  include/groufix/math/mat.h \
  include/groufix/math/quat.h \
  include/groufix/math/vec.h \
+ include/groufix/scene/batch.h \
  include/groufix/scene/lod.h \
  include/groufix/scene/material.h \
  include/groufix/scene/mesh.h \
- include/groufix/scene/object.h \
  include/groufix/math.h \
  include/groufix/resources.h \
  include/groufix/scene.h \

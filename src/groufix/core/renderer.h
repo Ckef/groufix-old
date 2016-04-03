@@ -170,15 +170,6 @@ void _gfx_render_objects_transfer(
  * Generic render object identification
  *******************************************************/
 
-/** Flags associated with an object ID */
-typedef enum GFX_RenderObjectFlags
-{
-	GFX_OBJECT_NEEDS_REFERENCE  = 0x01,
-	GFX_OBJECT_CAN_SHARE        = 0x02
-
-} GFX_RenderObjectFlags;
-
-
 /** Render object reference */
 typedef struct GFX_RenderObjectRef
 {
@@ -192,7 +183,6 @@ typedef struct GFX_RenderObjectRef
 /** Render object ID */
 typedef struct GFX_RenderObjectID
 {
-	GFX_RenderObjectFlags         flags;
 	const GFX_RenderObjectFuncs*  funcs;
 	GFX_RenderObjectRef           refs;
 
@@ -202,7 +192,7 @@ typedef struct GFX_RenderObjectID
 /**
  * Initializes a render object ID.
  *
- * @param flags Flags that will always be associated with this ID.
+ * @param flags Flags to use for this call.
  * @param funcs Function vtable to associate with this ID.
  * @param cont  Render object container to first reference at (can be NULL).
  * @return Zero on failure.
@@ -216,7 +206,7 @@ typedef struct GFX_RenderObjectID
 int _gfx_render_object_id_init(
 
 		GFX_RenderObjectID*           id,
-		GFX_RenderObjectFlags         flags,
+		GFXRenderObjectFlags          flags,
 		const GFX_RenderObjectFuncs*  funcs,
 		GFX_RenderObjects*            cont);
 
@@ -236,7 +226,8 @@ void _gfx_render_object_id_clear(
 /**
  * References the ID at the container.
  *
- * @param cont Render object container to reference at.
+ * @param flags Flags to use for this call.
+ * @param cont  Render object container to reference at.
  * @return Zero on failure.
  *
  * This function is thread safe.
@@ -244,8 +235,9 @@ void _gfx_render_object_id_clear(
  */
 int _gfx_render_object_id_reference(
 
-		GFX_RenderObjectID*  id,
-		GFX_RenderObjects*   cont);
+		GFX_RenderObjectID*   id,
+		GFXRenderObjectFlags  flags,
+		GFX_RenderObjects*    cont);
 
 /**
  * Dereferences the ID at the container.
@@ -259,8 +251,9 @@ int _gfx_render_object_id_reference(
  */
 int _gfx_render_object_id_dereference(
 
-		GFX_RenderObjectID*  id,
-		GFX_RenderObjects*   cont);
+		GFX_RenderObjectID*   id,
+		GFXRenderObjectFlags  flags,
+		GFX_RenderObjects*    cont);
 
 
 /********************************************************
