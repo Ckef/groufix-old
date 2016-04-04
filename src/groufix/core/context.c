@@ -424,7 +424,7 @@ void _gfx_context_destroy(
 	context->handle = NULL;
 	context->context = NULL;
 
-	/* Make corrext current again */
+	/* Make correct current again */
 	/* Also transfer all objects */
 	_gfx_context_make_current(curr);
 

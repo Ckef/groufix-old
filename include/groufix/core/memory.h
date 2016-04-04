@@ -33,16 +33,16 @@ typedef enum GFXUnpackedType
 {
 	GFX_BIT,
 	GFX_NIBBLE,
-	GFX_BYTE            = 0x1400,
-	GFX_UNSIGNED_BYTE   = 0x1401,
-	GFX_SHORT           = 0x1402,
-	GFX_UNSIGNED_SHORT  = 0x1403,
-	GFX_INT             = 0x1404,
-	GFX_UNSIGNED_INT    = 0x1405,
-	GFX_HALF_FLOAT      = 0x140b,
-	GFX_FLOAT           = 0x1406,
+	GFX_BYTE,
+	GFX_UNSIGNED_BYTE,
+	GFX_SHORT,
+	GFX_UNSIGNED_SHORT,
+	GFX_INT,
+	GFX_UNSIGNED_INT,
+	GFX_HALF_FLOAT,
+	GFX_FLOAT,
 
-	GFX_LARGE_INTEGER   = GFX_INT /* Largest signed integer (equally large as unsigned) */
+	GFX_LARGE_INTEGER = GFX_INT /* Largest signed integer (equally large as unsigned) */
 
 } GFXUnpackedType;
 
@@ -50,15 +50,15 @@ typedef enum GFXUnpackedType
 /** Packed storage data type */
 typedef enum GFXPackedType
 {
-	GFX_UNSIGNED_SHORT_5_6_5      = 0x8363,
-	GFX_UNSIGNED_SHORT_4_4_4_4    = 0x8033,
-	GFX_UNSIGNED_SHORT_5_5_5_1    = 0x8034,
-	GFX_INT_10_10_10_2            = 0x8d9f,
-	GFX_UNSIGNED_INT_10_10_10_2   = 0x8368, /* Interpreted as integer */
-	GFX_UNSIGNED_INT_11F_11F_10F  = 0x8c3b,
-	GFX_UNSIGNED_INT_9_9_9_5E     = 0x8c3e, /* Shared exponent of 5 bits */
-	GFX_UNSIGNED_INT_24_8         = 0x84fa, /* Depth/stencil only */
-	GFX_FLOAT_UNSIGNED_INT_24_8   = 0x8dad  /* Depth/stencil only */
+	GFX_UNSIGNED_SHORT_5_6_5,
+	GFX_UNSIGNED_SHORT_4_4_4_4,
+	GFX_UNSIGNED_SHORT_5_5_5_1,
+	GFX_INT_10_10_10_2,
+	GFX_UNSIGNED_INT_10_10_10_2, /* Interpreted as integer */
+	GFX_UNSIGNED_INT_11F_11F_10F,
+	GFX_UNSIGNED_INT_9_9_9_5E,   /* Shared exponent of 5 bits */
+	GFX_UNSIGNED_INT_24_8,       /* Depth/stencil only */
+	GFX_FLOAT_UNSIGNED_INT_24_8  /* Depth/stencil only */
 
 } GFXPackedType;
 
@@ -91,10 +91,10 @@ typedef union GFXDataType
 /** Buffer usage bitflag */
 typedef enum GFXBufferUsage
 {
-	GFX_BUFFER_READ     = 0x01,
-	GFX_BUFFER_WRITE    = 0x02,
-	GFX_BUFFER_STREAM   = 0x04,
-	GFX_BUFFER_DYNAMIC  = 0x08
+	GFX_BUFFER_READ       = 0x01,
+	GFX_BUFFER_WRITE      = 0x02,
+	GFX_BUFFER_MAP_READ   = 0x04,
+	GFX_BUFFER_MAP_WRITE  = 0x08
 
 } GFXBufferUsage;
 
@@ -102,9 +102,13 @@ typedef enum GFXBufferUsage
 /** Buffer */
 typedef struct GFXBuffer
 {
-	GFXBufferUsage  usage; /* Intended usage of the buffer */
-	size_t          size;  /* Size of the buffer in bytes */
-	unsigned char   multi; /* Number of extra buffers (0 = regular buffering) */
+	/* Super class */
+	GFXRenderObject  object;
+
+	/* Other read only fields */
+	GFXBufferUsage   usage; /* Intended usage of the buffer */
+	size_t           size;  /* Size of the buffer in bytes */
+	unsigned char    count; /* Number of backbuffers (1 = regular buffering) */
 
 } GFXBuffer;
 
@@ -114,10 +118,10 @@ typedef struct GFXBuffer
  *
  * @param usage Usage bitflag, how the buffer is intended to be used.
  * @param size  Size of each individual backbuffer.
- * @param multi Number of extra backbuffers to allocate (> 0 for multi buffering, 0 for regular buffering).
+ * @param count Number of backbuffers to allocate (0 is the same as 1).
  * @return NULL on failure.
  *
- * Note: if data is not NULL, this data is NOT copied to any extra buffers.
+ * Note: if data is not NULL, this data is only copied to the current backbuffer.
  *
  */
 GFX_API GFXBuffer* gfx_buffer_create(
@@ -125,20 +129,23 @@ GFX_API GFXBuffer* gfx_buffer_create(
 		GFXBufferUsage  usage,
 		size_t          size,
 		const void*     data,
-		unsigned char   multi);
+		unsigned char   count);
 
 /**
  * Creates a copy of a buffer.
  *
+ * @param count Number of backbuffers to copy data from.
  * @param usage Usage bitflag, how the buffer is intended to be used.
  * @return Non-zero on success.
  *
- * Note: only copies the current backbuffer when multi buffering.
+ * The same number of backbuffers are allocated, count only specifies how many
+ * of them will copy over the data too.
  *
  */
 GFX_API GFXBuffer* gfx_buffer_create_copy(
 
 		const GFXBuffer*  src,
+		unsigned char     count,
 		GFXBufferUsage    usage);
 
 /**
@@ -148,30 +155,6 @@ GFX_API GFXBuffer* gfx_buffer_create_copy(
 GFX_API void gfx_buffer_free(
 
 		GFXBuffer* buffer);
-
-/**
- * Allocates more backbuffers for multibuffering.
- *
- * @param num Number of extra buffers to allocate.
- * @return Non-zero on success.
- *
- */
-GFX_API int gfx_buffer_expand(
-
-		GFXBuffer*     buffer,
-		unsigned char  num);
-
-/**
- * Deallocates backbuffers from multibuffering.
- *
- * @param num Number of buffers to remove.
- * @return Number of buffers actually removed.
- *
- */
-GFX_API int gfx_buffer_shrink(
-
-		GFXBuffer*     buffer,
-		unsigned char  num);
 
 /**
  * Advances to the next backbuffer.
@@ -188,6 +171,8 @@ GFX_API void gfx_buffer_swap(
  * @param data   Pointer to write to, cannot be NULL.
  * @param offset Byte offset in the buffer to begin reading at.
  *
+ * Note: GFX_BUFFER_READ must be set at creation.
+ *
  */
 GFX_API void gfx_buffer_read(
 
@@ -202,6 +187,8 @@ GFX_API void gfx_buffer_read(
  * @param size   Size of the data to write, in bytes.
  * @param data   Data to write to the buffer, cannot be NULL.
  * @param offset Byte offset in the buffer to begin writing at.
+ *
+ * Note: GFX_BUFFER_WRITE must be set at creation.
  *
  */
 GFX_API void gfx_buffer_write(
@@ -233,24 +220,60 @@ GFX_API void gfx_buffer_copy(
 		size_t            size);
 
 /**
+ * Copies the content of the current backbuffer to another at the same buffer.
+ *
+ * @param dest Backbuffer offset counting from the current to write to.
+ *
+ * Note: if dest points to the same backbuffer and the ranges overlap, undefined behaviour
+ * is expected.
+ * The size is clipped to the size of the buffers (offsets included).
+ *
+ */
+GFX_API void gfx_buffer_copy_same(
+
+		const GFXBuffer*  buffer,
+		unsigned char     dest,
+		size_t            srcOffset,
+		size_t            destOffset,
+		size_t            size);
+
+/**
+ * Orphans the current backbuffer, meaning the current storage is invalidated.
+ *
+ * This method allows to allocate a new buffer somewhere on the GPU, and disregard
+ * the old storage. This way the renderer can still use the old buffer while the
+ * new buffer is ready to be used for some other purpose.
+ *
+ */
+GFX_API void gfx_buffer_orphan(
+
+		const GFXBuffer* buffer);
+
+/**
  * Maps the current backbuffer and returns a pointer to the mapped data.
  *
- * @param access Access rules to optimize (which must be followed by the client).
  * @param offset Offset within the buffer.
  * @return A pointer in client address space (NULL on failure).
+ *
+ * Note: this is asynchronously, writing to the pointer whilst the buffer is used
+ * elsewhere (for example it is used for rendering) is undefined behaviour.
+ *
+ * GFX_BUFFER_MAP_WRITE and GFX_BUFFER_MAP_READ given at creation of the buffer
+ * dictate what is possible to do with the pointer. If neither is set, this
+ * function will return NULL.
  *
  */
 GFX_API void* gfx_buffer_map(
 
 		const GFXBuffer*  buffer,
 		size_t            size,
-		size_t            offset,
-		GFXBufferUsage    access);
+		size_t            offset);
 
 /**
- * Unmaps the buffer, invalidating the pointer returned by gfx_buffer_map.
+ * Unmaps the current backbuffer, invalidating the pointer returned by gfx_buffer_map.
  *
- * This method MUST be called immediately after gfx_buffer_map in order to continue using the buffer.
+ * This method MUST be called before any other method after gfx_buffer_map in order to continue
+ * using the same backbuffer (the others can savely be used).
  *
  */
 GFX_API void gfx_buffer_unmap(
@@ -272,7 +295,7 @@ typedef struct GFXSharedBuffer
 
 
 /**
- * Requests a new size if a new buffer pool needs to be created.
+ * Requests (hints) a new size if a new buffer pool needs to be created.
  *
  * @param size Pool size in bytes, the default is GFX_SHARED_BUFFER_SIZE_DEFAULT.
  *
