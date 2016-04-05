@@ -303,8 +303,8 @@ GFX_API void gfx_window_get_position(
  */
 GFX_API void gfx_window_set_name(
 
-		const GFXWindow*  window,
-		const char*       name);
+		GFXWindow*   window,
+		const char*  name);
 
 /**
  * Sets the size of the window.
@@ -312,9 +312,9 @@ GFX_API void gfx_window_set_name(
  */
 GFX_API void gfx_window_set_size(
 
-		const GFXWindow*  window,
-		unsigned int      width,
-		unsigned int      height);
+		GFXWindow*    window,
+		unsigned int  width,
+		unsigned int  height);
 
 /**
  * Sets the position of the window.
@@ -322,9 +322,9 @@ GFX_API void gfx_window_set_size(
  */
 GFX_API void gfx_window_set_position(
 
-		const GFXWindow*  window,
-		int               x,
-		int               y);
+		GFXWindow*  window,
+		int         x,
+		int         y);
 
 /**
  * Makes a window visible.
@@ -335,7 +335,7 @@ GFX_API void gfx_window_set_position(
  */
 GFX_API void gfx_window_show(
 
-		const GFXWindow* window);
+		GFXWindow* window);
 
 /**
  * Makes a window invisible.
@@ -346,7 +346,7 @@ GFX_API void gfx_window_show(
  */
 GFX_API void gfx_window_hide(
 
-		const GFXWindow* window);
+		GFXWindow* window);
 
 /**
  * Sets the minimum number of video frame periods per buffer swap.
@@ -359,8 +359,8 @@ GFX_API void gfx_window_hide(
  */
 GFX_API int gfx_window_set_swap_interval(
 
-		const GFXWindow*  window,
-		int               num);
+		GFXWindow*  window,
+		int         num);
 
 
 #endif // GFX_CORE_WINDOW_H

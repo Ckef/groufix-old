@@ -694,8 +694,8 @@ void gfx_window_get_position(
 /******************************************************/
 void gfx_window_set_name(
 
-		const GFXWindow*  window,
-		const char*       name)
+		GFXWindow*   window,
+		const char*  name)
 {
 	const GFX_Context* context = (GFX_Context*)window;
 	if(context->context && !context->offscreen)
@@ -708,9 +708,9 @@ void gfx_window_set_name(
 /******************************************************/
 void gfx_window_set_size(
 
-		const GFXWindow*  window,
-		unsigned int      width,
-		unsigned int      height)
+		GFXWindow*    window,
+		unsigned int  width,
+		unsigned int  height)
 {
 	const GFX_Context* context = (GFX_Context*)window;
 	if(context->context && !context->offscreen)
@@ -724,9 +724,9 @@ void gfx_window_set_size(
 /******************************************************/
 void gfx_window_set_position(
 
-		const GFXWindow*  window,
-		int               x,
-		int               y)
+		GFXWindow*  window,
+		int         x,
+		int         y)
 {
 	const GFX_Context* context = (GFX_Context*)window;
 	if(context->context && !context->offscreen)
@@ -740,7 +740,7 @@ void gfx_window_set_position(
 /******************************************************/
 void gfx_window_show(
 
-		const GFXWindow* window)
+		GFXWindow* window)
 {
 	const GFX_Context* context = (GFX_Context*)window;
 	if(context->context && !context->offscreen)
@@ -750,7 +750,7 @@ void gfx_window_show(
 /******************************************************/
 void gfx_window_hide(
 
-		const GFXWindow* window)
+		GFXWindow* window)
 {
 	const GFX_Context* context = (GFX_Context*)window;
 	if(context->context && !context->offscreen)
@@ -760,8 +760,8 @@ void gfx_window_hide(
 /******************************************************/
 int gfx_window_set_swap_interval(
 
-		const GFXWindow*  window,
-		int               num)
+		GFXWindow*  window,
+		int         num)
 {
 	const GFX_Context* context = (GFX_Context*)window;
 	if(context->context && !context->offscreen)
