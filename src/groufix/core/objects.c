@@ -28,16 +28,25 @@ typedef struct GFX_RenderObjectStorage
 
 
 /******************************************************/
+static inline int _gfx_render_object_id_check(
+
+		const GFX_RenderObjectID*  id,
+		const GFX_RenderObjects*   cont)
+{
+	const GFX_RenderObjectRef* ref;
+
+	for(ref = &id->refs; ref; ref = ref->next)
+		if(ref->objects == cont) return 1;
+
+	return 0;
+}
+
+/******************************************************/
 static int _gfx_render_object_id_ref(
 
 		GFX_RenderObjectID*  id,
 		GFX_RenderObjects*   cont)
 {
-	/* Check if it already exists */
-	GFX_RenderObjectRef* ref;
-	for(ref = &id->refs; ref; ref = ref->next)
-		if(ref->objects == cont) return 0;
-
 	/* Initialize */
 	GFX_RenderObjectRef temp =
 	{
@@ -47,6 +56,8 @@ static int _gfx_render_object_id_ref(
 	};
 
 	/* Allocate a new one if necessary */
+	GFX_RenderObjectRef* ref;
+
 	if(!id->refs.objects)
 		ref = &temp;
 	else
@@ -301,14 +312,14 @@ void _gfx_render_objects_transfer(
 		it = gfx_vector_next(&src->temp, it))
 	{
 		/* Reference it at destination and call the transfer callback */
-		_gfx_render_object_id_ref(
-			it->id,
-			dest);
+		if(!_gfx_render_object_id_check(it->id, dest))
+			_gfx_render_object_id_ref(it->id, dest);
 
 		it->id->funcs->transfer(
 			(GFX_RenderObjectIDArg)it->id,
 			&it->storage,
-			shared);
+			shared
+		);
 	}
 
 	gfx_vector_clear(&src->temp);
@@ -376,6 +387,11 @@ int _gfx_render_object_id_reference(
 	if(id->refs.objects && !(flags & GFX_OBJECT_CAN_SHARE))
 		return 0;
 
+	/* Check if already referenced */
+	if(_gfx_render_object_id_check(id, cont))
+		return 1;
+
+	/* Actually reference it */
 	int success;
 
 	_gfx_platform_mutex_lock(&cont->mutex);
