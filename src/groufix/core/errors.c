@@ -57,10 +57,10 @@ static inline void _gfx_errors_poll(void)
 /******************************************************/
 static GFX_Error* _gfx_errors_last(void)
 {
+	_gfx_errors_poll();
+
 	/* Lock but don't unlock as to not have to lock again */
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
-
-	_gfx_errors_poll();
 
 	if(_gfx_errors.begin == _gfx_errors.end) return NULL;
 	return (GFX_Error*)_gfx_errors.begin;
@@ -97,9 +97,10 @@ void _gfx_errors_terminate(void)
 /******************************************************/
 unsigned int gfx_get_num_errors(void)
 {
+	_gfx_errors_poll();
+
 	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
-	_gfx_errors_poll();
 	size_t size = gfx_deque_get_size(&_gfx_errors);
 
 	_gfx_platform_mutex_unlock(&_gfx_error_mutex);
@@ -129,9 +130,9 @@ int gfx_errors_find(
 
 		GFXErrorCode code)
 {
-	_gfx_platform_mutex_lock(&_gfx_error_mutex);
-
 	_gfx_errors_poll();
+
+	_gfx_platform_mutex_lock(&_gfx_error_mutex);
 
 	GFX_Error* it;
 	for(

@@ -82,6 +82,7 @@ static int _gfx_x11_load_extensions(
 	}
 
 #if defined(GFX_RENDERER_GL)
+
 	int num = XDefaultScreen(_gfx_x11.display);
 
 	/* Check all vital extensions */
@@ -107,6 +108,7 @@ static int _gfx_x11_load_extensions(
 	/* Check non-vital extensions */
 	if(!_gfx_x11_is_extension_supported(num, "GLX_EXT_swap_control"))
 		_gfx_x11.extensions.SwapIntervalEXT = NULL;
+
 #endif
 
 	return 1;

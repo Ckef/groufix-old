@@ -134,18 +134,15 @@ GFX_API GFXBuffer* gfx_buffer_create(
 /**
  * Creates a copy of a buffer.
  *
- * @param count Number of backbuffers to copy data from.
  * @param usage Usage bitflag, how the buffer is intended to be used.
  * @return Non-zero on success.
  *
- * The same number of backbuffers are allocated, count only specifies how many
- * of them will copy over the data too.
+ * Note: only copies the current backbuffer.
  *
  */
 GFX_API GFXBuffer* gfx_buffer_create_copy(
 
 		const GFXBuffer*  src,
-		unsigned char     count,
 		GFXBufferUsage    usage);
 
 /**
@@ -170,11 +167,12 @@ GFX_API void gfx_buffer_swap(
  * @param size   Size of the data to read, in bytes.
  * @param data   Pointer to write to, cannot be NULL.
  * @param offset Byte offset in the buffer to begin reading at.
+ * @return Number of bytes actually read.
  *
  * Note: GFX_BUFFER_READ must be set at creation.
  *
  */
-GFX_API void gfx_buffer_read(
+GFX_API size_t gfx_buffer_read(
 
 		const GFXBuffer*  buffer,
 		size_t            size,
@@ -187,16 +185,17 @@ GFX_API void gfx_buffer_read(
  * @param size   Size of the data to write, in bytes.
  * @param data   Data to write to the buffer, cannot be NULL.
  * @param offset Byte offset in the buffer to begin writing at.
+ * @return Number of bytes actually written.
  *
  * Note: GFX_BUFFER_WRITE must be set at creation.
  *
  */
-GFX_API void gfx_buffer_write(
+GFX_API size_t gfx_buffer_write(
 
-		const GFXBuffer*  buffer,
-		size_t            size,
-		const void*       data,
-		size_t            offset);
+		GFXBuffer*   buffer,
+		size_t       size,
+		const void*  data,
+		size_t       offset);
 
 /**
  * Copies the content of one buffer's current backbuffer to another.
@@ -206,14 +205,14 @@ GFX_API void gfx_buffer_write(
  * @param srcOffset  Byte offset within src to start reading.
  * @param destOffset Byte offset within dest to start writing.
  * @param size       Size of the data to be copied, in bytes.
+ * @return Number of bytes actually copied
  *
  * Note: If src and dest are equal and the ranges overlap, undefined behaviour is expected.
- * The size is clipped to the size of the buffers (offsets included).
  *
  */
-GFX_API void gfx_buffer_copy(
+GFX_API size_t gfx_buffer_copy(
 
-		const GFXBuffer*  dest,
+		GFXBuffer*        dest,
 		const GFXBuffer*  src,
 		size_t            srcOffset,
 		size_t            destOffset,
@@ -223,19 +222,19 @@ GFX_API void gfx_buffer_copy(
  * Copies the content of the current backbuffer to another at the same buffer.
  *
  * @param dest Backbuffer offset counting from the current to write to.
+ * @return Number of bytes actually copied
  *
  * Note: if dest points to the same backbuffer and the ranges overlap, undefined behaviour
  * is expected.
- * The size is clipped to the size of the buffers (offsets included).
  *
  */
-GFX_API void gfx_buffer_copy_same(
+GFX_API size_t gfx_buffer_copy_same(
 
-		const GFXBuffer*  buffer,
-		unsigned char     dest,
-		size_t            srcOffset,
-		size_t            destOffset,
-		size_t            size);
+		GFXBuffer*     buffer,
+		unsigned char  dest,
+		size_t         srcOffset,
+		size_t         destOffset,
+		size_t         size);
 
 /**
  * Orphans the current backbuffer, meaning the current storage is invalidated.
@@ -247,11 +246,12 @@ GFX_API void gfx_buffer_copy_same(
  */
 GFX_API void gfx_buffer_orphan(
 
-		const GFXBuffer* buffer);
+		GFXBuffer* buffer);
 
 /**
  * Maps the current backbuffer and returns a pointer to the mapped data.
  *
+ * @param size   Size of the region to map, also returns the actual mapped size.
  * @param offset Offset within the buffer.
  * @return A pointer in client address space (NULL on failure).
  *
@@ -265,9 +265,9 @@ GFX_API void gfx_buffer_orphan(
  */
 GFX_API void* gfx_buffer_map(
 
-		const GFXBuffer*  buffer,
-		size_t            size,
-		size_t            offset);
+		GFXBuffer*  buffer,
+		size_t*     size,
+		size_t      offset);
 
 /**
  * Unmaps the current backbuffer, invalidating the pointer returned by gfx_buffer_map.

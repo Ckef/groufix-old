@@ -74,7 +74,7 @@ typedef void (*GFX_RenderObjectTransferFunc) (GFX_RenderObjectIDArg, void**, int
 /** Operator vtable */
 typedef struct GFX_RenderObjectFuncs
 {
-	GFX_RenderObjectDestructFunc  destruct; /* When the last container is being dereferenced (its context is current) */
+	GFX_RenderObjectDestructFunc  destruct; /* When the last container is being dereferenced (if it exists, a context is current) */
 	GFX_RenderObjectTransferFunc  prepare;  /* When the current set of shared contexts will be out of use (one is current) */
 	GFX_RenderObjectTransferFunc  transfer; /* When a new set of shared contexts is referenced (a new one is current) */
 
@@ -128,14 +128,15 @@ void _gfx_render_objects_clear(
  * The callback offers a pointer to allow for temporary storage and
  * whether the src and destination are shared.
  *
- * This function is thread safe.
+ * This function is thread safe with respect to src.
  *
  * Note: This call MUST be made before calling _gfx_render_objects_transfer
  * with the same containers as src. The function can be called multiple times
  * before calling _gfx_render_objects_transfer, but it cannot overlap with it.
+ * It will not call the destruct callback, if shared is zero, it should destruct.
  *
- * Also, the IDs cannot be accessed or altered during this call and the transfer
- * call.
+ * Also, the IDs cannot be accessed or altered in the interval from calling this
+ * function until calling the transfer function.
  *
  */
 void _gfx_render_objects_prepare(
@@ -153,7 +154,7 @@ void _gfx_render_objects_prepare(
  * The callback gives the same pointer as _gfx_render_objects_prepare so to
  * restore the temporary memory and whether the src and destination are shared.
  *
- * This function is thread safe.
+ * This function is thread safe with respect to dest.
  *
  * Note: This call MUST be made after calling _gfx_render_objects_prepare
  * with the same containers as src, but it cannot overlap with it.
@@ -193,11 +194,11 @@ typedef struct GFX_RenderObjectID
  * Initializes a render object ID.
  *
  * @param flags Flags to use for this call.
- * @param funcs Function vtable to associate with this ID.
+ * @param funcs Function vtable to associate with this ID (any can be NULL).
  * @param cont  Render object container to first reference at (can be NULL).
  * @return Zero on failure.
  *
- * This function is thread safe.
+ * This function is thread safe with respect to cont.
  *
  * cont cannot be NULL if flags contains GFX_OBJECT_NEEDS_REFERENCE.
  * Note: NEVER copy the initialized ID, the same pointer must always be used!
@@ -213,7 +214,7 @@ int _gfx_render_object_id_init(
 /**
  * Clears a render object ID.
  *
- * This function is thread safe.
+ * This function is thread safe with respect to all the containers it references.
  *
  * Also dereferences it at all containers.
  * Note: will call the destruct callback if appropriate.
@@ -230,7 +231,7 @@ void _gfx_render_object_id_clear(
  * @param cont  Render object container to reference at.
  * @return Zero on failure.
  *
- * This function is thread safe.
+ * This function is thread safe with respect to cont.
  *
  */
 int _gfx_render_object_id_reference(
@@ -244,7 +245,7 @@ int _gfx_render_object_id_reference(
  *
  * @return Zero on failure.
  *
- * This function is thread safe.
+ * This function is thread safe with respect to cont.
  *
  * Note: will call the destruct callback if appropriate.
  *

@@ -351,11 +351,13 @@ int _gfx_platform_init(void)
 
 	/* Load extensions and init monitors */
 #if defined(GFX_RENDERER_GL)
+
 	if(!_gfx_win32_load_extensions())
 	{
 		_gfx_platform_terminate();
 		return 0;
 	}
+
 #endif
 
 	if(!_gfx_win32_init_monitors())

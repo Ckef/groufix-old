@@ -411,8 +411,10 @@ void _gfx_context_destroy(
 	_gfx_context_make_current(context);
 	//_gfx_pipe_process_unprepare(last);
 
-	/* Prepare for transfer and unload */
+	/* Prepare for transfer or clear objects, then unload */
 	if(curr) _gfx_render_objects_prepare(&context->objects, 1);
+	else _gfx_render_objects_clear(&context->objects);
+
 	_gfx_renderer_unload(GFX_CONT_INT_AS_ARG(context));
 
 	/* Braaaaaaains! */
@@ -428,8 +430,11 @@ void _gfx_context_destroy(
 	/* Also transfer all objects */
 	_gfx_context_make_current(curr);
 
-	if(curr) _gfx_render_objects_transfer(&context->objects, &curr->objects, 1);
-	_gfx_render_objects_clear(&context->objects);
+	if(curr)
+	{
+		_gfx_render_objects_transfer(&context->objects, &curr->objects, 1);
+		_gfx_render_objects_clear(&context->objects);
+	}
 }
 
 /******************************************************/

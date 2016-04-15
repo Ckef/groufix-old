@@ -135,7 +135,7 @@ ifeq ($(RENDERER),GL)
   depend/GL/glxext.h \
   depend/GL/wglext.h \
   src/groufix/core/renderer/gl.h \
-  src/groufix/core/renderer/gl_def.h \
+  src/groufix/core/renderer/gl_def.h
 
 else ifeq ($(RENDERER),GLES)
  HEADERS_RENDERER = \
@@ -143,7 +143,7 @@ else ifeq ($(RENDERER),GLES)
   depend/GLES3/gl3platform.h \
   depend/KHR/khrplatform.h \
   src/groufix/core/renderer/gl.h \
-  src/groufix/core/renderer/gl_def.h \
+  src/groufix/core/renderer/gl_def.h
 
 endif
 
@@ -179,7 +179,7 @@ HEADERS = \
  src/groufix/core/platform.h \
  src/groufix/core/renderer.h \
  src/groufix/core/threading.h \
- src/groufix/scene/internal.h \
+ src/groufix/scene/internal.h
 
 
 #################################################################
@@ -192,24 +192,24 @@ ifeq ($(RENDERER),GL)
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
-  $(OUT)$(SUB)/groufix/core/renderer/gl_states.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_states.o
 #  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_formats.o \
-  $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_load.o
 
 else ifeq ($(RENDERER),GLES)
  OBJS_RENDERER = \
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
-  $(OUT)$(SUB)/groufix/core/renderer/gl_states.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_states.o
 #  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_formats.o \
-  $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_load.o
 
 endif
 
@@ -221,6 +221,7 @@ OBJS = \
  $(OUT)$(SUB)/groufix/containers/list.o \
  $(OUT)$(SUB)/groufix/containers/thread_pool.o \
  $(OUT)$(SUB)/groufix/containers/vector.o \
+ $(OUT)$(SUB)/groufix/core/buffer.o \
  $(OUT)$(SUB)/groufix/core/context.o \
  $(OUT)$(SUB)/groufix/core/errors.o \
  $(OUT)$(SUB)/groufix/core/events.o \
@@ -280,7 +281,7 @@ OBJS_UNIX_X11 = \
  $(OUT)$(SUB)/groufix/core/platform/x11_context.o \
  $(OUT)$(SUB)/groufix/core/platform/x11_init.o \
  $(OUT)$(SUB)/groufix/core/platform/x11_monitor.o \
- $(OUT)$(SUB)/groufix/core/platform/x11_window.o \
+ $(OUT)$(SUB)/groufix/core/platform/x11_window.o
 
 
 # All the build targets
@@ -320,7 +321,7 @@ OBJS_WIN32 = \
  $(OUT)$(SUB)/groufix/core/platform/win32_strings.o \
  $(OUT)$(SUB)/groufix/core/platform/win32_threading.o \
  $(OUT)$(SUB)/groufix/core/platform/win32_time.o \
- $(OUT)$(SUB)/groufix/core/platform/win32_window.o \
+ $(OUT)$(SUB)/groufix/core/platform/win32_window.o
 
 
 # All the build targets

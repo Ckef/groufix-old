@@ -128,7 +128,8 @@ static int _gfx_render_object_id_ref(
 static void _gfx_render_object_id_deref(
 
 		GFX_RenderObjectID*  id,
-		GFX_RenderObjects*   cont)
+		GFX_RenderObjects*   cont,
+		int                  destruct)
 {
 	/* Search for the reference */
 	GFX_RenderObjectRef* ref;
@@ -177,24 +178,25 @@ static void _gfx_render_object_id_deref(
 			prev = prev->next;
 		}
 	}
+
+	/* Free one node and move it to the structure itself */
+	else if(id->refs.next)
+	{
+		GFX_RenderObjectRef* del = id->refs.next;
+		id->refs = *del;
+
+		free(del);
+	}
+
+	/* Clear the last node it the structure itself */
 	else
 	{
-		if(id->refs.next)
-		{
-			/* Free one node and move it to the structure itself */
-			GFX_RenderObjectRef* del = id->refs.next;
-			id->refs = *del;
+		id->refs.objects = NULL;
+		id->refs.id = 0;
 
-			free(del);
-		}
-		else
-		{
-			id->refs.objects = NULL;
-			id->refs.id = 0;
-
-			/* This was the last, call the destruct callback */
+		/* This was the last, call the destruct callback */
+		if(destruct && id->funcs->destruct)
 			id->funcs->destruct((GFX_RenderObjectIDArg)id);
-		}
 	}
 }
 
@@ -228,7 +230,7 @@ void _gfx_render_objects_clear(
 		GFX_RenderObjectID* id =
 			*(GFX_RenderObjectID**)gfx_vector_at(&cont->objects, index - 1);
 
-		if(id) _gfx_render_object_id_deref(id, cont);
+		if(id) _gfx_render_object_id_deref(id, cont, 1);
 	}
 
 	gfx_vector_clear(&cont->objects);
@@ -280,15 +282,13 @@ void _gfx_render_objects_prepare(
 				continue;
 			}
 
-			/* Dereference it and call the preparation callback */
-			_gfx_render_object_id_deref(
-				id,
-				src);
+			/* Call the preparation callback and dereference it */
+			/* In that order so the callbacks are called correctly */
+			if(id->funcs->prepare) id->funcs->prepare(
+				(GFX_RenderObjectIDArg)id, &temp->storage, shared);
 
-			id->funcs->prepare(
-				(GFX_RenderObjectIDArg)id,
-				&temp->storage,
-				shared);
+			_gfx_render_object_id_deref(
+				id, src, 0);
 		}
 	}
 
@@ -315,11 +315,8 @@ void _gfx_render_objects_transfer(
 		if(!_gfx_render_object_id_check(it->id, dest))
 			_gfx_render_object_id_ref(it->id, dest);
 
-		it->id->funcs->transfer(
-			(GFX_RenderObjectIDArg)it->id,
-			&it->storage,
-			shared
-		);
+		if(it->id->funcs->transfer) it->id->funcs->transfer(
+			(GFX_RenderObjectIDArg)it->id, &it->storage, shared);
 	}
 
 	gfx_vector_clear(&src->temp);
@@ -370,7 +367,7 @@ void _gfx_render_object_id_clear(
 
 		_gfx_platform_mutex_lock(&cont->mutex);
 
-		_gfx_render_object_id_deref(id, cont);
+		_gfx_render_object_id_deref(id, cont, 1);
 
 		_gfx_platform_mutex_unlock(&cont->mutex);
 	}
@@ -416,7 +413,7 @@ int _gfx_render_object_id_dereference(
 
 	_gfx_platform_mutex_lock(&cont->mutex);
 
-	_gfx_render_object_id_deref(id, cont);
+	_gfx_render_object_id_deref(id, cont, 1);
 
 	_gfx_platform_mutex_unlock(&cont->mutex);
 
