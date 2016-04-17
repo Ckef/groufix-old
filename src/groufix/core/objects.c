@@ -283,7 +283,6 @@ void _gfx_render_objects_prepare(
 			}
 
 			/* Call the preparation callback and dereference it */
-			/* In that order so the callbacks are called correctly */
 			if(id->funcs->prepare) id->funcs->prepare(
 				(GFX_RenderObjectIDArg)id, &temp->storage, shared);
 
@@ -380,13 +379,13 @@ int _gfx_render_object_id_reference(
 		GFXRenderObjectFlags  flags,
 		GFX_RenderObjects*    cont)
 {
-	/* Check share flag */
-	if(id->refs.objects && !(flags & GFX_OBJECT_CAN_SHARE))
-		return 0;
-
 	/* Check if already referenced */
 	if(_gfx_render_object_id_check(id, cont))
 		return 1;
+
+	/* Check share flag */
+	if(id->refs.objects && !(flags & GFX_OBJECT_CAN_SHARE))
+		return 0;
 
 	/* Actually reference it */
 	int success;
@@ -407,10 +406,15 @@ int _gfx_render_object_id_dereference(
 		GFXRenderObjectFlags  flags,
 		GFX_RenderObjects*    cont)
 {
+	/* Check if it is even referenced */
+	if(!_gfx_render_object_id_check(id, cont))
+		return 1;
+
 	/* Check needs reference flag */
 	if(!id->refs.next && (flags & GFX_OBJECT_NEEDS_REFERENCE))
 		return 0;
 
+	/* Actually dereference it */
 	_gfx_platform_mutex_lock(&cont->mutex);
 
 	_gfx_render_object_id_deref(id, cont, 1);

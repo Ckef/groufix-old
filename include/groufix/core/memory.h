@@ -148,6 +148,9 @@ GFX_API GFXBuffer* gfx_buffer_create_copy(
 /**
  * Makes sure the buffer is freed properly.
  *
+ * This is a no-op if it is called on a groufix thread that is not shared, or called
+ * on a non-groufix thread whilst it is still being used on a groufix thread.
+ *
  */
 GFX_API void gfx_buffer_free(
 

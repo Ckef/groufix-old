@@ -43,16 +43,16 @@
 
 
 /* Macros for safe current context fetching */
-#define GFX_CONT_INIT_UNSAFE        GFX_Context* _gfx_c__ = _gfx_context_get_current();
-#define GFX_CONT_INIT(r)            GFX_CONT_INIT_UNSAFE if(!_gfx_c__) return r;
-#define GFX_CONT_EQ(x)              (_gfx_c__ == (x))
+#define GFX_CONT_INIT_UNSAFE        GFX_Context* gfx_c__ = _gfx_context_get_current();
+#define GFX_CONT_INIT(r)            GFX_CONT_INIT_UNSAFE if(!gfx_c__) return r;
+#define GFX_CONT_EQ(x)              (gfx_c__ == (x))
 
-#define GFX_CONT_ARG                GFX_Context* _gfx_c__
-#define GFX_CONT_AS_ARG             _gfx_c__
+#define GFX_CONT_ARG                GFX_Context* gfx_c__
+#define GFX_CONT_AS_ARG             gfx_c__
 #define GFX_CONT_INT_AS_ARG(c)      (c)
 
-#define GFX_CONT_GET                (*_gfx_c__)
-#define GFX_REND_GET                (_gfx_c__->renderer)
+#define GFX_CONT_GET                (*gfx_c__)
+#define GFX_REND_GET                (gfx_c__->renderer)
 
 
 /********************************************************
@@ -336,7 +336,7 @@ GFX_Context* _gfx_context_create(void);
  * Creates a zombie context, the context struct still exists, but is not registered.
  * Thus, it must still be freed with gfx_window_free.
  *
- * Note: all objects are automatically saved and restored to the main context.
+ * Note: all objects are automatically transferred to an appropriate context.
  *
  */
 void _gfx_context_destroy(
@@ -367,7 +367,7 @@ GFX_Context* _gfx_context_get_current(void);
 
 
 /********************************************************
- * Renderer interface
+ * Renderer loading, errors and states
  *******************************************************/
 
 /**

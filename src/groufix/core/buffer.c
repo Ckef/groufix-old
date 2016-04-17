@@ -63,6 +63,16 @@ static inline int _gfx_buffer_ref(
 	);
 }
 
+/******************************************************/
+static inline int _gfx_buffer_check(
+
+		const GFX_Buffer* buffer,
+		GFX_CONT_ARG)
+{
+	return *_gfx_buffer_get_handle(buffer, 0) &&
+		_gfx_buffer_ref(buffer, GFX_CONT_AS_ARG);
+}
+
 #if defined(GFX_RENDERER_GL)
 
 /******************************************************/
@@ -92,6 +102,26 @@ static inline GLenum _gfx_buffer_from_usage(
 #endif
 
 /******************************************************/
+static void _gfx_buffer_clear(
+
+		GFX_Buffer* buffer,
+		GFX_CONT_ARG)
+{
+#if defined(GFX_RENDERER_GL)
+
+	GFX_REND_GET.DeleteBuffers(
+		buffer->buffer.count,
+		_gfx_buffer_get_handle(buffer, 0));
+
+#endif
+
+	memset(
+		_gfx_buffer_get_handle(buffer, 0),
+		0,
+		buffer->buffer.count * sizeof(GFX_BufferHandle));
+}
+
+/******************************************************/
 static int _gfx_buffer_init(
 
 		GFX_Buffer*    buffer,
@@ -113,9 +143,7 @@ static int _gfx_buffer_init(
 	for(i = 0; i < buffer->buffer.count; ++i)
 		if(!(*_gfx_buffer_get_handle(buffer, i)))
 		{
-			GFX_REND_GET.DeleteBuffers(
-				buffer->buffer.count, _gfx_buffer_get_handle(buffer, 0));
-
+			_gfx_buffer_clear(buffer, GFX_CONT_AS_ARG);
 			return 0;
 		}
 
@@ -132,28 +160,6 @@ static int _gfx_buffer_init(
 #endif
 
 	return 1;
-}
-
-/******************************************************/
-static void _gfx_buffer_clear(
-
-		GFX_Buffer* buffer,
-		GFX_CONT_ARG)
-{
-#if defined(GFX_RENDERER_GL)
-
-	GFX_REND_GET.DeleteBuffers(
-		buffer->buffer.count,
-		_gfx_buffer_get_handle(buffer, 0)
-	);
-
-#endif
-
-	memset(
-		_gfx_buffer_get_handle(buffer, 0),
-		0,
-		buffer->buffer.count * sizeof(GFX_BufferHandle)
-	);
 }
 
 /******************************************************/
@@ -180,10 +186,11 @@ static void _gfx_buffer_obj_prepare(
 	if(shared) return;
 
 	GFX_CONT_INIT_UNSAFE;
-	GFX_Buffer* buffer = GFX_PTR_SUB_BYTES(arg, offsetof(GFX_Buffer, id));
 
 	/* Create temporary storage */
+	GFX_Buffer* buffer = GFX_PTR_SUB_BYTES(arg, offsetof(GFX_Buffer, id));
 	*temp = malloc(buffer->buffer.size * buffer->buffer.count);
+
 	if(!*temp)
 	{
 		/* Out of memory error */
@@ -225,9 +232,10 @@ static void _gfx_buffer_obj_transfer(
 	if(shared) return;
 
 	GFX_CONT_INIT_UNSAFE;
-	GFX_Buffer* buffer = GFX_PTR_SUB_BYTES(arg, offsetof(GFX_Buffer, id));
 
 	/* Get pointers */
+	GFX_Buffer* buffer = GFX_PTR_SUB_BYTES(arg, offsetof(GFX_Buffer, id));
+
 	const void* data[buffer->buffer.count];
 	unsigned char i;
 
@@ -263,7 +271,12 @@ GFXBuffer* gfx_buffer_create(
 		const void*     data,
 		unsigned char   count)
 {
+	if(!size) return NULL;
+
 	GFX_CONT_INIT(NULL);
+
+	/* Always create at least one buffer */
+	count = count ? count : 1;
 
 	/* Create new buffer, append handles at the end of the struct */
 	size_t alloc = sizeof(GFX_Buffer) + count * sizeof(GFX_BufferHandle);
@@ -278,14 +291,21 @@ GFXBuffer* gfx_buffer_create(
 		return NULL;
 	}
 
-	/* Initialize as object */
-#if defined(GFX_RENDERER_GL)
+	/* Create the actual buffer contents */
+	buffer->buffer.usage = usage;
+	buffer->buffer.size = size;
+	buffer->buffer.count = count;
 
+	if(!_gfx_buffer_init(buffer, 1, &data, GFX_CONT_AS_ARG))
+	{
+		free(buffer);
+		return NULL;
+	}
+
+	/* Initialize as object */
 	buffer->buffer.object =
 		GFX_OBJECT_NEEDS_REFERENCE |
 		GFX_OBJECT_CAN_SHARE;
-
-#endif
 
 	if(!_gfx_render_object_id_init(
 		&buffer->id,
@@ -293,18 +313,7 @@ GFXBuffer* gfx_buffer_create(
 		&_gfx_buffer_obj_funcs,
 		&GFX_CONT_GET.objects))
 	{
-		free(buffer);
-		return NULL;
-	}
-
-	buffer->buffer.usage = usage;
-	buffer->buffer.size = size;
-	buffer->buffer.count = count;
-
-	/* Create the actual buffer contents */
-	if(!_gfx_buffer_init(buffer, 1, &data, GFX_CONT_AS_ARG))
-	{
-		_gfx_render_object_id_clear(&buffer->id);
+		_gfx_buffer_clear(buffer, GFX_CONT_AS_ARG);
 		free(buffer);
 
 		return NULL;
@@ -342,6 +351,22 @@ void gfx_buffer_free(
 {
 	if(buffer)
 	{
+		/* Check context */
+		GFX_CONT_INIT_UNSAFE;
+
+		if(!GFX_CONT_EQ(NULL))
+		{
+			/* Check if sharing context */
+			if(!_gfx_buffer_ref((GFX_Buffer*)buffer, GFX_CONT_AS_ARG))
+				return;
+		}
+		else
+		{
+			/* Check if actual buffer was destroyed */
+			if(*_gfx_buffer_get_handle((GFX_Buffer*)buffer, 0))
+				return;
+		}
+
 		/* Clear as object */
 		/* Object clearing will call the destruct callback */
 		_gfx_render_object_id_clear(&((GFX_Buffer*)buffer)->id);
@@ -354,14 +379,14 @@ void gfx_buffer_swap(
 
 		GFXBuffer* buffer)
 {
+	/* Check context */
 	GFX_CONT_INIT();
 
 	GFX_Buffer* internal = (GFX_Buffer*)buffer;
-	if(_gfx_buffer_ref(internal, GFX_CONT_AS_ARG))
-	{
-		/* Get new current index */
-		internal->current = (internal->current + 1) % buffer->count;
-	}
+	if(!_gfx_buffer_check(internal, GFX_CONT_AS_ARG)) return;
+
+	/* Get new current index */
+	internal->current = (internal->current + 1) % buffer->count;
 }
 
 /******************************************************/
@@ -373,12 +398,13 @@ size_t gfx_buffer_read(
 		size_t            offset)
 {
 	/* Derp */
-	if(offset >= buffer->size) return 0;
+	if(!size || offset >= buffer->size) return 0;
 
+	/* Check context */
 	GFX_CONT_INIT(0);
 
 	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
-	if(!_gfx_buffer_ref(internal, GFX_CONT_AS_ARG)) return 0;
+	if(!_gfx_buffer_check(internal, GFX_CONT_AS_ARG)) return 0;
 
 	/* Clip offset and size */
 	size = (offset + size > buffer->size) ?
@@ -407,12 +433,13 @@ size_t gfx_buffer_write(
 		size_t       offset)
 {
 	/* Derp */
-	if(offset >= buffer->size) return 0;
+	if(!size || offset >= buffer->size) return 0;
 
+	/* Check context */
 	GFX_CONT_INIT(0);
 
 	GFX_Buffer* internal = (GFX_Buffer*)buffer;
-	if(!_gfx_buffer_ref(internal, GFX_CONT_AS_ARG)) return 0;
+	if(!_gfx_buffer_check(internal, GFX_CONT_AS_ARG)) return 0;
 
 	/* Clip size */
 	size = (offset + size > buffer->size) ?
@@ -442,16 +469,18 @@ size_t gfx_buffer_copy(
 		size_t            size)
 {
 	/* Derp */
-	if(srcOffset >= src->size || destOffset >= dest->size) return 0;
+	if(!size || srcOffset >= src->size || destOffset >= dest->size)
+		return 0;
 
+	/* Check context */
 	GFX_CONT_INIT(0);
 
 	GFX_Buffer* intDest = (GFX_Buffer*)dest;
 	const GFX_Buffer* intSrc = (const GFX_Buffer*)src;
 
 	if(
-		!_gfx_buffer_ref(intDest, GFX_CONT_AS_ARG) ||
-		!_gfx_buffer_ref(intSrc, GFX_CONT_AS_ARG))
+		!_gfx_buffer_check(intDest, GFX_CONT_AS_ARG) ||
+		!_gfx_buffer_check(intSrc, GFX_CONT_AS_ARG))
 	{
 		return 0;
 	}
@@ -487,12 +516,14 @@ size_t gfx_buffer_copy_same(
 		size_t         size)
 {
 	/* Derp */
-	if(srcOffset >= buffer->size || destOffset >= buffer->size) return 0;
+	if(!size || srcOffset >= buffer->size || destOffset >= buffer->size)
+		return 0;
 
+	/* Check context */
 	GFX_CONT_INIT(0);
 
 	GFX_Buffer* internal = (GFX_Buffer*)buffer;
-	if(!_gfx_buffer_ref(internal, GFX_CONT_AS_ARG)) return 0;
+	if(!_gfx_buffer_check(internal, GFX_CONT_AS_ARG)) return 0;
 
 	/* Clip range */
 	size = (destOffset + size > buffer->size) ?
@@ -523,10 +554,11 @@ void gfx_buffer_orphan(
 
 		GFXBuffer* buffer)
 {
+	/* Check context */
 	GFX_CONT_INIT();
 
 	GFX_Buffer* internal = (GFX_Buffer*)buffer;
-	if(!_gfx_buffer_ref(internal, GFX_CONT_AS_ARG)) return;
+	if(!_gfx_buffer_check(internal, GFX_CONT_AS_ARG)) return;
 
 #if defined(GFX_RENDERER_GL)
 
@@ -549,6 +581,7 @@ void* gfx_buffer_map(
 {
 	/* Herpaderp, cannot map */
 	if(
+		!size ||
 		offset >= buffer->size ||
 		(!(buffer->usage & GFX_BUFFER_MAP_READ) &&
 		!(buffer->usage & GFX_BUFFER_MAP_WRITE)))
@@ -556,10 +589,11 @@ void* gfx_buffer_map(
 		return NULL;
 	}
 
+	/* Check context */
 	GFX_CONT_INIT(NULL);
 
 	GFX_Buffer* internal = (GFX_Buffer*)buffer;
-	if(!_gfx_buffer_ref(internal, GFX_CONT_AS_ARG)) return NULL;
+	if(!_gfx_buffer_check(internal, GFX_CONT_AS_ARG)) return NULL;
 
 	/* Clip size */
 	*size = (*size + offset > buffer->size) ?
@@ -591,10 +625,11 @@ void gfx_buffer_unmap(
 
 		const GFXBuffer* buffer)
 {
+	/* Check context */
 	GFX_CONT_INIT();
 
 	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
-	if(!_gfx_buffer_ref(internal, GFX_CONT_AS_ARG)) return;
+	if(!_gfx_buffer_check(internal, GFX_CONT_AS_ARG)) return;
 
 #if defined(GFX_RENDERER_GL)
 
