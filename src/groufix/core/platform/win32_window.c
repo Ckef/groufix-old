@@ -442,6 +442,23 @@ int _gfx_win32_register_classes(void)
 }
 
 /******************************************************/
+GFX_Win32_Window* _gfx_win32_get_window_from_handle(
+
+		HWND handle)
+{
+	GFX_Win32_Window* it;
+	for(
+		it = _gfx_win32.windows.begin;
+		it != _gfx_win32.windows.end;
+		it = gfx_vector_next(&_gfx_win32.windows, it))
+	{
+		if(it->handle == handle) break;
+	}
+
+	return it != _gfx_win32.windows.end ? it : NULL;
+}
+
+/******************************************************/
 GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 {
 	/* Create a dummy window */
@@ -650,16 +667,18 @@ void _gfx_platform_window_free(
 		GFX_PlatformWindow handle)
 {
 	/* Make sure to undo fullscreen */
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
-	if(it->flags & GFX_WIN32_FULLSCREEN)
-		_gfx_win32_leave_fullscreen(it->monitor);
+	GFX_Win32_Window* internal =
+		_gfx_win32_get_window_from_handle(handle);
+
+	if(internal->flags & GFX_WIN32_FULLSCREEN)
+		_gfx_win32_leave_fullscreen(internal->monitor);
 
 	/* Destroy the context and window */
 	_gfx_platform_context_clear(handle);
 	DestroyWindow(handle);
 
 	/* Remove from vector */
-	gfx_vector_erase(&_gfx_win32.windows, it);
+	gfx_vector_erase(&_gfx_win32.windows, internal);
 }
 
 /******************************************************/
@@ -667,8 +686,10 @@ GFX_PlatformMonitor _gfx_platform_window_get_monitor(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
-	if(it) return it->monitor;
+	GFX_Win32_Window* internal =
+		_gfx_win32_get_window_from_handle(handle);
+
+	if(internal) return internal->monitor;
 
 	return NULL;
 }
@@ -760,8 +781,10 @@ void _gfx_platform_window_set_size(
 		unsigned int        width,
 		unsigned int        height)
 {
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
-	if(it && (it->flags & GFX_WIN32_RESIZABLE))
+	GFX_Win32_Window* internal =
+		_gfx_win32_get_window_from_handle(handle);
+
+	if(internal && (internal->flags & GFX_WIN32_RESIZABLE))
 	{
 		RECT rect;
 		rect.left   = 0;
@@ -794,17 +817,19 @@ void _gfx_platform_window_set_position(
 		int                 y)
 {
 	/* Check if fullscreen */
-	GFX_Win32_Window* it = _gfx_win32_get_window_from_handle(handle);
-	if(it && !(it->flags & GFX_WIN32_FULLSCREEN))
+	GFX_Win32_Window* internal =
+		_gfx_win32_get_window_from_handle(handle);
+
+	if(internal && !(internal->flags & GFX_WIN32_FULLSCREEN))
 	{
 		/* Get window's monitor position */
 		int xM = 0;
 		int yM = 0;
 
-		if(it->monitor)
+		if(internal->monitor)
 		{
-			xM = it->monitor->x;
-			yM = it->monitor->y;
+			xM = internal->monitor->x;
+			yM = internal->monitor->y;
 		}
 
 		RECT rect;
@@ -835,9 +860,9 @@ void _gfx_platform_window_show(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_Win32_Window* it =
+	GFX_Win32_Window* internal =
 		_gfx_win32_get_window_from_handle(handle);
-	if(it) it->flags &=
+	if(internal) internal->flags &=
 		~GFX_WIN32_HIDDEN;
 
 	ShowWindow(handle, SW_SHOW);
@@ -848,9 +873,9 @@ void _gfx_platform_window_hide(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_Win32_Window* it =
+	GFX_Win32_Window* internal =
 		_gfx_win32_get_window_from_handle(handle);
-	if(it) it->flags |=
+	if(internal) internal->flags |=
 		GFX_WIN32_HIDDEN;
 
 	ShowWindow(handle, SW_HIDE);

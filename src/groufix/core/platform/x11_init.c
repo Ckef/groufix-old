@@ -393,23 +393,6 @@ static void _gfx_x11_sa_handler(int num)
 }
 
 /******************************************************/
-GFX_X11_Window* _gfx_x11_get_window_from_handle(
-
-		Window handle)
-{
-	GFX_X11_Window* it;
-	for(
-		it = _gfx_x11.windows.begin;
-		it != _gfx_x11.windows.end;
-		it = gfx_vector_next(&_gfx_x11.windows, it))
-	{
-		if(it->handle == handle) break;
-	}
-
-	return it != _gfx_x11.windows.end ? it : NULL;
-}
-
-/******************************************************/
 int _gfx_platform_init(void)
 {
 	/* Connect to X Server */

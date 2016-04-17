@@ -57,43 +57,6 @@
 
 
 /********************************************************
- * Platform window manager definitions
- *******************************************************/
-
-/** Process Address */
-typedef void (*GFX_ProcAddress) (void);
-
-
-/** A Monitor */
-typedef void* GFX_PlatformMonitor;
-
-
-/** A Window */
-typedef void* GFX_PlatformWindow;
-
-
-/** A Context */
-typedef void* GFX_PlatformContext;
-
-
-/** Window initialization attributes */
-typedef struct GFX_PlatformAttributes
-{
-	GFX_PlatformMonitor   monitor;
-	unsigned int          mode;  /* Guaranteed to be a valid index if fullscreen */
-	const GFXColorDepth*  depth; /* Guaranteed to be non-NULL if not fullscreen */
-	const char*           name;
-
-	GFXWindowFlags        flags;
-	int                   x;
-	int                   y;
-	unsigned int          w;     /* To be ignored if fullscreen */
-	unsigned int          h;     /* To be ignored if fullscreen */
-
-} GFX_PlatformAttributes;
-
-
-/********************************************************
  * Initialization
  *******************************************************/
 
@@ -142,6 +105,10 @@ double _gfx_platform_get_time_resolution(void);
 /********************************************************
  * Monitor retrieval
  *******************************************************/
+
+/** A Monitor */
+typedef void* GFX_PlatformMonitor;
+
 
 /**
  * Returns the number of visible monitors.
@@ -202,6 +169,27 @@ int _gfx_platform_monitor_get_mode(
 /********************************************************
  * Window creation
  *******************************************************/
+
+/** A Window */
+typedef void* GFX_PlatformWindow;
+
+
+/** Window initialization attributes */
+typedef struct GFX_PlatformAttributes
+{
+	GFX_PlatformMonitor   monitor;
+	unsigned int          mode;  /* Guaranteed to be a valid index if fullscreen */
+	const GFXColorDepth*  depth; /* Guaranteed to be non-NULL if not fullscreen */
+	const char*           name;
+
+	GFXWindowFlags        flags;
+	int                   x;
+	int                   y;
+	unsigned int          w;     /* To be ignored if fullscreen */
+	unsigned int          h;     /* To be ignored if fullscreen */
+
+} GFX_PlatformAttributes;
+
 
 /**
  * Creates a new window.
@@ -324,6 +312,14 @@ int _gfx_platform_poll_events(void);
 /********************************************************
  * Renderer Context of window
  *******************************************************/
+
+/** A Context */
+typedef void* GFX_PlatformContext;
+
+
+/** Process Address */
+typedef void (*GFX_ProcAddress) (void);
+
 
 /**
  * Creates a new windowless renderer context.

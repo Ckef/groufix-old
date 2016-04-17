@@ -135,8 +135,10 @@ typedef struct GFX_X11_Window
 	unsigned int      height;
 
 #if defined(GFX_RENDERER_GL)
+
 	GLXFBConfig       config;
 	GLXContext        context;
+
 #endif
 
 } GFX_X11_Window;

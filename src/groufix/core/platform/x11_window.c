@@ -408,6 +408,23 @@ static void _gfx_x11_event_proc(
 }
 
 /******************************************************/
+GFX_X11_Window* _gfx_x11_get_window_from_handle(
+
+		Window handle)
+{
+	GFX_X11_Window* it;
+	for(
+		it = _gfx_x11.windows.begin;
+		it != _gfx_x11.windows.end;
+		it = gfx_vector_next(&_gfx_x11.windows, it))
+	{
+		if(it->handle == handle) break;
+	}
+
+	return it != _gfx_x11.windows.end ? it : NULL;
+}
+
+/******************************************************/
 GFX_PlatformWindow _gfx_platform_window_create(
 
 		const GFX_PlatformAttributes* attributes)
@@ -660,8 +677,10 @@ GFX_PlatformMonitor _gfx_platform_window_get_monitor(
 
 		GFX_PlatformWindow handle)
 {
-	GFX_X11_Window* it = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
-	if(it) return it->monitor;
+	GFX_X11_Window* internal =
+		_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+
+	if(internal) return internal->monitor;
 
 	return NULL;
 }
@@ -772,17 +791,19 @@ void _gfx_platform_window_set_position(
 		int                 y)
 {
 	/* Check if fullscreen */
-	GFX_X11_Window* it = _gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
-	if(it && !(it->flags & GFX_X11_FULLSCREEN))
+	GFX_X11_Window* internal =
+		_gfx_x11_get_window_from_handle(GFX_VOID_TO_UINT(handle));
+
+	if(internal && !(internal->flags & GFX_X11_FULLSCREEN))
 	{
 		/* Get window's monitor position */
 		int xM = 0;
 		int yM = 0;
 
-		if(it->monitor)
+		if(internal->monitor)
 		{
-			xM = it->monitor->x;
-			yM = it->monitor->y;
+			xM = internal->monitor->x;
+			yM = internal->monitor->y;
 		}
 
 		XMoveWindow(

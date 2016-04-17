@@ -74,18 +74,10 @@ static GFX_PlatformContext _gfx_context_create_platform(
 		GFX_PlatformContext cont;
 
 		if(*window) cont = _gfx_platform_context_init(
-			*window,
-			max.major,
-			max.minor,
-			share,
-			debug);
+			*window, max.major, max.minor, share, debug);
 
 		else cont = _gfx_platform_context_create(
-			&wind,
-			max.major,
-			max.minor,
-			share,
-			debug);
+			&wind, max.major, max.minor, share, debug);
 
 		if(cont)
 		{
