@@ -18,6 +18,7 @@
 /* Core includes */
 #include "groufix/core/errors.h"
 #include "groufix/core/pipeline.h"
+#include "groufix/core/resources.h"
 
 
 /********************************************************
@@ -74,7 +75,7 @@ typedef enum GFXLimit
 
 
 /**
- * Returns whether a given extension is supported or not.
+ * Returns whether a given extension is supported or not by the calling groufix thread.
  *
  * @return Non-zero if the extension is supported.
  *
@@ -86,7 +87,7 @@ GFX_API int gfx_is_extension_supported(
 		GFXExtension extension);
 
 /**
- * Returns a limit given by the hardware.
+ * Returns a limit given by the hardware by the calling groufix thread.
  *
  * @return The limit, < 0 if not recognized.
  *
@@ -130,6 +131,14 @@ GFX_API int gfx_init(
 		GFXErrorMode  errors);
 
 /**
+ * Terminates the Groufix engine.
+ *
+ * Calling this function while the engine is not initialized is undefined behaviour.
+ *
+ */
+GFX_API void gfx_terminate(void);
+
+/**
  * Polls events of all windows.
  *
  * @return Zero if groufix was requested to terminate.
@@ -155,14 +164,6 @@ GFX_API double gfx_get_time(void);
 GFX_API void gfx_set_time(
 
 		double time);
-
-/**
- * Terminates the Groufix engine.
- *
- * Calling this function while the engine is not initialized is undefined behaviour.
- *
- */
-GFX_API void gfx_terminate(void);
 
 
 #endif // GROUFIX_H

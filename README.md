@@ -53,15 +53,13 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 #### Headers
 
-* `<groufix.h>` includes all _core_ functionality such as initialization, timing, window management, errors and all low level mechanisms. This header essentially exposes the bare minimum to work with Groufix.
+* `<groufix.h>` includes all _core_ functionality such as initialization, timing, window management, errors, resources and all low level mechanisms. This header essentially exposes the bare minimum to work with Groufix.
 
 * `<groufix/containers/*.h>` holds a set of headers defining useful container objects. All available containers are `deque`, `list`, `thread_pool` and `vector`. Replace the asterisk with one of these names.
 
 * `<groufix/math.h>` includes all mathematical functions associated with Groufix. This includes a handful of constants and linear algebra, namely vectors, matrices and quaternions.
 
-* `<groufix/resources.h>` includes everything related to loading, parsing and storing external resources. In addition it includes native parsers such as plaintext, binary, shaders and any format defined by Groufix.
-
-* `<groufix/scene.h>` includes everything related to constructing a scene to render. This includes high level constructs such as meshes, materials, objects and manners to manage level of detail.
+* `<groufix/scene.h>` includes everything related to constructing a scene to render. This includes high level constructs such as meshes, materials, batches and manners to manage level of detail.
 
 
 #### Threading

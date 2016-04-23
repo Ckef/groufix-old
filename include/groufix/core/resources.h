@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef GFX_RESOURCES_H
-#define GFX_RESOURCES_H
+#ifndef GFX_CORE_RESOURCES_H
+#define GFX_CORE_RESOURCES_H
 
 
 /********************************************************
@@ -34,4 +34,4 @@ typedef enum GFXResourceFlags
 } GFXResourceFlags;
 
 
-#endif // GFX_RESOURCES_H
+#endif // GFX_CORE_RESOURCES_H

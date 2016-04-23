@@ -16,7 +16,7 @@
 #define GFX_CORE_FILE_H
 
 #include "groufix/core/platform.h"
-#include "groufix/resources.h"
+#include "groufix/core/resources.h"
 
 /* Required headers */
 #if defined(GFX_UNIX)

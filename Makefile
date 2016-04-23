@@ -160,6 +160,7 @@ HEADERS = \
  include/groufix/core/memory.h \
  include/groufix/core/object.h \
  include/groufix/core/pipeline.h \
+ include/groufix/core/resources.h \
  include/groufix/core/shading.h \
  include/groufix/core/window.h \
  include/groufix/math/mat.h \
@@ -170,7 +171,6 @@ HEADERS = \
  include/groufix/scene/material.h \
  include/groufix/scene/mesh.h \
  include/groufix/math.h \
- include/groufix/resources.h \
  include/groufix/scene.h \
  include/groufix/utils.h \
  include/groufix.h \

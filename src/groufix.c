@@ -82,6 +82,18 @@ int gfx_init(
 }
 
 /******************************************************/
+void gfx_terminate(void)
+{
+	/* Cleanup shared buffers */
+	//gfx_shared_buffer_cleanup();
+
+	/* Terminate */
+	_gfx_context_manager_terminate();
+	_gfx_platform_terminate();
+	_gfx_errors_terminate();
+}
+
+/******************************************************/
 int gfx_poll_events(void)
 {
 	if(!_gfx_event_terminate_request)
@@ -104,16 +116,4 @@ void gfx_set_time(
 {
 	_gfx_time_start = _gfx_platform_get_time() -
 		(uint64_t)(time / _gfx_platform_get_time_resolution());
-}
-
-/******************************************************/
-void gfx_terminate(void)
-{
-	/* Cleanup shared buffers */
-	//gfx_shared_buffer_cleanup();
-
-	/* Terminate */
-	_gfx_context_manager_terminate();
-	_gfx_platform_terminate();
-	_gfx_errors_terminate();
 }
