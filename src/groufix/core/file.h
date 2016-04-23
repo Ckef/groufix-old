@@ -21,6 +21,7 @@
 /* Required headers */
 #if defined(GFX_UNIX)
 	#include <unistd.h>
+	#include <sys/stat.h>
 #endif
 
 /* Relative seeking positions */
@@ -116,6 +117,31 @@ static GFX_ALWAYS_INLINE void _gfx_platform_file_close(
 #elif defined(GFX_WIN32)
 
 	CloseHandle(file);
+
+#endif
+}
+
+/**
+ * Retrieves the size of a file.
+ *
+ */
+static GFX_ALWAYS_INLINE size_t _gfx_platform_file_get_size(
+
+		GFX_PlatformFile file)
+{
+#if defined(GFX_UNIX)
+
+	struct stat sb;
+	if(fstat(file, &sb) == -1) return 0;
+
+	return sb.st_size;
+
+#elif defined(GFX_WIN32)
+
+	LARGE_INTEGER val;
+	BOOL ret = GetFileSizeEx(file, &val);
+
+	return ret ? val.QuadPart : 0;
 
 #endif
 }

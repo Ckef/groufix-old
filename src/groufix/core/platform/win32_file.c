@@ -69,7 +69,7 @@ int _gfx_platform_file_open(
 	/* Create file */
 	*file = CreateFile(
 		wpath,
-		access,
+		access | FILE_READ_ATTRIBUTES,
 		share,
 		NULL,
 		creation,

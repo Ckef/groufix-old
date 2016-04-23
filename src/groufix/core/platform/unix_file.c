@@ -16,7 +16,6 @@
 
 #include <fcntl.h>
 #include <stdio.h>
-#include <sys/stat.h>
 
 /******************************************************/
 int _gfx_platform_file_open(
