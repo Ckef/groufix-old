@@ -681,25 +681,22 @@ void* gfx_buffer_map(
 }
 
 /******************************************************/
-void gfx_buffer_unmap(
+int gfx_buffer_unmap(
 
 		const GFXBuffer* buffer)
 {
 	/* Check context */
-	GFX_CONT_INIT();
+	GFX_CONT_INIT(0);
 
 	const GFX_Buffer* internal = (const GFX_Buffer*)buffer;
-	if(!_gfx_buffer_check(internal, GFX_CONT_AS_ARG)) return;
+	if(!_gfx_buffer_check(internal, GFX_CONT_AS_ARG)) return 0;
 
 #if defined(GFX_RENDERER_GL)
 
 	GLboolean success = GFX_REND_GET.UnmapNamedBuffer(
 		*_gfx_buffer_get_handle(internal, internal->current));
 
-	if(!success) gfx_errors_push(
-		GFX_ERROR_MEMORY_CORRUPTION,
-		"Mapping a buffer might have corrupted its memory."
-	);
-
 #endif
+
+	return success;
 }

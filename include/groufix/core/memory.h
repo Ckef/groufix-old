@@ -277,11 +277,13 @@ GFX_API void* gfx_buffer_map(
 /**
  * Unmaps the current backbuffer, invalidating the pointer returned by gfx_buffer_map.
  *
+ * @return If zero, the buffer's content is undefined, it may have been corrupted for some reason.
+ *
  * This method MUST be called before any other method after gfx_buffer_map in order to continue
  * using the same backbuffer (the others can savely be used).
  *
  */
-GFX_API void gfx_buffer_unmap(
+GFX_API int gfx_buffer_unmap(
 
 		const GFXBuffer* buffer);
 
