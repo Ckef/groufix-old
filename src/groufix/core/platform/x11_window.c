@@ -13,7 +13,6 @@
  */
 
 #include "groufix/core/platform/x11.h"
-#include "groufix/core/internal.h"
 
 #include <stdlib.h>
 #include <string.h>

@@ -13,7 +13,6 @@
  */
 
 #include "groufix/core/platform/win32.h"
-#include "groufix/core/internal.h"
 
 #include <stdlib.h>
 

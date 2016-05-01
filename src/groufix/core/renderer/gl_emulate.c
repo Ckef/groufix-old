@@ -400,10 +400,7 @@ void APIENTRY _gfx_gl_patch_parameter_i(
 		GLenum  pname,
 		GLint   value)
 {
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_TESSELLATION_SHADER is incompatible with this context."
-	);
+	/* No-op */
 }
 
 void APIENTRY _gfx_gl_program_uniform_1fv(
@@ -972,7 +969,7 @@ void APIENTRY _gfx_gles_polygon_mode(
 		GLenum  face,
 		GLenum  mode)
 {
-	/* Just ignore the call */
+	/* No-op */
 }
 
 void APIENTRY _gfx_gles_tex_buffer(

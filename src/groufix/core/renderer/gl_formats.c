@@ -290,7 +290,7 @@ void _gfx_gl_texture_set_sampler(
 		if(GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
 			GFX_REND_GET.TextureParameterf(
 				texture,
-				GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				GL_TEXTURE_MAX_ANISOTROPY,
 				sampler->maxAnisotropy);
 	}
 	else
@@ -334,7 +334,7 @@ void _gfx_gl_texture_set_sampler(
 		if(GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
 			GFX_REND_GET.TexParameterf(
 				target,
-				GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				GL_TEXTURE_MAX_ANISOTROPY,
 				sampler->maxAnisotropy);
 	}
 }

@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 /*
-** Copyright (c) 2013-2014 The Khronos Group Inc.
+** Copyright (c) 2013-2016 The Khronos Group Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and/or associated documentation files (the
@@ -33,7 +33,7 @@ extern "C" {
 ** used to make the header, and the header can be found at
 **   http://www.opengl.org/registry/
 **
-** Khronos $Revision: 30082 $ on $Date: 2015-03-11 09:18:46 -0700 (Wed, 11 Mar 2015) $
+** Khronos $Revision: 32686 $ on $Date: 2016-04-19 21:08:44 -0400 (Tue, 19 Apr 2016) $
 */
 
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
@@ -41,7 +41,7 @@ extern "C" {
 #include <windows.h>
 #endif
 
-#define WGL_WGLEXT_VERSION 20150311
+#define WGL_WGLEXT_VERSION 20160419
 
 /* Generated C header for:
  * API: wgl

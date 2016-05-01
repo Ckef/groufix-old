@@ -139,7 +139,7 @@ ifeq ($(RENDERER),GL)
 
 else ifeq ($(RENDERER),GLES)
  HEADERS_RENDERER = \
-  depend/GLES3/gl31.h \
+  depend/GLES3/gl32.h \
   depend/GLES3/gl3platform.h \
   depend/KHR/khrplatform.h \
   src/groufix/core/renderer/gl.h \

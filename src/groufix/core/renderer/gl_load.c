@@ -280,12 +280,22 @@ void _gfx_renderer_load(
 	{
 		GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER] = 1;
 
-		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &limit),
+		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &limit),
 			GFX_CONT_GET.lim[GFX_LIM_MAX_ANISOTROPY] = limit;
 	}
 
 	/* GFX_INT_EXT_DEBUG_OUTPUT */
-	if(_gfx_gl_is_extension_supported("GL_KHR_debug", GFX_CONT_AS_ARG))
+	if(
+		GFX_CONT_GET.version.major > 3 ||
+		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 1))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
+
+		GFX_REND_GET.DebugMessageCallback = glDebugMessageCallback;
+		GFX_REND_GET.DebugMessageControl  = glDebugMessageControl;
+	}
+
+	else if(_gfx_gl_is_extension_supported("GL_KHR_debug", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT] = 1;
 
@@ -326,6 +336,15 @@ void _gfx_renderer_load(
 			(GFX_DRAWELEMENTSINSTANCEDBASEINSTANCEPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseInstanceEXT");
 		GFX_REND_GET.DrawElementsInstancedBaseVertexBaseInstance =
 			(GFX_DRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseVertexBaseInstanceEXT");
+	}
+
+	/* GFX_EXT_POLYGON_STATE */
+	if(_gfx_gl_is_extension_supported("GL_NV_polygon_mode", GFX_CONT_AS_ARG))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_POLYGON_STATE] = 1;
+
+		GFX_REND_GET.PolygonMode =
+			(GFX_POLYGONMODEPROC)_gfx_platform_get_proc_address("glPolygonModeNV");
 	}
 
 	/* GFX_EXT_PROGRAM_MAP */
@@ -401,11 +420,23 @@ void _gfx_renderer_load(
 	}
 
 	/* GFX_EXT_TESSELLATION_SHADER */
-	if(_gfx_gl_is_extension_supported("GL_OES_tessellation_shader", GFX_CONT_AS_ARG))
+	if(
+		GFX_CONT_GET.version.major > 3 ||
+		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 1))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
 
-		glGetIntegerv(GL_MAX_PATCH_VERTICES_EXT, &limit),
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, &limit),
+			GFX_CONT_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
+
+		GFX_REND_GET.PatchParameteri = glPatchParameteri;
+	}
+
+	else if(_gfx_gl_is_extension_supported("GL_OES_tessellation_shader", GFX_CONT_AS_ARG))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
+
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, &limit),
 			GFX_CONT_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
 
 		GFX_REND_GET.PatchParameteri =
@@ -416,7 +447,7 @@ void _gfx_renderer_load(
 	{
 		GFX_CONT_GET.ext[GFX_EXT_TESSELLATION_SHADER] = 1;
 
-		glGetIntegerv(GL_MAX_PATCH_VERTICES_EXT, &limit),
+		glGetIntegerv(GL_MAX_PATCH_VERTICES, &limit),
 			GFX_CONT_GET.lim[GFX_LIM_MAX_PATCH_VERTICES] = limit;
 
 		GFX_REND_GET.PatchParameteri =
@@ -849,7 +880,7 @@ void _gfx_renderer_load(
 	{
 		GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER] = 1;
 
-		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &limit),
+		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &limit),
 			GFX_CONT_GET.lim[GFX_LIM_MAX_ANISOTROPY] = limit;
 	}
 

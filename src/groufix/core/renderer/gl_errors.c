@@ -60,15 +60,10 @@ void _gfx_renderer_init_errors(
 
 		GFX_CONT_ARG)
 {
-	if(GFX_REND_GET.intExt[GFX_INT_EXT_DEBUG_OUTPUT])
-	{
-		GFX_REND_GET.Enable(
-			GL_DEBUG_OUTPUT);
-		GFX_REND_GET.DebugMessageCallback(
-			_gfx_gl_error_callback, NULL);
-		GFX_REND_GET.DebugMessageControl(
-			GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-	}
+	GFX_REND_GET.DebugMessageCallback(
+		_gfx_gl_error_callback, NULL);
+	GFX_REND_GET.DebugMessageControl(
+		GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 }
 
 /******************************************************/

@@ -238,7 +238,7 @@ int _gfx_sampler_set(
 		if(GFX_CONT_GET.ext[GFX_EXT_ANISOTROPIC_FILTER])
 			GFX_REND_GET.SamplerParameterf(
 				internal->handle,
-				GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				GL_TEXTURE_MAX_ANISOTROPY,
 				sampler->maxAnisotropy);
 	}
 
