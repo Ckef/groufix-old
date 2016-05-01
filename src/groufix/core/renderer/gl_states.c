@@ -22,9 +22,6 @@
 #ifndef GL_LINE
 	#define GL_LINE            0x1b01
 #endif
-#ifndef GL_PATCH_VERTICES
-	#define GL_PATCH_VERTICES  0x8e72
-#endif
 #ifndef GL_POINT
 	#define GL_POINT           0x1b00
 #endif

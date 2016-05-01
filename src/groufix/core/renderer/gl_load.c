@@ -18,6 +18,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+/* Compatibility defines */
+#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY
+	#define GL_MAX_TEXTURE_MAX_ANISOTROPY    0x84ff
+#endif
+
+
 /******************************************************/
 static int _gfx_gl_is_extension_supported(
 
@@ -111,6 +118,7 @@ void _gfx_renderer_load(
 	GFX_REND_GET.BlendEquationSeparate                       = glBlendEquationSeparate;
 	GFX_REND_GET.BlendFuncSeparate                           = glBlendFuncSeparate;
 	GFX_REND_GET.BufferData                                  = glBufferData;
+	GFX_REND_GET.BufferStorage                               = _gfx_gl_buffer_storage;
 	GFX_REND_GET.BufferSubData                               = glBufferSubData;
 	GFX_REND_GET.Clear                                       = glClear;
 	GFX_REND_GET.CompileShader                               = glCompileShader;
@@ -171,7 +179,6 @@ void _gfx_renderer_load(
 	GFX_REND_GET.GetActiveUniformBlockiv                     = glGetActiveUniformBlockiv;
 	GFX_REND_GET.GetActiveUniformsiv                         = glGetActiveUniformsiv;
 	GFX_REND_GET.GetBufferSubData                            = _gfx_gles_get_buffer_sub_data;
-	GFX_REND_GET.GetError                                    = glGetError;
 	GFX_REND_GET.GetNamedBufferSubData                       = _gfx_gl_get_named_buffer_sub_data;
 	GFX_REND_GET.GetProgramBinary                            = glGetProgramBinary;
 	GFX_REND_GET.GetProgramInfoLog                           = glGetProgramInfoLog;
@@ -183,10 +190,12 @@ void _gfx_renderer_load(
 	GFX_REND_GET.GetUniformBlockIndex                        = glGetUniformBlockIndex;
 	GFX_REND_GET.GetUniformIndices                           = glGetUniformIndices;
 	GFX_REND_GET.GetUniformLocation                          = glGetUniformLocation;
+	GFX_REND_GET.InvalidateBufferSubData                     = _gfx_gl_invalidate_buffer_sub_data;
 	GFX_REND_GET.LinkProgram                                 = glLinkProgram;
 	GFX_REND_GET.MapBufferRange                              = glMapBufferRange;
 	GFX_REND_GET.MapNamedBufferRange                         = _gfx_gl_map_named_buffer_range;
 	GFX_REND_GET.NamedBufferData                             = _gfx_gl_named_buffer_data;
+	GFX_REND_GET.NamedBufferStorage                          = _gfx_gl_named_buffer_storage;
 	GFX_REND_GET.NamedBufferSubData                          = _gfx_gl_named_buffer_sub_data;
 	GFX_REND_GET.NamedFramebufferDrawBuffers                 = _gfx_gl_named_framebuffer_draw_buffers;
 	GFX_REND_GET.NamedFramebufferTexture                     = _gfx_gl_named_framebuffer_texture;
@@ -282,6 +291,15 @@ void _gfx_renderer_load(
 
 		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &limit),
 			GFX_CONT_GET.lim[GFX_LIM_MAX_ANISOTROPY] = limit;
+	}
+
+	/* GFX_INT_EXT_BUFFER_STORAGE */
+	if(_gfx_gl_is_extension_supported("GL_EXT_buffer_storage", GFX_CONT_AS_ARG))
+	{
+		GFX_REND_GET.intExt[GFX_INT_BUFFER_STORAGE] = 1;
+
+		GFX_REND_GET.BufferStorage =
+			(GFX_BUFFERSTORAGEPROC)_gfx_platform_get_proc_address("glBufferStorageEXT");
 	}
 
 	/* GFX_INT_EXT_DEBUG_OUTPUT */
@@ -504,6 +522,7 @@ void _gfx_renderer_load(
 		GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = limit;
 
 	/* Default Extensions */
+	GFX_REND_GET.intExt[GFX_INT_EXT_BUFFER_READ]          = 1;
 	GFX_CONT_GET.ext[GFX_EXT_BUFFER_TEXTURE]              = 1;
 	GFX_CONT_GET.ext[GFX_EXT_GEOMETRY_SHADER]             = 1;
 	GFX_CONT_GET.ext[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 1;
@@ -549,6 +568,8 @@ void _gfx_renderer_load(
 		(PFNGLBLENDFUNCSEPARATEPROC)_gfx_platform_get_proc_address("glBlendFuncSeparate");
 	GFX_REND_GET.BufferData =
 		(PFNGLBUFFERDATAPROC)_gfx_platform_get_proc_address("glBufferData");
+	GFX_REND_GET.BufferStorage =
+		(PFNGLBUFFERSTORAGEPROC)_gfx_gl_buffer_storage;
 	GFX_REND_GET.BufferSubData =
 		(PFNGLBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glBufferSubData");
 	GFX_REND_GET.Clear =
@@ -669,8 +690,6 @@ void _gfx_renderer_load(
 		(PFNGLGETACTIVEUNIFORMSIVPROC)_gfx_platform_get_proc_address("glGetActiveUniformsiv");
 	GFX_REND_GET.GetBufferSubData =
 		(PFNGLGETBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glGetBufferSubData");
-	GFX_REND_GET.GetError =
-		(PFNGLGETERRORPROC)glGetError;
 	GFX_REND_GET.GetNamedBufferSubData =
 		(PFNGLGETNAMEDBUFFERSUBDATAPROC)_gfx_gl_get_named_buffer_sub_data;
 	GFX_REND_GET.GetProgramBinary =
@@ -693,6 +712,8 @@ void _gfx_renderer_load(
 		(PFNGLGETUNIFORMINDICESPROC)_gfx_platform_get_proc_address("glGetUniformIndices");
 	GFX_REND_GET.GetUniformLocation =
 		(PFNGLGETUNIFORMLOCATIONPROC)_gfx_platform_get_proc_address("glGetUniformLocation");
+	GFX_REND_GET.InvalidateBufferSubData =
+		(PFNGLINVALIDATEBUFFERSUBDATAPROC)_gfx_gl_invalidate_buffer_sub_data;
 	GFX_REND_GET.LinkProgram =
 		(PFNGLLINKPROGRAMPROC)_gfx_platform_get_proc_address("glLinkProgram");
 	GFX_REND_GET.MapBufferRange =
@@ -701,6 +722,8 @@ void _gfx_renderer_load(
 		(PFNGLMAPNAMEDBUFFERRANGEPROC)_gfx_gl_map_named_buffer_range;
 	GFX_REND_GET.NamedBufferData =
 		(PFNGLNAMEDBUFFERDATAPROC)_gfx_gl_named_buffer_data;
+	GFX_REND_GET.NamedBufferStorage =
+		(PFNGLNAMEDBUFFERSTORAGEPROC)_gfx_gl_named_buffer_storage;
 	GFX_REND_GET.NamedBufferSubData =
 		(PFNGLNAMEDBUFFERSUBDATAPROC)_gfx_gl_named_buffer_sub_data;
 	GFX_REND_GET.NamedFramebufferDrawBuffers =
@@ -884,6 +907,30 @@ void _gfx_renderer_load(
 			GFX_CONT_GET.lim[GFX_LIM_MAX_ANISOTROPY] = limit;
 	}
 
+	/* GFX_INT_EXT_BUFFER_INVALIDATION */
+	if(
+		GFX_CONT_GET.version.major > 4 ||
+		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 2) ||
+		_gfx_gl_is_extension_supported("GL_ARB_invalidate_subdata", GFX_CONT_AS_ARG))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_BUFFER_INVALIDATION] = 1;
+
+		GFX_REND_GET.InvalidateBufferSubData =
+			(PFNGLINVALIDATEBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glInvalidateBufferSubData");
+	}
+
+	/* GFX_INT_EXT_BUFFER_STORAGE */
+	if(
+		GFX_CONT_GET.version.major > 4 ||
+		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 3) ||
+		_gfx_gl_is_extension_supported("GL_ARB_buffer_storage", GFX_CONT_AS_ARG))
+	{
+		GFX_REND_GET.intExt[GFX_INT_EXT_BUFFER_STORAGE] = 1;
+
+		GFX_REND_GET.BufferStorage =
+			(PFNGLBUFFERSTORAGEPROC)_gfx_platform_get_proc_address("glBufferStorage");
+	}
+
 	/* GFX_INT_EXT_DEBUG_OUTPUT */
 	if(
 		GFX_CONT_GET.version.major > 4 ||
@@ -944,6 +991,8 @@ void _gfx_renderer_load(
 			(PFNGLMAPNAMEDBUFFERRANGEPROC)_gfx_platform_get_proc_address("glMapNamedBufferRange");
 		GFX_REND_GET.NamedBufferData =
 			(PFNGLNAMEDBUFFERDATAPROC)_gfx_platform_get_proc_address("glNamedBufferData");
+		GFX_REND_GET.NamedBufferStorage =
+			(PFNGLNAMEDBUFFERSTORAGEPROC)_gfx_platform_get_proc_address("glNamedBufferStorage");
 		GFX_REND_GET.NamedBufferSubData =
 			(PFNGLNAMEDBUFFERSUBDATAPROC)_gfx_platform_get_proc_address("glNamedBufferSubData");
 		GFX_REND_GET.NamedFramebufferDrawBuffers =

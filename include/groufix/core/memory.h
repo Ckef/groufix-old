@@ -91,10 +91,12 @@ typedef union GFXDataType
 /** Buffer usage bitflag */
 typedef enum GFXBufferUsage
 {
-	GFX_BUFFER_READ       = 0x01,
-	GFX_BUFFER_WRITE      = 0x02,
-	GFX_BUFFER_MAP_READ   = 0x04,
-	GFX_BUFFER_MAP_WRITE  = 0x08
+	GFX_BUFFER_CLIENT_STORAGE  = 0x001,
+	GFX_BUFFER_READ            = 0x002,
+	GFX_BUFFER_WRITE           = 0x004,
+	GFX_BUFFER_MAP_READ        = 0x008,
+	GFX_BUFFER_MAP_WRITE       = 0x010,
+	GFX_BUFFER_MAP_PERSISTENT  = 0x020
 
 } GFXBufferUsage;
 

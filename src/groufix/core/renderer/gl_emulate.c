@@ -90,13 +90,23 @@ void APIENTRY _gfx_gl_bind_vertex_buffer(
 	/* No-op */
 }
 
+void APIENTRY _gfx_gl_buffer_storage(
+
+		GLenum         target,
+		GLsizeiptr     size,
+		const GLvoid*  data,
+		GLbitfield     flags)
+{
+	/* No-op */
+}
+
 void APIENTRY _gfx_gl_copy_named_buffer_sub_data(
 
-		GLuint    readBuffer,
-		GLuint    writeBuffer,
-		GLintptr  readOffset,
-		GLintptr  writeOffset,
-		GLsizei   size)
+		GLuint      readBuffer,
+		GLuint      writeBuffer,
+		GLintptr    readOffset,
+		GLintptr    writeOffset,
+		GLsizeiptr  size)
 {
 	GFX_CONT_INIT_UNSAFE;
 
@@ -170,7 +180,7 @@ void APIENTRY _gfx_gl_create_vertex_arrays(
 void APIENTRY _gfx_gl_debug_message_callback(
 
 		GFX_DEBUGPROC  callback,
-		const void*    userParam)
+		const GLvoid*  userParam)
 {
 	/* No-op */
 }
@@ -280,10 +290,10 @@ void APIENTRY _gfx_gl_gen_program_pipelines(
 
 void APIENTRY _gfx_gl_get_named_buffer_sub_data(
 
-		GLuint    buffer,
-		GLintptr  offset,
-		GLsizei   size,
-		void*     data)
+		GLuint      buffer,
+		GLintptr    offset,
+		GLsizeiptr  size,
+		void*       data)
 {
 	GFX_CONT_INIT_UNSAFE;
 
@@ -291,11 +301,35 @@ void APIENTRY _gfx_gl_get_named_buffer_sub_data(
 	GFX_REND_GET.GetBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
+void APIENTRY _gfx_gl_invalidate_buffer_sub_data(
+
+		GLuint      buffer,
+		GLintptr    offset,
+		GLsizeiptr  length)
+{
+	GFX_CONT_INIT_UNSAFE;
+
+	void* map = GFX_REND_GET.MapNamedBufferRange(
+		buffer,
+		offset,
+		length,
+		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT
+	);
+
+	if(map)
+	{
+		if(!GFX_REND_GET.UnmapNamedBuffer(buffer)) gfx_errors_push(
+			GFX_ERROR_MEMORY_CORRUPTION,
+			"Orphaning a buffer might have corrupted its memory."
+		);
+	}
+}
+
 void* APIENTRY _gfx_gl_map_named_buffer_range(
 
 		GLuint      buffer,
 		GLintptr    offset,
-		GLsizei     length,
+		GLsizeiptr  length,
 		GLbitfield  access)
 {
 	GFX_CONT_INIT_UNSAFE;
@@ -306,10 +340,10 @@ void* APIENTRY _gfx_gl_map_named_buffer_range(
 
 void APIENTRY _gfx_gl_named_buffer_data(
 
-		GLuint       buffer,
-		GLsizei      size,
-		const void*  data,
-		GLenum       usage)
+		GLuint         buffer,
+		GLsizeiptr     size,
+		const GLvoid*  data,
+		GLenum         usage)
 {
 	GFX_CONT_INIT_UNSAFE;
 
@@ -317,12 +351,25 @@ void APIENTRY _gfx_gl_named_buffer_data(
 	GFX_REND_GET.BufferData(GL_ARRAY_BUFFER, size, data, usage);
 }
 
+void APIENTRY _gfx_gl_named_buffer_storage(
+
+		GLuint         buffer,
+		GLsizeiptr     size,
+		const GLvoid*  data,
+		GLbitfield     flags)
+{
+	GFX_CONT_INIT_UNSAFE;
+
+	GFX_REND_GET.BindBuffer(GL_ARRAY_BUFFER, buffer);
+	GFX_REND_GET.BufferStorage(GL_ARRAY_BUFFER, size, data, flags);
+}
+
 void APIENTRY _gfx_gl_named_buffer_sub_data(
 
-		GLuint       buffer,
-		GLintptr     offset,
-		GLsizei      size,
-		const void*  data)
+		GLuint         buffer,
+		GLintptr       offset,
+		GLsizeiptr     size,
+		const GLvoid*  data)
 {
 	GFX_CONT_INIT_UNSAFE;
 
@@ -648,32 +695,32 @@ void APIENTRY _gfx_gl_texture_storage_3d_multisample(
 
 void APIENTRY _gfx_gl_texture_sub_image_2d(
 
-		GLuint       texture,
-		GLint        level,
-		GLint        xoffset,
-		GLint        yoffset,
-		GLsizei      w,
-		GLsizei      h,
-		GLenum       format,
-		GLenum       type,
-		const void*  pixels)
+		GLuint         texture,
+		GLint          level,
+		GLint          xoffset,
+		GLint          yoffset,
+		GLsizei        w,
+		GLsizei        h,
+		GLenum         format,
+		GLenum         type,
+		const GLvoid*  pixels)
 {
 	/* No-op */
 }
 
 void APIENTRY _gfx_gl_texture_sub_image_3d(
 
-		GLuint       texture,
-		GLint        level,
-		GLint        xoffset,
-		GLint        yoffset,
-		GLint        zoffset,
-		GLsizei      w,
-		GLsizei      h,
-		GLsizei      d,
-		GLenum       format,
-		GLenum       type,
-		const void*  pixels)
+		GLuint         texture,
+		GLint          level,
+		GLint          xoffset,
+		GLint          yoffset,
+		GLint          zoffset,
+		GLsizei        w,
+		GLsizei        h,
+		GLsizei        d,
+		GLenum         format,
+		GLenum         type,
+		const GLvoid*  pixels)
 {
 	/* No-op */
 }
@@ -1097,10 +1144,10 @@ void APIENTRY _gfx_gl_named_framebuffer_texture_2d(
 
 void APIENTRY _gfx_gl_program_binary(
 
-		GLuint       program,
-		GLenum       binaryFormat,
-		const void*  binary,
-		GLsizei      length)
+		GLuint         program,
+		GLenum         binaryFormat,
+		const GLvoid*  binary,
+		GLsizei        length)
 {
 	_gfx_gl_error_program_binary();
 }

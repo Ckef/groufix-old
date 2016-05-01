@@ -12,6 +12,7 @@
  *
  */
 
+#define GL_GLEXT_PROTOTYPES
 #include "groufix/core/internal.h"
 
 #include <stdlib.h>
@@ -72,10 +73,10 @@ void _gfx_renderer_poll_errors(
 		GFX_CONT_ARG)
 {
 	/* Loop over all errors */
-	GLenum err = GFX_REND_GET.GetError();
+	GLenum err = glGetError();
 	while(err != GL_NO_ERROR)
 	{
 		gfx_errors_push(err, "An OpenGL error occurred.");
-		err = GFX_REND_GET.GetError();
+		err = glGetError();
 	}
 }

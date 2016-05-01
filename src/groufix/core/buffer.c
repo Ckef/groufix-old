@@ -76,11 +76,51 @@ static inline int _gfx_buffer_check(
 #if defined(GFX_RENDERER_GL)
 
 /******************************************************/
-static inline GLenum _gfx_buffer_from_usage(
+static inline GLbitfield _gfx_buffer_from_usage(
+
+		GFXBufferUsage usage,
+		GFX_CONT_ARG)
+{
+	return
+		/* Some flags so GL fallback functions will be able to do stuff */
+		(GFX_REND_GET.intExt[GFX_INT_EXT_BUFFER_INVALIDATION] ?
+			0 : GL_MAP_WRITE_BIT) |
+		(GFX_REND_GET.intExt[GFX_INT_EXT_BUFFER_READ] ?
+			0 : GL_MAP_READ_BIT) |
+
+		/* Actual flags */
+		(usage & GFX_BUFFER_CLIENT_STORAGE ? GL_CLIENT_STORAGE_BIT : 0) |
+		(usage & GFX_BUFFER_WRITE ? GL_DYNAMIC_STORAGE_BIT : 0) |
+		(usage & GFX_BUFFER_MAP_READ ? GL_MAP_READ_BIT : 0) |
+		(usage & GFX_BUFFER_MAP_WRITE ? GL_MAP_WRITE_BIT : 0) |
+		(usage & GFX_BUFFER_MAP_PERSISTENT ? GL_MAP_PERSISTENT_BIT : 0);
+}
+
+/******************************************************/
+static inline GLbitfield _gfx_buffer_from_usage_to_access(
 
 		GFXBufferUsage usage)
 {
 	return
+		(usage & GFX_BUFFER_MAP_READ ? GL_MAP_READ_BIT : 0) |
+		(usage & GFX_BUFFER_MAP_WRITE ? GL_MAP_WRITE_BIT : 0) |
+		(usage & GFX_BUFFER_MAP_PERSISTENT ? GL_MAP_PERSISTENT_BIT : 0);
+}
+
+/******************************************************/
+static inline GLenum _gfx_buffer_from_usage_to_usage(
+
+		GFXBufferUsage usage)
+{
+	return
+
+		/* Client storage */
+		usage & GFX_BUFFER_CLIENT_STORAGE ?
+
+		((usage & GFX_BUFFER_WRITE || usage & GFX_BUFFER_MAP_WRITE) ?
+			GL_STREAM_DRAW :
+		(usage & GFX_BUFFER_READ || usage & GFX_BUFFER_MAP_READ) ?
+			GL_STREAM_READ : GL_STREAM_COPY) :
 
 		/* Draw */
 		usage & GFX_BUFFER_WRITE ?
@@ -134,7 +174,9 @@ static int _gfx_buffer_init(
 	/* Allocate buffers */
 	GFX_REND_GET.CreateBuffers(
 		buffer->buffer.count, _gfx_buffer_get_handle(buffer, 0));
-	GLenum us = _gfx_buffer_from_usage(
+	GLbitfield bf = _gfx_buffer_from_usage(
+		buffer->buffer.usage, GFX_CONT_AS_ARG);
+	GLenum us = _gfx_buffer_from_usage_to_usage(
 		buffer->buffer.usage);
 
 	unsigned char i;
@@ -153,8 +195,25 @@ static int _gfx_buffer_init(
 		const void* d = NULL;
 		if(i < num) d = data[i];
 
-		GFX_REND_GET.NamedBufferData(
-			*_gfx_buffer_get_handle(buffer, i), buffer->buffer.size, d, us);
+		/* Check if we can use buffer storage */
+		if(
+			GFX_REND_GET.intExt[GFX_INT_EXT_BUFFER_STORAGE] ||
+			GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
+		{
+			GFX_REND_GET.NamedBufferStorage(
+				*_gfx_buffer_get_handle(buffer, i),
+				buffer->buffer.size,
+				d,
+				bf);
+		}
+		else
+		{
+			GFX_REND_GET.NamedBufferData(
+				*_gfx_buffer_get_handle(buffer, i),
+				buffer->buffer.size,
+				d,
+				us);
+		}
 	}
 
 #endif
@@ -271,7 +330,14 @@ GFXBuffer* gfx_buffer_create(
 		const void*     data,
 		unsigned char   count)
 {
-	if(!size) return NULL;
+	/* Herpaderp */
+	if(
+		!size ||
+		((usage & GFX_BUFFER_MAP_PERSISTENT) &&
+		!(usage & GFX_BUFFER_MAP_READ) && !(usage & GFX_BUFFER_MAP_WRITE)))
+	{
+		return NULL;
+	}
 
 	GFX_CONT_INIT(NULL);
 
@@ -562,11 +628,10 @@ void gfx_buffer_orphan(
 
 #if defined(GFX_RENDERER_GL)
 
-	GFX_REND_GET.NamedBufferData(
+	GFX_REND_GET.InvalidateBufferSubData(
 		*_gfx_buffer_get_handle(internal, internal->current),
-		buffer->size,
-		NULL,
-		_gfx_buffer_from_usage(buffer->usage)
+		0,
+		buffer->size
 	);
 
 #endif
@@ -603,16 +668,11 @@ void* gfx_buffer_map(
 
 #if defined(GFX_RENDERER_GL)
 
-	/* Get access */
-	GLbitfield access =
-		(buffer->usage & GFX_BUFFER_MAP_READ ? GL_MAP_READ_BIT : 0) |
-		(buffer->usage & GFX_BUFFER_MAP_WRITE ? GL_MAP_WRITE_BIT : 0);
-
 	ptr = GFX_REND_GET.MapNamedBufferRange(
 		*_gfx_buffer_get_handle(internal, internal->current),
 		offset,
 		*size,
-		access
+		_gfx_buffer_from_usage_to_access(buffer->usage)
 	);
 
 #endif
