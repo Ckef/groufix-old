@@ -217,11 +217,11 @@ GFX_API size_t gfx_buffer_write(
  */
 GFX_API size_t gfx_buffer_copy(
 
-		GFXBuffer*        dest,
-		const GFXBuffer*  src,
-		size_t            srcOffset,
-		size_t            destOffset,
-		size_t            size);
+		GFXBuffer*  dest,
+		GFXBuffer*  src,
+		size_t      srcOffset,
+		size_t      destOffset,
+		size_t      size);
 
 /**
  * Copies the content of the current backbuffer to another at the same buffer.

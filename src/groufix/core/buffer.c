@@ -405,7 +405,7 @@ GFXBuffer* gfx_buffer_create_copy(
 	if(!buffer) return NULL;
 
 	/* Copy data */
-	gfx_buffer_copy(buffer, src, 0, 0, src->size);
+	gfx_buffer_copy(buffer, (GFXBuffer*)src, 0, 0, src->size);
 
 	return buffer;
 }
@@ -528,11 +528,11 @@ size_t gfx_buffer_write(
 /******************************************************/
 size_t gfx_buffer_copy(
 
-		GFXBuffer*        dest,
-		const GFXBuffer*  src,
-		size_t            srcOffset,
-		size_t            destOffset,
-		size_t            size)
+		GFXBuffer*  dest,
+		GFXBuffer*  src,
+		size_t      srcOffset,
+		size_t      destOffset,
+		size_t      size)
 {
 	/* Derp */
 	if(!size || srcOffset >= src->size || destOffset >= dest->size)
@@ -542,7 +542,7 @@ size_t gfx_buffer_copy(
 	GFX_CONT_INIT(0);
 
 	GFX_Buffer* intDest = (GFX_Buffer*)dest;
-	const GFX_Buffer* intSrc = (const GFX_Buffer*)src;
+	GFX_Buffer* intSrc = (GFX_Buffer*)src;
 
 	if(
 		!_gfx_buffer_check(intDest, GFX_CONT_AS_ARG) ||

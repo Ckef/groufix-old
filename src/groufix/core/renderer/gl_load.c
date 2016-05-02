@@ -531,7 +531,7 @@ void _gfx_renderer_load(
 	GFX_CONT_GET.ext[GFX_EXT_SEAMLESS_CUBEMAP]            = 1;
 	GFX_CONT_GET.ext[GFX_EXT_VERTEX_BASE_INDICES]         = 1;
 
-	/* Core, assumes 3.2+.version */
+	/* Core, assumes 3.2+ */
 	GFX_REND_GET.ActiveTexture =
 		(PFNGLACTIVETEXTUREPROC)_gfx_platform_get_proc_address("glActiveTexture");
 	GFX_REND_GET.AttachShader =
