@@ -34,35 +34,11 @@ void _gfx_split_depth(
 }
 
 /******************************************************/
-int _gfx_is_data_type_packed(
+unsigned char _gfx_sizeof_unpacked_data_type(
 
-		GFXDataType type)
+		GFXUnpackedType type)
 {
-	switch(type.packed)
-	{
-		/* Check for any packed type */
-		case GFX_UNSIGNED_SHORT_5_6_5 :
-		case GFX_UNSIGNED_SHORT_4_4_4_4 :
-		case GFX_UNSIGNED_SHORT_5_5_5_1 :
-		case GFX_INT_10_10_10_2 :
-		case GFX_UNSIGNED_INT_10_10_10_2 :
-		case GFX_UNSIGNED_INT_11F_11F_10F :
-		case GFX_UNSIGNED_INT_9_9_9_5E :
-		case GFX_UNSIGNED_INT_24_8 :
-		case GFX_FLOAT_UNSIGNED_INT_24_8 :
-			return 1;
-	}
-
-	return 0;
-}
-
-/******************************************************/
-unsigned char _gfx_sizeof_data_type(
-
-		GFXDataType type)
-{
-	/* Check for unpacked datatypes */
-	switch(type.unpacked)
+	switch(type)
 	{
 		case GFX_BIT :
 		case GFX_NIBBLE :
@@ -81,8 +57,15 @@ unsigned char _gfx_sizeof_data_type(
 			return 4;
 	}
 
-	/* Check for packed datatypes */
-	switch(type.packed)
+	return 0;
+}
+
+/******************************************************/
+unsigned char _gfx_sizeof_packed_data_type(
+
+		GFXPackedType type)
+{
+	switch(type)
 	{
 		case GFX_UNSIGNED_SHORT_5_6_5 :
 		case GFX_UNSIGNED_SHORT_4_4_4_4 :

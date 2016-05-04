@@ -102,20 +102,20 @@ void _gfx_split_depth(
 		unsigned short*  blue);
 
 /**
- * Returns 1 if packed data, 0 if unpacked.
+ * Returns the size of an unpacked data type in bytes.
  *
  */
-int _gfx_is_data_type_packed(
+unsigned char _gfx_sizeof_unpacked_data_type(
 
-		GFXDataType type);
+		GFXUnpackedType type);
 
 /**
- * Returns the size of a data type in bytes.
+ * Returns the size of a packed data type in bytes.
  *
  */
-unsigned char _gfx_sizeof_data_type(
+unsigned char _gfx_sizeof_packed_data_type(
 
-		GFXDataType type);
+		GFXPackedType type);
 
 
 /********************************************************

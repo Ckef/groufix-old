@@ -20,9 +20,6 @@
 
 #include <stddef.h>
 
-/* Default shared buffer pool size (1 MB) */
-#define GFX_SHARED_BUFFER_SIZE_DEFAULT  0x100000
-
 
 /********************************************************
  * Data types associated with the GPU
@@ -40,9 +37,7 @@ typedef enum GFXUnpackedType
 	GFX_INT,
 	GFX_UNSIGNED_INT,
 	GFX_HALF_FLOAT,
-	GFX_FLOAT,
-
-	GFX_LARGE_INTEGER = GFX_INT /* Largest signed integer (equally large as unsigned) */
+	GFX_FLOAT
 
 } GFXUnpackedType;
 
@@ -73,15 +68,6 @@ typedef enum GFXInterpretType
 	GFX_INTERPRET_STENCIL     = 0x010
 
 } GFXInterpretType;
-
-
-/** Storage data type */
-typedef union GFXDataType
-{
-	GFXUnpackedType  unpacked;
-	GFXPackedType    packed;
-
-} GFXDataType;
 
 
 /********************************************************
@@ -289,83 +275,6 @@ GFX_API int gfx_buffer_unmap(
 
 
 /********************************************************
- * Shared Buffer (pooled arbitrary GPU storage)
- *******************************************************/
-
-/** Shared buffer */
-typedef struct GFXSharedBuffer
-{
-	void*   reference;
-	size_t  offset; /* In bytes */
-
-} GFXSharedBuffer;
-
-
-/**
- * Requests (hints) a new size if a new buffer pool needs to be created.
- *
- * @param size Pool size in bytes, the default is GFX_SHARED_BUFFER_SIZE_DEFAULT.
- *
- */
-GFX_API void gfx_shared_buffer_request_size(
-
-		unsigned long size);
-
-/**
- * Erases empty buffers from the buffer pool.
- *
- * In case gfx_shared_buffer_clear is called with the keep param as zero value,
- * this call will clean up any left over buffers.
- *
- */
-GFX_API void gfx_shared_buffer_cleanup(void);
-
-/**
- * Initializes a shared buffer.
- *
- * @param align Byte alignment to force upon the offset within the internal buffer pool.
- * @return Non-zero on success (it will not touch buffer on failure).
- *
- * Note: align set to 0 behaves equivalent to 1.
- *
- */
-GFX_API int gfx_shared_buffer_init(
-
-		GFXSharedBuffer*  buffer,
-		size_t            size,
-		const void*       data,
-		unsigned char     align);
-
-/**
- * Initializes a shared buffer aligned with the size of a data type.
- *
- * @param type The type to use the size as alignment for.
- * @return Non-zero on success (it will not touch buffer on failure).
- *
- */
-GFX_API int gfx_shared_buffer_init_align(
-
-		GFXSharedBuffer*  buffer,
-		size_t            size,
-		const void*       data,
-		GFXDataType       type);
-
-/**
- * Clears a shared buffer, freeing the internal data.
- *
- * @param keep If zero, the associated buffer from the buffer pool will be erased if empty.
- *
- * Setting keep to zero will essentially keep buffers in memory in case any
- * new buffers are initialized.
- *
- */
-GFX_API void gfx_shared_buffer_clear(
-
-		GFXSharedBuffer*  buffer,
-		int               keep);
-
-
-/********************************************************
  * Vertex Layout metadata
  *******************************************************/
 
@@ -392,7 +301,7 @@ typedef enum GFXPrimitive
 typedef struct GFXVertexAttribute
 {
 	unsigned char     size;      /* Number of elements */
-	GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
+	//GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
 	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT and STENCIL is equal to INTEGER */
 	unsigned int      offset;    /* Offset of the attribute, must be <= GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET */
 
@@ -543,22 +452,6 @@ GFX_API int gfx_vertex_layout_set_vertex_buffer(
 		size_t            stride);
 
 /**
- * Adds/sets a shared vertex buffer of a vertex layout.
- *
- * @param index  Index of the vertex buffer to set (equal to that of non-shared vertex buffers).
- * @param buffer Shared buffer to use (can be NULL to disable).
- * @return Zero on failure.
- *
- */
-GFX_API int gfx_vertex_layout_set_shared_vertex_buffer(
-
-		GFXVertexLayout*        layout,
-		unsigned int            index,
-		const GFXSharedBuffer*  buffer,
-		size_t                  offset,
-		size_t                  stride);
-
-/**
  * Sets the divisor of a vertex buffer at a vertex layout.
  *
  * @param index   Index of the vertex buffer.
@@ -593,25 +486,6 @@ GFX_API int gfx_vertex_layout_set_index_buffer(
 		const GFXBuffer*  buffer,
 		size_t            offset);
 
-/**
- * Sets the (shared) index buffer.
- *
- * @param buffer Shared buffer to use as index buffer (can be NULL).
- * @param offset Byte offset within the buffer to start reading at.
- * @return Zero on failure.
- *
- * This will fail if a source was added to a bucket.
- *
- * Note: offset has equal restraints as it has in gfx_vertex_layout_set_index_buffer, besides that,
- * the alignment of buffer must be the size of the larget index used as well.
- *
- */
-GFX_API int gfx_vertex_layout_set_shared_index_buffer(
-
-		GFXVertexLayout*        layout,
-		const GFXSharedBuffer*  buffer,
-		size_t                  offset);
-
 
 /********************************************************
  * Texture & Pixel metadata
@@ -644,7 +518,7 @@ typedef enum GFXTextureFace
 typedef struct GFXTextureFormat
 {
 	unsigned char     components; /* Number of components */
-	GFXDataType       type;       /* Data type of each component, packed types override the entire format */
+	//GFXDataType       type;       /* Data type of each component, packed types override the entire format */
 	GFXInterpretType  interpret;  /* How to interpret the texture components */
 
 } GFXTextureFormat;

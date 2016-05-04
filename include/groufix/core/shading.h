@@ -744,21 +744,5 @@ GFX_API int gfx_property_map_set_buffer(
 		size_t            offset,
 		size_t            size);
 
-/**
- * Sets the value of a property block.
- *
- * @param offset Offset in the shared buffer in bytes.
- * @return Non-zero on success.
- *
- */
-GFX_API int gfx_property_map_set_shared_buffer(
-
-		GFXPropertyMap*         map,
-		unsigned char           index,
-		unsigned int            copy,
-		const GFXSharedBuffer*  buffer,
-		size_t                  offset,
-		size_t                  size);
-
 
 #endif // GFX_CORE_SHADING_H

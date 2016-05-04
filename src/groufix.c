@@ -84,10 +84,6 @@ int gfx_init(
 /******************************************************/
 void gfx_terminate(void)
 {
-	/* Cleanup shared buffers */
-	//gfx_shared_buffer_cleanup();
-
-	/* Terminate */
 	_gfx_context_manager_terminate();
 	_gfx_platform_terminate();
 	_gfx_errors_terminate();

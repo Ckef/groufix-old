@@ -12,7 +12,7 @@
  *
  */
 
-#include "groufix/core/renderer.h"
+#include "groufix/core/pipeline.h"
 
 #include <limits.h>
 

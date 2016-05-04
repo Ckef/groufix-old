@@ -252,7 +252,6 @@ OBJS = \
  $(OUT)$(SUB)/groufix/core/property_map.o \
  $(OUT)$(SUB)/groufix/core/sampler.o \
  $(OUT)$(SUB)/groufix/core/shader.o \
- $(OUT)$(SUB)/groufix/core/shared_buffer.o \
  $(OUT)$(SUB)/groufix/core/states.o \
  $(OUT)$(SUB)/groufix/core/texture.o \
  $(OUT)$(SUB)/groufix/core/types.o \
