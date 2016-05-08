@@ -14,6 +14,124 @@
 
 #include "groufix/core/renderer.h"
 
+/******************************************************/
+/** Internal renderer handle */
+#if defined(GFX_RENDERER_GL)
+typedef GLuint GFX_LayoutHandle;
+
+#elif defined(GFX_RENDERER_VK)
+typedef void* GFX_LayoutHandle;
+
+#endif
+
+
+/** Internal Layout */
+typedef struct GFX_Layout
+{
+	/* Super class */
+	GFXVertexLayout layout;
+
+	/* Hidden data */
+	GFX_RenderObjectID  id;
+	GFX_LayoutHandle    handle;
+
+} GFX_Layout;
+
+
+/** Internal vertex source */
+typedef struct GFX_Source
+{
+	GFXVertexSource  source;
+	unsigned int     blocks; /* Number of times blocked */
+
+} GFX_Source;
+
+
+/******************************************************/
+static void _gfx_layout_obj_destruct(
+
+		GFX_RenderObjectIDArg arg)
+{
+	/* Check if the context actually exists */
+	/* It may not exist if the layout was freed outside of the context it was created in */
+	/* But not to worry, if that is the case, this callback was either called before, or */
+	/* no renderer objects were created to begin with */
+	GFX_CONT_INIT();
+}
+
+/******************************************************/
+static void _gfx_layout_obj_prepare(
+
+		GFX_RenderObjectIDArg  arg,
+		void**                 temp,
+		int                    shared)
+{
+	GFX_CONT_INIT_UNSAFE;
+}
+
+/******************************************************/
+static void _gfx_layout_obj_transfer(
+
+		GFX_RenderObjectIDArg  arg,
+		void**                 temp,
+		int                    shared)
+{
+	GFX_CONT_INIT_UNSAFE;
+}
+
+/******************************************************/
+/** vtable for render object part of the layout */
+static const GFX_RenderObjectFuncs _gfx_layout_obj_funcs =
+{
+	.destruct = _gfx_layout_obj_destruct,
+	.prepare  = _gfx_layout_obj_prepare,
+	.transfer = _gfx_layout_obj_transfer
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <stdlib.h>
 #include <string.h>
 

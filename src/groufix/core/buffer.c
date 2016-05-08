@@ -314,7 +314,7 @@ static void _gfx_buffer_obj_transfer(
 }
 
 /******************************************************/
-/* vtable for render object part of the buffer */
+/** vtable for render object part of the buffer */
 static const GFX_RenderObjectFuncs _gfx_buffer_obj_funcs =
 {
 	.destruct = _gfx_buffer_obj_destruct,
