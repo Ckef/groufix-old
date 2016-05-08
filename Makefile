@@ -175,10 +175,10 @@ HEADERS = \
  include/groufix/utils.h \
  include/groufix.h \
  src/groufix/core/file.h \
- src/groufix/core/internal.h \
  src/groufix/core/platform.h \
  src/groufix/core/renderer.h \
  src/groufix/core/threading.h \
+ src/groufix/core/utils.h \
  src/groufix/scene/internal.h
 
 

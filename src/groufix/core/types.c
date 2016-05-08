@@ -55,6 +55,9 @@ unsigned char _gfx_sizeof_unpacked_data_type(
 		case GFX_UNSIGNED_INT:
 		case GFX_FLOAT :
 			return 4;
+
+		case GFX_DOUBLE :
+			return 8;
 	}
 
 	return 0;

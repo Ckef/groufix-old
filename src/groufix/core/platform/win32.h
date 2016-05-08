@@ -172,6 +172,14 @@ char* _gfx_win32_utf16_to_utf8(
 		const WCHAR* str);
 
 /**
+ * Registers the dummy and regular window classes.
+ *
+ * @return Zero on failure.
+ *
+ */
+int _gfx_win32_register_classes(void);
+
+/**
  * Sets the pixel format for a window.
  *
  * @param backBuffer Non-zero to enable double buffering.
@@ -184,12 +192,15 @@ void _gfx_win32_set_pixel_format(
 		int                   backBuffer);
 
 /**
- * Registers the dummy and regular window classes.
+ * Creates a dummy window for offscreen contexts.
  *
- * @return Zero on failure.
+ * @return The dummy window, NULL on failure.
+ *
+ * The return value is not guaranteed to stay valid after creating/destroying any window.
+ * Note: the window can be freed by _gfx_platform_window_free.
  *
  */
-int _gfx_win32_register_classes(void);
+GFX_Win32_Window* _gfx_win32_window_dummy_create(void);
 
 /**
  * Returns a Win32 window from its handle.
@@ -201,16 +212,6 @@ GFX_Win32_Window* _gfx_win32_get_window_from_handle(
 
 		HWND handle);
 
-/**
- * Creates a dummy window for offscreen contexts.
- *
- * @return The dummy window, NULL on failure.
- *
- * The return value is not guaranteed to stay valid after creating/destroying any window.
- * Note: the window can be freed by _gfx_platform_window_free.
- *
- */
-GFX_Win32_Window* _gfx_win32_window_dummy_create(void);
 
 
 #endif // GFX_CORE_PLATFORM_WIN32_H

@@ -12,7 +12,7 @@
  *
  */
 
-#include "groufix/core/internal.h"
+#include "groufix/core/renderer.h"
 
 #include <stdint.h>
 #include <stdlib.h>

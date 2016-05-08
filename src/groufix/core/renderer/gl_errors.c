@@ -13,7 +13,7 @@
  */
 
 #define GL_GLEXT_PROTOTYPES
-#include "groufix/core/internal.h"
+#include "groufix/core/utils.h"
 
 #include <stdlib.h>
 

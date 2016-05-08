@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef GFX_CORE_INTERNAL_H
-#define GFX_CORE_INTERNAL_H
+#ifndef GFX_CORE_UTILS_H
+#define GFX_CORE_UTILS_H
 
 #include "groufix/core/renderer.h"
 
@@ -21,36 +21,6 @@
 #if defined(GFX_RENDERER_GL)
 	#include "groufix/core/renderer/gl.h"
 #endif
-
-
-/********************************************************
- * Error initialization and termination
- *******************************************************/
-
-/**
- * Initializes the error queue.
- *
- * @param mode Error mode to use for the renderer.
- * @return Zero on failure.
- *
- */
-int _gfx_errors_init(
-
-		GFXErrorMode mode);
-
-/**
- * Returns the error mode the error queue was initialized with.
- *
- */
-GFXErrorMode _gfx_errors_get_mode(void);
-
-/**
- * Terminates the error queue.
- *
- * This method has no effect if the error queue was not yet initialized.
- *
- */
-void _gfx_errors_terminate(void);
 
 
 /********************************************************
@@ -116,6 +86,37 @@ unsigned char _gfx_sizeof_unpacked_data_type(
 unsigned char _gfx_sizeof_packed_data_type(
 
 		GFXPackedType type);
+
+
+/********************************************************
+ * Error initialization and termination
+ *******************************************************/
+
+/**
+ * Initializes the error queue.
+ *
+ * @param mode Error mode to use for the renderer.
+ * @return Zero on failure.
+ *
+ */
+int _gfx_errors_init(
+
+		GFXErrorMode mode);
+
+/**
+ * Returns the error mode the error queue was initialized with.
+ *
+ */
+GFXErrorMode _gfx_errors_get_mode(void);
+
+/**
+ * Terminates the error queue.
+ *
+ * This method has no effect if the error queue was not yet initialized.
+ *
+ */
+void _gfx_errors_terminate(void);
+
 
 
 /********************************************************
@@ -445,4 +446,4 @@ unsigned char _gfx_sizeof_packed_data_type(
 		GFX_CONT_ARG);*/
 
 
-#endif // GFX_CORE_INTERNAL_H
+#endif // GFX_CORE_UTILS_H

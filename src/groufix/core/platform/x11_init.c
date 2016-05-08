@@ -13,8 +13,7 @@
  */
 
 #include "groufix/core/platform/x11.h"
-#include "groufix/core/errors.h"
-#include "groufix/core/internal.h"
+#include "groufix/core/utils.h"
 
 #include <math.h>
 #include <signal.h>

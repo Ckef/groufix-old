@@ -381,31 +381,6 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 }
 
 /******************************************************/
-void _gfx_win32_set_pixel_format(
-
-		HWND                  handle,
-		const GFXColorDepth*  depth,
-		int                   backBuffer)
-{
-	PIXELFORMATDESCRIPTOR format;
-	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
-
-	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
-	format.nVersion   = 1;
-	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
-	format.iPixelType = PFD_TYPE_RGBA;
-	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
-	format.iLayerType = PFD_MAIN_PLANE;
-
-	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
-	HDC context = GetDC(handle);
-
-	/* Get format compatible with the window */
-	int index = ChoosePixelFormat(context, &format);
-	SetPixelFormat(context, index, &format);
-}
-
-/******************************************************/
 int _gfx_win32_register_classes(void)
 {
 	HMODULE handle = GetModuleHandle(NULL);
@@ -441,20 +416,28 @@ int _gfx_win32_register_classes(void)
 }
 
 /******************************************************/
-GFX_Win32_Window* _gfx_win32_get_window_from_handle(
+void _gfx_win32_set_pixel_format(
 
-		HWND handle)
+		HWND                  handle,
+		const GFXColorDepth*  depth,
+		int                   backBuffer)
 {
-	GFX_Win32_Window* it;
-	for(
-		it = _gfx_win32.windows.begin;
-		it != _gfx_win32.windows.end;
-		it = gfx_vector_next(&_gfx_win32.windows, it))
-	{
-		if(it->handle == handle) break;
-	}
+	PIXELFORMATDESCRIPTOR format;
+	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
 
-	return it != _gfx_win32.windows.end ? it : NULL;
+	format.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
+	format.nVersion   = 1;
+	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+	format.iPixelType = PFD_TYPE_RGBA;
+	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
+	format.iLayerType = PFD_MAIN_PLANE;
+
+	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
+	HDC context = GetDC(handle);
+
+	/* Get format compatible with the window */
+	int index = ChoosePixelFormat(context, &format);
+	SetPixelFormat(context, index, &format);
 }
 
 /******************************************************/
@@ -504,6 +487,24 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 
 	return NULL;
 }
+
+/******************************************************/
+GFX_Win32_Window* _gfx_win32_get_window_from_handle(
+
+		HWND handle)
+{
+	GFX_Win32_Window* it;
+	for(
+		it = _gfx_win32.windows.begin;
+		it != _gfx_win32.windows.end;
+		it = gfx_vector_next(&_gfx_win32.windows, it))
+	{
+		if(it->handle == handle) break;
+	}
+
+	return it != _gfx_win32.windows.end ? it : NULL;
+}
+
 
 /******************************************************/
 GFX_PlatformWindow _gfx_platform_window_create(

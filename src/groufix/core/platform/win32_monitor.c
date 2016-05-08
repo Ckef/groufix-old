@@ -13,7 +13,7 @@
  */
 
 #include "groufix/core/platform/win32.h"
-#include "groufix/core/internal.h"
+#include "groufix/core/utils.h"
 
 /******************************************************/
 unsigned int _gfx_platform_get_num_monitors(void)

@@ -13,7 +13,7 @@
  */
 
 #include "groufix.h"
-#include "groufix/core/internal.h"
+#include "groufix/core/utils.h"
 
 /******************************************************/
 /** Starting point of time */

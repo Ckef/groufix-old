@@ -37,7 +37,8 @@ typedef enum GFXUnpackedType
 	GFX_INT,
 	GFX_UNSIGNED_INT,
 	GFX_HALF_FLOAT,
-	GFX_FLOAT
+	GFX_FLOAT,
+	GFX_DOUBLE
 
 } GFXUnpackedType;
 
@@ -68,6 +69,15 @@ typedef enum GFXInterpretType
 	GFX_INTERPRET_STENCIL     = 0x010
 
 } GFXInterpretType;
+
+
+/** Generic data type */
+typedef union GFXDataType
+{
+	GFXUnpackedType  unpacked;
+	GFXPackedType    packed;
+
+} GFXDataType;
 
 
 /********************************************************
@@ -281,18 +291,18 @@ GFX_API int gfx_buffer_unmap(
 /** Primitive types */
 typedef enum GFXPrimitive
 {
-	GFX_POINTS                    = 0x0000,
-	GFX_LINES                     = 0x0001,
-	GFX_LINES_ADJACENCY           = 0x000a, /* Requires GFX_EXT_GEOMETRY_SHADER */
-	GFX_LINE_LOOP                 = 0x0002,
-	GFX_LINE_STRIP                = 0x0003,
-	GFX_LINE_STRIP_ADJACENCY      = 0x000b, /* Requires GFX_EXT_GEOMETRY_SHADER */
-	GFX_TRIANGLES                 = 0x0004,
-	GFX_TRIANGLES_ADJACENCY       = 0x000c, /* Requires GFX_EXT_GEOMETRY_SHADER */
-	GFX_TRIANGLE_STRIP            = 0x0005,
-	GFX_TRIANGLE_STRIP_ADJACENCY  = 0x000d, /* Requires GFX_EXT_GEOMETRY_SHADER */
-	GFX_TRIANGLE_FAN              = 0x0006,
-	GFX_PATCHES                   = 0x000e  /* Requires GFX_EXT_TESSELLATION_SHADER */
+	GFX_POINTS,
+	GFX_LINES,
+	GFX_LINES_ADJACENCY,          /* Requires GFX_EXT_GEOMETRY_SHADER */
+	GFX_LINE_LOOP,
+	GFX_LINE_STRIP,
+	GFX_LINE_STRIP_ADJACENCY,     /* Requires GFX_EXT_GEOMETRY_SHADER */
+	GFX_TRIANGLES,
+	GFX_TRIANGLES_ADJACENCY,      /* Requires GFX_EXT_GEOMETRY_SHADER */
+	GFX_TRIANGLE_STRIP,
+	GFX_TRIANGLE_STRIP_ADJACENCY, /* Requires GFX_EXT_GEOMETRY_SHADER */
+	GFX_TRIANGLE_FAN,
+	GFX_PATCHES,                  /* Requires GFX_EXT_TESSELLATION_SHADER */
 
 } GFXPrimitive;
 
@@ -300,8 +310,8 @@ typedef enum GFXPrimitive
 /** Vertex Attribute */
 typedef struct GFXVertexAttribute
 {
-	unsigned char     size;      /* Number of elements */
-	//GFXDataType       type;      /* Data type of each element, packed types override the size and interpret type */
+	unsigned char     size;      /* Number of elements, 0 signifies the type is packed */
+	GFXDataType       type;      /* Data type of each element */
 	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT and STENCIL is equal to INTEGER */
 	unsigned int      offset;    /* Offset of the attribute, must be <= GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET */
 
