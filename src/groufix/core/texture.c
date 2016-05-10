@@ -12,7 +12,124 @@
  *
  */
 
-#include "groufix/core/internal.h"
+#include "groufix/core/renderer.h"
+
+/******************************************************/
+/** Internal renderer handle */
+#if defined(GFX_RENDERER_GL)
+typedef GLuint GFX_TextureHandle;
+
+#elif defined(GFX_RENDERER_VK)
+typedef void* GFX_TextureHandle;
+
+#endif
+
+
+/** Internal Texture */
+typedef struct GFX_Texture
+{
+	/* Super class */
+	GFXTexture texture;
+
+	/* Hidden data */
+	GFX_RenderObjectID  id;
+	GFX_TextureHandle   handle;
+
+} GFX_Texture;
+
+
+/******************************************************/
+static void _gfx_texture_obj_destruct(
+
+		GFX_RenderObjectIDArg arg)
+{
+	/* Check if the context actually exists */
+	/* It may not exist if the texture was freed after all contexts were destroyed */
+	/* But not to worry, if that is the case, this callback was called before */
+	GFX_CONT_INIT();
+}
+
+/******************************************************/
+static void _gfx_texture_obj_prepare(
+
+		GFX_RenderObjectIDArg  arg,
+		void**                 temp,
+		int                    shared)
+{
+	if(shared) return;
+
+	GFX_CONT_INIT_UNSAFE;
+}
+
+/******************************************************/
+static void _gfx_texture_obj_transfer(
+
+		GFX_RenderObjectIDArg  arg,
+		void**                 temp,
+		int                    shared)
+{
+	if(shared) return;
+
+	GFX_CONT_INIT_UNSAFE;
+}
+
+/******************************************************/
+/** vtable for render object part of the texture */
+static const GFX_RenderObjectFuncs _gfx_texture_obj_funcs =
+{
+	.destruct = _gfx_texture_obj_destruct,
+	.prepare  = _gfx_texture_obj_prepare,
+	.transfer = _gfx_texture_obj_transfer
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #include <limits.h>
 #include <stdlib.h>

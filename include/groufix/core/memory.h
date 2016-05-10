@@ -103,7 +103,7 @@ typedef struct GFXBuffer
 	/* Super class */
 	GFXRenderObject  object;
 
-	/* Other read only fields */
+	/* Read only fields */
 	GFXBufferUsage   usage; /* Intended usage of the buffer */
 	size_t           size;  /* Size of the buffer in bytes */
 	unsigned char    count; /* Number of backbuffers (1 = regular buffering) */
@@ -338,6 +338,10 @@ typedef struct GFXVertexSource
 /** Vertex Layout */
 typedef struct GFXVertexLayout
 {
+	/* Super class */
+	GFXRenderObject  object;
+
+	/* Read only fields */
 	unsigned char sources; /* Number of vertex sources */
 
 } GFXVertexLayout;
@@ -527,8 +531,8 @@ typedef enum GFXTextureFace
 /** Texture format */
 typedef struct GFXTextureFormat
 {
-	unsigned char     components; /* Number of components */
-	//GFXDataType       type;       /* Data type of each component, packed types override the entire format */
+	unsigned char     components; /* Number of components, 0 signifies the type is packed */
+	GFXDataType       type;       /* Data type of each component */
 	GFXInterpretType  interpret;  /* How to interpret the texture components */
 
 } GFXTextureFormat;
@@ -557,6 +561,10 @@ typedef struct GFXPixelTransfer
 /** Texture */
 typedef struct GFXTexture
 {
+	/* Super class */
+	GFXRenderObject  object;
+
+	/* Read only fields */
 	GFXTextureType  type;    /* Describes image arrangement and sampling */
 	unsigned char   mipmaps; /* Number of mipmaps (0 for base texture only) */
 	unsigned char   samples; /* Number of samples for multisampled textures (1 for other textures) */

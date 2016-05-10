@@ -38,15 +38,6 @@ typedef struct GFX_Layout
 } GFX_Layout;
 
 
-/** Internal vertex source */
-typedef struct GFX_Source
-{
-	GFXVertexSource  source;
-	unsigned int     blocks; /* Number of times blocked */
-
-} GFX_Source;
-
-
 /******************************************************/
 static void _gfx_layout_obj_destruct(
 
