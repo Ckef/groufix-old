@@ -51,12 +51,9 @@ static int _gfx_win32_load_extensions(void)
 	);
 
 	/* Setup context properties */
-	GFXColorDepth depth;
-	depth.redBits   = 0;
-	depth.greenBits = 0;
-	depth.blueBits  = 0;
+	GFXBitDepth depth = {{ 0, 0, 0, 0 }};
 
-	_gfx_win32_set_pixel_format(window, &depth, 0);
+	_gfx_win32_set_pixel_format(window, depth, 0);
 	HDC dc = GetDC(window);
 
 	/* Create a dummy render context */

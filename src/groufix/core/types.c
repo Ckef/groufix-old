@@ -17,10 +17,10 @@
 /******************************************************/
 void _gfx_split_depth(
 
-		unsigned short   depth,
-		unsigned short*  red,
-		unsigned short*  green,
-		unsigned short*  blue)
+		unsigned short  depth,
+		unsigned char*  red,
+		unsigned char*  green,
+		unsigned char*  blue)
 {
 	unsigned short delta = depth / 3;
 

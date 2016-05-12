@@ -120,12 +120,13 @@ static size_t _gfx_x11_init_modes(
 		XRRScreenResources*  res)
 {
 	/* Split depth */
-	GFXColorDepth depth;
+	GFXBitDepth depth = {{ 0, 0, 0, 0 }};
+
 	_gfx_split_depth(
 		XDefaultDepthOfScreen(scr),
-		&depth.redBits,
-		&depth.greenBits,
-		&depth.blueBits
+		&depth.data[0],
+		&depth.data[1],
+		&depth.data[2]
 	);
 
 	/* Reserve space for all modes */

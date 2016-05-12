@@ -22,18 +22,18 @@
 /******************************************************/
 static GLXFBConfig* _gfx_x11_get_config(
 
-		Screen*               screen,
-		const GFXColorDepth*  depth,
-		int                   backBuffer)
+		Screen*      screen,
+		GFXBitDepth  depth,
+		int          backBuffer)
 {
 	/* Create buffer attribute array */
 	int bufferAttr[] = {
 		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
 		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
 		GLX_DOUBLEBUFFER,  backBuffer ? True : False,
-		GLX_RED_SIZE,      depth->redBits,
-		GLX_GREEN_SIZE,    depth->greenBits,
-		GLX_BLUE_SIZE,     depth->blueBits,
+		GLX_RED_SIZE,      depth.data[0],
+		GLX_GREEN_SIZE,    depth.data[1],
+		GLX_BLUE_SIZE,     depth.data[2],
 		None
 	};
 
@@ -461,7 +461,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	{
 		mode.width  = attributes->w;
 		mode.height = attributes->h;
-		mode.depth  = *attributes->depth;
+		mode.depth  = attributes->depth;
 
 		x += attributes->x;
 		y += attributes->y;
@@ -471,10 +471,11 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	XVisualInfo* visual = NULL;
 
 #if defined(GFX_RENDERER_GL)
+
 	/* Get FB Config */
 	GLXFBConfig* config = _gfx_x11_get_config(
 		window.monitor->screen,
-		&mode.depth,
+		mode.depth,
 		attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 	);
 
@@ -488,6 +489,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 	window.config = *config;
 	XFree(config);
+
 #endif
 
 	/* Create the window attributes */

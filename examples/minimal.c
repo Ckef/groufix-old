@@ -10,10 +10,7 @@ int main()
 	if(!gfx_init(context, GFX_ERROR_MODE_NORMAL))
 		return 0;
 
-	GFXColorDepth depth;
-	depth.redBits   = 8;
-	depth.greenBits = 8;
-	depth.blueBits  = 8;
+	GFXBitDepth depth = {{ 8, 8, 8, 0 }};
 
 	GFXWindow* window = gfx_window_create(
 		NULL,

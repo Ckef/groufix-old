@@ -25,6 +25,14 @@
  * Data types associated with the GPU
  *******************************************************/
 
+/** Bit depth */
+typedef struct GFXBitDepth
+{
+	unsigned char data[4]; /* Depth per component (rgba or xyzw) */
+
+} GFXBitDepth;
+
+
 /** Unpacked storage data type */
 typedef enum GFXUnpackedType
 {

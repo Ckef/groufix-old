@@ -124,18 +124,13 @@ static GFX_Context* _gfx_context_create_internal(
 			attr->monitor :
 			_gfx_platform_get_default_monitor();
 
-		/* Validate fullscreen monitor or depth */
+		/* Validate fullscreen monitor */
 		if(attr->flags & GFX_WINDOW_FULLSCREEN)
 		{
 			unsigned int modes =
 				_gfx_platform_monitor_get_num_modes(attr->monitor);
 
 			if(attr->mode >= modes)
-				return NULL;
-		}
-		else
-		{
-			if(!attr->depth)
 				return NULL;
 		}
 	}
@@ -475,22 +470,26 @@ GFXWindow* gfx_get_window(
 /******************************************************/
 GFXWindow* gfx_window_create(
 
-		GFXMonitor            monitor,
-		unsigned int          mode,
-		const GFXColorDepth*  depth,
-		const char*           name,
-		int                   x,
-		int                   y,
-		unsigned int          w,
-		unsigned int          h,
-		GFXWindowFlags        flags)
+		GFXMonitor          monitor,
+		unsigned int        mode,
+		const GFXBitDepth*  depth,
+		const char*         name,
+		int                 x,
+		int                 y,
+		unsigned int        w,
+		unsigned int        h,
+		GFXWindowFlags      flags)
 {
+	/* Fallback depth of 24 bits */
+	GFXBitDepth dep = {{ 8, 8, 8, 0 }};
+	depth = depth ? depth : &dep;
+
 	/* Create the window */
 	GFX_PlatformAttributes attr =
 	{
 		.monitor = (GFX_PlatformMonitor)monitor,
 		.mode    = mode,
-		.depth   = depth,
+		.depth   = *depth,
 		.name    = name,
 		.flags   = flags,
 		.x       = x,
@@ -530,11 +529,11 @@ GFXWindow* gfx_window_create(
 /******************************************************/
 GFXWindow* gfx_window_recreate(
 
-		GFXWindow*            window,
-		GFXMonitor            monitor,
-		unsigned int          mode,
-		const GFXColorDepth*  depth,
-		GFXWindowFlags        flags)
+		GFXWindow*          window,
+		GFXMonitor          monitor,
+		unsigned int        mode,
+		const GFXBitDepth*  depth,
+		GFXWindowFlags      flags)
 {
 	/* Check if zombie context */
 	GFX_Context* context = (GFX_Context*)window;

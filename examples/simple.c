@@ -21,10 +21,7 @@ int main()
 
 
 	/* Setup 2 windows */
-	GFXColorDepth depth;
-	depth.redBits   = 8;
-	depth.greenBits = 8;
-	depth.blueBits  = 8;
+	GFXBitDepth depth = {{ 8, 8, 8, 0 }};
 
 	GFXWindow* window1 = gfx_window_create(NULL, 0, &depth, "Window Unos", 100, 100, 800, 600, GFX_WINDOW_RESIZABLE);
 	GFXWindow* window2 = gfx_window_create(NULL, 0, &depth, "Window Deux", 200, 200, 800, 600, GFX_WINDOW_RESIZABLE);

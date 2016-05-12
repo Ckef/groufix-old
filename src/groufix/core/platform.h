@@ -177,16 +177,16 @@ typedef void* GFX_PlatformWindow;
 /** Window initialization attributes */
 typedef struct GFX_PlatformAttributes
 {
-	GFX_PlatformMonitor   monitor;
-	unsigned int          mode;  /* Guaranteed to be a valid index if fullscreen */
-	const GFXColorDepth*  depth; /* Guaranteed to be non-NULL if not fullscreen */
-	const char*           name;
+	GFX_PlatformMonitor  monitor;
+	unsigned int         mode;  /* Guaranteed to be a valid index if fullscreen */
+	const GFXBitDepth    depth; /* Only used if not fullscreen (last component is always ignored) */
+	const char*          name;
 
-	GFXWindowFlags        flags;
-	int                   x;
-	int                   y;
-	unsigned int          w;     /* To be ignored if fullscreen */
-	unsigned int          h;     /* To be ignored if fullscreen */
+	GFXWindowFlags       flags;
+	int                  x;
+	int                  y;
+	unsigned int         w;     /* To be ignored if fullscreen */
+	unsigned int         h;     /* To be ignored if fullscreen */
 
 } GFX_PlatformAttributes;
 

@@ -187,9 +187,9 @@ int _gfx_win32_register_classes(void);
  */
 void _gfx_win32_set_pixel_format(
 
-		HWND                  handle,
-		const GFXColorDepth*  depth,
-		int                   backBuffer);
+		HWND         handle,
+		GFXBitDepth  depth,
+		int          backBuffer);
 
 /**
  * Creates a dummy window for offscreen contexts.

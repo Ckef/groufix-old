@@ -77,10 +77,12 @@ int _gfx_platform_monitor_get_mode(
 	/* Split depth */
 	_gfx_split_depth(
 		dev->dmBitsPerPel,
-		&mode->depth.redBits,
-		&mode->depth.greenBits,
-		&mode->depth.blueBits
+		&mode->depth[0],
+		&mode->depth[1],
+		&mode->depth[2]
 	);
+
+	mode->depth[3] = 0;
 
 	return 1;
 }

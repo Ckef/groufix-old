@@ -418,9 +418,9 @@ int _gfx_win32_register_classes(void)
 /******************************************************/
 void _gfx_win32_set_pixel_format(
 
-		HWND                  handle,
-		const GFXColorDepth*  depth,
-		int                   backBuffer)
+		HWND         handle,
+		GFXBitDepth  depth,
+		int          backBuffer)
 {
 	PIXELFORMATDESCRIPTOR format;
 	ZeroMemory(&format, sizeof(PIXELFORMATDESCRIPTOR));
@@ -429,7 +429,7 @@ void _gfx_win32_set_pixel_format(
 	format.nVersion   = 1;
 	format.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
 	format.iPixelType = PFD_TYPE_RGBA;
-	format.cColorBits = depth->redBits + depth->greenBits + depth->blueBits;
+	format.cColorBits = depth.data[0] + depth.data[1] + depth.data[2];
 	format.iLayerType = PFD_MAIN_PLANE;
 
 	format.dwFlags |= backBuffer ? PFD_DOUBLEBUFFER : 0;
@@ -471,12 +471,8 @@ GFX_Win32_Window* _gfx_win32_window_dummy_create(void)
 		if(it != _gfx_win32.windows.end)
 		{
 			/* Set pixel format */
-			GFXColorDepth depth;
-			depth.redBits   = 0;
-			depth.greenBits = 0;
-			depth.blueBits  = 0;
-
-			_gfx_win32_set_pixel_format(window.handle, &depth, 0);
+			GFXBitDepth depth = {{ 0, 0, 0, 0 }};
+			_gfx_win32_set_pixel_format(window.handle, depth, 0);
 
 			return it;
 		}
@@ -530,7 +526,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 		(!(attributes->flags & GFX_WINDOW_HIDDEN) ?
 		WS_VISIBLE : 0);
 
-	GFXColorDepth depth;
+	GFXBitDepth depth;
 	RECT rect;
 
 	rect.left = window.monitor->x;
@@ -547,9 +543,11 @@ GFX_PlatformWindow _gfx_platform_window_create(
 
 		_gfx_split_depth(
 			window.mode->dmBitsPerPel,
-			&depth.redBits,
-			&depth.greenBits,
-			&depth.blueBits);
+			&depth.data[0],
+			&depth.data[1],
+			&depth.data[2]);
+
+		depth.data[3] = 0;
 
 		/* Style and rectangle */
 		rect.right = window.mode->dmPelsWidth;
@@ -561,7 +559,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 	else
 	{
 		/* Color depth and rectangle */
-		depth       = *attributes->depth;
+		depth       = attributes->depth;
 		rect.right  = attributes->w;
 		rect.bottom = attributes->h;
 
@@ -637,7 +635,7 @@ GFX_PlatformWindow _gfx_platform_window_create(
 			/* Set pixel format */
 			_gfx_win32_set_pixel_format(
 				window.handle,
-				&depth,
+				depth,
 				attributes->flags & GFX_WINDOW_DOUBLE_BUFFER
 			);
 
