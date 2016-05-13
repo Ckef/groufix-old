@@ -72,20 +72,12 @@ void _gfx_split_depth(
 		unsigned char*  blue);
 
 /**
- * Returns the size of an unpacked data type in bits.
+ * Returns the size of a data type in bits.
  *
  */
-unsigned char _gfx_sizeof_unpacked_data_type(
+unsigned char _gfx_sizeof_data_type(
 
-		GFXUnpackedType type);
-
-/**
- * Returns the size of a packed data type in bits.
- *
- */
-unsigned char _gfx_sizeof_packed_data_type(
-
-		GFXPackedType type);
+		GFXDataType type);
 
 
 /********************************************************

@@ -133,7 +133,7 @@ typedef enum GFXPropertyType
 typedef struct GFXProperty
 {
 	GFXPropertyType  type;
-	GFXUnpackedType  dataType;   /* Data type of each component */
+	//GFXUnpackedType  dataType;   /* Data type of each component */
 	unsigned char    components; /* Number of components, or coordinate dimensions for samplers (can be 0 if unsupported) */
 	size_t           count;      /* Number of array elements (can be 0 if unsupported) */
 

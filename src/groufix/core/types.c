@@ -34,9 +34,9 @@ void _gfx_split_depth(
 }
 
 /******************************************************/
-unsigned char _gfx_sizeof_unpacked_data_type(
+unsigned char _gfx_sizeof_data_type(
 
-		GFXUnpackedType type)
+		GFXDataType type)
 {
 	switch(type)
 	{
@@ -68,27 +68,18 @@ unsigned char _gfx_sizeof_unpacked_data_type(
 }
 
 /******************************************************/
-unsigned char _gfx_sizeof_packed_data_type(
+GFXFormat gfx_format_from_type(
 
-		GFXPackedType type)
+		GFXDataType     type,
+		unsigned char   components,
+		GFXFormatFlags  flags)
 {
-	switch(type)
+	GFXFormat format =
 	{
-		case GFX_UNSIGNED_SHORT_5_6_5 :
-		case GFX_UNSIGNED_SHORT_4_4_4_4 :
-		case GFX_UNSIGNED_SHORT_5_5_5_1 :
-			return 16;
+		.type  = type,
+		.depth = {{ 0, 0, 0, 0 }},
+		.flags = flags
+	};
 
-		case GFX_INT_10_10_10_2 :
-		case GFX_UNSIGNED_INT_10_10_10_2 :
-		case GFX_UNSIGNED_INT_11F_11F_10F :
-		case GFX_UNSIGNED_INT_9_9_9_5E :
-		case GFX_UNSIGNED_INT_24_8 :
-			return 32;
-
-		case GFX_FLOAT_UNSIGNED_INT_24_8 :
-			return 64;
-	}
-
-	return 0;
+	return format;
 }

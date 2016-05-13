@@ -22,7 +22,7 @@
 
 
 /********************************************************
- * Data types associated with the GPU
+ * Data types and formats associated with the GPU
  *******************************************************/
 
 /** Bit depth */
@@ -33,8 +33,8 @@ typedef struct GFXBitDepth
 } GFXBitDepth;
 
 
-/** Unpacked storage data type */
-typedef enum GFXUnpackedType
+/** Storage data type */
+typedef enum GFXDataType
 {
 	GFX_BIT,
 	GFX_NIBBLE,
@@ -48,44 +48,46 @@ typedef enum GFXUnpackedType
 	GFX_FLOAT,
 	GFX_DOUBLE
 
-} GFXUnpackedType;
-
-
-/** Packed storage data type */
-typedef enum GFXPackedType
-{
-	GFX_UNSIGNED_SHORT_5_6_5,
-	GFX_UNSIGNED_SHORT_4_4_4_4,
-	GFX_UNSIGNED_SHORT_5_5_5_1,
-	GFX_INT_10_10_10_2,
-	GFX_UNSIGNED_INT_10_10_10_2, /* Interpreted as integer */
-	GFX_UNSIGNED_INT_11F_11F_10F,
-	GFX_UNSIGNED_INT_9_9_9_5E,   /* Shared exponent of 5 bits */
-	GFX_UNSIGNED_INT_24_8,       /* Depth/stencil only */
-	GFX_FLOAT_UNSIGNED_INT_24_8  /* Depth/stencil only */
-
-} GFXPackedType;
-
-
-/** Interpreted type */
-typedef enum GFXInterpretType
-{
-	GFX_INTERPRET_FLOAT       = 0x001,
-	GFX_INTERPRET_NORMALIZED  = 0x002,
-	GFX_INTERPRET_INTEGER     = 0x004,
-	GFX_INTERPRET_DEPTH       = 0x008,
-	GFX_INTERPRET_STENCIL     = 0x010
-
-} GFXInterpretType;
-
-
-/** Generic data type */
-typedef union GFXDataType
-{
-	GFXUnpackedType  unpacked;
-	GFXPackedType    packed;
-
 } GFXDataType;
+
+
+/** Format flags */
+typedef enum GFXFormatFlags
+{
+	GFX_FORMAT_NORMALIZED  = 0x001, /* Only useful for server side formats (ignored for client side) */
+	GFX_FORMAT_EXPONENT    = 0x002, /* Interpret the last component as a shared exponent (only for floating point) */
+	GFX_FORMAT_REVERSE     = 0x004, /* Components are stored as abgr instead of rgba */
+	GFX_FORMAT_ALPHA_LAST  = 0x008, /* In conjunction with REVERSE it produces bgra, otherwise rgba */
+	GFX_FORMAT_DEPTH       = 0x010, /* First component interpreted as depth */
+	GFX_FORMAT_STENCIL     = 0x020, /* First component (after optional depth component) interpreted as stencil */
+
+} GFXFormatFlags;
+
+
+/** Format descriptor */
+typedef struct GFXFormat
+{
+	GFXDataType     type;
+	GFXBitDepth     depth;
+	GFXFormatFlags  flags;
+
+} GFXFormat;
+
+
+/**
+ * Builds a format descriptor, implicitly determining the depth from the type.
+ *
+ * @param type       Data type for each component.
+ * @param components Number of components of the format.
+ * @param flags      Flags to determine how to interpret each component and the order.
+ * @return The format.
+ *
+ */
+GFX_API GFXFormat gfx_format_from_type(
+
+		GFXDataType     type,
+		unsigned char   components,
+		GFXFormatFlags  flags);
 
 
 /********************************************************
@@ -318,10 +320,10 @@ typedef enum GFXPrimitive
 /** Vertex Attribute */
 typedef struct GFXVertexAttribute
 {
-	unsigned char     size;      /* Number of elements, 0 signifies the type is packed */
-	GFXDataType       type;      /* Data type of each element */
-	GFXInterpretType  interpret; /* How to interpret each element, DEPTH is equal to FLOAT and STENCIL is equal to INTEGER */
-	unsigned int      offset;    /* Offset of the attribute, must be <= GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET */
+	unsigned char      size;      /* Number of elements, 0 signifies the type is packed */
+	GFXDataType        type;      /* Data type of each element */
+	//GFXInterpretFlags  interpret; /* How to interpret each element, DEPTH is equal to FLOAT and STENCIL is equal to INTEGER */
+	unsigned int       offset;    /* Offset of the attribute, must be <= GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET */
 
 } GFXVertexAttribute;
 
@@ -329,12 +331,12 @@ typedef struct GFXVertexAttribute
 /** Vertex Source */
 typedef struct GFXVertexSource
 {
-	GFXPrimitive     primitive;
-	unsigned char    indexed;   /* Non-zero if indexed via the index buffer */
-	GFXUnpackedType  indexType; /* Can only be an unsigned type */
-	size_t           first;     /* First index to start reading at */
-	size_t           count;     /* Number of drawable vertices */
-	unsigned int     patchSize; /* Number of vertices per patch, ignored if primitive is not GFX_PATCHES */
+	GFXPrimitive   primitive;
+	unsigned char  indexed;   /* Non-zero if indexed via the index buffer */
+	GFXDataType    indexType; /* Can only be an unsigned type */
+	size_t         first;     /* First index to start reading at */
+	size_t         count;     /* Number of drawable vertices */
+	unsigned int   patchSize; /* Number of vertices per patch, ignored if primitive is not GFX_PATCHES */
 
 } GFXVertexSource;
 
@@ -539,9 +541,9 @@ typedef enum GFXTextureFace
 /** Texture format */
 typedef struct GFXTextureFormat
 {
-	unsigned char     components; /* Number of components, 0 signifies the type is packed */
-	GFXDataType       type;       /* Data type of each component */
-	GFXInterpretType  interpret;  /* How to interpret the texture components */
+	unsigned char      components; /* Number of components, 0 signifies the type is packed */
+	GFXDataType        type;       /* Data type of each component */
+	//GFXInterpretFlags  interpret;  /* How to interpret the texture components */
 
 } GFXTextureFormat;
 
