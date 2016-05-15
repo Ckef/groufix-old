@@ -54,12 +54,14 @@ typedef enum GFXDataType
 /** Format flags */
 typedef enum GFXFormatFlags
 {
-	GFX_FORMAT_NORMALIZED  = 0x001, /* Only useful for server side formats (ignored for client side) */
-	GFX_FORMAT_EXPONENT    = 0x002, /* Interpret the last component as a shared exponent (only for floating point) */
-	GFX_FORMAT_REVERSE     = 0x004, /* Components are stored as abgr instead of rgba */
-	GFX_FORMAT_ALPHA_LAST  = 0x008, /* In conjunction with REVERSE it produces bgra, otherwise rgba */
-	GFX_FORMAT_DEPTH       = 0x010, /* First component interpreted as depth */
-	GFX_FORMAT_STENCIL     = 0x020, /* First component (after optional depth component) interpreted as stencil */
+	GFX_FORMAT_NORMALIZED     = 0x001, /* Only useful for server side formats (ignored for client side) */
+	GFX_FORMAT_EXPONENT       = 0x002, /* Interpret the last component as a shared exponent (only for floating point) */
+	GFX_FORMAT_REVERSE        = 0x004, /* Components are stored as abgr instead of rgba */
+	GFX_FORMAT_ALPHA_LAST     = 0x008, /* In conjunction with REVERSE it produces bgra, otherwise rgba */
+	GFX_FORMAT_DEPTH          = 0x010, /* First component interpreted as depth */
+	GFX_FORMAT_STENCIL        = 0x020, /* First component (after optional depth component) interpreted as stencil */
+	GFX_FORMAT_LITTLE_ENDIAN  = 0x040, /* Force each component to be stored in little endian order (as opposed to machine native) */
+	GFX_FORMAT_BIG_ENDIAN     = 0x080  /* Same as LITTLE_ENDIAN, only it forces big endian order */
 
 } GFXFormatFlags;
 
