@@ -25,7 +25,7 @@
 #if defined(GFX_GL) || defined(GFX_GLES)
 	#define GFX_RENDERER_GL
 	#include "groufix/core/renderer/gl_def.h"
-#elif defined(GFX_VULKAN)
+#elif defined(GFX_VK)
 	#define GFX_RENDERER_VK
 	#error "Renderer not yet supported"
 
