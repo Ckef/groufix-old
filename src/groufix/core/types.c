@@ -73,7 +73,7 @@ unsigned char _gfx_sizeof_data_type(
 }
 
 /******************************************************/
-GFX_API GFXFormat gfx_format(
+GFXFormat gfx_format(
 
 		GFXDataType     type,
 		GFXBitDepth     depth,

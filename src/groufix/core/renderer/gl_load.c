@@ -21,7 +21,7 @@
 
 /* Compatibility defines */
 #ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY
-	#define GL_MAX_TEXTURE_MAX_ANISOTROPY    0x84ff
+	#define GL_MAX_TEXTURE_MAX_ANISOTROPY  0x84ff
 #endif
 
 

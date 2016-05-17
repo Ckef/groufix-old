@@ -369,7 +369,8 @@ typedef struct GFXVertexLayout
 	GFXRenderObject  object;
 
 	/* Read only fields */
-	unsigned char sources; /* Number of vertex sources */
+	unsigned char    attributes; /* Number of vertex attributes */
+	unsigned char    sources;    /* Number of vertex sources */
 
 } GFXVertexLayout;
 
@@ -377,26 +378,17 @@ typedef struct GFXVertexLayout
 /**
  * Creates a new vertex layout.
  *
- * @param sources Fixed number of vertex sources associated with this layout.
+ * @param attributes Fixed number of (sparse) vertex attributes associated with this layout.
+ * @param sources    Fixed number of vertex sources associated with this layout.
  * @return NULL on failure.
+ *
+ * Note: attributes must be <= GFX_LIM_MAX_VERTEX_ATTRIBS.
  *
  */
 GFX_API GFXVertexLayout* gfx_vertex_layout_create(
 
-		unsigned char sources);
-
-/**
- * References a vertex layout to postpone its destruction.
- *
- * @return Zero on overflow.
- *
- * This increases the number of required gfx_vertex_layout_free calls
- * to actually destroy the vertex layout.
- *
- */
-GFX_API int gfx_vertex_layout_share(
-
-		GFXVertexLayout* layout);
+		unsigned char  attributes,
+		unsigned char  sources);
 
 /**
  * Makes sure the vertex layout is freed properly.

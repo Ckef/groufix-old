@@ -17,13 +17,13 @@
 
 /* Compatibility defines */
 #ifndef GL_FILL
-	#define GL_FILL            0x1b02
+	#define GL_FILL   0x1b02
 #endif
 #ifndef GL_LINE
-	#define GL_LINE            0x1b01
+	#define GL_LINE   0x1b01
 #endif
 #ifndef GL_POINT
-	#define GL_POINT           0x1b00
+	#define GL_POINT  0x1b00
 #endif
 
 
