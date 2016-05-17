@@ -68,18 +68,75 @@ unsigned char _gfx_sizeof_data_type(
 }
 
 /******************************************************/
+GFX_API GFXFormat gfx_format(
+
+		GFXDataType     type,
+		GFXBitDepth     depth,
+		GFXFormatFlags  flags)
+{
+	/* Pack all the bit depth values so there are only trailing 0s */
+	unsigned char c;
+	unsigned char s;
+
+	for(c = 0, s = 0; c < 4; ++c, ++s)
+		if(!depth.data[c])
+		{
+			++s;
+
+			/* Move s to a non-zero channel */
+			while(s < 4 && !depth.data[s]) ++s;
+			if(s >= 4) break;
+
+			depth.data[c] = depth.data[s];
+			depth.data[s] = 0;
+		}
+
+	/* No components, both little and big endian, no channel for exponent or stencil */
+	if(
+		(!depth.data[0]) ||
+		((flags & GFX_FORMAT_LITTLE_ENDIAN) && (flags & GFX_FORMAT_BIG_ENDIAN)) ||
+		(!depth.data[1] && (flags & GFX_FORMAT_EXPONENT)) ||
+		(!depth.data[1] && (flags & GFX_FORMAT_DEPTH) && (flags & GFX_FORMAT_STENCIL)))
+	{
+		GFXFormat format =
+		{
+			.type  = type,
+			.depth = {{ 0, 0, 0, 0 }},
+			.flags = 0
+		};
+
+		return format;
+	}
+
+	/* Ok, return format */
+	GFXFormat format =
+	{
+		.type  = type,
+		.depth = depth,
+		.flags = flags
+	};
+
+	return format;
+}
+
+/******************************************************/
 GFXFormat gfx_format_from_type(
 
 		GFXDataType     type,
 		unsigned char   components,
 		GFXFormatFlags  flags)
 {
-	GFXFormat format =
-	{
-		.type  = type,
-		.depth = {{ 0, 0, 0, 0 }},
-		.flags = flags
-	};
+	/* Fill in components with the size of type */
+	unsigned char size =
+		_gfx_sizeof_data_type(type);
 
-	return format;
+	GFXBitDepth depth =
+	{{
+		components >= 1 ? size : 0,
+		components >= 2 ? size : 0,
+		components >= 3 ? size : 0,
+		components >= 4 ? size : 0
+	}};
+
+	return gfx_format(type, depth, flags);
 }

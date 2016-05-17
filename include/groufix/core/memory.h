@@ -55,7 +55,7 @@ typedef enum GFXDataType
 typedef enum GFXFormatFlags
 {
 	GFX_FORMAT_NORMALIZED     = 0x001, /* Only useful for server side formats (ignored for client side) */
-	GFX_FORMAT_EXPONENT       = 0x002, /* Interpret the last component as a shared exponent (only for floating point) */
+	GFX_FORMAT_EXPONENT       = 0x002, /* Interpret the last component (of rgba) as a shared exponent (only for floating point) */
 	GFX_FORMAT_REVERSE        = 0x004, /* Components are stored as abgr instead of rgba */
 	GFX_FORMAT_ALPHA_LAST     = 0x008, /* In conjunction with REVERSE it produces bgra, otherwise rgba */
 	GFX_FORMAT_DEPTH          = 0x010, /* First component interpreted as depth */
@@ -77,12 +77,27 @@ typedef struct GFXFormat
 
 
 /**
+ * Builds a non-ambiguous format descriptor.
+ *
+ * @param type  Data type for each component.
+ * @param depth Bit depth for each component (0 to omit a component).
+ * @param flags Flags to determine how to interpret each component and the order.
+ * @return The format, depth will be all 0s on failure.
+ *
+ */
+GFX_API GFXFormat gfx_format(
+
+		GFXDataType     type,
+		GFXBitDepth     depth,
+		GFXFormatFlags  flags);
+
+/**
  * Builds a format descriptor, implicitly determining the depth from the type.
  *
  * @param type       Data type for each component.
  * @param components Number of components of the format.
  * @param flags      Flags to determine how to interpret each component and the order.
- * @return The format.
+ * @return The format, depth will be all 0s on failure.
  *
  */
 GFX_API GFXFormat gfx_format_from_type(
