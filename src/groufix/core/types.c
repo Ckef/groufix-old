@@ -83,11 +83,9 @@ GFX_API GFXFormat gfx_format(
 	unsigned char c;
 	unsigned char s;
 
-	for(c = 0, s = 0; c < 4; ++c, ++s)
+	for(c = 0, s = 1; c < 4; ++c, ++s)
 		if(!depth.data[c])
 		{
-			++s;
-
 			/* Move s to a non-zero channel */
 			while(s < 4 && !depth.data[s]) ++s;
 			if(s >= 4) break;
