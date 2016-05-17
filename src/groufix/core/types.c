@@ -15,6 +15,11 @@
 #include "groufix/core/memory.h"
 
 /******************************************************/
+/** Host endianness */
+const GFXHostEndianness GFX_HOST_ENDIANNESS = {{ 0x00, 0x01 }};
+
+
+/******************************************************/
 void _gfx_split_depth(
 
 		unsigned short  depth,

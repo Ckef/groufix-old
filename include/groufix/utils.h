@@ -107,4 +107,30 @@
 #define GFX_VOID_TO_UINT(x) ((uintptr_t)(x))
 
 
+/********************************************************
+ * Endianness
+ *******************************************************/
+
+/** Endian definitions */
+typedef enum GFXEndianness
+{
+	GFX_LITTLE_ENDIAN  = 0x0100,
+	GFX_BIG_ENDIAN     = 0x0001
+
+} GFXEndianness;
+
+
+/** Host order definition */
+typedef union GFXHostEndianness
+{
+	uint8_t   bytes[2];
+	uint16_t  order;
+
+} GFXHostEndianness;
+
+
+/** Actual host endianness */
+GFX_API const GFXHostEndianness GFX_HOST_ENDIANNESS;
+
+
 #endif // GFX_UTILS_H
