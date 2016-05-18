@@ -226,10 +226,7 @@ static void _gfx_buffer_obj_destruct(
 
 		GFX_RenderObjectIDArg arg)
 {
-	/* Check if the context actually exists */
-	/* It may not exist if the buffer was freed after all contexts were destroyed */
-	/* But not to worry, if that is the case, this callback was called before */
-	GFX_CONT_INIT();
+	GFX_CONT_INIT_UNSAFE;
 
 	GFX_Buffer* buffer = GFX_PTR_SUB_BYTES(arg, offsetof(GFX_Buffer, id));
 	_gfx_buffer_clear(buffer, GFX_CONT_AS_ARG);
@@ -417,19 +414,13 @@ void gfx_buffer_free(
 {
 	if(buffer)
 	{
-		/* Check context */
-		GFX_CONT_INIT_UNSAFE;
-
-		if(!GFX_CONT_EQ(NULL))
+		if(*_gfx_buffer_get_handle((GFX_Buffer*)buffer, 0))
 		{
+			/* Check context */
+			GFX_CONT_INIT();
+
 			/* Check if sharing context */
 			if(!_gfx_buffer_ref((GFX_Buffer*)buffer, GFX_CONT_AS_ARG))
-				return;
-		}
-		else
-		{
-			/* Check if actual buffer was destroyed */
-			if(*_gfx_buffer_get_handle((GFX_Buffer*)buffer, 0))
 				return;
 		}
 

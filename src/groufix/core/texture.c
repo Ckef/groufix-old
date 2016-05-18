@@ -43,10 +43,7 @@ static void _gfx_texture_obj_destruct(
 
 		GFX_RenderObjectIDArg arg)
 {
-	/* Check if the context actually exists */
-	/* It may not exist if the texture was freed after all contexts were destroyed */
-	/* But not to worry, if that is the case, this callback was called before */
-	GFX_CONT_INIT();
+	GFX_CONT_INIT_UNSAFE;
 }
 
 /******************************************************/
