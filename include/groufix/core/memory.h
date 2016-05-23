@@ -341,10 +341,8 @@ typedef enum GFXPrimitive
 /** Vertex Attribute */
 typedef struct GFXVertexAttribute
 {
-	unsigned char      size;      /* Number of elements, 0 signifies the type is packed */
-	GFXDataType        type;      /* Data type of each element */
-	//GFXInterpretFlags  interpret; /* How to interpret each element, DEPTH is equal to FLOAT and STENCIL is equal to INTEGER */
-	unsigned int       offset;    /* Offset of the attribute, must be <= GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET */
+	GFXFormat     format;
+	unsigned int  offset; /* Offset of the attribute, must be <= GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET */
 
 } GFXVertexAttribute;
 
@@ -377,6 +375,7 @@ typedef struct GFXVertexLayout
 	GFXRenderObject  object;
 
 	/* Read only fields */
+	unsigned char    buffers;    /* Number of vertex buffers */
 	unsigned char    attributes; /* Number of vertex attributes */
 	unsigned char    sources;    /* Number of vertex sources */
 
@@ -386,13 +385,15 @@ typedef struct GFXVertexLayout
 /**
  * Creates a new vertex layout.
  *
- * @param attributes Fixed number of (sparse) vertex attributes associated with this layout.
- * @param sources    Fixed number of vertex sources associated with this layout.
+ * @param buffers    Fixed number of buffers.
+ * @param attributes Fixed number of (sparse) vertex attributes.
+ * @param sources    Fixed number of vertex sources.
  * @return NULL on failure.
  *
  */
 GFX_API GFXVertexLayout* gfx_vertex_layout_create(
 
+		unsigned char  buffers,
 		unsigned char  attributes,
 		unsigned char  sources);
 

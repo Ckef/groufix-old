@@ -464,7 +464,8 @@ void APIENTRY _gfx_gl_create_buffers(
 	void APIENTRY _gfx_gl_create_program_pipelines                          (GLsizei, GLuint*);
 	void APIENTRY _gfx_gl_create_samplers                                   (GLsizei, GLuint*);
 	void APIENTRY _gfx_gl_create_textures                                   (GLenum, GLsizei, GLuint*);
-	void APIENTRY _gfx_gl_create_vertex_arrays                              (GLsizei, GLuint*);
+void APIENTRY _gfx_gl_create_vertex_arrays(
+		GLsizei, GLuint*);
 void APIENTRY _gfx_gl_debug_message_callback(
 		GFX_DEBUGPROC, const GLvoid*);
 void APIENTRY _gfx_gl_debug_message_control(
@@ -643,7 +644,8 @@ struct GFX_Renderer
 		GFX_CREATESAMPLERSPROC                              CreateSamplers;                              /* GFX_INT_EXT_SAMPLER_OBJECTS */
 		GFX_CREATESHADERPROC                                CreateShader;
 		GFX_CREATETEXTURESPROC                              CreateTextures;
-		GFX_CREATEVERTEXARRAYSPROC                          CreateVertexArrays;
+	/* GFX_INT_EXT_DIRECT_STATE_ACCESS, fallback to GenVertexArrays */
+	GFX_CREATEVERTEXARRAYSPROC                          CreateVertexArrays;
 	GFX_CULLFACEPROC                                    CullFace;
 	/* GFX_INT_EXT_DEBUG_OUTPUT, fallback to no-op */
 	GFX_DEBUGMESSAGECALLBACKPROC                        DebugMessageCallback;
@@ -656,7 +658,7 @@ struct GFX_Renderer
 		GFX_DELETESAMPLERSPROC                              DeleteSamplers;                              /* GFX_INT_EXT_SAMPLER_OBJECTS */
 		GFX_DELETESHADERPROC                                DeleteShader;
 		GFX_DELETETEXTURESPROC                              DeleteTextures;
-		GFX_DELETEVERTEXARRAYSPROC                          DeleteVertexArrays;
+	GFX_DELETEVERTEXARRAYSPROC                          DeleteVertexArrays;
 	GFX_DEPTHFUNCPROC                                   DepthFunc;
 	GFX_DEPTHMASKPROC                                   DepthMask;
 		GFX_DETACHSHADERPROC                                DetachShader;
@@ -688,7 +690,7 @@ struct GFX_Renderer
 		GFX_GENPROGRAMPIPELINESPROC                         GenProgramPipelines;                         /* GFX_EXT_PROGRAM_MAP */
 		GFX_GENSAMPLERSPROC                                 GenSamplers;                                 /* GFX_INT_EXT_SAMPLER_OBJECTS */
 		GFX_GENTEXTURESPROC                                 GenTextures;
-		GFX_GENVERTEXARRAYSPROC                             GenVertexArrays;
+	GFX_GENVERTEXARRAYSPROC                             GenVertexArrays;
 		GFX_GETACTIVEUNIFORMPROC                            GetActiveUniform;
 		GFX_GETACTIVEUNIFORMBLOCKIVPROC                     GetActiveUniformBlockiv;
 		GFX_GETACTIVEUNIFORMSIVPROC                         GetActiveUniformsiv;

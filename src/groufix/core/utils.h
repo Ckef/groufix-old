@@ -38,7 +38,7 @@ extern const GFXPipeState _gfx_state_default;
  * Finds a string in a longer, null-terminated, space-separated string.
  *
  * @param haystack Null-terminated, space-separated string to search in (can be NULL).
- * @param needle   String to find (cannot be NULL).
+ * @param needle   String to find (cannot be NULL or have any spaces).
  * @return Non-zero if it was found.
  *
  */

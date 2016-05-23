@@ -14,6 +14,9 @@
 
 #include "groufix/core/renderer.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 /******************************************************/
 /** Internal renderer handle */
 #if defined(GFX_RENDERER_GL)
@@ -48,6 +51,48 @@ typedef struct GFX_Layout
 } GFX_Layout;
 
 
+/** Internal vertex buffer */
+typedef struct GFX_Buffer
+{
+	GFXBuffer*     buffer;
+	unsigned char  index; /* Index of the handle at the buffer */
+
+	size_t         offset;
+	size_t         stride;
+	unsigned int   divisor;
+
+} GFX_Buffer;
+
+
+/******************************************************/
+static inline GFX_Buffer* _gfx_layout_get_buffer(
+
+		const GFX_Layout*  layout,
+		unsigned char      index)
+{
+	return ((GFX_Buffer*)(layout + 1)) + index;
+}
+
+/******************************************************/
+static inline GFXVertexAttribute* _gfx_layout_get_attribute(
+
+		const GFX_Layout*  layout,
+		unsigned char      index)
+{
+	void* attr = _gfx_layout_get_buffer(layout, layout->layout.buffers);
+	return ((GFXVertexAttribute*)attr) + index;
+}
+
+/******************************************************/
+static inline GFXVertexSource* _gfx_layout_get_source(
+
+		const GFX_Layout*  layout,
+		unsigned char      index)
+{
+	void* src = _gfx_layout_get_attribute(layout, layout->layout.attributes);
+	return ((GFXVertexSource*)src) + index;
+}
+
 /******************************************************/
 static inline int _gfx_layout_ref(
 
@@ -62,11 +107,60 @@ static inline int _gfx_layout_ref(
 }
 
 /******************************************************/
+static inline int _gfx_layout_check(
+
+		const GFX_Layout* layout,
+		GFX_CONT_ARG)
+{
+	return !layout->handle ||
+		(!GFX_CONT_EQ(NULL) && _gfx_layout_ref(layout, GFX_CONT_AS_ARG));
+}
+
+/******************************************************/
+static void _gfx_layout_clear(
+
+		GFX_Layout* layout,
+		GFX_CONT_ARG)
+{
+#if defined(GFX_RENDERER_GL)
+
+	GFX_REND_GET.DeleteVertexArrays(1, &layout->handle);
+
+#endif
+
+	memset(&layout->handle, 0, sizeof(GFX_LayoutHandle));
+}
+
+/******************************************************/
+static int _gfx_layout_init(
+
+		GFX_Layout* layout,
+		GFX_CONT_ARG)
+{
+#if defined(GFX_RENDERER_GL)
+
+	/* Allocate layout */
+	GFX_REND_GET.CreateVertexArrays(1, &layout->handle);
+	if(!layout->handle)
+	{
+		_gfx_layout_clear(layout, GFX_CONT_AS_ARG);
+		return 0;
+	}
+
+#endif
+
+	return 1;
+}
+
+/******************************************************/
 static void _gfx_layout_obj_destruct(
 
 		GFX_RenderObjectIDArg arg)
 {
 	GFX_CONT_INIT_UNSAFE;
+
+	GFX_Layout* layout = GFX_PTR_SUB_BYTES(arg, offsetof(GFX_Layout, id));
+	_gfx_layout_clear(layout, GFX_CONT_AS_ARG);
 }
 
 /******************************************************/
@@ -77,6 +171,9 @@ static void _gfx_layout_obj_prepare(
 		int                    shared)
 {
 	GFX_CONT_INIT_UNSAFE;
+
+	GFX_Layout* layout = GFX_PTR_SUB_BYTES(arg, offsetof(GFX_Layout, id));
+	_gfx_layout_clear(layout, GFX_CONT_AS_ARG);
 }
 
 /******************************************************/
@@ -87,6 +184,9 @@ static void _gfx_layout_obj_transfer(
 		int                    shared)
 {
 	GFX_CONT_INIT_UNSAFE;
+
+	GFX_Layout* layout = GFX_PTR_SUB_BYTES(arg, offsetof(GFX_Layout, id));
+	_gfx_layout_init(layout, GFX_CONT_AS_ARG);
 }
 
 /******************************************************/
@@ -101,15 +201,17 @@ static const GFX_RenderObjectFuncs _gfx_layout_obj_funcs =
 /******************************************************/
 GFXVertexLayout* gfx_vertex_layout_create(
 
+		unsigned char  buffers,
 		unsigned char  attributes,
 		unsigned char  sources)
 {
 	/* Yeah, okay... no. */
 	if(!attributes || !sources) return NULL;
 
-	/* Create new layout, append attributes and sources at the end of the struct */
+	/* Create new layout, append buffers, attributes and sources at the end of the struct */
 	size_t alloc =
 		sizeof(GFX_Layout) +
+		sizeof(GFX_Buffer) * buffers +
 		sizeof(GFXVertexAttribute) * attributes +
 		sizeof(GFXVertexSource) * sources;
 
@@ -149,15 +251,11 @@ void gfx_vertex_layout_free(
 {
 	if(layout)
 	{
-		if(((GFX_Layout*)layout)->handle)
-		{
-			/* Check context */
-			GFX_CONT_INIT();
+		/* Check context */
+		GFX_CONT_INIT_UNSAFE;
 
-			/* Check if sharing context */
-			if(!_gfx_layout_ref((GFX_Layout*)layout, GFX_CONT_AS_ARG))
-				return;
-		}
+		if(!_gfx_layout_check((GFX_Layout*)layout, GFX_CONT_AS_ARG))
+			return;
 
 		/* Clear as object */
 		/* Object clearing will call the destruct callback */
