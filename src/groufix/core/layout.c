@@ -39,6 +39,19 @@ typedef struct GFX_Layout
 
 
 /******************************************************/
+static inline int _gfx_layout_ref(
+
+		const GFX_Layout* layout,
+		GFX_CONT_ARG)
+{
+	return _gfx_render_object_id_reference(
+		&((GFX_Layout*)layout)->id,
+		layout->layout.object,
+		&GFX_CONT_GET.objects
+	);
+}
+
+/******************************************************/
 static void _gfx_layout_obj_destruct(
 
 		GFX_RenderObjectIDArg arg)
@@ -74,6 +87,75 @@ static const GFX_RenderObjectFuncs _gfx_layout_obj_funcs =
 	.prepare  = _gfx_layout_obj_prepare,
 	.transfer = _gfx_layout_obj_transfer
 };
+
+/******************************************************/
+GFXVertexLayout* gfx_vertex_layout_create(
+
+		unsigned char  attributes,
+		unsigned char  sources)
+{
+	/* Yeah, okay... no. */
+	if(!attributes || !sources) return NULL;
+
+	/* Create new layout, append attributes and sources at the end of the struct */
+	size_t alloc =
+		sizeof(GFX_Layout) +
+		sizeof(GFXVertexAttribute) * attributes +
+		sizeof(GFXVertexSource) * sources;
+
+	GFX_Layout* layout = calloc(1, alloc);
+	if(!layout)
+	{
+		/* Out of memory error */
+		gfx_errors_output(
+			"[GFX Out of Memory]: Vertex Layout could not be allocated."
+		);
+		return NULL;
+	}
+
+	/* Initialize the layout */
+	layout->layout.attributes = attributes;
+	layout->layout.sources = sources;
+
+	/* Initialize as object */
+	layout->layout.object = 0;
+
+	if(!_gfx_render_object_id_init(
+		&layout->id,
+		layout->layout.object,
+		&_gfx_layout_obj_funcs,
+		NULL))
+	{
+		free(layout);
+		return NULL;
+	}
+
+	return (GFXVertexLayout*)layout;
+}
+
+/******************************************************/
+void gfx_vertex_layout_free(
+
+		GFXVertexLayout* layout)
+{
+	if(layout)
+	{
+		if(((GFX_Layout*)layout)->handle)
+		{
+			/* Check context */
+			GFX_CONT_INIT();
+
+			/* Check if sharing context */
+			if(!_gfx_layout_ref((GFX_Layout*)layout, GFX_CONT_AS_ARG))
+				return;
+		}
+
+		/* Clear as object */
+		/* Object clearing will call the destruct callback */
+		_gfx_render_object_id_clear(&((GFX_Layout*)layout)->id);
+		free(layout);
+	}
+}
 
 
 

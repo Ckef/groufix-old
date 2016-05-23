@@ -293,7 +293,7 @@ void APIENTRY _gfx_gl_get_named_buffer_sub_data(
 		GLuint      buffer,
 		GLintptr    offset,
 		GLsizeiptr  size,
-		void*       data)
+		GLvoid*     data)
 {
 	GFX_CONT_INIT_UNSAFE;
 
@@ -1123,7 +1123,7 @@ void APIENTRY _gfx_gl_get_program_binary(
 		GLsizei   bufsize,
 		GLsizei*  length,
 		GLenum*   binaryFormat,
-		void*     binary)
+		GLvoid*   binary)
 {
 	if(length) *length = 0;
 

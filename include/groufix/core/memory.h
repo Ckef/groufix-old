@@ -382,8 +382,6 @@ typedef struct GFXVertexLayout
  * @param sources    Fixed number of vertex sources associated with this layout.
  * @return NULL on failure.
  *
- * Note: attributes must be <= GFX_LIM_MAX_VERTEX_ATTRIBS.
- *
  */
 GFX_API GFXVertexLayout* gfx_vertex_layout_create(
 
@@ -392,6 +390,9 @@ GFX_API GFXVertexLayout* gfx_vertex_layout_create(
 
 /**
  * Makes sure the vertex layout is freed properly.
+ *
+ * This is a no-op if it is called on a different groufix thread, or called
+ * on a non-groufix thread whilst it is still being used on a groufix thread.
  *
  */
 GFX_API void gfx_vertex_layout_free(

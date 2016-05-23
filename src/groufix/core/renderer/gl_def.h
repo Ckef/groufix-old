@@ -26,23 +26,16 @@
 #endif
 
 
-/* Compatibility defines */
-#ifndef GL_TEXTURE_2D_MULTISAMPLE
-	#define GL_TEXTURE_2D_MULTISAMPLE        0x9100
+/* Compatibility defines (for elsewhere than gl headers) */
+#ifndef GL_CLIENT_STORAGE_BIT
+	#define GL_CLIENT_STORAGE_BIT   0x0200
 #endif
-#ifndef GL_TEXTURE_2D_MULTISAMPLE_ARRAY
-	#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY  0x9102
+#ifndef GL_DYNAMIC_STORAGE_BIT
+	#define GL_DYNAMIC_STORAGE_BIT  0x0100
 #endif
-#ifndef GL_TEXTURE_MAX_ANISOTROPY
-	#define GL_TEXTURE_MAX_ANISOTROPY        0x84fe
+#ifndef GL_MAP_PERSISTENT_BIT
+	#define GL_MAP_PERSISTENT_BIT   0x0040
 #endif
-
-
-/* Default limits */
-#define GFX_GL_DEF_MAX_ANISOTROPY            0x0001
-#define GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET  0x07ff
-#define GFX_GL_DEF_MAX_VERTEX_BUFFERS        0x0010
-#define GFX_GL_DEF_MAX_VERTEX_STRIDE         0x0800
 
 
 /* Correct context versions */
@@ -636,7 +629,7 @@ struct GFX_Renderer
 	GFX_BUFFERDATAPROC                                  BufferData;
 	/* GFX_INT_EXT_BUFFER_STORAGE, fallback to no-op */
 	GFX_BUFFERSTORAGEPROC                               BufferStorage;
-		GFX_BUFFERSUBDATAPROC                               BufferSubData;
+	GFX_BUFFERSUBDATAPROC                               BufferSubData;
 	GFX_CLEARPROC                                       Clear;
 		GFX_COMPILESHADERPROC                               CompileShader;
 	GFX_COPYBUFFERSUBDATAPROC                           CopyBufferSubData;

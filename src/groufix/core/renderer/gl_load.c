@@ -25,6 +25,13 @@
 #endif
 
 
+/* Default limits */
+#define GFX_GL_DEF_MAX_ANISOTROPY            0x0001
+#define GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET  0x07ff
+#define GFX_GL_DEF_MAX_VERTEX_BUFFERS        0x0010
+#define GFX_GL_DEF_MAX_VERTEX_STRIDE         0x0800
+
+
 /******************************************************/
 static int _gfx_gl_is_extension_supported(
 
@@ -296,7 +303,7 @@ void _gfx_renderer_load(
 	/* GFX_INT_EXT_BUFFER_STORAGE */
 	if(_gfx_gl_is_extension_supported("GL_EXT_buffer_storage", GFX_CONT_AS_ARG))
 	{
-		GFX_REND_GET.intExt[GFX_INT_BUFFER_STORAGE] = 1;
+		GFX_REND_GET.intExt[GFX_INT_EXT_BUFFER_STORAGE] = 1;
 
 		GFX_REND_GET.BufferStorage =
 			(GFX_BUFFERSTORAGEPROC)_gfx_platform_get_proc_address("glBufferStorageEXT");
