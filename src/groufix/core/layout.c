@@ -130,6 +130,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	/* Initialize as object */
 	if(!_gfx_render_object_id_init(
 		&layout->id,
+		1,
 		GFX_VERTEX_LAYOUT_OBJECT_FLAGS,
 		&_gfx_layout_obj_funcs,
 		NULL))

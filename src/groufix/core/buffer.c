@@ -382,6 +382,7 @@ GFXBuffer* gfx_buffer_create(
 	/* Initialize as object */
 	if(!_gfx_render_object_id_init(
 		&buffer->id,
+		0,
 		GFX_BUFFER_OBJECT_FLAGS,
 		&_gfx_buffer_obj_funcs,
 		&GFX_CONT_GET.objects))

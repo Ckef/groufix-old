@@ -248,46 +248,59 @@ void _gfx_render_objects_prepare(
 {
 	_gfx_platform_mutex_lock(&src->mutex);
 
-	/* Loop over all IDs */
-	size_t index;
+	/* Keep looping over all IDs with increasing order */
+	/* Do this as long as there are still objects */
+	/* This so all objects are in order for transfering */
+	size_t index = gfx_vector_get_size(&src->objects);
+	unsigned char order;
+
 	for(
-		index = gfx_vector_get_size(&src->objects);
+		order = 0;
 		index > 0;
-		--index)
+		index = gfx_vector_get_size(&src->objects), ++order)
 	{
-		GFX_RenderObjectID* id =
-			*(GFX_RenderObjectID**)gfx_vector_at(&src->objects, index - 1);
-
-		if(id)
+		while(index--)
 		{
-			/* Assign it some temporary storage */
-			GFX_RenderObjectStorage storage =
-			{
-				.id      = id,
-				.storage = NULL
-			};
+			GFX_RenderObjectID* id =
+				*(GFX_RenderObjectID**)gfx_vector_at(&src->objects, index);
 
-			GFX_RenderObjectStorage* temp = gfx_vector_insert(
-				&src->temp,
-				&storage,
-				src->temp.end
-			);
-
-			if(temp == src->temp.end)
+			if(id && id->order == order)
 			{
-				/* Out of memory error */
-				gfx_errors_output(
-					"[GFX Out Of Memory]: Render object container ran out of memory during preparation."
+				/* Assign it some temporary storage */
+				GFX_RenderObjectStorage storage =
+				{
+					.id      = id,
+					.storage = NULL
+				};
+
+				GFX_RenderObjectStorage* temp = gfx_vector_insert(
+					&src->temp,
+					&storage,
+					src->temp.end
 				);
-				continue;
+
+				if(temp == src->temp.end)
+				{
+					/* Out of memory error */
+					gfx_errors_output(
+						"[GFX Out Of Memory]: Render object container ran out of memory during preparation."
+					);
+
+					_gfx_platform_mutex_unlock(&src->mutex);
+					return;
+				}
+
+				/* Call the preparation callback and dereference it */
+				if(id->funcs->prepare) id->funcs->prepare(
+					(GFX_RenderObjectIDArg)id, &temp->storage, shared);
+
+				_gfx_render_object_id_deref(
+					id, src, 0);
+
+				/* Check if anything still exists after dereferencing */
+				if(src->objects.begin == src->objects.end)
+					break;
 			}
-
-			/* Call the preparation callback and dereference it */
-			if(id->funcs->prepare) id->funcs->prepare(
-				(GFX_RenderObjectIDArg)id, &temp->storage, shared);
-
-			_gfx_render_object_id_deref(
-				id, src, 0);
 		}
 	}
 
@@ -327,6 +340,7 @@ void _gfx_render_objects_transfer(
 int _gfx_render_object_id_init(
 
 		GFX_RenderObjectID*           id,
+		unsigned char                 order,
 		GFXRenderObjectFlags          flags,
 		const GFX_RenderObjectFuncs*  funcs,
 		GFX_RenderObjects*            cont)
@@ -341,6 +355,7 @@ int _gfx_render_object_id_init(
 	id->refs.objects = NULL;
 	id->refs.id      = 0;
 	id->refs.next    = NULL;
+	id->order        = order;
 
 	if(cont)
 	{

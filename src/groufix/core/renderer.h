@@ -153,6 +153,7 @@ void _gfx_render_objects_prepare(
  *
  * The callback gives the same pointer as _gfx_render_objects_prepare so to
  * restore the temporary memory and whether the src and destination are shared.
+ * Furthermore, all objects are transfered in the order given at the object id's initialization.
  *
  * This function is thread safe with respect to dest.
  *
@@ -186,6 +187,7 @@ typedef struct GFX_RenderObjectID
 {
 	const GFX_RenderObjectFuncs*  funcs;
 	GFX_RenderObjectRef           refs;
+	unsigned char                 order;
 
 } GFX_RenderObjectID;
 
@@ -193,6 +195,7 @@ typedef struct GFX_RenderObjectID
 /**
  * Initializes a render object ID.
  *
+ * @param order Determines the order in which objects are transfered (0 is first).
  * @param flags Flags to use for this call.
  * @param funcs Function vtable to associate with this ID (any can be NULL).
  * @param cont  Render object container to first reference at (can be NULL).
@@ -207,6 +210,7 @@ typedef struct GFX_RenderObjectID
 int _gfx_render_object_id_init(
 
 		GFX_RenderObjectID*           id,
+		unsigned char                 order,
 		GFXRenderObjectFlags          flags,
 		const GFX_RenderObjectFuncs*  funcs,
 		GFX_RenderObjects*            cont);
