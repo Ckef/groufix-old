@@ -111,6 +111,10 @@ GFX_API GFXFormat gfx_format_from_type(
  * Buffer (arbitrary GPU storage)
  *******************************************************/
 
+/** Object flags associated with all buffers */
+GFX_API const GFXRenderObjectFlags GFX_BUFFER_OBJECT_FLAGS;
+
+
 /** Buffer usage bitflag */
 typedef enum GFXBufferUsage
 {
@@ -361,6 +365,10 @@ typedef struct GFXVertexSource
 /********************************************************
  * Vertex Layout (vertex specifications + sources)
  *******************************************************/
+
+/** Object flags associated with all layouts */
+GFX_API const GFXRenderObjectFlags GFX_VERTEX_LAYOUT_OBJECT_FLAGS;
+
 
 /** Vertex Layout */
 typedef struct GFXVertexLayout

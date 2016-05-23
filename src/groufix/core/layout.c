@@ -25,6 +25,16 @@ typedef void* GFX_LayoutHandle;
 #endif
 
 
+/** Object flags associated with all layouts */
+#if defined(GFX_RENDERER_GL)
+const GFXRenderObjectFlags GFX_VERTEX_LAYOUT_OBJECT_FLAGS = 0;
+
+#elif defined(GFX_RENDERER_VK)
+const GFXRenderObjectFlags GFX_VERTEX_LAYOUT_OBJECT_FLAGS = 0;
+
+#endif
+
+
 /** Internal Layout */
 typedef struct GFX_Layout
 {
@@ -46,7 +56,7 @@ static inline int _gfx_layout_ref(
 {
 	return _gfx_render_object_id_reference(
 		&((GFX_Layout*)layout)->id,
-		layout->layout.object,
+		GFX_VERTEX_LAYOUT_OBJECT_FLAGS,
 		&GFX_CONT_GET.objects
 	);
 }
@@ -118,11 +128,9 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	layout->layout.sources = sources;
 
 	/* Initialize as object */
-	layout->layout.object = 0;
-
 	if(!_gfx_render_object_id_init(
 		&layout->id,
-		layout->layout.object,
+		GFX_VERTEX_LAYOUT_OBJECT_FLAGS,
 		&_gfx_layout_obj_funcs,
 		NULL))
 	{

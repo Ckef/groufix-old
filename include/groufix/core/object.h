@@ -30,7 +30,8 @@ typedef enum GFXRenderObjectFlags
 
 
 /** A render object reference */
-typedef GFXRenderObjectFlags GFXRenderObject;
+/* TODO: In the future this will hold a reference to the associated GPU */
+typedef void* GFXRenderObject;
 
 
 #endif // GFX_CORE_OBJECT_H

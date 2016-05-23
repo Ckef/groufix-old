@@ -28,6 +28,20 @@ typedef void* GFX_BufferHandle;
 #endif
 
 
+/** Object flags associated with all buffers */
+#if defined(GFX_RENDERER_GL)
+const GFXRenderObjectFlags GFX_BUFFER_OBJECT_FLAGS =
+	GFX_OBJECT_NEEDS_REFERENCE |
+	GFX_OBJECT_CAN_SHARE;
+
+#elif defined(GFX_RENDERER_VK)
+const GFXRenderObjectFlags GFX_BUFFER_OBJECT_FLAGS =
+	GFX_OBJECT_NEEDS_REFERENCE |
+	GFX_OBJECT_CAN_SHARE;
+
+#endif
+
+
 /** Internal Buffer */
 typedef struct GFX_Buffer
 {
@@ -58,7 +72,7 @@ static inline int _gfx_buffer_ref(
 {
 	return _gfx_render_object_id_reference(
 		&((GFX_Buffer*)buffer)->id,
-		buffer->buffer.object,
+		GFX_BUFFER_OBJECT_FLAGS,
 		&GFX_CONT_GET.objects
 	);
 }
@@ -366,13 +380,9 @@ GFXBuffer* gfx_buffer_create(
 	}
 
 	/* Initialize as object */
-	buffer->buffer.object =
-		GFX_OBJECT_NEEDS_REFERENCE |
-		GFX_OBJECT_CAN_SHARE;
-
 	if(!_gfx_render_object_id_init(
 		&buffer->id,
-		buffer->buffer.object,
+		GFX_BUFFER_OBJECT_FLAGS,
 		&_gfx_buffer_obj_funcs,
 		&GFX_CONT_GET.objects))
 	{
