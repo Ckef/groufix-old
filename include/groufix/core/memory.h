@@ -177,8 +177,8 @@ GFX_API GFXBuffer* gfx_buffer_create_copy(
 /**
  * Makes sure the buffer is freed properly.
  *
- * This is a no-op if it is called on a groufix thread that is not shared, or called
- * on a non-groufix thread whilst it is still being used on a groufix thread.
+ * This is a no-op if it is called on a different thread than allowed.
+ * What threads are allowed is defined by the buffer object flags.
  *
  */
 GFX_API void gfx_buffer_free(
@@ -351,7 +351,7 @@ typedef struct GFXVertexAttribute
 typedef struct GFXVertexSource
 {
 	GFXPrimitive   primitive;
-	unsigned char  indexed;   /* Non-zero if indexed via the index buffer */
+	char           indexed;   /* Non-zero if indexed via the index buffer */
 	GFXDataType    indexType; /* Can only be an unsigned type */
 	size_t         first;     /* First index to start reading at */
 	size_t         count;     /* Number of drawable vertices */
@@ -400,8 +400,8 @@ GFX_API GFXVertexLayout* gfx_vertex_layout_create(
 /**
  * Makes sure the vertex layout is freed properly.
  *
- * This is a no-op if it is called on a different groufix thread, or called
- * on a non-groufix thread whilst it is still being used on a groufix thread.
+ * This is a no-op if it is called on a different thread than allowed.
+ * What threads are allowed is defined by the vertex layout object flags.
  *
  */
 GFX_API void gfx_vertex_layout_free(
