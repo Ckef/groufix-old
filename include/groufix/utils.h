@@ -86,15 +86,15 @@
 
 /* Stringification */
 #define GFX_STRIFY_STRICT(x) #x
-#define GFX_STRIFY(x) GFX_STRIFY_BAD(x)
+#define GFX_STRIFY(x) GFX_STRIFY_STRICT(x)
 
 /* Concatenation */
 #define GFX_CAT_STRICT(x,y) x ## y
-#define GFX_CAT(x,y) GFX_CAT_BAD(x,y)
+#define GFX_CAT(x,y) GFX_CAT_STRICT(x,y)
 
 /* Template naming */
 #define GFX_NAME_STRICT(x,y) x ## _ ## y
-#define GFX_NAME(x,y) GFX_NAME_BAD(x,y)
+#define GFX_NAME(x,y) GFX_NAME_STRICT(x,y)
 
 
 /* Pointer operations */
