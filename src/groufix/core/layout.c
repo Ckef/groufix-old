@@ -48,6 +48,10 @@ typedef struct GFX_Layout
 	GFX_RenderObjectID  id;
 	GFX_LayoutHandle    handle;
 
+	GFXBuffer*          indexBuffer;
+	unsigned char       index;       /* Index of the handle at the index buffer */
+	size_t              indexOffset; /* Byte offset to start reading at in the index buffer */
+
 } GFX_Layout;
 
 
@@ -206,7 +210,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 		unsigned char  sources)
 {
 	/* Yeah, okay... no. */
-	if(!attributes || !sources) return NULL;
+	if(!buffers || !attributes || !sources) return NULL;
 
 	/* Create new layout, append buffers, attributes and sources at the end of the struct */
 	size_t alloc =
@@ -262,6 +266,90 @@ void gfx_vertex_layout_free(
 		_gfx_render_object_id_clear(&((GFX_Layout*)layout)->id);
 		free(layout);
 	}
+}
+
+/******************************************************/
+int gfx_vertex_layout_set_vertex_buffer(
+
+		GFXVertexLayout*  layout,
+		unsigned char     index,
+		const GFXBuffer*  buffer,
+		size_t            offset,
+		size_t            stride,
+		unsigned int      divisor)
+{
+	/* Check context */
+	GFX_CONT_INIT_UNSAFE;
+
+	GFX_Layout* internal = (GFX_Layout*)layout;
+	if(!_gfx_layout_check(internal, GFX_CONT_AS_ARG)) return 0;
+
+	return 0;
+}
+
+/******************************************************/
+int gfx_vertex_layout_get_vertex_buffer(
+
+		GFXVertexLayout*  layout,
+		unsigned char     index,
+		GFXBuffer**       buffer,
+		size_t*           offset,
+		size_t*           stride,
+		unsigned int*     divisor)
+{
+	/* Get buffer and check if there's something */
+	GFX_Layout* internal = (GFX_Layout*)layout;
+	GFX_Buffer* buff = _gfx_layout_get_buffer(internal, index);
+
+	if(index >= layout->buffers || !buff->buffer) return 0;
+
+	/* Check context */
+	GFX_CONT_INIT_UNSAFE;
+	if(!_gfx_layout_check(internal, GFX_CONT_AS_ARG)) return 0;
+
+	*buffer = buff->buffer;
+	*offset = buff->offset;
+	*stride = buff->stride;
+	*divisor = buff->divisor;
+
+	return 1;
+}
+
+/******************************************************/
+int gfx_vertex_layout_set_index_buffer(
+
+		GFXVertexLayout*  layout,
+		const GFXBuffer*  buffer,
+		size_t            offset)
+{
+	/* Check context */
+	GFX_CONT_INIT_UNSAFE;
+
+	GFX_Layout* internal = (GFX_Layout*)layout;
+	if(!_gfx_layout_check(internal, GFX_CONT_AS_ARG)) return 0;
+
+	return 0;
+}
+
+/******************************************************/
+int gfx_vertex_layout_get_index_buffer(
+
+		GFXVertexLayout*  layout,
+		GFXBuffer**       buffer,
+		size_t*           offset)
+{
+	/* Nothing to return */
+	GFX_Layout* internal = (GFX_Layout*)layout;
+	if(!internal->indexBuffer) return 0;
+
+	/* Check context */
+	GFX_CONT_INIT_UNSAFE;
+	if(!_gfx_layout_check(internal, GFX_CONT_AS_ARG)) return 0;
+
+	*buffer = internal->indexBuffer;
+	*offset = internal->indexOffset;
+
+	return 1;
 }
 
 
