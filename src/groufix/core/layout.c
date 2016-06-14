@@ -12,22 +12,12 @@
  *
  */
 
-#include "groufix/core/renderer.h"
+#include "groufix/core/utils.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 /******************************************************/
-/** Internal renderer handle */
-#if defined(GFX_RENDERER_GL)
-typedef GLuint GFX_LayoutHandle;
-
-#elif defined(GFX_RENDERER_VK)
-typedef void* GFX_LayoutHandle;
-
-#endif
-
-
 /** Object flags associated with all layouts */
 #if defined(GFX_RENDERER_GL)
 const GFXRenderObjectFlags GFX_VERTEX_LAYOUT_OBJECT_FLAGS = 0;
@@ -236,7 +226,7 @@ GFXVertexLayout* gfx_vertex_layout_create(
 	/* Initialize as object */
 	if(!_gfx_render_object_id_init(
 		&layout->id,
-		1,
+		GFX_VERTEX_LAYOUT_OBJECT_ORDER,
 		GFX_VERTEX_LAYOUT_OBJECT_FLAGS,
 		&_gfx_layout_obj_funcs,
 		NULL))

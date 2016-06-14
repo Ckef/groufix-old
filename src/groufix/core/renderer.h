@@ -55,6 +55,11 @@
 #define GFX_REND_GET                (gfx_c__->renderer)
 
 
+/* Render object order for all standard objects */
+#define GFX_BUFFER_OBJECT_ORDER         0
+#define GFX_VERTEX_LAYOUT_OBJECT_ORDER  1
+
+
 /********************************************************
  * Generic render object functions
  *******************************************************/

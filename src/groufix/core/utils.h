@@ -23,6 +23,31 @@
 #endif
 
 
+
+/********************************************************
+ * Object handles & handle fetching
+ *******************************************************/
+
+/** Internal buffer handle */
+#if defined(GFX_RENDERER_GL)
+typedef GLuint GFX_BufferHandle;
+
+#elif defined(GFX_RENDERER_VK)
+typedef void* GFX_BufferHandle;
+
+#endif
+
+
+/** Internal vertex layout handle */
+#if defined(GFX_RENDERER_GL)
+typedef GLuint GFX_LayoutHandle;
+
+#elif defined(GFX_RENDERER_VK)
+typedef void* GFX_LayoutHandle;
+
+#endif
+
+
 /********************************************************
  * State defaults & string manipulation & type helpers
  *******************************************************/

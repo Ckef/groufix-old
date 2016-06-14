@@ -12,22 +12,12 @@
  *
  */
 
-#include "groufix/core/renderer.h"
+#include "groufix/core/utils.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 /******************************************************/
-/** Internal renderer handle */
-#if defined(GFX_RENDERER_GL)
-typedef GLuint GFX_BufferHandle;
-
-#elif defined(GFX_RENDERER_VK)
-typedef void* GFX_BufferHandle;
-
-#endif
-
-
 /** Object flags associated with all buffers */
 #if defined(GFX_RENDERER_GL)
 const GFXRenderObjectFlags GFX_BUFFER_OBJECT_FLAGS =
@@ -382,7 +372,7 @@ GFXBuffer* gfx_buffer_create(
 	/* Initialize as object */
 	if(!_gfx_render_object_id_init(
 		&buffer->id,
-		0,
+		GFX_BUFFER_OBJECT_ORDER,
 		GFX_BUFFER_OBJECT_FLAGS,
 		&_gfx_buffer_obj_funcs,
 		&GFX_CONT_GET.objects))
