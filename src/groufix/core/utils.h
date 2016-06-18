@@ -23,7 +23,6 @@
 #endif
 
 
-
 /********************************************************
  * Object handles & handle fetching
  *******************************************************/
@@ -46,6 +45,34 @@ typedef GLuint GFX_LayoutHandle;
 typedef void* GFX_LayoutHandle;
 
 #endif
+
+
+/**
+ * Returns the index of the current backbuffer.
+ *
+ */
+unsigned char _gfx_buffer_get_current(
+
+		const GFXBuffer* buffer);
+
+/**
+ * Returns the handle of a buffer.
+ *
+ * @param index Backbuffer index as given by _gfx_buffer_get_current.
+ *
+ */
+GFX_BufferHandle _gfx_buffer_get_handle(
+
+		const GFXBuffer*  buffer,
+		unsigned char     index);
+
+/**
+ * Returns the handle of a vertex layout.
+ *
+ */
+GFX_LayoutHandle _gfx_vertex_layout_get_handle(
+
+		const GFXVertexLayout* layout);
 
 
 /********************************************************

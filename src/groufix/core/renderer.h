@@ -57,7 +57,7 @@
 
 /* Render object order for all standard objects */
 #define GFX_BUFFER_OBJECT_ORDER         0
-#define GFX_VERTEX_LAYOUT_OBJECT_ORDER  1
+#define GFX_VERTEX_LAYOUT_OBJECT_ORDER  (GFX_BUFFER_OBJECT_ORDER + 1)
 
 
 /********************************************************

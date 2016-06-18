@@ -26,10 +26,10 @@
 
 
 /* Default limits */
-#define GFX_GL_DEF_MAX_ANISOTROPY            0x0001
-#define GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET  0x07ff
-#define GFX_GL_DEF_MAX_VERTEX_BUFFERS        0x0010
-#define GFX_GL_DEF_MAX_VERTEX_STRIDE         0x0800
+#define GFX_GL_DEF_MAX_ANISOTROPY      0x0001
+#define GFX_GL_DEF_MAX_VERTEX_OFFSET   0x07ff
+#define GFX_GL_DEF_MAX_VERTEX_BUFFERS  0x0010
+#define GFX_GL_DEF_MAX_VERTEX_STRIDE   0x0800
 
 
 /******************************************************/
@@ -65,8 +65,8 @@ void _gfx_renderer_load(
 	/* Defaults */
 	GFX_CONT_GET.lim[GFX_LIM_MAX_ANISOTROPY] =
 		GFX_GL_DEF_MAX_ANISOTROPY;
-	GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] =
-		GFX_GL_DEF_MAX_VERTEX_ATTRIB_OFFSET;
+	GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_OFFSET] =
+		GFX_GL_DEF_MAX_VERTEX_OFFSET;
 	GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] =
 		GFX_GL_DEF_MAX_VERTEX_BUFFERS;
 	GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE] =
@@ -508,7 +508,7 @@ void _gfx_renderer_load(
 		GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] = 1;
 
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &limit),
-			GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] = limit;
+			GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_OFFSET] = limit;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_BINDINGS, &limit),
 			GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] = limit;
 
@@ -1234,7 +1234,7 @@ void _gfx_renderer_load(
 		GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] = 1;
 
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &limit),
-			GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET] = limit;
+			GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_OFFSET] = limit;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_BINDINGS, &limit),
 			GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_BUFFERS] = limit;
 
@@ -1248,6 +1248,14 @@ void _gfx_renderer_load(
 			(PFNGLVERTEXATTRIBIFORMATPROC)_gfx_platform_get_proc_address("glVertexAttribIFormat");
 		GFX_REND_GET.VertexBindingDivisor =
 			(PFNGLVERTEXBINDINGDIVISORPROC)_gfx_platform_get_proc_address("glVertexBindingDivisor");
+	}
+
+	if(
+		GFX_CONT_GET.version.major > 4 ||
+		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 3))
+	{
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_STRIDE, &limit),
+			GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE] = limit;
 	}
 
 #endif

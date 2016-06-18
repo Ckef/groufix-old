@@ -106,6 +106,35 @@ GFX_API GFXFormat gfx_format_from_type(
 		unsigned char   components,
 		GFXFormatFlags  flags);
 
+/**
+ * Returns whether a format is valid (a.k.a not all of depth is 0s).
+ *
+ */
+static GFX_ALWAYS_INLINE int gfx_format_is_valid(
+
+		GFXFormat format)
+{
+	return
+		format.depth.data[0] &&
+		format.depth.data[1] &&
+		format.depth.data[2] &&
+		format.depth.data[3];
+}
+
+/**
+ * Invalidates a format (a.k.a sets all of depth to 0s)
+ *
+ */
+static GFX_ALWAYS_INLINE void gfx_format_invalidate(
+
+		GFXFormat* format)
+{
+	format->depth.data[0] = 0;
+	format->depth.data[1] = 0;
+	format->depth.data[2] = 0;
+	format->depth.data[3] = 0;
+}
+
 
 /********************************************************
  * Buffer (arbitrary GPU storage)
@@ -342,7 +371,7 @@ typedef enum GFXPrimitive
 typedef struct GFXVertexAttribute
 {
 	GFXFormat  format;
-	size_t     offset; /* Offset of the attribute, must be <= GFX_LIM_MAX_VERTEX_ATTRIB_OFFSET */
+	size_t     offset; /* Byte offset of the attribute (must be <= GFX_LIM_MAX_VERTEX_OFFSET) */
 
 } GFXVertexAttribute;
 
@@ -354,7 +383,7 @@ typedef struct GFXVertexSource
 	char           indexed;   /* Non-zero if indexed via the index buffer */
 	GFXDataType    indexType; /* Can only be an unsigned type */
 	size_t         first;     /* First index to start reading at */
-	size_t         count;     /* Number of drawable vertices */
+	size_t         count;     /* Number of drawable vertices (must be > 0) */
 	unsigned int   patchSize; /* Number of vertices per patch, ignored if primitive is not GFX_PATCHES */
 
 } GFXVertexSource;
@@ -385,8 +414,8 @@ typedef struct GFXVertexLayout
 /**
  * Creates a new vertex layout.
  *
- * @param buffers    Fixed number of buffers.
- * @param attributes Fixed number of (sparse) vertex attributes.
+ * @param buffers    Fixed number of buffers (must be < GFX_LIM_MAX_VERTEX_BUFFERS).
+ * @param attributes Fixed number of (sparse) vertex attributes (must be < GFX_LIM_MAX_VERTEX_ATTRIBS).
  * @param sources    Fixed number of vertex sources.
  * @return NULL on failure.
  *
@@ -407,6 +436,34 @@ GFX_API GFXVertexLayout* gfx_vertex_layout_create(
 GFX_API void gfx_vertex_layout_free(
 
 		GFXVertexLayout* layout);
+
+/**
+ * Sets the index buffer of a vertex layout.
+ *
+ * @param buffer Buffer to use, the current backbuffer is used (can be NULL).
+ * @param offset Byte offset within the buffer to start reading at.
+ * @return Zero on failure.
+ *
+ */
+GFX_API int gfx_vertex_layout_set_index_buffer(
+
+		GFXVertexLayout*  layout,
+		const GFXBuffer*  buffer,
+		size_t            offset);
+
+/**
+ * Retrieves the index buffer of a vertex layout.
+ *
+ * @param buffer Returns the buffer that is being used.
+ * @param offset Returns the byte offset within the buffer.
+ * @return Zero if no buffer is set (no output is written to).
+ *
+ */
+GFX_API int gfx_vertex_layout_get_index_buffer(
+
+		const GFXVertexLayout*  layout,
+		GFXBuffer**             buffer,
+		size_t*                 offset);
 
 /**
  * Sets a vertex buffer of a vertex layout.
@@ -440,40 +497,91 @@ GFX_API int gfx_vertex_layout_set_vertex_buffer(
  */
 GFX_API int gfx_vertex_layout_get_vertex_buffer(
 
-		GFXVertexLayout*  layout,
-		unsigned char     index,
-		GFXBuffer**       buffer,
-		size_t*           offset,
-		size_t*           stride,
-		unsigned int*     divisor);
+		const GFXVertexLayout*  layout,
+		unsigned char           index,
+		GFXBuffer**             buffer,
+		size_t*                 offset,
+		size_t*                 stride,
+		unsigned int*           divisor);
 
 /**
- * Sets the index buffer of a vertex layout.
+ * Sets an attribute of a vertex layout.
  *
- * @param buffer Buffer to use, the current backbuffer is used (can be NULL).
- * @param offset Byte offset within the buffer to start reading at.
+ * @param index  Index of the attribute to set (must be < layout->attributes).
+ * @param attrib Values to set it to (can be NULL to disable).
  * @return Zero on failure.
  *
  */
-GFX_API int gfx_vertex_layout_set_index_buffer(
+GFX_API int gfx_vertex_layout_set_attribute(
 
-		GFXVertexLayout*  layout,
-		const GFXBuffer*  buffer,
-		size_t            offset);
+		GFXVertexLayout*           layout,
+		unsigned char              index,
+		const GFXVertexAttribute*  attrib);
 
 /**
- * Retrieves the index buffer of a vertex layout.
+ * Retrieves an attribute of a vertex layout.
  *
- * @param buffer Returns the buffer that is being used.
- * @param offset Returns the byte offset within the buffer.
- * @return Zero if no buffer is set (no output is written to).
+ * @param attrib Returns the attribute.
+ * @return Zero if no attribute is set (no output is written to).
  *
  */
-GFX_API int gfx_vertex_layout_get_index_buffer(
+GFX_API int gfx_vertex_layout_get_attribute(
+
+		const GFXVertexLayout*  layout,
+		unsigned char           index,
+		GFXVertexAttribute*     attrib);
+
+/**
+ * Sets the buffer to sample from at an attribute.
+ *
+ * @return Zero if either index is out of bounds.
+ *
+ */
+GFX_API int gfx_vertex_layout_set_attribute_buffer(
 
 		GFXVertexLayout*  layout,
-		GFXBuffer**       buffer,
-		size_t*           offset);
+		unsigned char     attribute,
+		unsigned char     buffer);
+
+/**
+ * Retrieves the buffer an attribute samples from.
+ *
+ * @return Zero if either index is out of bounds or the buffer was never set (no output is written to).
+ *
+ */
+GFX_API int gfx_vertex_layout_get_attribute_buffer(
+
+		const GFXVertexLayout*  layout,
+		unsigned char           attribute,
+		unsigned char*          buffer);
+
+/**
+ * Sets a source of a vertex layout.
+ *
+ * @param index Index of the source to set (must be < layout->sources).
+ * @param src   Values to set it to (can be NULL to disable).
+ * @return Zero on failure.
+ *
+ */
+GFX_API int gfx_vertex_layout_set_source(
+
+		GFXVertexLayout*        layout,
+		unsigned char           index,
+		const GFXVertexSource*  src);
+
+/**
+ * Retrieves a source of a vertex layout.
+ *
+ * @param src Returns the source.
+ * @return Zero if no source is set (no output is written to).
+ *
+ */
+GFX_API int gfx_vertex_layout_get_source(
+
+		const GFXVertexLayout*  layout,
+		unsigned char           index,
+		GFXVertexSource*        src);
+
 
 /**
  * Adds/sets an attribute of a vertex layout.

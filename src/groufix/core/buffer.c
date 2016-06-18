@@ -46,7 +46,7 @@ typedef struct GFX_Buffer
 
 
 /******************************************************/
-static inline GFX_BufferHandle* _gfx_buffer_get_handle(
+static inline GFX_BufferHandle* _gfx_buffer_get(
 
 		const GFX_Buffer*  buffer,
 		unsigned char      index)
@@ -73,7 +73,7 @@ static inline int _gfx_buffer_check(
 		const GFX_Buffer* buffer,
 		GFX_CONT_ARG)
 {
-	return *_gfx_buffer_get_handle(buffer, 0) &&
+	return *_gfx_buffer_get(buffer, 0) &&
 		_gfx_buffer_ref(buffer, GFX_CONT_AS_ARG);
 }
 
@@ -155,12 +155,12 @@ static void _gfx_buffer_clear(
 
 	GFX_REND_GET.DeleteBuffers(
 		buffer->buffer.count,
-		_gfx_buffer_get_handle(buffer, 0));
+		_gfx_buffer_get(buffer, 0));
 
 #endif
 
 	memset(
-		_gfx_buffer_get_handle(buffer, 0),
+		_gfx_buffer_get(buffer, 0),
 		0,
 		buffer->buffer.count * sizeof(GFX_BufferHandle));
 }
@@ -177,7 +177,7 @@ static int _gfx_buffer_init(
 
 	/* Allocate buffers */
 	GFX_REND_GET.CreateBuffers(
-		buffer->buffer.count, _gfx_buffer_get_handle(buffer, 0));
+		buffer->buffer.count, _gfx_buffer_get(buffer, 0));
 	GLbitfield bf = _gfx_buffer_from_usage(
 		buffer->buffer.usage, GFX_CONT_AS_ARG);
 	GLenum us = _gfx_buffer_from_usage_to_usage(
@@ -187,7 +187,7 @@ static int _gfx_buffer_init(
 
 	/* Check if any buffers weren't created */
 	for(i = 0; i < buffer->buffer.count; ++i)
-		if(!(*_gfx_buffer_get_handle(buffer, i)))
+		if(!(*_gfx_buffer_get(buffer, i)))
 		{
 			_gfx_buffer_clear(buffer, GFX_CONT_AS_ARG);
 			return 0;
@@ -205,7 +205,7 @@ static int _gfx_buffer_init(
 			GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 		{
 			GFX_REND_GET.NamedBufferStorage(
-				*_gfx_buffer_get_handle(buffer, i),
+				*_gfx_buffer_get(buffer, i),
 				buffer->buffer.size,
 				d,
 				bf);
@@ -213,7 +213,7 @@ static int _gfx_buffer_init(
 		else
 		{
 			GFX_REND_GET.NamedBufferData(
-				*_gfx_buffer_get_handle(buffer, i),
+				*_gfx_buffer_get(buffer, i),
 				buffer->buffer.size,
 				d,
 				us);
@@ -268,7 +268,7 @@ static void _gfx_buffer_obj_prepare(
 		for(i = 0; i < buffer->buffer.count; ++i)
 		{
 			GFX_REND_GET.GetNamedBufferSubData(
-				*_gfx_buffer_get_handle(buffer, i),
+				*_gfx_buffer_get(buffer, i),
 				0,
 				buffer->buffer.size,
 				GFX_PTR_ADD_BYTES(*temp, buffer->buffer.size * i)
@@ -322,6 +322,23 @@ static const GFX_RenderObjectFuncs _gfx_buffer_obj_funcs =
 	.prepare  = _gfx_buffer_obj_prepare,
 	.transfer = _gfx_buffer_obj_transfer
 };
+
+/******************************************************/
+unsigned char _gfx_buffer_get_current(
+
+		const GFXBuffer* buffer)
+{
+	return ((GFX_Buffer*)buffer)->current;
+}
+
+/******************************************************/
+GFX_BufferHandle _gfx_buffer_get_handle(
+
+		const GFXBuffer*  buffer,
+		unsigned char     index)
+{
+	return *_gfx_buffer_get((const GFX_Buffer*)buffer, index);
+}
 
 /******************************************************/
 GFXBuffer* gfx_buffer_create(
@@ -415,7 +432,7 @@ void gfx_buffer_free(
 {
 	if(buffer)
 	{
-		if(*_gfx_buffer_get_handle((GFX_Buffer*)buffer, 0))
+		if(*_gfx_buffer_get((GFX_Buffer*)buffer, 0))
 		{
 			/* Check context */
 			GFX_CONT_INIT();
@@ -471,7 +488,7 @@ size_t gfx_buffer_read(
 #if defined(GFX_RENDERER_GL)
 
 	GFX_REND_GET.GetNamedBufferSubData(
-		*_gfx_buffer_get_handle(internal, internal->current),
+		*_gfx_buffer_get(internal, internal->current),
 		offset,
 		size,
 		data
@@ -506,7 +523,7 @@ size_t gfx_buffer_write(
 #if defined(GFX_RENDERER_GL)
 
 	GFX_REND_GET.NamedBufferSubData(
-		*_gfx_buffer_get_handle(internal, internal->current),
+		*_gfx_buffer_get(internal, internal->current),
 		offset,
 		size,
 		data
@@ -552,8 +569,8 @@ size_t gfx_buffer_copy(
 #if defined(GFX_RENDERER_GL)
 
 	GFX_REND_GET.CopyNamedBufferSubData(
-		*_gfx_buffer_get_handle(intSrc, intSrc->current),
-		*_gfx_buffer_get_handle(intDest, intDest->current),
+		*_gfx_buffer_get(intSrc, intSrc->current),
+		*_gfx_buffer_get(intDest, intDest->current),
 		srcOffset,
 		destOffset,
 		size
@@ -595,8 +612,8 @@ size_t gfx_buffer_copy_same(
 #if defined(GFX_RENDERER_GL)
 
 	GFX_REND_GET.CopyNamedBufferSubData(
-		*_gfx_buffer_get_handle(internal, internal->current),
-		*_gfx_buffer_get_handle(internal, copyTo),
+		*_gfx_buffer_get(internal, internal->current),
+		*_gfx_buffer_get(internal, copyTo),
 		srcOffset,
 		destOffset,
 		size
@@ -621,7 +638,7 @@ void gfx_buffer_orphan(
 #if defined(GFX_RENDERER_GL)
 
 	GFX_REND_GET.InvalidateBufferSubData(
-		*_gfx_buffer_get_handle(internal, internal->current),
+		*_gfx_buffer_get(internal, internal->current),
 		0,
 		buffer->size
 	);
@@ -661,7 +678,7 @@ void* gfx_buffer_map(
 #if defined(GFX_RENDERER_GL)
 
 	ptr = GFX_REND_GET.MapNamedBufferRange(
-		*_gfx_buffer_get_handle(internal, internal->current),
+		*_gfx_buffer_get(internal, internal->current),
 		offset,
 		*size,
 		_gfx_buffer_from_usage_to_access(buffer->usage)
@@ -686,7 +703,7 @@ int gfx_buffer_unmap(
 #if defined(GFX_RENDERER_GL)
 
 	GLboolean success = GFX_REND_GET.UnmapNamedBuffer(
-		*_gfx_buffer_get_handle(internal, internal->current));
+		*_gfx_buffer_get(internal, internal->current));
 
 #endif
 

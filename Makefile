@@ -225,6 +225,7 @@ OBJS = \
  $(OUT)$(SUB)/groufix/core/context.o \
  $(OUT)$(SUB)/groufix/core/errors.o \
  $(OUT)$(SUB)/groufix/core/events.o \
+ $(OUT)$(SUB)/groufix/core/layout.o \
  $(OUT)$(SUB)/groufix/core/monitor.o \
  $(OUT)$(SUB)/groufix/core/objects.o \
  $(OUT)$(SUB)/groufix/core/states.o \

@@ -64,14 +64,6 @@ void _gfx_gl_states_set_viewport(
  *******************************************************/
 
 /**
- * Returns the current handle of a buffer.
- *
- */
-/*GLuint _gfx_gl_buffer_get_handle(
-
-		const GFXBuffer* buffer);*/
-
-/**
  * Returns the handle of the framebuffer associated with a pipeline.
  *
  */
@@ -141,14 +133,6 @@ void _gfx_gl_states_set_viewport(
 /*GLuint _gfx_gl_texture_get_handle(
 
 		const GFXTexture* texture);*/
-
-/**
- * Returns the VAO of a layout.
- *
- */
-/*GLuint _gfx_gl_vertex_layout_get_handle(
-
-		const GFXVertexLayout* layout);*/
 
 /**
  * Returns the index buffer and the byte offset within it of a layout.
