@@ -567,7 +567,8 @@ void APIENTRY _gfx_gles_polygon_mode(
 	void APIENTRY _gfx_gl_tex_storage_2d_multisample                        (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLboolean);
 	void APIENTRY _gfx_gl_tex_storage_3d                                    (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei);
 	void APIENTRY _gfx_gl_tex_storage_3d_multisample                        (GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLsizei, GLboolean);
-	void APIENTRY _gfx_gl_vertex_attrib_divisor                             (GLuint, GLuint);
+void APIENTRY _gfx_gl_vertex_attrib_divisor(
+		GLuint, GLuint);
 
 
 /********************************************************
@@ -819,7 +820,8 @@ struct GFX_Renderer
 	GFX_VERTEXARRAYVERTEXBUFFERPROC                     VertexArrayVertexBuffer;
 	/* GFX_INT_EXT_VERTEX_ATTRIB_BINDING, fallback to no-op */
 	GFX_VERTEXATTRIBBINDINGPROC                         VertexAttribBinding;
-		GFX_VERTEXATTRIBDIVISORPROC                         VertexAttribDivisor;                         /* GFX_EXT_INSTANCED_ATTRIBUTES */
+	/* GFX_EXT_INSTANCED_ATTRIBUTES, fallback to no-op */
+	GFX_VERTEXATTRIBDIVISORPROC                         VertexAttribDivisor;
 		GFX_VERTEXATTRIBFORMATPROC                          VertexAttribFormat;                          /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
 		GFX_VERTEXATTRIBIFORMATPROC                         VertexAttribIFormat;                         /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
 		GFX_VERTEXATTRIBIPOINTERPROC                        VertexAttribIPointer;

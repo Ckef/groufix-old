@@ -119,6 +119,34 @@ static inline int _gfx_layout_check(
 		(!GFX_CONT_EQ(NULL) && _gfx_layout_ref(layout, GFX_CONT_AS_ARG));
 }
 
+#if defined(GFX_RENDERER_GL)
+
+/******************************************************/
+static void _gfx_layout_set_attribute_combined(
+
+		GFX_Layout*     layout,
+		unsigned char   index,
+		GFX_Attribute*  attribute,
+		GFX_Buffer*     buffer,
+		GFX_CONT_ARG)
+{
+	/* The below call will also bind the VAO, as we do not have DSA */
+	GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, index);
+
+	/* Now set the actual values of the attribute */
+	GFX_REND_GET.VertexAttribDivisor(
+		index,
+		buffer->divisor);
+
+	GFX_REND_GET.BindBuffer(
+		GL_ARRAY_BUFFER,
+		_gfx_buffer_get_handle(buffer->buffer, buffer->index));
+
+	// TODO: set it for not-DSA
+}
+
+#endif
+
 /******************************************************/
 static void _gfx_layout_set_index_buffer(
 
@@ -192,7 +220,8 @@ static void _gfx_layout_set_vertex_buffer(
 				buffer->divisor);
 		}
 
-		/* Enable and set all attributes associated with this buffer */
+		/* Enable and set all combined attributes associated with this buffer */
+		/* For each attribute, check if it is also set */
 		else for(i = 0; i < layout->layout.attributes; ++i)
 		{
 			GFX_Attribute* attrib = _gfx_layout_get_attribute(layout, i);
@@ -202,9 +231,12 @@ static void _gfx_layout_set_vertex_buffer(
 				attrib->buffer - 1 == index &&
 				gfx_format_is_valid(attrib->attrib.format))
 			{
-				GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, i);
-
-				// TODO: actually set it for not-DSA
+				_gfx_layout_set_attribute_combined(
+					layout,
+					i,
+					attrib,
+					buffer
+				);
 			}
 		}
 	}
@@ -220,6 +252,7 @@ static void _gfx_layout_set_attribute(
 		GFX_CONT_ARG)
 {
 	GFX_Attribute* attrib = _gfx_layout_get_attribute(layout, index);
+	GFX_Buffer* buffer = _gfx_layout_get_buffer(layout, attrib->buffer - 1);
 
 	/* Check limits */
 	if(attrib->attrib.offset > (size_t)GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_OFFSET])
@@ -237,11 +270,38 @@ static void _gfx_layout_set_attribute(
 		GFX_REND_GET.DisableVertexArrayAttrib(layout->handle, index);
 	else
 	{
-		GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, index);
+		/* Directly set the state of the vertex attribute */
+		if(
+			GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] ||
+			GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
+		{
+			GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, index);
 
-		// TODO: actually set it for both DSA and not-DSA
-		// Do note we need to check for GFX_LIM_MAX_VERTEX_STRIDE if not-DSA
-		// Also we need to check if the buffer exists
+			// TODO: set it for DSA
+		}
+
+		/* Enable and set the combined attribute */
+		/* Check if the buffer is set also */
+		else if(attrib->buffer && buffer->buffer)
+		{
+			/* Check more limits */
+			/* We check it here because when there is no DSA, init only calls this function */
+			if(buffer->stride > (size_t)GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"Vertex stride at a layout exceeded GFX_LIM_MAX_VERTEX_STRIDE."
+				);
+				return;
+			}
+
+			_gfx_layout_set_attribute_combined(
+				layout,
+				index,
+				attrib,
+				buffer
+			);
+		}
 	}
 
 #endif
@@ -273,11 +333,15 @@ static void _gfx_layout_set_attribute_buffer(
 			);
 		}
 
-		/* Set the entire attribute */
+		/* Set the combined attribute */
+		/* First check both the buffer and attribute are set */
 		else if(buffer->buffer && gfx_format_is_valid(attrib->attrib.format))
-		{
-			// TODO: actually set it for not-DSA
-		}
+			_gfx_layout_set_attribute_combined(
+				layout,
+				attribute,
+				attrib,
+				buffer
+			);
 	}
 
 #endif

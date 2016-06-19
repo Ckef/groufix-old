@@ -1265,10 +1265,7 @@ void APIENTRY _gfx_gl_vertex_attrib_divisor(
 		GLuint  index,
 		GLuint  divisor)
 {
-	gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"GFX_EXT_INSTANCED_ATTRIBUTES is incompatible with this context."
-	);
+	/* No-op */
 }
 
 #endif

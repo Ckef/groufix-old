@@ -963,11 +963,13 @@ void _gfx_renderer_load(
 	}
 
 	/* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	/* GFX_EXT_INSTANCED_ATTRIBUTES */
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 4) ||
 		_gfx_gl_is_extension_supported("GL_ARB_direct_state_access", GFX_CONT_AS_ARG))
 	{
+		GFX_CONT_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS] = 1;
 
 		GFX_REND_GET.BindTextureUnit =
@@ -1256,6 +1258,16 @@ void _gfx_renderer_load(
 	{
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_STRIDE, &limit),
 			GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE] = limit;
+	}
+
+	/* GFX_EXT_VERTEX_DOUBLE_PRECISION */
+	if(
+		GFX_CONT_GET.version.major > 4 ||
+		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 0) ||
+		_gfx_gl_is_extension_supported("GL_ARB_vertex_attrib_64bit", GFX_CONT_AS_ARG) ||
+		_gfx_gl_is_extension_supported("GL_EXT_vertex_attrib_64bit", GFX_CONT_AS_ARG))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_VERTEX_DOUBLE_PRECISION] = 1;
 	}
 
 #endif
