@@ -122,6 +122,60 @@ static inline int _gfx_layout_check(
 #if defined(GFX_RENDERER_GL)
 
 /******************************************************/
+static inline int _gfx_layout_check_format(
+
+		GFXFormat   format,
+		GLint*      size,
+		GLenum*     type,
+		GLboolean*  normalized,
+		GFX_CONT_ARG)
+{
+	int success = _gfx_gl_format_to_vertex(
+		format,
+		size,
+		type,
+		normalized,
+		GFX_CONT_AS_ARG
+	);
+
+	if(!success) gfx_errors_push(
+		GFX_ERROR_INCOMPATIBLE_CONTEXT,
+		"A requested vertex attribute format is not supported."
+	);
+
+	return success;
+}
+
+/******************************************************/
+static inline int _gfx_layout_from_type(
+
+		GFXDataType type)
+{
+	/* Return 0 on integer, 1 on float, 2 on double and -1 on unknown */
+	switch(type)
+	{
+		case GFX_BIT :
+		case GFX_NIBBLE :
+		case GFX_BYTE :
+		case GFX_UNSIGNED_BYTE :
+		case GFX_SHORT :
+		case GFX_UNSIGNED_SHORT :
+		case GFX_INT :
+		case GFX_UNSIGNED_INT :
+			return 0;
+
+		case GFX_HALF_FLOAT :
+		case GFX_FLOAT :
+			return 1;
+
+		case GFX_DOUBLE :
+			return 2;
+	}
+
+	return -1;
+}
+
+/******************************************************/
 static void _gfx_layout_set_attribute_combined(
 
 		GFX_Layout*     layout,
@@ -134,13 +188,15 @@ static void _gfx_layout_set_attribute_combined(
 	GLenum type;
 	GLboolean normalized;
 
-	_gfx_gl_format_to_vertex(
+	if(!_gfx_layout_check_format(
 		attribute->attrib.format,
 		&size,
 		&type,
 		&normalized,
-		GFX_CONT_AS_ARG
-	);
+		GFX_CONT_AS_ARG))
+	{
+		return;
+	}
 
 	/* The below call will also bind the VAO, as we do not have DSA */
 	GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, index);
@@ -154,7 +210,43 @@ static void _gfx_layout_set_attribute_combined(
 		GL_ARRAY_BUFFER,
 		_gfx_buffer_get_handle(buffer->buffer, buffer->index));
 
-	// TODO: set it for not-DSA
+	/* Compute total offset into the buffer */
+	/* Next set values using the correct combined vertex function */
+	size_t offset = buffer->offset + attribute->attrib.offset;
+
+	switch(_gfx_layout_from_type(attribute->attrib.type))
+	{
+		case 0 :
+			GFX_REND_GET.VertexAttribIPointer(
+				index,
+				size,
+				type,
+				buffer->stride,
+				GFX_UINT_TO_VOID(offset)
+			);
+			break;
+
+		case 1 :
+			GFX_REND_GET.VertexAttribPointer(
+				index,
+				size,
+				type,
+				normalized,
+				buffer->stride,
+				GFX_UINT_TO_VOID(offset)
+			);
+			break;
+
+		case 2 :
+			GFX_REND_GET.VertexAttribLPointer(
+				index,
+				size,
+				type,
+				buffer->stride,
+				GFX_UINT_TO_VOID(offset)
+			);
+			break;
+	}
 }
 
 #endif
@@ -292,17 +384,52 @@ static void _gfx_layout_set_attribute(
 			GLenum type;
 			GLboolean normalized;
 
-			_gfx_gl_format_to_vertex(
+			if(!_gfx_layout_check_format(
 				attrib->attrib.format,
 				&size,
 				&type,
 				&normalized,
-				GFX_CONT_AS_ARG
-			);
+				GFX_CONT_AS_ARG))
+			{
+				return;
+			}
 
 			GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, index);
 
-			// TODO: set it for DSA
+			/* Use the correct function to set the format */
+			switch(_gfx_layout_from_type(attrib->attrib.type))
+			{
+				case 0 :
+					GFX_REND_GET.VertexArrayAttribIFormat(
+						layout->handle,
+						index,
+						size,
+						type,
+						attrib->attrib.offset
+					);
+					break;
+
+				case 1 :
+					GFX_REND_GET.VertexArrayAttribFormat(
+						layout->handle,
+						index,
+						size,
+						type,
+						normalized,
+						attrib->attrib.offset
+					);
+					break;
+
+				case 2 :
+					GFX_REND_GET.VertexArrayAttribLFormat(
+						layout->handle,
+						index,
+						size,
+						type,
+						attrib->attrib.offset
+					);
+					break;
+			}
 		}
 
 		/* Enable and set the combined attribute */

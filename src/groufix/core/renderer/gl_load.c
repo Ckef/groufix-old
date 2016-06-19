@@ -279,6 +279,7 @@ void _gfx_renderer_load(
 	GFX_REND_GET.VertexArrayAttribBinding                    = _gfx_gl_vertex_array_attrib_binding;
 	GFX_REND_GET.VertexArrayAttribFormat                     = _gfx_gl_vertex_array_attrib_format;
 	GFX_REND_GET.VertexArrayAttribIFormat                    = _gfx_gl_vertex_array_attrib_i_format;
+	GFX_REND_GET.VertexArrayAttribLFormat                    = _gfx_gl_vertex_array_attrib_l_format;
 	GFX_REND_GET.VertexArrayBindingDivisor                   = _gfx_gl_vertex_array_binding_divisor;
 	GFX_REND_GET.VertexArrayElementBuffer                    = _gfx_gl_vertex_array_element_buffer;
 	GFX_REND_GET.VertexArrayVertexBuffer                     = _gfx_gl_vertex_array_vertex_buffer;
@@ -287,6 +288,8 @@ void _gfx_renderer_load(
 	GFX_REND_GET.VertexAttribFormat                          = _gfx_gl_vertex_attrib_format;
 	GFX_REND_GET.VertexAttribIFormat                         = _gfx_gl_vertex_attrib_i_format;
 	GFX_REND_GET.VertexAttribIPointer                        = glVertexAttribIPointer;
+	GFX_REND_GET.VertexAttribLFormat                         = _gfx_gl_vertex_attrib_l_format;
+	GFX_REND_GET.VertexAttribLPointer                        = _gfx_gl_vertex_attrib_l_pointer;
 	GFX_REND_GET.VertexAttribPointer                         = glVertexAttribPointer;
 	GFX_REND_GET.VertexBindingDivisor                        = _gfx_gl_vertex_binding_divisor;
 	GFX_REND_GET.Viewport                                    = glViewport;
@@ -883,6 +886,8 @@ void _gfx_renderer_load(
 		(PFNGLVERTEXARRAYATTRIBFORMATPROC)_gfx_gl_vertex_array_attrib_format;
 	GFX_REND_GET.VertexArrayAttribIFormat =
 		(PFNGLVERTEXARRAYATTRIBIFORMATPROC)_gfx_gl_vertex_array_attrib_i_format;
+	GFX_REND_GET.VertexArrayAttribLFormat =
+		(PFNGLVERTEXARRAYATTRIBLFORMATPROC)_gfx_gl_vertex_array_attrib_l_format;
 	GFX_REND_GET.VertexArrayBindingDivisor =
 		(PFNGLVERTEXARRAYBINDINGDIVISORPROC)_gfx_gl_vertex_array_binding_divisor;
 	GFX_REND_GET.VertexArrayElementBuffer =
@@ -898,6 +903,10 @@ void _gfx_renderer_load(
 		(PFNGLVERTEXATTRIBIFORMATPROC)_gfx_gl_vertex_attrib_i_format;
 	GFX_REND_GET.VertexAttribIPointer =
 		(PFNGLVERTEXATTRIBIPOINTERPROC)_gfx_platform_get_proc_address("glVertexAttribIPointer");
+	GFX_REND_GET.VertexAttribLFormat =
+		(PFNGLVERTEXATTRIBLFORMATPROC)_gfx_gl_vertex_attrib_l_format;
+	GFX_REND_GET.VertexAttribLPointer =
+		(PFNGLVERTEXATTRIBLPOINTERPROC)_gfx_gl_vertex_attrib_l_pointer;
 	GFX_REND_GET.VertexAttribPointer =
 		(PFNGLVERTEXATTRIBPOINTERPROC)_gfx_platform_get_proc_address("glVertexAttribPointer");
 	GFX_REND_GET.VertexBindingDivisor =
@@ -963,6 +972,7 @@ void _gfx_renderer_load(
 	}
 
 	/* GFX_INT_EXT_DIRECT_STATE_ACCESS */
+	/* GFX_EXT_VERTEX_DOUBLE_PRECISION */
 	/* GFX_EXT_VERTEX_INSTANCING */
 	if(
 		GFX_CONT_GET.version.major > 4 ||
@@ -970,6 +980,7 @@ void _gfx_renderer_load(
 		_gfx_gl_is_extension_supported("GL_ARB_direct_state_access", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS] = 1;
+		GFX_CONT_GET.ext[GFX_EXT_VERTEX_DOUBLE_PRECISION] = 1;
 		GFX_CONT_GET.ext[GFX_EXT_VERTEX_INSTANCING] = 1;
 
 		GFX_REND_GET.BindTextureUnit =
@@ -1036,6 +1047,8 @@ void _gfx_renderer_load(
 			(PFNGLVERTEXARRAYATTRIBFORMATPROC)_gfx_platform_get_proc_address("glVertexArrayAttribFormat");
 		GFX_REND_GET.VertexArrayAttribIFormat =
 			(PFNGLVERTEXARRAYATTRIBIFORMATPROC)_gfx_platform_get_proc_address("glVertexArrayAttribIFormat");
+		GFX_REND_GET.VertexArrayAttribLFormat =
+			(PFNGLVERTEXARRAYATTRIBLFORMATPROC)_gfx_platform_get_proc_address("glVertexArrayAttribLFormat");
 		GFX_REND_GET.VertexArrayBindingDivisor =
 			(PFNGLVERTEXARRAYBINDINGDIVISORPROC)_gfx_platform_get_proc_address("glVertexArrayBindingDivisor");
 		GFX_REND_GET.VertexArrayElementBuffer =
@@ -1209,12 +1222,14 @@ void _gfx_renderer_load(
 	}
 
 	/* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
+	/* GFX_EXT_VERTEX_DOUBLE_PRECISION */
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 2) ||
 		_gfx_gl_is_extension_supported("GL_ARB_vertex_attrib_binding", GFX_CONT_AS_ARG))
 	{
 		GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] = 1;
+		GFX_CONT_GET.ext[GFX_EXT_VERTEX_DOUBLE_PRECISION] = 1;
 
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &limit),
 			GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_OFFSET] = limit;
@@ -1229,6 +1244,8 @@ void _gfx_renderer_load(
 			(PFNGLVERTEXATTRIBFORMATPROC)_gfx_platform_get_proc_address("glVertexAttribFormat");
 		GFX_REND_GET.VertexAttribIFormat =
 			(PFNGLVERTEXATTRIBIFORMATPROC)_gfx_platform_get_proc_address("glVertexAttribIFormat");
+		GFX_REND_GET.VertexAttribLFormat =
+			(PFNGLVERTEXATTRIBLFORMATPROC)_gfx_platform_get_proc_address("glVertexAttribLFormat");
 		GFX_REND_GET.VertexBindingDivisor =
 			(PFNGLVERTEXBINDINGDIVISORPROC)_gfx_platform_get_proc_address("glVertexBindingDivisor");
 	}
@@ -1245,10 +1262,20 @@ void _gfx_renderer_load(
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 0) ||
-		_gfx_gl_is_extension_supported("GL_ARB_vertex_attrib_64bit", GFX_CONT_AS_ARG) ||
-		_gfx_gl_is_extension_supported("GL_EXT_vertex_attrib_64bit", GFX_CONT_AS_ARG))
+		_gfx_gl_is_extension_supported("GL_ARB_vertex_attrib_64bit", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_VERTEX_DOUBLE_PRECISION] = 1;
+
+		GFX_REND_GET.VertexAttribLPointer =
+			(PFNGLVERTEXATTRIBLPOINTERPROC)_gfx_platform_get_proc_address("glVertexAttribLPointer");
+	}
+
+	else if(_gfx_gl_is_extension_supported("GL_EXT_vertex_attrib_64bit", GFX_CONT_AS_ARG))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_VERTEX_DOUBLE_PRECISION] = 1;
+
+		GFX_REND_GET.VertexAttribLPointer =
+			(PFNGLVERTEXATTRIBLPOINTERPROC)_gfx_platform_get_proc_address("glVertexAttribLPointerEXT");
 	}
 
 	/* GFX_EXT_VERTEX_INSTANCING */

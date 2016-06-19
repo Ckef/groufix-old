@@ -424,6 +424,8 @@ typedef void (APIENTRYP GFX_VERTEXARRAYATTRIBFORMATPROC)(
 		GLuint, GLuint, GLint, GLenum, GLboolean, GLuint);
 typedef void (APIENTRYP GFX_VERTEXARRAYATTRIBIFORMATPROC)(
 		GLuint, GLuint, GLint, GLenum, GLuint);
+typedef void (APIENTRYP GFX_VERTEXARRAYATTRIBLFORMATPROC)(
+		GLuint, GLuint, GLint, GLenum, GLuint);
 typedef void (APIENTRYP GFX_VERTEXARRAYBINDINGDIVISORPROC)(
 		GLuint, GLuint, GLuint);
 typedef void (APIENTRYP GFX_VERTEXARRAYELEMENTBUFFERPROC)(
@@ -439,6 +441,10 @@ typedef void (APIENTRYP GFX_VERTEXATTRIBFORMATPROC)(
 typedef void (APIENTRYP GFX_VERTEXATTRIBIFORMATPROC)(
 		GLuint, GLint, GLenum, GLuint);
 typedef void (APIENTRYP GFX_VERTEXATTRIBIPOINTERPROC)(
+		GLuint, GLint, GLenum, GLsizei, const GLvoid*);
+typedef void (APIENTRYP GFX_VERTEXATTRIBLFORMATPROC)(
+		GLuint, GLint, GLenum, GLuint);
+typedef void (APIENTRYP GFX_VERTEXATTRIBLPOINTERPROC)(
 		GLuint, GLint, GLenum, GLsizei, const GLvoid*);
 typedef void (APIENTRYP GFX_VERTEXATTRIBPOINTERPROC)(
 		GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid*);
@@ -527,8 +533,12 @@ GLboolean APIENTRY _gfx_gl_unmap_named_buffer(
 	void APIENTRY _gfx_gl_use_program_stages                                (GLuint, GLbitfield, GLuint);
 void APIENTRY _gfx_gl_vertex_array_attrib_binding(
 		GLuint, GLuint, GLuint);
-	void APIENTRY _gfx_gl_vertex_array_attrib_format                        (GLuint, GLuint, GLint, GLenum, GLboolean, GLuint);
-	void APIENTRY _gfx_gl_vertex_array_attrib_i_format                      (GLuint, GLuint, GLint, GLenum, GLuint);
+void APIENTRY _gfx_gl_vertex_array_attrib_format(
+		GLuint, GLuint, GLint, GLenum, GLboolean, GLuint);
+void APIENTRY _gfx_gl_vertex_array_attrib_i_format(
+		GLuint, GLuint, GLint, GLenum, GLuint);
+void APIENTRY _gfx_gl_vertex_array_attrib_l_format(
+		GLuint, GLuint, GLint, GLenum, GLuint);
 void APIENTRY _gfx_gl_vertex_array_binding_divisor(
 		GLuint, GLuint, GLuint);
 void APIENTRY _gfx_gl_vertex_array_element_buffer(
@@ -537,8 +547,14 @@ void APIENTRY _gfx_gl_vertex_array_vertex_buffer(
 		GLuint, GLuint, GLuint, GLintptr, GLsizei);
 void APIENTRY _gfx_gl_vertex_attrib_binding(
 		GLuint, GLuint);
-	void APIENTRY _gfx_gl_vertex_attrib_format                              (GLuint, GLint, GLenum, GLboolean, GLuint);
-	void APIENTRY _gfx_gl_vertex_attrib_i_format                            (GLuint, GLint, GLenum, GLuint);
+void APIENTRY _gfx_gl_vertex_attrib_format(
+		GLuint, GLint, GLenum, GLboolean, GLuint);
+void APIENTRY _gfx_gl_vertex_attrib_i_format(
+		GLuint, GLint, GLenum, GLuint);
+void APIENTRY _gfx_gl_vertex_attrib_l_format(
+		GLuint, GLint, GLenum, GLuint);
+void APIENTRY _gfx_gl_vertex_attrib_l_pointer(
+		GLuint, GLint, GLenum, GLsizei, const GLvoid*);
 void APIENTRY _gfx_gl_vertex_binding_divisor(
 		GLuint, GLuint);
 	void APIENTRY _gfx_gles_draw_elements_base_vertex                       (GLenum, GLsizei, GLenum, const GLvoid*, GLint);
@@ -810,8 +826,12 @@ struct GFX_Renderer
 		GFX_USEPROGRAMSTAGESPROC                            UseProgramStages;                            /* GFX_EXT_PROGRAM_MAP */
 	/* GFX_INT_EXT_DIRECT_STATE_ACCESS, fallback to VertexAttribBinding */
 	GFX_VERTEXARRAYATTRIBBINDINGPROC                    VertexArrayAttribBinding;
-		GFX_VERTEXARRAYATTRIBFORMATPROC                     VertexArrayAttribFormat;                     /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
-		GFX_VERTEXARRAYATTRIBIFORMATPROC                    VertexArrayAttribIFormat;                    /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
+	/* GFX_INT_EXT_DIRECT_STATE_ACCESS, fallback to VertexAttribFormat */
+	GFX_VERTEXARRAYATTRIBFORMATPROC                     VertexArrayAttribFormat;
+	/* GFX_INT_EXT_DIRECT_STATE_ACCESS, fallback to VertexAttribIFormat */
+	GFX_VERTEXARRAYATTRIBIFORMATPROC                    VertexArrayAttribIFormat;
+	/* GFX_INT_EXT_DIRECT_STATE_ACCESS, fallback to VertexAttribLFormat */
+	GFX_VERTEXARRAYATTRIBLFORMATPROC                    VertexArrayAttribLFormat;
 	/* GFX_INT_EXT_DIRECT_STATE_ACCESS, fallback to VertexBindingDivisor */
 	GFX_VERTEXARRAYBINDINGDIVISORPROC                   VertexArrayBindingDivisor;
 	/* GFX_INT_EXT_DIRECT_STATE_ACCESS, fallback to BindBuffer */
@@ -822,10 +842,16 @@ struct GFX_Renderer
 	GFX_VERTEXATTRIBBINDINGPROC                         VertexAttribBinding;
 	/* GFX_EXT_INSTANCED_ATTRIBUTES, fallback to no-op */
 	GFX_VERTEXATTRIBDIVISORPROC                         VertexAttribDivisor;
-		GFX_VERTEXATTRIBFORMATPROC                          VertexAttribFormat;                          /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
-		GFX_VERTEXATTRIBIFORMATPROC                         VertexAttribIFormat;                         /* GFX_INT_EXT_VERTEX_ATTRIB_BINDING */
-		GFX_VERTEXATTRIBIPOINTERPROC                        VertexAttribIPointer;
-		GFX_VERTEXATTRIBPOINTERPROC                         VertexAttribPointer;
+	/* GFX_INT_EXT_VERTEX_ATTRIB_BINDING, fallback to no-op */
+	GFX_VERTEXATTRIBFORMATPROC                          VertexAttribFormat;
+	/* GFX_INT_EXT_VERTEX_ATTRIB_BINDING, fallback to no-op */
+	GFX_VERTEXATTRIBIFORMATPROC                         VertexAttribIFormat;
+	GFX_VERTEXATTRIBIPOINTERPROC                        VertexAttribIPointer;
+	/* GFX_INT_EXT_VERTEX_ATTRIB_BINDING, fallback to no-op */
+	GFX_VERTEXATTRIBLFORMATPROC                         VertexAttribLFormat;
+	/* GFX_EXT_VERTEX_DOUBLE_PRECISION, fallback to no-op */
+	GFX_VERTEXATTRIBLPOINTERPROC                        VertexAttribLPointer;
+	GFX_VERTEXATTRIBPOINTERPROC                         VertexAttribPointer;
 	/* GFX_INT_EXT_VERTEX_ATTRIB_BINDING, fallback to no-op */
 	GFX_VERTEXBINDINGDIVISORPROC                        VertexBindingDivisor;
 	GFX_VIEWPORTPROC                                    Viewport;

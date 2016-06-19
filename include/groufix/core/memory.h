@@ -370,8 +370,9 @@ typedef enum GFXPrimitive
 /** Vertex Attribute */
 typedef struct GFXVertexAttribute
 {
-	GFXFormat  format;
-	size_t     offset; /* Byte offset of the attribute (must be <= GFX_LIM_MAX_VERTEX_OFFSET) */
+	GFXFormat    format;
+	GFXDataType  type;   /* Type of the attribute as interpreted by shaders */
+	size_t       offset; /* Byte offset of the attribute (must be <= GFX_LIM_MAX_VERTEX_OFFSET) */
 
 } GFXVertexAttribute;
 

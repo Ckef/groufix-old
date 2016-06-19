@@ -798,6 +798,26 @@ void APIENTRY _gfx_gl_vertex_array_attrib_i_format(
 	GFX_REND_GET.VertexAttribIFormat(index, size, type, offset);
 }
 
+void APIENTRY _gfx_gl_vertex_array_attrib_l_format(
+
+		GLuint  vao,
+		GLuint  index,
+		GLint   size,
+		GLenum  type,
+		GLuint  offset)
+{
+	GFX_CONT_INIT_UNSAFE;
+
+	if(GFX_REND_GET.vao != vao)
+	{
+		GFX_REND_GET.vao = vao;
+		GFX_REND_GET.BindVertexArray(vao);
+	}
+
+	GFX_REND_GET.VertexAttribLFormat(index, size, type, offset);
+}
+
+
 void APIENTRY _gfx_gl_vertex_array_binding_divisor(
 
 		GLuint  vao,
@@ -875,6 +895,27 @@ void APIENTRY _gfx_gl_vertex_attrib_i_format(
 		GLint   size,
 		GLenum  type,
 		GLuint  offset)
+{
+	/* No-op */
+}
+
+void APIENTRY _gfx_gl_vertex_attrib_l_format(
+
+		GLuint  index,
+		GLint   size,
+		GLenum  type,
+		GLuint  offset)
+{
+	/* No-op */
+}
+
+void APIENTRY _gfx_gl_vertex_attrib_l_pointer(
+
+		GLuint         index,
+		GLint          size,
+		GLenum         type,
+		GLsizei        stride,
+		const GLvoid*  pointer)
 {
 	/* No-op */
 }
