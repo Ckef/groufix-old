@@ -96,7 +96,7 @@ GFXFormat gfx_format(
 
 	/* No components, both little and big endian, no channel for exponent or stencil */
 	if(
-		(!depth.data[0]) ||
+		!depth.data[0] ||
 		((flags & GFX_FORMAT_LITTLE_ENDIAN) && (flags & GFX_FORMAT_BIG_ENDIAN)) ||
 		(!depth.data[1] && (flags & GFX_FORMAT_EXPONENT)) ||
 		(!depth.data[1] && (flags & GFX_FORMAT_DEPTH) && (flags & GFX_FORMAT_STENCIL)))

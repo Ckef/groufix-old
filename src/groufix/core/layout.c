@@ -122,31 +122,6 @@ static inline int _gfx_layout_check(
 #if defined(GFX_RENDERER_GL)
 
 /******************************************************/
-static inline int _gfx_layout_check_format(
-
-		GFXFormat   format,
-		GLint*      size,
-		GLenum*     type,
-		GLboolean*  normalized,
-		GFX_CONT_ARG)
-{
-	int success = _gfx_gl_format_to_vertex(
-		format,
-		size,
-		type,
-		normalized,
-		GFX_CONT_AS_ARG
-	);
-
-	if(!success) gfx_errors_push(
-		GFX_ERROR_INCOMPATIBLE_CONTEXT,
-		"A requested vertex attribute format is not supported."
-	);
-
-	return success;
-}
-
-/******************************************************/
 static inline int _gfx_layout_from_type(
 
 		GFXDataType type)
@@ -188,7 +163,7 @@ static void _gfx_layout_set_attribute_combined(
 	GLenum type;
 	GLboolean normalized;
 
-	if(!_gfx_layout_check_format(
+	if(!_gfx_gl_format_to_vertex(
 		attribute->attrib.format,
 		&size,
 		&type,
@@ -384,7 +359,7 @@ static void _gfx_layout_set_attribute(
 			GLenum type;
 			GLboolean normalized;
 
-			if(!_gfx_layout_check_format(
+			if(!_gfx_gl_format_to_vertex(
 				attrib->attrib.format,
 				&size,
 				&type,
