@@ -17,14 +17,19 @@
 /******************************************************/
 int _gfx_gl_format_to_vertex(
 
-		GFXFormat   format,
-		GLint*      size,
-		GLenum*     type,
-		GLboolean*  normalized,
+		const GFXVertexAttribute*  attribute,
+		GLint*                     size,
+		GLenum*                    type,
+		GLboolean*                 normalized,
 		GFX_CONT_ARG)
 {
 	/* Make format unambiguous */
-	format = gfx_format(format.type, format.depth, format.flags);
+	GFXFormat format = gfx_format(
+		attribute->format.type,
+		attribute->format.depth,
+		attribute->format.flags
+	);
+
 	if(!gfx_format_is_valid(format))
 	{
 		gfx_errors_push(

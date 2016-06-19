@@ -64,17 +64,17 @@ void _gfx_gl_states_set_viewport(
  *******************************************************/
 
 /**
- * Converts a format to a vertex format as defined by GL.
+ * Converts a format of an attribute to a vertex format as defined by GL.
  *
  * @return Zero on an invalid format (output may be written to).
  *
  */
 int _gfx_gl_format_to_vertex(
 
-		GFXFormat   format,
-		GLint*      size,
-		GLenum*     type,
-		GLboolean*  normalized,
+		const GFXVertexAttribute*  attribute,
+		GLint*                     size,
+		GLenum*                    type,
+		GLboolean*                 normalized,
 		GFX_CONT_ARG);
 
 

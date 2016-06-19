@@ -164,7 +164,7 @@ static void _gfx_layout_set_attribute_combined(
 	GLboolean normalized;
 
 	if(!_gfx_gl_format_to_vertex(
-		attribute->attrib.format,
+		&attribute->attrib,
 		&size,
 		&type,
 		&normalized,
@@ -174,7 +174,9 @@ static void _gfx_layout_set_attribute_combined(
 	}
 
 	/* The below call will also bind the VAO, as we do not have DSA */
-	GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, index);
+	GFX_REND_GET.EnableVertexArrayAttrib(
+		layout->handle,
+		index);
 
 	/* Now set the actual values of the attribute */
 	GFX_REND_GET.VertexAttribDivisor(
@@ -360,7 +362,7 @@ static void _gfx_layout_set_attribute(
 			GLboolean normalized;
 
 			if(!_gfx_gl_format_to_vertex(
-				attrib->attrib.format,
+				&attrib->attrib,
 				&size,
 				&type,
 				&normalized,
@@ -439,10 +441,10 @@ static void _gfx_layout_set_attribute(
 static void _gfx_layout_set_attribute_buffer(
 
 		GFX_Layout*    layout,
-		unsigned char  attribute,
+		unsigned char  index,
 		GFX_CONT_ARG)
 {
-	GFX_Attribute* attrib = _gfx_layout_get_attribute(layout, attribute);
+	GFX_Attribute* attrib = _gfx_layout_get_attribute(layout, index);
 	GFX_Buffer* buffer = _gfx_layout_get_buffer(layout, attrib->buffer - 1);
 
 #if defined(GFX_RENDERER_GL)
@@ -456,21 +458,21 @@ static void _gfx_layout_set_attribute_buffer(
 		{
 			GFX_REND_GET.VertexArrayAttribBinding(
 				layout->handle,
-				attribute,
-				attrib->buffer - 1
-			);
+				index,
+				attrib->buffer - 1);
 		}
 
 		/* Set the combined attribute */
 		/* First check both the buffer and attribute are set */
 		else if(buffer->buffer && gfx_format_is_valid(attrib->attrib.format))
+		{
 			_gfx_layout_set_attribute_combined(
 				layout,
-				attribute,
+				index,
 				attrib,
 				buffer,
-				GFX_CONT_AS_ARG
-			);
+				GFX_CONT_AS_ARG);
+		}
 	}
 
 #endif
