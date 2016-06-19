@@ -15,8 +15,6 @@
 #define GL_GLEXT_PROTOTYPES
 #include "groufix/core/renderer.h"
 
-#include <string.h>
-
 
 /********************************************************
  * GL core & GL ES emulators

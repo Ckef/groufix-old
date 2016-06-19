@@ -475,7 +475,7 @@ GFX_API int gfx_vertex_layout_get_index_buffer(
  * @param divisor Rate at which to advance measured in instances, 0 to advance each vertex.
  * @return Zero on failure.
  *
- * Note: divisor can only be non-zero if GFX_EXT_INSTANCED_ATTRIBUTES.
+ * Note: divisor can only be non-zero if GFX_EXT_VERTEX_INSTANCING.
  *
  */
 GFX_API int gfx_vertex_layout_set_vertex_buffer(

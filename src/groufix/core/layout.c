@@ -130,6 +130,18 @@ static void _gfx_layout_set_attribute_combined(
 		GFX_Buffer*     buffer,
 		GFX_CONT_ARG)
 {
+	GLint size;
+	GLenum type;
+	GLboolean normalized;
+
+	_gfx_gl_format_to_vertex(
+		attribute->attrib.format,
+		&size,
+		&type,
+		&normalized,
+		GFX_CONT_AS_ARG
+	);
+
 	/* The below call will also bind the VAO, as we do not have DSA */
 	GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, index);
 
@@ -235,7 +247,8 @@ static void _gfx_layout_set_vertex_buffer(
 					layout,
 					i,
 					attrib,
-					buffer
+					buffer,
+					GFX_CONT_AS_ARG
 				);
 			}
 		}
@@ -275,6 +288,18 @@ static void _gfx_layout_set_attribute(
 			GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] ||
 			GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 		{
+			GLint size;
+			GLenum type;
+			GLboolean normalized;
+
+			_gfx_gl_format_to_vertex(
+				attrib->attrib.format,
+				&size,
+				&type,
+				&normalized,
+				GFX_CONT_AS_ARG
+			);
+
 			GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, index);
 
 			// TODO: set it for DSA
@@ -299,7 +324,8 @@ static void _gfx_layout_set_attribute(
 				layout,
 				index,
 				attrib,
-				buffer
+				buffer,
+				GFX_CONT_AS_ARG
 			);
 		}
 	}
@@ -340,7 +366,8 @@ static void _gfx_layout_set_attribute_buffer(
 				layout,
 				attribute,
 				attrib,
-				buffer
+				buffer,
+				GFX_CONT_AS_ARG
 			);
 	}
 
@@ -409,18 +436,21 @@ static int _gfx_layout_init(
 
 #if defined(GFX_RENDERER_GL)
 
+	/* Skip vertex and attribute buffer if no DSA */
 	if(
-		GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] ||
-		GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
+		!GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] &&
+		!GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 	{
-		for(i = 0; i < layout->layout.buffers; ++i)
-			_gfx_layout_set_vertex_buffer(layout, i, GFX_CONT_AS_ARG);
-
-		for(i = 0; i < layout->layout.attributes; ++i)
-			_gfx_layout_set_attribute_buffer(layout, i, GFX_CONT_AS_ARG);
+		return 1;
 	}
 
 #endif
+
+	for(i = 0; i < layout->layout.buffers; ++i)
+		_gfx_layout_set_vertex_buffer(layout, i, GFX_CONT_AS_ARG);
+
+	for(i = 0; i < layout->layout.attributes; ++i)
+		_gfx_layout_set_attribute_buffer(layout, i, GFX_CONT_AS_ARG);
 
 	return 1;
 }

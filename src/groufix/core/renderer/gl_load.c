@@ -101,10 +101,10 @@ void _gfx_renderer_load(
 #if defined(GFX_GLES)
 
 	/* Default Extensions */
-	GFX_CONT_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES]   = 1;
 	GFX_CONT_GET.ext[GFX_EXT_PROGRAM_BINARY]         = 1;
 	GFX_REND_GET.intExt[GFX_INT_EXT_SAMPLER_OBJECTS] = 1;
 	GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_STORAGE] = 1;
+	GFX_CONT_GET.ext[GFX_EXT_VERTEX_INSTANCING]      = 1;
 
 	/* GLES, assumes 3.0+ */
 	GFX_REND_GET.ActiveTexture                               = glActiveTexture;
@@ -963,14 +963,14 @@ void _gfx_renderer_load(
 	}
 
 	/* GFX_INT_EXT_DIRECT_STATE_ACCESS */
-	/* GFX_EXT_INSTANCED_ATTRIBUTES */
+	/* GFX_EXT_VERTEX_INSTANCING */
 	if(
 		GFX_CONT_GET.version.major > 4 ||
 		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 4) ||
 		_gfx_gl_is_extension_supported("GL_ARB_direct_state_access", GFX_CONT_AS_ARG))
 	{
-		GFX_CONT_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
 		GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS] = 1;
+		GFX_CONT_GET.ext[GFX_EXT_VERTEX_INSTANCING] = 1;
 
 		GFX_REND_GET.BindTextureUnit =
 			(PFNGLBINDTEXTUREUNITPROC)_gfx_platform_get_proc_address("glBindTextureUnit");
@@ -1042,25 +1042,6 @@ void _gfx_renderer_load(
 			(PFNGLVERTEXARRAYELEMENTBUFFERPROC)_gfx_platform_get_proc_address("glVertexArrayElementBuffer");
 		GFX_REND_GET.VertexArrayVertexBuffer =
 			(PFNGLVERTEXARRAYVERTEXBUFFERPROC)_gfx_platform_get_proc_address("glVertexArrayVertexBuffer");
-	}
-
-	/* GFX_EXT_INSTANCED_ATTRIBUTES */
-	if(
-		GFX_CONT_GET.version.major > 3 ||
-		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 2))
-	{
-		GFX_CONT_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-
-		GFX_REND_GET.VertexAttribDivisor =
-			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisor");
-	}
-
-	else if(_gfx_gl_is_extension_supported("GL_ARB_instanced_arrays", GFX_CONT_AS_ARG))
-	{
-		GFX_CONT_GET.ext[GFX_EXT_INSTANCED_ATTRIBUTES] = 1;
-
-		GFX_REND_GET.VertexAttribDivisor =
-			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisorARB");
 	}
 
 	/* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
@@ -1268,6 +1249,25 @@ void _gfx_renderer_load(
 		_gfx_gl_is_extension_supported("GL_EXT_vertex_attrib_64bit", GFX_CONT_AS_ARG))
 	{
 		GFX_CONT_GET.ext[GFX_EXT_VERTEX_DOUBLE_PRECISION] = 1;
+	}
+
+	/* GFX_EXT_VERTEX_INSTANCING */
+	if(
+		GFX_CONT_GET.version.major > 3 ||
+		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 2))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_VERTEX_INSTANCING] = 1;
+
+		GFX_REND_GET.VertexAttribDivisor =
+			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisor");
+	}
+
+	else if(_gfx_gl_is_extension_supported("GL_ARB_instanced_arrays", GFX_CONT_AS_ARG))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_VERTEX_INSTANCING] = 1;
+
+		GFX_REND_GET.VertexAttribDivisor =
+			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisorARB");
 	}
 
 #endif

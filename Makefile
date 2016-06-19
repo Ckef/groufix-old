@@ -191,6 +191,7 @@ ifeq ($(RENDERER),GL)
  OBJS_RENDERER = \
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_formats.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_states.o
 #  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
@@ -203,6 +204,7 @@ else ifeq ($(RENDERER),GLES)
  OBJS_RENDERER = \
   $(OUT)$(SUB)/groufix/core/renderer/gl_emulate.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_errors.o \
+  $(OUT)$(SUB)/groufix/core/renderer/gl_formats.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_load.o \
   $(OUT)$(SUB)/groufix/core/renderer/gl_states.o
 #  $(OUT)$(SUB)/groufix/core/renderer/gl_binder.o \
