@@ -476,7 +476,8 @@ GFX_API int gfx_vertex_layout_get_index_buffer(
  * @param divisor Rate at which to advance measured in instances, 0 to advance each vertex.
  * @return Zero on failure.
  *
- * Note: divisor can only be non-zero if GFX_EXT_VERTEX_INSTANCING.
+ * Note: divisor can only be non-zero if GFX_EXT_VERTEX_INSTANCING
+ * and stride must be <= GFX_LIM_MAX_VERTEX_STRIDE.
  *
  */
 GFX_API int gfx_vertex_layout_set_vertex_buffer(
@@ -513,6 +514,8 @@ GFX_API int gfx_vertex_layout_get_vertex_buffer(
  * @param index  Index of the attribute to set (must be < layout->attributes).
  * @param attrib Values to set it to (can be NULL to disable).
  * @return Zero on failure.
+ *
+ * Note: to use GFX_DOUBLE as attribute or format type, GFX_EXT_VERTEX_DOUBLE_PRECISION is required.
  *
  */
 GFX_API int gfx_vertex_layout_set_attribute(

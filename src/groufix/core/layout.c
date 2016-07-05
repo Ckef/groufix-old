@@ -256,7 +256,16 @@ static void _gfx_layout_set_vertex_buffer(
 {
 	GFX_Buffer* buffer = _gfx_layout_get_buffer(layout, index);
 
-	/* Check limits */
+	/* Check extensions & limits */
+	if(buffer->divisor && !GFX_CONT_GET.ext[GFX_EXT_VERTEX_INSTANCING])
+	{
+		gfx_errors_push(
+			GFX_ERROR_INCOMPATIBLE_CONTEXT,
+			"GFX_EXT_VERTEX_INSTANCING is incompatible with this context."
+		);
+		return;
+	}
+
 	if(buffer->stride > (size_t)GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE])
 	{
 		gfx_errors_push(
@@ -336,7 +345,18 @@ static void _gfx_layout_set_attribute(
 	GFX_Attribute* attrib = _gfx_layout_get_attribute(layout, index);
 	GFX_Buffer* buffer = _gfx_layout_get_buffer(layout, attrib->buffer - 1);
 
-	/* Check limits */
+	/* Check extensions & limits */
+	if(
+		(attrib->attrib.format.type == GFX_DOUBLE || attrib->attrib.type == GFX_DOUBLE) &&
+		!GFX_CONT_GET.ext[GFX_EXT_VERTEX_DOUBLE_PRECISION])
+	{
+		gfx_errors_push(
+			GFX_ERROR_INCOMPATIBLE_CONTEXT,
+			"GFX_EXT_VERTEX_DOUBLE_PRECISION is incompatible with this context."
+		);
+		return;
+	}
+
 	if(attrib->attrib.offset > (size_t)GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_OFFSET])
 	{
 		gfx_errors_push(
@@ -413,8 +433,17 @@ static void _gfx_layout_set_attribute(
 		/* Check if the buffer is set also */
 		else if(attrib->buffer && buffer->buffer)
 		{
-			/* Check more limits */
+			/* Check more extensions & limits */
 			/* We check it here because when there is no DSA, init only calls this function */
+			if(buffer->divisor && !GFX_CONT_GET.ext[GFX_EXT_VERTEX_INSTANCING])
+			{
+				gfx_errors_push(
+					GFX_ERROR_INCOMPATIBLE_CONTEXT,
+					"GFX_EXT_VERTEX_INSTANCING is incompatible with this context."
+				);
+				return;
+			}
+
 			if(buffer->stride > (size_t)GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_STRIDE])
 			{
 				gfx_errors_push(
