@@ -296,64 +296,117 @@ static GFXKey _gfx_x11_get_key(
 	/* Non-unicode */
 	switch(symbol)
 	{
-		case XK_VoidSymbol   : return GFX_KEY_UNKNOWN;
+	case XK_VoidSymbol :
+		return GFX_KEY_UNKNOWN;
 
-		case XK_BackSpace    : return GFX_KEY_BACKSPACE;
-		case XK_Tab          : return GFX_KEY_TAB;
-		case XK_KP_Tab       : return GFX_KEY_TAB;
-		case XK_Clear        : return GFX_KEY_CLEAR;
-		case XK_Return       : return GFX_KEY_RETURN;
-		case XK_Pause        : return GFX_KEY_PAUSE;
-		case XK_Scroll_Lock  : return GFX_KEY_SCROLL_LOCK;
-		case XK_Escape       : return GFX_KEY_ESCAPE;
-		case XK_Delete       : return GFX_KEY_DELETE;
-		case XK_KP_Delete    : return GFX_KEY_DELETE;
+	case XK_BackSpace :
+		return GFX_KEY_BACKSPACE;
+	case XK_Tab :
+		return GFX_KEY_TAB;
+	case XK_KP_Tab :
+		return GFX_KEY_TAB;
+	case XK_Clear :
+		return GFX_KEY_CLEAR;
+	case XK_Return :
+		return GFX_KEY_RETURN;
+	case XK_Pause :
+		return GFX_KEY_PAUSE;
+	case XK_Scroll_Lock :
+		return GFX_KEY_SCROLL_LOCK;
+	case XK_Escape :
+		return GFX_KEY_ESCAPE;
+	case XK_Delete :
+		return GFX_KEY_DELETE;
+	case XK_KP_Delete :
+		return GFX_KEY_DELETE;
 
-		case XK_Home         : return GFX_KEY_HOME;
-		case XK_KP_Home      : return GFX_KEY_HOME;
-		case XK_Left         : return GFX_KEY_LEFT;
-		case XK_KP_Left      : return GFX_KEY_LEFT;
-		case XK_Up           : return GFX_KEY_UP;
-		case XK_KP_Up        : return GFX_KEY_UP;
-		case XK_Right        : return GFX_KEY_RIGHT;
-		case XK_KP_Right     : return GFX_KEY_RIGHT;
-		case XK_Down         : return GFX_KEY_DOWN;
-		case XK_KP_Down      : return GFX_KEY_DOWN;
-		case XK_Page_Down    : return GFX_KEY_PAGE_DOWN;
-		case XK_KP_Page_Down : return GFX_KEY_PAGE_DOWN;
-		case XK_Page_Up      : return GFX_KEY_PAGE_UP;
-		case XK_KP_Page_Up   : return GFX_KEY_PAGE_UP;
-		case XK_End          : return GFX_KEY_END;
-		case XK_KP_End       : return GFX_KEY_END;
+	case XK_Home :
+		return GFX_KEY_HOME;
+	case XK_KP_Home :
+		return GFX_KEY_HOME;
+	case XK_Left :
+		return GFX_KEY_LEFT;
+	case XK_KP_Left :
+		return GFX_KEY_LEFT;
+	case XK_Up :
+		return GFX_KEY_UP;
+	case XK_KP_Up :
+		return GFX_KEY_UP;
+	case XK_Right :
+		return GFX_KEY_RIGHT;
+	case XK_KP_Right :
+		return GFX_KEY_RIGHT;
+	case XK_Down :
+		return GFX_KEY_DOWN;
+	case XK_KP_Down :
+		return GFX_KEY_DOWN;
+	case XK_Page_Down :
+		return GFX_KEY_PAGE_DOWN;
+	case XK_KP_Page_Down :
+		return GFX_KEY_PAGE_DOWN;
+	case XK_Page_Up :
+		return GFX_KEY_PAGE_UP;
+	case XK_KP_Page_Up :
+		return GFX_KEY_PAGE_UP;
+	case XK_End :
+		return GFX_KEY_END;
+	case XK_KP_End :
+		return GFX_KEY_END;
 
-		case XK_Select       : return GFX_KEY_SELECT;
-		case XK_Print        : return GFX_KEY_PRINT;
-		case XK_Execute      : return GFX_KEY_EXECUTE;
-		case XK_Insert       : return GFX_KEY_INSERT;
-		case XK_KP_Insert    : return GFX_KEY_INSERT;
-		case XK_Menu         : return GFX_KEY_MENU;
-		case XK_Cancel       : return GFX_KEY_CANCEL;
-		case XK_Help         : return GFX_KEY_HELP;
-		case XK_Num_Lock     : return GFX_KEY_NUM_LOCK;
-		case XK_KP_Space     : return GFX_KEY_SPACE;
-		case XK_space        : return GFX_KEY_SPACE;
+	case XK_Select :
+		return GFX_KEY_SELECT;
+	case XK_Print :
+		return GFX_KEY_PRINT;
+	case XK_Execute :
+		return GFX_KEY_EXECUTE;
+	case XK_Insert :
+		return GFX_KEY_INSERT;
+	case XK_KP_Insert :
+		return GFX_KEY_INSERT;
+	case XK_Menu :
+		return GFX_KEY_MENU;
+	case XK_Cancel :
+		return GFX_KEY_CANCEL;
+	case XK_Help :
+		return GFX_KEY_HELP;
+	case XK_Num_Lock :
+		return GFX_KEY_NUM_LOCK;
+	case XK_KP_Space :
+		return GFX_KEY_SPACE;
+	case XK_space :
+		return GFX_KEY_SPACE;
 
-		case XK_KP_Enter     : return GFX_KEY_KP_RETURN;
-		case XK_KP_Multiply  : return GFX_KEY_KP_MULTIPLY;
-		case XK_KP_Add       : return GFX_KEY_KP_ADD;
-		case XK_KP_Separator : return GFX_KEY_KP_SEPARATOR;
-		case XK_KP_Subtract  : return GFX_KEY_KP_SUBTRACT;
-		case XK_KP_Decimal   : return GFX_KEY_KP_DECIMAL;
-		case XK_KP_Divide    : return GFX_KEY_KP_DIVIDE;
+	case XK_KP_Enter :
+		return GFX_KEY_KP_RETURN;
+	case XK_KP_Multiply :
+		return GFX_KEY_KP_MULTIPLY;
+	case XK_KP_Add :
+		return GFX_KEY_KP_ADD;
+	case XK_KP_Separator :
+		return GFX_KEY_KP_SEPARATOR;
+	case XK_KP_Subtract :
+		return GFX_KEY_KP_SUBTRACT;
+	case XK_KP_Decimal :
+		return GFX_KEY_KP_DECIMAL;
+	case XK_KP_Divide :
+		return GFX_KEY_KP_DIVIDE;
 
-		case XK_Shift_L      : return GFX_KEY_SHIFT_LEFT;
-		case XK_Shift_R      : return GFX_KEY_SHIFT_RIGHT;
-		case XK_Control_L    : return GFX_KEY_CONTROL_LEFT;
-		case XK_Control_R    : return GFX_KEY_CONTROL_RIGHT;
-		case XK_Alt_L        : return GFX_KEY_ALT_LEFT;
-		case XK_Alt_R        : return GFX_KEY_ALT_RIGHT;
-		case XK_Super_L      : return GFX_KEY_SUPER_LEFT;
-		case XK_Super_R      : return GFX_KEY_SUPER_RIGHT;
+	case XK_Shift_L :
+		return GFX_KEY_SHIFT_LEFT;
+	case XK_Shift_R :
+		return GFX_KEY_SHIFT_RIGHT;
+	case XK_Control_L :
+		return GFX_KEY_CONTROL_LEFT;
+	case XK_Control_R :
+		return GFX_KEY_CONTROL_RIGHT;
+	case XK_Alt_L :
+		return GFX_KEY_ALT_LEFT;
+	case XK_Alt_R :
+		return GFX_KEY_ALT_RIGHT;
+	case XK_Super_L :
+		return GFX_KEY_SUPER_LEFT;
+	case XK_Super_R :
+		return GFX_KEY_SUPER_RIGHT;
 	}
 
 	return GFX_KEY_UNKNOWN;

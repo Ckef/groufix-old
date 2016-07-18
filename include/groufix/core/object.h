@@ -24,7 +24,7 @@
 typedef enum GFXRenderObjectFlags
 {
 	GFX_OBJECT_NEEDS_REFERENCE  = 0x01, /* If set, the object must be created on a groufix enabled thread. */
-	GFX_OBJECT_CAN_SHARE        = 0x02  /* If set, the object can be shared amongst groufix enabled threads. */
+	GFX_OBJECT_CAN_SHARE        = 0x02  /* If set, the object can be shared amongst threads of the same GPU. */
 
 } GFXRenderObjectFlags;
 

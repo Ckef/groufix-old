@@ -124,7 +124,7 @@ typedef enum GFXEndianness
 typedef union GFXHostEndianness
 {
 	uint8_t   bytes[2];
-	uint16_t  order;
+	uint16_t  order; /* Can be compared against a value of GFXEndianness */
 
 } GFXHostEndianness;
 

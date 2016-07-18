@@ -258,51 +258,92 @@ static GFXKey _gfx_win32_get_key(
 	/* Non-unicode */
 	switch(symbol)
 	{
-		case VK_BACK      : return GFX_KEY_BACKSPACE;
-		case VK_TAB       : return GFX_KEY_TAB;
-		case VK_CLEAR     : return GFX_KEY_CLEAR;
-		case VK_RETURN    : return GFX_KEY_RETURN;
-		case VK_PAUSE     : return GFX_KEY_PAUSE;
-		case VK_SCROLL    : return GFX_KEY_SCROLL_LOCK;
-		case VK_ESCAPE    : return GFX_KEY_ESCAPE;
-		case VK_DELETE    : return GFX_KEY_DELETE;
+	case VK_BACK :
+		return GFX_KEY_BACKSPACE;
+	case VK_TAB :
+		return GFX_KEY_TAB;
+	case VK_CLEAR :
+		return GFX_KEY_CLEAR;
+	case VK_RETURN :
+		return GFX_KEY_RETURN;
+	case VK_PAUSE :
+		return GFX_KEY_PAUSE;
+	case VK_SCROLL :
+		return GFX_KEY_SCROLL_LOCK;
+	case VK_ESCAPE :
+		return GFX_KEY_ESCAPE;
+	case VK_DELETE :
+		return GFX_KEY_DELETE;
 
-		case VK_HOME      : return GFX_KEY_HOME;
-		case VK_LEFT      : return GFX_KEY_LEFT;
-		case VK_UP        : return GFX_KEY_UP;
-		case VK_RIGHT     : return GFX_KEY_RIGHT;
-		case VK_DOWN      : return GFX_KEY_DOWN;
-		case VK_PRIOR     : return GFX_KEY_PAGE_UP;
-		case VK_NEXT      : return GFX_KEY_PAGE_DOWN;
-		case VK_END       : return GFX_KEY_END;
+	case VK_HOME :
+		return GFX_KEY_HOME;
+	case VK_LEFT :
+		return GFX_KEY_LEFT;
+	case VK_UP :
+		return GFX_KEY_UP;
+	case VK_RIGHT :
+		return GFX_KEY_RIGHT;
+	case VK_DOWN :
+		return GFX_KEY_DOWN;
+	case VK_PRIOR :
+		return GFX_KEY_PAGE_UP;
+	case VK_NEXT :
+		return GFX_KEY_PAGE_DOWN;
+	case VK_END :
+		return GFX_KEY_END;
 
-		case VK_SELECT    : return GFX_KEY_SELECT;
-		case VK_PRINT     : return GFX_KEY_PRINT;
-		case VK_EXECUTE   : return GFX_KEY_EXECUTE;
-		case VK_INSERT    : return GFX_KEY_INSERT;
-		case VK_LMENU     : return GFX_KEY_MENU;
-		case VK_RMENU     : return GFX_KEY_MENU;
-		case VK_CANCEL    : return GFX_KEY_CANCEL;
-		case VK_HELP      : return GFX_KEY_HELP;
-		case VK_NUMLOCK   : return GFX_KEY_NUM_LOCK;
-		case VK_SPACE     : return GFX_KEY_SPACE;
+	case VK_SELECT :
+		return GFX_KEY_SELECT;
+	case VK_PRINT :
+		return GFX_KEY_PRINT;
+	case VK_EXECUTE :
+		return GFX_KEY_EXECUTE;
+	case VK_INSERT :
+		return GFX_KEY_INSERT;
+	case VK_LMENU :
+		return GFX_KEY_MENU;
+	case VK_RMENU :
+		return GFX_KEY_MENU;
+	case VK_CANCEL :
+		return GFX_KEY_CANCEL;
+	case VK_HELP :
+		return GFX_KEY_HELP;
+	case VK_NUMLOCK :
+		return GFX_KEY_NUM_LOCK;
+	case VK_SPACE :
+		return GFX_KEY_SPACE;
 
-		case VK_MULTIPLY  : return GFX_KEY_KP_MULTIPLY;
-		case VK_ADD       : return GFX_KEY_KP_ADD;
-		case VK_SEPARATOR : return GFX_KEY_KP_SEPARATOR;
-		case VK_SUBTRACT  : return GFX_KEY_KP_SUBTRACT;
-		case VK_DECIMAL   : return GFX_KEY_KP_DECIMAL;
-		case VK_DIVIDE    : return GFX_KEY_KP_DIVIDE;
+	case VK_MULTIPLY :
+		return GFX_KEY_KP_MULTIPLY;
+	case VK_ADD :
+		return GFX_KEY_KP_ADD;
+	case VK_SEPARATOR :
+		return GFX_KEY_KP_SEPARATOR;
+	case VK_SUBTRACT :
+		return GFX_KEY_KP_SUBTRACT;
+	case VK_DECIMAL :
+		return GFX_KEY_KP_DECIMAL;
+	case VK_DIVIDE :
+		return GFX_KEY_KP_DIVIDE;
 
-		case VK_SHIFT     : return GFX_KEY_SHIFT_LEFT;
-		case VK_LSHIFT    : return GFX_KEY_SHIFT_LEFT;
-		case VK_RSHIFT    : return GFX_KEY_SHIFT_RIGHT;
-		case VK_CONTROL   : return GFX_KEY_CONTROL_LEFT;
-		case VK_LCONTROL  : return GFX_KEY_CONTROL_LEFT;
-		case VK_RCONTROL  : return GFX_KEY_CONTROL_RIGHT;
-		case VK_MENU      : return GFX_KEY_ALT_LEFT;
-		case VK_LWIN      : return GFX_KEY_SUPER_LEFT;
-		case VK_RWIN      : return GFX_KEY_SUPER_RIGHT;
+	case VK_SHIFT :
+		return GFX_KEY_SHIFT_LEFT;
+	case VK_LSHIFT :
+		return GFX_KEY_SHIFT_LEFT;
+	case VK_RSHIFT :
+		return GFX_KEY_SHIFT_RIGHT;
+	case VK_CONTROL :
+		return GFX_KEY_CONTROL_LEFT;
+	case VK_LCONTROL :
+		return GFX_KEY_CONTROL_LEFT;
+	case VK_RCONTROL :
+		return GFX_KEY_CONTROL_RIGHT;
+	case VK_MENU :
+		return GFX_KEY_ALT_LEFT;
+	case VK_LWIN :
+		return GFX_KEY_SUPER_LEFT;
+	case VK_RWIN :
+		return GFX_KEY_SUPER_RIGHT;
 	}
 
 	return GFX_KEY_UNKNOWN;

@@ -168,7 +168,7 @@ static void _gfx_x11_event_proc(
 	switch(event->type)
 	{
 		/* Protocol messages */
-		case ClientMessage :
+	case ClientMessage :
 		{
 			if((Atom)event->xclient.data.l[0] == _gfx_x11.WM_DELETE_WINDOW)
 				_gfx_event_window_close(window);
@@ -176,8 +176,8 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
-		/* Resize & Move */
-		case ConfigureNotify :
+		/* Window resizing & movement */
+	case ConfigureNotify :
 		{
 			GFX_X11_Window* internal =
 				_gfx_x11_get_window_from_handle(event->xany.window);
@@ -227,8 +227,8 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
-		/* Focus */
-		case FocusIn :
+		/* Window gets focus */
+	case FocusIn :
 		{
 			/* Enter fullscreen */
 			GFX_X11_Window* internal =
@@ -252,8 +252,8 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
-		/* Blur */
-		case FocusOut :
+		/* Window loses focus */
+	case FocusOut :
 		{
 			/* Leave fullscreen */
 			GFX_X11_Window* internal =
@@ -278,8 +278,8 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
-		/* Key press */
-		case KeyPress :
+		/* Key presses */
+	case KeyPress :
 		{
 			GFXKey key;
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
@@ -294,8 +294,8 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
-		/* Key release */
-		case KeyRelease :
+		/* Key releases */
+	case KeyRelease :
 		{
 			GFXKey key;
 			if(event->xkey.keycode > GFX_X11_MAX_KEYCODE) key = GFX_KEY_UNKNOWN;
@@ -310,8 +310,8 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
-		/* Pointer motion */
-		case MotionNotify :
+		/* Mouse movement */
+	case MotionNotify :
 		{
 			_gfx_event_mouse_move(
 				window,
@@ -323,8 +323,8 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
-		/* Pointer enter */
-		case EnterNotify :
+		/* Mouse enters a window */
+	case EnterNotify :
 		{
 			_gfx_event_mouse_enter(
 				window,
@@ -336,8 +336,8 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
-		/* Pointer leave */
-		case LeaveNotify :
+		/* Mouse leaves a window */
+	case LeaveNotify :
 		{
 			_gfx_event_mouse_leave(
 				window,
@@ -349,8 +349,8 @@ static void _gfx_x11_event_proc(
 			break;
 		}
 
-		/* Mouse key press */
-		case ButtonPress :
+		/* Mouse key presses */
+	case ButtonPress :
 		{
 			GFXKeyState state = _gfx_x11_get_key_state(event->xbutton.state);
 			int x = event->xbutton.x;
@@ -358,33 +358,33 @@ static void _gfx_x11_event_proc(
 
 			switch(event->xbutton.button)
 			{
-				case Button1 :
-					_gfx_event_mouse_press(window, GFX_MOUSE_KEY_LEFT, x, y, state);
-					break;
-				case Button2 :
-					_gfx_event_mouse_press(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
-					break;
-				case Button3 :
-					_gfx_event_mouse_press(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
-					break;
+			case Button1 :
+				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_LEFT, x, y, state);
+				break;
+			case Button2 :
+				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
+				break;
+			case Button3 :
+				_gfx_event_mouse_press(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
+				break;
 
-				case Button4 :
-					_gfx_event_mouse_wheel(window, 0, 1, x, y, state);
-					break;
-				case Button5 :
-					_gfx_event_mouse_wheel(window, 0, -1, x, y, state);
-					break;
-				case Button6 :
-					_gfx_event_mouse_wheel(window, -1, 0, x, y, state);
-					break;
-				case Button7 :
-					_gfx_event_mouse_wheel(window, 1, 0, x, y, state);
-					break;
+			case Button4 :
+				_gfx_event_mouse_wheel(window, 0, 1, x, y, state);
+				break;
+			case Button5 :
+				_gfx_event_mouse_wheel(window, 0, -1, x, y, state);
+				break;
+			case Button6 :
+				_gfx_event_mouse_wheel(window, -1, 0, x, y, state);
+				break;
+			case Button7 :
+				_gfx_event_mouse_wheel(window, 1, 0, x, y, state);
+				break;
 			}
 		}
 
-		/* Mouse key release */
-		case ButtonRelease :
+		/* Mouse key releases */
+	case ButtonRelease :
 		{
 			GFXKeyState state = _gfx_x11_get_key_state(event->xbutton.state);
 			int x = event->xbutton.x;
@@ -392,15 +392,15 @@ static void _gfx_x11_event_proc(
 
 			switch(event->xbutton.button)
 			{
-				case Button1 :
-					_gfx_event_mouse_release(window, GFX_MOUSE_KEY_LEFT, x, y, state);
-					break;
-				case Button2 :
-					_gfx_event_mouse_release(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
-					break;
-				case Button3 :
-					_gfx_event_mouse_release(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
-					break;
+			case Button1 :
+				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_LEFT, x, y, state);
+				break;
+			case Button2 :
+				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_MIDDLE, x, y, state);
+				break;
+			case Button3 :
+				_gfx_event_mouse_release(window, GFX_MOUSE_KEY_RIGHT, x, y, state);
+				break;
 			}
 		}
 	}

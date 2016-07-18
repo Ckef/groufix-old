@@ -45,28 +45,22 @@ unsigned char _gfx_sizeof_data_type(
 {
 	switch(type)
 	{
-		case GFX_BIT :
-			return 1;
+	case GFX_BYTE :
+	case GFX_UNSIGNED_BYTE :
+		return 1;
 
-		case GFX_NIBBLE :
-			return 4;
+	case GFX_SHORT :
+	case GFX_UNSIGNED_SHORT :
+	case GFX_HALF_FLOAT :
+		return 2;
 
-		case GFX_BYTE :
-		case GFX_UNSIGNED_BYTE :
-			return 8;
+	case GFX_INT :
+	case GFX_UNSIGNED_INT:
+	case GFX_FLOAT :
+		return 4;
 
-		case GFX_SHORT :
-		case GFX_UNSIGNED_SHORT :
-		case GFX_HALF_FLOAT :
-			return 16;
-
-		case GFX_INT :
-		case GFX_UNSIGNED_INT:
-		case GFX_FLOAT :
-			return 32;
-
-		case GFX_DOUBLE :
-			return 64;
+	case GFX_DOUBLE :
+		return 8;
 	}
 
 	return 0;
@@ -129,9 +123,9 @@ GFXFormat gfx_format_from_type(
 		unsigned char   components,
 		GFXFormatFlags  flags)
 {
-	/* Fill in components with the size of type */
+	/* Fill in components with the bit size of type */
 	unsigned char size =
-		_gfx_sizeof_data_type(type);
+		_gfx_sizeof_data_type(type) << 3;
 
 	GFXBitDepth depth =
 	{{

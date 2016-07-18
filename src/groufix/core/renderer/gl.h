@@ -66,12 +66,16 @@ void _gfx_gl_states_set_viewport(
 /**
  * Converts a format of an attribute to a vertex format as defined by GL.
  *
- * @return Zero on an invalid format (output may be written to).
+ * @param shaderType Returns the general shader type of the attribute.
+ * @return Zero on an invalid format or failure otherwise (output may be written to).
+ *
+ * Note: shaderType is 0 on integer, 1 on float and 2 on double.
  *
  */
 int _gfx_gl_format_to_vertex(
 
 		const GFXVertexAttribute*  attribute,
+		int*                       shaderType,
 		GLint*                     size,
 		GLenum*                    type,
 		GLboolean*                 normalized,

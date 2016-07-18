@@ -15,8 +15,6 @@
 #ifndef GFX_CORE_RENDERER_GL_DEF_H
 #define GFX_CORE_RENDERER_GL_DEF_H
 
-#include "groufix/core/pipeline.h"
-
 
 /* Correct OGL header */
 #if defined(GFX_GL)

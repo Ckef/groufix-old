@@ -124,7 +124,7 @@ void _gfx_split_depth(
 		unsigned char*  blue);
 
 /**
- * Returns the size of a data type in bits.
+ * Returns the size of a data type in bytes.
  *
  */
 unsigned char _gfx_sizeof_data_type(

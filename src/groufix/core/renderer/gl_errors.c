@@ -32,21 +32,21 @@ static void APIENTRY _gfx_gl_error_callback(
 	switch(type)
 	{
 		/* Ignore group and marker calls */
-		case GL_DEBUG_TYPE_MARKER :
-		case GL_DEBUG_TYPE_PUSH_GROUP :
-		case GL_DEBUG_TYPE_POP_GROUP :
-			return;
+	case GL_DEBUG_TYPE_MARKER :
+	case GL_DEBUG_TYPE_PUSH_GROUP :
+	case GL_DEBUG_TYPE_POP_GROUP :
+		return;
 
 		/* Unknown errors */
-		case GL_DEBUG_TYPE_ERROR :
-		case GL_DEBUG_TYPE_OTHER :
-			code = GFX_ERROR_UNKNOWN;
-			break;
+	case GL_DEBUG_TYPE_ERROR :
+	case GL_DEBUG_TYPE_OTHER :
+		code = GFX_ERROR_UNKNOWN;
+		break;
 
 		/* Known errors */
-		default :
-			code = type;
-			break;
+	default :
+		code = type;
+		break;
 	}
 
 	/* Unformat the error */

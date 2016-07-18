@@ -23,7 +23,8 @@
 const GFXRenderObjectFlags GFX_VERTEX_LAYOUT_OBJECT_FLAGS = 0;
 
 #elif defined(GFX_RENDERER_VK)
-const GFXRenderObjectFlags GFX_VERTEX_LAYOUT_OBJECT_FLAGS = 0;
+const GFXRenderObjectFlags GFX_VERTEX_LAYOUT_OBJECT_FLAGS =
+	GFX_OBJECT_CAN_SHARE;
 
 #endif
 
@@ -122,35 +123,6 @@ static inline int _gfx_layout_check(
 #if defined(GFX_RENDERER_GL)
 
 /******************************************************/
-static inline int _gfx_layout_from_type(
-
-		GFXDataType type)
-{
-	/* Return 0 on integer, 1 on float, 2 on double and -1 on unknown */
-	switch(type)
-	{
-		case GFX_BIT :
-		case GFX_NIBBLE :
-		case GFX_BYTE :
-		case GFX_UNSIGNED_BYTE :
-		case GFX_SHORT :
-		case GFX_UNSIGNED_SHORT :
-		case GFX_INT :
-		case GFX_UNSIGNED_INT :
-			return 0;
-
-		case GFX_HALF_FLOAT :
-		case GFX_FLOAT :
-			return 1;
-
-		case GFX_DOUBLE :
-			return 2;
-	}
-
-	return -1;
-}
-
-/******************************************************/
 static void _gfx_layout_set_attribute_combined(
 
 		GFX_Layout*     layout,
@@ -159,12 +131,14 @@ static void _gfx_layout_set_attribute_combined(
 		GFX_Buffer*     buffer,
 		GFX_CONT_ARG)
 {
+	int shaderType;
 	GLint size;
 	GLenum type;
 	GLboolean normalized;
 
 	if(!_gfx_gl_format_to_vertex(
 		&attribute->attrib,
+		&shaderType,
 		&size,
 		&type,
 		&normalized,
@@ -191,38 +165,38 @@ static void _gfx_layout_set_attribute_combined(
 	/* Next set values using the correct combined vertex function */
 	size_t offset = buffer->offset + attribute->attrib.offset;
 
-	switch(_gfx_layout_from_type(attribute->attrib.type))
+	switch(shaderType)
 	{
-		case 0 :
-			GFX_REND_GET.VertexAttribIPointer(
-				index,
-				size,
-				type,
-				buffer->stride,
-				GFX_UINT_TO_VOID(offset)
-			);
-			break;
+	case 0 :
+		GFX_REND_GET.VertexAttribIPointer(
+			index,
+			size,
+			type,
+			buffer->stride,
+			GFX_UINT_TO_VOID(offset)
+		);
+		break;
 
-		case 1 :
-			GFX_REND_GET.VertexAttribPointer(
-				index,
-				size,
-				type,
-				normalized,
-				buffer->stride,
-				GFX_UINT_TO_VOID(offset)
-			);
-			break;
+	case 1 :
+		GFX_REND_GET.VertexAttribPointer(
+			index,
+			size,
+			type,
+			normalized,
+			buffer->stride,
+			GFX_UINT_TO_VOID(offset)
+		);
+		break;
 
-		case 2 :
-			GFX_REND_GET.VertexAttribLPointer(
-				index,
-				size,
-				type,
-				buffer->stride,
-				GFX_UINT_TO_VOID(offset)
-			);
-			break;
+	case 2 :
+		GFX_REND_GET.VertexAttribLPointer(
+			index,
+			size,
+			type,
+			buffer->stride,
+			GFX_UINT_TO_VOID(offset)
+		);
+		break;
 	}
 }
 
@@ -377,12 +351,14 @@ static void _gfx_layout_set_attribute(
 			GFX_REND_GET.intExt[GFX_INT_EXT_VERTEX_ATTRIB_BINDING] ||
 			GFX_REND_GET.intExt[GFX_INT_EXT_DIRECT_STATE_ACCESS])
 		{
+			int shaderType;
 			GLint size;
 			GLenum type;
 			GLboolean normalized;
 
 			if(!_gfx_gl_format_to_vertex(
 				&attrib->attrib,
+				&shaderType,
 				&size,
 				&type,
 				&normalized,
@@ -394,38 +370,38 @@ static void _gfx_layout_set_attribute(
 			GFX_REND_GET.EnableVertexArrayAttrib(layout->handle, index);
 
 			/* Use the correct function to set the format */
-			switch(_gfx_layout_from_type(attrib->attrib.type))
+			switch(shaderType)
 			{
-				case 0 :
-					GFX_REND_GET.VertexArrayAttribIFormat(
-						layout->handle,
-						index,
-						size,
-						type,
-						attrib->attrib.offset
-					);
-					break;
+			case 0 :
+				GFX_REND_GET.VertexArrayAttribIFormat(
+					layout->handle,
+					index,
+					size,
+					type,
+					attrib->attrib.offset
+				);
+				break;
 
-				case 1 :
-					GFX_REND_GET.VertexArrayAttribFormat(
-						layout->handle,
-						index,
-						size,
-						type,
-						normalized,
-						attrib->attrib.offset
-					);
-					break;
+			case 1 :
+				GFX_REND_GET.VertexArrayAttribFormat(
+					layout->handle,
+					index,
+					size,
+					type,
+					normalized,
+					attrib->attrib.offset
+				);
+				break;
 
-				case 2 :
-					GFX_REND_GET.VertexArrayAttribLFormat(
-						layout->handle,
-						index,
-						size,
-						type,
-						attrib->attrib.offset
-					);
-					break;
+			case 2 :
+				GFX_REND_GET.VertexArrayAttribLFormat(
+					layout->handle,
+					index,
+					size,
+					type,
+					attrib->attrib.offset
+				);
+				break;
 			}
 		}
 

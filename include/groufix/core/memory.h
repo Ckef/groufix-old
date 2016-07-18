@@ -28,7 +28,7 @@
 /** Bit depth */
 typedef struct GFXBitDepth
 {
-	unsigned char data[4]; /* Depth per component (rgba or xyzw) */
+	unsigned char data[4]; /* Depth per component (rgba or xyzw) in bits */
 
 } GFXBitDepth;
 
@@ -36,8 +36,6 @@ typedef struct GFXBitDepth
 /** Storage data type */
 typedef enum GFXDataType
 {
-	GFX_BIT,
-	GFX_NIBBLE,
 	GFX_BYTE,
 	GFX_UNSIGNED_BYTE,
 	GFX_SHORT,
@@ -54,14 +52,13 @@ typedef enum GFXDataType
 /** Format flags */
 typedef enum GFXFormatFlags
 {
-	GFX_FORMAT_NORMALIZED     = 0x001, /* Only useful for server side formats (ignored for client side) */
+	GFX_FORMAT_NORMALIZED     = 0x001, /* If set, an integral type will be interpreted as normalized (in the range [0.0, 1.0]) */
 	GFX_FORMAT_EXPONENT       = 0x002, /* Interpret the last component (of rgba) as a shared exponent (only for floating point) */
-	GFX_FORMAT_REVERSE        = 0x004, /* Components are stored as abgr instead of rgba */
-	GFX_FORMAT_ALPHA_LAST     = 0x008, /* In conjunction with REVERSE it produces bgra, otherwise rgba */
-	GFX_FORMAT_DEPTH          = 0x010, /* First component interpreted as depth */
-	GFX_FORMAT_STENCIL        = 0x020, /* First component (after optional depth component) interpreted as stencil */
-	GFX_FORMAT_LITTLE_ENDIAN  = 0x040, /* Force each component to be stored in little endian order (as opposed to machine native) */
-	GFX_FORMAT_BIG_ENDIAN     = 0x080  /* Same as LITTLE_ENDIAN, only it forces big endian order */
+	GFX_FORMAT_REVERSE        = 0x004, /* Components are stored as bgra instead of rgba (the first three components are reversed) */
+	GFX_FORMAT_DEPTH          = 0x008, /* First component interpreted as depth */
+	GFX_FORMAT_STENCIL        = 0x010, /* First component (after optional depth component) interpreted as stencil */
+	GFX_FORMAT_LITTLE_ENDIAN  = 0x020, /* Force each component to be stored in little endian order (as opposed to machine native) */
+	GFX_FORMAT_BIG_ENDIAN     = 0x040  /* Same as LITTLE_ENDIAN, only it forces big endian order */
 
 } GFXFormatFlags;
 
@@ -69,7 +66,7 @@ typedef enum GFXFormatFlags
 /** Format descriptor */
 typedef struct GFXFormat
 {
-	GFXDataType     type;
+	GFXDataType     type; /* Underlying type the format consists of, signedness indicates the sign of each component */
 	GFXBitDepth     depth;
 	GFXFormatFlags  flags;
 
@@ -79,10 +76,13 @@ typedef struct GFXFormat
 /**
  * Builds a non-ambiguous format descriptor.
  *
- * @param type  Data type for each component.
+ * @param type  If all components share bitdepth, the type of each component, if not, the type of the entire format.
  * @param depth Bit depth for each component (0 to omit a component).
  * @param flags Flags to determine how to interpret each component and the order.
  * @return The format, depth will be all 0s on failure.
+ *
+ * Note: Non-ambiguous means the only 0s in depth are trailing 0s.
+ * This function also checks for flag collisions, at which point it fails.
  *
  */
 GFX_API GFXFormat gfx_format(
@@ -94,9 +94,8 @@ GFX_API GFXFormat gfx_format(
 /**
  * Builds a format descriptor, implicitly determining the depth from the type.
  *
- * @param type       Data type for each component.
+ * @param type       The type of each component.
  * @param components Number of components of the format.
- * @param flags      Flags to determine how to interpret each component and the order.
  * @return The format, depth will be all 0s on failure.
  *
  */

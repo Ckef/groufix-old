@@ -58,13 +58,19 @@ static GFXKey _gfx_win32_get_extended_key(
 	/* Get extended key (probably right key) */
 	if(lParam & 0x1000000) switch(key)
 	{
-		case GFX_KEY_RETURN       : return GFX_KEY_KP_RETURN;
-		case GFX_KEY_SHIFT_LEFT   : return GFX_KEY_SHIFT_RIGHT;
-		case GFX_KEY_CONTROL_LEFT : return GFX_KEY_CONTROL_RIGHT;
-		case GFX_KEY_ALT_LEFT     : return GFX_KEY_ALT_RIGHT;
+	case GFX_KEY_RETURN :
+		return GFX_KEY_KP_RETURN;
+	case GFX_KEY_SHIFT_LEFT :
+		return GFX_KEY_SHIFT_RIGHT;
+	case GFX_KEY_CONTROL_LEFT :
+		return GFX_KEY_CONTROL_RIGHT;
+	case GFX_KEY_ALT_LEFT :
+		return GFX_KEY_ALT_RIGHT;
 
-		default : return key;
+	default :
+		return key;
 	}
+
 	return key;
 }
 
@@ -105,14 +111,14 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 	switch(msg)
 	{
 		/* Close button */
-		case WM_CLOSE :
+	case WM_CLOSE :
 		{
 			_gfx_event_window_close(window);
 			return 0;
 		}
 
-		/* Move */
-		case WM_MOVE :
+		/* Window movement */
+	case WM_MOVE :
 		{
 			int xS = 0;
 			int yS = 0;
@@ -134,8 +140,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			return 0;
 		}
 
-		/* Resize */
-		case WM_SIZE :
+		/* Window resizing */
+	case WM_SIZE :
 		{
 			_gfx_event_window_resize(
 				window,
@@ -145,8 +151,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			return 0;
 		}
 
-		/* Focus */
-		case WM_SETFOCUS :
+		/* Window gets focus */
+	case WM_SETFOCUS :
 		{
 			/* Enter fullscreen */
 			GFX_Win32_Window* internal =
@@ -169,8 +175,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			return 0;
 		}
 
-		/* Blur */
-		case WM_KILLFOCUS :
+		/* Window loses focus */
+	case WM_KILLFOCUS :
 		{
 			/* Leave fullscreen */
 			GFX_Win32_Window* internal =
@@ -191,9 +197,9 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			return 0;
 		}
 
-		/* Key press */
-		case WM_KEYDOWN :
-		case WM_SYSKEYDOWN :
+		/* Key presses */
+	case WM_KEYDOWN :
+	case WM_SYSKEYDOWN :
 		{
 			GFXKey key;
 			if(wParam > GFX_WIN32_MAX_KEYCODE)
@@ -207,9 +213,9 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			return 0;
 		}
 
-		/* Key release */
-		case WM_KEYUP :
-		case WM_SYSKEYUP :
+		/* Key releases */
+	case WM_KEYUP :
+	case WM_SYSKEYUP :
 		{
 			GFXKey key;
 			if(wParam > GFX_WIN32_MAX_KEYCODE)
@@ -223,8 +229,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			return 0;
 		}
 
-		/* Mouse move */
-		case WM_MOUSEMOVE :
+		/* Mouse movement */
+	case WM_MOUSEMOVE :
 		{
 			int x = GET_X_LPARAM(lParam);
 			int y = GET_Y_LPARAM(lParam);
@@ -249,8 +255,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			return 0;
 		}
 
-		/* Mouse leave */
-		case WM_MOUSELEAVE :
+		/* Mouse leaves a window */
+	case WM_MOUSELEAVE :
 		{
 			GFX_Win32_Window* internal =
 				_gfx_win32_get_window_from_handle(handle);
@@ -286,7 +292,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		}
 
 		/* Left mouse button */
-		case WM_LBUTTONDOWN :
+	case WM_LBUTTONDOWN :
 		{
 			_gfx_event_mouse_press(window,
 				GFX_MOUSE_KEY_LEFT,
@@ -296,7 +302,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			);
 			return 0;
 		}
-		case WM_LBUTTONUP :
+
+	case WM_LBUTTONUP :
 		{
 			_gfx_event_mouse_release(window,
 				GFX_MOUSE_KEY_LEFT,
@@ -308,7 +315,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		}
 
 		/* Right mouse button */
-		case WM_RBUTTONDOWN :
+	case WM_RBUTTONDOWN :
 		{
 			_gfx_event_mouse_press(window,
 				GFX_MOUSE_KEY_RIGHT,
@@ -318,7 +325,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			);
 			return 0;
 		}
-		case WM_RBUTTONUP :
+
+	case WM_RBUTTONUP :
 		{
 			_gfx_event_mouse_release(window,
 				GFX_MOUSE_KEY_RIGHT,
@@ -330,7 +338,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		}
 
 		/* Middle mouse button */
-		case WM_MBUTTONDOWN :
+	case WM_MBUTTONDOWN :
 		{
 			_gfx_event_mouse_press(window,
 				GFX_MOUSE_KEY_MIDDLE,
@@ -340,7 +348,8 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 			);
 			return 0;
 		}
-		case WM_MBUTTONUP :
+
+	case WM_MBUTTONUP :
 		{
 			_gfx_event_mouse_release(window,
 				GFX_MOUSE_KEY_MIDDLE,
@@ -352,7 +361,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		}
 
 		/* Vertical mouse wheel */
-		case WM_MOUSEWHEEL :
+	case WM_MOUSEWHEEL :
 		{
 			_gfx_event_mouse_wheel(window,
 				0, GET_WHEEL_DELTA_WPARAM(wParam),
@@ -365,7 +374,7 @@ static LRESULT CALLBACK _gfx_win32_window_proc(
 		}
 
 		/* Horizontal mouse wheel */
-		case WM_MOUSEHWHEEL :
+	case WM_MOUSEHWHEEL :
 		{
 			_gfx_event_mouse_wheel(window,
 				GET_WHEEL_DELTA_WPARAM(wParam), 0,

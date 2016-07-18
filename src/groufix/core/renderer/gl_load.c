@@ -1297,6 +1297,15 @@ void _gfx_renderer_load(
 			(PFNGLVERTEXATTRIBDIVISORPROC)_gfx_platform_get_proc_address("glVertexAttribDivisorARB");
 	}
 
+	/* GFX_EXT_VERTEX_PACKED_FLOATS */
+	if(
+		GFX_CONT_GET.version.major > 4 ||
+		(GFX_CONT_GET.version.major == 4 && GFX_CONT_GET.version.minor > 3) ||
+		_gfx_gl_is_extension_supported("GL_ARB_vertex_type_10f_11f_11f_rev", GFX_CONT_AS_ARG))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_VERTEX_PACKED_FLOATS] = 1;
+	}
+
 #endif
 }
 

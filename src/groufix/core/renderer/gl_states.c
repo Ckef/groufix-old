@@ -34,14 +34,22 @@ static inline GLenum _gfx_gl_from_fragment_test(
 {
 	switch(test)
 	{
-		case GFX_FRAG_NEVER         : return GL_NEVER;
-		case GFX_FRAG_LESS          : return GL_LESS;
-		case GFX_FRAG_LESS_EQUAL    : return GL_LEQUAL;
-		case GFX_FRAG_GREATER       : return GL_GREATER;
-		case GFX_FRAG_GREATER_EQUAL : return GL_GEQUAL;
-		case GFX_FRAG_EQUAL         : return GL_EQUAL;
-		case GFX_FRAG_NOT_EQUAL     : return GL_NOTEQUAL;
-		case GFX_FRAG_ALWAYS        : return GL_ALWAYS;
+	case GFX_FRAG_NEVER :
+		return GL_NEVER;
+	case GFX_FRAG_LESS :
+		return GL_LESS;
+	case GFX_FRAG_LESS_EQUAL :
+		return GL_LEQUAL;
+	case GFX_FRAG_GREATER :
+		return GL_GREATER;
+	case GFX_FRAG_GREATER_EQUAL :
+		return GL_GEQUAL;
+	case GFX_FRAG_EQUAL :
+		return GL_EQUAL;
+	case GFX_FRAG_NOT_EQUAL :
+		return GL_NOTEQUAL;
+	case GFX_FRAG_ALWAYS :
+		return GL_ALWAYS;
 	}
 
 	return GL_LESS;
@@ -54,11 +62,16 @@ static inline GLenum _gfx_gl_from_blend_state(
 {
 	switch(state)
 	{
-		case GFX_BLEND_ADD          : return GL_FUNC_ADD;
-		case GFX_BLEND_SUBTRACT     : return GL_FUNC_SUBTRACT;
-		case GFX_BLEND_REV_SUBTRACT : return GL_FUNC_REVERSE_SUBTRACT;
-		case GFX_BLEND_MIN          : return GL_MIN;
-		case GFX_BLEND_MAX          : return GL_MAX;
+	case GFX_BLEND_ADD :
+		return GL_FUNC_ADD;
+	case GFX_BLEND_SUBTRACT :
+		return GL_FUNC_SUBTRACT;
+	case GFX_BLEND_REV_SUBTRACT :
+		return GL_FUNC_REVERSE_SUBTRACT;
+	case GFX_BLEND_MIN :
+		return GL_MIN;
+	case GFX_BLEND_MAX :
+		return GL_MAX;
 	}
 
 	return GL_FUNC_ADD;
@@ -71,20 +84,31 @@ static inline GLenum _gfx_gl_from_blend_func(
 {
 	switch(func)
 	{
-		case GFX_BLEND_ZERO                   : return GL_ZERO;
-		case GFX_BLEND_ONE                    : return GL_ONE;
+	case GFX_BLEND_ZERO :
+		return GL_ZERO;
+	case GFX_BLEND_ONE :
+		return GL_ONE;
 
-		case GFX_BLEND_SOURCE                 : return GL_SRC_COLOR;
-		case GFX_BLEND_BUFFER                 : return GL_DST_COLOR;
-		case GFX_BLEND_ONE_MINUS_SOURCE       : return GL_ONE_MINUS_SRC_COLOR;
-		case GFX_BLEND_ONE_MINUS_BUFFER       : return GL_ONE_MINUS_DST_COLOR;
+	case GFX_BLEND_SOURCE :
+		return GL_SRC_COLOR;
+	case GFX_BLEND_BUFFER :
+		return GL_DST_COLOR;
+	case GFX_BLEND_ONE_MINUS_SOURCE :
+		return GL_ONE_MINUS_SRC_COLOR;
+	case GFX_BLEND_ONE_MINUS_BUFFER :
+		return GL_ONE_MINUS_DST_COLOR;
 
-		case GFX_BLEND_SOURCE_ALPHA           : return GL_SRC_ALPHA;
-		case GFX_BLEND_BUFFER_ALPHA           : return GL_DST_ALPHA;
-		case GFX_BLEND_ONE_MINUS_SOURCE_ALPHA : return GL_ONE_MINUS_SRC_ALPHA;
-		case GFX_BLEND_ONE_MINUS_BUFFER_ALPHA : return GL_ONE_MINUS_DST_ALPHA;
+	case GFX_BLEND_SOURCE_ALPHA :
+		return GL_SRC_ALPHA;
+	case GFX_BLEND_BUFFER_ALPHA :
+		return GL_DST_ALPHA;
+	case GFX_BLEND_ONE_MINUS_SOURCE_ALPHA :
+		return GL_ONE_MINUS_SRC_ALPHA;
+	case GFX_BLEND_ONE_MINUS_BUFFER_ALPHA :
+		return GL_ONE_MINUS_DST_ALPHA;
 
-		case GFX_BLEND_ALPHA_SATURATE         : return GL_SRC_ALPHA_SATURATE;
+	case GFX_BLEND_ALPHA_SATURATE :
+		return GL_SRC_ALPHA_SATURATE;
 	}
 
 	return GL_ZERO;
@@ -97,14 +121,22 @@ static inline GLenum _gfx_gl_from_stencil_func(
 {
 	switch(func)
 	{
-		case GFX_STENCIL_KEEP          : return GL_KEEP;
-		case GFX_STENCIL_ZERO          : return GL_ZERO;
-		case GFX_STENCIL_REPLACE       : return GL_REPLACE;
-		case GFX_STENCIL_INCREASE      : return GL_INCR;
-		case GFX_STENCIL_INCREASE_WRAP : return GL_INCR_WRAP;
-		case GFX_STENCIL_DECREASE      : return GL_DECR;
-		case GFX_STENCIL_DECREASE_WRAP : return GL_DECR_WRAP;
-		case GFX_STENCIL_INVERT        : return GL_INVERT;
+	case GFX_STENCIL_KEEP :
+		return GL_KEEP;
+	case GFX_STENCIL_ZERO :
+		return GL_ZERO;
+	case GFX_STENCIL_REPLACE :
+		return GL_REPLACE;
+	case GFX_STENCIL_INCREASE :
+		return GL_INCR;
+	case GFX_STENCIL_INCREASE_WRAP :
+		return GL_INCR_WRAP;
+	case GFX_STENCIL_DECREASE :
+		return GL_DECR;
+	case GFX_STENCIL_DECREASE_WRAP :
+		return GL_DECR_WRAP;
+	case GFX_STENCIL_INVERT :
+		return GL_INVERT;
 	}
 
 	return GL_KEEP;
@@ -309,6 +341,7 @@ void _gfx_renderer_states_set(
 		_gfx_gl_from_stencil_func(state->stencil.backPass));
 
 	/* Set all values */
+	/* No need to worry about threading as GL threads can only be current in one thread anyway */
 	GFX_REND_GET.state = *state;
 	GFX_REND_GET.state.render.state = extState;
 }
