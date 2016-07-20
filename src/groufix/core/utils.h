@@ -47,6 +47,16 @@ typedef void* GFX_LayoutHandle;
 #endif
 
 
+/** Internal texture handle */
+#if defined(GFX_RENDERER_GL)
+typedef GLuint GFX_TextureHandle;
+
+#elif defined(GFX_RENDERER_VK)
+typedef void* GFX_TextureHandle;
+
+#endif
+
+
 /**
  * Returns the index of the current backbuffer.
  *
@@ -73,6 +83,14 @@ GFX_BufferHandle _gfx_buffer_get_handle(
 GFX_LayoutHandle _gfx_vertex_layout_get_handle(
 
 		const GFXVertexLayout* layout);
+
+/**
+ * Returns the handle of a texture.
+ *
+ */
+GFX_TextureHandle _gfx_texture_get_handle(
+
+		const GFXTexture* texture);
 
 
 /********************************************************

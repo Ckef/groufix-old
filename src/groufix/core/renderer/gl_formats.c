@@ -167,7 +167,7 @@ int _gfx_gl_format_to_vertex(
 				success =
 					success &&
 					(*size == 4) &&
-					format.type == GFX_UNSIGNED_BYTE &&
+					(*type == GL_UNSIGNED_BYTE) &&
 					(*normalized == GL_TRUE);
 				*size =
 					GL_BGRA;

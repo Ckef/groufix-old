@@ -119,7 +119,7 @@ typedef struct GFXContext
 /**
  * Initializes the Groufix engine.
  *
- * @param context Minimal context version to use (can be left as zeros).
+ * @param context Minimal context version to use (can be left as zeroes).
  * @param errors  Error mode to use for the engine.
  * @return non-zero if initialization was successful.
  *

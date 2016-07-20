@@ -645,6 +645,10 @@ typedef struct GFXPixelTransfer
  * Texture (an n-D image stored on the GPU)
  *******************************************************/
 
+/** Object flags associated with all textures */
+GFX_API const GFXRenderObjectFlags GFX_TEXTURE_OBJECT_FLAGS;
+
+
 /** Texture */
 typedef struct GFXTexture
 {

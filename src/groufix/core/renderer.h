@@ -58,6 +58,7 @@
 /* Render object order for all standard objects */
 #define GFX_BUFFER_OBJECT_ORDER         0
 #define GFX_VERTEX_LAYOUT_OBJECT_ORDER  (GFX_BUFFER_OBJECT_ORDER + 1)
+#define GFX_TEXTURE_OBJECT_ORDER        (GFX_BUFFER_OBJECT_ORDER + 1)
 
 
 /********************************************************
@@ -79,7 +80,7 @@ typedef void (*GFX_RenderObjectTransferFunc) (GFX_RenderObjectIDArg, void**, int
 /** Operator vtable */
 typedef struct GFX_RenderObjectFuncs
 {
-	GFX_RenderObjectDestructFunc  destruct; /* When the last container is being dereferenced (if it exists, a context is current) */
+	GFX_RenderObjectDestructFunc  destruct; /* When the last container is being dereferenced (a context is current) */
 	GFX_RenderObjectTransferFunc  prepare;  /* When the current set of shared contexts will be out of use (one is current) */
 	GFX_RenderObjectTransferFunc  transfer; /* When a new set of shared contexts is referenced (a new one is current) */
 

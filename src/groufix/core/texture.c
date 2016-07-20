@@ -15,12 +15,16 @@
 #include "groufix/core/renderer.h"
 
 /******************************************************/
-/** Internal renderer handle */
+/** Object flags associated with all textures */
 #if defined(GFX_RENDERER_GL)
-typedef GLuint GFX_TextureHandle;
+const GFXRenderObjectFlags GFX_TEXTURE_OBJECT_FLAGS =
+	GFX_OBJECT_NEEDS_REFERENCE |
+	GFX_OBJECT_CAN_SHARE;
 
 #elif defined(GFX_RENDERER_VK)
-typedef void* GFX_TextureHandle;
+const GFXRenderObjectFlags GFX_TEXTURE_OBJECT_FLAGS =
+	GFX_OBJECT_NEEDS_REFERENCE |
+	GFX_OBJECT_CAN_SHARE;
 
 #endif
 
@@ -78,6 +82,14 @@ static const GFX_RenderObjectFuncs _gfx_texture_obj_funcs =
 	.prepare  = _gfx_texture_obj_prepare,
 	.transfer = _gfx_texture_obj_transfer
 };
+
+/******************************************************/
+GFX_TextureHandle _gfx_texture_get_handle(
+
+		const GFXTexture* texture)
+{
+	return ((const GFX_Texture*)texture)->handle;
+}
 
 
 
