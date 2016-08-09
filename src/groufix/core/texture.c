@@ -14,6 +14,9 @@
 
 #include "groufix/core/renderer.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 /******************************************************/
 /** Object flags associated with all textures */
 #if defined(GFX_RENDERER_GL)
@@ -41,6 +44,29 @@ typedef struct GFX_Texture
 
 } GFX_Texture;
 
+
+/******************************************************/
+static inline int _gfx_texture_ref(
+
+		const GFX_Texture* texture,
+		GFX_CONT_ARG)
+{
+	return _gfx_render_object_id_reference(
+		&((GFX_Texture*)texture)->id,
+		GFX_TEXTURE_OBJECT_FLAGS,
+		&GFX_CONT_GET.objects
+	);
+}
+
+/******************************************************/
+static inline int _gfx_texture_check(
+
+		const GFX_Texture* texture,
+		GFX_CONT_ARG)
+{
+	return texture->handle &&
+		_gfx_texture_ref(texture, GFX_CONT_AS_ARG);
+}
 
 /******************************************************/
 static void _gfx_texture_obj_destruct(
@@ -84,12 +110,118 @@ static const GFX_RenderObjectFuncs _gfx_texture_obj_funcs =
 };
 
 /******************************************************/
+static GFX_Texture* _gfx_texture_alloc(
+
+		GFX_CONT_ARG)
+{
+	/* Create new texture */
+	GFX_Texture* texture = calloc(1, sizeof(GFX_Texture));
+	if(!texture)
+	{
+		/* Out of memory error */
+		gfx_errors_output(
+			"[GFX Out Of Memory]: Texture could not be allocated."
+		);
+		return NULL;
+	}
+
+	/* Initialize as object */
+	if(!_gfx_render_object_id_init(
+		&texture->id,
+		GFX_TEXTURE_OBJECT_ORDER,
+		GFX_TEXTURE_OBJECT_FLAGS,
+		&_gfx_texture_obj_funcs,
+		&GFX_CONT_GET.objects))
+	{
+		free(texture);
+		return NULL;
+	}
+
+	return texture;
+}
+
+/******************************************************/
 GFX_TextureHandle _gfx_texture_get_handle(
 
 		const GFXTexture* texture)
 {
 	return ((const GFX_Texture*)texture)->handle;
 }
+
+/******************************************************/
+GFXTexture* gfx_texture_create(
+
+		GFXTextureType  type,
+		GFXFormat       format,
+		int             mipmaps,
+		size_t          width,
+		size_t          height,
+		size_t          depth)
+{
+	GFX_CONT_INIT(NULL);
+
+	/* Allocate the texture */
+	GFX_Texture* texture = _gfx_texture_alloc(GFX_CONT_AS_ARG);
+
+	return (GFXTexture*)texture;
+}
+
+/******************************************************/
+GFXTexture* gfx_texture_create_multisample(
+
+		GFXFormat      format,
+		unsigned char  samples,
+		size_t         width,
+		size_t         height,
+		size_t         depth)
+{
+	GFX_CONT_INIT(NULL);
+
+	/* Allocate the texture */
+	GFX_Texture* texture = _gfx_texture_alloc(GFX_CONT_AS_ARG);
+
+	return (GFXTexture*)texture;
+}
+
+/******************************************************/
+GFXTexture* gfx_texture_create_buffer_link(
+
+		GFXFormat         format,
+		const GFXBuffer*  buffer)
+{
+	GFX_CONT_INIT(NULL);
+
+	/* Allocate the texture */
+	GFX_Texture* texture = _gfx_texture_alloc(GFX_CONT_AS_ARG);
+
+	return (GFXTexture*)texture;
+}
+
+/******************************************************/
+void gfx_texture_free(
+
+		GFXTexture* texture)
+{
+	if(texture)
+	{
+		if(((GFX_Texture*)texture)->handle)
+		{
+			/* Check context */
+			GFX_CONT_INIT();
+
+			/* Check if sharing context */
+			if(!_gfx_texture_ref((GFX_Texture*)texture, GFX_CONT_AS_ARG))
+				return;
+		}
+
+		/* Clear as object */
+		/* Object clearing will call the destruct callback */
+		_gfx_render_object_id_clear(&((GFX_Texture)texture)->id);
+		free(texture);
+	}
+}
+
+
 
 
 

@@ -4,21 +4,21 @@ Groufix is a cross platform hardware accelerated 2D/3D graphics engine built in 
 
 Supported targets and their APIs:
 
-* __Unix__, Xlib / OGL, (_working_ / [GCC](https://gcc.gnu.org/))
+* __Unix__, Xlib | OGL, (_working_ | [GCC](https://gcc.gnu.org/))
 
-* __Windows__, Win32 (7+) / OGL, (_working_ / [MinGW-w64](http://mingw-w64.sourceforge.net/))
+* __Windows__, Win32 (7+) | OGL, (_working_ | [MinGW-w64](http://mingw-w64.sourceforge.net/))
 
-* __Unix__, Xlib / Vulkan, (_planned_ / [GCC](https://gcc.gnu.org/))
+* __Unix__, Xlib | Vulkan, (_planned_ | [GCC](https://gcc.gnu.org/))
 
-* __Windows__, Win32 (7+) / Vulkan, (_planned_ / [MinGW-w64](http://mingw-w64.sourceforge.net/))
+* __Windows__, Win32 (7+) | Vulkan, (_planned_ | [MinGW-w64](http://mingw-w64.sourceforge.net/))
 
-* __Android__, NDK / OGL ES, (_considered_)
+* __Android__, NDK | OGL ES, (_considered_)
 
-* __OS X__, Cocoa / OGL, (_considered_)
+* __OS X__, Cocoa | OGL, (_considered_)
 
-* __OS X__, Cocoa / Vulkan, (_considered_)
+* __OS X__, Cocoa | Vulkan, (_considered_)
 
-* __Windows__, Win32 (7+) / D3D, (_considered_ / [MinGW-w64](http://mingw-w64.sourceforge.net/))
+* __Windows__, Win32 (7+) | D3D, (_considered_ | [MinGW-w64](http://mingw-w64.sourceforge.net/))
 
 The main repository is hosted on [GitHub](https://github.com/Ckef/Groufix).
 

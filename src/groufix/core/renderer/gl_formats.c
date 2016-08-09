@@ -110,7 +110,7 @@ int _gfx_gl_format_to_vertex(
 		return 0;
 	}
 
-	/* Get the general shader type type, client type and whether it's normalized or not */
+	/* Get the general shader type, client type and whether it's normalized or not */
 	*shaderType = _gfx_gl_from_type_to_general(attribute->type);
 	*type       = _gfx_gl_from_type(format.type);
 	*normalized = format.flags & GFX_FORMAT_NORMALIZED ? GL_TRUE : GL_FALSE;

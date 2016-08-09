@@ -33,7 +33,7 @@ int gfx_is_extension_supported(
 }
 
 /******************************************************/
-int gfx_get_limit(
+long gfx_get_limit(
 
 		GFXLimit limit)
 {

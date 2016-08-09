@@ -283,7 +283,7 @@ typedef struct GFX_Context
 
 	/* Renderer Extensions & Limits */
 	unsigned char        ext[GFX_EXT_COUNT];
-	int                  lim[GFX_LIM_COUNT];
+	long                 lim[GFX_LIM_COUNT];
 
 	/* Hidden data */
 	GFXContext           version;  /* Context version */

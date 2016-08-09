@@ -539,6 +539,7 @@ GFX_API int gfx_vertex_layout_get_attribute(
 /**
  * Sets the buffer to sample from at an attribute.
  *
+ * @param buffer Index of the vertex buffer to use (must be < layout->buffers).
  * @return Zero if either index is out of bounds.
  *
  */
@@ -595,6 +596,7 @@ GFX_API int gfx_vertex_layout_get_source(
 /** Texture types */
 typedef enum GFXTextureType
 {
+	GFX_TEXTURE_1D,
 	GFX_TEXTURE_2D,
 	GFX_TEXTURE_3D,
 	GFX_CUBEMAP
@@ -615,28 +617,18 @@ typedef enum GFXTextureFace
 } GFXTextureFace;
 
 
-/** Texture format */
-typedef struct GFXTextureFormat
-{
-	unsigned char      components; /* Number of components, 0 signifies the type is packed */
-	GFXDataType        type;       /* Data type of each component */
-	//GFXInterpretFlags  interpret;  /* How to interpret the texture components */
-
-} GFXTextureFormat;
-
-
 /** Pixel transfer parameters */
 typedef struct GFXPixelTransfer
 {
-	GFXTextureFormat  format;    /* Format of the client memory */
-	unsigned char     alignment; /* Row byte alignment of client memory, can be 1, 2, 4 or 8 */
+	GFXFormat      format;    /* Format of the client memory */
+	unsigned char  alignment; /* Row byte alignment of client memory, can be 1, 2, 4 or 8 */
 
-	unsigned int      xOffset;
-	unsigned int      yOffset;
-	unsigned int      zOffset;   /* Layer offset for 2D textures (including cube maps) */
-	size_t            width;
-	size_t            height;
-	size_t            depth;     /* Layer count for 2D textures (face count for cube maps) */
+	unsigned int   xOffset;
+	unsigned int   yOffset;   /* Array offset for 1D textures */
+	unsigned int   zOffset;   /* Array offset for 2D textures (including cube maps) */
+	size_t         width;
+	size_t         height;    /* Array size for 1D textures */
+	size_t         depth;     /* Array size for 2D textures (face count for cube maps) */
 
 } GFXPixelTransfer;
 
@@ -661,8 +653,8 @@ typedef struct GFXTexture
 	unsigned char   samples; /* Number of samples for multisampled textures (1 for other textures) */
 
 	size_t          width;
-	size_t          height;
-	size_t          depth;   /* Layer count for 2D textures */
+	size_t          height;  /* Array size for 1D textures */
+	size_t          depth;   /* Array size for 2D textures */
 
 } GFXTexture;
 
@@ -673,7 +665,7 @@ typedef struct GFXTextureImage
 	const GFXTexture*  texture;
 	GFXTextureFace     face;   /* Face of the cubemap */
 	unsigned char      mipmap; /* Mipmap index */
-	unsigned int       layer;  /* Index of an array texture */
+	unsigned int       index;  /* Index of an array texture */
 
 } GFXTextureImage;
 
@@ -682,20 +674,22 @@ typedef struct GFXTextureImage
  * Creates a new texture.
  *
  * @param mipmaps Number of mipmaps to allocate, 0 for just the base texture, < 0 to use all mipmap levels.
+ * @param height  If 1D texture, acts as an array of images.
  * @param depth   If 2D texture, acts as an array of images.
  * @return NULL on failure.
  *
- * Note: layers can only be used for 2D textures, or cubemaps if GFX_EXT_LAYERED_CUBEMAP.
+ * Note: arrays can always be used for 2D textures, 1D textures if GFX_EXT_TEXTURE_ARRAY_1D
+ * and cubemaps if GFX_EXT_TEXTURE_ARRAY_CUBEMAP.
  *
  */
 GFX_API GFXTexture* gfx_texture_create(
 
-		GFXTextureType    type,
-		GFXTextureFormat  format,
-		int               mipmaps,
-		size_t            width,
-		size_t            height,
-		size_t            depth);
+		GFXTextureType  type,
+		GFXFormat       format,
+		int             mipmaps,
+		size_t          width,
+		size_t          height,
+		size_t          depth);
 
 /**
  * Creates a new multisampled 2D texture.
@@ -704,17 +698,17 @@ GFX_API GFXTexture* gfx_texture_create(
  * @return NULL on failure.
  *
  * When rendered to, this texture will be multisampled, but you cannot write to this texture.
- * Note: requires GFX_EXT_MULTISAMPLE_TEXTURE,
- * additionally, for depth GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE is required.
+ * Note: requires GFX_EXT_TEXTURE_MULTISAMPLE, additionally, for depth
+ * GFX_EXT_TEXTURE_ARRAY_MULTISAMPLE is required.
  *
  */
 GFX_API GFXTexture* gfx_texture_create_multisample(
 
-		GFXTextureFormat  format,
-		unsigned char     samples,
-		size_t            width,
-		size_t            height,
-		size_t            depth);
+		GFXFormat      format,
+		unsigned char  samples,
+		size_t         width,
+		size_t         height,
+		size_t         depth);
 
 /**
  * Creates a new texture associated with a 1D buffer, it will only see the current backbuffer of the buffer.
@@ -724,13 +718,12 @@ GFX_API GFXTexture* gfx_texture_create_multisample(
  * This texture will share memory with the buffer, the format cannot be packed or interpreted as depth.
  * Also, a multi buffer swap will have no effect on the texture.
  *
- * Note: requires GFX_EXT_BUFFER_TEXTURE.
- * The type of the texture will store GFX_TEXTURE_2D.
+ * Note: requires GFX_EXT_TEXTURE_BUFFER.
  *
  */
 GFX_API GFXTexture* gfx_texture_create_buffer_link(
 
-		GFXTextureFormat  format,
+		GFXFormat         format,
 		const GFXBuffer*  buffer);
 
 /**
@@ -747,7 +740,7 @@ GFX_API void gfx_texture_free(
  * Note: this might differ from a previously given format if it contained a packed type.
  *
  */
-GFX_API GFXTextureFormat gfx_texture_get_format(
+GFX_API GFXFormat gfx_texture_get_format(
 
 		const GFXTexture* texture);
 

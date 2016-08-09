@@ -81,20 +81,22 @@ void _gfx_renderer_load(
 		GFX_CONT_GET.lim[GFX_LIM_MAX_COLOR_ATTACHMENTS] = limit;
 	glGetIntegerv(GL_MAX_DRAW_BUFFERS, &limit),
 		GFX_CONT_GET.lim[GFX_LIM_MAX_COLOR_TARGETS] = limit;
-	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limit),
-		GFX_CONT_GET.lim[GFX_LIM_MAX_CUBEMAP_SIZE] = limit;
 	glGetIntegerv(GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, &limit),
 		GFX_CONT_GET.lim[GFX_LIM_MAX_FEEDBACK_BUFFERS] = limit;
 	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &limit),
 		GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLER_PROPERTIES] = limit;
 	glGetIntegerv(GL_MAX_SAMPLES, &limit),
 		GFX_CONT_GET.lim[GFX_LIM_MAX_SAMPLES] = limit;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &limit),
+		GFX_CONT_GET.lim[GFX_LIM_MAX_TEXTURE_1D_SIZE] = limit;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &limit),
+		GFX_CONT_GET.lim[GFX_LIM_MAX_TEXTURE_2D_SIZE] = limit;
 	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &limit),
 		GFX_CONT_GET.lim[GFX_LIM_MAX_TEXTURE_3D_SIZE] = limit;
+	glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limit),
+		GFX_CONT_GET.lim[GFX_LIM_MAX_TEXTURE_CUBEMAP_SIZE] = limit;
 	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &limit),
-		GFX_CONT_GET.lim[GFX_LIM_MAX_TEXTURE_LAYERS] = limit;
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &limit),
-		GFX_CONT_GET.lim[GFX_LIM_MAX_TEXTURE_SIZE] = limit;
+		GFX_CONT_GET.lim[GFX_LIM_MAX_TEXTURE_ARRAY_SIZE] = limit;
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &limit),
 		GFX_CONT_GET.lim[GFX_LIM_MAX_VERTEX_ATTRIBS] = limit;
 
@@ -341,18 +343,6 @@ void _gfx_renderer_load(
 		GFX_CONT_GET.ext[GFX_EXT_GEOMETRY_SHADER] = 1;
 	}
 
-	/* GFX_EXT_MULTISAMPLE_TEXTURE */
-	/* GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE */
-	if(
-		GFX_CONT_GET.version.major > 3 ||
-		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 0))
-	{
-		GFX_CONT_GET.ext[GFX_EXT_MULTISAMPLE_TEXTURE] = 1;
-		GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE] = 1;
-
-		GFX_REND_GET.TexStorage2DMultisample = glTexStorage2DMultisample;
-	}
-
 	/* GFX_EXT_INSTANCED_BASE_ATTRIBUTES */
 	if(_gfx_gl_is_extension_supported("GL_EXT_base_instance", GFX_CONT_AS_ARG))
 	{
@@ -482,6 +472,49 @@ void _gfx_renderer_load(
 			(GFX_PATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteriEXT");
 	}
 
+	/* GFX_EXT_TEXTURE_ARRAY_CUBEMAP */
+	if(
+		GFX_CONT_GET.version.major > 3 ||
+		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 1) ||
+		_gfx_gl_is_extension_supported("GL_OES_texture_cube_map_array", GFX_CONT_AS_ARG) ||
+		_gfx_gl_is_extension_supported("GL_EXT_texture_cube_map_array", GFX_CONT_AS_ARG))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_TEXTURE_ARRAY_CUBEMAP] = 1;
+	}
+
+	/* GFX_EXT_TEXTURE_ARRAY_MULTISAMPLE */
+	if(
+		GFX_CONT_GET.version.major > 3 ||
+		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 1))
+	{
+		GFX_CONT_GET.ext[GFX_TEXTURE_ARRAY_MULTISAMPLE] = 1;
+	}
+
+	/* GFX_EXT_TEXTURE_BUFFER */
+	if(
+		GFX_CONT_GET.version.major > 3 ||
+		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 1) ||
+		_gfx_gl_is_extension_supported("GL_OES_texture_buffer", GFX_CONT_AS_ARG) ||
+		_gfx_gl_is_extension_supported("GL_EXT_texture_buffer", GFX_CONT_AS_ARG))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_TEXTURE_BUFFER] = 1;
+
+		glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &limit),
+			GFX_CONT_GET.lim[GFX_LIM_MAX_TEXTURE_BUFFER_SIZE] = limit;
+	}
+
+	/* GFX_EXT_TEXTURE_MULTISAMPLE */
+	/* GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE */
+	if(
+		GFX_CONT_GET.version.major > 3 ||
+		(GFX_CONT_GET.version.major == 3 && GFX_CONT_GET.version.minor > 0))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_TEXTURE_MULTISAMPLE] = 1;
+		GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_STORAGE_MULTISAMPLE] = 1;
+
+		GFX_REND_GET.TexStorage2DMultisample = glTexStorage2DMultisample;
+	}
+
 	/* GFX_EXT_VERTEX_BASE */
 	if(_gfx_gl_is_extension_supported("GL_OES_draw_elements_base_vertex", GFX_CONT_AS_ARG))
 	{
@@ -529,17 +562,19 @@ void _gfx_renderer_load(
 
 	/* Get OpenGL constants (a.k.a hardware limits) */
 	glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &limit),
-		GFX_CONT_GET.lim[GFX_LIM_MAX_BUFFER_TEXTURE_SIZE] = limit;
+		GFX_CONT_GET.lim[GFX_LIM_MAX_TEXTURE_BUFFER_SIZE] = limit;
 
 	/* Default Extensions */
-	GFX_REND_GET.intExt[GFX_INT_EXT_BUFFER_READ]          = 1;
-	GFX_CONT_GET.ext[GFX_EXT_BUFFER_TEXTURE]              = 1;
-	GFX_CONT_GET.ext[GFX_EXT_GEOMETRY_SHADER]             = 1;
-	GFX_CONT_GET.ext[GFX_EXT_LAYERED_MULTISAMPLE_TEXTURE] = 1;
-	GFX_CONT_GET.ext[GFX_EXT_MULTISAMPLE_TEXTURE]         = 1;
-	GFX_CONT_GET.ext[GFX_EXT_POLYGON_STATE]               = 1;
-	GFX_CONT_GET.ext[GFX_EXT_SEAMLESS_CUBEMAP]            = 1;
-	GFX_CONT_GET.ext[GFX_EXT_VERTEX_BASE_INDICES]         = 1;
+	GFX_REND_GET.intExt[GFX_INT_EXT_BUFFER_READ]        = 1;
+	GFX_CONT_GET.ext[GFX_EXT_GEOMETRY_SHADER]           = 1;
+	GFX_CONT_GET.ext[GFX_EXT_MULTISAMPLE_TEXTURE]       = 1;
+	GFX_CONT_GET.ext[GFX_EXT_POLYGON_STATE]             = 1;
+	GFX_CONT_GET.ext[GFX_EXT_SEAMLESS_CUBEMAP]          = 1;
+	GFX_REND_GET.intExt[GFX_INT_EXT_TEXTURE_ARRAY_1D]   = 1;
+	GFX_CONT_GET.ext[GFX_EXT_TEXTURE_ARRAY_MULTISAMPLE] = 1;
+	GFX_CONT_GET.ext[GFX_EXT_TEXTURE_BUFFER]            = 1;
+	GFX_CONT_GET.ext[GFX_EXT_TEXTURE_MULTISAMPLE]       = 1;
+	GFX_CONT_GET.ext[GFX_EXT_VERTEX_BASE_INDICES]       = 1;
 
 	/* Core, assumes 3.2+ */
 	GFX_REND_GET.ActiveTexture =
@@ -1073,14 +1108,6 @@ void _gfx_renderer_load(
 			(PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEPROC)_gfx_platform_get_proc_address("glDrawElementsInstancedBaseVertexBaseInstance");
 	}
 
-	/* GFX_EXT_LAYERED_CUBEMAP */
-	if(
-		GFX_CONT_GET.version.major > 3 ||
-		_gfx_gl_is_extension_supported("GL_ARB_texture_cube_map_array", GFX_CONT_AS_ARG))
-	{
-		GFX_CONT_GET.ext[GFX_EXT_LAYERED_CUBEMAP] = 1;
-	}
-
 	/* GFX_INT_EXT_MULTI_BIND */
 	if(
 		GFX_CONT_GET.version.major > 4 ||
@@ -1191,6 +1218,14 @@ void _gfx_renderer_load(
 
 		GFX_REND_GET.PatchParameteri =
 			(PFNGLPATCHPARAMETERIPROC)_gfx_platform_get_proc_address("glPatchParameteri");
+	}
+
+	/* GFX_EXT_TEXTURE_ARRAY_CUBEMAP */
+	if(
+		GFX_CONT_GET.version.major > 3 ||
+		_gfx_gl_is_extension_supported("GL_ARB_texture_cube_map_array", GFX_CONT_AS_ARG))
+	{
+		GFX_CONT_GET.ext[GFX_EXT_TEXTURE_ARRAY_CUBEMAP] = 1;
 	}
 
 	/* GFX_INT_EXT_TEXTURE_STORAGE */
