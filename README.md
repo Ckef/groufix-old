@@ -64,7 +64,7 @@ All names starting with `gfx`, `_gfx` and `GFX` are reserved by Groufix, using s
 
 #### Threading
 
-_The library is thread affine_. All functonality should be executed from the same thread at all times, unless explicitly specified otherwise. The engine itself might or might not thread its internal workings, but the external interface can be viewed as if it is executed on the calling thread. It is the calling application's responsibility to execute the engine in a dedicated thread if this is necessary.
+~~_The library is thread affine_. All functonality should be executed from the same thread at all times, unless explicitly specified otherwise. The engine itself might or might not thread its internal workings, but the external interface can be viewed as if it is executed on the calling thread. It is the calling application's responsibility to execute the engine in a dedicated thread if this is necessary.~~ To be rewritten.
 
 
 #### Termination
